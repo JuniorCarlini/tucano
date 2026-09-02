@@ -174,7 +174,23 @@ export class Popover {
           return { top: -r.top + this.appendTo.scrollTop, left: -r.left + this.appendTo.scrollLeft };
         })();
 
-    this.panel.style.transform = `translate(${Math.round(left + host.left)}px, ${Math.round(top + host.top)}px)`;
+    /*
+     * left/top, e nao transform.
+     *
+     * As propriedades individuais compoem nesta ordem: translate, rotate,
+     * scale e por ultimo `transform`. Entao um `scale: .95` na animacao de
+     * entrada multiplica tambem a translacao do transform: um painel em
+     * translate(579px, 305px) renderiza em (550, 290) e desliza ate o lugar
+     * certo conforme a escala chega a 1.
+     *
+     * O desvio e proporcional a distancia ate a origem do documento — e como o
+     * painel e absolute no body, essa distancia inclui o scroll. Numa pagina
+     * longa, rolada, o painel entrava voando de centenas de pixels de
+     * distancia. Posicionando por left/top a animacao fica so com o que e
+     * dela: 8px, escala e opacidade.
+     */
+    this.panel.style.left = `${Math.round(left + host.left)}px`;
+    this.panel.style.top = `${Math.round(top + host.top)}px`;
     this.panel.dataset.side = placeSide;
 
     /*

@@ -486,7 +486,8 @@ var Tucano = (() => {
         const r = this.appendTo.getBoundingClientRect();
         return { top: -r.top + this.appendTo.scrollTop, left: -r.left + this.appendTo.scrollLeft };
       })();
-      this.panel.style.transform = `translate(${Math.round(left + host.left)}px, ${Math.round(top + host.top)}px)`;
+      this.panel.style.left = `${Math.round(left + host.left)}px`;
+      this.panel.style.top = `${Math.round(top + host.top)}px`;
       this.panel.dataset.side = placeSide;
       if (this._seta) {
         const meia = this._seta.offsetWidth / 2;
