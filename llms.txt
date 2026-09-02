@@ -154,8 +154,20 @@ Tamanhos: is-sm, is-lg, is-icon, is-block.
     Tucano.toast.erro('Nao foi possivel salvar');
     Tucano.toast({ type:'sucesso', title:'...', text:'...', action:{text:'Desfazer', onClick:fn}, position:'bottom-end', duration:null });
 
-Tipos: info, sucesso, aviso, erro. Posicoes: top-start, top-center, top-end,
-bottom-start, bottom-center, bottom-end.
+Tipos: info, sucesso, aviso, erro, carregando.
+Posicoes: top-start, top-center, top-end, bottom-start, bottom-center,
+bottom-end. Padrao: bottom-end. No celular o toast ocupa a largura da tela e
+entra pelo eixo vertical, qualquer que seja a posicao.
+
+O tipo carregando nao fecha sozinho; quem fecha e o fim da operacao. Ele vira o
+resultado no mesmo cartao, sem piscar:
+
+    const t = Tucano.toast.carregando('Enviando...');
+    t.atualizar({ type:'sucesso', text:'Enviado' });
+
+    Tucano.toast.promessa(fetch(url), {
+      carregando: 'Enviando...', sucesso: (r) => `Enviado (${r.status})`, erro: 'Falhou',
+    });
 
 Mensagens do Django viram toast sem JavaScript:
     {% for m in messages %}<div data-tuc-toast data-type="{{ m.tags }}">{{ m }}</div>{% endfor %}

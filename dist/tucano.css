@@ -1479,6 +1479,12 @@
   padding: calc(var(--spacing, 0.25rem) * 4);
   width: min(24rem, calc(100vw - 2rem));
 }
+.tuc-toasts[class*='is-bottom'] {
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+}
+.tuc-toasts[class*='is-top'] {
+  padding-top: calc(1rem + env(safe-area-inset-top, 0px));
+}
 .tuc-toasts__palco {
   position: relative;
   transition: height var(--tuc-duration-lg) var(--tuc-ease);
@@ -1523,6 +1529,21 @@
 }
 .tuc-toasts.is-bottom-center .tuc-toast {
   --tuc-toast-dy: 1rem;
+}
+@media (max-width: 40rem) {
+  .tuc-toasts[class*='is-top'], .tuc-toasts[class*='is-bottom'] {
+    left: 0;
+    right: 0;
+    width: auto;
+    translate: none;
+    --tuc-toast-de: 0;
+  }
+  .tuc-toasts[class*='is-top'] .tuc-toast {
+    --tuc-toast-dy: -1rem;
+  }
+  .tuc-toasts[class*='is-bottom'] .tuc-toast {
+    --tuc-toast-dy: 1rem;
+  }
 }
 .tuc-toast {
   pointer-events: auto;

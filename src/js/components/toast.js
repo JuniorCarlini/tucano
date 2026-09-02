@@ -6,7 +6,7 @@ const DEFAULTS = {
   title: null,
   text: '',
   duration: undefined, // ms. null nao fecha sozinho. Padrao depende do tipo
-  position: 'top-end', // top-start|top-center|top-end|bottom-start|bottom-center|bottom-end
+  position: 'bottom-end', // top-start|top-center|top-end|bottom-start|bottom-center|bottom-end
   closable: true,
   action: null,        // { text, onClick }
   max: 4,              // toasts simultaneos na mesma posicao

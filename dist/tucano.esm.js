@@ -3483,7 +3483,7 @@ var DEFAULTS6 = {
   text: "",
   duration: void 0,
   // ms. null nao fecha sozinho. Padrao depende do tipo
-  position: "top-end",
+  position: "bottom-end",
   // top-start|top-center|top-end|bottom-start|bottom-center|bottom-end
   closable: true,
   action: null,

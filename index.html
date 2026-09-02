@@ -23,7 +23,7 @@
 <meta name="twitter:description" content="Date picker, select com busca e color picker. 15 KB, zero dependências, funciona com HTML puro.">
 <meta name="twitter:image" content="https://juniorcarlini.github.io/tucano/og.png">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦜</text></svg>">
-<link rel="stylesheet" href="dist/tucano.css?v=0.9.8">
+<link rel="stylesheet" href="dist/tucano.css?v=0.9.9">
 <script>try{if(localStorage.getItem("tucano-tema")==="dark")document.documentElement.classList.add("dark")}catch{}</script>
 <style>
   :root{
@@ -222,7 +222,7 @@
 <header class="topbar">
   <span class="bird" style="font-size:18px">🦜</span>
   <b style="font-size:16px;font-weight:640;letter-spacing:-.02em">Tucano</b>
-  <span class="ver">v0.9.8</span>
+  <span class="ver">v0.9.9</span>
   <div class="topbar__acoes">
     <button class="iconbtn" data-tema aria-label="Alternar tema"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
     <button class="iconbtn" id="menu" aria-label="Abrir menu" aria-expanded="false" aria-controls="side"><svg class="i-menu" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
@@ -234,7 +234,7 @@
     <span class="bird">🦜</span><b>Tucano</b>
     <button class="iconbtn" data-tema aria-label="Alternar tema"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
   </div>
-  <span class="ver">v0.9.8 · 15 KB</span>
+  <span class="ver">v0.9.9 · 15 KB</span>
 
   <nav class="nav">
     <a href="#inicio">Início</a>
@@ -280,8 +280,8 @@
   <p class="lead">Dois arquivos e nada mais. Funciona com HTML puro, sem npm e sem build.</p>
 
   <pre><span class="c">&lt;!-- CDN --&gt;</span>
-&lt;<span class="t">link</span> <span class="a">rel</span>=<span class="s">"stylesheet"</span> <span class="a">href</span>=<span class="s">"https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.9.8/dist/tucano.min.css"</span>&gt;
-&lt;<span class="t">script</span> <span class="a">src</span>=<span class="s">"https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.9.8/dist/tucano.min.js"</span> <span class="a">defer</span>&gt;&lt;/<span class="t">script</span>&gt;</pre>
+&lt;<span class="t">link</span> <span class="a">rel</span>=<span class="s">"stylesheet"</span> <span class="a">href</span>=<span class="s">"https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.9.9/dist/tucano.min.css"</span>&gt;
+&lt;<span class="t">script</span> <span class="a">src</span>=<span class="s">"https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.9.9/dist/tucano.min.js"</span> <span class="a">defer</span>&gt;&lt;/<span class="t">script</span>&gt;</pre>
 
   <h3>npm</h3>
   <pre>npm install tucano</pre>
@@ -873,17 +873,26 @@
      ponteiro entra e é anunciado por leitor de tela.</p>
 
   <div class="card">
+    <span class="lbl">Posição</span>
+    <div class="bar" id="tuc-posicoes" style="margin:0 0 16px">
+      <button class="tuc-btn is-outline is-sm" data-pos="top-start">↖ topo esq.</button>
+      <button class="tuc-btn is-outline is-sm" data-pos="top-center">↑ topo centro</button>
+      <button class="tuc-btn is-outline is-sm" data-pos="top-end">↗ topo dir.</button>
+      <button class="tuc-btn is-outline is-sm" data-pos="bottom-start">↙ base esq.</button>
+      <button class="tuc-btn is-outline is-sm" data-pos="bottom-center">↓ base centro</button>
+      <button class="tuc-btn is-primary is-sm" data-pos="bottom-end">↘ base dir.</button>
+    </div>
     <span class="lbl">Experimente</span>
     <div class="bar" style="margin:0">
-      <button class="tuc-btn is-outline is-sm" onclick="Tucano.toast.info('Relatório em processamento')">Info</button>
-      <button class="tuc-btn is-outline is-sm" onclick="Tucano.toast.sucesso('Cadastro salvo')">Sucesso</button>
-      <button class="tuc-btn is-outline is-sm" onclick="Tucano.toast.aviso('Sessão expira em 5 minutos')">Aviso</button>
-      <button class="tuc-btn is-outline is-sm" onclick="Tucano.toast.erro('Não foi possível salvar')">Erro</button>
-      <button class="tuc-btn is-outline is-sm" onclick="Tucano.toast({ type:'sucesso', title:'Contrato excluído', text:'Ainda dá para voltar atrás.', action:{ text:'Desfazer', onClick:()=>Tucano.toast.info('Restaurado') } })">Com ação</button>
-      <button class="tuc-btn is-outline is-sm" onclick="Tucano.toast.carregando('Enviando arquivo...')">Carregando</button>
-      <button class="tuc-btn is-outline is-sm" onclick="Tucano.toast.promessa(new Promise((ok)=>setTimeout(()=>ok(3),2200)), { carregando:'Enviando arquivo...', sucesso:(n)=>n+' arquivos enviados' })">Promessa (ok)</button>
-      <button class="tuc-btn is-outline is-sm" onclick="Tucano.toast.promessa(new Promise((_,falha)=>setTimeout(()=>falha(new Error('timeout')),2200)).catch(e=>{throw e}), { carregando:'Enviando arquivo...', erro:(e)=>'Falhou: '+e.message }).catch(()=>{})">Promessa (erro)</button>
-      <button class="tuc-btn is-outline is-sm" onclick="['Primeiro','Segundo','Terceiro','Quarto','Quinto'].forEach((t,i)=>setTimeout(()=>Tucano.toast(t),i*180))">Empilhar 5</button>
+      <button class="tuc-btn is-outline is-sm" onclick="demo.info('Relatório em processamento')">Info</button>
+      <button class="tuc-btn is-outline is-sm" onclick="demo.sucesso('Cadastro salvo')">Sucesso</button>
+      <button class="tuc-btn is-outline is-sm" onclick="demo.aviso('Sessão expira em 5 minutos')">Aviso</button>
+      <button class="tuc-btn is-outline is-sm" onclick="demo.erro('Não foi possível salvar')">Erro</button>
+      <button class="tuc-btn is-outline is-sm" onclick="demo({ type:'sucesso', title:'Contrato excluído', text:'Ainda dá para voltar atrás.', action:{ text:'Desfazer', onClick:()=>demo.info('Restaurado') } })">Com ação</button>
+      <button class="tuc-btn is-outline is-sm" onclick="demo.carregando('Enviando arquivo...')">Carregando</button>
+      <button class="tuc-btn is-outline is-sm" onclick="demo.promessa(new Promise((ok)=>setTimeout(()=>ok(3),2200)), { carregando:'Enviando arquivo...', sucesso:(n)=>n+' arquivos enviados' })">Promessa (ok)</button>
+      <button class="tuc-btn is-outline is-sm" onclick="demo.promessa(new Promise((_,f)=>setTimeout(()=>f(new Error('timeout')),2200)), { carregando:'Enviando arquivo...', erro:(e)=>'Falhou: '+e.message }).catch(()=>{})">Promessa (erro)</button>
+      <button class="tuc-btn is-outline is-sm" onclick="['Primeiro','Segundo','Terceiro','Quarto','Quinto'].forEach((t,i)=>setTimeout(()=>demo(t),i*180))">Empilhar 5</button>
     </div>
   </div>
 
@@ -895,7 +904,7 @@ Tucano.toast({
   title: <span class="s">'Contrato excluído'</span>,
   text: <span class="s">'Ainda dá para voltar atrás.'</span>,
   action: { text: <span class="s">'Desfazer'</span>, onClick: () =&gt; restaurar() },
-  position: <span class="s">'bottom-end'</span>,   <span class="c">// top-start|top-center|top-end|bottom-*</span>
+  position: <span class="s">'bottom-end'</span>,   <span class="c">// padrão. top-start|top-center|top-end|bottom-*</span>
   duration: <span class="s">null</span>,           <span class="c">// não some sozinho</span>
 });</pre>
 
@@ -1187,7 +1196,7 @@ Não remova o <span class="s">name</span> do input nem o &lt;select&gt; nativo: 
 
 </main>
 
-<script src="dist/tucano.js?v=0.9.8"></script>
+<script src="dist/tucano.js?v=0.9.9"></script>
 <script>
   const ICONE_MENU = '<svg class="i-menu" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>';
   const ICONE_X = '<svg class="i-x" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>';
@@ -1289,6 +1298,28 @@ Não remova o <span class="s">name</span> do input nem o &lt;select&gt; nativo: 
     };
     bloco.append(btn);
   }
+
+  // --- demonstração dos toasts: posição escolhida na barra ----------------
+  // Um atalho local que injeta a posição selecionada em toda chamada, para os
+  // botões de exemplo não repetirem o mesmo `position` nove vezes.
+  let posicaoDemo = 'bottom-end';
+  window.demo = (o) => Tucano.toast({ ...(typeof o === 'string' ? { text: o } : o), position: posicaoDemo });
+  for (const t of ['info', 'sucesso', 'aviso', 'erro', 'carregando']) {
+    demo[t] = (texto, extra = {}) => demo({ type: t, text: texto, ...extra });
+  }
+  demo.promessa = (p, msgs) => Tucano.toast.promessa(p, { ...msgs, position: posicaoDemo });
+
+  const barraPos = document.querySelector('#tuc-posicoes');
+  barraPos?.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-pos]');
+    if (!btn) return;
+    posicaoDemo = btn.dataset.pos;
+    for (const b of barraPos.querySelectorAll('[data-pos]')) {
+      b.classList.toggle('is-primary', b === btn);
+      b.classList.toggle('is-outline', b !== btn);
+    }
+    demo('Agora em ' + btn.textContent.trim());
+  });
 
   // --- índice acompanha a rolagem ----------------------------------------
   const links = [...document.querySelectorAll('.nav a')];

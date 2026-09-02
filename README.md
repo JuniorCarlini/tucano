@@ -321,8 +321,28 @@ Tucano.toast({
 });
 ```
 
-Tipos: `info`, `sucesso`, `aviso`, `erro`. Posições: `top-start`, `top-center`,
-`top-end`, `bottom-start`, `bottom-center`, `bottom-end`.
+Tipos: `info`, `sucesso`, `aviso`, `erro`, `carregando`. Posições: `top-start`,
+`top-center`, `top-end`, `bottom-start`, `bottom-center`, `bottom-end` — o
+padrão é `bottom-end`. No celular o toast ocupa a largura da tela e entra pelo
+eixo vertical, seja qual for a posição escolhida.
+
+### Operação assíncrona
+
+O tipo `carregando` não fecha sozinho: quem o encerra é o fim da operação. E ele
+vira o resultado **no mesmo cartão**, em vez de fechar um e abrir outro:
+
+```js
+const t = Tucano.toast.carregando('Enviando arquivo...');
+await enviar();
+t.atualizar({ type: 'sucesso', text: 'Arquivo enviado' });
+
+// ou entregue a promessa e deixe os três estados por conta dela
+Tucano.toast.promessa(fetch(url), {
+  carregando: 'Enviando arquivo...',
+  sucesso: (r) => `Enviado (${r.status})`,
+  erro: 'Não deu para enviar',
+});
+```
 
 ### Com o Django, sem JavaScript
 

@@ -4,6 +4,13 @@
   @apply pointer-events-none fixed z-[100] p-4;
   width: min(24rem, calc(100vw - 2rem));
 }
+/*
+ * No celular a borda da tela nao e toda utilizavel: embaixo mora o indicador
+ * de home do iPhone e em cima o recorte da camera. Sem isto o toast, que agora
+ * nasce no canto inferior por padrao, ficaria parcialmente sob o indicador.
+ */
+.tuc-toasts[class*='is-bottom'] { padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px)); }
+.tuc-toasts[class*='is-top']    { padding-top:    calc(1rem + env(safe-area-inset-top, 0px)); }
 /* O palco e o sistema de coordenadas de todos os toasts, de qualquer regiao. */
 .tuc-toasts__palco {
   @apply relative;
@@ -27,6 +34,33 @@
 /* Centralizado nao tem borda de onde vir: entra pelo eixo vertical. */
 .tuc-toasts.is-top-center    .tuc-toast { --tuc-toast-dy: -1rem; }
 .tuc-toasts.is-bottom-center .tuc-toast { --tuc-toast-dy: 1rem; }
+
+/*
+ * No celular o cartao e quase da largura da tela, e ai duas coisas mudam.
+ *
+ * A largura passa a ser a tela inteira: preso a um canto, o toast ficava com
+ * 48px de margem de um lado e 16px do outro — desalinhamento que no desktop
+ * ninguem nota, porque o cartao e estreito e vive no canto.
+ *
+ * E a entrada vira vertical: deslizar 110% na horizontal, num cartao tao largo
+ * quanto a tela, e um percurso longo demais para um aviso curto.
+ *
+ * O seletor de atributo empata a especificidade com .tuc-toasts.is-top-center
+ * e vence por vir depois; `.tuc-toasts` sozinho perderia, porque media query
+ * nao soma especificidade.
+ */
+@media (max-width: 40rem) {
+  .tuc-toasts[class*='is-top'],
+  .tuc-toasts[class*='is-bottom'] {
+    left: 0;
+    right: 0;
+    width: auto;
+    translate: none;
+    --tuc-toast-de: 0;
+  }
+  .tuc-toasts[class*='is-top'] .tuc-toast    { --tuc-toast-dy: -1rem; }
+  .tuc-toasts[class*='is-bottom'] .tuc-toast { --tuc-toast-dy: 1rem; }
+}
 
 /* ------------------------------------------------------------------ */
 
