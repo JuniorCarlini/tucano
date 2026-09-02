@@ -13,6 +13,7 @@ distribuídos já compilados — o projeto que consome não precisa de build.
 | `DatePicker` — data, período, hora, data+hora | pronto |
 | `Select` — busca, multi-seleção com tags, grupos, limite | pronto |
 | `ColorPicker` — HSV, hex/rgb/hsl, opacidade, paleta | pronto |
+| `Upload` — arrastar e soltar, progresso, validação | pronto |
 
 ---
 
@@ -23,8 +24,8 @@ distribuídos já compilados — o projeto que consome não precisa de build.
 Dois arquivos e nada mais — sem npm, sem build, sem escrever JavaScript:
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.4.2/dist/tucano.min.css">
-<script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.4.2/dist/tucano.min.js" defer></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.5.0/dist/tucano.min.css">
+<script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.5.0/dist/tucano.min.js" defer></script>
 
 <input type="text" name="data" data-tuc-datepicker>
 <select name="uf" data-tuc-select><option>...</option></select>
@@ -221,6 +222,54 @@ altura, raio e anel de foco do Select — os três componentes leem como a mesma
 família. O `<input>` original continua sendo quem guarda o valor e o `name`.
 
 ---
+
+## Upload
+
+Dois lugares, escolhidos pela presença de `url`.
+
+**No formulário** (sem `url`): os arquivos ficam no `<input type="file">` e sobem
+no submit, então o servidor recebe em `request.FILES` como sempre.
+
+**Direto** (com `url`): cada arquivo sobe na hora, com barra própria, cancelar e
+repetir. O formulário posta só os ids devolvidos. Funciona também sem `<form>`.
+
+```html
+<input type="file" name="anexos" multiple data-tuc-upload data-max-size="5mb">
+
+<input type="file" name="fotos" multiple accept="image/*"
+       data-tuc-upload data-url="/upload/">
+```
+
+```python
+def upload_temp(request):
+    arquivo = request.FILES["file"]
+    temp = TempUpload.objects.create(arquivo=arquivo)
+    return JsonResponse({"id": str(temp.id), "url": temp.arquivo.url})
+```
+
+| Atributo | Padrão | O que faz |
+| --- | --- | --- |
+| `data-url` | — | Liga o modo direto |
+| `data-max-size` | — | `5mb`, `500kb` ou bytes |
+| `data-max-files` | — | Limite de arquivos |
+| `data-field-name` | `file` | Nome do campo no POST |
+| `data-response-id` | `id` | Chave do id na resposta JSON |
+| `data-response-url` | `url` | Chave da url na resposta |
+| `data-delete-url` | — | Remover chama `DELETE` aqui |
+| `data-auto-upload` | `true` | `false` espera `uploadAll()` |
+| `data-csrf` | `true` | `false` não envia o token |
+
+`accept` e `multiple` são os atributos nativos do input; o componente respeita
+os dois.
+
+**Não há progresso por arquivo no modo formulário.** Num submit comum o
+navegador envia tudo num bloco só e não reporta o andamento — é como o HTML
+funciona, não uma limitação daqui. Progresso exige que cada arquivo suba na
+hora, que é o modo direto.
+
+O token CSRF vai em `X-CSRFToken`, lido do cookie. E o modo direto precisa de
+limpeza: arquivos enviados por alguém que fechou a aba sem salvar ficam no
+servidor.
 
 ## Máscara do campo
 

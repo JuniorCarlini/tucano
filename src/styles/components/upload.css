@@ -1,0 +1,114 @@
+@reference "tailwindcss";
+
+/* O input nativo continua no DOM (e no formulario), so sai da vista. */
+.tuc-upload-native {
+  @apply pointer-events-none absolute h-px w-px overflow-hidden opacity-0;
+  clip-path: inset(50%);
+}
+
+.tuc-upload {
+  @apply relative flex w-full flex-col gap-2;
+  font-family: var(--tuc-font);
+  font-size: var(--tuc-text);
+  color: var(--tuc-fg);
+}
+
+/* ------------------------------------------------------------------ *
+ * Zona de soltar                                                      *
+ * ------------------------------------------------------------------ */
+
+.tuc-upload__zone {
+  @apply flex cursor-pointer flex-col items-center justify-center gap-1.5 px-4 py-7 text-center;
+  border: var(--tuc-border-width) dashed var(--tuc-border);
+  border-radius: var(--tuc-radius);
+  background: var(--tuc-bg);
+  transition:
+    border-color var(--tuc-duration) var(--tuc-ease),
+    background-color var(--tuc-duration) var(--tuc-ease);
+}
+.tuc-upload__zone:hover { border-color: var(--tuc-subtle); background: var(--tuc-elevated); }
+.tuc-upload__zone:focus-visible {
+  outline: none;
+  border-color: var(--tuc-accent);
+  box-shadow: 0 0 0 3px var(--tuc-accent-ring);
+}
+
+/* Realce enquanto o arquivo esta sobre a zona. */
+.tuc-upload.is-dragging .tuc-upload__zone {
+  border-color: var(--tuc-accent);
+  background: var(--tuc-accent-soft);
+}
+.tuc-upload.is-dragging .tuc-upload__icon { color: var(--tuc-accent); }
+
+.tuc-upload__icon { color: var(--tuc-subtle); }
+.tuc-upload__label { @apply font-medium; }
+.tuc-upload__hint {
+  @apply text-[0.6875rem];
+  color: var(--tuc-subtle);
+}
+.tuc-upload__hint:empty { @apply hidden; }
+
+/* ------------------------------------------------------------------ *
+ * Lista                                                               *
+ * ------------------------------------------------------------------ */
+
+.tuc-upload__list {
+  @apply m-0 flex list-none flex-col gap-1.5 p-0;
+}
+.tuc-upload__list:empty { @apply hidden; }
+
+.tuc-upload__item {
+  @apply flex items-center gap-2.5 p-2;
+  border: var(--tuc-border-width) solid var(--tuc-border);
+  border-radius: var(--tuc-radius-md);
+  background: var(--tuc-bg);
+}
+
+.tuc-upload__thumb {
+  @apply grid size-9 shrink-0 place-items-center overflow-hidden object-cover;
+  border-radius: var(--tuc-radius-sm);
+  background: var(--tuc-elevated);
+  color: var(--tuc-subtle);
+}
+
+.tuc-upload__info { @apply flex min-w-0 flex-1 flex-col gap-0.5; }
+.tuc-upload__name { @apply truncate font-medium; }
+.tuc-upload__meta {
+  @apply truncate text-[0.6875rem];
+  color: var(--tuc-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.tuc-upload__bar {
+  @apply mt-1 block h-1 w-full overflow-hidden rounded-full;
+  background: var(--tuc-hover);
+}
+.tuc-upload__barfill {
+  @apply block h-full rounded-full;
+  background: var(--tuc-accent);
+  transition: width 120ms linear;
+}
+
+.tuc-upload__ok { color: #16a34a; }
+
+.tuc-upload__actions { @apply flex shrink-0 items-center gap-1; }
+.tuc-upload__action {
+  @apply grid size-7 place-items-center transition-colors;
+  border-radius: var(--tuc-radius-sm);
+  color: var(--tuc-subtle);
+}
+.tuc-upload__action:hover { background: var(--tuc-hover); color: var(--tuc-fg); }
+
+/* Estados */
+.tuc-upload__item.is-erro { border-color: #dc2626; }
+.tuc-upload__item.is-erro .tuc-upload__meta { color: #dc2626; }
+
+.tuc-upload__item.is-rejected {
+  border-style: dashed;
+  border-color: #dc2626;
+  color: #dc2626;
+}
+.tuc-upload__item.is-rejected .tuc-upload__meta { color: #dc2626; }
+.tuc-upload__item.is-rejected .tuc-upload__thumb { background: transparent; color: #dc2626; }
+
+.tuc-upload__hidden { @apply hidden; }

@@ -1,7 +1,7 @@
 {
   "name": "tucano",
-  "version": "0.4.2",
-  "description": "Date picker, select com busca e color picker. Leves, bonitos e sem dependencias em runtime. Estilos escritos em Tailwind, distribuidos ja compilados.",
+  "version": "0.5.0",
+  "description": "Date picker, select com busca, color picker e upload. Leves, bonitos e sem dependencias em runtime.",
   "author": "Junior Carlini",
   "license": "MIT",
   "homepage": "https://juniorcarlini.github.io/tucano/",
@@ -23,7 +23,10 @@
     "django",
     "htmx",
     "vanilla-js",
-    "no-dependencies"
+    "no-dependencies",
+    "upload",
+    "file-upload",
+    "dropzone"
   ],
   "type": "module",
   "main": "./dist/tucano.js",

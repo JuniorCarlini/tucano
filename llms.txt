@@ -13,8 +13,8 @@ Licença: MIT
 
 Dois arquivos, sem build e sem npm:
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.4.2/dist/tucano.min.css">
-    <script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.4.2/dist/tucano.min.js" defer></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.5.0/dist/tucano.min.css">
+    <script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.5.0/dist/tucano.min.js" defer></script>
 
 Sempre prenda a versão. Global JS: `Tucano`.
 
@@ -77,6 +77,26 @@ data-placement.
 
 Aceita na entrada: #rgb, #rgba, #rrggbb, #rrggbbaa, rgb(), rgba(), hsl(), hsla().
 Texto inválido não zera a cor: volta para o valor atual.
+
+## Upload
+
+    <input type="file" name="anexos" multiple data-tuc-upload data-max-size="5mb">
+    <input type="file" name="fotos" multiple data-tuc-upload data-url="/upload/">
+
+Sem data-url: os arquivos ficam no <input type="file"> nativo e sobem no submit,
+o servidor recebe em request.FILES. Com data-url: cada arquivo sobe na hora com
+barra de progresso, cancelar e repetir, e o formulário posta só os ids que o
+endpoint devolveu. O modo direto funciona também sem <form>.
+
+Atributos: data-url, data-max-size, data-max-files, data-field-name,
+data-response-id, data-response-url, data-delete-url, data-auto-upload, data-csrf.
+accept e multiple são os nativos do input.
+
+O endpoint deve devolver JSON com um id: {"id": "...", "url": "..."}.
+O CSRF vai em X-CSRFToken, lido do cookie.
+
+Não existe progresso por arquivo no modo formulário: num submit comum o
+navegador envia tudo num bloco e não reporta andamento.
 
 ## Django
 
