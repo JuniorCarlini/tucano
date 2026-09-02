@@ -1,4 +1,4 @@
-import { el, icon, ICONS, nextId, on } from '../core/dom.js';
+import { abrirComTransicao, el, icon, ICONS, nextId, on } from '../core/dom.js';
 import { ICONS_EXTRA } from '../core/dom-extra.js';
 import { Popover } from '../core/popover.js';
 
@@ -117,7 +117,7 @@ export class Select {
       onDismiss: () => this.close(),
     });
     this.popover.show();
-    requestAnimationFrame(() => this.menu.classList.add('is-open'));
+    abrirComTransicao(this.menu);
     this.control.classList.add('is-open');
     this.control.setAttribute('aria-expanded', 'true');
     this.search.focus();

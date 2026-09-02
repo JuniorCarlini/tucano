@@ -22,8 +22,8 @@
     opacity var(--tuc-duration) var(--tuc-ease),
     translate var(--tuc-duration) var(--tuc-ease),
     scale var(--tuc-duration) var(--tuc-ease);
-  translate: 0 -0.25rem;
-  scale: 0.98;
+  translate: 0 -0.5rem;
+  scale: 0.97;
 }
 
 .tuc-dp.is-open {
@@ -314,18 +314,6 @@
 
 .tuc-dp__spacer { @apply flex-1; }
 
-.tuc-dp__btn {
-  @apply  px-3 py-1.5 font-semibold transition-colors;
-  border-radius: var(--tuc-radius-sm);
-}
-.tuc-dp__btn.is-ghost { color: var(--tuc-muted); }
-.tuc-dp__btn.is-ghost:hover { background: var(--tuc-hover); color: var(--tuc-fg); }
-.tuc-dp__btn.is-primary {
-  background: var(--tuc-accent);
-  color: var(--tuc-accent-fg);
-}
-.tuc-dp__btn.is-primary:hover:not(:disabled) { background: var(--tuc-accent-hover); }
-.tuc-dp__btn:disabled { @apply cursor-not-allowed opacity-40; }
 
 /* ------------------------------------------------------------------ *
  * Mobile: um mes por vez, presets viram trilha horizontal              *

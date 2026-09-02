@@ -1,5 +1,5 @@
 import { clamp, formatColor, hsvToRgb, isDark, parseColor, rgbToHex } from '../core/color.js';
-import { el, icon, ICONS, nextId, on } from '../core/dom.js';
+import { abrirComTransicao, el, icon, ICONS, nextId, on } from '../core/dom.js';
 import { ICONS_EXTRA } from '../core/dom-extra.js';
 import { Popover } from '../core/popover.js';
 
@@ -76,7 +76,7 @@ export class ColorPicker {
       onDismiss: () => this.close(),
     });
     this.popover.show();
-    requestAnimationFrame(() => this.panel.classList.add('is-open'));
+    abrirComTransicao(this.panel);
     this.swatch.setAttribute('aria-expanded', 'true');
   }
 

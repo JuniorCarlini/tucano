@@ -1,4 +1,4 @@
-import { el, nextId, on } from '../core/dom.js';
+import { abrirComTransicao, el, nextId, on } from '../core/dom.js';
 import { Popover } from '../core/popover.js';
 
 const DEFAULTS = {
@@ -85,7 +85,7 @@ export class Tooltip {
       onDismiss: () => this._esconder(),
     });
     this.popover.show();
-    requestAnimationFrame(() => this.painel.classList.add('is-open'));
+    abrirComTransicao(this.painel);
   }
 
   _esconder() {

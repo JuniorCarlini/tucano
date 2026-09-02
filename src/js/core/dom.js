@@ -56,3 +56,18 @@ export function on(target, type, handler, options) {
   target.addEventListener(type, handler, options);
   return () => target.removeEventListener(type, handler, options);
 }
+
+/**
+ * Liga a transicao de entrada de um painel.
+ *
+ * Ler `offsetHeight` forca o navegador a calcular o layout com o estado
+ * inicial ainda aplicado; so depois a classe entra, e a transicao acontece.
+ *
+ * O caminho comum e `requestAnimationFrame`, mas ele nao dispara em aba
+ * de segundo plano — e ai o elemento fica preso no estado inicial, fora da
+ * tela ou invisivel, sem nunca animar.
+ */
+export function abrirComTransicao(node, classe = 'is-open') {
+  void node.offsetHeight;
+  node.classList.add(classe);
+}

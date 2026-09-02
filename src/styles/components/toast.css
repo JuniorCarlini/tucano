@@ -1,45 +1,76 @@
 @reference "tailwindcss";
 
 .tuc-toasts {
-  @apply pointer-events-none fixed z-[100] flex flex-col gap-2 p-4;
+  @apply pointer-events-none fixed z-[100] p-4;
   width: min(24rem, calc(100vw - 2rem));
 }
-.tuc-toasts__live { @apply flex flex-col gap-2; }
+/* A regiao e o palco: os toasts se posicionam dentro dela por transformacao. */
+.tuc-toasts__live {
+  @apply relative;
+  transition: height var(--tuc-duration-lg) var(--tuc-ease);
+}
 .tuc-toasts__live:empty { @apply hidden; }
 
-.tuc-toasts.is-top-start    { @apply left-0 top-0; }
-.tuc-toasts.is-top-center   { @apply left-1/2 top-0; translate: -50% 0; }
-.tuc-toasts.is-top-end      { @apply right-0 top-0; }
-.tuc-toasts.is-bottom-start { @apply bottom-0 left-0 flex-col-reverse; }
-.tuc-toasts.is-bottom-center{ @apply bottom-0 left-1/2 flex-col-reverse; translate: -50% 0; }
-.tuc-toasts.is-bottom-end   { @apply bottom-0 right-0 flex-col-reverse; }
-.tuc-toasts[class*='is-bottom'] .tuc-toasts__live { @apply flex-col-reverse; }
+.tuc-toasts.is-top-start    { @apply left-0 top-0;  --tuc-toast-de: -110%; }
+.tuc-toasts.is-top-center   { @apply left-1/2 top-0; translate: -50% 0; --tuc-toast-de: 0; }
+.tuc-toasts.is-top-end      { @apply right-0 top-0; --tuc-toast-de: 110%; }
+.tuc-toasts.is-bottom-start { @apply bottom-0 left-0; --tuc-toast-de: -110%; }
+.tuc-toasts.is-bottom-center{ @apply bottom-0 left-1/2; translate: -50% 0; --tuc-toast-de: 0; }
+.tuc-toasts.is-bottom-end   { @apply bottom-0 right-0; --tuc-toast-de: 110%; }
+
+/* Centralizado nao tem borda de onde vir: entra pelo eixo vertical. */
+.tuc-toasts.is-top-center    .tuc-toast { --tuc-toast-dy: -1rem; }
+.tuc-toasts.is-bottom-center .tuc-toast { --tuc-toast-dy: 1rem; }
 
 /* ------------------------------------------------------------------ */
 
 .tuc-toast {
-  @apply pointer-events-auto relative flex items-start gap-2.5 overflow-hidden p-3 pr-2.5;
+  @apply pointer-events-auto absolute left-0 right-0 flex items-start gap-2.5 p-3.5 pr-3;
   font-family: var(--tuc-font);
   font-size: var(--tuc-text);
   color: var(--tuc-fg);
   background: var(--tuc-bg);
+  border: var(--tuc-border-width) solid var(--tuc-border);
   border-radius: var(--tuc-radius);
   box-shadow: var(--tuc-shadow);
 
+  /* A pilha e ancorada no lado de onde ela cresce. */
+  transform-origin: center top;
+
   opacity: 0;
-  translate: 0 -0.5rem;
-  scale: 0.97;
+  translate: var(--tuc-toast-de, 110%) var(--tuc-toast-dy, 0);
   transition:
-    opacity var(--tuc-duration) var(--tuc-ease),
-    translate var(--tuc-duration) var(--tuc-ease),
-    scale var(--tuc-duration) var(--tuc-ease);
+    opacity var(--tuc-duration-lg) var(--tuc-ease),
+    translate var(--tuc-duration-lg) var(--tuc-ease),
+    scale var(--tuc-duration-lg) var(--tuc-ease);
 }
-.tuc-toasts[class*='is-bottom'] .tuc-toast { translate: 0 0.5rem; }
-.tuc-toast.is-open { opacity: 1; translate: 0 0; scale: 1; }
-.tuc-toast.is-closing { opacity: 0; scale: 0.97; }
+.tuc-toasts[class*='is-top'] .tuc-toast { top: 0; }
+.tuc-toasts[class*='is-bottom'] .tuc-toast { bottom: 0; transform-origin: center bottom; }
+
+/* Assentado: a posicao vem das variaveis que o JS calcula com a altura real. */
+.tuc-toast.is-open {
+  opacity: 1;
+  translate: 0 var(--tuc-toast-y, 0px);
+  scale: var(--tuc-toast-escala, 1);
+}
+
+/* Alem do terceiro, some — pilha de dez nao ajuda ninguem. */
+.tuc-toast.is-open.is-oculto { opacity: 0; }
+
+/* Sai encolhendo no lugar: sair pela borda competiria com o rearranjo da
+   pilha e o olho perderia os dois movimentos. */
+.tuc-toast.is-closing {
+  opacity: 0;
+  scale: 0.94;
+  translate: 0 var(--tuc-toast-y, 0px);
+  transition:
+    opacity var(--tuc-duration-out) var(--tuc-ease-in),
+    scale var(--tuc-duration-out) var(--tuc-ease-in);
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .tuc-toast { transition: opacity 80ms linear; translate: none; scale: none; }
+  .tuc-toast, .tuc-toast.is-closing { transition: opacity 100ms linear; }
+  .tuc-toasts__live { transition: none; }
 }
 
 .tuc-toast__icon { @apply mt-px shrink-0; }
@@ -48,40 +79,14 @@
 .tuc-toast__text { @apply break-words; color: var(--tuc-muted); }
 .tuc-toast__title + .tuc-toast__text { @apply text-[0.8125rem]; }
 
-.tuc-toast__action {
-  @apply shrink-0 self-center px-2 py-1 font-semibold transition-colors;
-  border-radius: var(--tuc-radius-sm);
-  color: var(--tuc-accent);
-}
-.tuc-toast__action:hover { background: var(--tuc-accent-soft); }
+.tuc-toast__action { @apply self-center; }
+.tuc-toast__close { @apply -mr-1 self-start; }
 
-.tuc-toast__close {
-  @apply grid size-6 shrink-0 place-items-center transition-colors;
-  border-radius: var(--tuc-radius-sm);
-  color: var(--tuc-subtle);
-}
-.tuc-toast__close:hover { background: var(--tuc-hover); color: var(--tuc-fg); }
-
-/* Barra do tempo restante. Anima em CSS e pausa pela variavel, sem timer no JS
-   redesenhando a cada quadro. */
-.tuc-toast__bar {
-  @apply absolute bottom-0 left-0 h-0.5 w-full origin-left;
-  background: currentColor;
-  opacity: 0.35;
-  animation: tuc-toast-bar var(--tuc-toast-dur, 4s) linear forwards;
-  animation-play-state: var(--tuc-toast-play, running);
-}
-@keyframes tuc-toast-bar { from { scale: 1 1; } to { scale: 0 1; } }
-@media (prefers-reduced-motion: reduce) { .tuc-toast__bar { display: none; } }
-
-/* Cores por tipo: so o ícone e a barra mudam, o painel continua neutro para o
-   texto ficar legível em qualquer tema. */
 .tuc-toast.is-info    { --tuc-toast-cor: var(--tuc-accent); }
 .tuc-toast.is-sucesso { --tuc-toast-cor: #16a34a; }
 .tuc-toast.is-aviso   { --tuc-toast-cor: #d97706; }
 .tuc-toast.is-erro    { --tuc-toast-cor: #dc2626; }
-.tuc-toast .tuc-toast__icon,
-.tuc-toast .tuc-toast__bar { color: var(--tuc-toast-cor); }
+.tuc-toast .tuc-toast__icon { color: var(--tuc-toast-cor); }
 
 /* ------------------------------------------------------------------ *
  * Tooltip                                                             *
@@ -99,9 +104,16 @@
 
   opacity: 0;
   scale: 0.96;
-  transition: opacity 120ms var(--tuc-ease), scale 120ms var(--tuc-ease);
+  translate: 0 0.25rem;   /* sobe ao aparecer: dá direcao ao movimento */
+  transition:
+    opacity 140ms var(--tuc-ease),
+    scale 140ms var(--tuc-ease),
+    translate 140ms var(--tuc-ease);
 }
-.tuc-tip.is-open { opacity: 1; scale: 1; }
+.tuc-tip.is-open { opacity: 1; scale: 1; translate: 0 0; }
+.tuc-tip[data-side='top'] { translate: 0 0.25rem; }
+.tuc-tip[data-side='bottom'] { translate: 0 -0.25rem; }
+.tuc-tip[data-side='bottom'].is-open { translate: 0 0; }
 
 @media (prefers-reduced-motion: reduce) {
   .tuc-tip { transition: none; scale: none; }

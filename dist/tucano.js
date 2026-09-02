@@ -358,6 +358,10 @@ var Tucano = (() => {
     target.addEventListener(type, handler, options);
     return () => target.removeEventListener(type, handler, options);
   }
+  function abrirComTransicao(node, classe = "is-open") {
+    void node.offsetHeight;
+    node.classList.add(classe);
+  }
 
   // src/js/core/popover.js
   var Popover = class {
@@ -589,7 +593,7 @@ var Tucano = (() => {
       this.popover.show();
       this._revealed = null;
       this._revealTimes();
-      requestAnimationFrame(() => this.panel.classList.add("is-open"));
+      abrirComTransicao(this.panel);
       this._releaseFocus = trapFocus(this.panel);
       this.input.setAttribute("aria-expanded", "true");
       this.opts.onOpen?.(this);
@@ -1308,7 +1312,7 @@ var Tucano = (() => {
       if (this.opts.clearable) {
         footer.append(el("button", {
           type: "button",
-          class: "tuc-dp__btn is-ghost",
+          class: "tuc-btn is-ghost is-sm",
           text: "Limpar",
           onclick: () => {
             this.clear();
@@ -1320,7 +1324,7 @@ var Tucano = (() => {
       if (!this.opts.autoApply) {
         footer.append(el("button", {
           type: "button",
-          class: "tuc-dp__btn is-primary",
+          class: "tuc-btn is-primary is-sm",
           text: "Aplicar",
           disabled: !this.start || this.isRange && !this.end,
           onclick: () => {
@@ -1591,7 +1595,7 @@ var Tucano = (() => {
         onDismiss: () => this.close()
       });
       this.popover.show();
-      requestAnimationFrame(() => this.menu.classList.add("is-open"));
+      abrirComTransicao(this.menu);
       this.control.classList.add("is-open");
       this.control.setAttribute("aria-expanded", "true");
       this.search.focus();
@@ -2266,7 +2270,7 @@ var Tucano = (() => {
         onDismiss: () => this.close()
       });
       this.popover.show();
-      requestAnimationFrame(() => this.panel.classList.add("is-open"));
+      abrirComTransicao(this.panel);
       this.swatch.setAttribute("aria-expanded", "true");
     }
     close() {
@@ -3529,7 +3533,47 @@ var Tucano = (() => {
     ]);
     document.body.append(node);
     containers.set(posicao, node);
+    const expandir = (sim) => {
+      node.classList.toggle("is-expandido", sim);
+      arranjar(node);
+    };
+    node.addEventListener("pointerenter", () => expandir(true));
+    node.addEventListener("pointerleave", () => expandir(false));
+    node.addEventListener("focusin", () => expandir(true));
+    node.addEventListener("focusout", () => {
+      if (!node.contains(document.activeElement)) expandir(false);
+    });
     return node;
+  }
+  var RECUO = 14;
+  var VISIVEIS = 3;
+  var RESPIRO = 12;
+  function arranjar(cont) {
+    void cont.offsetHeight;
+    if (!cont.offsetWidth) return;
+    const debaixo = cont.className.includes("is-bottom");
+    const sentido = debaixo ? -1 : 1;
+    const aberto2 = cont.classList.contains("is-expandido");
+    for (const regiao of cont.querySelectorAll(".tuc-toasts__live")) {
+      const toasts = [...regiao.querySelectorAll(".tuc-toast:not(.is-closing)")];
+      const frente = toasts.length - 1;
+      let acumulado = 0;
+      for (let i = frente; i >= 0; i--) {
+        const k = frente - i;
+        const t = toasts[i];
+        const y = aberto2 ? acumulado : k * RECUO;
+        const escala = aberto2 ? 1 : 1 - k * 0.05;
+        t.style.setProperty("--tuc-toast-y", `${sentido * y}px`);
+        t.style.setProperty("--tuc-toast-escala", String(escala));
+        t.style.zIndex = String(100 - k);
+        t.classList.toggle("is-oculto", !aberto2 && k >= VISIVEIS);
+        t.setAttribute("aria-hidden", !aberto2 && k >= VISIVEIS ? "true" : "false");
+        acumulado += t.offsetHeight + RESPIRO;
+      }
+      const alturaFrente = toasts[frente]?.offsetHeight ?? 0;
+      const total = aberto2 ? acumulado - RESPIRO : alturaFrente + Math.min(toasts.length - 1, VISIVEIS - 1) * RECUO;
+      regiao.style.height = toasts.length ? `${total}px` : "0px";
+    }
   }
   var Toast = class {
     constructor(opcoes = {}) {
@@ -3555,7 +3599,7 @@ var Tucano = (() => {
         ]),
         action ? el("button", {
           type: "button",
-          class: "tuc-toast__action",
+          class: "tuc-btn is-outline is-sm tuc-toast__action",
           text: action.text,
           onclick: () => {
             action.onClick?.(this);
@@ -3564,19 +3608,20 @@ var Tucano = (() => {
         }) : null,
         closable ? el("button", {
           type: "button",
-          class: "tuc-toast__close",
+          class: "tuc-btn is-ghost is-icon is-sm tuc-toast__close",
           "aria-label": "Fechar",
           onclick: () => this.close()
-        }, [icon(ICONS.x, 14)]) : null,
-        this.opts.duration ? el("span", { class: "tuc-toast__bar" }) : null
+        }, [icon(ICONS.x, 14)]) : null
       ]);
       this.node._tucano = this;
       const alvo = container(this.opts.position);
+      this.container = alvo;
       const regiao = alvo.querySelector(urgente ? ".is-urgente" : ".tuc-toasts__live:not(.is-urgente)");
       regiao.append(this.node);
+      this.regiao = regiao;
       this._limitar(regiao);
+      arranjar(alvo);
       if (this.opts.duration) {
-        this.node.style.setProperty("--tuc-toast-dur", `${this.opts.duration}ms`);
         this._iniciarRelogio();
         this._cleanups.push(
           on(this.node, "mouseenter", () => this._pausar()),
@@ -3585,7 +3630,7 @@ var Tucano = (() => {
           on(this.node, "focusout", () => this._retomar())
         );
       }
-      requestAnimationFrame(() => this.node.classList.add("is-open"));
+      abrirComTransicao(this.node);
     }
     /**
      * Fecha os mais antigos que passarem do limite.
@@ -3602,20 +3647,17 @@ var Tucano = (() => {
       this.restante = this.opts.duration;
       this.inicio = Date.now();
       this.timer = setTimeout(() => this.close(), this.restante);
-      this.node.style.setProperty("--tuc-toast-play", "running");
     }
     _pausar() {
       if (!this.timer) return;
       clearTimeout(this.timer);
       this.timer = null;
       this.restante -= Date.now() - this.inicio;
-      this.node.style.setProperty("--tuc-toast-play", "paused");
     }
     _retomar() {
       if (this.timer || !this.opts.duration) return;
       this.inicio = Date.now();
       this.timer = setTimeout(() => this.close(), Math.max(this.restante, 0));
-      this.node.style.setProperty("--tuc-toast-play", "running");
     }
     close() {
       if (this._fechando) return;
@@ -3624,12 +3666,18 @@ var Tucano = (() => {
       this._cleanups.forEach((fn) => fn());
       this.node.classList.remove("is-open");
       this.node.classList.add("is-closing");
+      arranjar(this.container);
       const remover = () => {
+        if (this._removido) return;
+        this._removido = true;
         this.node.remove();
+        arranjar(this.container);
         this.node.dispatchEvent(new CustomEvent("tucano:toast-fechado"));
       };
-      this.node.addEventListener("transitionend", remover, { once: true });
-      setTimeout(remover, 400);
+      this.node.addEventListener("transitionend", (e) => {
+        if (e.propertyName === "opacity") remover();
+      });
+      setTimeout(remover, 500);
     }
   };
   function toast(opcoesOuTexto, extra = {}) {
@@ -3741,7 +3789,7 @@ var Tucano = (() => {
         onDismiss: () => this._esconder()
       });
       this.popover.show();
-      requestAnimationFrame(() => this.painel.classList.add("is-open"));
+      abrirComTransicao(this.painel);
     }
     _esconder() {
       clearTimeout(this._timer);

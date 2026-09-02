@@ -3,7 +3,7 @@ import {
   format, getLocaleData, isSameDay, isSameMonth, isValid, localeDatePattern,
   parseISO, parseUserInput, startOfDay, toISODate, toISODateTime, withTime,
 } from '../core/dates.js';
-import { el, icon, ICONS, nextId, on } from '../core/dom.js';
+import { abrirComTransicao, el, icon, ICONS, nextId, on } from '../core/dom.js';
 import { Popover, trapFocus } from '../core/popover.js';
 
 const DEFAULTS = {
@@ -128,7 +128,7 @@ export class DatePicker {
     // Agora que o painel esta no DOM as medidas valem — so aqui da para rolar.
     this._revealed = null;
     this._revealTimes();
-    requestAnimationFrame(() => this.panel.classList.add('is-open'));
+    abrirComTransicao(this.panel);
     this._releaseFocus = trapFocus(this.panel);
     this.input.setAttribute('aria-expanded', 'true');
     this.opts.onOpen?.(this);
@@ -903,14 +903,14 @@ export class DatePicker {
     const footer = el('div', { class: 'tuc-dp__footer' });
     if (this.opts.clearable) {
       footer.append(el('button', {
-        type: 'button', class: 'tuc-dp__btn is-ghost', text: 'Limpar',
+        type: 'button', class: 'tuc-btn is-ghost is-sm', text: 'Limpar',
         onclick: () => { this.clear(); if (this.opts.autoApply) this.close(); },
       }));
     }
     footer.append(el('span', { class: 'tuc-dp__spacer' }));
     if (!this.opts.autoApply) {
       footer.append(el('button', {
-        type: 'button', class: 'tuc-dp__btn is-primary', text: 'Aplicar',
+        type: 'button', class: 'tuc-btn is-primary is-sm', text: 'Aplicar',
         disabled: !this.start || (this.isRange && !this.end),
         onclick: () => { this._emit(); this.close(); },
       }));

@@ -14,17 +14,18 @@
 .tuc-upload,
 .tuc-field,
 .tuc-toast,
-.tuc-tip {
+.tuc-tip,
+.tuc-btn {
   box-sizing: border-box;
 }
 
-:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip) *,
-:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip) *::before,
-:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip) *::after {
+:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-btn) *,
+:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-btn) *::before,
+:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-btn) *::after {
   box-sizing: border-box;
 }
 
-:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip) button {
+:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-btn) button {
   appearance: none;
   -webkit-appearance: none;
   margin: 0;
@@ -41,7 +42,7 @@
   cursor: pointer;
 }
 
-:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip) button:disabled {
+:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-btn) button:disabled {
   cursor: default;
 }
 
@@ -51,12 +52,12 @@
   cursor: inherit;
 }
 
-:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip) svg {
+:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-btn) svg {
   display: block;
   flex: none;
 }
 
-:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip) input {
+:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-btn) input {
   font: inherit;
   color: inherit;
 }

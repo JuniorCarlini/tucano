@@ -13,8 +13,8 @@ Licença: MIT
 
 Dois arquivos, sem build e sem npm:
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.8.0/dist/tucano.min.css">
-    <script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.8.0/dist/tucano.min.js" defer></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.9.0/dist/tucano.min.css">
+    <script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.9.0/dist/tucano.min.js" defer></script>
 
 Sempre prenda a versão. Global JS: `Tucano`.
 
@@ -138,6 +138,15 @@ data-tuc-format formata elementos de exibicao, sem input.
 CNPJ alfanumerico: 14 posicoes, mesma mascara, 12 primeiras aceitam letras, 2
 ultimas numericas, digito verificador pelo codigo ASCII menos 48. O formato
 `cnpj` aceita os dois; `cnpj-numerico` recusa letras.
+
+## Botao
+
+Só classe, sem JavaScript:
+
+    <button class="tuc-btn is-primary">Salvar</button>
+
+Variantes: is-primary, is-outline, is-ghost, is-danger, is-link.
+Tamanhos: is-sm, is-lg, is-icon, is-block.
 
 ## Toast e tooltip
 

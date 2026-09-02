@@ -83,8 +83,8 @@
     opacity var(--tuc-duration) var(--tuc-ease),
     translate var(--tuc-duration) var(--tuc-ease),
     scale var(--tuc-duration) var(--tuc-ease);
-  translate: 0 -0.25rem;
-  scale: 0.98;
+  translate: 0 -0.5rem;
+  scale: 0.97;
 }
 .tuc-colorpicker.is-open { opacity: 1; translate: 0 0; scale: 1; }
 .tuc-colorpicker[data-side='top'] { transform-origin: bottom center; }

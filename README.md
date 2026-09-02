@@ -17,6 +17,7 @@ distribuídos já compilados — o projeto que consome não precisa de build.
 | `Mask` — CPF, CNPJ, telefone, real, campo sensível | pronto |
 | `Toast` — avisos, com integração Django e HTMX | pronto |
 | `Tooltip` — dica ancorada, teclado e toque | pronto |
+| `.tuc-btn` — estilo de botão, só classe | pronto |
 
 ---
 
@@ -27,8 +28,8 @@ distribuídos já compilados — o projeto que consome não precisa de build.
 Dois arquivos e nada mais — sem npm, sem build, sem escrever JavaScript:
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.8.0/dist/tucano.min.css">
-<script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.8.0/dist/tucano.min.js" defer></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.9.0/dist/tucano.min.css">
+<script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.9.0/dist/tucano.min.js" defer></script>
 
 <input type="text" name="data" data-tuc-datepicker>
 <select name="uf" data-tuc-select><option>...</option></select>
@@ -284,6 +285,22 @@ O token CSRF vai em `X-CSRFToken`, lido do cookie. E o modo direto precisa de
 limpeza: arquivos enviados por alguém que fechou a aba sem salvar ficam no
 servidor.
 
+## Botão
+
+Não é componente com JavaScript, é só classe — um `<button>` continua sendo um
+`<button>`. Nasceu do que os componentes precisavam por dentro e ficou
+disponível para o projeto.
+
+```html
+<button class="tuc-btn is-primary">Salvar</button>
+<button class="tuc-btn is-outline is-sm">Cancelar</button>
+<button class="tuc-btn is-ghost is-icon" aria-label="Fechar">…</button>
+```
+
+Variantes: `is-primary`, `is-outline`, `is-ghost`, `is-danger`, `is-link`.
+Tamanhos: `is-sm`, `is-lg`, `is-icon`, `is-block`. Altura e raio saem de
+`--tuc-control-height` e `--tuc-radius-md`, os mesmos dos campos.
+
 ## Toast
 
 ```js
@@ -315,6 +332,11 @@ Tipos: `info`, `sucesso`, `aviso`, `erro`. Posições: `top-start`, `top-center`
 return HttpResponse(headers={"HX-Trigger": json.dumps(
     {"tucano:toast": {"type": "sucesso", "text": "Contrato salvo"}})})
 ```
+
+Os toasts **empilham sobrepostos** e abrem em leque quando o ponteiro entra ou
+algo dentro recebe foco. A posição de cada um vem da altura real medida no DOM,
+não de um valor fixo: toast com título é mais alto que um sem, e chutar
+desalinha a pilha.
 
 O `aria-live` fica no container, criado antes de qualquer mensagem — se a região
 nascer junto com o texto, o leitor de tela não anuncia. Erro vai para uma região

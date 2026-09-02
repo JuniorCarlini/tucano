@@ -1,4 +1,4 @@
-import { el, icon, ICONS, nextId, on } from '../core/dom.js';
+import { abrirComTransicao, el, icon, ICONS, nextId, on } from '../core/dom.js';
 import { ICONS_EXTRA } from '../core/dom-extra.js';
 
 const DEFAULTS = {
@@ -43,7 +43,72 @@ function container(posicao) {
   ]);
   document.body.append(node);
   containers.set(posicao, node);
+
+  // Empilhado por padrao, em leque quando o ponteiro entra ou algo dentro
+  // recebe foco — quem navega por teclado tambem precisa ver a pilha inteira.
+  const expandir = (sim) => {
+    node.classList.toggle('is-expandido', sim);
+    arranjar(node);
+  };
+  node.addEventListener('pointerenter', () => expandir(true));
+  node.addEventListener('pointerleave', () => expandir(false));
+  node.addEventListener('focusin', () => expandir(true));
+  node.addEventListener('focusout', () => { if (!node.contains(document.activeElement)) expandir(false); });
   return node;
+}
+
+const RECUO = 14;      // quanto de cada toast de tras fica a mostra
+const VISIVEIS = 3;    // alem disso some: uma pilha de dez nao ajuda ninguem
+const RESPIRO = 12;    // espaco entre toasts quando aberto em leque
+
+/**
+ * Coloca cada toast no lugar.
+ *
+ * Empilhado, os de tras encolhem e recuam, deixando so uma faixa a mostra.
+ * Em leque, cada um sobe a altura real dos que estao na frente — por isso a
+ * medida vem do DOM e nao de um valor fixo: toast com titulo e mais alto que
+ * um sem, e chutar a altura desalinha a pilha.
+ */
+function arranjar(cont) {
+  // Uma leitura de layout antes de medir: recem-inserido, o toast ainda nao
+  // teve o CSS aplicado, e offsetHeight devolveria a altura sem estilo.
+  void cont.offsetHeight;
+
+  // Sem largura nao ha layout de verdade — aba oculta, container escondido.
+  // Medir aqui gravaria posicoes absurdas nos elementos; melhor esperar a
+  // proxima chamada, que vem no proximo toast ou no hover.
+  if (!cont.offsetWidth) return;
+
+  const debaixo = cont.className.includes('is-bottom');
+  const sentido = debaixo ? -1 : 1;
+  const aberto = cont.classList.contains('is-expandido');
+
+  for (const regiao of cont.querySelectorAll('.tuc-toasts__live')) {
+    const toasts = [...regiao.querySelectorAll('.tuc-toast:not(.is-closing)')];
+    const frente = toasts.length - 1;   // o mais novo fica na frente
+    let acumulado = 0;
+
+    for (let i = frente; i >= 0; i--) {
+      const k = frente - i;             // 0 = frente
+      const t = toasts[i];
+      const y = aberto ? acumulado : k * RECUO;
+      const escala = aberto ? 1 : 1 - k * 0.05;
+
+      t.style.setProperty('--tuc-toast-y', `${sentido * y}px`);
+      t.style.setProperty('--tuc-toast-escala', String(escala));
+      t.style.zIndex = String(100 - k);
+      t.classList.toggle('is-oculto', !aberto && k >= VISIVEIS);
+      t.setAttribute('aria-hidden', !aberto && k >= VISIVEIS ? 'true' : 'false');
+
+      acumulado += t.offsetHeight + RESPIRO;
+    }
+
+    // A altura do container acompanha o conteudo: sem isso o ponteiro nao
+    // alcanca os de tras, e o leque abriria para fora da area sensivel.
+    const alturaFrente = toasts[frente]?.offsetHeight ?? 0;
+    const total = aberto ? acumulado - RESPIRO : alturaFrente + Math.min(toasts.length - 1, VISIVEIS - 1) * RECUO;
+    regiao.style.height = toasts.length ? `${total}px` : '0px';
+  }
 }
 
 export class Toast {
@@ -71,26 +136,26 @@ export class Toast {
         el('span', { class: 'tuc-toast__text', text }),
       ]),
       action ? el('button', {
-        type: 'button', class: 'tuc-toast__action', text: action.text,
+        type: 'button', class: 'tuc-btn is-outline is-sm tuc-toast__action', text: action.text,
         onclick: () => { action.onClick?.(this); this.close(); },
       }) : null,
       closable ? el('button', {
-        type: 'button', class: 'tuc-toast__close', 'aria-label': 'Fechar',
-        onclick: () => this.close(),
+        type: 'button', class: 'tuc-btn is-ghost is-icon is-sm tuc-toast__close',
+        'aria-label': 'Fechar', onclick: () => this.close(),
       }, [icon(ICONS.x, 14)]) : null,
-      this.opts.duration ? el('span', { class: 'tuc-toast__bar' }) : null,
     ]);
 
     this.node._tucano = this;
-
     const alvo = container(this.opts.position);
+    this.container = alvo;
     const regiao = alvo.querySelector(urgente ? '.is-urgente' : '.tuc-toasts__live:not(.is-urgente)');
     regiao.append(this.node);
+    this.regiao = regiao;
 
     this._limitar(regiao);
+    arranjar(alvo);
 
     if (this.opts.duration) {
-      this.node.style.setProperty('--tuc-toast-dur', `${this.opts.duration}ms`);
       this._iniciarRelogio();
       // Parar ao passar o mouse ou focar: ninguem consegue ler algo que some
       // enquanto se tenta clicar no botao dele.
@@ -102,7 +167,7 @@ export class Toast {
       );
     }
 
-    requestAnimationFrame(() => this.node.classList.add('is-open'));
+    abrirComTransicao(this.node);
   }
 
   /**
@@ -121,7 +186,6 @@ export class Toast {
     this.restante = this.opts.duration;
     this.inicio = Date.now();
     this.timer = setTimeout(() => this.close(), this.restante);
-    this.node.style.setProperty('--tuc-toast-play', 'running');
   }
 
   _pausar() {
@@ -129,14 +193,12 @@ export class Toast {
     clearTimeout(this.timer);
     this.timer = null;
     this.restante -= Date.now() - this.inicio;
-    this.node.style.setProperty('--tuc-toast-play', 'paused');
   }
 
   _retomar() {
     if (this.timer || !this.opts.duration) return;
     this.inicio = Date.now();
     this.timer = setTimeout(() => this.close(), Math.max(this.restante, 0));
-    this.node.style.setProperty('--tuc-toast-play', 'running');
   }
 
   close() {
@@ -144,13 +206,24 @@ export class Toast {
     this._fechando = true;
     clearTimeout(this.timer);
     this._cleanups.forEach((fn) => fn());
+
     this.node.classList.remove('is-open');
     this.node.classList.add('is-closing');
-    const remover = () => { this.node.remove(); this.node.dispatchEvent(new CustomEvent('tucano:toast-fechado')); };
-    // Espera a animacao, mas nao depende dela: transitionend nao dispara se o
-    // elemento estiver escondido ou com movimento reduzido.
-    this.node.addEventListener('transitionend', remover, { once: true });
-    setTimeout(remover, 400);
+    // Os que ficam ja se acomodam enquanto este some: esperar o fim faria a
+    // pilha dar um solavanco no final.
+    arranjar(this.container);
+
+    const remover = () => {
+      if (this._removido) return;
+      this._removido = true;
+      this.node.remove();
+      arranjar(this.container);
+      this.node.dispatchEvent(new CustomEvent('tucano:toast-fechado'));
+    };
+    this.node.addEventListener('transitionend', (e) => {
+      if (e.propertyName === 'opacity') remover();
+    });
+    setTimeout(remover, 500);
   }
 }
 

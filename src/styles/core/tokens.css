@@ -12,7 +12,8 @@
 .tuc-upload,
 .tuc-field,
 .tuc-toast,
-.tuc-tip {
+.tuc-tip,
+.tuc-btn {
   --tuc-accent: #4f46e5;
   --tuc-accent-hover: #4338ca;
   --tuc-accent-fg: #ffffff;
@@ -50,8 +51,16 @@
     0 8px 24px -8px rgb(0 0 0 / 0.14),
     0 16px 48px -24px rgb(0 0 0 / 0.18);
 
-  --tuc-ease: cubic-bezier(0.16, 1, 0.3, 1);
-  --tuc-duration: 150ms;
+  /*
+   * Entrada e saida usam curvas diferentes de proposito: entrar desacelera
+   * ate parar, sair acelera ate desaparecer. Usar a mesma curva nos dois faz
+   * a saida parecer preguicosa.
+   */
+  --tuc-ease: cubic-bezier(0.16, 1, 0.3, 1);      /* entrada */
+  --tuc-ease-in: cubic-bezier(0.4, 0, 0.9, 0.3);  /* saida */
+  --tuc-duration: 160ms;                           /* paineis e estados */
+  --tuc-duration-lg: 280ms;                        /* algo que atravessa a tela */
+  --tuc-duration-out: 170ms;                       /* saidas, sempre mais curtas */
 
   --tuc-font: inherit;
   --tuc-text: 0.8125rem;
@@ -59,7 +68,7 @@
 }
 
 /* Dark por classe (.dark no html) — o padrao de Tailwind e do Django admin moderno. */
-:where(.dark, [data-theme='dark']) :is(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip),
+:where(.dark, [data-theme='dark']) :is(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-btn),
 :where(.dark, [data-theme='dark']).tuc-dp {
   --tuc-accent: #6366f1;
   --tuc-accent-hover: #818cf8;
@@ -86,7 +95,7 @@
  * manda no tema, nao o sistema operacional.
  */
 @media (prefers-color-scheme: dark) {
-  :where(html[data-tuc-theme='auto']) :is(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip) {
+  :where(html[data-tuc-theme='auto']) :is(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-btn) {
     --tuc-accent: #6366f1;
     --tuc-accent-hover: #818cf8;
     --tuc-bg: #171717;
@@ -127,7 +136,8 @@
 .tuc-upload,
 .tuc-field,
 .tuc-toast,
-.tuc-tip {
+.tuc-tip,
+.tuc-btn {
     --tuc-text: 1rem;
     --tuc-swatch: 2.5rem;   /* acompanha o texto maior no toque */
   }
