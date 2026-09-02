@@ -182,13 +182,13 @@
   background: var(--cor, transparent);
 }
 
-.tuc-colorpicker .tuc-colorpicker__field {
+.tuc-colorpicker input.tuc-colorpicker__field {
   @apply min-w-0 flex-1 rounded-lg px-2.5 py-1.5 font-medium;
   font-variant-numeric: tabular-nums;
   background: var(--tuc-elevated);
   border: 1px solid var(--tuc-border);
 }
-.tuc-colorpicker .tuc-colorpicker__field:focus {
+.tuc-colorpicker input.tuc-colorpicker__field:focus {
   border-color: var(--tuc-accent);
   outline: none;
   box-shadow: 0 0 0 3px var(--tuc-accent-ring);

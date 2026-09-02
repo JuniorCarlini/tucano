@@ -58,7 +58,7 @@
   @apply min-w-0 truncate whitespace-nowrap;
 }
 
-.tuc-select .tuc-select__search {
+.tuc-select input.tuc-select__search {
   @apply flex-1 shrink-0 border-0 bg-transparent p-0 outline-none;
   min-width: 4rem;
   color: var(--tuc-fg);
@@ -74,8 +74,8 @@
   min-width: 0;
   width: 0;
 }
-.tuc-select .tuc-select__search::placeholder { color: var(--tuc-subtle); opacity: 1; }
-.tuc-select .tuc-select__search:read-only { @apply cursor-pointer; }
+.tuc-select input.tuc-select__search::placeholder { color: var(--tuc-subtle); opacity: 1; }
+.tuc-select input.tuc-select__search:read-only { @apply cursor-pointer; }
 
 .tuc-select__arrow {
   @apply shrink-0;
