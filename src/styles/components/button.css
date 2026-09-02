@@ -34,10 +34,31 @@
   box-shadow: 0 0 0 3px var(--tuc-accent-ring);
 }
 
+/*
+ * Desabilitado mostra o cursor de bloqueio.
+ *
+ * Nada de `pointer-events: none` aqui: sem receber ponteiro o elemento nao
+ * troca o cursor, e a pessoa fica sem sinal nenhum de que o botao nao
+ * responde. Num <button disabled> o navegador ja impede o clique sozinho.
+ *
+ * Com `aria-disabled` o clique continua chegando de proposito — e o caso de
+ * um botao que segue focavel e anunciado, mas nao deve agir. Quem usa esse
+ * atributo trata o clique no proprio manipulador.
+ */
 .tuc-btn:disabled,
 .tuc-btn[aria-disabled='true'] {
-  @apply pointer-events-none opacity-50;
+  @apply cursor-not-allowed opacity-50;
 }
+.tuc-btn:disabled:hover,
+.tuc-btn[aria-disabled='true']:hover {
+  /* Sem reagir ao hover: mudar de cor sugere que ainda funciona. */
+  background: inherit;
+  border-color: inherit;
+}
+.tuc-btn.is-primary:disabled:hover { background: var(--tuc-accent); }
+.tuc-btn.is-outline:disabled:hover { background: var(--tuc-bg); border-color: var(--tuc-border); }
+.tuc-btn.is-danger:disabled:hover  { background: #dc2626; }
+.tuc-btn.is-ghost:disabled:hover   { background: transparent; color: var(--tuc-muted); }
 
 /* ------------------------------------------------------------------ *
  * Variantes                                                           *

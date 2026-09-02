@@ -1,6 +1,6 @@
 {
   "name": "tucano",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "Date picker, select com busca, color picker, upload, mascaras, toast e tooltip. Sem dependencias em runtime.",
   "author": "Junior Carlini",
   "license": "MIT",

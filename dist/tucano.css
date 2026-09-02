@@ -1357,8 +1357,26 @@
   box-shadow: 0 0 0 3px var(--tuc-accent-ring);
 }
 .tuc-btn:disabled, .tuc-btn[aria-disabled='true'] {
-  pointer-events: none;
+  cursor: not-allowed;
   opacity: 50%;
+}
+.tuc-btn:disabled:hover, .tuc-btn[aria-disabled='true']:hover {
+  background: inherit;
+  border-color: inherit;
+}
+.tuc-btn.is-primary:disabled:hover {
+  background: var(--tuc-accent);
+}
+.tuc-btn.is-outline:disabled:hover {
+  background: var(--tuc-bg);
+  border-color: var(--tuc-border);
+}
+.tuc-btn.is-danger:disabled:hover {
+  background: #dc2626;
+}
+.tuc-btn.is-ghost:disabled:hover {
+  background: transparent;
+  color: var(--tuc-muted);
 }
 .tuc-btn.is-primary {
   background: var(--tuc-accent);
