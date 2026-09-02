@@ -8,42 +8,36 @@
     font:16px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Inter,sans-serif;
     -webkit-font-smoothing:antialiased;
   }
-  /* Brilho diagonal sutil, para o card nao ficar chapado. */
+  /* Brilho centrado na metade direita, atras do componente. */
   body::before{
-    content:'';position:absolute;inset:-30% -10% auto auto;width:900px;height:900px;
-    background:radial-gradient(circle at 30% 30%,rgba(79,70,229,.14),transparent 62%);
+    content:'';position:absolute;left:600px;top:50%;translate:0 -50%;
+    width:640px;height:640px;
+    background:radial-gradient(circle,rgba(79,70,229,.15),transparent 62%);
   }
-  .wrap{position:relative;display:flex;height:100%;padding:64px 60px}
-  .left{width:470px;display:flex;flex-direction:column;justify-content:center}
+  /* Duas metades exatas de 600px. */
+  .wrap{position:relative;display:flex;height:100%}
+  .left,.right{width:600px;position:relative}
+  .left{display:flex;flex-direction:column;justify-content:center;padding:0 56px 0 72px}
   .mark{display:flex;align-items:center;gap:12px;margin-bottom:22px}
   .mark .bird{font-size:44px;line-height:1}
   .mark b{font-size:56px;font-weight:660;letter-spacing:-.035em}
-  .tag{margin:0;font-size:23px;line-height:1.42;color:#57574f;max-width:24ch}
+  .tag{margin:0;font-size:23px;line-height:1.42;color:#57574f}
   .pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:30px}
   .pill{
     padding:6px 13px;border:1px solid #e5e5e1;border-radius:999px;background:#fff;
     font-size:14px;color:#6f6f6b;
   }
   .pill b{color:#111110;font-weight:640}
-  .right{flex:1;position:relative}
+  /* O conjunto campo + calendario centrado na metade direita, nos dois eixos. */
   .anchor{
-    position:absolute;left:26px;top:4px;width:296px;height:40px;
+    position:absolute;left:50%;translate:-50% 0;top:106px;width:296px;height:40px;
     border:1px solid #e5e5e1;border-radius:10px;background:#fff;
     display:flex;align-items:center;padding:0 13px;gap:9px;
     font-size:14px;color:#111110;font-variant-numeric:tabular-nums;
   }
   .anchor svg{color:#a1a19c;flex:none}
-  .chips{
-    position:absolute;left:352px;top:150px;display:flex;flex-direction:column;gap:9px;
-    align-items:flex-start;
-  }
-  .chip{
-    display:flex;align-items:center;gap:7px;padding:5px 11px;border-radius:7px;
-    background:rgba(79,70,229,.11);color:#4f46e5;font-size:14px;font-weight:560;
-  }
-  .chip b{opacity:.55;font-weight:500}
   .url{
-    position:absolute;left:60px;bottom:44px;font-size:15px;color:#a1a19c;
+    position:absolute;left:72px;bottom:44px;font-size:15px;color:#a1a19c;
     font-family:ui-monospace,Menlo,monospace;
   }
 </style></head><body>
@@ -61,11 +55,6 @@
       <div class="anchor" id="campo">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z"/></svg>
         <span>08/09/2026 — 19/09/2026</span>
-      </div>
-      <div class="chips">
-        <span class="chip">Django <b>×</b></span>
-        <span class="chip">HTMX <b>×</b></span>
-        <span class="chip">Tailwind <b>×</b></span>
       </div>
     </div>
   </div>
