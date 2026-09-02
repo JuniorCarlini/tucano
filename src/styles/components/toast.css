@@ -25,7 +25,7 @@
 /* ------------------------------------------------------------------ */
 
 .tuc-toast {
-  @apply pointer-events-auto absolute left-0 right-0 flex items-start gap-2.5 p-3.5 pr-3;
+  @apply pointer-events-auto absolute left-0 right-0 flex items-center gap-2.5 p-3.5 pr-3;
   font-family: var(--tuc-font);
   font-size: var(--tuc-text);
   color: var(--tuc-fg);
@@ -74,7 +74,7 @@
   .tuc-toasts__live { transition: none; }
 }
 
-.tuc-toast__icon { @apply mt-px shrink-0; }
+.tuc-toast__icon { @apply shrink-0; }
 .tuc-toast__body { @apply flex min-w-0 flex-1 flex-col gap-0.5; }
 /*
  * Ponte de hover. O container e pointer-events:none e so o toast recebe
@@ -113,8 +113,7 @@
   color: var(--tuc-fg);
 }
 
-.tuc-toast__action { @apply self-center; }
-.tuc-toast__close { @apply -mr-1 self-start; }
+.tuc-toast__close { @apply -mr-1; }
 
 .tuc-toast.is-info    { --tuc-toast-cor: var(--tuc-accent); }
 .tuc-toast.is-sucesso { --tuc-toast-cor: #16a34a; }

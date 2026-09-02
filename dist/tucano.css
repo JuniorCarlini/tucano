@@ -1530,7 +1530,7 @@
   right: 0px;
   left: 0px;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: calc(var(--spacing, 0.25rem) * 2.5);
   padding: calc(var(--spacing, 0.25rem) * 3.5);
   padding-right: calc(var(--spacing, 0.25rem) * 3);
@@ -1577,7 +1577,6 @@
   }
 }
 .tuc-toast__icon {
-  margin-top: 1px;
   flex-shrink: 0;
 }
 .tuc-toast__body {
@@ -1615,12 +1614,8 @@
   font-size: 0.875rem;
   color: var(--tuc-fg);
 }
-.tuc-toast__action {
-  align-self: center;
-}
 .tuc-toast__close {
   margin-right: calc(var(--spacing, 0.25rem) * -1);
-  align-self: flex-start;
 }
 .tuc-toast.is-info {
   --tuc-toast-cor: var(--tuc-accent);
