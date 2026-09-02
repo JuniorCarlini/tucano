@@ -53,7 +53,8 @@
     "build:css:min": "tailwindcss -i src/styles/index.css -o dist/tucano.min.css --minify",
     "build": "npm run build:js && npm run build:js:min && npm run build:css && npm run build:css:min",
     "dev": "npm run build && npx serve .",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "build:og": "\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless=new --disable-gpu --window-size=1200,630 --hide-scrollbars --virtual-time-budget=4000 --screenshot=og.png tools/og.html"
   },
   "devDependencies": {
     "@tailwindcss/cli": "^4.3.3",
