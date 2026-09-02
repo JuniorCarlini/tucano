@@ -1,0 +1,20 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Tucano — ícones</title>
+<style>
+ body{margin:0;padding:24px;background:#fff;font:13px system-ui;display:flex;flex-wrap:wrap;gap:20px}
+ figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:8px;width:110px}
+ svg{width:56px;height:56px}
+ figcaption{color:#666;font-size:11px}
+</style></head><body>
+<!-- Renderiza todos os ícones em tamanho grande, para revisar traçado.
+     Abra por um servidor: são módulos ES. -->
+<script type="module">
+import { ICONS } from '../src/js/core/dom.js';
+import { ICONS_EXTRA } from '../src/js/core/dom-extra.js';
+for (const [nome, d] of Object.entries({...ICONS, ...ICONS_EXTRA})) {
+  const fig = document.createElement('figure');
+  fig.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round"><path d="${d}"/></svg>
+    <figcaption>${nome}</figcaption>`;
+  document.body.append(fig);
+}
+</script></body></html>
