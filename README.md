@@ -1,10 +1,9 @@
 # 🦜 Tucano
 
-Date picker, select com busca e color picker para formulários. Sem React, sem
-Alpine, sem dependência em runtime. Os estilos são escritos em Tailwind e
-distribuídos já compilados — o projeto que consome não precisa de build.
+Nove componentes de formulário e interface — date picker, select com busca, color picker, upload, máscaras, botão, toast, tooltip e modal.
+Sem React, sem Vue, sem dependência em runtime.
 
-**15 KB de JS + 4 KB de CSS** (minificado + gzip).
+**27 KB de JS + 7 KB de CSS** (minificado + gzip).
 
 **[Documentação e exemplos ao vivo →](https://juniorcarlini.github.io/tucano/)**
 

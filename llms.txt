@@ -1,7 +1,7 @@
 # Tucano
 
-> Date picker, select com busca e color picker para formulários web.
-> JavaScript puro, sem dependências em runtime. 15 KB JS + 4 KB CSS (gzip).
+> Nove componentes de formulario e interface para a web: date picker, select com busca, color picker, upload, máscaras, botão, toast, tooltip e modal.
+> JavaScript puro, sem dependências em runtime. 27 KB JS + 7 KB CSS (gzip).
 > Os estilos são escritos em Tailwind mas distribuídos já compilados: o projeto
 > que consome não precisa de build e não recebe o preflight do Tailwind.
 
