@@ -1,7 +1,7 @@
 {
   "name": "tucano",
   "version": "0.11.1",
-  "description": "Nove componentes de formulario e interface: date picker, select com busca, color picker, upload, mascaras, botao, toast, tooltip e modal. Sem dependencias em runtime.",
+  "description": "Componentes de formulario e interface para a web. Sem dependencias em runtime, estilos ja compilados.",
   "author": "Junior Carlini",
   "license": "MIT",
   "homepage": "https://juniorcarlini.github.io/tucano/",

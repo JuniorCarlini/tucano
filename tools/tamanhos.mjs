@@ -25,7 +25,6 @@ const arquivos = {
     [/<b>\d+ KB<\/b> JS gzip/g, `<b>${js} KB</b> JS gzip`],
     [/<b>\d+ KB<\/b> CSS gzip/g, `<b>${css} KB</b> CSS gzip`],
     [/(<span class="ver">v[\d.]+ · )\d+ KB/g, `$1${total} KB`],
-    [/\d+ KB, zero dependências/g, `${total} KB, zero dependências`],
   ],
   'README.md': [
     [/\*\*\d+ KB de JS \+ \d+ KB de CSS\*\*/g, `**${js} KB de JS + ${css} KB de CSS**`],
