@@ -77,21 +77,8 @@
   border-radius: var(--tuc-radius);
   box-shadow: var(--tuc-shadow);
 
-  opacity: 0;
-  transform-origin: top center;
-  transition:
-    opacity var(--tuc-duration) var(--tuc-ease),
-    translate var(--tuc-duration) var(--tuc-ease),
-    scale var(--tuc-duration) var(--tuc-ease);
-  translate: 0 -0.5rem;
-  scale: 0.97;
 }
-.tuc-colorpicker.is-open { opacity: 1; translate: 0 0; scale: 1; }
-.tuc-colorpicker[data-side='top'] { transform-origin: bottom center; }
 
-@media (prefers-reduced-motion: reduce) {
-  .tuc-colorpicker { transition: none; translate: none; scale: none; opacity: 1; }
-}
 
 .tuc-colorpicker :focus-visible {
   outline: 2px solid var(--tuc-accent);
@@ -240,4 +227,40 @@
     inset 0 0 0 1px var(--tuc-ring),
     0 0 0 2px var(--tuc-bg),
     0 0 0 4px var(--tuc-accent);
+}
+
+/*
+ * Entrada e saida no mesmo vocabulario do shadcn/Radix: opacidade, zoom de
+ * 95% e um deslize de 8px vindo do lado oposto ao que o painel abriu.
+ *
+ * O lado importa: painel que abre para baixo entra vindo de cima; se virar
+ * para cima por falta de espaco, entra vindo de baixo. Deslizar sempre na
+ * mesma direcao faz o movimento brigar com o lugar de onde ele saiu.
+ */
+.tuc-colorpicker {
+  opacity: 0;
+  scale: 0.95;
+  translate: 0 -0.5rem;
+  transition:
+    opacity var(--tuc-duration) ease-out,
+    scale var(--tuc-duration) ease-out,
+    translate var(--tuc-duration) ease-out;
+}
+.tuc-colorpicker[data-side='top'] { translate: 0 0.5rem; }
+
+.tuc-colorpicker.is-open { opacity: 1; scale: 1; translate: 0 0; }
+
+.tuc-colorpicker.is-closing {
+  opacity: 0;
+  scale: 0.95;
+  translate: 0 0;
+  transition:
+    opacity var(--tuc-duration-out) ease-in,
+    scale var(--tuc-duration-out) ease-in;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tuc-colorpicker,
+  .tuc-colorpicker.is-open,
+  .tuc-colorpicker.is-closing { transition: opacity 90ms linear; scale: none; translate: none; }
 }

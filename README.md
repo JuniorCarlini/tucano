@@ -28,8 +28,8 @@ distribuídos já compilados — o projeto que consome não precisa de build.
 Dois arquivos e nada mais — sem npm, sem build, sem escrever JavaScript:
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.9.1/dist/tucano.min.css">
-<script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.9.1/dist/tucano.min.js" defer></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.9.2/dist/tucano.min.css">
+<script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.9.2/dist/tucano.min.js" defer></script>
 
 <input type="text" name="data" data-tuc-datepicker>
 <select name="uf" data-tuc-select><option>...</option></select>
@@ -298,8 +298,16 @@ disponível para o projeto.
 ```
 
 Variantes: `is-primary`, `is-outline`, `is-ghost`, `is-danger`, `is-link`.
-Tamanhos: `is-sm`, `is-lg`, `is-icon`, `is-block`. Altura e raio saem de
-`--tuc-control-height` e `--tuc-radius-md`, os mesmos dos campos.
+Tamanhos: `is-sm`, `is-lg`, `is-icon`, `is-block`.
+
+**Botão, select e campo de cor têm a mesma altura**, porque saem do mesmo
+`--tuc-control-height` — 38px, ou 44px no layout compacto, onde o alvo de toque
+precisa ser maior. Raio e borda vêm de `--tuc-radius-md` e `--tuc-border-width`.
+
+Desabilitado mostra o cursor de bloqueio e não reage ao hover. Sem
+`pointer-events: none`: sem receber ponteiro o elemento não troca o cursor, e a
+pessoa fica sem sinal de que o botão não responde. Num `<button disabled>` o
+navegador já impede o clique.
 
 ## Toast
 

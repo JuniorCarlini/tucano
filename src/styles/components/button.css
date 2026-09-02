@@ -21,17 +21,35 @@
   background: transparent;
   border: var(--tuc-border-width) solid transparent;
   border-radius: var(--tuc-radius-md);
+  /* box-shadow entra na lista: sem ele a sombra e o anel de foco aparecem de
+     uma vez, enquanto a cor faz a transicao — o botao parece piscar. */
   transition:
-    background-color var(--tuc-duration) var(--tuc-ease),
-    border-color var(--tuc-duration) var(--tuc-ease),
-    color var(--tuc-duration) var(--tuc-ease),
-    opacity var(--tuc-duration) var(--tuc-ease);
+    background-color var(--tuc-duration) ease-out,
+    border-color var(--tuc-duration) ease-out,
+    color var(--tuc-duration) ease-out,
+    box-shadow var(--tuc-duration) ease-out,
+    opacity var(--tuc-duration) ease-out;
 }
 
 .tuc-btn:focus-visible {
   outline: none;
   border-color: var(--tuc-accent);
   box-shadow: 0 0 0 3px var(--tuc-accent-ring);
+}
+
+/*
+ * Retorno ao pressionar.
+ *
+ * O shadcn nao tem isso: ele so troca a cor. Mantive porque num toque, sem
+ * hover, a cor sozinha nao confirma que o dedo acertou o alvo. Para ficar
+ * identico ao shadcn, apague este bloco.
+ */
+.tuc-btn:active:not(:disabled):not([aria-disabled='true']) {
+  scale: 0.98;
+  transition-duration: 60ms;
+}
+@media (prefers-reduced-motion: reduce) {
+  .tuc-btn:active { scale: none; }
 }
 
 /*
@@ -48,6 +66,7 @@
 .tuc-btn:disabled,
 .tuc-btn[aria-disabled='true'] {
   @apply cursor-not-allowed opacity-50;
+  box-shadow: none;   /* sombra sugere que da para apertar */
 }
 .tuc-btn:disabled:hover,
 .tuc-btn[aria-disabled='true']:hover {
@@ -67,12 +86,14 @@
 .tuc-btn.is-primary {
   background: var(--tuc-accent);
   color: var(--tuc-accent-fg);
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
 }
 .tuc-btn.is-primary:hover { background: var(--tuc-accent-hover); }
 
 .tuc-btn.is-outline {
   border-color: var(--tuc-border);
   background: var(--tuc-bg);
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
 }
 .tuc-btn.is-outline:hover { background: var(--tuc-hover); }
 
@@ -82,6 +103,7 @@
 .tuc-btn.is-danger {
   background: #dc2626;
   color: #fff;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
 }
 .tuc-btn.is-danger:hover { background: #b91c1c; }
 

@@ -139,6 +139,9 @@
 .tuc-tip,
 .tuc-btn {
     --tuc-text: 1rem;
-    --tuc-swatch: 2.5rem;   /* acompanha o texto maior no toque */
+    --tuc-swatch: 2.5rem;          /* acompanha o texto maior no toque */
+    --tuc-control-height: 2.75rem; /* 44px: alvo de toque confortavel, e o
+                                      mesmo tamanho que os campos do projeto
+                                      costumam adotar no celular */
   }
 }

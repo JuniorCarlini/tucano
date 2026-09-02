@@ -1,5 +1,8 @@
 import { on } from './dom.js';
 
+/** Espelha --tuc-duration-out do CSS; os dois precisam concordar. */
+const DURACAO_SAIDA = 170;
+
 /**
  * Posiciona um painel flutuante ancorado num elemento.
  * Escolhe lado com base no espaco disponivel (flip) e desloca no eixo
@@ -25,6 +28,8 @@ export class Popover {
     if (this.open) return;
     this.open = true;
 
+    clearTimeout(this._saida);
+    this.panel.classList.remove('is-closing');
     this.panel.style.position = 'absolute';
     this.panel.style.top = '0';
     this.panel.style.left = '0';
@@ -51,14 +56,27 @@ export class Popover {
     }
   }
 
-  hide() {
+  /**
+   * `animar` mantem o painel no DOM pelo tempo da transicao de saida. Sem
+   * isso ele desaparece no mesmo quadro, e so a entrada tem movimento — o
+   * fechamento fica seco em comparacao.
+   */
+  hide({ animar = true } = {}) {
     if (!this.open) return;
     this.open = false;
     this._cleanups.forEach((fn) => fn());
     this._cleanups = [];
     this._ro?.disconnect();
     this._ro = null;
-    this.panel.remove();
+
+    clearTimeout(this._saida);
+    if (!animar) { this.panel.classList.remove('is-closing'); this.panel.remove(); return; }
+
+    this.panel.classList.add('is-closing');
+    this._saida = setTimeout(() => {
+      this.panel.classList.remove('is-closing');
+      this.panel.remove();
+    }, DURACAO_SAIDA);
   }
 
   destroy() {

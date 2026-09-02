@@ -16,30 +16,11 @@
   padding: 0.5rem;
   gap: 0.25rem;
 
-  opacity: 0;
-  transform-origin: top center;
-  transition:
-    opacity var(--tuc-duration) var(--tuc-ease),
-    translate var(--tuc-duration) var(--tuc-ease),
-    scale var(--tuc-duration) var(--tuc-ease);
-  translate: 0 -0.5rem;
-  scale: 0.97;
-}
-
-.tuc-dp.is-open {
-  opacity: 1;
-  translate: 0 0;
-  scale: 1;
 }
 
 
-.tuc-dp[data-side='top'] {
-  transform-origin: bottom center;
-}
 
-@media (prefers-reduced-motion: reduce) {
-  .tuc-dp { transition: none; translate: none; scale: none; opacity: 1; }
-}
+
 
 .tuc-dp__main {
   @apply flex min-w-0 flex-col;
@@ -392,4 +373,40 @@
   /* iOS ignora width em input[type=date] sem isso. */
   min-width: 100%;
   height: 100%;
+}
+
+/*
+ * Entrada e saida no mesmo vocabulario do shadcn/Radix: opacidade, zoom de
+ * 95% e um deslize de 8px vindo do lado oposto ao que o painel abriu.
+ *
+ * O lado importa: painel que abre para baixo entra vindo de cima; se virar
+ * para cima por falta de espaco, entra vindo de baixo. Deslizar sempre na
+ * mesma direcao faz o movimento brigar com o lugar de onde ele saiu.
+ */
+.tuc-dp {
+  opacity: 0;
+  scale: 0.95;
+  translate: 0 -0.5rem;
+  transition:
+    opacity var(--tuc-duration) ease-out,
+    scale var(--tuc-duration) ease-out,
+    translate var(--tuc-duration) ease-out;
+}
+.tuc-dp[data-side='top'] { translate: 0 0.5rem; }
+
+.tuc-dp.is-open { opacity: 1; scale: 1; translate: 0 0; }
+
+.tuc-dp.is-closing {
+  opacity: 0;
+  scale: 0.95;
+  translate: 0 0;
+  transition:
+    opacity var(--tuc-duration-out) ease-in,
+    scale var(--tuc-duration-out) ease-in;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tuc-dp,
+  .tuc-dp.is-open,
+  .tuc-dp.is-closing { transition: opacity 90ms linear; scale: none; translate: none; }
 }
