@@ -14,6 +14,7 @@ distribuídos já compilados — o projeto que consome não precisa de build.
 | `Select` — busca, multi-seleção com tags, grupos, limite | pronto |
 | `ColorPicker` — HSV, hex/rgb/hsl, opacidade, paleta | pronto |
 | `Upload` — arrastar e soltar, progresso, validação | pronto |
+| `Mask` — CPF, CNPJ, telefone, real, campo sensível | pronto |
 
 ---
 
@@ -24,8 +25,8 @@ distribuídos já compilados — o projeto que consome não precisa de build.
 Dois arquivos e nada mais — sem npm, sem build, sem escrever JavaScript:
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.5.2/dist/tucano.min.css">
-<script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.5.2/dist/tucano.min.js" defer></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.6.0/dist/tucano.min.css">
+<script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.6.0/dist/tucano.min.js" defer></script>
 
 <input type="text" name="data" data-tuc-datepicker>
 <select name="uf" data-tuc-select><option>...</option></select>
@@ -280,6 +281,59 @@ hora, que é o modo direto.
 O token CSRF vai em `X-CSRFToken`, lido do cookie. E o modo direto precisa de
 limpeza: arquivos enviados por alguém que fechou a aba sem salvar ficam no
 servidor.
+
+## Máscaras
+
+Formata enquanto se digita, valida documento e esconde dado sensível. Não
+envolve nem substitui o input — é comportamento puro.
+
+```html
+<input name="cpf"       data-tuc-mask="cpf" data-validate="true">
+<input name="cnpj"      data-tuc-mask="cnpj">
+<input name="documento" data-tuc-mask="cpf-cnpj">
+<input name="telefone"  data-tuc-mask="telefone">
+<input name="valor"     data-tuc-mask="real">
+<input name="cep"       data-tuc-mask="cep">
+<input                  data-tuc-mask="##/##">   <!-- gabarito livre -->
+```
+
+Formatos: `cpf`, `cnpj`, `cnpj-numerico`, `cpf-cnpj`, `telefone`, `celular`,
+`cep`, `real`, `moeda`, `data`, `hora`, `cartao`. No gabarito livre, `#` é
+dígito, `A` é letra e `*` aceita os dois.
+
+**CNPJ alfanumérico.** O formato novo mantém as 14 posições e a mesma máscara:
+as 12 primeiras aceitam letras, as 2 últimas seguem numéricas, e o dígito
+verificador usa o código ASCII menos 48. `cnpj` já aceita os dois formatos;
+`cnpj-numerico` recusa letras. Confirme a vigência na Nota Técnica da Receita
+antes de exigir em produção.
+
+### Validação
+
+Com `data-validate`, o dígito verificador é conferido ao sair do campo e o
+navegador barra o submit sozinho via `setCustomValidity` — sem escrever nada.
+
+### Campo sensível
+
+```html
+<input name="cpf" value="111.444.777-35" data-tuc-mask="cpf" data-tuc-reveal>
+<input type="password" name="senha" data-tuc-reveal>
+```
+
+Nasce oculto quando já tem conteúdo, mostrando `•••.•••.•••-35`. O valor real
+vai num `<input type="hidden">` com o mesmo `name`, então o servidor recebe o
+dado completo — o que fica escondido é só a tela. Print, gravação de suporte e
+quem olha por cima do ombro deixam de expor o dado por padrão.
+
+Em `type="password"` o olho apenas alterna o `type`, como se espera.
+
+### Só para exibir
+
+```html
+<span data-tuc-format="cpf">12345678901</span>      <!-- 123.456.789-01 -->
+<span data-tuc-format="real">1234.5</span>          <!-- R$ 1.234,50 -->
+```
+
+Pela API: `Tucano.mask.validarCPF()`, `validarCNPJ()`, `formatar(v, 'cpf')`.
 
 ## Máscara do campo
 

@@ -1,0 +1,38 @@
+@reference "tailwindcss";
+
+/*
+ * O campo com olhinho e envolvido, mas o input em si nao e tocado: o estilo
+ * que o projeto ja aplica continua valendo. Só reservamos o espaco do botao.
+ */
+.tuc-field {
+  @apply relative block w-full;
+}
+
+.tuc-field > input {
+  @apply w-full;
+  padding-right: 2.5rem;
+}
+
+.tuc-field__eye {
+  @apply absolute top-1/2 grid size-7 place-items-center transition-colors;
+  right: 0.375rem;
+  translate: 0 -50%;
+  border-radius: var(--tuc-radius-sm);
+  color: var(--tuc-subtle);
+}
+.tuc-field__eye:hover { background: var(--tuc-hover); color: var(--tuc-fg); }
+.tuc-field__eye:focus-visible {
+  outline: 2px solid var(--tuc-accent);
+  outline-offset: 1px;
+}
+
+/* Enquanto oculto o texto e so leitura; o cursor avisa. */
+.tuc-field.is-hidden > input {
+  cursor: default;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Campo reprovado na validacao de documento. */
+.tuc-invalid {
+  border-color: #dc2626 !important;
+}

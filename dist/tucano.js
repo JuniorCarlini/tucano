@@ -22,16 +22,21 @@ var Tucano = (() => {
   __export(index_exports, {
     ColorPicker: () => ColorPicker,
     DatePicker: () => DatePicker,
+    FORMATOS: () => FORMATOS,
+    Mask: () => Mask,
     Popover: () => Popover,
     Select: () => Select,
     Upload: () => Upload,
+    autoFormat: () => autoFormat,
     autoInitColorPickers: () => autoInit3,
     autoInitDatePickers: () => autoInit,
+    autoInitMasks: () => autoInit5,
     autoInitSelects: () => autoInit2,
     autoInitUploads: () => autoInit4,
     color: () => color_exports,
     dates: () => dates_exports,
-    init: () => init
+    init: () => init,
+    mask: () => mask_exports
   });
 
   // src/js/core/dates.js
@@ -1466,7 +1471,9 @@ var Tucano = (() => {
     upload: "M12 16V4M7 9l5-5 5 5M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2",
     file: "M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6",
     retry: "M21 12a9 9 0 11-9-9c2.5 0 4.9 1 6.7 2.7L21 8M21 3v5h-5",
-    alert: "M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"
+    alert: "M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z",
+    eye: "M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z M12 15a3 3 0 100-6 3 3 0 000 6z",
+    eyeOff: "M10.6 10.6a3 3 0 004.2 4.2 M9.4 5.2A9.7 9.7 0 0112 5c6.4 0 10 7 10 7a17 17 0 01-2.8 3.7 M6.6 6.6A17 17 0 002 12s3.6 7 10 7c1.7 0 3.2-.4 4.5-1 M2 2l20 20"
   };
 
   // src/js/components/select.js
@@ -2799,13 +2806,467 @@ var Tucano = (() => {
     return out;
   }
 
+  // src/js/core/mask.js
+  var mask_exports = {};
+  __export(mask_exports, {
+    aplicar: () => aplicar,
+    aplicarMoeda: () => aplicarMoeda,
+    capacidade: () => capacidade,
+    cursorApos: () => cursorApos,
+    escolherGabarito: () => escolherGabarito,
+    formatar: () => formatar,
+    isMarcador: () => isMarcador,
+    limpar: () => limpar,
+    obscurecer: () => obscurecer,
+    validarCNPJ: () => validarCNPJ,
+    validarCPF: () => validarCPF,
+    validarCpfCnpj: () => validarCpfCnpj
+  });
+  var MARCADORES = {
+    "#": (c) => c >= "0" && c <= "9",
+    "A": (c) => /[a-zA-Z]/.test(c),
+    "*": (c) => /[0-9a-zA-Z]/.test(c)
+  };
+  function isMarcador(c) {
+    return Object.hasOwn(MARCADORES, c);
+  }
+  function limpar(valor, gabarito) {
+    const aceita = [...new Set([...gabarito].filter(isMarcador))].map((m) => MARCADORES[m]);
+    if (!aceita.length) return "";
+    return [...String(valor ?? "")].filter((c) => aceita.some((f) => f(c))).join("");
+  }
+  function capacidade(gabarito) {
+    return [...gabarito].filter(isMarcador).length;
+  }
+  function aplicar(caracteres, gabarito) {
+    if (!caracteres.length) return "";
+    let saida = "";
+    let i = 0;
+    for (const ch of gabarito) {
+      if (isMarcador(ch)) {
+        let aceito = null;
+        while (i < caracteres.length) {
+          const candidato = caracteres[i++];
+          if (MARCADORES[ch](candidato)) {
+            aceito = candidato;
+            break;
+          }
+        }
+        if (aceito === null) break;
+        saida += aceito;
+      } else {
+        saida += ch;
+      }
+    }
+    return saida;
+  }
+  function cursorApos(texto, n) {
+    if (n <= 0) return 0;
+    let vistos = 0;
+    for (let i = 0; i < texto.length; i++) {
+      if (/[0-9A-Za-z]/.test(texto[i]) && ++vistos === n) return i + 1;
+    }
+    return texto.length;
+  }
+  function escolherGabarito(caracteres, gabaritos) {
+    const lista = [].concat(gabaritos);
+    if (lista.length === 1) return lista[0];
+    const n = caracteres.length;
+    return lista.find((g) => n <= capacidade(g)) || lista[lista.length - 1];
+  }
+  function aplicarMoeda(digitos, { decimais = 2, locale = "pt-BR", moeda = null } = {}) {
+    const limpos = String(digitos).replace(/\D/g, "").replace(/^0+(?=\d)/, "");
+    if (!limpos) return "";
+    const n = Number(limpos) / 10 ** decimais;
+    return n.toLocaleString(locale, {
+      minimumFractionDigits: decimais,
+      maximumFractionDigits: decimais,
+      ...moeda ? { style: "currency", currency: moeda } : {}
+    });
+  }
+  function digitoModulo11(valores, pesoInicial) {
+    let soma = 0;
+    let peso = pesoInicial;
+    for (const v of valores) {
+      soma += v * peso;
+      peso = peso === 2 ? 9 : peso - 1;
+    }
+    const resto = soma % 11;
+    return resto < 2 ? 0 : 11 - resto;
+  }
+  function validarCPF(valor) {
+    const d = String(valor ?? "").replace(/\D/g, "");
+    if (d.length !== 11) return false;
+    if (/^(\d)\1{10}$/.test(d)) return false;
+    const n = [...d].map(Number);
+    const dv1 = digitoModulo11(n.slice(0, 9), 10);
+    const dv2 = digitoModulo11(n.slice(0, 10), 11);
+    return dv1 === n[9] && dv2 === n[10];
+  }
+  function validarCNPJ(valor) {
+    const s = String(valor ?? "").toUpperCase().replace(/[^0-9A-Z]/g, "");
+    if (s.length !== 14) return false;
+    if (!/^[0-9A-Z]{12}\d{2}$/.test(s)) return false;
+    if (/^(.)\1{13}$/.test(s)) return false;
+    const valores = [...s].map((c) => c.charCodeAt(0) - 48);
+    const dv1 = digitoModulo11(valores.slice(0, 12), 5);
+    const dv2 = digitoModulo11(valores.slice(0, 13), 6);
+    return dv1 === valores[12] && dv2 === valores[13];
+  }
+  function validarCpfCnpj(valor) {
+    const s = String(valor ?? "").replace(/[^0-9A-Za-z]/g, "");
+    if (s.length === 11) return validarCPF(s);
+    if (s.length === 14) return validarCNPJ(s);
+    return false;
+  }
+  function formatar(valor, formato, opcoes = {}) {
+    const bruto = String(valor ?? "").trim();
+    if (!bruto) return "";
+    if (formato === "moeda" || formato === "real") {
+      const n = typeof valor === "number" ? valor : Number(bruto.replace(/\.(?=\d{3}\b)/g, "").replace(",", "."));
+      if (!Number.isFinite(n)) return bruto;
+      const { decimais = 2, locale = "pt-BR" } = opcoes;
+      const moeda = opcoes.moeda ?? (formato === "real" ? "BRL" : null);
+      return n.toLocaleString(locale, {
+        minimumFractionDigits: decimais,
+        maximumFractionDigits: decimais,
+        ...moeda ? { style: "currency", currency: moeda } : {}
+      });
+    }
+    const gabaritos = GABARITOS_EXIBICAO[formato] ?? formato;
+    const todos = [].concat(gabaritos).join("");
+    const chars = limpar(bruto, todos);
+    if (!chars) return bruto;
+    const gabarito = escolherGabarito(chars, gabaritos);
+    return chars.length === capacidade(gabarito) ? aplicar(chars, gabarito) : bruto;
+  }
+  var GABARITOS_EXIBICAO = {
+    cpf: "###.###.###-##",
+    cnpj: "**.***.***/****-##",
+    "cpf-cnpj": ["###.###.###-##", "**.***.***/****-##"],
+    documento: ["###.###.###-##", "**.***.***/****-##"],
+    telefone: ["(##) ####-####", "(##) #####-####"],
+    celular: "(##) #####-####",
+    cep: "#####-###",
+    cartao: "#### #### #### ####"
+  };
+  function obscurecer(texto, visiveis = 2, ponto = "\u2022") {
+    const s = String(texto ?? "");
+    const total = [...s].filter((c) => /[0-9A-Za-z]/.test(c)).length;
+    let vistos = 0;
+    return [...s].map((c) => {
+      if (!/[0-9A-Za-z]/.test(c)) return c;
+      vistos++;
+      return vistos > total - visiveis ? c : ponto;
+    }).join("");
+  }
+
+  // src/js/components/mask.js
+  var FORMATOS = {
+    cpf: { gabarito: "###.###.###-##", validar: validarCPF, erro: "CPF inv\xE1lido" },
+    cnpj: { gabarito: "**.***.***/****-##", validar: validarCNPJ, erro: "CNPJ inv\xE1lido", maiusculas: true },
+    "cnpj-numerico": { gabarito: "##.###.###/####-##", validar: validarCNPJ, erro: "CNPJ inv\xE1lido" },
+    "cpf-cnpj": {
+      gabarito: ["###.###.###-##", "**.***.***/****-##"],
+      validar: validarCpfCnpj,
+      erro: "Documento inv\xE1lido",
+      maiusculas: true
+    },
+    telefone: { gabarito: ["(##) ####-####", "(##) #####-####"] },
+    celular: { gabarito: "(##) #####-####" },
+    cep: { gabarito: "#####-###" },
+    data: { gabarito: "##/##/####" },
+    hora: { gabarito: "##:##" },
+    cartao: { gabarito: "#### #### #### ####" },
+    moeda: { moeda: true },
+    real: { moeda: true, currency: "BRL" }
+  };
+  var DEFAULTS5 = {
+    format: null,
+    // nome de FORMATOS ou gabarito livre
+    validate: false,
+    // valida no blur e bloqueia o submit
+    decimals: 2,
+    currency: null,
+    // 'BRL' formata com R$
+    reveal: false,
+    // olhinho para mostrar e ocultar
+    revealVisible: 2,
+    // quantos caracteres ficam a mostra quando oculto
+    locale: void 0,
+    errorText: null,
+    onChange: null
+  };
+  var Mask = class {
+    constructor(target, options = {}) {
+      const node = typeof target === "string" ? document.querySelector(target) : target;
+      if (!node) throw new Error("[Mask] elemento alvo nao encontrado");
+      this.opts = { ...DEFAULTS5, ...omitUndefined5(options) };
+      this.opts.locale = this.opts.locale || document.documentElement.lang || "pt-BR";
+      this.input = node;
+      const preset = FORMATOS[this.opts.format];
+      this.preset = preset || null;
+      this.moeda = !!preset?.moeda;
+      this.gabaritos = preset ? preset.gabarito : this.opts.format;
+      this.maiusculas = !!preset?.maiusculas;
+      if (preset?.currency && !this.opts.currency) this.opts.currency = preset.currency;
+      if (!this.moeda && !this.gabaritos && !this.opts.reveal) {
+        throw new Error("[Mask] informe um formato ou gabarito");
+      }
+      this._cleanups = [];
+      this._ligar();
+      if (node.value && !this.moeda && this.gabaritos) this._formatar({ manterCursor: false });
+      else if (node.value && this.moeda) this._formatar({ manterCursor: false });
+      if (this.opts.reveal) this._montarOlho();
+      node._tucano = this;
+    }
+    /* ---------------------------------------------------------------- *
+     * API publica                                                       *
+     * ---------------------------------------------------------------- */
+    /** Conteudo sem formatacao: so digitos, ou digitos e letras. */
+    getRaw() {
+      const texto = this.valorReal ?? this.input.value;
+      if (this.moeda) return texto.replace(/\D/g, "");
+      if (!this.gabaritos) return texto;
+      return limpar(texto, [].concat(this.gabaritos).join(""));
+    }
+    /** Numero, no formato moeda. */
+    getNumber() {
+      if (!this.moeda) return null;
+      const d = this.getRaw();
+      return d ? Number(d) / 10 ** this.opts.decimals : null;
+    }
+    setValue(valor) {
+      this.input.value = String(valor ?? "");
+      this._formatar({ manterCursor: false });
+      this._emit();
+    }
+    isValid() {
+      const validar = this.preset?.validar;
+      if (!validar) return true;
+      const bruto = this.getRaw();
+      return bruto ? validar(bruto) : true;
+    }
+    destroy() {
+      this._cleanups.forEach((fn) => fn());
+      this._cleanups = [];
+      if (this.envolucro) {
+        if (this.valorReal != null) this.input.value = this.valorReal;
+        if (this.nomeReal) this.input.name = this.nomeReal;
+        this.input.readOnly = this.readOnlyOriginal ?? false;
+        this.envolucro.replaceWith(this.input);
+        this.oculto?.remove();
+      }
+      this.input.setCustomValidity?.("");
+      this.input.classList.remove("tuc-invalid");
+      delete this.input._tucano;
+    }
+    /* ---------------------------------------------------------------- *
+     * Olhinho: mostrar e ocultar                                        *
+     * ---------------------------------------------------------------- */
+    /**
+     * Campo sensivel.
+     *
+     * Num <input type="password"> o olho so alterna o `type`, que e o
+     * comportamento que todo mundo espera.
+     *
+     * Nos demais, o valor real fica num input hidden que carrega o `name`, e o
+     * campo visivel mostra `•••.•••.•••-01`. Assim o que aparece na tela nunca
+     * e o dado inteiro, mas o formulario posta o valor certo — nada muda no
+     * servidor. Campo vazio comeca visivel: quem esta digitando precisa ver.
+     */
+    _montarOlho() {
+      const input = this.input;
+      this.senha = input.type === "password";
+      this.envolucro = el("span", { class: "tuc-field" });
+      input.replaceWith(this.envolucro);
+      this.envolucro.append(input);
+      if (!this.senha && input.name) {
+        this.nomeReal = input.name;
+        input.removeAttribute("name");
+        this.oculto = el("input", { type: "hidden", name: this.nomeReal, value: this.getRaw() });
+        this.envolucro.append(this.oculto);
+      }
+      this.olho = el("button", {
+        type: "button",
+        class: "tuc-field__eye",
+        "aria-label": "Mostrar",
+        "aria-pressed": "false",
+        onclick: () => this._alternar()
+      });
+      this.envolucro.append(this.olho);
+      this.mostrando = !input.value;
+      this._pintarOlho();
+      this._cleanups.push(on(input, "input", () => {
+        if (this.oculto) this.oculto.value = this.getRaw();
+      }));
+    }
+    _alternar() {
+      this.mostrando = !this.mostrando;
+      this._pintarOlho();
+      if (this.mostrando) this.input.focus();
+    }
+    _pintarOlho() {
+      const input = this.input;
+      const mostrando = this.mostrando;
+      if (this.senha) {
+        input.type = mostrando ? "text" : "password";
+      } else {
+        if (mostrando) {
+          if (this.valorReal != null) {
+            input.value = this.valorReal;
+            this.valorReal = null;
+          }
+          input.readOnly = this.readOnlyOriginal ?? false;
+        } else {
+          this.readOnlyOriginal = input.readOnly;
+          this.valorReal = input.value;
+          input.value = obscurecer(input.value, this.opts.revealVisible);
+          input.readOnly = true;
+        }
+      }
+      this.olho.replaceChildren(icon(mostrando ? ICONS_EXTRA.eyeOff : ICONS_EXTRA.eye, 16));
+      this.olho.setAttribute("aria-label", mostrando ? "Ocultar" : "Mostrar");
+      this.olho.setAttribute("aria-pressed", String(mostrando));
+      this.envolucro.classList.toggle("is-hidden", !mostrando);
+    }
+    /* ---------------------------------------------------------------- *
+     * Interno                                                           *
+     * ---------------------------------------------------------------- */
+    _gabarito(caracteres) {
+      if (this.moeda) return "";
+      const chars = caracteres ?? limpar(this.input.value, [].concat(this.gabaritos).join(""));
+      return escolherGabarito(chars, this.gabaritos);
+    }
+    _ligar() {
+      const input = this.input;
+      if (!input.getAttribute("inputmode")) {
+        input.setAttribute("inputmode", this.moeda || !/[A*]/.test([].concat(this.gabaritos).join("")) ? "numeric" : "text");
+      }
+      input.setAttribute("autocomplete", input.getAttribute("autocomplete") || "off");
+      this._cleanups.push(
+        on(input, "input", (e) => this._aoDigitar(e)),
+        on(input, "blur", () => {
+          if (this.opts.validate) this._validar();
+        }),
+        on(input, "focus", () => this._marcar(true))
+      );
+    }
+    _aoDigitar(e) {
+      const input = this.input;
+      const cursor = input.selectionStart ?? input.value.length;
+      const tipo = typeof e.inputType === "string" ? e.inputType : "";
+      this._formatar({
+        cursor,
+        apagando: tipo.startsWith("delete"),
+        paraFrente: tipo === "deleteContentForward"
+      });
+      this._emit();
+      if (this.opts.validate) this._marcar(true);
+    }
+    _formatar({ cursor = null, apagando = false, paraFrente = false, manterCursor = true } = {}) {
+      const input = this.input;
+      const bruto = input.value;
+      if (this.moeda) {
+        const digitos = bruto.replace(/\D/g, "");
+        const texto2 = aplicarMoeda(digitos, {
+          decimais: this.opts.decimals,
+          locale: this.opts.locale,
+          moeda: this.opts.currency
+        });
+        input.value = texto2;
+        if (manterCursor) input.setSelectionRange(texto2.length, texto2.length);
+        return;
+      }
+      const todos = [].concat(this.gabaritos).join("");
+      let chars = [...limpar(bruto, todos)];
+      if (this.maiusculas) chars = chars.map((c) => c.toUpperCase());
+      let antes = cursor === null ? chars.length : [...limpar(bruto.slice(0, cursor), todos)].length;
+      if (apagando && chars.length === this._ultimo?.length) {
+        const idx = paraFrente ? antes : antes - 1;
+        if (idx >= 0 && idx < chars.length) {
+          chars.splice(idx, 1);
+          if (!paraFrente) antes -= 1;
+        }
+      }
+      const gabarito = escolherGabarito(chars, this.gabaritos);
+      chars = chars.slice(0, capacidade(gabarito));
+      const texto = aplicar(chars.join(""), gabarito);
+      this._ultimo = chars.join("");
+      input.value = texto;
+      if (manterCursor) {
+        const pos = cursorApos(texto, Math.min(antes, chars.length));
+        input.setSelectionRange(pos, pos);
+      }
+    }
+    _validar() {
+      const ok = this.isValid();
+      this._marcar(ok);
+      return ok;
+    }
+    /**
+     * Marca o campo. setCustomValidity faz o formulario do navegador barrar o
+     * submit sozinho, sem o projeto escrever nada.
+     */
+    _marcar(ok) {
+      const msg = ok ? "" : this.opts.errorText || this.preset?.erro || "Valor inv\xE1lido";
+      this.input.setCustomValidity?.(msg);
+      this.input.classList.toggle("tuc-invalid", !ok);
+      this.input.setAttribute("aria-invalid", ok ? "false" : "true");
+    }
+    _emit() {
+      const detail = { value: this.input.value, raw: this.getRaw(), number: this.getNumber(), instance: this };
+      this.opts.onChange?.(detail.value, detail);
+      this.input.dispatchEvent(new CustomEvent("tucano:change", { detail, bubbles: true }));
+    }
+  };
+  function omitUndefined5(obj) {
+    const out = {};
+    for (const [k, v] of Object.entries(obj || {})) if (v !== void 0) out[k] = v;
+    return out;
+  }
+  function autoInit5(scope = document) {
+    const out = [];
+    const alvos = scope.querySelectorAll("[data-tuc-mask]:not([data-tuc-ready]), [data-tuc-reveal]:not([data-tuc-ready])");
+    for (const node of alvos) {
+      const d = node.dataset;
+      node.setAttribute("data-tuc-ready", "");
+      out.push(new Mask(node, {
+        format: d.tucMask || null,
+        validate: d.validate === "true" || d.validate === "",
+        decimals: d.decimals ? +d.decimals : void 0,
+        currency: d.currency || void 0,
+        errorText: d.errorText || void 0,
+        reveal: d.tucReveal !== void 0,
+        revealVisible: d.revealVisible ? +d.revealVisible : void 0
+      }));
+    }
+    return out;
+  }
+  function autoFormat(scope = document) {
+    const out = [];
+    for (const node of scope.querySelectorAll("[data-tuc-format]:not([data-tuc-formatted])")) {
+      const d = node.dataset;
+      node.setAttribute("data-tuc-formatted", "");
+      const bruto = (node.dataset.value ?? node.textContent).trim();
+      node.textContent = formatar(bruto, d.tucFormat, {
+        decimais: d.decimals ? +d.decimals : void 0,
+        moeda: d.currency || void 0
+      });
+      out.push(node);
+    }
+    return out;
+  }
+
   // src/js/index.js
   function init(scope = document) {
     return {
       datepickers: autoInit(scope),
       selects: autoInit2(scope),
       colorpickers: autoInit3(scope),
-      uploads: autoInit4(scope)
+      uploads: autoInit4(scope),
+      masks: autoInit5(scope),
+      formatted: autoFormat(scope)
     };
   }
   if (typeof document !== "undefined") {

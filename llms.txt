@@ -13,8 +13,8 @@ Licença: MIT
 
 Dois arquivos, sem build e sem npm:
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.5.2/dist/tucano.min.css">
-    <script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.5.2/dist/tucano.min.js" defer></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.6.0/dist/tucano.min.css">
+    <script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.6.0/dist/tucano.min.js" defer></script>
 
 Sempre prenda a versão. Global JS: `Tucano`.
 
@@ -101,6 +101,30 @@ O CSRF vai em X-CSRFToken, lido do cookie.
 
 Não existe progresso por arquivo no modo formulário: num submit comum o
 navegador envia tudo num bloco e não reporta andamento.
+
+## Máscaras
+
+    <input name="cpf" data-tuc-mask="cpf" data-validate="true">
+    <input name="valor" data-tuc-mask="real">
+    <input name="cpf" value="111.444.777-35" data-tuc-mask="cpf" data-tuc-reveal>
+    <span data-tuc-format="cpf">12345678901</span>
+
+Formatos: cpf, cnpj, cnpj-numerico, cpf-cnpj, telefone, celular, cep, real,
+moeda, data, hora, cartao. Gabarito livre aceita # (digito), A (letra) e *
+(ambos), ex.: data-tuc-mask="##/##".
+
+data-validate confere o digito verificador ao sair do campo e usa
+setCustomValidity, entao o navegador barra o submit sozinho.
+
+data-tuc-reveal adiciona o olho de mostrar/ocultar. Com conteudo, o campo nasce
+oculto exibindo so o final; o valor real fica num input hidden com o mesmo name,
+entao o servidor recebe completo. Em type=password o olho so alterna o type.
+
+data-tuc-format formata elementos de exibicao, sem input.
+
+CNPJ alfanumerico: 14 posicoes, mesma mascara, 12 primeiras aceitam letras, 2
+ultimas numericas, digito verificador pelo codigo ASCII menos 48. O formato
+`cnpj` aceita os dois; `cnpj-numerico` recusa letras.
 
 ## Django
 
