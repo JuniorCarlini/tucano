@@ -125,6 +125,25 @@
 .tuc-toast.is-sucesso { --tuc-toast-cor: #16a34a; }
 .tuc-toast.is-aviso   { --tuc-toast-cor: #d97706; }
 .tuc-toast.is-erro    { --tuc-toast-cor: #dc2626; }
+.tuc-toast.is-carregando { --tuc-toast-cor: var(--tuc-muted); }
+
+/*
+ * O icone de carregando e um arco de 3/4: parado ele nao diz nada, girando
+ * vira spinner. O transform-origin vai explicito porque um dia isto pode ser
+ * um <svg> aninhado, onde o padrao nao e o centro e o icone descreveria uma
+ * orbita em vez de girar no lugar.
+ */
+@keyframes tuc-girar {
+  to { rotate: 360deg; }
+}
+.tuc-toast.is-carregando .tuc-toast__icon svg {
+  transform-origin: center;
+  animation: tuc-girar 800ms linear infinite;
+}
+/* Spinner parado nao informa nada: em vez de remover o giro, so desacelera. */
+@media (prefers-reduced-motion: reduce) {
+  .tuc-toast.is-carregando .tuc-toast__icon svg { animation-duration: 2.4s; }
+}
 .tuc-toast .tuc-toast__icon { color: var(--tuc-toast-cor); }
 
 /* ------------------------------------------------------------------ *

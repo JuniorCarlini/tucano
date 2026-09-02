@@ -1629,6 +1629,23 @@
 .tuc-toast.is-erro {
   --tuc-toast-cor: #dc2626;
 }
+.tuc-toast.is-carregando {
+  --tuc-toast-cor: var(--tuc-muted);
+}
+@keyframes tuc-girar {
+  to {
+    rotate: 360deg;
+  }
+}
+.tuc-toast.is-carregando .tuc-toast__icon svg {
+  transform-origin: center;
+  animation: tuc-girar 800ms linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .tuc-toast.is-carregando .tuc-toast__icon svg {
+    animation-duration: 2.4s;
+  }
+}
 .tuc-toast .tuc-toast__icon {
   color: var(--tuc-toast-cor);
 }

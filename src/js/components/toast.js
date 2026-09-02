@@ -2,7 +2,7 @@ import { abrirComTransicao, el, icon, ICONS, nextId, on } from '../core/dom.js';
 import { ICONS_EXTRA } from '../core/dom-extra.js';
 
 const DEFAULTS = {
-  type: 'info',        // 'info' | 'sucesso' | 'aviso' | 'erro'
+  type: 'info',        // 'info' | 'sucesso' | 'aviso' | 'erro' | 'carregando'
   title: null,
   text: '',
   duration: undefined, // ms. null nao fecha sozinho. Padrao depende do tipo
@@ -17,10 +17,14 @@ const ICONE = {
   sucesso: ICONS_EXTRA.check,
   aviso: ICONS_EXTRA.alert,
   erro: ICONS_EXTRA.alert,
+  carregando: ICONS_EXTRA.spinner,
 };
 
-/** Erro fica mais tempo: a pessoa precisa ler e, muitas vezes, agir. */
-const DURACAO = { info: 4000, sucesso: 3500, aviso: 6000, erro: 8000 };
+/**
+ * Erro fica mais tempo: a pessoa precisa ler e, muitas vezes, agir.
+ * Carregando nao fecha sozinho — quem fecha e o fim da operacao.
+ */
+const DURACAO = { info: 4000, sucesso: 3500, aviso: 6000, erro: 8000, carregando: null };
 
 const containers = new Map();
 
@@ -129,22 +133,20 @@ function arranjar(cont) {
 export class Toast {
   constructor(opcoes = {}) {
     this.opts = { ...DEFAULTS, ...omitUndefined(opcoes) };
-    if (this.opts.duration === undefined) this.opts.duration = DURACAO[this.opts.type] ?? 4000;
+    // `in` e nao `??`: o null de carregando quer dizer "nao fecha sozinho", e
+    // com ?? ele cairia no padrao de 4s e o toast sumiria no meio da operacao.
+    if (this.opts.duration === undefined) {
+      this.opts.duration = this.opts.type in DURACAO ? DURACAO[this.opts.type] : 4000;
+    }
     this.id = nextId('toast');
     this._cleanups = [];
     this._montar();
   }
 
-  _montar() {
+  /** Os filhos do toast. Sai do _montar para que atualizar() reaproveite. */
+  _conteudo() {
     const { type, title, text, closable, action } = this.opts;
-    const urgente = type === 'erro';
-
-    this.node = el('div', {
-      class: `tuc-toast is-${type}`,
-      // role no proprio toast ajuda quem chega nele navegando.
-      role: urgente ? 'alert' : 'status',
-      id: this.id,
-    }, [
+    return [
       el('span', { class: 'tuc-toast__icon' }, [icon(ICONE[type] ?? ICONE.info, 17)]),
       el('div', { class: 'tuc-toast__body' }, [
         title ? el('strong', { class: 'tuc-toast__title', text: title }) : null,
@@ -158,7 +160,57 @@ export class Toast {
         type: 'button', class: 'tuc-btn is-ghost is-icon is-sm tuc-toast__close',
         'aria-label': 'Fechar', onclick: () => this.close(),
       }, [icon(ICONS.x, 14)]) : null,
-    ]);
+    ];
+  }
+
+  /**
+   * Troca o conteudo sem recriar o toast: e o que faz um "salvando" virar
+   * "salvo" no mesmo cartao, sem a pilha reorganizar e sem o olho perder de
+   * vista o aviso que ja estava lendo.
+   */
+  atualizar(opcoes = {}) {
+    if (!this.node) return this;
+
+    const anterior = this.opts.type;
+    this.opts = { ...this.opts, ...omitUndefined(opcoes) };
+    const { type } = this.opts;
+
+    // Mudou de tipo sem duracao explicita: vale a do tipo novo. Sem isto o
+    // carregando, que nao fecha sozinho, viraria um "salvo" eterno na tela.
+    if (opcoes.duration === undefined && type !== anterior) {
+      this.opts.duration = type in DURACAO ? DURACAO[type] : 4000;
+    }
+
+    this.node.classList.replace(`is-${anterior}`, `is-${type}`);
+    this.node.replaceChildren(...this._conteudo().filter(Boolean));
+
+    // Erro fala numa live region assertiva e o resto numa polida; mudar de
+    // regiao e o que faz o leitor de tela anunciar a virada. So nao desloca
+    // nada na tela porque a posicao vem do palco, e nao da regiao.
+    const urgente = type === 'erro';
+    this.node.setAttribute('role', urgente ? 'alert' : 'status');
+    const destino = this.container.querySelector(
+      urgente ? '.is-urgente' : '.tuc-toasts__live:not(.is-urgente)');
+    if (destino !== this.regiao) {
+      destino.append(this.node);
+      this.regiao = destino;
+    }
+
+    clearTimeout(this.timer);
+    if (this.opts.duration) this._iniciarRelogio();
+    arranjar(this.container);
+    return this;
+  }
+
+  _montar() {
+    const urgente = this.opts.type === 'erro';
+
+    this.node = el('div', {
+      class: `tuc-toast is-${this.opts.type}`,
+      // role no proprio toast ajuda quem chega nele navegando.
+      role: urgente ? 'alert' : 'status',
+      id: this.id,
+    }, this._conteudo());
 
     this.node._tucano = this;
     this.node.dataset.seq = String(++sequencia);
@@ -252,9 +304,35 @@ export function toast(opcoesOuTexto, extra = {}) {
   return new Toast({ ...base, ...extra });
 }
 
-for (const tipo of ['info', 'sucesso', 'aviso', 'erro']) {
+for (const tipo of ['info', 'sucesso', 'aviso', 'erro', 'carregando']) {
   toast[tipo] = (texto, extra = {}) => toast({ type: tipo, text: texto, ...extra });
 }
+
+/**
+ * Acompanha uma promessa num toast so: abre em carregando e vira sucesso ou
+ * erro no mesmo cartao, em vez de fechar um e abrir outro.
+ *
+ *   Tucano.toast.promessa(fetch(url), {
+ *     carregando: 'Enviando...',
+ *     sucesso: (r) => `Enviado (${r.status})`,
+ *     erro: 'Nao deu para enviar',
+ *   });
+ *
+ * Devolve a promessa recebida, para nao atrapalhar quem ja encadeava nela.
+ */
+toast.promessa = (promessa, msgs = {}) => {
+  const { carregando, sucesso, erro, ...resto } = msgs;
+  const t = toast.carregando(carregando ?? 'Carregando...', resto);
+  const render = (v, dado, padrao) => {
+    const r = typeof v === 'function' ? v(dado) : v;
+    return r ?? padrao;
+  };
+  Promise.resolve(promessa).then(
+    (dado) => t.atualizar({ type: 'sucesso', text: render(sucesso, dado, 'Pronto') }),
+    (falha) => t.atualizar({ type: 'erro', text: render(erro, falha, 'Algo deu errado') }),
+  );
+  return promessa;
+};
 
 function omitUndefined(obj) {
   const out = {};

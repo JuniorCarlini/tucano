@@ -1458,6 +1458,7 @@ var ICONS_EXTRA = {
   upload: "M12 16V4M7 9l5-5 5 5M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2",
   file: "M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6",
   retry: "M21 12a9 9 0 11-9-9c2.5 0 4.9 1 6.7 2.7L21 8M21 3v5h-5",
+  spinner: "M21 12a9 9 0 11-9-9",
   alert: "M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z",
   info: "M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z",
   eye: "M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z M12 15a3 3 0 100-6 3 3 0 000 6z",
@@ -3477,7 +3478,7 @@ function autoFormat(scope = document) {
 // src/js/components/toast.js
 var DEFAULTS6 = {
   type: "info",
-  // 'info' | 'sucesso' | 'aviso' | 'erro'
+  // 'info' | 'sucesso' | 'aviso' | 'erro' | 'carregando'
   title: null,
   text: "",
   duration: void 0,
@@ -3494,9 +3495,10 @@ var ICONE = {
   info: ICONS_EXTRA.info,
   sucesso: ICONS_EXTRA.check,
   aviso: ICONS_EXTRA.alert,
-  erro: ICONS_EXTRA.alert
+  erro: ICONS_EXTRA.alert,
+  carregando: ICONS_EXTRA.spinner
 };
-var DURACAO = { info: 4e3, sucesso: 3500, aviso: 6e3, erro: 8e3 };
+var DURACAO = { info: 4e3, sucesso: 3500, aviso: 6e3, erro: 8e3, carregando: null };
 var containers = /* @__PURE__ */ new Map();
 function container(posicao) {
   if (containers.has(posicao)) return containers.get(posicao);
@@ -3558,20 +3560,17 @@ function arranjar(cont) {
 var Toast = class {
   constructor(opcoes = {}) {
     this.opts = { ...DEFAULTS6, ...omitUndefined6(opcoes) };
-    if (this.opts.duration === void 0) this.opts.duration = DURACAO[this.opts.type] ?? 4e3;
+    if (this.opts.duration === void 0) {
+      this.opts.duration = this.opts.type in DURACAO ? DURACAO[this.opts.type] : 4e3;
+    }
     this.id = nextId("toast");
     this._cleanups = [];
     this._montar();
   }
-  _montar() {
+  /** Os filhos do toast. Sai do _montar para que atualizar() reaproveite. */
+  _conteudo() {
     const { type, title, text, closable, action } = this.opts;
-    const urgente = type === "erro";
-    this.node = el("div", {
-      class: `tuc-toast is-${type}`,
-      // role no proprio toast ajuda quem chega nele navegando.
-      role: urgente ? "alert" : "status",
-      id: this.id
-    }, [
+    return [
       el("span", { class: "tuc-toast__icon" }, [icon(ICONE[type] ?? ICONE.info, 17)]),
       el("div", { class: "tuc-toast__body" }, [
         title ? el("strong", { class: "tuc-toast__title", text: title }) : null,
@@ -3592,7 +3591,45 @@ var Toast = class {
         "aria-label": "Fechar",
         onclick: () => this.close()
       }, [icon(ICONS.x, 14)]) : null
-    ]);
+    ];
+  }
+  /**
+   * Troca o conteudo sem recriar o toast: e o que faz um "salvando" virar
+   * "salvo" no mesmo cartao, sem a pilha reorganizar e sem o olho perder de
+   * vista o aviso que ja estava lendo.
+   */
+  atualizar(opcoes = {}) {
+    if (!this.node) return this;
+    const anterior = this.opts.type;
+    this.opts = { ...this.opts, ...omitUndefined6(opcoes) };
+    const { type } = this.opts;
+    if (opcoes.duration === void 0 && type !== anterior) {
+      this.opts.duration = type in DURACAO ? DURACAO[type] : 4e3;
+    }
+    this.node.classList.replace(`is-${anterior}`, `is-${type}`);
+    this.node.replaceChildren(...this._conteudo().filter(Boolean));
+    const urgente = type === "erro";
+    this.node.setAttribute("role", urgente ? "alert" : "status");
+    const destino = this.container.querySelector(
+      urgente ? ".is-urgente" : ".tuc-toasts__live:not(.is-urgente)"
+    );
+    if (destino !== this.regiao) {
+      destino.append(this.node);
+      this.regiao = destino;
+    }
+    clearTimeout(this.timer);
+    if (this.opts.duration) this._iniciarRelogio();
+    arranjar(this.container);
+    return this;
+  }
+  _montar() {
+    const urgente = this.opts.type === "erro";
+    this.node = el("div", {
+      class: `tuc-toast is-${this.opts.type}`,
+      // role no proprio toast ajuda quem chega nele navegando.
+      role: urgente ? "alert" : "status",
+      id: this.id
+    }, this._conteudo());
     this.node._tucano = this;
     this.node.dataset.seq = String(++sequencia);
     const alvo = container(this.opts.position);
@@ -3665,9 +3702,22 @@ function toast(opcoesOuTexto, extra = {}) {
   const base = typeof opcoesOuTexto === "string" ? { text: opcoesOuTexto } : opcoesOuTexto;
   return new Toast({ ...base, ...extra });
 }
-for (const tipo of ["info", "sucesso", "aviso", "erro"]) {
+for (const tipo of ["info", "sucesso", "aviso", "erro", "carregando"]) {
   toast[tipo] = (texto, extra = {}) => toast({ type: tipo, text: texto, ...extra });
 }
+toast.promessa = (promessa, msgs = {}) => {
+  const { carregando, sucesso, erro, ...resto } = msgs;
+  const t = toast.carregando(carregando ?? "Carregando...", resto);
+  const render = (v, dado, padrao) => {
+    const r = typeof v === "function" ? v(dado) : v;
+    return r ?? padrao;
+  };
+  Promise.resolve(promessa).then(
+    (dado) => t.atualizar({ type: "sucesso", text: render(sucesso, dado, "Pronto") }),
+    (falha) => t.atualizar({ type: "erro", text: render(erro, falha, "Algo deu errado") })
+  );
+  return promessa;
+};
 function omitUndefined6(obj) {
   const out = {};
   for (const [k, v] of Object.entries(obj || {})) if (v !== void 0) out[k] = v;
