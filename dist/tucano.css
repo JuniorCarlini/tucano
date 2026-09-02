@@ -1593,7 +1593,7 @@
   .tuc-toast, .tuc-toast.is-closing {
     transition: opacity 100ms linear;
   }
-  .tuc-toasts__live {
+  .tuc-toasts__palco {
     transition: none;
   }
 }

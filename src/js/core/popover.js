@@ -48,6 +48,14 @@ export class Popover {
     this._seta = this.panel.querySelector('[data-tuc-seta]');
     this._reposition();
 
+    /*
+     * _reposition pode ter fechado o popover agora mesmo, quando fecharSeSolto
+     * esta ligado e a ancora ja nasce fora da tela. Sem esta guarda os
+     * listeners abaixo seriam registrados depois do hide, e o hide seguinte
+     * sairia cedo por `!this.open` sem nunca remove-los.
+     */
+    if (!this.open) return;
+
     // `capture` para reagir a scroll de qualquer ancestral, nao so da janela.
     this._cleanups.push(
       on(window, 'scroll', this._reposition, true),

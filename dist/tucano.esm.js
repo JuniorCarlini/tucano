@@ -352,6 +352,7 @@ var Popover = class {
     this.appendTo.append(this.panel);
     this._seta = this.panel.querySelector("[data-tuc-seta]");
     this._reposition();
+    if (!this.open) return;
     this._cleanups.push(
       on(window, "scroll", this._reposition, true),
       on(window, "resize", this._reposition),

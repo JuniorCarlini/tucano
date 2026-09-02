@@ -111,7 +111,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .tuc-toast, .tuc-toast.is-closing { transition: opacity 100ms linear; }
-  .tuc-toasts__live { transition: none; }
+  .tuc-toasts__palco { transition: none; }
 }
 
 .tuc-toast__icon { @apply shrink-0; }
