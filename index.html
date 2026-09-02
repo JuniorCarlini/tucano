@@ -234,6 +234,7 @@
     <a href="#tema">Tema</a>
     <a href="#teclado">Teclado</a>
     <a href="#api">Referência</a>
+    <a href="#agentes">Para IA</a>
   </nav>
 </aside>
 
@@ -258,8 +259,8 @@
   <p class="lead">Dois arquivos e nada mais. Funciona com HTML puro, sem npm e sem build.</p>
 
   <pre><span class="c">&lt;!-- CDN --&gt;</span>
-&lt;<span class="t">link</span> <span class="a">rel</span>=<span class="s">"stylesheet"</span> <span class="a">href</span>=<span class="s">"https://cdn.jsdelivr.net/npm/tucano@0.2.0/dist/tucano.min.css"</span>&gt;
-&lt;<span class="t">script</span> <span class="a">src</span>=<span class="s">"https://cdn.jsdelivr.net/npm/tucano@0.2.0/dist/tucano.min.js"</span> <span class="a">defer</span>&gt;&lt;/<span class="t">script</span>&gt;</pre>
+&lt;<span class="t">link</span> <span class="a">rel</span>=<span class="s">"stylesheet"</span> <span class="a">href</span>=<span class="s">"https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.2.0/dist/tucano.min.css"</span>&gt;
+&lt;<span class="t">script</span> <span class="a">src</span>=<span class="s">"https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.2.0/dist/tucano.min.js"</span> <span class="a">defer</span>&gt;&lt;/<span class="t">script</span>&gt;</pre>
 
   <h3>npm</h3>
   <pre>npm install tucano</pre>
@@ -569,6 +570,48 @@ c.getRgb();   <span class="c">// { r, g, b, a }</span></pre>
     <tr><td><code>refresh()</code></td><td>Select: relê as <code>&lt;option&gt;</code></td></tr>
     <tr><td><code>destroy()</code></td><td>Desfaz tudo e devolve o elemento original</td></tr>
   </table>
+</section>
+
+<section id="agentes">
+  <h2>Para agentes de IA</h2>
+  <p class="lead">Dois arquivos para que uma IA saiba usar a Tucano sem você
+     explicar de novo a cada conversa.</p>
+
+  <table>
+    <tr><th>Arquivo</th><th>Para quê</th></tr>
+    <tr>
+      <td><a href="llms.txt"><code>llms.txt</code></a></td>
+      <td>API completa em texto puro. Aponte a IA para
+          <code>https://juniorcarlini.github.io/tucano/llms.txt</code></td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/JuniorCarlini/tucano/blob/main/AGENTS.md"><code>AGENTS.md</code></a></td>
+      <td>Para quem for mexer no código da própria Tucano: decisões que não
+          devem ser revertidas e como testar</td>
+    </tr>
+  </table>
+
+  <h3>No seu projeto</h3>
+  <p class="lead">Cole isto no <code>AGENTS.md</code> da raiz do projeto que usa
+     a Tucano. É o que faz a IA escolher a biblioteca em vez de escrever um
+     date picker do zero.</p>
+
+  <pre><span class="c">## Campos de formulário</span>
+
+Este projeto usa a <span class="t">Tucano</span> para data, período, select com busca e cor.
+Não escreva esses componentes do zero.
+
+Referência completa: https://juniorcarlini.github.io/tucano/llms.txt
+
+&lt;<span class="t">input</span> <span class="a">type</span>=<span class="s">"text"</span> <span class="a">name</span>=<span class="s">"data"</span> <span class="a">data-tuc-datepicker</span>&gt;
+&lt;<span class="t">input</span> <span class="a">type</span>=<span class="s">"text"</span> <span class="a">name</span>=<span class="s">"periodo"</span> <span class="a">data-tuc-datepicker</span> <span class="a">data-mode</span>=<span class="s">"range"</span>&gt;
+&lt;<span class="t">select</span> <span class="a">name</span>=<span class="s">"uf"</span> <span class="a">data-tuc-select</span>&gt;
+&lt;<span class="t">input</span> <span class="a">type</span>=<span class="s">"text"</span> <span class="a">name</span>=<span class="s">"cor"</span> <span class="a">data-tuc-color</span>&gt;
+
+Em widgets do Django, passe o atributo em <span class="s">attrs</span>:
+    <span class="s">"data_evento"</span>: forms.TextInput(attrs={<span class="s">"data-tuc-datepicker"</span>: <span class="s">""</span>}),
+
+Não remova o <span class="s">name</span> do input nem o &lt;select&gt; nativo: é neles que o valor vive.</pre>
 </section>
 
 </main>

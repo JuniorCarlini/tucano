@@ -23,8 +23,8 @@ distribuídos já compilados — o projeto que consome não precisa de build.
 Dois arquivos e nada mais — sem npm, sem build, sem escrever JavaScript:
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tucano@0.2.0/dist/tucano.min.css">
-<script src="https://cdn.jsdelivr.net/npm/tucano@0.2.0/dist/tucano.min.js" defer></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.2.0/dist/tucano.min.css">
+<script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.2.0/dist/tucano.min.js" defer></script>
 
 <input type="text" name="data" data-tuc-datepicker>
 <select name="uf" data-tuc-select><option>...</option></select>
@@ -34,12 +34,6 @@ Dois arquivos e nada mais — sem npm, sem build, sem escrever JavaScript:
 Funciona junto com o CDN do Tailwind sem conflito: o pacote **não** envia o
 preflight, e os elementos internos têm reset próprio para não serem atingidos
 pelo preflight do Tailwind nem pelo CSS do projeto.
-
-Sem publicar no npm, o jsDelivr também serve direto do GitHub:
-
-```html
-<script src="https://cdn.jsdelivr.net/gh/SEU-USUARIO/tucano@v0.2.0/dist/tucano.min.js" defer></script>
-```
 
 Prenda sempre a versão (`@0.2.0`). `@latest` quebra sozinho quando você publicar
 uma versão nova.
@@ -351,6 +345,17 @@ aberto — voltando ao input ao fechar. `prefers-reduced-motion` desliga a
 animação.
 
 ---
+
+## Para agentes de IA
+
+[`llms.txt`](llms.txt) tem a API completa em texto puro — aponte a IA para
+`https://juniorcarlini.github.io/tucano/llms.txt`.
+
+[`AGENTS.md`](AGENTS.md) é para quem for mexer no código da própria Tucano.
+
+Nos projetos que **usam** a biblioteca, um `AGENTS.md` de três linhas evita que
+a IA escreva um date picker do zero — o modelo está na
+[documentação](https://juniorcarlini.github.io/tucano/#agentes).
 
 ## Desenvolvimento
 

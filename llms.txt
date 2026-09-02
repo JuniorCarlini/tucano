@@ -1,0 +1,130 @@
+# Tucano
+
+> Date picker, select com busca e color picker para formulários web.
+> JavaScript puro, sem dependências em runtime. 15 KB JS + 4 KB CSS (gzip).
+> Os estilos são escritos em Tailwind mas distribuídos já compilados: o projeto
+> que consome não precisa de build e não recebe o preflight do Tailwind.
+
+Documentação: https://juniorcarlini.github.io/tucano/
+Código: https://github.com/JuniorCarlini/tucano
+Licença: MIT
+
+## Instalação
+
+Dois arquivos, sem build e sem npm:
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.2.0/dist/tucano.min.css">
+    <script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.2.0/dist/tucano.min.js" defer></script>
+
+Sempre prenda a versão. Global JS: `Tucano`.
+
+Todo elemento com `data-tuc-*` é inicializado sozinho no load e de novo a cada
+`htmx:afterSwap`. Não é preciso escrever JavaScript.
+
+## Date picker
+
+    <input type="text" name="data"    data-tuc-datepicker>
+    <input type="text" name="quando"  data-tuc-datepicker data-time="true">
+    <input type="text" name="periodo" data-tuc-datepicker data-mode="range">
+
+Atributos: data-mode ("single"|"range"), data-time, data-seconds,
+data-minute-step, data-locale, data-format, data-months, data-min, data-max,
+data-presets, data-week-numbers, data-iso-name, data-placement, data-native.
+
+Opções equivalentes em JS, mais: disabledDates (date => boolean), autoApply,
+clearable, firstDayOfWeek, onChange.
+
+O campo tem máscara derivada do formato (dd/mm/aaaa, dd/mm/aaaa hh:mm, e a
+variante com travessão no modo range). Digita-se só números.
+
+Em telas de toque (pointer: coarse) data e data+hora trocam pelo seletor nativo
+do sistema. Período não troca: não existe seletor de intervalo nativo em HTML.
+
+## Select
+
+Enriquece um <select> nativo, que continua no DOM guardando o valor. Portanto
+name, multiple e required seguem funcionando.
+
+    <select name="uf" data-tuc-select>
+      <option value="">Selecione...</option>   <!-- vira placeholder, não é opção -->
+      <option value="SP">São Paulo</option>
+    </select>
+
+    <select name="tags" data-tuc-select multiple data-placeholder="Adicione...">
+
+Atributos: data-placeholder, data-search, data-empty-text, data-max-items,
+data-clearable, data-close-on-select, data-wrap-tags.
+
+A busca ignora acentos ("sao" encontra "São Paulo"). <optgroup> vira grupo,
+<option disabled> fica desabilitada. O campo tem altura fixa e linha única; o
+excesso de tags rola na horizontal.
+
+Método útil: instancia.refresh() relê as <option> depois de um swap do HTMX.
+
+## Color picker
+
+    <input type="text" name="cor" value="#4f46e5" data-tuc-color>
+    <input type="text" name="marca" data-tuc-color data-alpha="false"
+           data-swatches="#0a0a0a,#ea580c,#16a34a">
+
+Atributos: data-format ("hex"|"rgb"|"hsl"), data-alpha, data-swatches,
+data-placement.
+
+Aceita na entrada: #rgb, #rgba, #rrggbb, #rrggbbaa, rgb(), rgba(), hsl(), hsla().
+Texto inválido não zera a cor: volta para o valor atual.
+
+## Django
+
+O campo visível mostra o formato do locale; um <input type="hidden"> com o mesmo
+name carrega o valor em ISO, e é esse que chega no request.POST.
+
+    widgets = {
+        "data_evento": forms.TextInput(attrs={"data-tuc-datepicker": "", "data-time": "true"}),
+        "periodo":     forms.TextInput(attrs={"data-tuc-datepicker": "", "data-mode": "range"}),
+        "uf":          forms.Select(attrs={"data-tuc-select": ""}),
+        "tags":        forms.SelectMultiple(attrs={"data-tuc-select": ""}),
+        "cor":         forms.TextInput(attrs={"data-tuc-color": ""}),
+    }
+
+O que chega no servidor:
+
+    data_evento = 2026-12-25T09:30      # DateTimeField faz o parse direto
+    periodo     = 2026-03-01,2026-03-15 # separe na vírgula no clean_
+    tags        = django                # request.POST.getlist("tags")
+    tags        = htmx
+    cor         = #4f46e5
+
+## API
+
+    document.addEventListener('tucano:change', (e) => {
+      e.target.name; e.detail.value; e.detail.iso;
+    });
+
+    new Tucano.DatePicker('#campo', { mode: 'range', time: true });
+    new Tucano.Select('#uf', { maxItems: 3 });
+    new Tucano.ColorPicker('#cor', { format: 'rgb' });
+
+Métodos: getValue, setValue, clear, open, close, destroy. Select tem refresh.
+ColorPicker tem getRgb.
+
+## Tema
+
+Todas as cores e medidas são variáveis CSS com prefixo --tuc-. Sobrescreva sem
+recompilar:
+
+    .tuc-dp, .tuc-select, .tuc-select__menu, .tuc-color-field, .tuc-colorpicker {
+      --tuc-accent: #0d9488;
+      --tuc-radius: 1rem;
+    }
+
+Escuro segue a classe .dark no <html>. Para seguir o sistema operacional, use
+<html data-tuc-theme="auto"> — é opt-in, para o componente não escurecer sozinho
+numa página clara.
+
+## Ao gerar código que usa Tucano
+
+- Prefira os data-attributes. Só use a API JS quando precisar de opções que não
+  existem como atributo (disabledDates, presets customizados, onChange).
+- Não escreva date picker, select com busca ou color picker do zero.
+- Não remova o <select> nativo nem o name do input: é neles que o valor vive.
+- Não estilize as classes internas (.tuc-*) diretamente; use as variáveis CSS.
