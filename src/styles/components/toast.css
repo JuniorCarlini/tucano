@@ -43,6 +43,7 @@
     opacity var(--tuc-duration-lg) var(--tuc-ease),
     translate var(--tuc-duration-lg) var(--tuc-ease),
     scale var(--tuc-duration-lg) var(--tuc-ease);
+  will-change: translate, scale, opacity;
 }
 .tuc-toasts[class*='is-top'] .tuc-toast { top: 0; }
 .tuc-toasts[class*='is-bottom'] .tuc-toast { bottom: 0; transform-origin: center bottom; }
@@ -75,9 +76,22 @@
 
 .tuc-toast__icon { @apply mt-px shrink-0; }
 .tuc-toast__body { @apply flex min-w-0 flex-1 flex-col gap-0.5; }
-.tuc-toast__title { @apply font-semibold; }
-.tuc-toast__text { @apply break-words; color: var(--tuc-muted); }
-.tuc-toast__title + .tuc-toast__text { @apply text-[0.8125rem]; }
+.tuc-toast__title {
+  @apply font-semibold;
+  font-size: 0.875rem;
+  line-height: 1.35;
+}
+.tuc-toast__text {
+  @apply break-words;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--tuc-muted);
+}
+/* Sozinho, o texto e a mensagem principal e ganha o peso do titulo. */
+.tuc-toast__body > .tuc-toast__text:only-child {
+  font-size: 0.875rem;
+  color: var(--tuc-fg);
+}
 
 .tuc-toast__action { @apply self-center; }
 .tuc-toast__close { @apply -mr-1 self-start; }
@@ -93,28 +107,29 @@
  * ------------------------------------------------------------------ */
 
 .tuc-tip {
-  @apply pointer-events-none z-[100] px-2.5 py-1.5;
+  @apply pointer-events-none z-[100] px-3 py-1.5;
   font-family: var(--tuc-font);
   font-size: 0.8125rem;
-  line-height: 1.4;
+  line-height: 1.45;
+  font-weight: 500;
   color: var(--tuc-bg);
   background: var(--tuc-fg);
   border-radius: var(--tuc-radius-sm);
-  box-shadow: 0 4px 12px -4px rgb(0 0 0 / 0.3);
+  box-shadow: 0 4px 12px -4px rgb(0 0 0 / 0.35);
 
+  /* Mesmo movimento dos paineis: opacidade, zoom de 95%% e 8px vindo do lado
+     oposto ao que a dica abriu. */
   opacity: 0;
-  scale: 0.96;
-  translate: 0 0.25rem;   /* sobe ao aparecer: dá direcao ao movimento */
+  scale: 0.95;
+  translate: 0 0.5rem;
   transition:
-    opacity 140ms var(--tuc-ease),
-    scale 140ms var(--tuc-ease),
-    translate 140ms var(--tuc-ease);
+    opacity var(--tuc-duration) ease-out,
+    scale var(--tuc-duration) ease-out,
+    translate var(--tuc-duration) ease-out;
 }
+.tuc-tip[data-side='bottom'] { translate: 0 -0.5rem; }
 .tuc-tip.is-open { opacity: 1; scale: 1; translate: 0 0; }
-.tuc-tip[data-side='top'] { translate: 0 0.25rem; }
-.tuc-tip[data-side='bottom'] { translate: 0 -0.25rem; }
-.tuc-tip[data-side='bottom'].is-open { translate: 0 0; }
 
 @media (prefers-reduced-motion: reduce) {
-  .tuc-tip { transition: none; scale: none; }
+  .tuc-tip, .tuc-tip.is-open { transition: opacity 90ms linear; scale: none; translate: none; }
 }

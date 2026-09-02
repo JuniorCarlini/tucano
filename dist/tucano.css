@@ -120,7 +120,7 @@
   }
 }
 @media (max-width: 40rem) {
-  .tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-btn {
+  .tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-btn {
     --tuc-text: 1rem;
     --tuc-swatch: 2.5rem;
     --tuc-control-height: 2.75rem;
@@ -1545,6 +1545,7 @@
   opacity: 0;
   translate: var(--tuc-toast-de, 110%) var(--tuc-toast-dy, 0);
   transition: opacity var(--tuc-duration-lg) var(--tuc-ease), translate var(--tuc-duration-lg) var(--tuc-ease), scale var(--tuc-duration-lg) var(--tuc-ease);
+  will-change: translate, scale, opacity;
 }
 .tuc-toasts[class*='is-top'] .tuc-toast {
   top: 0;
@@ -1589,13 +1590,18 @@
 .tuc-toast__title {
   --tw-font-weight: var(--font-weight-semibold, 600);
   font-weight: var(--font-weight-semibold, 600);
+  font-size: 0.875rem;
+  line-height: 1.35;
 }
 .tuc-toast__text {
   overflow-wrap: break-word;
+  font-size: 0.8125rem;
+  line-height: 1.45;
   color: var(--tuc-muted);
 }
-.tuc-toast__title + .tuc-toast__text {
-  font-size: 0.8125rem;
+.tuc-toast__body > .tuc-toast__text:only-child {
+  font-size: 0.875rem;
+  color: var(--tuc-fg);
 }
 .tuc-toast__action {
   align-self: center;
@@ -1622,38 +1628,34 @@
 .tuc-tip {
   pointer-events: none;
   z-index: 100;
-  padding-inline: calc(var(--spacing, 0.25rem) * 2.5);
+  padding-inline: calc(var(--spacing, 0.25rem) * 3);
   padding-block: calc(var(--spacing, 0.25rem) * 1.5);
   font-family: var(--tuc-font);
   font-size: 0.8125rem;
-  line-height: 1.4;
+  line-height: 1.45;
+  font-weight: 500;
   color: var(--tuc-bg);
   background: var(--tuc-fg);
   border-radius: var(--tuc-radius-sm);
-  box-shadow: 0 4px 12px -4px rgb(0 0 0 / 0.3);
+  box-shadow: 0 4px 12px -4px rgb(0 0 0 / 0.35);
   opacity: 0;
-  scale: 0.96;
-  translate: 0 0.25rem;
-  transition: opacity 140ms var(--tuc-ease), scale 140ms var(--tuc-ease), translate 140ms var(--tuc-ease);
+  scale: 0.95;
+  translate: 0 0.5rem;
+  transition: opacity var(--tuc-duration) ease-out, scale var(--tuc-duration) ease-out, translate var(--tuc-duration) ease-out;
+}
+.tuc-tip[data-side='bottom'] {
+  translate: 0 -0.5rem;
 }
 .tuc-tip.is-open {
   opacity: 1;
   scale: 1;
   translate: 0 0;
 }
-.tuc-tip[data-side='top'] {
-  translate: 0 0.25rem;
-}
-.tuc-tip[data-side='bottom'] {
-  translate: 0 -0.25rem;
-}
-.tuc-tip[data-side='bottom'].is-open {
-  translate: 0 0;
-}
 @media (prefers-reduced-motion: reduce) {
-  .tuc-tip {
-    transition: none;
+  .tuc-tip, .tuc-tip.is-open {
+    transition: opacity 90ms linear;
     scale: none;
+    translate: none;
   }
 }
 @property --tw-font-weight {

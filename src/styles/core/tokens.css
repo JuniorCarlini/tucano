@@ -127,17 +127,20 @@
  * notebook com tela de toque casaria `coarse` e receberia comportamento de
  * celular sem precisar.
  */
+/*
+ * Toast e tooltip ficam de fora de proposito: a regra dos 16px existe para
+ * evitar o zoom do iOS ao focar um campo, e neles nao ha campo nenhum. Herdar
+ * o tamanho so deixaria o aviso desproporcional no celular.
+ */
 @media (max-width: 40rem) {
   .tuc-dp,
   .tuc-select,
   .tuc-select__menu,
   .tuc-colorpicker,
   .tuc-color-field,
-.tuc-upload,
-.tuc-field,
-.tuc-toast,
-.tuc-tip,
-.tuc-btn {
+  .tuc-upload,
+  .tuc-field,
+  .tuc-btn {
     --tuc-text: 1rem;
     --tuc-swatch: 2.5rem;          /* acompanha o texto maior no toque */
     --tuc-control-height: 2.75rem; /* 44px: alvo de toque confortavel, e o
