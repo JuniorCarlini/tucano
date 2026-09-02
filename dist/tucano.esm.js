@@ -3508,6 +3508,7 @@ function container(posicao) {
     el("div", { class: "tuc-toasts__live", "aria-live": "polite", "aria-atomic": "false" }),
     el("div", { class: "tuc-toasts__live is-urgente", "aria-live": "assertive", "aria-atomic": "false" })
   ]);
+  node.style.setProperty("--tuc-toast-respiro", `${RESPIRO}px`);
   document.body.append(node);
   containers.set(posicao, node);
   const expandir = (sim) => {

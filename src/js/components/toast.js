@@ -41,6 +41,10 @@ function container(posicao) {
     el('div', { class: 'tuc-toasts__live', 'aria-live': 'polite', 'aria-atomic': 'false' }),
     el('div', { class: 'tuc-toasts__live is-urgente', 'aria-live': 'assertive', 'aria-atomic': 'false' }),
   ]);
+  // O respiro sai daqui para o CSS porque a ponte de hover precisa cobrir
+  // exatamente o mesmo vao que arranjar() distribui — dois valores soltos
+  // divergiriam na primeira vez que alguem mexesse em um deles.
+  node.style.setProperty('--tuc-toast-respiro', `${RESPIRO}px`);
   document.body.append(node);
   containers.set(posicao, node);
 

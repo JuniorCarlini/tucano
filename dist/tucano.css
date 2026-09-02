@@ -1587,6 +1587,18 @@
   flex-direction: column;
   gap: calc(var(--spacing, 0.25rem) * 0.5);
 }
+.tuc-toast::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(var(--tuc-toast-respiro, 12px) * -1);
+  bottom: calc(var(--tuc-toast-respiro, 12px) * -1);
+  z-index: -1;
+}
+.tuc-toast.is-closing::after {
+  display: none;
+}
 .tuc-toast__title {
   --tw-font-weight: var(--font-weight-semibold, 600);
   font-weight: var(--font-weight-semibold, 600);

@@ -76,6 +76,26 @@
 
 .tuc-toast__icon { @apply mt-px shrink-0; }
 .tuc-toast__body { @apply flex min-w-0 flex-1 flex-col gap-0.5; }
+/*
+ * Ponte de hover. O container e pointer-events:none e so o toast recebe
+ * ponteiro, entao o respiro entre dois toasts abertos era vao morto: ao passar
+ * o mouse de um aviso para o outro o pointerleave do container disparava, a
+ * pilha fechava, tudo se movia e o ponteiro reentrava — piscando em loop.
+ * Estender a area sensivel de cada toast por meio respiro para cada lado faz
+ * as areas vizinhas se encostarem, e o percurso nunca fica sem alvo.
+ */
+.tuc-toast::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(var(--tuc-toast-respiro, 12px) * -1);
+  bottom: calc(var(--tuc-toast-respiro, 12px) * -1);
+  z-index: -1;
+}
+/* Saindo de cena o toast nao deve mais capturar o ponteiro. */
+.tuc-toast.is-closing::after { display: none; }
+
 .tuc-toast__title {
   @apply font-semibold;
   font-size: 0.875rem;
