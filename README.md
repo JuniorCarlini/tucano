@@ -25,8 +25,8 @@ distribuídos já compilados — o projeto que consome não precisa de build.
 Dois arquivos e nada mais — sem npm, sem build, sem escrever JavaScript:
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.6.0/dist/tucano.min.css">
-<script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.6.0/dist/tucano.min.js" defer></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.6.1/dist/tucano.min.css">
+<script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.6.1/dist/tucano.min.js" defer></script>
 
 <input type="text" name="data" data-tuc-datepicker>
 <select name="uf" data-tuc-select><option>...</option></select>
@@ -325,6 +325,25 @@ dado completo — o que fica escondido é só a tela. Print, gravação de supor
 quem olha por cima do ombro deixam de expor o dado por padrão.
 
 Em `type="password"` o olho apenas alterna o `type`, como se espera.
+
+Funciona em qualquer campo, não só documento. O modo de esconder muda o que
+fica à mostra:
+
+| Modo | Quando | Resultado |
+| --- | --- | --- |
+| `fim` (padrão) | Documento, cartão, conta, telefone | `•••• •••• •••• 1234` |
+| `email` | Automático em `type="email"` | `j•••••••••@empresa.com.br` |
+| `tudo` | Senha, token, chave de API | `••••••••••••••••` |
+
+```html
+<input data-tuc-reveal data-reveal-visible="4">
+<input data-tuc-reveal="tudo">
+<input type="email" data-tuc-reveal>
+```
+
+O e-mail esconde ao contrário do resto de propósito: o domínio reconhece a
+conta, a parte local identifica a pessoa. Guardar o fim revelaria `om.br` e
+esconderia o útil.
 
 ### Só para exibir
 

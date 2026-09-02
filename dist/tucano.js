@@ -2818,6 +2818,7 @@ var Tucano = (() => {
     isMarcador: () => isMarcador,
     limpar: () => limpar,
     obscurecer: () => obscurecer,
+    obscurecerEmail: () => obscurecerEmail,
     validarCNPJ: () => validarCNPJ,
     validarCPF: () => validarCPF,
     validarCpfCnpj: () => validarCpfCnpj
@@ -2950,15 +2951,28 @@ var Tucano = (() => {
     cep: "#####-###",
     cartao: "#### #### #### ####"
   };
-  function obscurecer(texto, visiveis = 2, ponto = "\u2022") {
+  var PONTO = "\u2022";
+  function obscurecer(texto, visiveis = 2, modo = "fim") {
     const s = String(texto ?? "");
-    const total = [...s].filter((c) => /[0-9A-Za-z]/.test(c)).length;
+    if (!s) return s;
+    if (modo === "email") return obscurecerEmail(s);
+    const alfanumerico = (c) => /[0-9A-Za-z]/.test(c);
+    const total = [...s].filter(alfanumerico).length;
+    const mostrar = modo === "tudo" ? 0 : visiveis;
     let vistos = 0;
     return [...s].map((c) => {
-      if (!/[0-9A-Za-z]/.test(c)) return c;
+      if (!alfanumerico(c)) return modo === "tudo" ? PONTO : c;
       vistos++;
-      return vistos > total - visiveis ? c : ponto;
+      return vistos > total - mostrar ? c : PONTO;
     }).join("");
+  }
+  function obscurecerEmail(valor) {
+    const s = String(valor ?? "");
+    const arroba = s.lastIndexOf("@");
+    if (arroba < 1) return obscurecer(s, 0, "tudo");
+    const local = s.slice(0, arroba);
+    const dominio = s.slice(arroba);
+    return local[0] + PONTO.repeat(Math.max(local.length - 1, 1)) + dominio;
   }
 
   // src/js/components/mask.js
@@ -2992,7 +3006,9 @@ var Tucano = (() => {
     reveal: false,
     // olhinho para mostrar e ocultar
     revealVisible: 2,
-    // quantos caracteres ficam a mostra quando oculto
+    // quantos caracteres ficam a mostra no modo 'fim'
+    revealMode: null,
+    // 'fim' | 'email' | 'tudo'. null decide pelo campo
     locale: void 0,
     errorText: null,
     onChange: null
@@ -3101,6 +3117,15 @@ var Tucano = (() => {
         if (this.oculto) this.oculto.value = this.getRaw();
       }));
     }
+    /**
+     * Modo de esconder. Escolhido pelo campo quando nao informado: `type=email`
+     * guarda o dominio, o resto guarda o fim.
+     */
+    _modoOculto() {
+      if (this.opts.revealMode) return this.opts.revealMode;
+      if (this.input.type === "email") return "email";
+      return "fim";
+    }
     _alternar() {
       this.mostrando = !this.mostrando;
       this._pintarOlho();
@@ -3121,7 +3146,7 @@ var Tucano = (() => {
         } else {
           this.readOnlyOriginal = input.readOnly;
           this.valorReal = input.value;
-          input.value = obscurecer(input.value, this.opts.revealVisible);
+          input.value = obscurecer(input.value, this.opts.revealVisible, this._modoOculto());
           input.readOnly = true;
         }
       }
@@ -3238,7 +3263,8 @@ var Tucano = (() => {
         currency: d.currency || void 0,
         errorText: d.errorText || void 0,
         reveal: d.tucReveal !== void 0,
-        revealVisible: d.revealVisible ? +d.revealVisible : void 0
+        revealVisible: d.revealVisible ? +d.revealVisible : void 0,
+        revealMode: d.tucReveal || d.revealMode || void 0
       }));
     }
     return out;

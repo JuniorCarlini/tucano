@@ -26,6 +26,17 @@
   outline-offset: 1px;
 }
 
+/*
+ * O Edge injeta o proprio olho em campo de senha; sem esconder, ficariam dois
+ * lado a lado fazendo a mesma coisa. Gerenciador de senha e extensao continuam
+ * desenhando o icone deles — isso esta fora do nosso alcance, entao o espaco a
+ * direita e generoso para os dois caberem.
+ */
+.tuc-field > input::-ms-reveal,
+.tuc-field > input::-ms-clear {
+  display: none;
+}
+
 /* Enquanto oculto o texto e so leitura; o cursor avisa. */
 .tuc-field.is-hidden > input {
   cursor: default;

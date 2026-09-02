@@ -13,8 +13,8 @@ Licença: MIT
 
 Dois arquivos, sem build e sem npm:
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.6.0/dist/tucano.min.css">
-    <script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.6.0/dist/tucano.min.js" defer></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.6.1/dist/tucano.min.css">
+    <script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.6.1/dist/tucano.min.js" defer></script>
 
 Sempre prenda a versão. Global JS: `Tucano`.
 
@@ -116,9 +116,13 @@ moeda, data, hora, cartao. Gabarito livre aceita # (digito), A (letra) e *
 data-validate confere o digito verificador ao sair do campo e usa
 setCustomValidity, entao o navegador barra o submit sozinho.
 
-data-tuc-reveal adiciona o olho de mostrar/ocultar. Com conteudo, o campo nasce
-oculto exibindo so o final; o valor real fica num input hidden com o mesmo name,
+data-tuc-reveal adiciona o olho de mostrar/ocultar, em qualquer campo. Com
+conteudo, nasce oculto; o valor real fica num input hidden com o mesmo name,
 entao o servidor recebe completo. Em type=password o olho so alterna o type.
+
+Modos: data-tuc-reveal (fim, padrao, com data-reveal-visible para o numero de
+caracteres), data-tuc-reveal="tudo" (senha, token, chave) e "email"
+(automatico em type=email, guarda o dominio: j****@empresa.com.br).
 
 data-tuc-format formata elementos de exibicao, sem input.
 

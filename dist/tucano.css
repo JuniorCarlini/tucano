@@ -1343,6 +1343,9 @@
   outline: 2px solid var(--tuc-accent);
   outline-offset: 1px;
 }
+.tuc-field > input::-ms-reveal, .tuc-field > input::-ms-clear {
+  display: none;
+}
 .tuc-field.is-hidden > input {
   cursor: default;
   font-variant-numeric: tabular-nums;

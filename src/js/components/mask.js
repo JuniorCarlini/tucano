@@ -37,7 +37,8 @@ const DEFAULTS = {
   decimals: 2,
   currency: null,      // 'BRL' formata com R$
   reveal: false,       // olhinho para mostrar e ocultar
-  revealVisible: 2,    // quantos caracteres ficam a mostra quando oculto
+  revealVisible: 2,    // quantos caracteres ficam a mostra no modo 'fim'
+  revealMode: null,    // 'fim' | 'email' | 'tudo'. null decide pelo campo
   locale: undefined,
   errorText: null,
   onChange: null,
@@ -170,6 +171,16 @@ export class Mask {
     }));
   }
 
+  /**
+   * Modo de esconder. Escolhido pelo campo quando nao informado: `type=email`
+   * guarda o dominio, o resto guarda o fim.
+   */
+  _modoOculto() {
+    if (this.opts.revealMode) return this.opts.revealMode;
+    if (this.input.type === 'email') return 'email';
+    return 'fim';
+  }
+
   _alternar() {
     this.mostrando = !this.mostrando;
     this._pintarOlho();
@@ -189,7 +200,7 @@ export class Mask {
       } else {
         this.readOnlyOriginal = input.readOnly;
         this.valorReal = input.value;
-        input.value = obscurecer(input.value, this.opts.revealVisible);
+        input.value = obscurecer(input.value, this.opts.revealVisible, this._modoOculto());
         // So leitura enquanto oculto: digitar em cima dos pontos escreveria
         // por cima do valor real sem a pessoa perceber.
         input.readOnly = true;
@@ -328,6 +339,7 @@ export function autoInit(scope = document) {
       errorText: d.errorText || undefined,
       reveal: d.tucReveal !== undefined,
       revealVisible: d.revealVisible ? +d.revealVisible : undefined,
+      revealMode: d.tucReveal || d.revealMode || undefined,
     }));
   }
   return out;

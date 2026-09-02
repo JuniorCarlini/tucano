@@ -201,17 +201,44 @@ const GABARITOS_EXIBICAO = {
   cartao: '#### #### #### ####',
 };
 
+const PONTO = '\u2022';
+
 /**
- * Esconde o conteudo deixando so o fim a mostra: `123.456.789-01` vira
- * `•••.•••.•••-01`. Os separadores ficam, para a forma continuar reconhecivel.
+ * Esconde o conteudo. Os separadores ficam, para a forma continuar
+ * reconhecivel: `123.456.789-01` vira `•••.•••.•••-01`.
+ *
+ * modo:
+ *   'fim'   (padrao) deixa os ultimos `visiveis` caracteres a mostra
+ *   'email' deixa a primeira letra e o dominio: `j•••@empresa.com.br`
+ *   'tudo'  esconde tudo — para senha, token e chave
  */
-export function obscurecer(texto, visiveis = 2, ponto = '\u2022') {
+export function obscurecer(texto, visiveis = 2, modo = 'fim') {
   const s = String(texto ?? '');
-  const total = [...s].filter((c) => /[0-9A-Za-z]/.test(c)).length;
+  if (!s) return s;
+
+  if (modo === 'email') return obscurecerEmail(s);
+
+  const alfanumerico = (c) => /[0-9A-Za-z]/.test(c);
+  const total = [...s].filter(alfanumerico).length;
+  const mostrar = modo === 'tudo' ? 0 : visiveis;
   let vistos = 0;
   return [...s].map((c) => {
-    if (!/[0-9A-Za-z]/.test(c)) return c;
+    if (!alfanumerico(c)) return modo === 'tudo' ? PONTO : c;
     vistos++;
-    return vistos > total - visiveis ? c : ponto;
+    return vistos > total - mostrar ? c : PONTO;
   }).join('');
+}
+
+/**
+ * E-mail esconde ao contrario do resto: o dominio e o que ajuda a reconhecer a
+ * conta, e a parte local e o que identifica a pessoa. Guardar o fim, como no
+ * padrao, revelaria `om.br` e esconderia justamente o util.
+ */
+export function obscurecerEmail(valor) {
+  const s = String(valor ?? '');
+  const arroba = s.lastIndexOf('@');
+  if (arroba < 1) return obscurecer(s, 0, 'tudo');
+  const local = s.slice(0, arroba);
+  const dominio = s.slice(arroba);
+  return local[0] + PONTO.repeat(Math.max(local.length - 1, 1)) + dominio;
 }
