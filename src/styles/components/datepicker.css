@@ -1,0 +1,345 @@
+@reference "tailwindcss";
+
+/* ------------------------------------------------------------------ *
+ * Painel                                                              *
+ * ------------------------------------------------------------------ */
+
+.tuc-dp {
+  @apply z-50 flex select-none items-stretch;
+  font-family: var(--tuc-font);
+  font-size: var(--tuc-text);
+  font-variant-numeric: tabular-nums;
+  color: var(--tuc-fg);
+  background: var(--tuc-bg);
+  border-radius: var(--tuc-radius);
+  box-shadow: var(--tuc-shadow);
+  padding: 0.5rem;
+  gap: 0.25rem;
+
+  opacity: 0;
+  transform-origin: top center;
+  transition:
+    opacity var(--tuc-duration) var(--tuc-ease),
+    translate var(--tuc-duration) var(--tuc-ease),
+    scale var(--tuc-duration) var(--tuc-ease);
+  translate: 0 -0.25rem;
+  scale: 0.98;
+}
+
+.tuc-dp.is-open {
+  opacity: 1;
+  translate: 0 0;
+  scale: 1;
+}
+
+
+.tuc-dp[data-side='top'] {
+  transform-origin: bottom center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tuc-dp { transition: none; translate: none; scale: none; opacity: 1; }
+}
+
+.tuc-dp__main {
+  @apply flex min-w-0 flex-col;
+}
+
+.tuc-dp *:focus-visible {
+  outline: 2px solid var(--tuc-accent);
+  outline-offset: 1px;
+}
+
+/* ------------------------------------------------------------------ *
+ * Cabecalho                                                           *
+ * ------------------------------------------------------------------ */
+
+.tuc-dp__header {
+  @apply flex items-center justify-between gap-1 px-1 pb-2 pt-1;
+}
+
+.tuc-dp__nav {
+  @apply grid size-7 shrink-0 place-items-center rounded-lg transition-colors;
+  color: var(--tuc-muted);
+}
+.tuc-dp__nav:hover:not(:disabled) { background: var(--tuc-hover); color: var(--tuc-fg); }
+.tuc-dp__nav:disabled { @apply cursor-not-allowed opacity-30; }
+.tuc-dp__nav.is-ghost { @apply pointer-events-none invisible; }
+
+.tuc-dp__label {
+  @apply flex items-center gap-1 rounded-lg px-2 py-1 font-semibold capitalize transition-colors;
+  font-size: 0.875rem;
+  letter-spacing: -0.01em;
+}
+.tuc-dp__label:hover { background: var(--tuc-hover); }
+.tuc-dp__label svg { color: var(--tuc-subtle); }
+
+/* ------------------------------------------------------------------ *
+ * Grade de dias                                                       *
+ * ------------------------------------------------------------------ */
+
+.tuc-dp__month {
+  @apply flex flex-col px-1;
+}
+
+.tuc-dp__months {
+  @apply flex gap-2;
+}
+.tuc-dp__months > .tuc-dp__month + .tuc-dp__month {
+  border-left: 1px solid var(--tuc-border);
+  @apply pl-3;
+}
+
+.tuc-dp__weekdays,
+.tuc-dp__grid {
+  @apply grid;
+  grid-template-columns: repeat(7, var(--tuc-cell));
+}
+.tuc-dp__weekdays.has-weeknums,
+.tuc-dp__grid.has-weeknums {
+  grid-template-columns: 1.5rem repeat(7, var(--tuc-cell));
+}
+
+.tuc-dp__weekdays {
+  @apply mb-1;
+}
+
+.tuc-dp__weekday {
+  @apply grid h-7 place-items-center font-medium uppercase no-underline;
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
+  color: var(--tuc-subtle);
+}
+
+.tuc-dp__grid {
+  /* Sem gap horizontal: e o que deixa a faixa do intervalo continua. */
+  row-gap: 0.125rem;
+  column-gap: 0;
+}
+
+.tuc-dp__weeknum,
+.tuc-dp__weeknum-head {
+  @apply grid place-items-center text-[0.6875rem] font-medium;
+  height: var(--tuc-cell);
+  color: var(--tuc-subtle);
+}
+
+.tuc-dp__day {
+  /* Camada da faixa: sem raio e sem gap lateral, para o intervalo ficar continuo. */
+  @apply relative grid place-items-center p-0 font-medium;
+  width: var(--tuc-cell);
+  height: var(--tuc-cell);
+  background: transparent;
+  transition: background-color 120ms var(--tuc-ease);
+}
+
+.tuc-dp__daynum {
+  /* Camada da pilula: e ela que arredonda, nao a celula. */
+  @apply grid size-full place-items-center;
+  border-radius: var(--tuc-radius-md);
+  transition:
+    background-color 120ms var(--tuc-ease),
+    color 120ms var(--tuc-ease);
+}
+
+.tuc-dp__day:hover:not(:disabled):not(.is-selected) .tuc-dp__daynum {
+  background: var(--tuc-hover);
+}
+
+.tuc-dp__day.is-outside { color: var(--tuc-subtle); }
+
+.tuc-dp__day.is-disabled {
+  @apply cursor-not-allowed line-through;
+  color: var(--tuc-subtle);
+  opacity: 0.45;
+}
+
+/* Hoje: ponto abaixo do numero, em vez de borda — polui menos a grade. */
+.tuc-dp__day.is-today .tuc-dp__daynum::after {
+  content: '';
+  @apply absolute bottom-1 size-[3px] rounded-full;
+  background: var(--tuc-accent);
+}
+.tuc-dp__day.is-today.is-selected .tuc-dp__daynum::after { background: var(--tuc-accent-fg); }
+
+.tuc-dp__day.is-selected .tuc-dp__daynum {
+  background: var(--tuc-accent);
+  color: var(--tuc-accent-fg);
+  @apply font-semibold;
+}
+
+/* A faixa vive no botao; nas pontas ela cobre so a metade virada para dentro. */
+.tuc-dp__day.is-in-range { background: var(--tuc-accent-soft); }
+.tuc-dp__day.is-in-range.is-outside { color: var(--tuc-muted); }
+
+.tuc-dp__day.is-start {
+  background: linear-gradient(to right, transparent 50%, var(--tuc-accent-soft) 50%);
+}
+.tuc-dp__day.is-end {
+  background: linear-gradient(to left, transparent 50%, var(--tuc-accent-soft) 50%);
+}
+
+/* Enquanto o fim e so hover, a faixa inteira fica mais clara (.is-picking no painel). */
+.tuc-dp.is-picking { --tuc-accent-soft: color-mix(in oklab, var(--tuc-accent) 7%, transparent); }
+
+/* A ponta sob o cursor fica solida, mas atenuada: le-se como "ainda nao confirmado". */
+.tuc-dp__day.is-preview .tuc-dp__daynum {
+  background: color-mix(in oklab, var(--tuc-accent) 55%, transparent);
+  color: var(--tuc-accent-fg);
+}
+
+/* ------------------------------------------------------------------ *
+ * Meses e anos                                                        *
+ * ------------------------------------------------------------------ */
+
+.tuc-dp__period { @apply flex flex-col px-1; }
+
+.tuc-dp__periodgrid {
+  @apply grid grid-cols-3 gap-1;
+  width: calc(var(--tuc-cell) * 7);
+}
+
+.tuc-dp__periodcell {
+  @apply grid h-11 place-items-center font-medium capitalize transition-colors;
+  border-radius: var(--tuc-radius-md);
+}
+.tuc-dp__periodcell:hover { background: var(--tuc-hover); }
+.tuc-dp__periodcell.is-today { color: var(--tuc-accent); @apply font-semibold; }
+.tuc-dp__periodcell.is-selected {
+  background: var(--tuc-accent);
+  color: var(--tuc-accent-fg);
+  @apply font-semibold;
+}
+
+/* ------------------------------------------------------------------ *
+ * Hora                                                                *
+ * ------------------------------------------------------------------ */
+
+.tuc-dp__time {
+  @apply mt-2 flex justify-center gap-2 px-1 pt-2.5;
+  border-top: 1px solid var(--tuc-border);
+}
+
+.tuc-dp__timegroup {
+  @apply flex min-w-0 flex-1 flex-col items-center gap-1.5;
+  max-width: 11rem;
+}
+
+.tuc-dp__timehead {
+  @apply flex w-full items-center gap-1.5 px-0.5;
+  color: var(--tuc-subtle);
+}
+
+.tuc-dp__timelabel {
+  @apply flex-1 truncate text-[0.6875rem] font-medium uppercase;
+  letter-spacing: 0.04em;
+}
+
+.tuc-dp__timevalue {
+  @apply font-semibold;
+  color: var(--tuc-fg);
+}
+
+.tuc-dp__timecols {
+  /* Colunas dividem a largura do grupo em partes iguais. */
+  @apply flex w-full items-stretch gap-1 rounded-xl p-1;
+  background: var(--tuc-elevated);
+  border: 1px solid var(--tuc-border);
+}
+
+.tuc-dp__timelist {
+  @apply flex flex-1 snap-y flex-col gap-px overflow-y-auto overscroll-contain rounded-lg;
+  min-width: 2.75rem;
+  max-height: 8.5rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--tuc-border) transparent;
+}
+.tuc-dp__timelist::-webkit-scrollbar { width: 4px; }
+.tuc-dp__timelist::-webkit-scrollbar-thumb {
+  background: var(--tuc-border);
+  border-radius: 99px;
+}
+.tuc-dp__timelist::-webkit-scrollbar-track { background: transparent; }
+
+.tuc-dp__timeitem {
+  @apply shrink-0 snap-center rounded-md py-1.5 text-center font-medium transition-colors;
+  color: var(--tuc-fg);
+}
+.tuc-dp__timeitem:hover:not(:disabled):not(.is-selected) { background: var(--tuc-hover); }
+.tuc-dp__timeitem:disabled { @apply cursor-not-allowed opacity-40; }
+.tuc-dp__timeitem.is-selected {
+  background: var(--tuc-accent);
+  color: var(--tuc-accent-fg);
+  @apply font-semibold;
+}
+
+/* ------------------------------------------------------------------ *
+ * Presets                                                             *
+ * ------------------------------------------------------------------ */
+
+.tuc-dp__presets {
+  @apply flex shrink-0 flex-col gap-px overflow-y-auto p-1;
+  width: 9.5rem;
+  border-right: 1px solid var(--tuc-border);
+}
+
+.tuc-dp__preset {
+  @apply truncate rounded-lg px-2.5 py-1.5 text-left font-medium transition-colors;
+  color: var(--tuc-muted);
+}
+.tuc-dp__preset:hover { background: var(--tuc-hover); color: var(--tuc-fg); }
+.tuc-dp__preset.is-selected {
+  background: var(--tuc-accent-soft);
+  color: var(--tuc-accent);
+  @apply font-semibold;
+}
+
+/* ------------------------------------------------------------------ *
+ * Rodape                                                              *
+ * ------------------------------------------------------------------ */
+
+.tuc-dp__footer {
+  @apply mt-2 flex items-center gap-2 px-1 pt-2;
+  border-top: 1px solid var(--tuc-border);
+}
+
+.tuc-dp__spacer { @apply flex-1; }
+
+.tuc-dp__btn {
+  @apply rounded-lg px-3 py-1.5 font-semibold transition-colors;
+}
+.tuc-dp__btn.is-ghost { color: var(--tuc-muted); }
+.tuc-dp__btn.is-ghost:hover { background: var(--tuc-hover); color: var(--tuc-fg); }
+.tuc-dp__btn.is-primary {
+  background: var(--tuc-accent);
+  color: var(--tuc-accent-fg);
+}
+.tuc-dp__btn.is-primary:hover:not(:disabled) { background: var(--tuc-accent-hover); }
+.tuc-dp__btn:disabled { @apply cursor-not-allowed opacity-40; }
+
+/* ------------------------------------------------------------------ *
+ * Mobile: um mes por vez, presets viram trilha horizontal              *
+ * ------------------------------------------------------------------ */
+
+@media (max-width: 30rem) {
+  .tuc-dp { @apply w-full flex-col; --tuc-cell: 2.5rem; max-width: calc(100vw - 1rem); }
+  .tuc-dp__months { @apply w-full flex-col; }
+  .tuc-dp__month { @apply w-full; }
+  .tuc-dp__months > .tuc-dp__month + .tuc-dp__month { @apply hidden; }
+
+  /* Sem largura fixa de celula: a grade se espalha pela largura do painel. */
+  .tuc-dp__weekdays,
+  .tuc-dp__grid { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+  .tuc-dp__weekdays.has-weeknums,
+  .tuc-dp__grid.has-weeknums { grid-template-columns: 1.5rem repeat(7, minmax(0, 1fr)); }
+  .tuc-dp__day { @apply w-full; }
+  .tuc-dp__periodgrid { @apply w-full; }
+  .tuc-dp__timegroup { max-width: none; }
+  .tuc-dp__presets {
+    @apply w-full flex-row overflow-x-auto pb-2;
+    border-right: 0;
+    border-bottom: 1px solid var(--tuc-border);
+  }
+  .tuc-dp__preset { @apply shrink-0; }
+  .tuc-dp__time { @apply flex-col; }
+}

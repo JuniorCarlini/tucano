@@ -1,0 +1,9 @@
+/**
+ * Tucano — folha unica.
+ * Fonte em Tailwind (@apply); a saida em dist/ e CSS puro, sem runtime.
+ */
+@import './core/base.css';
+@import './core/tokens.css';
+@import './components/datepicker.css';
+@import './components/select.css';
+@import './components/colorpicker.css';

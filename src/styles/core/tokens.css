@@ -1,0 +1,89 @@
+/**
+ * Tokens do Tucano.
+ * Tudo que e cor, raio ou sombra passa por aqui — trocar o tema do componente
+ * e sobrescrever variavel, sem recompilar nada.
+ */
+
+.tuc-dp,
+.tuc-select,
+.tuc-select__menu,
+.tuc-colorpicker,
+.tuc-color-field {
+  --tuc-accent: #4f46e5;
+  --tuc-accent-hover: #4338ca;
+  --tuc-accent-fg: #ffffff;
+  --tuc-accent-soft: color-mix(in oklab, var(--tuc-accent) 12%, transparent);
+  --tuc-accent-ring: color-mix(in oklab, var(--tuc-accent) 35%, transparent);
+
+  --tuc-bg: #ffffff;
+  --tuc-fg: #0a0a0a;
+  --tuc-muted: #737373;
+  --tuc-subtle: #a3a3a3;
+  --tuc-border: #e5e5e5;
+  --tuc-hover: #f5f5f5;
+  --tuc-elevated: #fafafa;
+
+  --tuc-radius: 0.875rem;
+  --tuc-radius-sm: 0.5rem;
+  --tuc-radius-md: 0.625rem;
+
+  --tuc-ring: rgb(0 0 0 / 0.12);
+  --tuc-shadow:
+    0 0 0 1px var(--tuc-ring),
+    0 1px 2px -1px rgb(0 0 0 / 0.08),
+    0 8px 24px -8px rgb(0 0 0 / 0.14),
+    0 16px 48px -24px rgb(0 0 0 / 0.18);
+
+  --tuc-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --tuc-duration: 150ms;
+
+  --tuc-font: inherit;
+  --tuc-text: 0.8125rem;
+  --tuc-cell: 2.25rem;
+}
+
+/* Dark por classe (.dark no html) — o padrao de Tailwind e do Django admin moderno. */
+:where(.dark, [data-theme='dark']) :is(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field),
+:where(.dark, [data-theme='dark']).tuc-dp {
+  --tuc-accent: #6366f1;
+  --tuc-accent-hover: #818cf8;
+  --tuc-accent-fg: #ffffff;
+
+  --tuc-bg: #171717;
+  --tuc-fg: #fafafa;
+  --tuc-muted: #a3a3a3;
+  --tuc-subtle: #737373;
+  --tuc-border: #2e2e2e;
+  --tuc-hover: #262626;
+  --tuc-elevated: #1f1f1f;
+
+  --tuc-ring: rgb(255 255 255 / 0.14);
+  --tuc-shadow:
+    0 0 0 1px var(--tuc-ring),
+    0 8px 24px -8px rgb(0 0 0 / 0.6),
+    0 16px 48px -24px rgb(0 0 0 / 0.8);
+}
+
+/*
+ * Seguir o tema do SO e opt-in: <html data-tuc-theme="auto">.
+ * Sem isso o componente escurecia sozinho numa pagina clara — o projeto que
+ * manda no tema, nao o sistema operacional.
+ */
+@media (prefers-color-scheme: dark) {
+  :where(html[data-tuc-theme='auto']) :is(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field) {
+    --tuc-accent: #6366f1;
+    --tuc-accent-hover: #818cf8;
+    --tuc-bg: #171717;
+    --tuc-fg: #fafafa;
+    --tuc-muted: #a3a3a3;
+    --tuc-subtle: #737373;
+    --tuc-border: #2e2e2e;
+    --tuc-hover: #262626;
+    --tuc-elevated: #1f1f1f;
+    --tuc-ring: rgb(255 255 255 / 0.14);
+    --tuc-shadow:
+      0 0 0 1px var(--tuc-ring),
+      0 8px 24px -8px rgb(0 0 0 / 0.6),
+      0 16px 48px -24px rgb(0 0 0 / 0.8);
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "name": "tucano",
+  "version": "0.2.0",
+  "description": "Date picker, select com busca e color picker. Leves, bonitos e sem dependencias em runtime. Estilos escritos em Tailwind, distribuidos ja compilados.",
+  "author": "Junior Carlini",
+  "license": "MIT",
+  "homepage": "https://juniorcarlini.github.io/tucano/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JuniorCarlini/tucano.git"
+  },
+  "bugs": {
+    "url": "https://github.com/JuniorCarlini/tucano/issues"
+  },
+  "keywords": [
+    "tailwind",
+    "datepicker",
+    "date-range",
+    "calendar",
+    "select",
+    "multiselect",
+    "colorpicker",
+    "django",
+    "htmx",
+    "vanilla-js",
+    "no-dependencies"
+  ],
+  "type": "module",
+  "main": "./dist/tucano.js",
+  "module": "./dist/tucano.esm.js",
+  "style": "./dist/tucano.css",
+  "sideEffects": [
+    "./dist/*",
+    "./src/js/index.js"
+  ],
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/tucano.esm.js",
+      "default": "./dist/tucano.js"
+    },
+    "./css": "./dist/tucano.css",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build:js": "esbuild src/js/index.js --bundle --format=iife --global-name=Tucano --outfile=dist/tucano.js && esbuild src/js/index.js --bundle --format=esm --outfile=dist/tucano.esm.js",
+    "build:js:min": "esbuild src/js/index.js --bundle --format=iife --global-name=Tucano --minify --outfile=dist/tucano.min.js",
+    "build:css": "tailwindcss -i src/styles/index.css -o dist/tucano.css",
+    "build:css:min": "tailwindcss -i src/styles/index.css -o dist/tucano.min.css --minify",
+    "build": "npm run build:js && npm run build:js:min && npm run build:css && npm run build:css:min",
+    "dev": "npm run build && npx serve .",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.3.3",
+    "esbuild": "^0.28.2",
+    "tailwindcss": "^4.3.3"
+  }
+}

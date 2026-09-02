@@ -1,0 +1,187 @@
+@reference "tailwindcss";
+
+/* O select nativo continua no formulario, so sai do fluxo visual. */
+.tuc-select-native {
+  @apply pointer-events-none absolute h-px w-px overflow-hidden opacity-0;
+  clip-path: inset(50%);
+}
+
+/* ------------------------------------------------------------------ *
+ * Controle                                                            *
+ * ------------------------------------------------------------------ */
+
+.tuc-select {
+  @apply relative flex w-full cursor-text items-center gap-1.5;
+  /* Altura fixa: todos os campos do formulario ficam na mesma linha de base. */
+  height: 2.375rem;
+  padding: 0.25rem 0.5rem 0.25rem 0.75rem;
+  font-family: var(--tuc-font);
+  font-size: var(--tuc-text);
+  color: var(--tuc-fg);
+  background: var(--tuc-bg);
+  border: 1px solid var(--tuc-border);
+  border-radius: var(--tuc-radius-md);
+  transition: border-color 140ms var(--tuc-ease), box-shadow 140ms var(--tuc-ease);
+}
+
+/*
+ * Foco vem de :focus-within, nao de classe controlada por JS. Uma classe
+ * dependia do blur ser removida na hora certa e ficava presa quando o menu
+ * fechava antes do campo perder o foco.
+ */
+.tuc-select:focus-within,
+.tuc-select.is-open {
+  border-color: var(--tuc-accent);
+  box-shadow: 0 0 0 3px var(--tuc-accent-ring);
+}
+
+/*
+ * Linha unica de proposito: com quebra de linha o campo cresce conforme as tags
+ * e desalinha o formulario inteiro. Excesso rola na horizontal.
+ */
+.tuc-select__values {
+  @apply flex min-w-0 flex-1 flex-nowrap items-center gap-1 overflow-x-auto py-0.5;
+  scrollbar-width: none;
+}
+.tuc-select__values::-webkit-scrollbar { display: none; }
+
+/* Opt-in para quem prefere o campo crescendo: .tuc-select.is-wrap */
+.tuc-select.is-wrap {
+  height: auto;
+  min-height: 2.375rem;
+}
+.tuc-select.is-wrap .tuc-select__values {
+  @apply flex-wrap overflow-visible;
+}
+
+.tuc-select__single {
+  @apply min-w-0 truncate whitespace-nowrap;
+}
+
+.tuc-select .tuc-select__search {
+  @apply flex-1 shrink-0 border-0 bg-transparent p-0 outline-none;
+  min-width: 4rem;
+  color: var(--tuc-fg);
+  text-overflow: ellipsis;
+}
+
+/*
+ * Fechado e com valor, a busca nao reserva largura — senao ela roubaria 4rem do
+ * rotulo e "Rio Grande do Sul" apareceria cortado sem necessidade.
+ */
+.tuc-select.has-value:not(.is-open) .tuc-select__search {
+  @apply flex-none;
+  min-width: 0;
+  width: 0;
+}
+.tuc-select .tuc-select__search::placeholder { color: var(--tuc-subtle); opacity: 1; }
+.tuc-select .tuc-select__search:read-only { @apply cursor-pointer; }
+
+.tuc-select__arrow {
+  @apply shrink-0;
+  color: var(--tuc-subtle);
+}
+
+/*
+ * Escondido por display, nao pelo atributo `hidden`: um `display: grid` na
+ * propria regra venceria o `display: none` do user-agent e o botao aparecia
+ * mesmo sem valor.
+ */
+.tuc-select__clear { display: none; }
+
+.tuc-select.has-value .tuc-select__clear {
+  @apply grid size-5 shrink-0 place-items-center rounded-md transition-colors;
+  color: var(--tuc-subtle);
+}
+.tuc-select.has-value .tuc-select__clear:hover { background: var(--tuc-hover); color: var(--tuc-fg); }
+
+/* ------------------------------------------------------------------ *
+ * Tags (multiplo)                                                     *
+ * ------------------------------------------------------------------ */
+
+.tuc-select__tag {
+  @apply flex max-w-40 shrink-0 items-center gap-1 rounded-md py-0.5 pl-2 pr-1 font-medium;
+  font-size: 0.75rem;
+  background: var(--tuc-accent-soft);
+  color: var(--tuc-accent);
+}
+
+.tuc-select__tagtext { @apply truncate; }
+
+.tuc-select__tagx {
+  @apply grid size-4 shrink-0 place-items-center rounded transition-colors;
+  opacity: 0.6;
+}
+.tuc-select__tagx:hover {
+  opacity: 1;
+  background: color-mix(in oklab, var(--tuc-accent) 18%, transparent);
+}
+
+/* ------------------------------------------------------------------ *
+ * Menu                                                                *
+ * ------------------------------------------------------------------ */
+
+.tuc-select__menu {
+  @apply z-50 overflow-hidden p-1;
+  font-family: var(--tuc-font);
+  font-size: var(--tuc-text);
+  color: var(--tuc-fg);
+  background: var(--tuc-bg);
+  border-radius: var(--tuc-radius);
+  box-shadow: var(--tuc-shadow);
+
+  opacity: 0;
+  transform-origin: top center;
+  transition:
+    opacity var(--tuc-duration) var(--tuc-ease),
+    translate var(--tuc-duration) var(--tuc-ease),
+    scale var(--tuc-duration) var(--tuc-ease);
+  translate: 0 -0.25rem;
+  scale: 0.98;
+}
+
+.tuc-select__menu.is-open { opacity: 1; translate: 0 0; scale: 1; }
+.tuc-select__menu[data-side='top'] { transform-origin: bottom center; }
+
+@media (prefers-reduced-motion: reduce) {
+  .tuc-select__menu { transition: none; translate: none; scale: none; opacity: 1; }
+}
+
+.tuc-select__list {
+  @apply flex max-h-64 flex-col gap-px overflow-y-auto overscroll-contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--tuc-border) transparent;
+}
+.tuc-select__list::-webkit-scrollbar { width: 6px; }
+.tuc-select__list::-webkit-scrollbar-thumb { background: var(--tuc-border); border-radius: 99px; }
+
+.tuc-select__group {
+  @apply px-2.5 pb-1 pt-2 text-[0.6875rem] font-semibold uppercase;
+  letter-spacing: 0.04em;
+  color: var(--tuc-subtle);
+}
+
+.tuc-select__option {
+  @apply flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-1.5;
+  border-radius: var(--tuc-radius-sm);
+}
+
+.tuc-select__label { @apply min-w-0 flex-1 truncate; }
+
+/* Destaque do teclado e do mouse sao o mesmo estado, de proposito. */
+.tuc-select__option.is-active { background: var(--tuc-hover); }
+
+.tuc-select__option.is-selected { @apply font-semibold; }
+.tuc-select__check { color: var(--tuc-accent); }
+
+.tuc-select__option.is-disabled {
+  @apply cursor-not-allowed;
+  color: var(--tuc-subtle);
+  opacity: 0.5;
+}
+.tuc-select__option.is-disabled.is-active { background: transparent; }
+
+.tuc-select__empty {
+  @apply px-3 py-6 text-center;
+  color: var(--tuc-subtle);
+}

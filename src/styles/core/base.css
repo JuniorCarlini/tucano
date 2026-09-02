@@ -1,0 +1,74 @@
+/**
+ * Reset local. O pacote nao envia o preflight do Tailwind de proposito — ele
+ * mexeria no projeto inteiro. Entao normalizamos so dentro dos componentes.
+ *
+ * O escopo vai dentro de :where() de proposito: assim o reset tem peso zero e
+ * qualquer classe do componente (ou do projeto) vence sem precisar de !important.
+ */
+
+.tuc-dp,
+.tuc-select,
+.tuc-select__menu,
+.tuc-colorpicker,
+.tuc-color-field {
+  box-sizing: border-box;
+}
+
+:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field) *,
+:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field) *::before,
+:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field) *::after {
+  box-sizing: border-box;
+}
+
+:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field) button {
+  appearance: none;
+  -webkit-appearance: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  background-color: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
+  text-align: inherit;
+  text-transform: none;
+  cursor: pointer;
+}
+
+:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field) button:disabled {
+  cursor: default;
+}
+
+:where(.tuc-dp, .tuc-select, .tuc-select__menu) abbr[title] {
+  text-decoration: none;
+  border: 0;
+  cursor: inherit;
+}
+
+:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field) svg {
+  display: block;
+  flex: none;
+}
+
+:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field) input {
+  font: inherit;
+  color: inherit;
+}
+
+/*
+ * Inputs internos levam reset forte de proposito. Projetos costumam ter regras
+ * como `input[type=text] { border: ... }` (especificidade 0,1,1) que venceriam
+ * uma classe simples (0,1,0) e desenhariam uma caixa dentro do controle.
+ * Escopar por elemento + classe (0,2,1) vence esse caso sem !important.
+ */
+.tuc-select input.tuc-select__search,
+.tuc-colorpicker input.tuc-colorpicker__field {
+  all: unset;
+  box-sizing: border-box;
+  display: block;
+  font: inherit;
+  color: var(--tuc-fg);
+  min-width: 0;
+}

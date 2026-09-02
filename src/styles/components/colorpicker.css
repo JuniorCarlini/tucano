@@ -1,0 +1,230 @@
+@reference "tailwindcss";
+
+/* Xadrez atras de cores translucidas — mesma malha em amostra, preview e alfa. */
+.tuc-color-field__swatch,
+.tuc-colorpicker__preview,
+.tuc-colorpicker__slider.is-alpha .tuc-colorpicker__track {
+  --xadrez:
+    linear-gradient(45deg, var(--tuc-ring) 25%, transparent 25%, transparent 75%, var(--tuc-ring) 75%),
+    linear-gradient(45deg, var(--tuc-ring) 25%, transparent 25%, transparent 75%, var(--tuc-ring) 75%);
+  background-size: 8px 8px;
+  background-position: 0 0, 4px 4px;
+}
+
+/* ------------------------------------------------------------------ *
+ * Campo                                                               *
+ * ------------------------------------------------------------------ */
+
+/*
+ * Amostra e valor num controle so, com a mesma altura, raio e anel de foco do
+ * Select — os tres componentes precisam ler como a mesma familia.
+ */
+.tuc-color-field {
+  @apply flex w-full cursor-text items-center gap-2;
+  height: 2.375rem;
+  padding: 0 0.75rem 0 0.3125rem;
+  font-family: var(--tuc-font);
+  font-size: var(--tuc-text);
+  color: var(--tuc-fg);
+  background: var(--tuc-bg);
+  border: 1px solid var(--tuc-border);
+  border-radius: var(--tuc-radius-md);
+  transition: border-color 140ms var(--tuc-ease), box-shadow 140ms var(--tuc-ease);
+}
+
+.tuc-color-field:focus-within {
+  border-color: var(--tuc-accent);
+  box-shadow: 0 0 0 3px var(--tuc-accent-ring);
+}
+
+.tuc-color-field__swatch {
+  @apply relative size-7 shrink-0 overflow-hidden rounded-md transition-transform;
+  box-shadow: inset 0 0 0 1px var(--tuc-ring);
+}
+.tuc-color-field__swatch::after {
+  content: '';
+  @apply absolute inset-0;
+  background: var(--cor, transparent);
+}
+.tuc-color-field__swatch:hover { @apply scale-105; }
+.tuc-color-field__swatch:focus-visible {
+  outline: 2px solid var(--tuc-accent);
+  outline-offset: 2px;
+}
+
+/* Reset forte: sem ele o `input[type=text]` do projeto desenharia uma caixa
+   dentro do controle — mesmo caso do campo de busca do Select. */
+.tuc-color-field input.tuc-color-field__value {
+  all: unset;
+  @apply min-w-0 flex-1;
+  font: inherit;
+  color: var(--tuc-fg);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------------ *
+ * Painel                                                              *
+ * ------------------------------------------------------------------ */
+
+.tuc-colorpicker {
+  @apply z-50 flex flex-col gap-3.5 p-3.5;
+  width: 16rem;
+  font-family: var(--tuc-font);
+  font-size: var(--tuc-text);
+  color: var(--tuc-fg);
+  background: var(--tuc-bg);
+  border-radius: var(--tuc-radius);
+  box-shadow: var(--tuc-shadow);
+
+  opacity: 0;
+  transform-origin: top center;
+  transition:
+    opacity var(--tuc-duration) var(--tuc-ease),
+    translate var(--tuc-duration) var(--tuc-ease),
+    scale var(--tuc-duration) var(--tuc-ease);
+  translate: 0 -0.25rem;
+  scale: 0.98;
+}
+.tuc-colorpicker.is-open { opacity: 1; translate: 0 0; scale: 1; }
+.tuc-colorpicker[data-side='top'] { transform-origin: bottom center; }
+
+@media (prefers-reduced-motion: reduce) {
+  .tuc-colorpicker { transition: none; translate: none; scale: none; opacity: 1; }
+}
+
+.tuc-colorpicker :focus-visible {
+  outline: 2px solid var(--tuc-accent);
+  outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------------ *
+ * Area de saturacao e brilho                                          *
+ * ------------------------------------------------------------------ */
+
+.tuc-colorpicker__area {
+  @apply relative h-36 w-full cursor-crosshair touch-none rounded-xl;
+  /* Contorno interno para a area nao "vazar" no fundo branco do painel. */
+  box-shadow: inset 0 0 0 1px var(--tuc-ring);
+  /* Branco na horizontal, preto na vertical, matiz pura ao fundo. */
+  background:
+    linear-gradient(to top, #000, transparent),
+    linear-gradient(to right, #fff, transparent),
+    var(--matiz, #f00);
+}
+
+/* ------------------------------------------------------------------ *
+ * Trilhas                                                             *
+ * ------------------------------------------------------------------ */
+
+.tuc-colorpicker__tracks {
+  @apply flex flex-col gap-2.5;
+}
+
+.tuc-colorpicker__slider {
+  @apply relative h-3 w-full cursor-pointer touch-none rounded-full;
+}
+
+.tuc-colorpicker__track {
+  @apply absolute inset-0 rounded-full;
+  box-shadow: inset 0 0 0 1px var(--tuc-ring);
+}
+
+.tuc-colorpicker__slider.is-hue .tuc-colorpicker__track {
+  background: linear-gradient(to right,
+    #f00 0%, #ff0 16.66%, #0f0 33.33%, #0ff 50%, #00f 66.66%, #f0f 83.33%, #f00 100%);
+}
+
+.tuc-colorpicker__slider.is-alpha .tuc-colorpicker__track::after {
+  content: '';
+  @apply absolute inset-0 rounded-full;
+  background: linear-gradient(to right, transparent, var(--cor, #000));
+}
+
+/* ------------------------------------------------------------------ *
+ * Alcas                                                               *
+ * ------------------------------------------------------------------ */
+
+.tuc-colorpicker__thumb {
+  @apply pointer-events-none absolute size-3.5 rounded-full;
+  top: 50%;
+  translate: -50% -50%;
+  background: var(--cor, #fff);
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.25), 0 1px 3px rgb(0 0 0 / 0.3);
+}
+
+/* Na area a alca posiciona nos dois eixos, entao o top vem do JS. */
+.tuc-colorpicker__area .tuc-colorpicker__thumb {
+  @apply size-4;
+  top: 0;
+}
+/* Sobre cor clara a borda branca some; inverte para preto. */
+.tuc-colorpicker__area .tuc-colorpicker__thumb:not(.is-dark) {
+  border-color: #111;
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.5);
+}
+
+/* ------------------------------------------------------------------ *
+ * Linha do valor                                                      *
+ * ------------------------------------------------------------------ */
+
+.tuc-colorpicker__row {
+  @apply flex items-center gap-2;
+}
+
+.tuc-colorpicker__preview {
+  @apply relative size-8 shrink-0 overflow-hidden rounded-lg;
+  box-shadow: inset 0 0 0 1px var(--tuc-ring);
+}
+.tuc-colorpicker__preview::after {
+  content: '';
+  @apply absolute inset-0;
+  background: var(--cor, transparent);
+}
+
+.tuc-colorpicker .tuc-colorpicker__field {
+  @apply min-w-0 flex-1 rounded-lg px-2.5 py-1.5 font-medium;
+  font-variant-numeric: tabular-nums;
+  background: var(--tuc-elevated);
+  border: 1px solid var(--tuc-border);
+}
+.tuc-colorpicker .tuc-colorpicker__field:focus {
+  border-color: var(--tuc-accent);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--tuc-accent-ring);
+}
+
+.tuc-colorpicker__pick {
+  @apply grid size-8 shrink-0 place-items-center rounded-lg transition-colors;
+  background: var(--tuc-elevated);
+  color: var(--tuc-muted);
+  border: 1px solid var(--tuc-border);
+}
+.tuc-colorpicker__pick:hover { background: var(--tuc-hover); color: var(--tuc-fg); }
+
+/* ------------------------------------------------------------------ *
+ * Paleta                                                              *
+ * ------------------------------------------------------------------ */
+
+.tuc-colorpicker__swatches {
+  @apply grid grid-cols-5 gap-2 pt-0.5;
+  border-top: 1px solid var(--tuc-border);
+  padding-top: 0.875rem;
+}
+
+.tuc-colorpicker__swatchbtn {
+  @apply relative aspect-square w-full rounded-lg;
+  background: var(--cor);
+  box-shadow: inset 0 0 0 1px var(--tuc-ring);
+  transition: transform 120ms var(--tuc-ease), box-shadow 120ms var(--tuc-ease);
+}
+.tuc-colorpicker__swatchbtn:hover { @apply scale-110; }
+
+/* Cor ativa ganha um anel externo, com folga na cor do painel para nao somir
+   quando a amostra e escura. */
+.tuc-colorpicker__swatchbtn.is-selected {
+  box-shadow:
+    inset 0 0 0 1px var(--tuc-ring),
+    0 0 0 2px var(--tuc-bg),
+    0 0 0 4px var(--tuc-accent);
+}
