@@ -89,13 +89,20 @@
 }
 
 /*
- * Em telas de toque o texto base sobe para 16px.
+ * PONTO DE CORTE DO LAYOUT COMPACTO: 40rem (640px).
  *
- * O Safari do iOS aplica zoom automatico ao focar qualquer campo com menos de
- * 16px, e a pagina inteira salta — era o que atrapalhava a digitacao na busca
- * do select. De quebra, 16px le melhor no dedo.
+ * O mesmo valor vale para o CSS e para o JS (ver `_compacto` no datepicker).
+ * Mudou aqui, muda la.
+ *
+ * Abaixo dele o texto base sobe para 16px. Nao e estetica: o Safari do iOS
+ * aplica zoom automatico ao focar qualquer campo com menos de 16px e a pagina
+ * inteira salta. E o mesmo padrao do shadcn (`text-base md:text-sm`).
+ *
+ * O corte e por largura, e nao por `pointer: coarse`, de proposito: um
+ * notebook com tela de toque casaria `coarse` e receberia comportamento de
+ * celular sem precisar.
  */
-@media (pointer: coarse) {
+@media (max-width: 40rem) {
   .tuc-dp,
   .tuc-select,
   .tuc-select__menu,

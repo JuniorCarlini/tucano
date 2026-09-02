@@ -112,7 +112,7 @@
       0 16px 48px -24px rgb(0 0 0 / 0.8);
   }
 }
-@media (pointer: coarse) {
+@media (max-width: 40rem) {
   .tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field {
     --tuc-text: 1rem;
   }
@@ -302,9 +302,11 @@
   content: '';
   position: absolute;
   bottom: var(--spacing, 0.25rem);
+  left: calc(1 / 2 * 100%);
   width: 3px;
   height: 3px;
   border-radius: calc(infinity * 1px);
+  translate: -50% 0;
   background: var(--tuc-accent);
 }
 .tuc-dp__day.is-today.is-selected .tuc-dp__daynum::after {
@@ -555,12 +557,12 @@
   cursor: not-allowed;
   opacity: 40%;
 }
-@media (max-width: 30rem) {
+@media (max-width: 40rem) {
   .tuc-dp {
     flex-direction: column;
     --tuc-cell: 2.5rem;
-    width: calc(100vw - 1rem);
-    max-width: calc(100vw - 1rem);
+    width: calc(100vw - 2rem);
+    max-width: calc(100vw - 2rem);
   }
   .tuc-dp__main, .tuc-dp__months, .tuc-dp__month {
     width: 100%;
@@ -649,6 +651,7 @@
   position: relative;
   display: flex;
   width: 100%;
+  min-width: 0px;
   cursor: text;
   align-items: center;
   gap: calc(var(--spacing, 0.25rem) * 1.5);

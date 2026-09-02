@@ -157,7 +157,10 @@
 /* Hoje: ponto abaixo do numero, em vez de borda — polui menos a grade. */
 .tuc-dp__day.is-today .tuc-dp__daynum::after {
   content: '';
-  @apply absolute bottom-1 size-[3px] rounded-full;
+  /* left + translate: sem isso o ponto fica na posicao estatica, encostado a
+     esquerda. No desktop o alinhamento do grid disfarcava. */
+  @apply absolute bottom-1 left-1/2 size-[3px] rounded-full;
+  translate: -50% 0;
   background: var(--tuc-accent);
 }
 .tuc-dp__day.is-today.is-selected .tuc-dp__daynum::after { background: var(--tuc-accent-fg); }
@@ -321,12 +324,13 @@
  * Mobile: um mes por vez, presets viram trilha horizontal              *
  * ------------------------------------------------------------------ */
 
-@media (max-width: 30rem) {
+/* Layout compacto — ver o ponto de corte em core/tokens.css. */
+@media (max-width: 40rem) {
   /*
    * Largura amarrada a viewport, nao ao body: com `width:100%` o painel herdava
    * a largura do documento, que pode ser maior.
    */
-  .tuc-dp { @apply flex-col; --tuc-cell: 2.5rem; width: calc(100vw - 1rem); max-width: calc(100vw - 1rem); }
+  .tuc-dp { @apply flex-col; --tuc-cell: 2.5rem; width: calc(100vw - 2rem); max-width: calc(100vw - 2rem); }
 
   /*
    * min-width: 0 e o que permite encolher. Item de flex nasce com

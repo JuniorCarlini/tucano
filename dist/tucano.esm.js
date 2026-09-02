@@ -561,7 +561,7 @@ var DatePicker = class {
     this._releaseFocus?.();
     this._releaseFocus = null;
     this.input.setAttribute("aria-expanded", "false");
-    if (restoreFocus && !this._toque) {
+    if (restoreFocus && !this._compacto) {
       this._suppressOpen = true;
       this.input.focus();
       this._suppressOpen = false;
@@ -612,14 +612,21 @@ var DatePicker = class {
     if (this.opts.native === true) return true;
     return typeof window !== "undefined" && !!window.matchMedia?.("(pointer: coarse)").matches;
   }
-  /** Tela de toque: mede uma vez, usado para decidir foco e teclado. */
-  get _toque() {
-    return typeof window !== "undefined" && !!window.matchMedia?.("(pointer: coarse)").matches;
+  /**
+   * Layout compacto: tela estreita E ponteiro de toque.
+   *
+   * O 40rem espelha o breakpoint do CSS (core/tokens.css) — os dois precisam
+   * concordar. A condicao de toque entra junto para nao desabilitar a
+   * digitacao numa janela estreita de desktop.
+   */
+  get _compacto() {
+    if (typeof window === "undefined") return false;
+    return !!window.matchMedia?.("(max-width: 40rem) and (pointer: coarse)").matches;
   }
   _setupTarget() {
     if (this.native) return this._setupNative();
     const input = this.input;
-    if (this._toque) {
+    if (this._compacto) {
       input.readOnly = true;
       this._cleanups.push(on(input, "pointerdown", (e) => {
         e.preventDefault();
@@ -627,7 +634,7 @@ var DatePicker = class {
       }));
     }
     input.setAttribute("autocomplete", "off");
-    this._mask = this._toque ? null : this._maskTemplate();
+    this._mask = this._compacto ? null : this._maskTemplate();
     this._maskDigits = "";
     if (this._mask) {
       input.setAttribute("inputmode", "numeric");
@@ -648,7 +655,7 @@ var DatePicker = class {
         if (this.opts.openOnFocus && !this._suppressOpen) this.open();
       }),
       on(input, "click", () => {
-        if (!this._suppressOpen && !this._toque) this.open();
+        if (!this._suppressOpen && !this._compacto) this.open();
       }),
       on(input, "keydown", (e) => {
         if (e.key === "ArrowDown" && !this.isOpen) {

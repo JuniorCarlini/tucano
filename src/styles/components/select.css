@@ -11,7 +11,9 @@
  * ------------------------------------------------------------------ */
 
 .tuc-select {
-  @apply relative flex w-full cursor-text items-center gap-1.5;
+  /* min-width: 0 para o controle nunca empurrar a largura de quem o contem —
+     as tags rolam na horizontal, nao precisam definir a largura minima. */
+  @apply relative flex w-full min-w-0 cursor-text items-center gap-1.5;
   /* Altura fixa: todos os campos do formulario ficam na mesma linha de base. */
   height: 2.375rem;
   padding: 0.25rem 0.5rem 0.25rem 0.75rem;

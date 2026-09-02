@@ -197,7 +197,9 @@
 
     .main{margin-left:0;padding:30px 18px 90px}
     .hero h1{font-size:31px}
-    .grid{grid-template-columns:1fr}
+    /* minmax(0,1fr): um track 1fr tem min-width auto e cresce para caber o
+       conteudo minimo, empurrando o card para fora da tela. */
+    .grid{grid-template-columns:minmax(0,1fr)}
 
     /* Tabela vira bloco rolavel: em 390px ela estourava a largura da pagina. */
     table{display:block;max-width:100%;overflow-x:auto;font-size:13px}
@@ -286,7 +288,7 @@
 <section id="data">
   <h2>Date picker</h2>
   <p class="lead">Data, período, hora e data+hora. Campo com máscara, calendário navegável
-     por mês e ano, e no celular ele troca sozinho pelo seletor nativo do sistema.</p>
+     por mês e ano, e um painel que se adapta ao toque no celular.</p>
 
   <div class="grid">
     <div class="card">
