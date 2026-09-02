@@ -24,8 +24,8 @@ distribuídos já compilados — o projeto que consome não precisa de build.
 Dois arquivos e nada mais — sem npm, sem build, sem escrever JavaScript:
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.5.1/dist/tucano.min.css">
-<script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.5.1/dist/tucano.min.js" defer></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.5.2/dist/tucano.min.css">
+<script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.5.2/dist/tucano.min.js" defer></script>
 
 <input type="text" name="data" data-tuc-datepicker>
 <select name="uf" data-tuc-select><option>...</option></select>
@@ -260,7 +260,17 @@ def upload_temp(request):
 | `data-csrf` | `true` | `false` não envia o token |
 
 `accept` e `multiple` são os atributos nativos do input; o componente respeita
-os dois.
+os dois, e revalida no arrastar — onde o sistema operacional não filtra.
+
+```html
+<input type="file" accept=".pdf,.docx" data-tuc-upload>
+<input type="file" accept="image/*" data-tuc-upload>
+<input type="file" accept=".pdf,image/*" multiple data-tuc-upload>
+```
+
+**Prefira extensão a tipo MIME.** O navegador nem sempre sabe o tipo: um `.csv`
+costuma chegar com `type` vazio, e aí `accept="text/csv"` recusa enquanto
+`accept=".csv"` aceita. Para imagem e PDF o MIME é confiável.
 
 **Não há progresso por arquivo no modo formulário.** Num submit comum o
 navegador envia tudo num bloco só e não reporta o andamento — é como o HTML

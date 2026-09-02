@@ -13,8 +13,8 @@ Licença: MIT
 
 Dois arquivos, sem build e sem npm:
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.5.1/dist/tucano.min.css">
-    <script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.5.1/dist/tucano.min.js" defer></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.5.2/dist/tucano.min.css">
+    <script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.5.2/dist/tucano.min.js" defer></script>
 
 Sempre prenda a versão. Global JS: `Tucano`.
 
@@ -90,7 +90,11 @@ endpoint devolveu. O modo direto funciona também sem <form>.
 
 Atributos: data-url, data-max-size, data-max-files, data-field-name,
 data-response-id, data-response-url, data-delete-url, data-auto-upload, data-csrf.
-accept e multiple são os nativos do input.
+
+Tipos aceitos vêm do accept nativo, revalidado ao arrastar: ".pdf,.docx",
+"image/*", "image/png,image/jpeg" ou misturado (".pdf,image/*"). Prefira
+extensão a MIME: o navegador entrega .csv com type vazio, então
+accept="text/csv" recusa e accept=".csv" aceita.
 
 O endpoint deve devolver JSON com um id: {"id": "...", "url": "..."}.
 O CSRF vai em X-CSRFToken, lido do cookie.
