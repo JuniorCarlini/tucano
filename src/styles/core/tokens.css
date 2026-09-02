@@ -10,7 +10,9 @@
 .tuc-colorpicker,
 .tuc-color-field,
 .tuc-upload,
-.tuc-field {
+.tuc-field,
+.tuc-toast,
+.tuc-tip {
   --tuc-accent: #4f46e5;
   --tuc-accent-hover: #4338ca;
   --tuc-accent-fg: #ffffff;
@@ -57,7 +59,7 @@
 }
 
 /* Dark por classe (.dark no html) — o padrao de Tailwind e do Django admin moderno. */
-:where(.dark, [data-theme='dark']) :is(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field),
+:where(.dark, [data-theme='dark']) :is(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip),
 :where(.dark, [data-theme='dark']).tuc-dp {
   --tuc-accent: #6366f1;
   --tuc-accent-hover: #818cf8;
@@ -84,7 +86,7 @@
  * manda no tema, nao o sistema operacional.
  */
 @media (prefers-color-scheme: dark) {
-  :where(html[data-tuc-theme='auto']) :is(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field) {
+  :where(html[data-tuc-theme='auto']) :is(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip) {
     --tuc-accent: #6366f1;
     --tuc-accent-hover: #818cf8;
     --tuc-bg: #171717;
@@ -123,7 +125,9 @@
   .tuc-colorpicker,
   .tuc-color-field,
 .tuc-upload,
-.tuc-field {
+.tuc-field,
+.tuc-toast,
+.tuc-tip {
     --tuc-text: 1rem;
     --tuc-swatch: 2.5rem;   /* acompanha o texto maior no toque */
   }

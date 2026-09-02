@@ -15,6 +15,8 @@ distribuídos já compilados — o projeto que consome não precisa de build.
 | `ColorPicker` — HSV, hex/rgb/hsl, opacidade, paleta | pronto |
 | `Upload` — arrastar e soltar, progresso, validação | pronto |
 | `Mask` — CPF, CNPJ, telefone, real, campo sensível | pronto |
+| `Toast` — avisos, com integração Django e HTMX | pronto |
+| `Tooltip` — dica ancorada, teclado e toque | pronto |
 
 ---
 
@@ -25,8 +27,8 @@ distribuídos já compilados — o projeto que consome não precisa de build.
 Dois arquivos e nada mais — sem npm, sem build, sem escrever JavaScript:
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.7.1/dist/tucano.min.css">
-<script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.7.1/dist/tucano.min.js" defer></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.8.0/dist/tucano.min.css">
+<script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.8.0/dist/tucano.min.js" defer></script>
 
 <input type="text" name="data" data-tuc-datepicker>
 <select name="uf" data-tuc-select><option>...</option></select>
@@ -281,6 +283,60 @@ hora, que é o modo direto.
 O token CSRF vai em `X-CSRFToken`, lido do cookie. E o modo direto precisa de
 limpeza: arquivos enviados por alguém que fechou a aba sem salvar ficam no
 servidor.
+
+## Toast
+
+```js
+Tucano.toast('Salvo');
+Tucano.toast.erro('Não foi possível salvar');
+Tucano.toast({
+  type: 'sucesso', title: 'Contrato excluído', text: 'Ainda dá para voltar atrás.',
+  action: { text: 'Desfazer', onClick: () => restaurar() },
+  position: 'bottom-end', duration: null,
+});
+```
+
+Tipos: `info`, `sucesso`, `aviso`, `erro`. Posições: `top-start`, `top-center`,
+`top-end`, `bottom-start`, `bottom-center`, `bottom-end`.
+
+### Com o Django, sem JavaScript
+
+```html
+{% for m in messages %}
+  <div data-tuc-toast data-type="{{ m.tags }}">{{ m }}</div>
+{% endfor %}
+```
+
+`debug`, `info`, `success`, `warning` e `error` são traduzidos sozinhos.
+
+### Com o HTMX, disparado pelo servidor
+
+```python
+return HttpResponse(headers={"HX-Trigger": json.dumps(
+    {"tucano:toast": {"type": "sucesso", "text": "Contrato salvo"}})})
+```
+
+O `aria-live` fica no container, criado antes de qualquer mensagem — se a região
+nascer junto com o texto, o leitor de tela não anuncia. Erro vai para uma região
+`assertive` separada. O relógio pausa quando o ponteiro entra ou algo dentro
+recebe foco, senão o aviso some no instante em que a pessoa vai clicar no
+"Desfazer".
+
+## Tooltip
+
+```html
+<button data-tuc-tip="Gera o PDF com o layout atual">Exportar</button>
+<button data-tuc-tip title="Vem do title">Do title</button>
+<button data-tuc-tip="..." data-placement="bottom-center" data-delay="600">
+```
+
+Aparece no ponteiro **e** no foco do teclado. No celular não existe hover, então
+o toque abre e o toque fora fecha — tooltip que só escuta `mouseover`
+simplesmente nunca aparece no telefone. `Escape` fecha mesmo com o ponteiro
+parado em cima, como pede a WCAG 1.4.13.
+
+O texto vai em `aria-describedby`. Um `title` é aproveitado quando o elemento
+tem `data-tuc-tip` vazio, e removido para a dica nativa não aparecer por cima.
 
 ## Máscaras
 

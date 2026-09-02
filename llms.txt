@@ -13,8 +13,8 @@ Licença: MIT
 
 Dois arquivos, sem build e sem npm:
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.7.1/dist/tucano.min.css">
-    <script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.7.1/dist/tucano.min.js" defer></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.8.0/dist/tucano.min.css">
+    <script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.8.0/dist/tucano.min.js" defer></script>
 
 Sempre prenda a versão. Global JS: `Tucano`.
 
@@ -138,6 +138,28 @@ data-tuc-format formata elementos de exibicao, sem input.
 CNPJ alfanumerico: 14 posicoes, mesma mascara, 12 primeiras aceitam letras, 2
 ultimas numericas, digito verificador pelo codigo ASCII menos 48. O formato
 `cnpj` aceita os dois; `cnpj-numerico` recusa letras.
+
+## Toast e tooltip
+
+    Tucano.toast('Salvo');
+    Tucano.toast.erro('Nao foi possivel salvar');
+    Tucano.toast({ type:'sucesso', title:'...', text:'...', action:{text:'Desfazer', onClick:fn}, position:'bottom-end', duration:null });
+
+Tipos: info, sucesso, aviso, erro. Posicoes: top-start, top-center, top-end,
+bottom-start, bottom-center, bottom-end.
+
+Mensagens do Django viram toast sem JavaScript:
+    {% for m in messages %}<div data-tuc-toast data-type="{{ m.tags }}">{{ m }}</div>{% endfor %}
+
+Servidor dispara pelo HTMX:
+    HX-Trigger: {"tucano:toast": {"type": "sucesso", "text": "Salvo"}}
+
+Tooltip:
+    <button data-tuc-tip="Gera o PDF">Exportar</button>
+    atributos: data-tuc-tip, data-placement, data-delay
+
+Aparece no ponteiro e no foco do teclado; no toque, tocar abre e tocar fora
+fecha. Escape sempre fecha.
 
 ## Django
 

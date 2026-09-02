@@ -26,17 +26,23 @@ var Tucano = (() => {
     Mask: () => Mask,
     Popover: () => Popover,
     Select: () => Select,
+    Toast: () => Toast,
+    Tooltip: () => Tooltip,
     Upload: () => Upload,
     autoFormat: () => autoFormat,
     autoInitColorPickers: () => autoInit3,
     autoInitDatePickers: () => autoInit,
     autoInitMasks: () => autoInit5,
     autoInitSelects: () => autoInit2,
+    autoInitToasts: () => autoInit6,
+    autoInitTooltips: () => autoInit7,
     autoInitUploads: () => autoInit4,
     color: () => color_exports,
     dates: () => dates_exports,
     init: () => init,
-    mask: () => mask_exports
+    mask: () => mask_exports,
+    ouvirEventos: () => ouvirEventos,
+    toast: () => toast
   });
 
   // src/js/core/dates.js
@@ -1472,6 +1478,7 @@ var Tucano = (() => {
     file: "M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6",
     retry: "M21 12a9 9 0 11-9-9c2.5 0 4.9 1 6.7 2.7L21 8M21 3v5h-5",
     alert: "M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z",
+    info: "M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z",
     eye: "M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z M12 15a3 3 0 100-6 3 3 0 000 6z",
     eyeOff: "M10.6 10.6a3 3 0 004.2 4.2 M9.4 5.2A9.7 9.7 0 0112 5c6.4 0 10 7 10 7a17 17 0 01-2.8 3.7 M6.6 6.6A17 17 0 002 12s3.6 7 10 7c1.7 0 3.2-.4 4.5-1 M2 2l20 20"
   };
@@ -3486,6 +3493,296 @@ var Tucano = (() => {
     return out;
   }
 
+  // src/js/components/toast.js
+  var DEFAULTS6 = {
+    type: "info",
+    // 'info' | 'sucesso' | 'aviso' | 'erro'
+    title: null,
+    text: "",
+    duration: void 0,
+    // ms. null nao fecha sozinho. Padrao depende do tipo
+    position: "top-end",
+    // top-start|top-center|top-end|bottom-start|bottom-center|bottom-end
+    closable: true,
+    action: null,
+    // { text, onClick }
+    max: 4
+    // toasts simultaneos na mesma posicao
+  };
+  var ICONE = {
+    info: ICONS_EXTRA.info,
+    sucesso: ICONS_EXTRA.check,
+    aviso: ICONS_EXTRA.alert,
+    erro: ICONS_EXTRA.alert
+  };
+  var DURACAO = { info: 4e3, sucesso: 3500, aviso: 6e3, erro: 8e3 };
+  var containers = /* @__PURE__ */ new Map();
+  function container(posicao) {
+    if (containers.has(posicao)) return containers.get(posicao);
+    const node = el("div", {
+      class: `tuc-toasts is-${posicao}`,
+      role: "region",
+      "aria-label": "Notifica\xE7\xF5es"
+    }, [
+      el("div", { class: "tuc-toasts__live", "aria-live": "polite", "aria-atomic": "false" }),
+      el("div", { class: "tuc-toasts__live is-urgente", "aria-live": "assertive", "aria-atomic": "false" })
+    ]);
+    document.body.append(node);
+    containers.set(posicao, node);
+    return node;
+  }
+  var Toast = class {
+    constructor(opcoes = {}) {
+      this.opts = { ...DEFAULTS6, ...omitUndefined6(opcoes) };
+      if (this.opts.duration === void 0) this.opts.duration = DURACAO[this.opts.type] ?? 4e3;
+      this.id = nextId("toast");
+      this._cleanups = [];
+      this._montar();
+    }
+    _montar() {
+      const { type, title, text, closable, action } = this.opts;
+      const urgente = type === "erro";
+      this.node = el("div", {
+        class: `tuc-toast is-${type}`,
+        // role no proprio toast ajuda quem chega nele navegando.
+        role: urgente ? "alert" : "status",
+        id: this.id
+      }, [
+        el("span", { class: "tuc-toast__icon" }, [icon(ICONE[type] ?? ICONE.info, 17)]),
+        el("div", { class: "tuc-toast__body" }, [
+          title ? el("strong", { class: "tuc-toast__title", text: title }) : null,
+          el("span", { class: "tuc-toast__text", text })
+        ]),
+        action ? el("button", {
+          type: "button",
+          class: "tuc-toast__action",
+          text: action.text,
+          onclick: () => {
+            action.onClick?.(this);
+            this.close();
+          }
+        }) : null,
+        closable ? el("button", {
+          type: "button",
+          class: "tuc-toast__close",
+          "aria-label": "Fechar",
+          onclick: () => this.close()
+        }, [icon(ICONS.x, 14)]) : null,
+        this.opts.duration ? el("span", { class: "tuc-toast__bar" }) : null
+      ]);
+      this.node._tucano = this;
+      const alvo = container(this.opts.position);
+      const regiao = alvo.querySelector(urgente ? ".is-urgente" : ".tuc-toasts__live:not(.is-urgente)");
+      regiao.append(this.node);
+      this._limitar(regiao);
+      if (this.opts.duration) {
+        this.node.style.setProperty("--tuc-toast-dur", `${this.opts.duration}ms`);
+        this._iniciarRelogio();
+        this._cleanups.push(
+          on(this.node, "mouseenter", () => this._pausar()),
+          on(this.node, "mouseleave", () => this._retomar()),
+          on(this.node, "focusin", () => this._pausar()),
+          on(this.node, "focusout", () => this._retomar())
+        );
+      }
+      requestAnimationFrame(() => this.node.classList.add("is-open"));
+    }
+    /**
+     * Fecha os mais antigos que passarem do limite.
+     *
+     * A instancia fica no proprio no: sem isso nao ha como chamar close() a
+     * partir do elemento, e o limite nao acontece.
+     */
+    _limitar(regiao) {
+      const irmaos = [...regiao.children];
+      const excedente = irmaos.length - this.opts.max;
+      for (let i = 0; i < excedente; i++) irmaos[i]._tucano?.close();
+    }
+    _iniciarRelogio() {
+      this.restante = this.opts.duration;
+      this.inicio = Date.now();
+      this.timer = setTimeout(() => this.close(), this.restante);
+      this.node.style.setProperty("--tuc-toast-play", "running");
+    }
+    _pausar() {
+      if (!this.timer) return;
+      clearTimeout(this.timer);
+      this.timer = null;
+      this.restante -= Date.now() - this.inicio;
+      this.node.style.setProperty("--tuc-toast-play", "paused");
+    }
+    _retomar() {
+      if (this.timer || !this.opts.duration) return;
+      this.inicio = Date.now();
+      this.timer = setTimeout(() => this.close(), Math.max(this.restante, 0));
+      this.node.style.setProperty("--tuc-toast-play", "running");
+    }
+    close() {
+      if (this._fechando) return;
+      this._fechando = true;
+      clearTimeout(this.timer);
+      this._cleanups.forEach((fn) => fn());
+      this.node.classList.remove("is-open");
+      this.node.classList.add("is-closing");
+      const remover = () => {
+        this.node.remove();
+        this.node.dispatchEvent(new CustomEvent("tucano:toast-fechado"));
+      };
+      this.node.addEventListener("transitionend", remover, { once: true });
+      setTimeout(remover, 400);
+    }
+  };
+  function toast(opcoesOuTexto, extra = {}) {
+    const base = typeof opcoesOuTexto === "string" ? { text: opcoesOuTexto } : opcoesOuTexto;
+    return new Toast({ ...base, ...extra });
+  }
+  for (const tipo of ["info", "sucesso", "aviso", "erro"]) {
+    toast[tipo] = (texto, extra = {}) => toast({ type: tipo, text: texto, ...extra });
+  }
+  function omitUndefined6(obj) {
+    const out = {};
+    for (const [k, v] of Object.entries(obj || {})) if (v !== void 0) out[k] = v;
+    return out;
+  }
+  var MAPA_DJANGO = { debug: "info", info: "info", success: "sucesso", warning: "aviso", error: "erro" };
+  function autoInit6(scope = document) {
+    const out = [];
+    for (const node of scope.querySelectorAll("[data-tuc-toast]:not([data-tuc-ready])")) {
+      node.setAttribute("data-tuc-ready", "");
+      const d = node.dataset;
+      const bruto = (d.type || "info").trim().split(/\s+/)[0];
+      out.push(toast({
+        type: MAPA_DJANGO[bruto] ?? bruto,
+        title: d.title || void 0,
+        text: (d.text ?? node.textContent).trim(),
+        duration: d.duration === "false" ? null : d.duration ? +d.duration : void 0,
+        position: d.position || void 0
+      }));
+      node.remove();
+    }
+    return out;
+  }
+  function ouvirEventos() {
+    if (typeof document === "undefined" || document.__tucToastOuvindo) return;
+    document.__tucToastOuvindo = true;
+    document.body?.addEventListener("tucano:toast", (e) => {
+      const d = e.detail;
+      if (!d) return;
+      toast(typeof d === "string" ? { text: d } : d);
+    });
+  }
+
+  // src/js/components/tooltip.js
+  var DEFAULTS7 = {
+    text: "",
+    placement: "top-center",
+    delay: 350,
+    // atraso ao apontar: evita piscar ao passar o mouse de raspao
+    delayOut: 120,
+    maxWidth: "16rem"
+  };
+  var aberto = null;
+  var Tooltip = class {
+    constructor(target, options = {}) {
+      const node = typeof target === "string" ? document.querySelector(target) : target;
+      if (!node) throw new Error("[Tooltip] elemento alvo nao encontrado");
+      this.opts = { ...DEFAULTS7, ...omitUndefined7(options) };
+      this.anchor = node;
+      this.id = nextId("tip");
+      this._cleanups = [];
+      if (!this.opts.text && node.title) {
+        this.opts.text = node.title;
+        node.removeAttribute("title");
+      }
+      if (!this.opts.text) throw new Error("[Tooltip] informe o texto");
+      this.painel = el("div", {
+        class: "tuc-tip",
+        role: "tooltip",
+        id: this.id,
+        style: `max-width:${this.opts.maxWidth}`,
+        text: this.opts.text
+      });
+      node.setAttribute("aria-describedby", this.id);
+      if (!node.hasAttribute("tabindex") && !FOCAVEL.test(node.tagName)) node.tabIndex = 0;
+      const toque = () => window.matchMedia?.("(pointer: coarse)").matches;
+      this._cleanups.push(
+        on(node, "pointerenter", (e) => {
+          if (e.pointerType !== "touch") this._agendar(true);
+        }),
+        on(node, "pointerleave", (e) => {
+          if (e.pointerType !== "touch") this._agendar(false);
+        }),
+        on(node, "focusin", () => this._mostrar()),
+        on(node, "focusout", () => this._esconder()),
+        on(node, "click", () => {
+          if (toque()) this.aberto ? this._esconder() : this._mostrar();
+        }),
+        on(document, "keydown", (e) => {
+          if (e.key === "Escape" && this.aberto) this._esconder();
+        })
+      );
+      node._tucano = this;
+    }
+    _agendar(mostrar) {
+      clearTimeout(this._timer);
+      this._timer = setTimeout(
+        () => mostrar ? this._mostrar() : this._esconder(),
+        mostrar ? this.opts.delay : this.opts.delayOut
+      );
+    }
+    _mostrar() {
+      if (this.aberto) return;
+      if (aberto && aberto !== this) aberto._esconder();
+      this.aberto = true;
+      aberto = this;
+      this.popover = new Popover(this.anchor, this.painel, {
+        placement: this.opts.placement,
+        offset: 6,
+        onDismiss: () => this._esconder()
+      });
+      this.popover.show();
+      requestAnimationFrame(() => this.painel.classList.add("is-open"));
+    }
+    _esconder() {
+      clearTimeout(this._timer);
+      if (!this.aberto) return;
+      this.aberto = false;
+      if (aberto === this) aberto = null;
+      this.painel.classList.remove("is-open");
+      this.popover?.destroy();
+      this.popover = null;
+    }
+    setText(texto) {
+      this.opts.text = texto;
+      this.painel.textContent = texto;
+    }
+    destroy() {
+      this._esconder();
+      this._cleanups.forEach((fn) => fn());
+      this._cleanups = [];
+      this.anchor.removeAttribute("aria-describedby");
+      delete this.anchor._tucano;
+    }
+  };
+  var FOCAVEL = /^(A|BUTTON|INPUT|SELECT|TEXTAREA)$/;
+  function omitUndefined7(obj) {
+    const out = {};
+    for (const [k, v] of Object.entries(obj || {})) if (v !== void 0) out[k] = v;
+    return out;
+  }
+  function autoInit7(scope = document) {
+    const out = [];
+    for (const node of scope.querySelectorAll("[data-tuc-tip]:not([data-tuc-ready])")) {
+      node.setAttribute("data-tuc-ready", "");
+      out.push(new Tooltip(node, {
+        text: node.dataset.tucTip || void 0,
+        placement: node.dataset.placement || void 0,
+        delay: node.dataset.delay ? +node.dataset.delay : void 0
+      }));
+    }
+    return out;
+  }
+
   // src/js/index.js
   function init(scope = document) {
     return {
@@ -3494,11 +3791,16 @@ var Tucano = (() => {
       colorpickers: autoInit3(scope),
       uploads: autoInit4(scope),
       masks: autoInit5(scope),
-      formatted: autoFormat(scope)
+      formatted: autoFormat(scope),
+      toasts: autoInit6(scope),
+      tooltips: autoInit7(scope)
     };
   }
   if (typeof document !== "undefined") {
-    const boot = () => init(document);
+    const boot = () => {
+      ouvirEventos();
+      init(document);
+    };
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
     else boot();
     document.addEventListener("htmx:afterSwap", (e) => init(e.target));

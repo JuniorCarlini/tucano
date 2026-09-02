@@ -1,7 +1,7 @@
 {
   "name": "tucano",
-  "version": "0.7.1",
-  "description": "Date picker, select com busca, color picker, upload e mascaras. Leves e sem dependencias em runtime.",
+  "version": "0.8.0",
+  "description": "Date picker, select com busca, color picker, upload, mascaras, toast e tooltip. Sem dependencias em runtime.",
   "author": "Junior Carlini",
   "license": "MIT",
   "homepage": "https://juniorcarlini.github.io/tucano/",

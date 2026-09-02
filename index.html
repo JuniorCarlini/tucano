@@ -23,7 +23,7 @@
 <meta name="twitter:description" content="Date picker, select com busca e color picker. 15 KB, zero dependências, funciona com HTML puro.">
 <meta name="twitter:image" content="https://juniorcarlini.github.io/tucano/og.png">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦜</text></svg>">
-<link rel="stylesheet" href="dist/tucano.css?v=0.7.1">
+<link rel="stylesheet" href="dist/tucano.css?v=0.8.0">
 <script>try{if(localStorage.getItem("tucano-tema")==="dark")document.documentElement.classList.add("dark")}catch{}</script>
 <style>
   :root{
@@ -219,7 +219,7 @@
 <header class="topbar">
   <span class="bird" style="font-size:18px">🦜</span>
   <b style="font-size:16px;font-weight:640;letter-spacing:-.02em">Tucano</b>
-  <span class="ver">v0.7.1</span>
+  <span class="ver">v0.8.0</span>
   <div class="topbar__acoes">
     <button class="iconbtn" data-tema aria-label="Alternar tema"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
     <button class="iconbtn" id="menu" aria-label="Abrir menu" aria-expanded="false" aria-controls="side"><svg class="i-menu" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
@@ -231,7 +231,7 @@
     <span class="bird">🦜</span><b>Tucano</b>
     <button class="iconbtn" data-tema aria-label="Alternar tema"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
   </div>
-  <span class="ver">v0.7.1 · 15 KB</span>
+  <span class="ver">v0.8.0 · 15 KB</span>
 
   <nav class="nav">
     <a href="#inicio">Início</a>
@@ -242,6 +242,8 @@
     <a href="#cor">Color picker</a>
     <a href="#upload">Upload</a>
     <a href="#mascaras">Máscaras</a>
+    <a href="#toast">Toast</a>
+    <a href="#tooltip">Tooltip</a>
     <div class="grp">Guias</div>
     <a href="#django">Django</a>
     <a href="#tema">Tema</a>
@@ -265,6 +267,7 @@
     <span class="pill">Sem preflight do Tailwind</span>
     <span class="pill">Pronto para toque</span>
     <span class="pill">Upload com progresso</span>
+    <span class="pill">Toast e tooltip</span>
   </div>
 </section>
 
@@ -273,8 +276,8 @@
   <p class="lead">Dois arquivos e nada mais. Funciona com HTML puro, sem npm e sem build.</p>
 
   <pre><span class="c">&lt;!-- CDN --&gt;</span>
-&lt;<span class="t">link</span> <span class="a">rel</span>=<span class="s">"stylesheet"</span> <span class="a">href</span>=<span class="s">"https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.7.1/dist/tucano.min.css"</span>&gt;
-&lt;<span class="t">script</span> <span class="a">src</span>=<span class="s">"https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.7.1/dist/tucano.min.js"</span> <span class="a">defer</span>&gt;&lt;/<span class="t">script</span>&gt;</pre>
+&lt;<span class="t">link</span> <span class="a">rel</span>=<span class="s">"stylesheet"</span> <span class="a">href</span>=<span class="s">"https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.8.0/dist/tucano.min.css"</span>&gt;
+&lt;<span class="t">script</span> <span class="a">src</span>=<span class="s">"https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.8.0/dist/tucano.min.js"</span> <span class="a">defer</span>&gt;&lt;/<span class="t">script</span>&gt;</pre>
 
   <h3>npm</h3>
   <pre>npm install tucano</pre>
@@ -800,6 +803,100 @@
      <code>getRaw()</code> e <code>getNumber()</code>.</p>
 </section>
 
+<section id="toast">
+  <h2>Toast</h2>
+  <p class="lead">Aviso que aparece num canto e some sozinho. Empilha, pausa quando o
+     ponteiro entra e é anunciado por leitor de tela.</p>
+
+  <div class="card">
+    <span class="lbl">Experimente</span>
+    <div class="bar" style="margin:0">
+      <button onclick="Tucano.toast.info('Relatório em processamento')">Info</button>
+      <button onclick="Tucano.toast.sucesso('Cadastro salvo')">Sucesso</button>
+      <button onclick="Tucano.toast.aviso('Sessão expira em 5 minutos')">Aviso</button>
+      <button onclick="Tucano.toast.erro('Não foi possível salvar')">Erro</button>
+      <button onclick="Tucano.toast({ type:'sucesso', title:'Contrato excluído', text:'Ainda dá para voltar atrás.', action:{ text:'Desfazer', onClick:()=>Tucano.toast.info('Restaurado') } })">Com ação</button>
+      <button onclick="Tucano.toast({ text:'Fica até você fechar', duration:null })">Sem sumir</button>
+      <button onclick="['Primeiro','Segundo','Terceiro','Quarto','Quinto'].forEach((t,i)=>setTimeout(()=>Tucano.toast(t),i*180))">Empilhar 5</button>
+    </div>
+  </div>
+
+  <h3>Pelo código</h3>
+  <pre>Tucano.toast(<span class="s">'Salvo'</span>);
+Tucano.toast.erro(<span class="s">'Não foi possível salvar'</span>);
+Tucano.toast({
+  type: <span class="s">'sucesso'</span>,
+  title: <span class="s">'Contrato excluído'</span>,
+  text: <span class="s">'Ainda dá para voltar atrás.'</span>,
+  action: { text: <span class="s">'Desfazer'</span>, onClick: () =&gt; restaurar() },
+  position: <span class="s">'bottom-end'</span>,   <span class="c">// top-start|top-center|top-end|bottom-*</span>
+  duration: <span class="s">null</span>,           <span class="c">// não some sozinho</span>
+});</pre>
+
+  <h3>Com o Django, sem escrever JavaScript</h3>
+  <p class="lead">As mensagens do framework de <code>messages</code> viram toast direto:</p>
+
+  <pre>{% <span class="t">for</span> m <span class="t">in</span> messages %}
+  &lt;<span class="t">div</span> <span class="a">data-tuc-toast</span> <span class="a">data-type</span>=<span class="s">"{{ m.tags }}"</span>&gt;{{ m }}&lt;/<span class="t">div</span>&gt;
+{% <span class="t">endfor</span> %}</pre>
+
+  <p class="lead"><code>debug</code>, <code>info</code>, <code>success</code>,
+     <code>warning</code> e <code>error</code> do Django são traduzidos sozinhos.</p>
+
+  <h3>Com o HTMX, disparado pelo servidor</h3>
+  <pre><span class="t">return</span> HttpResponse(headers={
+    <span class="s">"HX-Trigger"</span>: json.dumps({<span class="s">"tucano:toast"</span>: {
+        <span class="s">"type"</span>: <span class="s">"sucesso"</span>, <span class="s">"text"</span>: <span class="s">"Contrato salvo"</span>,
+    }})
+})</pre>
+
+  <div class="note">
+    <b>Um detalhe que quase toda biblioteca erra.</b> O <code>aria-live</code> fica no
+    container, criado antes de qualquer mensagem — se a região nascer junto com o texto,
+    o leitor de tela não anuncia. Erro vai para uma região <code>assertive</code>
+    separada; o resto, <code>polite</code>.
+  </div>
+
+  <div class="note">
+    O relógio <b>pausa</b> quando o ponteiro entra ou algo dentro recebe foco. Sem isso,
+    o aviso some no instante em que a pessoa vai clicar no "Desfazer".
+  </div>
+</section>
+
+<section id="tooltip">
+  <h2>Tooltip</h2>
+  <p class="lead">Dica curta ancorada num elemento. Aparece no ponteiro <em>e</em> no foco
+     do teclado, e responde ao toque no celular.</p>
+
+  <div class="card">
+    <span class="lbl">Aponte, ou navegue com Tab</span>
+    <div class="bar" style="margin:0">
+      <button data-tuc-tip="Gera o PDF com o layout atual">Exportar</button>
+      <button data-tuc-tip="Só administradores podem excluir" data-placement="bottom-center">Excluir</button>
+      <button data-tuc-tip="Esta ação recalcula todos os valores do contrato e pode levar alguns minutos" data-placement="right-start">Recalcular</button>
+      <button data-tuc-tip title="Veio do title, que é removido para não duplicar a dica nativa">Do title</button>
+    </div>
+  </div>
+
+  <pre>&lt;<span class="t">button</span> <span class="a">data-tuc-tip</span>=<span class="s">"Gera o PDF com o layout atual"</span>&gt;Exportar&lt;/<span class="t">button</span>&gt;
+&lt;<span class="t">button</span> <span class="a">data-tuc-tip</span>=<span class="s">"..."</span> <span class="a">data-placement</span>=<span class="s">"bottom-center"</span> <span class="a">data-delay</span>=<span class="s">"600"</span>&gt;</pre>
+
+  <div class="note">
+    <b>No celular não existe hover.</b> Tooltip que só escuta <code>mouseover</code>
+    simplesmente nunca aparece no telefone — por isso aqui o toque abre e o toque fora
+    fecha. E <code>Escape</code> fecha mesmo com o ponteiro parado em cima, como pede a
+    WCAG 1.4.13.
+  </div>
+
+  <div class="note">
+    O texto sai do <code>aria-describedby</code>, então o leitor de tela lê a dica junto
+    com o botão. Um <code>title</code> é aproveitado quando o elemento tem
+    <code>data-tuc-tip</code> vazio — e removido, senão a dica nativa do navegador
+    apareceria por cima da nossa. Sem o atributo, nada é tocado: sequestrar todo
+    <code>title</code> da página seria intrusivo demais para uma biblioteca.
+  </div>
+</section>
+
 <section id="django">
   <h2>Django</h2>
   <p class="lead">O campo visível mostra a data no formato do locale; um <code>&lt;input type="hidden"&gt;</code>
@@ -1003,7 +1100,7 @@ Não remova o <span class="s">name</span> do input nem o &lt;select&gt; nativo: 
 
 </main>
 
-<script src="dist/tucano.js?v=0.7.1"></script>
+<script src="dist/tucano.js?v=0.8.0"></script>
 <script>
   const ICONE_MENU = '<svg class="i-menu" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>';
   const ICONE_X = '<svg class="i-x" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>';
