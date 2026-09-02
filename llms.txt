@@ -13,8 +13,8 @@ Licença: MIT
 
 Dois arquivos, sem build e sem npm:
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.6.1/dist/tucano.min.css">
-    <script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.6.1/dist/tucano.min.js" defer></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.7.0/dist/tucano.min.css">
+    <script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.7.0/dist/tucano.min.js" defer></script>
 
 Sempre prenda a versão. Global JS: `Tucano`.
 
@@ -64,7 +64,16 @@ A busca ignora acentos ("sao" encontra "São Paulo"). <optgroup> vira grupo,
 <option disabled> fica desabilitada. O campo tem altura fixa e linha única; o
 excesso de tags rola na horizontal.
 
-Método útil: instancia.refresh() relê as <option> depois de um swap do HTMX.
+Metodo util: instancia.refresh() rele as <option> depois de um swap do HTMX.
+
+Busca no servidor, para listas grandes:
+
+    <select name="cliente" data-tuc-select data-url="/api/clientes/"></select>
+
+Atributos: data-url, data-query-param (padrao q), data-min-chars (1),
+data-debounce (300). A resposta pode ser [{value,label}], ["a","b"],
+{results:[...]} do DRF ou {id,text} do Select2. Para controle total existe
+loadOptions: async (termo) => [...].
 
 ## Color picker
 

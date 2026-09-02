@@ -14,6 +14,14 @@ const DEFAULTS = {
   closeOnSelect: undefined, // default: true em simples, false em multiplo
   placement: 'bottom-start',
   appendTo: undefined,
+  // Busca no servidor
+  url: null,             // com url, a lista vem do servidor a cada digitacao
+  loadOptions: null,     // (termo) => Promise<[{value,label,disabled,group}]>
+  queryParam: 'q',
+  minChars: 1,
+  debounce: 300,
+  loadingText: 'Buscando...',
+  errorText: 'Falha ao buscar',
   onChange: null,
 };
 
@@ -43,7 +51,11 @@ export class Select {
     this._cleanups = [];
 
     this.items = readOptions(node);
-    this.opts.search = this.opts.search ?? this.items.length >= this.opts.searchMinItems;
+    this.remoto = !!(this.opts.url || this.opts.loadOptions);
+    // Com busca no servidor o campo de busca e obrigatorio: e o unico jeito de
+    // pedir algo.
+    this.opts.search = this.remoto ? true : (this.opts.search ?? this.items.length >= this.opts.searchMinItems);
+    this.estadoBusca = null;   // null | 'carregando' | 'erro'
 
     this._build();
     this._syncFromNative();
@@ -84,6 +96,7 @@ export class Select {
     this.isOpen = true;
     this.query = '';
     this.search.value = '';
+    if (this.remoto) { this.items = this._escolhidos(); this.estadoBusca = null; }
     this.activeIndex = this.items.findIndex((i) => i.selected && !i.disabled);
     this._renderMenu();
 
@@ -119,6 +132,8 @@ export class Select {
   }
 
   destroy() {
+    clearTimeout(this._timerBusca);
+    this._abortar();
     this.close();
     this._cleanups.forEach((fn) => fn());
     this._cleanups = [];
@@ -185,6 +200,7 @@ export class Select {
       on(this.search, 'input', () => {
         this.query = this.search.value;
         if (!this.isOpen) this.open();
+        if (this.remoto) { this._agendarBusca(); return; }
         this.activeIndex = this._filtered().findIndex((i) => !i.disabled);
         this._renderMenu();
         this._renderControl();
@@ -203,6 +219,15 @@ export class Select {
 
   _pushToNative() {
     this._pushing = true;
+    // Itens vindos do servidor nao existem no <select>: cria a <option> para o
+    // valor poder ser postado.
+    if (this.remoto) {
+      for (const item of this.items) {
+        if (!item.selected) continue;
+        if ([...this.native.options].some((o) => o.value === item.value)) continue;
+        this.native.append(el('option', { value: item.value, text: item.label }));
+      }
+    }
     const escolhidos = new Set(this.items.filter((i) => i.selected).map((i) => i.value));
     for (const opt of this.native.options) opt.selected = escolhidos.has(opt.value);
     // Nada escolhido num select simples: volta para a <option value=""> para o
@@ -213,6 +238,76 @@ export class Select {
     }
     this.native.dispatchEvent(new Event('change', { bubbles: true }));
     this._pushing = false;
+  }
+
+
+  /* ---------------------------------------------------------------- *
+   * Busca no servidor                                                 *
+   * ---------------------------------------------------------------- */
+
+  /** Espera a digitacao parar antes de pedir: uma requisicao por tecla e desperdicio. */
+  _agendarBusca() {
+    clearTimeout(this._timerBusca);
+    const termo = this.query.trim();
+
+    if (termo.length < this.opts.minChars) {
+      this._abortar();
+      this.estadoBusca = null;
+      this.items = this._escolhidos();
+      this._renderMenu();
+      return;
+    }
+
+    this.estadoBusca = 'carregando';
+    this._renderMenu();
+    this._timerBusca = setTimeout(() => this._buscar(termo), this.opts.debounce);
+  }
+
+  _abortar() {
+    this._controle?.abort();
+    this._controle = null;
+  }
+
+  async _buscar(termo) {
+    // Cancela a anterior: sem isso, uma resposta lenta chega depois de uma
+    // rapida e sobrescreve a lista com resultado de um termo ja abandonado.
+    this._abortar();
+    const controle = new AbortController();
+    this._controle = controle;
+
+    try {
+      const brutos = this.opts.loadOptions
+        ? await this.opts.loadOptions(termo, { signal: controle.signal })
+        : await this._buscarUrl(termo, controle.signal);
+      if (controle.signal.aborted) return;
+
+      const vindos = normalizarOpcoes(brutos);
+      // Quem ja foi escolhido continua na lista mesmo fora do resultado —
+      // senao a tag desaparece ao buscar outra coisa.
+      const escolhidos = this._escolhidos();
+      const novos = vindos.filter((i) => !escolhidos.some((e) => e.value === i.value));
+      this.items = [...escolhidos, ...novos];
+      this.estadoBusca = null;
+      this.activeIndex = this.items.findIndex((i) => !i.disabled && !i.selected);
+    } catch (e) {
+      if (e.name === 'AbortError' || controle.signal.aborted) return;
+      this.estadoBusca = 'erro';
+    } finally {
+      if (this._controle === controle) this._controle = null;
+      this._renderMenu();
+    }
+  }
+
+  async _buscarUrl(termo, signal) {
+    const url = new URL(this.opts.url, location.href);
+    url.searchParams.set(this.opts.queryParam, termo);
+    const r = await fetch(url, { signal, headers: { Accept: 'application/json' } });
+    if (!r.ok) throw new Error(`O servidor respondeu ${r.status}`);
+    return r.json();
+  }
+
+  _escolhidos() {
+    return this.items.filter((i) => i.selected);
   }
 
   /* ---------------------------------------------------------------- *
@@ -250,6 +345,9 @@ export class Select {
   }
 
   _filtered() {
+    // No modo remoto o servidor ja devolveu o recorte: filtrar de novo
+    // esconderia resultados que ele considerou relevantes.
+    if (this.remoto) return this.items;
     const q = this.query.trim().toLowerCase();
     if (!q) return this.items;
     return this.items.filter((i) => i.busca.includes(q));
@@ -259,8 +357,22 @@ export class Select {
     const visiveis = this._filtered();
     this.list.replaceChildren();
 
+    if (this.estadoBusca === 'carregando') {
+      this.list.append(el('div', { class: 'tuc-select__empty is-loading', text: this.opts.loadingText }));
+      return;
+    }
+    if (this.estadoBusca === 'erro') {
+      this.list.append(el('div', { class: 'tuc-select__empty is-error', text: this.opts.errorText }));
+      return;
+    }
     if (!visiveis.length) {
-      this.list.append(el('div', { class: 'tuc-select__empty', text: this.opts.emptyText }));
+      const faltaDigitar = this.remoto && this.query.trim().length < this.opts.minChars;
+      this.list.append(el('div', {
+        class: 'tuc-select__empty',
+        text: faltaDigitar
+          ? `Digite ${this.opts.minChars} caractere${this.opts.minChars > 1 ? 's' : ''} para buscar`
+          : this.opts.emptyText,
+      }));
       return;
     }
 
@@ -371,6 +483,22 @@ export class Select {
 
 /* ------------------------------------------------------------------ */
 
+/**
+ * Aceita a lista em varios formatos: [{value,label}], ["a","b"],
+ * {results:[...]} do DRF, ou {id,text} do Select2 — para nao obrigar o
+ * servidor a mudar so por causa daqui.
+ */
+function normalizarOpcoes(dados) {
+  const lista = Array.isArray(dados) ? dados : (dados?.results ?? dados?.items ?? dados?.data ?? []);
+  return lista.map((o) => {
+    if (o == null) return null;
+    if (typeof o !== 'object') return { value: String(o), label: String(o), disabled: false, group: null, selected: false, busca: normalize(String(o)) };
+    const value = String(o.value ?? o.id ?? o.pk ?? '');
+    const label = String(o.label ?? o.text ?? o.nome ?? o.name ?? value);
+    return { value, label, disabled: !!o.disabled, group: o.group ?? o.grupo ?? null, selected: false, busca: normalize(`${label} ${value}`) };
+  }).filter((o) => o && o.value !== '');
+}
+
 function readOptions(select) {
   return [...select.options]
     // <option value=""> e placeholder, nao opcao: fica fora da lista.
@@ -414,6 +542,10 @@ export function autoInit(scope = document) {
       maxItems: d.maxItems ? +d.maxItems : undefined,
       clearable: d.clearable === 'false' ? false : undefined,
       wrapTags: d.wrapTags === 'true' ? true : undefined,
+      url: d.url || undefined,
+      queryParam: d.queryParam || undefined,
+      minChars: d.minChars ? +d.minChars : undefined,
+      debounce: d.debounce ? +d.debounce : undefined,
       closeOnSelect: d.closeOnSelect === 'false' ? false : d.closeOnSelect === 'true' ? true : undefined,
     }));
   }

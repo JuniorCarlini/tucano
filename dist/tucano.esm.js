@@ -1459,6 +1459,16 @@ var DEFAULTS2 = {
   // default: true em simples, false em multiplo
   placement: "bottom-start",
   appendTo: void 0,
+  // Busca no servidor
+  url: null,
+  // com url, a lista vem do servidor a cada digitacao
+  loadOptions: null,
+  // (termo) => Promise<[{value,label,disabled,group}]>
+  queryParam: "q",
+  minChars: 1,
+  debounce: 300,
+  loadingText: "Buscando...",
+  errorText: "Falha ao buscar",
   onChange: null
 };
 var Select = class {
@@ -1477,7 +1487,9 @@ var Select = class {
     this.activeIndex = -1;
     this._cleanups = [];
     this.items = readOptions(node);
-    this.opts.search = this.opts.search ?? this.items.length >= this.opts.searchMinItems;
+    this.remoto = !!(this.opts.url || this.opts.loadOptions);
+    this.opts.search = this.remoto ? true : this.opts.search ?? this.items.length >= this.opts.searchMinItems;
+    this.estadoBusca = null;
     this._build();
     this._syncFromNative();
     node._tucano = this;
@@ -1511,6 +1523,10 @@ var Select = class {
     this.isOpen = true;
     this.query = "";
     this.search.value = "";
+    if (this.remoto) {
+      this.items = this._escolhidos();
+      this.estadoBusca = null;
+    }
     this.activeIndex = this.items.findIndex((i) => i.selected && !i.disabled);
     this._renderMenu();
     this.popover = new Popover(this.control, this.menu, {
@@ -1542,6 +1558,8 @@ var Select = class {
     this.isOpen ? this.close() : this.open();
   }
   destroy() {
+    clearTimeout(this._timerBusca);
+    this._abortar();
     this.close();
     this._cleanups.forEach((fn) => fn());
     this._cleanups = [];
@@ -1603,6 +1621,10 @@ var Select = class {
       on(this.search, "input", () => {
         this.query = this.search.value;
         if (!this.isOpen) this.open();
+        if (this.remoto) {
+          this._agendarBusca();
+          return;
+        }
         this.activeIndex = this._filtered().findIndex((i) => !i.disabled);
         this._renderMenu();
         this._renderControl();
@@ -1621,6 +1643,13 @@ var Select = class {
   }
   _pushToNative() {
     this._pushing = true;
+    if (this.remoto) {
+      for (const item of this.items) {
+        if (!item.selected) continue;
+        if ([...this.native.options].some((o) => o.value === item.value)) continue;
+        this.native.append(el("option", { value: item.value, text: item.label }));
+      }
+    }
     const escolhidos = new Set(this.items.filter((i) => i.selected).map((i) => i.value));
     for (const opt of this.native.options) opt.selected = escolhidos.has(opt.value);
     if (!this.multiple && !escolhidos.size) {
@@ -1629,6 +1658,59 @@ var Select = class {
     }
     this.native.dispatchEvent(new Event("change", { bubbles: true }));
     this._pushing = false;
+  }
+  /* ---------------------------------------------------------------- *
+   * Busca no servidor                                                 *
+   * ---------------------------------------------------------------- */
+  /** Espera a digitacao parar antes de pedir: uma requisicao por tecla e desperdicio. */
+  _agendarBusca() {
+    clearTimeout(this._timerBusca);
+    const termo = this.query.trim();
+    if (termo.length < this.opts.minChars) {
+      this._abortar();
+      this.estadoBusca = null;
+      this.items = this._escolhidos();
+      this._renderMenu();
+      return;
+    }
+    this.estadoBusca = "carregando";
+    this._renderMenu();
+    this._timerBusca = setTimeout(() => this._buscar(termo), this.opts.debounce);
+  }
+  _abortar() {
+    this._controle?.abort();
+    this._controle = null;
+  }
+  async _buscar(termo) {
+    this._abortar();
+    const controle = new AbortController();
+    this._controle = controle;
+    try {
+      const brutos = this.opts.loadOptions ? await this.opts.loadOptions(termo, { signal: controle.signal }) : await this._buscarUrl(termo, controle.signal);
+      if (controle.signal.aborted) return;
+      const vindos = normalizarOpcoes(brutos);
+      const escolhidos = this._escolhidos();
+      const novos = vindos.filter((i) => !escolhidos.some((e) => e.value === i.value));
+      this.items = [...escolhidos, ...novos];
+      this.estadoBusca = null;
+      this.activeIndex = this.items.findIndex((i) => !i.disabled && !i.selected);
+    } catch (e) {
+      if (e.name === "AbortError" || controle.signal.aborted) return;
+      this.estadoBusca = "erro";
+    } finally {
+      if (this._controle === controle) this._controle = null;
+      this._renderMenu();
+    }
+  }
+  async _buscarUrl(termo, signal) {
+    const url = new URL(this.opts.url, location.href);
+    url.searchParams.set(this.opts.queryParam, termo);
+    const r = await fetch(url, { signal, headers: { Accept: "application/json" } });
+    if (!r.ok) throw new Error(`O servidor respondeu ${r.status}`);
+    return r.json();
+  }
+  _escolhidos() {
+    return this.items.filter((i) => i.selected);
   }
   /* ---------------------------------------------------------------- *
    * Render                                                            *
@@ -1665,6 +1747,7 @@ var Select = class {
     this.search.readOnly = !this.opts.search;
   }
   _filtered() {
+    if (this.remoto) return this.items;
     const q = this.query.trim().toLowerCase();
     if (!q) return this.items;
     return this.items.filter((i) => i.busca.includes(q));
@@ -1672,8 +1755,20 @@ var Select = class {
   _renderMenu() {
     const visiveis = this._filtered();
     this.list.replaceChildren();
+    if (this.estadoBusca === "carregando") {
+      this.list.append(el("div", { class: "tuc-select__empty is-loading", text: this.opts.loadingText }));
+      return;
+    }
+    if (this.estadoBusca === "erro") {
+      this.list.append(el("div", { class: "tuc-select__empty is-error", text: this.opts.errorText }));
+      return;
+    }
     if (!visiveis.length) {
-      this.list.append(el("div", { class: "tuc-select__empty", text: this.opts.emptyText }));
+      const faltaDigitar = this.remoto && this.query.trim().length < this.opts.minChars;
+      this.list.append(el("div", {
+        class: "tuc-select__empty",
+        text: faltaDigitar ? `Digite ${this.opts.minChars} caractere${this.opts.minChars > 1 ? "s" : ""} para buscar` : this.opts.emptyText
+      }));
       return;
     }
     let grupoAtual = null;
@@ -1792,6 +1887,16 @@ var Select = class {
     this.native.dispatchEvent(new CustomEvent("tucano:change", { detail, bubbles: true }));
   }
 };
+function normalizarOpcoes(dados) {
+  const lista = Array.isArray(dados) ? dados : dados?.results ?? dados?.items ?? dados?.data ?? [];
+  return lista.map((o) => {
+    if (o == null) return null;
+    if (typeof o !== "object") return { value: String(o), label: String(o), disabled: false, group: null, selected: false, busca: normalize(String(o)) };
+    const value = String(o.value ?? o.id ?? o.pk ?? "");
+    const label = String(o.label ?? o.text ?? o.nome ?? o.name ?? value);
+    return { value, label, disabled: !!o.disabled, group: o.group ?? o.grupo ?? null, selected: false, busca: normalize(`${label} ${value}`) };
+  }).filter((o) => o && o.value !== "");
+}
 function readOptions(select) {
   return [...select.options].filter((o) => o.value !== "").map((o) => ({
     value: o.value,
@@ -1827,6 +1932,10 @@ function autoInit2(scope = document) {
       maxItems: d.maxItems ? +d.maxItems : void 0,
       clearable: d.clearable === "false" ? false : void 0,
       wrapTags: d.wrapTags === "true" ? true : void 0,
+      url: d.url || void 0,
+      queryParam: d.queryParam || void 0,
+      minChars: d.minChars ? +d.minChars : void 0,
+      debounce: d.debounce ? +d.debounce : void 0,
       closeOnSelect: d.closeOnSelect === "false" ? false : d.closeOnSelect === "true" ? true : void 0
     }));
   }
