@@ -87,3 +87,20 @@
       0 16px 48px -24px rgb(0 0 0 / 0.8);
   }
 }
+
+/*
+ * Em telas de toque o texto base sobe para 16px.
+ *
+ * O Safari do iOS aplica zoom automatico ao focar qualquer campo com menos de
+ * 16px, e a pagina inteira salta — era o que atrapalhava a digitacao na busca
+ * do select. De quebra, 16px le melhor no dedo.
+ */
+@media (pointer: coarse) {
+  .tuc-dp,
+  .tuc-select,
+  .tuc-select__menu,
+  .tuc-colorpicker,
+  .tuc-color-field {
+    --tuc-text: 1rem;
+  }
+}

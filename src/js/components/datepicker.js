@@ -26,9 +26,10 @@ const DEFAULTS = {
   appendTo: undefined,
   isoName: undefined,    // name do input hidden com o valor ISO
   openOnFocus: true,
-  // 'auto' usa o seletor nativo do sistema onde o ponteiro e de toque.
-  // true forca nativo, false forca o painel proprio.
-  native: 'auto',
+  // Painel proprio em todo lugar, por padrao: um so comportamento para
+  // documentar, estilizar e testar. `true` liga o seletor do sistema no
+  // celular, `'auto'` liga so onde o ponteiro e de toque.
+  native: false,
   onChange: null,
   onOpen: null,
   onClose: null,
@@ -145,7 +146,7 @@ export class DatePicker {
     this._releaseFocus = null;
     this.input.setAttribute('aria-expanded', 'false');
 
-    if (restoreFocus) {
+    if (restoreFocus && !this._toque) {
       // Devolver o foco ao input dispararia 'focus' e reabriria o painel na hora
       // — era isso que fazia o calendario piscar ao escolher um dia.
       this._suppressOpen = true;
@@ -200,11 +201,32 @@ export class DatePicker {
     return typeof window !== 'undefined' && !!window.matchMedia?.('(pointer: coarse)').matches;
   }
 
+  /** Tela de toque: mede uma vez, usado para decidir foco e teclado. */
+  get _toque() {
+    return typeof window !== 'undefined' && !!window.matchMedia?.('(pointer: coarse)').matches;
+  }
+
   _setupTarget() {
     if (this.native) return this._setupNative();
     const input = this.input;
+
+    /*
+     * Em telas de toque o campo nao recebe foco. O iOS aplica zoom ao focar
+     * qualquer input com menos de 16px — e essa fonte e do projeto, nao nossa,
+     * entao nao da para resolver por CSS daqui. Sem foco tambem nao sobe o
+     * teclado, que cobriria o calendario. Quem digita e o desktop; no celular
+     * a entrada e o proprio painel.
+     */
+    if (this._toque) {
+      input.readOnly = true;
+      this._cleanups.push(on(input, 'pointerdown', (e) => {
+        e.preventDefault();
+        this.isOpen ? this.close({ restoreFocus: false }) : this.open();
+      }));
+    }
+
     input.setAttribute('autocomplete', 'off');
-    this._mask = this._maskTemplate();
+    this._mask = this._toque ? null : this._maskTemplate();
     this._maskDigits = '';
     if (this._mask) {
       input.setAttribute('inputmode', 'numeric');
@@ -225,7 +247,7 @@ export class DatePicker {
 
     this._cleanups.push(
       on(input, 'focus', () => { if (this.opts.openOnFocus && !this._suppressOpen) this.open(); }),
-      on(input, 'click', () => { if (!this._suppressOpen) this.open(); }),
+      on(input, 'click', () => { if (!this._suppressOpen && !this._toque) this.open(); }),
       on(input, 'keydown', (e) => {
         if (e.key === 'ArrowDown' && !this.isOpen) { e.preventDefault(); this.open(); }
         else if (e.key === 'Enter' && this.isOpen) { e.preventDefault(); this._commitTyped(); }

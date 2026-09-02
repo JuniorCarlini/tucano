@@ -23,8 +23,8 @@ distribuídos já compilados — o projeto que consome não precisa de build.
 Dois arquivos e nada mais — sem npm, sem build, sem escrever JavaScript:
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.2.1/dist/tucano.min.css">
-<script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.2.1/dist/tucano.min.js" defer></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.3.0/dist/tucano.min.css">
+<script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.3.0/dist/tucano.min.js" defer></script>
 
 <input type="text" name="data" data-tuc-datepicker>
 <select name="uf" data-tuc-select><option>...</option></select>
@@ -248,32 +248,27 @@ campo fica como texto livre e vale o parse tolerante, que aceita `25/12/26`,
 
 ---
 
-## Celular: seletor nativo
+## Celular
 
-Em telas de toque (`pointer: coarse`) o componente troca sozinho para o seletor
-do próprio sistema — a roda do iOS, o diálogo do Android. É melhor que qualquer
-painel em tela pequena: roda fora da página, é feito para o dedo e o usuário já
-conhece.
+O painel é o mesmo do desktop, adaptado ao toque: texto de 16px, células
+maiores e, no modo período, os dois meses empilhados.
 
-| Modo | Celular | Desktop |
-| --- | --- | --- |
-| data única | `<input type="date">` nativo | painel |
-| data + hora | `<input type="datetime-local">` nativo | painel |
-| **período** | **painel** (um mês por vez) | painel |
+Os 16px não são estética: **o Safari do iOS aplica zoom automático ao focar
+qualquer campo com menos de 16px**, e a página inteira salta.
 
-Período fica no painel nos dois casos porque **não existe seletor de intervalo
-nativo em HTML** — `type="date"` só aceita uma data.
-
-O que chega no servidor é idêntico nos dois caminhos: no modo nativo o próprio
-input carrega o ISO e mantém o `name`, então nem hidden é criado.
+O seletor do sistema (a roda do iOS, o diálogo do Android) é opt-in:
 
 ```js
-native: 'auto'   // padrão: nativo onde o ponteiro é de toque
-native: true     // força nativo
-native: false    // força o painel sempre
+native: false     // padrão: o painel em todo lugar
+native: 'auto'    // seletor do sistema onde o ponteiro é de toque
+native: true      // sempre o seletor do sistema
 ```
 
-Por atributo: `data-native="false"`.
+Por atributo: `data-native="true"`.
+
+Ele **não altera o `type` do seu input** — um input nativo transparente fica
+por cima do campo, então o estilo que você aplicou continua valendo. Período
+nunca usa nativo: não existe seletor de intervalo em HTML.
 
 ---
 

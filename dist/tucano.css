@@ -112,6 +112,11 @@
       0 16px 48px -24px rgb(0 0 0 / 0.8);
   }
 }
+@media (pointer: coarse) {
+  .tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field {
+    --tuc-text: 1rem;
+  }
+}
 .tuc-dp {
   z-index: 50;
   display: flex;

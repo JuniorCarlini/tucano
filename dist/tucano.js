@@ -480,9 +480,10 @@ var Tucano = (() => {
     isoName: void 0,
     // name do input hidden com o valor ISO
     openOnFocus: true,
-    // 'auto' usa o seletor nativo do sistema onde o ponteiro e de toque.
-    // true forca nativo, false forca o painel proprio.
-    native: "auto",
+    // Painel proprio em todo lugar, por padrao: um so comportamento para
+    // documentar, estilizar e testar. `true` liga o seletor do sistema no
+    // celular, `'auto'` liga so onde o ponteiro e de toque.
+    native: false,
     onChange: null,
     onOpen: null,
     onClose: null
@@ -588,7 +589,7 @@ var Tucano = (() => {
       this._releaseFocus?.();
       this._releaseFocus = null;
       this.input.setAttribute("aria-expanded", "false");
-      if (restoreFocus) {
+      if (restoreFocus && !this._toque) {
         this._suppressOpen = true;
         this.input.focus();
         this._suppressOpen = false;
@@ -639,11 +640,22 @@ var Tucano = (() => {
       if (this.opts.native === true) return true;
       return typeof window !== "undefined" && !!window.matchMedia?.("(pointer: coarse)").matches;
     }
+    /** Tela de toque: mede uma vez, usado para decidir foco e teclado. */
+    get _toque() {
+      return typeof window !== "undefined" && !!window.matchMedia?.("(pointer: coarse)").matches;
+    }
     _setupTarget() {
       if (this.native) return this._setupNative();
       const input = this.input;
+      if (this._toque) {
+        input.readOnly = true;
+        this._cleanups.push(on(input, "pointerdown", (e) => {
+          e.preventDefault();
+          this.isOpen ? this.close({ restoreFocus: false }) : this.open();
+        }));
+      }
       input.setAttribute("autocomplete", "off");
-      this._mask = this._maskTemplate();
+      this._mask = this._toque ? null : this._maskTemplate();
       this._maskDigits = "";
       if (this._mask) {
         input.setAttribute("inputmode", "numeric");
@@ -664,7 +676,7 @@ var Tucano = (() => {
           if (this.opts.openOnFocus && !this._suppressOpen) this.open();
         }),
         on(input, "click", () => {
-          if (!this._suppressOpen) this.open();
+          if (!this._suppressOpen && !this._toque) this.open();
         }),
         on(input, "keydown", (e) => {
           if (e.key === "ArrowDown" && !this.isOpen) {

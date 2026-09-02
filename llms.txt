@@ -13,8 +13,8 @@ Licença: MIT
 
 Dois arquivos, sem build e sem npm:
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.2.1/dist/tucano.min.css">
-    <script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.2.1/dist/tucano.min.js" defer></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.3.0/dist/tucano.min.css">
+    <script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.3.0/dist/tucano.min.js" defer></script>
 
 Sempre prenda a versão. Global JS: `Tucano`.
 
@@ -37,8 +37,13 @@ clearable, firstDayOfWeek, onChange.
 O campo tem máscara derivada do formato (dd/mm/aaaa, dd/mm/aaaa hh:mm, e a
 variante com travessão no modo range). Digita-se só números.
 
-Em telas de toque (pointer: coarse) data e data+hora trocam pelo seletor nativo
-do sistema. Período não troca: não existe seletor de intervalo nativo em HTML.
+Por padrão o painel próprio é usado em todo lugar, inclusive no celular, onde
+o texto sobe para 16px (abaixo disso o iOS dá zoom ao focar) e os dois meses
+empilham no modo período.
+
+O seletor nativo do sistema é opt-in: data-native="true" (ou native: 'auto'
+para ligar só em telas de toque). Ele não altera o type do input — um input
+nativo transparente fica por cima. Período nunca usa nativo.
 
 ## Select
 
