@@ -4,12 +4,18 @@
   @apply pointer-events-none fixed z-[100] p-4;
   width: min(24rem, calc(100vw - 2rem));
 }
-/* A regiao e o palco: os toasts se posicionam dentro dela por transformacao. */
-.tuc-toasts__live {
+/* O palco e o sistema de coordenadas de todos os toasts, de qualquer regiao. */
+.tuc-toasts__palco {
   @apply relative;
   transition: height var(--tuc-duration-lg) var(--tuc-ease);
 }
-.tuc-toasts__live:empty { @apply hidden; }
+/*
+ * As regioes ficam so para o leitor de tela e nao participam do layout: sem
+ * altura e sem posicionar, os toasts das duas se ancoram no mesmo palco. Elas
+ * tambem nao somem quando vazias — uma live region escondida e recem-exibida
+ * costuma nao ser anunciada.
+ */
+.tuc-toasts__live { height: 0; }
 
 .tuc-toasts.is-top-start    { @apply left-0 top-0;  --tuc-toast-de: -110%; }
 .tuc-toasts.is-top-center   { @apply left-1/2 top-0; translate: -50% 0; --tuc-toast-de: 0; }

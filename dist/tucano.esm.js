@@ -3505,8 +3505,10 @@ function container(posicao) {
     role: "region",
     "aria-label": "Notifica\xE7\xF5es"
   }, [
-    el("div", { class: "tuc-toasts__live", "aria-live": "polite", "aria-atomic": "false" }),
-    el("div", { class: "tuc-toasts__live is-urgente", "aria-live": "assertive", "aria-atomic": "false" })
+    el("div", { class: "tuc-toasts__palco" }, [
+      el("div", { class: "tuc-toasts__live", "aria-live": "polite", "aria-atomic": "false" }),
+      el("div", { class: "tuc-toasts__live is-urgente", "aria-live": "assertive", "aria-atomic": "false" })
+    ])
   ]);
   node.style.setProperty("--tuc-toast-respiro", `${RESPIRO}px`);
   document.body.append(node);
@@ -3526,32 +3528,32 @@ function container(posicao) {
 var RECUO = 14;
 var VISIVEIS = 3;
 var RESPIRO = 12;
+var sequencia = 0;
 function arranjar(cont) {
   void cont.offsetHeight;
   if (!cont.offsetWidth) return;
   const debaixo = cont.className.includes("is-bottom");
   const sentido = debaixo ? -1 : 1;
   const aberto2 = cont.classList.contains("is-expandido");
-  for (const regiao of cont.querySelectorAll(".tuc-toasts__live")) {
-    const toasts = [...regiao.querySelectorAll(".tuc-toast:not(.is-closing)")];
-    const frente = toasts.length - 1;
-    let acumulado = 0;
-    for (let i = frente; i >= 0; i--) {
-      const k = frente - i;
-      const t = toasts[i];
-      const y = aberto2 ? acumulado : k * RECUO;
-      const escala = aberto2 ? 1 : 1 - k * 0.05;
-      t.style.setProperty("--tuc-toast-y", `${sentido * y}px`);
-      t.style.setProperty("--tuc-toast-escala", String(escala));
-      t.style.zIndex = String(100 - k);
-      t.classList.toggle("is-oculto", !aberto2 && k >= VISIVEIS);
-      t.setAttribute("aria-hidden", !aberto2 && k >= VISIVEIS ? "true" : "false");
-      acumulado += t.offsetHeight + RESPIRO;
-    }
-    const alturaFrente = toasts[frente]?.offsetHeight ?? 0;
-    const total = aberto2 ? acumulado - RESPIRO : alturaFrente + Math.min(toasts.length - 1, VISIVEIS - 1) * RECUO;
-    regiao.style.height = toasts.length ? `${total}px` : "0px";
+  const palco = cont.querySelector(".tuc-toasts__palco");
+  const toasts = [...palco.querySelectorAll(".tuc-toast:not(.is-closing)")].sort((a, b) => +a.dataset.seq - +b.dataset.seq);
+  const frente = toasts.length - 1;
+  let acumulado = 0;
+  for (let i = frente; i >= 0; i--) {
+    const k = frente - i;
+    const t = toasts[i];
+    const y = aberto2 ? acumulado : k * RECUO;
+    const escala = aberto2 ? 1 : 1 - k * 0.05;
+    t.style.setProperty("--tuc-toast-y", `${sentido * y}px`);
+    t.style.setProperty("--tuc-toast-escala", String(escala));
+    t.style.zIndex = String(100 - k);
+    t.classList.toggle("is-oculto", !aberto2 && k >= VISIVEIS);
+    t.setAttribute("aria-hidden", !aberto2 && k >= VISIVEIS ? "true" : "false");
+    acumulado += t.offsetHeight + RESPIRO;
   }
+  const alturaFrente = toasts[frente]?.offsetHeight ?? 0;
+  const total = aberto2 ? acumulado - RESPIRO : alturaFrente + Math.min(toasts.length - 1, VISIVEIS - 1) * RECUO;
+  palco.style.height = toasts.length ? `${total}px` : "0px";
 }
 var Toast = class {
   constructor(opcoes = {}) {
@@ -3592,12 +3594,13 @@ var Toast = class {
       }, [icon(ICONS.x, 14)]) : null
     ]);
     this.node._tucano = this;
+    this.node.dataset.seq = String(++sequencia);
     const alvo = container(this.opts.position);
     this.container = alvo;
     const regiao = alvo.querySelector(urgente ? ".is-urgente" : ".tuc-toasts__live:not(.is-urgente)");
     regiao.append(this.node);
     this.regiao = regiao;
-    this._limitar(regiao);
+    this._limitar(alvo);
     arranjar(alvo);
     if (this.opts.duration) {
       this._iniciarRelogio();
@@ -3616,10 +3619,10 @@ var Toast = class {
    * A instancia fica no proprio no: sem isso nao ha como chamar close() a
    * partir do elemento, e o limite nao acontece.
    */
-  _limitar(regiao) {
-    const irmaos = [...regiao.children];
-    const excedente = irmaos.length - this.opts.max;
-    for (let i = 0; i < excedente; i++) irmaos[i]._tucano?.close();
+  _limitar(cont) {
+    const abertos = [...cont.querySelectorAll(".tuc-toast:not(.is-closing)")].sort((a, b) => +a.dataset.seq - +b.dataset.seq);
+    const excedente = abertos.length - this.opts.max;
+    for (let i = 0; i < excedente; i++) abertos[i]._tucano?.close();
   }
   _iniciarRelogio() {
     this.restante = this.opts.duration;

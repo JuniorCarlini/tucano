@@ -1479,12 +1479,12 @@
   padding: calc(var(--spacing, 0.25rem) * 4);
   width: min(24rem, calc(100vw - 2rem));
 }
-.tuc-toasts__live {
+.tuc-toasts__palco {
   position: relative;
   transition: height var(--tuc-duration-lg) var(--tuc-ease);
 }
-.tuc-toasts__live:empty {
-  display: none;
+.tuc-toasts__live {
+  height: 0;
 }
 .tuc-toasts.is-top-start {
   top: 0px;

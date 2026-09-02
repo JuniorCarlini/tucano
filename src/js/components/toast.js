@@ -33,13 +33,20 @@ const containers = new Map();
  */
 function container(posicao) {
   if (containers.has(posicao)) return containers.get(posicao);
+  // As duas regioes existem para o leitor de tela, nao para o layout. Elas
+  // ficam dentro de um palco unico e sem altura propria, para que um erro
+  // (assertivo) e um sucesso (polido) dividam o mesmo sistema de coordenadas
+  // e formem uma pilha so — antes cada regiao se posicionava por conta e as
+  // duas viravam pilhas paralelas na tela.
   const node = el('div', {
     class: `tuc-toasts is-${posicao}`,
     role: 'region',
     'aria-label': 'Notificações',
   }, [
-    el('div', { class: 'tuc-toasts__live', 'aria-live': 'polite', 'aria-atomic': 'false' }),
-    el('div', { class: 'tuc-toasts__live is-urgente', 'aria-live': 'assertive', 'aria-atomic': 'false' }),
+    el('div', { class: 'tuc-toasts__palco' }, [
+      el('div', { class: 'tuc-toasts__live', 'aria-live': 'polite', 'aria-atomic': 'false' }),
+      el('div', { class: 'tuc-toasts__live is-urgente', 'aria-live': 'assertive', 'aria-atomic': 'false' }),
+    ]),
   ]);
   // O respiro sai daqui para o CSS porque a ponte de hover precisa cobrir
   // exatamente o mesmo vao que arranjar() distribui — dois valores soltos
@@ -65,6 +72,10 @@ const RECUO = 14;      // quanto de cada toast de tras fica a mostra
 const VISIVEIS = 3;    // alem disso some: uma pilha de dez nao ajuda ninguem
 const RESPIRO = 12;    // espaco entre toasts quando aberto em leque
 
+// A ordem do DOM percorre uma regiao inteira antes da outra, entao ela nao
+// diz mais quem chegou primeiro. Este contador diz.
+let sequencia = 0;
+
 /**
  * Coloca cada toast no lugar.
  *
@@ -87,32 +98,32 @@ function arranjar(cont) {
   const sentido = debaixo ? -1 : 1;
   const aberto = cont.classList.contains('is-expandido');
 
-  for (const regiao of cont.querySelectorAll('.tuc-toasts__live')) {
-    const toasts = [...regiao.querySelectorAll('.tuc-toast:not(.is-closing)')];
-    const frente = toasts.length - 1;   // o mais novo fica na frente
-    let acumulado = 0;
+  const palco = cont.querySelector('.tuc-toasts__palco');
+  const toasts = [...palco.querySelectorAll('.tuc-toast:not(.is-closing)')]
+    .sort((a, b) => +a.dataset.seq - +b.dataset.seq);
+  const frente = toasts.length - 1;   // o mais novo fica na frente
+  let acumulado = 0;
 
-    for (let i = frente; i >= 0; i--) {
-      const k = frente - i;             // 0 = frente
-      const t = toasts[i];
-      const y = aberto ? acumulado : k * RECUO;
-      const escala = aberto ? 1 : 1 - k * 0.05;
+  for (let i = frente; i >= 0; i--) {
+    const k = frente - i;             // 0 = frente
+    const t = toasts[i];
+    const y = aberto ? acumulado : k * RECUO;
+    const escala = aberto ? 1 : 1 - k * 0.05;
 
-      t.style.setProperty('--tuc-toast-y', `${sentido * y}px`);
-      t.style.setProperty('--tuc-toast-escala', String(escala));
-      t.style.zIndex = String(100 - k);
-      t.classList.toggle('is-oculto', !aberto && k >= VISIVEIS);
-      t.setAttribute('aria-hidden', !aberto && k >= VISIVEIS ? 'true' : 'false');
+    t.style.setProperty('--tuc-toast-y', `${sentido * y}px`);
+    t.style.setProperty('--tuc-toast-escala', String(escala));
+    t.style.zIndex = String(100 - k);
+    t.classList.toggle('is-oculto', !aberto && k >= VISIVEIS);
+    t.setAttribute('aria-hidden', !aberto && k >= VISIVEIS ? 'true' : 'false');
 
-      acumulado += t.offsetHeight + RESPIRO;
-    }
-
-    // A altura do container acompanha o conteudo: sem isso o ponteiro nao
-    // alcanca os de tras, e o leque abriria para fora da area sensivel.
-    const alturaFrente = toasts[frente]?.offsetHeight ?? 0;
-    const total = aberto ? acumulado - RESPIRO : alturaFrente + Math.min(toasts.length - 1, VISIVEIS - 1) * RECUO;
-    regiao.style.height = toasts.length ? `${total}px` : '0px';
+    acumulado += t.offsetHeight + RESPIRO;
   }
+
+  // A altura do palco acompanha o conteudo: sem isso o ponteiro nao alcanca
+  // os de tras, e o leque abriria para fora da area sensivel.
+  const alturaFrente = toasts[frente]?.offsetHeight ?? 0;
+  const total = aberto ? acumulado - RESPIRO : alturaFrente + Math.min(toasts.length - 1, VISIVEIS - 1) * RECUO;
+  palco.style.height = toasts.length ? `${total}px` : '0px';
 }
 
 export class Toast {
@@ -150,13 +161,14 @@ export class Toast {
     ]);
 
     this.node._tucano = this;
+    this.node.dataset.seq = String(++sequencia);
     const alvo = container(this.opts.position);
     this.container = alvo;
     const regiao = alvo.querySelector(urgente ? '.is-urgente' : '.tuc-toasts__live:not(.is-urgente)');
     regiao.append(this.node);
     this.regiao = regiao;
 
-    this._limitar(regiao);
+    this._limitar(alvo);
     arranjar(alvo);
 
     if (this.opts.duration) {
@@ -180,10 +192,13 @@ export class Toast {
    * A instancia fica no proprio no: sem isso nao ha como chamar close() a
    * partir do elemento, e o limite nao acontece.
    */
-  _limitar(regiao) {
-    const irmaos = [...regiao.children];
-    const excedente = irmaos.length - this.opts.max;
-    for (let i = 0; i < excedente; i++) irmaos[i]._tucano?.close();
+  _limitar(cont) {
+    // O limite vale para a pilha inteira, nao por regiao de acessibilidade:
+    // contadas em separado, tres avisos e tres erros passariam seis na tela.
+    const abertos = [...cont.querySelectorAll('.tuc-toast:not(.is-closing)')]
+      .sort((a, b) => +a.dataset.seq - +b.dataset.seq);
+    const excedente = abertos.length - this.opts.max;
+    for (let i = 0; i < excedente; i++) abertos[i]._tucano?.close();
   }
 
   _iniciarRelogio() {
