@@ -7,6 +7,7 @@ const DEFAULTS = {
   delay: 350,        // atraso ao apontar: evita piscar ao passar o mouse de raspao
   delayOut: 120,
   maxWidth: '16rem',
+  classe: '',        // classe extra no balao, para variar a cor num caso so
 };
 
 let aberto = null;   // so um por vez
@@ -40,12 +41,15 @@ export class Tooltip {
     if (!this.opts.text) throw new Error('[Tooltip] informe o texto');
 
     this.painel = el('div', {
-      class: 'tuc-tip',
+      class: `tuc-tip${this.opts.classe ? ` ${this.opts.classe}` : ''}`,
       role: 'tooltip',
       id: this.id,
       style: `max-width:${this.opts.maxWidth}`,
-      text: this.opts.text,
-    });
+    }, [
+      el('span', { class: 'tuc-tip__texto', text: this.opts.text }),
+      // aria-hidden: a seta e desenho, e o leitor de tela ja recebe o texto.
+      el('span', { class: 'tuc-tip__seta', 'data-tuc-seta': '', 'aria-hidden': 'true' }),
+    ]);
 
     // Anunciado como descricao do proprio elemento: e o que faz o leitor de
     // tela ler a dica junto com o botao, sem virar um elemento perdido.
@@ -82,6 +86,7 @@ export class Tooltip {
     this.popover = new Popover(this.anchor, this.painel, {
       placement: this.opts.placement,
       offset: 6,
+      fecharSeSolto: true,
       onDismiss: () => this._esconder(),
     });
     this.popover.show();
@@ -128,6 +133,7 @@ export function autoInit(scope = document) {
       text: node.dataset.tucTip || undefined,
       placement: node.dataset.placement || undefined,
       delay: node.dataset.delay ? +node.dataset.delay : undefined,
+      classe: node.dataset.tipClass || undefined,
     }));
   }
   return out;

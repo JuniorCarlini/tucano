@@ -374,10 +374,22 @@ recebe foco, senão o aviso some no instante em que a pessoa vai clicar no
 
 ## Tooltip
 
+Lados `top`, `right`, `bottom`, `left` e alinhamentos `start`, `center`, `end` —
+as mesmas do shadcn, e o padrão também é o dele, `top-center`. Quando o lado
+pedido não cabe, a dica vira para o oposto e a seta acompanha. Se o gatilho sai
+da viewport, a dica fecha em vez de ficar presa na tela.
+
+A cor sai por duas variáveis, e a seta lê as mesmas:
+
+```css
+.tip-roxo { --tuc-tip-bg: #4f46e5; --tuc-tip-fg: #fff; }
+```
+
 ```html
 <button data-tuc-tip="Gera o PDF com o layout atual">Exportar</button>
 <button data-tuc-tip title="Vem do title">Do title</button>
-<button data-tuc-tip="..." data-placement="bottom-center" data-delay="600">
+<button data-tuc-tip="..." data-placement="right-center" data-delay="600">
+<button data-tuc-tip="..." data-tip-class="tip-roxo">
 ```
 
 Aparece no ponteiro **e** no foco do teclado. No celular não existe hover, então

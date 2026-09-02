@@ -177,7 +177,16 @@ Servidor dispara pelo HTMX:
 
 Tooltip:
     <button data-tuc-tip="Gera o PDF">Exportar</button>
-    atributos: data-tuc-tip, data-placement, data-delay
+    atributos: data-tuc-tip, data-placement, data-delay, data-tip-class
+
+Lados: top, right, bottom, left; alinhamentos: start, center, end — as mesmas
+do shadcn, padrao top-center. Quando o lado pedido nao cabe a dica vira para o
+oposto e a seta acompanha. Se o gatilho sai da viewport, a dica fecha.
+
+Cor por variavel, e a seta acompanha:
+
+    .tip-roxo { --tuc-tip-bg: #4f46e5; --tuc-tip-fg: #fff; }
+    <button data-tuc-tip="..." data-tip-class="tip-roxo">
 
 Aparece no ponteiro e no foco do teclado; no toque, tocar abre e tocar fora
 fecha. Escape sempre fecha.

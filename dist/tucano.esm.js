@@ -333,6 +333,7 @@ var Popover = class {
     this.padding = options.padding ?? 8;
     this.appendTo = options.appendTo || document.body;
     this.matchWidth = options.matchWidth || false;
+    this.fecharSeSolto = options.fecharSeSolto || false;
     this.onDismiss = options.onDismiss || (() => {
     });
     this.open = false;
@@ -349,6 +350,7 @@ var Popover = class {
     this.panel.style.left = "0";
     this.panel.style.margin = "0";
     this.appendTo.append(this.panel);
+    this._seta = this.panel.querySelector("[data-tuc-seta]");
     this._reposition();
     this._cleanups.push(
       on(window, "scroll", this._reposition, true),
@@ -403,22 +405,39 @@ var Popover = class {
     const p = { width: this.panel.offsetWidth, height: this.panel.offsetHeight };
     const vw = document.documentElement.clientWidth;
     const vh = document.documentElement.clientHeight;
+    if (this.fecharSeSolto && (a.bottom < 0 || a.top > vh || a.right < 0 || a.left > vw)) {
+      this.onDismiss("solto");
+      return;
+    }
     const [side, align = "start"] = this.placement.split("-");
+    const deitado = side === "left" || side === "right";
     let placeSide = side;
-    const spaceBelow = vh - a.bottom - this.offset;
-    const spaceAbove = a.top - this.offset;
-    if (side === "bottom" && p.height > spaceBelow && spaceAbove > spaceBelow) placeSide = "top";
-    if (side === "top" && p.height > spaceAbove && spaceBelow > spaceAbove) placeSide = "bottom";
-    let top = placeSide === "top" ? a.top - p.height - this.offset : a.bottom + this.offset;
+    let top;
     let left;
-    if (p.width >= vw * 0.85) {
-      left = (vw - p.width) / 2;
-    } else if (align === "end") {
-      left = a.right - p.width;
-    } else if (align === "center") {
-      left = a.left + a.width / 2 - p.width / 2;
+    if (deitado) {
+      const folgaDir = vw - a.right - this.offset;
+      const folgaEsq = a.left - this.offset;
+      if (side === "right" && p.width > folgaDir && folgaEsq > folgaDir) placeSide = "left";
+      if (side === "left" && p.width > folgaEsq && folgaDir > folgaEsq) placeSide = "right";
+      left = placeSide === "left" ? a.left - p.width - this.offset : a.right + this.offset;
+      if (align === "end") top = a.bottom - p.height;
+      else if (align === "center") top = a.top + a.height / 2 - p.height / 2;
+      else top = a.top;
     } else {
-      left = a.left;
+      const spaceBelow = vh - a.bottom - this.offset;
+      const spaceAbove = a.top - this.offset;
+      if (side === "bottom" && p.height > spaceBelow && spaceAbove > spaceBelow) placeSide = "top";
+      if (side === "top" && p.height > spaceAbove && spaceBelow > spaceAbove) placeSide = "bottom";
+      top = placeSide === "top" ? a.top - p.height - this.offset : a.bottom + this.offset;
+      if (p.width >= vw * 0.85) {
+        left = (vw - p.width) / 2;
+      } else if (align === "end") {
+        left = a.right - p.width;
+      } else if (align === "center") {
+        left = a.left + a.width / 2 - p.width / 2;
+      } else {
+        left = a.left;
+      }
     }
     left = Math.min(Math.max(left, this.padding), Math.max(this.padding, vw - p.width - this.padding));
     top = Math.min(Math.max(top, this.padding), Math.max(this.padding, vh - p.height - this.padding));
@@ -428,6 +447,18 @@ var Popover = class {
     })();
     this.panel.style.transform = `translate(${Math.round(left + host.left)}px, ${Math.round(top + host.top)}px)`;
     this.panel.dataset.side = placeSide;
+    if (this._seta) {
+      const meia = this._seta.offsetWidth / 2;
+      const limite = 12 + meia;
+      const preso = (v, total) => total <= limite * 2 ? total / 2 : Math.min(Math.max(v, limite), total - limite);
+      if (deitado) {
+        this._seta.style.top = `${preso(a.top + a.height / 2 - top, p.height)}px`;
+        this._seta.style.left = placeSide === "left" ? `${p.width}px` : "0px";
+      } else {
+        this._seta.style.left = `${preso(a.left + a.width / 2 - left, p.width)}px`;
+        this._seta.style.top = placeSide === "top" ? `${p.height}px` : "0px";
+      }
+    }
   }
 };
 function trapFocus(panel) {
@@ -3758,7 +3789,9 @@ var DEFAULTS7 = {
   delay: 350,
   // atraso ao apontar: evita piscar ao passar o mouse de raspao
   delayOut: 120,
-  maxWidth: "16rem"
+  maxWidth: "16rem",
+  classe: ""
+  // classe extra no balao, para variar a cor num caso so
 };
 var aberto = null;
 var Tooltip = class {
@@ -3775,12 +3808,15 @@ var Tooltip = class {
     }
     if (!this.opts.text) throw new Error("[Tooltip] informe o texto");
     this.painel = el("div", {
-      class: "tuc-tip",
+      class: `tuc-tip${this.opts.classe ? ` ${this.opts.classe}` : ""}`,
       role: "tooltip",
       id: this.id,
-      style: `max-width:${this.opts.maxWidth}`,
-      text: this.opts.text
-    });
+      style: `max-width:${this.opts.maxWidth}`
+    }, [
+      el("span", { class: "tuc-tip__texto", text: this.opts.text }),
+      // aria-hidden: a seta e desenho, e o leitor de tela ja recebe o texto.
+      el("span", { class: "tuc-tip__seta", "data-tuc-seta": "", "aria-hidden": "true" })
+    ]);
     node.setAttribute("aria-describedby", this.id);
     if (!node.hasAttribute("tabindex") && !FOCAVEL.test(node.tagName)) node.tabIndex = 0;
     const toque = () => window.matchMedia?.("(pointer: coarse)").matches;
@@ -3817,6 +3853,7 @@ var Tooltip = class {
     this.popover = new Popover(this.anchor, this.painel, {
       placement: this.opts.placement,
       offset: 6,
+      fecharSeSolto: true,
       onDismiss: () => this._esconder()
     });
     this.popover.show();
@@ -3856,7 +3893,8 @@ function autoInit7(scope = document) {
     out.push(new Tooltip(node, {
       text: node.dataset.tucTip || void 0,
       placement: node.dataset.placement || void 0,
-      delay: node.dataset.delay ? +node.dataset.delay : void 0
+      delay: node.dataset.delay ? +node.dataset.delay : void 0,
+      classe: node.dataset.tipClass || void 0
     }));
   }
   return out;

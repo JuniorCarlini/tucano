@@ -18,6 +18,14 @@ export class Popover {
     this.appendTo = options.appendTo || document.body;
     // Menu de select acompanha a largura do campo; calendario nao.
     this.matchWidth = options.matchWidth || false;
+    /*
+     * Fecha quando a ancora sai da viewport. Sem isto o painel continua sendo
+     * preso na tela a cada rolagem e, com a ancora ja longe, ele desliza pela
+     * pagina sozinho — parece um balao solto que atravessa a tela. Vale para
+     * dica; um menu aberto prefere continuar visivel enquanto o campo apenas
+     * encosta na borda.
+     */
+    this.fecharSeSolto = options.fecharSeSolto || false;
     this.onDismiss = options.onDismiss || (() => {});
     this.open = false;
     this._cleanups = [];
@@ -35,6 +43,9 @@ export class Popover {
     this.panel.style.left = '0';
     this.panel.style.margin = '0';
     this.appendTo.append(this.panel);
+    // Procurado uma vez por abertura, nao a cada reposicionamento (que roda em
+    // scroll e resize). Painel sem seta simplesmente nao tem o elemento.
+    this._seta = this.panel.querySelector('[data-tuc-seta]');
     this._reposition();
 
     // `capture` para reagir a scroll de qualquer ancestral, nao so da janela.
@@ -97,32 +108,59 @@ export class Popover {
     const p = { width: this.panel.offsetWidth, height: this.panel.offsetHeight };
     const vw = document.documentElement.clientWidth;
     const vh = document.documentElement.clientHeight;
+
+    if (this.fecharSeSolto && (a.bottom < 0 || a.top > vh || a.right < 0 || a.left > vw)) {
+      this.onDismiss('solto');
+      return;
+    }
+
     const [side, align = 'start'] = this.placement.split('-');
 
-    // Flip vertical quando nao cabe embaixo mas cabe em cima.
+    /*
+     * Dois eixos: `top`/`bottom` abrem na vertical e se alinham na horizontal,
+     * `left`/`right` fazem o contrario. Em ambos o flip so acontece quando o
+     * lado pedido nao cabe E o oposto cabe melhor — trocar de lado por trocar
+     * faria o painel pular a cada rolagem.
+     */
+    const deitado = side === 'left' || side === 'right';
     let placeSide = side;
-    const spaceBelow = vh - a.bottom - this.offset;
-    const spaceAbove = a.top - this.offset;
-    if (side === 'bottom' && p.height > spaceBelow && spaceAbove > spaceBelow) placeSide = 'top';
-    if (side === 'top' && p.height > spaceAbove && spaceBelow > spaceAbove) placeSide = 'bottom';
-
-    let top = placeSide === 'top' ? a.top - p.height - this.offset : a.bottom + this.offset;
-
+    let top;
     let left;
-    if (p.width >= vw * 0.85) {
-      /*
-       * Painel quase da largura da tela (celular): centra na viewport, nao na
-       * ancora. Centrado no campo, o centro dele nao coincide com o centro da
-       * tela e sobra folga diferente de cada lado — visivel quando so restam
-       * alguns pixels em cada borda.
-       */
-      left = (vw - p.width) / 2;
-    } else if (align === 'end') {
-      left = a.right - p.width;
-    } else if (align === 'center') {
-      left = a.left + a.width / 2 - p.width / 2;
+
+    if (deitado) {
+      const folgaDir = vw - a.right - this.offset;
+      const folgaEsq = a.left - this.offset;
+      if (side === 'right' && p.width > folgaDir && folgaEsq > folgaDir) placeSide = 'left';
+      if (side === 'left' && p.width > folgaEsq && folgaDir > folgaEsq) placeSide = 'right';
+
+      left = placeSide === 'left' ? a.left - p.width - this.offset : a.right + this.offset;
+
+      if (align === 'end') top = a.bottom - p.height;
+      else if (align === 'center') top = a.top + a.height / 2 - p.height / 2;
+      else top = a.top;
     } else {
-      left = a.left;
+      const spaceBelow = vh - a.bottom - this.offset;
+      const spaceAbove = a.top - this.offset;
+      if (side === 'bottom' && p.height > spaceBelow && spaceAbove > spaceBelow) placeSide = 'top';
+      if (side === 'top' && p.height > spaceAbove && spaceBelow > spaceAbove) placeSide = 'bottom';
+
+      top = placeSide === 'top' ? a.top - p.height - this.offset : a.bottom + this.offset;
+
+      if (p.width >= vw * 0.85) {
+        /*
+         * Painel quase da largura da tela (celular): centra na viewport, nao
+         * na ancora. Centrado no campo, o centro dele nao coincide com o
+         * centro da tela e sobra folga diferente de cada lado — visivel
+         * quando so restam alguns pixels em cada borda.
+         */
+        left = (vw - p.width) / 2;
+      } else if (align === 'end') {
+        left = a.right - p.width;
+      } else if (align === 'center') {
+        left = a.left + a.width / 2 - p.width / 2;
+      } else {
+        left = a.left;
+      }
     }
 
     // Shift: mantem dentro da viewport com uma folga.
@@ -138,6 +176,32 @@ export class Popover {
 
     this.panel.style.transform = `translate(${Math.round(left + host.left)}px, ${Math.round(top + host.top)}px)`;
     this.panel.dataset.side = placeSide;
+
+    /*
+     * A seta aponta para o centro da ancora, nao para o centro do painel: num
+     * painel largo ancorado num botao estreito os dois nao coincidem, e apontar
+     * para o meio do balao indicaria o elemento errado. O limite impede que ela
+     * suba no canto arredondado, onde sairia meia seta.
+     */
+    if (this._seta) {
+      const meia = this._seta.offsetWidth / 2;
+      const limite = 12 + meia;
+      /*
+       * Num balao curto — uma dica de uma linha tem ~31px — o limite passa da
+       * metade e os dois extremos se cruzam, empurrando a seta para longe do
+       * centro justamente onde ela deveria estar bem no meio. Nesse caso o
+       * centro e o melhor lugar possivel.
+       */
+      const preso = (v, total) =>
+        (total <= limite * 2 ? total / 2 : Math.min(Math.max(v, limite), total - limite));
+      if (deitado) {
+        this._seta.style.top = `${preso(a.top + a.height / 2 - top, p.height)}px`;
+        this._seta.style.left = placeSide === 'left' ? `${p.width}px` : '0px';
+      } else {
+        this._seta.style.left = `${preso(a.left + a.width / 2 - left, p.width)}px`;
+        this._seta.style.top = placeSide === 'top' ? `${p.height}px` : '0px';
+      }
+    }
   }
 }
 

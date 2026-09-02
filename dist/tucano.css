@@ -1679,19 +1679,39 @@
   font-size: 0.8125rem;
   line-height: 1.45;
   font-weight: 500;
-  color: var(--tuc-bg);
-  background: var(--tuc-fg);
   border-radius: var(--tuc-radius-sm);
   box-shadow: 0 4px 12px -4px rgb(0 0 0 / 0.35);
   opacity: 0;
+  --tuc-tip-bg: var(--tuc-fg);
+  --tuc-tip-fg: var(--tuc-bg);
+  color: var(--tuc-tip-fg);
+  background: var(--tuc-tip-bg);
+}
+.tuc-tip__seta {
+  position: absolute;
+  z-index: -1;
+  width: 0.625rem;
+  height: 0.625rem;
+  background: var(--tuc-tip-bg);
+  border-radius: 2px;
+  translate: -50% -50%;
+  rotate: 45deg;
 }
 .tuc-tip[data-side='top'] {
-  --tuc-tip-de: 0.5rem;
+  --tuc-tip-y: 0.5rem;
   transform-origin: bottom center;
 }
 .tuc-tip[data-side='bottom'] {
-  --tuc-tip-de: -0.5rem;
+  --tuc-tip-y: -0.5rem;
   transform-origin: top center;
+}
+.tuc-tip[data-side='left'] {
+  --tuc-tip-x: 0.5rem;
+  transform-origin: center right;
+}
+.tuc-tip[data-side='right'] {
+  --tuc-tip-x: -0.5rem;
+  transform-origin: center left;
 }
 .tuc-tip.is-open {
   opacity: 1;
@@ -1705,7 +1725,7 @@
   from {
     opacity: 0;
     scale: 0.95;
-    translate: 0 var(--tuc-tip-de, 0.5rem);
+    translate: var(--tuc-tip-x, 0) var(--tuc-tip-y, 0);
   }
 }
 @keyframes tuc-tip-sai {
