@@ -551,7 +551,7 @@ var Tucano = (() => {
     }
     open() {
       if (this.native) {
-        this.input.showPicker?.();
+        this.overlay?.showPicker?.();
         return;
       }
       if (this.isOpen) return;
@@ -699,16 +699,45 @@ var Tucano = (() => {
      * Modo nativo: o proprio input carrega o valor ISO e mantem o `name`, entao o
      * que chega no servidor e identico ao do painel — nao precisa de hidden.
      */
+    /**
+     * Modo nativo por sobreposicao.
+     *
+     * A versao anterior trocava o `type` do input para "date". Isso abre o
+     * seletor do sistema, mas faz todo CSS que o projeto escreveu como
+     * `input[type=text]` parar de casar — o campo perdia borda, altura e padding
+     * e virava um input cru do browser. Era invisivel no desktop e so aparecia
+     * no celular.
+     *
+     * Agora o input do projeto continua sendo text e mantem o estilo dele. Por
+     * cima fica um input nativo transparente, do tamanho exato do campo: tocar
+     * em qualquer ponto abre o seletor do sistema.
+     */
     _setupNative() {
       const input = this.input;
-      input.type = this.opts.time ? "datetime-local" : "date";
-      if (this.opts.min) input.min = this._nativeValue(this.opts.min);
-      if (this.opts.max) input.max = this._nativeValue(this.opts.max);
-      if (this.opts.time) input.step = this.opts.seconds ? 1 : this.opts.minuteStep * 60;
-      input.removeAttribute("placeholder");
-      this._cleanups.push(on(input, "change", () => {
+      input.readOnly = true;
+      input.setAttribute("autocomplete", "off");
+      if (!input.placeholder) input.placeholder = this._placeholder();
+      this.overlay = el("input", {
+        type: this.opts.time ? "datetime-local" : "date",
+        class: "tuc-native",
+        tabindex: -1,
+        "aria-hidden": "true"
+      });
+      if (this.opts.min) this.overlay.min = this._nativeValue(this.opts.min);
+      if (this.opts.max) this.overlay.max = this._nativeValue(this.opts.max);
+      if (this.opts.time) this.overlay.step = this.opts.seconds ? 1 : this.opts.minuteStep * 60;
+      this.wrap = el("span", { class: "tuc-native-wrap" });
+      input.replaceWith(this.wrap);
+      this.wrap.append(input, this.overlay);
+      if (this.opts.isoName || input.name) {
+        const name = this.opts.isoName || input.name;
+        if (!this.opts.isoName && input.name) input.removeAttribute("name");
+        this.isoInput = el("input", { type: "hidden", name });
+        this.wrap.after(this.isoInput);
+      }
+      this._cleanups.push(on(this.overlay, "change", () => {
         if (this._emitting) return;
-        this.start = this._normalize(parseISO(input.value));
+        this.start = this._normalize(parseISO(this.overlay.value));
         this.end = null;
         this._syncTarget();
         this._emit();
@@ -845,7 +874,8 @@ var Tucano = (() => {
       return this.isRange ? `${enc(this.start)}${this.end ? `,${enc(this.end)}` : ""}` : enc(this.start);
     }
     _syncTarget() {
-      if (this.input) this.input.value = this.native ? this._nativeValue() : this._displayValue();
+      if (this.input) this.input.value = this._displayValue();
+      if (this.overlay) this.overlay.value = this._nativeValue();
       if (this.isoInput) this.isoInput.value = this._isoValue();
       if (this.input && this._mask) this._maskDigits = this.input.value.replace(/\D/g, "");
     }

@@ -1,6 +1,6 @@
 {
   "name": "tucano",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Date picker, select com busca e color picker. Leves, bonitos e sem dependencias em runtime. Estilos escritos em Tailwind, distribuidos ja compilados.",
   "author": "Junior Carlini",
   "license": "MIT",

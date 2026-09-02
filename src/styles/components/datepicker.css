@@ -322,10 +322,34 @@
  * ------------------------------------------------------------------ */
 
 @media (max-width: 30rem) {
-  .tuc-dp { @apply w-full flex-col; --tuc-cell: 2.5rem; max-width: calc(100vw - 1rem); }
-  .tuc-dp__months { @apply w-full flex-col; }
-  .tuc-dp__month { @apply w-full; }
-  .tuc-dp__months > .tuc-dp__month + .tuc-dp__month { @apply hidden; }
+  /*
+   * Largura amarrada a viewport, nao ao body: com `width:100%` o painel herdava
+   * a largura do documento, que pode ser maior.
+   */
+  .tuc-dp { @apply flex-col; --tuc-cell: 2.5rem; width: calc(100vw - 1rem); max-width: calc(100vw - 1rem); }
+
+  /*
+   * min-width: 0 e o que permite encolher. Item de flex nasce com
+   * `min-width: auto` e se recusa a ficar menor que o conteudo — a grade
+   * estourava a tela e o popover cortava a coluna de sabado.
+   */
+  .tuc-dp__main,
+  .tuc-dp__months,
+  .tuc-dp__month { @apply w-full; min-width: 0; }
+  .tuc-dp__months { @apply flex-col; }
+  /* Os dois meses empilham em vez de sumir: em periodo, ver os dois ajuda. */
+  .tuc-dp__months > .tuc-dp__month + .tuc-dp__month {
+    @apply mt-3 pl-0 pt-3;
+    border-left: 0;
+    border-top: 1px solid var(--tuc-border);
+  }
+
+  /* Empilhado o painel fica alto; role dentro dele em vez de vazar da tela. */
+  .tuc-dp {
+    max-height: calc(100vh - 1.5rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
 
   /* Sem largura fixa de celula: a grade se espalha pela largura do painel. */
   .tuc-dp__weekdays,
@@ -342,4 +366,31 @@
   }
   .tuc-dp__preset { @apply shrink-0; }
   .tuc-dp__time { @apply flex-col; }
+}
+
+/* ------------------------------------------------------------------ *
+ * Modo nativo (celular)                                               *
+ * ------------------------------------------------------------------ */
+
+/*
+ * O input do projeto continua visivel e com o estilo dele. O input nativo fica
+ * por cima, transparente e do tamanho do campo: tocar em qualquer ponto abre o
+ * seletor do sistema, sem que o `type` do campo original precise mudar.
+ */
+.tuc-native-wrap {
+  @apply relative block w-full;
+}
+
+.tuc-native-wrap > input:not(.tuc-native) {
+  @apply w-full;
+}
+
+.tuc-native {
+  @apply absolute inset-0 z-10 m-0 w-full cursor-pointer border-0 p-0 opacity-0;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  /* iOS ignora width em input[type=date] sem isso. */
+  min-width: 100%;
+  height: 100%;
 }
