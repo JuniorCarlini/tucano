@@ -136,20 +136,59 @@
   background: var(--tuc-fg);
   border-radius: var(--tuc-radius-sm);
   box-shadow: 0 4px 12px -4px rgb(0 0 0 / 0.35);
-
-  /* Mesmo movimento dos paineis: opacidade, zoom de 95%% e 8px vindo do lado
-     oposto ao que a dica abriu. */
   opacity: 0;
-  scale: 0.95;
-  translate: 0 0.5rem;
-  transition:
-    opacity var(--tuc-duration) ease-out,
-    scale var(--tuc-duration) ease-out,
-    translate var(--tuc-duration) ease-out;
 }
-.tuc-tip[data-side='bottom'] { translate: 0 -0.5rem; }
-.tuc-tip.is-open { opacity: 1; scale: 1; translate: 0 0; }
+
+/*
+ * Entrada e saida do shadcn/Radix, que ali sao keyframes e nao transicoes:
+ * fade-in-0 + zoom-in-95 + slide-in-from-{lado}-2, em 150ms na curva ease.
+ * Duas coisas que eu tinha errado e que sao justamente o que faz o movimento
+ * parecer certo:
+ *
+ * 1. A saida nao desliza. So esvanece e encolhe (fade-out-0 + zoom-out-95).
+ *    Devolver os 8px na saida faz a dica parecer fugir do cursor.
+ * 2. O zoom parte da borda encostada no gatilho, nao do centro. E o que o
+ *    Radix faz com --radix-tooltip-content-transform-origin, e o que da a
+ *    impressao de a dica nascer do elemento em vez de surgir solta no ar.
+ */
+.tuc-tip[data-side='top'] {
+  --tuc-tip-de: 0.5rem;
+  transform-origin: bottom center;
+}
+.tuc-tip[data-side='bottom'] {
+  --tuc-tip-de: -0.5rem;
+  transform-origin: top center;
+}
+
+.tuc-tip.is-open {
+  opacity: 1;
+  animation: tuc-tip-entra 150ms ease;
+}
+/* Depois de .is-open por seguranca: hoje _esconder() troca uma classe pela
+   outra, mas se algum dia as duas coexistirem a saida vence por ordem, ja que
+   a especificidade empata. */
+.tuc-tip.is-closing {
+  opacity: 0;
+  animation: tuc-tip-sai 150ms ease;
+}
+
+@keyframes tuc-tip-entra {
+  from {
+    opacity: 0;
+    scale: 0.95;
+    translate: 0 var(--tuc-tip-de, 0.5rem);
+  }
+}
+@keyframes tuc-tip-sai {
+  to {
+    opacity: 0;
+    scale: 0.95;
+  }
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .tuc-tip, .tuc-tip.is-open { transition: opacity 90ms linear; scale: none; translate: none; }
+  .tuc-tip.is-open,
+  .tuc-tip.is-closing {
+    animation-name: none;
+  }
 }

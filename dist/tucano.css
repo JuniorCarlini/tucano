@@ -1651,23 +1651,39 @@
   border-radius: var(--tuc-radius-sm);
   box-shadow: 0 4px 12px -4px rgb(0 0 0 / 0.35);
   opacity: 0;
-  scale: 0.95;
-  translate: 0 0.5rem;
-  transition: opacity var(--tuc-duration) ease-out, scale var(--tuc-duration) ease-out, translate var(--tuc-duration) ease-out;
+}
+.tuc-tip[data-side='top'] {
+  --tuc-tip-de: 0.5rem;
+  transform-origin: bottom center;
 }
 .tuc-tip[data-side='bottom'] {
-  translate: 0 -0.5rem;
+  --tuc-tip-de: -0.5rem;
+  transform-origin: top center;
 }
 .tuc-tip.is-open {
   opacity: 1;
-  scale: 1;
-  translate: 0 0;
+  animation: tuc-tip-entra 150ms ease;
+}
+.tuc-tip.is-closing {
+  opacity: 0;
+  animation: tuc-tip-sai 150ms ease;
+}
+@keyframes tuc-tip-entra {
+  from {
+    opacity: 0;
+    scale: 0.95;
+    translate: 0 var(--tuc-tip-de, 0.5rem);
+  }
+}
+@keyframes tuc-tip-sai {
+  to {
+    opacity: 0;
+    scale: 0.95;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
-  .tuc-tip, .tuc-tip.is-open {
-    transition: opacity 90ms linear;
-    scale: none;
-    translate: none;
+  .tuc-tip.is-open, .tuc-tip.is-closing {
+    animation-name: none;
   }
 }
 @property --tw-font-weight {
