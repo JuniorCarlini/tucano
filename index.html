@@ -131,11 +131,29 @@
     box-shadow:0 0 0 3px color-mix(in oklab,var(--accent) 22%,transparent);
   }
 
+  /* O bloco vive num wrapper: e ele que da o respiro entre codigos seguidos
+     (pre com margin:0 deixava dois blocos colados) e ancora o botao copiar. */
+  .bloco{position:relative;margin:14px 0}
+  .bloco pre{margin:0}
   pre{
     margin:0;padding:15px 17px;border-radius:11px;background:var(--code);
     overflow-x:auto;font-family:ui-monospace,Menlo,monospace;font-size:12.5px;
     line-height:1.6;border:1px solid var(--line);
   }
+  .copiar{
+    position:absolute;top:9px;right:9px;display:grid;place-items:center;
+    width:28px;height:28px;padding:0;border:1px solid var(--line);border-radius:7px;
+    background:var(--panel);color:var(--muted);cursor:pointer;
+    opacity:0;transition:opacity .14s,color .14s,background .14s;
+  }
+  .bloco:hover .copiar,.copiar:focus-visible{opacity:1}
+  .copiar:hover{color:var(--fg);background:var(--code)}
+  .copiar.ok{opacity:1;color:#16a34a;border-color:#16a34a}
+  .copiar .i-ok{display:none}
+  .copiar.ok .i-ok{display:block}
+  .copiar.ok .i-cp{display:none}
+  /* Em telas de toque nao existe hover: o botao fica sempre visivel. */
+  @media (hover:none){ .copiar{opacity:.85} }
   pre .c{color:var(--subtle)}
   pre .t{color:#c026d3}
   pre .a{color:#0284c7}
@@ -620,6 +638,41 @@ c.getRgb();   <span class="c">// { r, g, b, a }</span></pre>
       .tuc-dp,.tuc-select,.tuc-select__menu,.tuc-color-field,.tuc-colorpicker{
         --tuc-accent:${sw.dataset.c};--tuc-accent-hover:${sw.dataset.h}}`;
   };
+
+
+  // --- botão de copiar nos blocos de código -------------------------------
+  const CP = '<svg class="i-cp" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>';
+  const OK = '<svg class="i-ok" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
+
+  for (const pre of document.querySelectorAll('pre')) {
+    const bloco = document.createElement('div');
+    bloco.className = 'bloco';
+    pre.replaceWith(bloco);
+    bloco.append(pre);
+
+    const btn = document.createElement('button');
+    btn.className = 'copiar';
+    btn.type = 'button';
+    btn.setAttribute('aria-label', 'Copiar código');
+    btn.innerHTML = CP + OK;
+    btn.onclick = async () => {
+      try {
+        await navigator.clipboard.writeText(pre.innerText.trim());
+      } catch {
+        // clipboard exige contexto seguro; fora dele, seleciona para o usuário copiar
+        const sel = getSelection();
+        sel.removeAllRanges();
+        const r = document.createRange();
+        r.selectNodeContents(pre);
+        sel.addRange(r);
+        return;
+      }
+      btn.classList.add('ok');
+      btn.setAttribute('aria-label', 'Copiado');
+      setTimeout(() => { btn.classList.remove('ok'); btn.setAttribute('aria-label', 'Copiar código'); }, 1600);
+    };
+    bloco.append(btn);
+  }
 
   // --- índice acompanha a rolagem ----------------------------------------
   const links = [...document.querySelectorAll('.nav a')];
