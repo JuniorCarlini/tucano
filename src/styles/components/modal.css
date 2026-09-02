@@ -20,6 +20,21 @@
 }
 
 /*
+ * Sem isto o modal quebra a pagina inteira.
+ *
+ * A folha do navegador esconde <dialog> fechado com `display: none`, mas a
+ * regra acima declara `display: grid` e vence — entao um <dialog> escrito no
+ * template ficava renderizado, fixo e cobrindo toda a viewport. Transparente,
+ * ninguem via; so notava que nenhum clique da pagina funcionava mais.
+ *
+ * Vale so para o <dialog> parado no HTML: o modal criado por JS e removido do
+ * DOM ao fechar, e por isso o problema nao aparecia nos testes por codigo.
+ */
+.tuc-modal:not([open]) {
+  display: none;
+}
+
+/*
  * O brilho do fundo. Um radial atras da caixa levanta o centro da tela e
  * separa o modal do que ficou embaixo sem precisar escurecer tudo; o blur
  * termina de tirar a pagina do foco.

@@ -1760,6 +1760,9 @@
     --tuc-modal-glow: color-mix(in srgb, var(--tuc-accent) 45%, transparent);
   }
 }
+.tuc-modal:not([open]) {
+  display: none;
+}
 .tuc-modal::backdrop {
   opacity: 0;
   background: radial-gradient(48rem 32rem at 50% 42%, rgb(99 102 241 / 0.22), transparent 70%), rgb(9 9 11 / 0.55);
