@@ -148,6 +148,23 @@ Só classe, sem JavaScript:
 Variantes: is-primary, is-outline, is-ghost, is-danger, is-link.
 Tamanhos: is-sm, is-lg, is-icon, is-block.
 
+## Modal
+
+Sobre <dialog> nativo: showModal() poe na top layer, acima de qualquer z-index
+e imune a ancestral com overflow:hidden ou transform. Foco preso, foco devolvido
+e Escape vem do proprio elemento.
+
+    Tucano.modal({ title:'Excluir contrato', text:'...', tom:'perigo', tamanho:'md', folha:true,
+      acoes:[{texto:'Cancelar',variante:'outline'},{texto:'Excluir',variante:'danger',onClick:fn}] });
+
+    if (await Tucano.confirmar({ title:'Excluir contrato?' })) excluir();
+
+Tons: padrao, perigo, sucesso, aviso (mudam o brilho do fundo e a aura da caixa).
+Tamanhos: sm, md, lg, full. Fechar por fora, pelo X ou por Escape resolve false.
+
+Conteudo do servidor: o <dialog class="tuc-modal"> fica no template, com
+data-tuc-modal="#id" no gatilho e data-tuc-modal-close nos botoes de fechar.
+
 ## Toast e tooltip
 
     Tucano.toast('Salvo');

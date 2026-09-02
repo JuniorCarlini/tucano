@@ -17,6 +17,7 @@ distribuídos já compilados — o projeto que consome não precisa de build.
 | `Mask` — CPF, CNPJ, telefone, real, campo sensível | pronto |
 | `Toast` — avisos, com integração Django e HTMX | pronto |
 | `Tooltip` — dica ancorada, teclado e toque | pronto |
+| `Modal` — diálogo sobre `<dialog>` nativo, fundo com brilho | pronto |
 | `.tuc-btn` — estilo de botão, só classe | pronto |
 
 ---
@@ -371,6 +372,42 @@ nascer junto com o texto, o leitor de tela não anuncia. Erro vai para uma regi�
 `assertive` separada. O relógio pausa quando o ponteiro entra ou algo dentro
 recebe foco, senão o aviso some no instante em que a pessoa vai clicar no
 "Desfazer".
+
+## Modal
+
+Sobre o `<dialog>` nativo — `showModal()` põe o elemento na *top layer*, acima de
+qualquer `z-index` e imune a ancestral com `overflow: hidden` ou `transform`.
+Armadilha de foco, devolução do foco e `Escape` vêm junto.
+
+```js
+Tucano.modal({
+  title: 'Excluir contrato',
+  text: 'Esta ação não pode ser desfeita.',
+  tom: 'perigo',      // padrao | perigo | sucesso | aviso — muda o brilho do fundo
+  tamanho: 'md',      // sm | md | lg | full
+  folha: true,        // no celular sobe do rodapé
+  acoes: [
+    { texto: 'Cancelar', variante: 'outline' },
+    { texto: 'Excluir', variante: 'danger', onClick: () => excluir() },
+  ],
+});
+
+// confirmação como promessa; fechar por fora resolve false
+if (await Tucano.confirmar({ title: 'Excluir contrato?' })) excluir();
+```
+
+Com conteúdo do servidor, o `<dialog>` mora no template e o Tucano só abre,
+fecha e anima:
+
+```html
+<dialog class="tuc-modal is-md" id="excluir">
+  <div class="tuc-modal__caixa">
+    <form method="post">{% csrf_token %} ... </form>
+    <button data-tuc-modal-close>Cancelar</button>
+  </div>
+</dialog>
+<button data-tuc-modal="#excluir">Excluir</button>
+```
 
 ## Tooltip
 

@@ -1,12 +1,12 @@
 /*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
 @layer properties;
-.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-btn {
+.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-btn {
   box-sizing: border-box;
 }
-:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-btn) *, :where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-btn) *::before, :where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-btn) *::after {
+:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-btn) *, :where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-btn) *::before, :where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-btn) *::after {
   box-sizing: border-box;
 }
-:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-btn) button {
+:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-btn) button {
   appearance: none;
   -webkit-appearance: none;
   margin: 0;
@@ -22,7 +22,7 @@
   text-transform: none;
   cursor: pointer;
 }
-:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-btn) button:disabled {
+:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-btn) button:disabled {
   cursor: default;
 }
 :where(.tuc-dp, .tuc-select, .tuc-select__menu) abbr[title] {
@@ -30,11 +30,11 @@
   border: 0;
   cursor: inherit;
 }
-:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-btn) svg {
+:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-btn) svg {
   display: block;
   flex: none;
 }
-:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-btn) input {
+:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-btn) input {
   font: inherit;
   color: inherit;
 }
@@ -46,7 +46,7 @@
   color: var(--tuc-fg);
   min-width: 0;
 }
-.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-btn {
+.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-btn {
   --tuc-accent: #4f46e5;
   --tuc-accent-hover: #4338ca;
   --tuc-accent-fg: #ffffff;
@@ -86,7 +86,7 @@
   --tuc-text: 0.8125rem;
   --tuc-cell: 2.25rem;
 }
-:where(.dark, [data-theme='dark']) :is(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-btn), :where(.dark, [data-theme='dark']).tuc-dp {
+:where(.dark, [data-theme='dark']) :is(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-btn), :where(.dark, [data-theme='dark']).tuc-dp {
   --tuc-accent: #6366f1;
   --tuc-accent-hover: #818cf8;
   --tuc-accent-fg: #ffffff;
@@ -103,7 +103,7 @@
     0 16px 48px -24px rgb(0 0 0 / 0.8);
 }
 @media (prefers-color-scheme: dark) {
-  :where(html[data-tuc-theme='auto']) :is(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-btn) {
+  :where(html[data-tuc-theme='auto']) :is(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-btn) {
     --tuc-accent: #6366f1;
     --tuc-accent-hover: #818cf8;
     --tuc-bg: #171717;
@@ -1737,6 +1737,172 @@
 @media (prefers-reduced-motion: reduce) {
   .tuc-tip.is-open, .tuc-tip.is-closing {
     animation-name: none;
+  }
+}
+.tuc-modal {
+  position: fixed;
+  inset: 0px;
+  margin: 0px;
+  display: grid;
+  max-height: none;
+  max-width: none;
+  place-items: center;
+  padding: calc(var(--spacing, 0.25rem) * 4);
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: transparent;
+  font-family: var(--tuc-font);
+  color: var(--tuc-fg);
+  overflow: visible;
+  --tuc-modal-glow: var(--tuc-accent);
+  @supports (color: color-mix(in lab, red, red)) {
+    --tuc-modal-glow: color-mix(in srgb, var(--tuc-accent) 45%, transparent);
+  }
+}
+.tuc-modal::backdrop {
+  opacity: 0;
+  background: radial-gradient(48rem 32rem at 50% 42%, rgb(99 102 241 / 0.22), transparent 70%), rgb(9 9 11 / 0.55);
+  backdrop-filter: blur(3px);
+  transition: opacity var(--tuc-duration-lg) var(--tuc-ease);
+}
+.tuc-modal.is-open::backdrop {
+  opacity: 1;
+}
+.tuc-modal.is-closing::backdrop {
+  opacity: 0;
+}
+.tuc-modal.is-perigo::backdrop {
+  background: radial-gradient(48rem 32rem at 50% 42%, rgb(220 38 38 / 0.22), transparent 70%), rgb(9 9 11 / 0.55);
+}
+.tuc-modal.is-sucesso::backdrop {
+  background: radial-gradient(48rem 32rem at 50% 42%, rgb(22 163 74 / 0.22), transparent 70%), rgb(9 9 11 / 0.55);
+}
+.tuc-modal.is-aviso::backdrop {
+  background: radial-gradient(48rem 32rem at 50% 42%, rgb(217 119 6 / 0.22), transparent 70%), rgb(9 9 11 / 0.55);
+}
+.tuc-modal.is-perigo {
+  --tuc-modal-glow: rgb(220 38 38 / 0.45);
+}
+.tuc-modal.is-sucesso {
+  --tuc-modal-glow: rgb(22 163 74 / 0.45);
+}
+.tuc-modal.is-aviso {
+  --tuc-modal-glow: rgb(217 119 6 / 0.45);
+}
+.tuc-modal__caixa {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: calc(var(--spacing, 0.25rem) * 4);
+  padding: calc(var(--spacing, 0.25rem) * 5);
+  max-height: calc(100vh - 2rem);
+  background: var(--tuc-bg);
+  border: var(--tuc-border-width) solid var(--tuc-border);
+  border-radius: var(--tuc-radius);
+  box-shadow: 0 24px 60px -12px rgb(0 0 0 / 0.45), 0 0 90px -24px var(--tuc-modal-glow);
+  opacity: 0;
+  scale: 0.95;
+}
+.tuc-modal.is-open .tuc-modal__caixa {
+  opacity: 1;
+  scale: 1;
+  transition: opacity var(--tuc-duration-lg) var(--tuc-ease), scale var(--tuc-duration-lg) var(--tuc-ease);
+}
+.tuc-modal.is-closing .tuc-modal__caixa {
+  opacity: 0;
+  scale: 0.95;
+  transition: opacity var(--tuc-duration-out) var(--tuc-ease-in), scale var(--tuc-duration-out) var(--tuc-ease-in);
+}
+.tuc-modal.is-sm .tuc-modal__caixa {
+  max-width: 22rem;
+}
+.tuc-modal.is-md .tuc-modal__caixa {
+  max-width: 30rem;
+}
+.tuc-modal.is-lg .tuc-modal__caixa {
+  max-width: 44rem;
+}
+.tuc-modal.is-full .tuc-modal__caixa {
+  max-width: none;
+  height: 100%;
+  max-height: none;
+}
+.tuc-modal__topo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: calc(var(--spacing, 0.25rem) * 4);
+}
+.tuc-modal__cabecalho {
+  display: flex;
+  min-width: 0px;
+  flex-direction: column;
+  gap: calc(var(--spacing, 0.25rem) * 1.5);
+}
+.tuc-modal__titulo {
+  margin: 0px;
+  --tw-font-weight: var(--font-weight-semibold, 600);
+  font-weight: var(--font-weight-semibold, 600);
+  font-size: 1.0625rem;
+  line-height: 1.3;
+}
+.tuc-modal__texto {
+  margin: 0px;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--tuc-muted);
+}
+.tuc-modal__fechar {
+  margin-top: calc(var(--spacing, 0.25rem) * -1);
+  margin-right: calc(var(--spacing, 0.25rem) * -1.5);
+  flex-shrink: 0;
+}
+.tuc-modal__corpo {
+  min-height: 0px;
+  flex: 1;
+  overflow-y: auto;
+}
+.tuc-modal__corpo:empty {
+  display: none;
+}
+.tuc-modal__rodape {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: calc(var(--spacing, 0.25rem) * 2);
+}
+@media (max-width: 40rem) {
+  .tuc-modal.is-folha {
+    align-items: flex-end;
+    padding: 0px;
+  }
+  .tuc-modal.is-folha .tuc-modal__caixa {
+    max-width: none;
+    border-radius: var(--tuc-radius) var(--tuc-radius) 0 0;
+    border-bottom: 0;
+    padding-bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+    scale: 1;
+    translate: 0 100%;
+  }
+  .tuc-modal.is-folha.is-open .tuc-modal__caixa {
+    translate: 0 0;
+    transition: opacity var(--tuc-duration-lg) var(--tuc-ease), translate var(--tuc-duration-lg) var(--tuc-ease);
+  }
+  .tuc-modal.is-folha.is-closing .tuc-modal__caixa {
+    translate: 0 100%;
+    transition: opacity var(--tuc-duration-out) var(--tuc-ease-in), translate var(--tuc-duration-out) var(--tuc-ease-in);
+  }
+  .tuc-modal__rodape .tuc-btn {
+    flex: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tuc-modal .tuc-modal__caixa, .tuc-modal::backdrop {
+    transition-duration: 100ms;
+    scale: none;
+    translate: none;
   }
 }
 @property --tw-font-weight {
