@@ -1465,8 +1465,15 @@ var DEFAULTS2 = {
   loadOptions: null,
   // (termo) => Promise<[{value,label,disabled,group}]>
   queryParam: "q",
+  pageParam: "page",
+  // paginacao ao rolar; null desliga
   minChars: 1,
   debounce: 300,
+  cache: true,
+  // guarda o resultado de cada termo
+  cacheSize: 60,
+  shortCircuit: false,
+  // ver _semChance()
   loadingText: "Buscando...",
   errorText: "Falha ao buscar",
   onChange: null
@@ -1490,6 +1497,10 @@ var Select = class {
     this.remoto = !!(this.opts.url || this.opts.loadOptions);
     this.opts.search = this.remoto ? true : this.opts.search ?? this.items.length >= this.opts.searchMinItems;
     this.estadoBusca = null;
+    this._cache = /* @__PURE__ */ new Map();
+    this._vazios = /* @__PURE__ */ new Set();
+    this._pagina = 1;
+    this._temMais = false;
     this._build();
     this._syncFromNative();
     node._tucano = this;
@@ -1514,6 +1525,8 @@ var Select = class {
   }
   /** Relê as <option> do select nativo — use depois de trocar as opções por HTMX. */
   refresh() {
+    this._cache.clear();
+    this._vazios.clear();
     this.items = readOptions(this.native);
     this._renderControl();
     if (this.isOpen) this._renderMenu();
@@ -1633,7 +1646,8 @@ var Select = class {
       // Se o valor mudar por fora (reset de formulario, JS de terceiros).
       on(this.native, "change", () => {
         if (!this._pushing) this._syncFromNative();
-      })
+      }),
+      on(this.list, "scroll", () => this._aoRolarLista())
     );
   }
   _syncFromNative() {
@@ -1662,52 +1676,120 @@ var Select = class {
   /* ---------------------------------------------------------------- *
    * Busca no servidor                                                 *
    * ---------------------------------------------------------------- */
-  /** Espera a digitacao parar antes de pedir: uma requisicao por tecla e desperdicio. */
+  /**
+   * Quatro filtros antes de chegar na rede, do mais barato ao mais caro:
+   * tamanho minimo, cache, termo sem chance e requisicao ja em voo. Debounce
+   * so no fim, para o que sobrou.
+   */
   _agendarBusca() {
     clearTimeout(this._timerBusca);
     const termo = this.query.trim();
+    this._pagina = 1;
     if (termo.length < this.opts.minChars) {
       this._abortar();
       this.estadoBusca = null;
       this.items = this._escolhidos();
+      this._temMais = false;
       this._renderMenu();
       return;
     }
+    const guardado = this.opts.cache ? this._cache.get(termo) : null;
+    if (guardado) {
+      this._abortar();
+      this.estadoBusca = null;
+      this._aplicarResultado(guardado, { anexar: false });
+      return;
+    }
+    if (this._semChance(termo)) {
+      this._abortar();
+      this.estadoBusca = null;
+      this._aplicarResultado([], { anexar: false });
+      return;
+    }
+    if (this._termoEmVoo === termo) return;
     this.estadoBusca = "carregando";
     this._renderMenu();
     this._timerBusca = setTimeout(() => this._buscar(termo), this.opts.debounce);
+  }
+  /**
+   * Se "lucas" nao trouxe nada, "lucass" tambem nao traz — desde que a busca
+   * do servidor seja por conter o termo, como um icontains do Django.
+   *
+   * Fica desligado por padrao: com busca aproximada, por sinonimo ou por
+   * relevancia, um termo maior pode sim trazer resultado, e cortar aqui
+   * esconderia dados sem aviso.
+   */
+  _semChance(termo) {
+    if (!this.opts.shortCircuit) return false;
+    for (const vazio of this._vazios) if (termo.startsWith(vazio)) return true;
+    return false;
+  }
+  _guardar(termo, itens) {
+    if (!this.opts.cache) return;
+    if (this._cache.size >= this.opts.cacheSize) {
+      this._cache.delete(this._cache.keys().next().value);
+    }
+    this._cache.set(termo, itens);
+    if (!itens.length) this._vazios.add(termo);
+  }
+  /** Junta o que veio com quem ja estava escolhido e desenha. */
+  _aplicarResultado(vindos, { anexar }) {
+    const escolhidos = this._escolhidos();
+    const base = anexar ? this.items : escolhidos;
+    const novos = vindos.filter((i) => !base.some((e) => e.value === i.value));
+    this.items = [...base, ...novos];
+    this.activeIndex = this.items.findIndex((i) => !i.disabled && !i.selected);
+    this._renderMenu();
   }
   _abortar() {
     this._controle?.abort();
     this._controle = null;
   }
-  async _buscar(termo) {
+  async _buscar(termo, { pagina = 1 } = {}) {
     this._abortar();
     const controle = new AbortController();
     this._controle = controle;
+    this._termoEmVoo = termo;
     try {
-      const brutos = this.opts.loadOptions ? await this.opts.loadOptions(termo, { signal: controle.signal }) : await this._buscarUrl(termo, controle.signal);
+      const brutos = this.opts.loadOptions ? await this.opts.loadOptions(termo, { signal: controle.signal, page: pagina }) : await this._buscarUrl(termo, controle.signal, pagina);
       if (controle.signal.aborted) return;
       const vindos = normalizarOpcoes(brutos);
-      const escolhidos = this._escolhidos();
-      const novos = vindos.filter((i) => !escolhidos.some((e) => e.value === i.value));
-      this.items = [...escolhidos, ...novos];
+      this._temMais = temProximaPagina(brutos, vindos, this.opts.pageParam);
       this.estadoBusca = null;
-      this.activeIndex = this.items.findIndex((i) => !i.disabled && !i.selected);
+      if (pagina === 1) this._guardar(termo, vindos);
+      this._aplicarResultado(vindos, { anexar: pagina > 1 });
+      return;
     } catch (e) {
       if (e.name === "AbortError" || controle.signal.aborted) return;
       this.estadoBusca = "erro";
-    } finally {
-      if (this._controle === controle) this._controle = null;
       this._renderMenu();
+    } finally {
+      if (this._controle === controle) {
+        this._controle = null;
+        this._termoEmVoo = null;
+      }
     }
   }
-  async _buscarUrl(termo, signal) {
+  async _buscarUrl(termo, signal, pagina = 1) {
     const url = new URL(this.opts.url, location.href);
     url.searchParams.set(this.opts.queryParam, termo);
+    if (pagina > 1 && this.opts.pageParam) url.searchParams.set(this.opts.pageParam, String(pagina));
     const r = await fetch(url, { signal, headers: { Accept: "application/json" } });
     if (!r.ok) throw new Error(`O servidor respondeu ${r.status}`);
     return r.json();
+  }
+  /**
+   * Proxima pagina ao chegar perto do fim da lista. Carregar de uma vez os
+   * dez mil registros e o que trava a pagina; vinte por vez, nao.
+   */
+  _aoRolarLista() {
+    if (!this.remoto || !this._temMais || this.estadoBusca === "carregando") return;
+    const l = this.list;
+    if (l.scrollTop + l.clientHeight < l.scrollHeight - 48) return;
+    this._pagina += 1;
+    this.estadoBusca = "carregando";
+    this._renderMenu();
+    this._buscar(this.query.trim(), { pagina: this._pagina });
   }
   _escolhidos() {
     return this.items.filter((i) => i.selected);
@@ -1897,6 +1979,14 @@ function normalizarOpcoes(dados) {
     return { value, label, disabled: !!o.disabled, group: o.group ?? o.grupo ?? null, selected: false, busca: normalize(`${label} ${value}`) };
   }).filter((o) => o && o.value !== "");
 }
+function temProximaPagina(brutos, itens, pageParam) {
+  if (!pageParam) return false;
+  if (brutos && typeof brutos === "object" && !Array.isArray(brutos)) {
+    if ("next" in brutos) return !!brutos.next;
+    if ("has_more" in brutos) return !!brutos.has_more;
+  }
+  return itens.length > 0;
+}
 function readOptions(select) {
   return [...select.options].filter((o) => o.value !== "").map((o) => ({
     value: o.value,
@@ -1936,6 +2026,9 @@ function autoInit2(scope = document) {
       queryParam: d.queryParam || void 0,
       minChars: d.minChars ? +d.minChars : void 0,
       debounce: d.debounce ? +d.debounce : void 0,
+      pageParam: d.pageParam === "false" ? null : d.pageParam || void 0,
+      cache: d.cache === "false" ? false : void 0,
+      shortCircuit: d.shortCircuit === "true" ? true : void 0,
       closeOnSelect: d.closeOnSelect === "false" ? false : d.closeOnSelect === "true" ? true : void 0
     }));
   }
