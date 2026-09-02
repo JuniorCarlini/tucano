@@ -175,7 +175,9 @@
 }
 
 .tuc-colorpicker__preview {
-  @apply relative size-8 shrink-0 overflow-hidden ;
+  @apply relative shrink-0 overflow-hidden ;
+  width: var(--tuc-swatch);
+  height: var(--tuc-swatch);
   border-radius: var(--tuc-radius-sm);
   box-shadow: inset 0 0 0 1px var(--tuc-ring);
 }
@@ -186,7 +188,10 @@
 }
 
 .tuc-colorpicker input.tuc-colorpicker__field {
-  @apply min-w-0 flex-1  px-2.5 py-1.5 font-medium;
+  /* Altura explicita: com padding vertical o campo ficava 4px mais alto
+     que a amostra e o conta-gotas, e a linha saia desalinhada. */
+  @apply min-w-0 flex-1  px-2.5 font-medium;
+  height: var(--tuc-swatch);
   border-radius: var(--tuc-radius-sm);
   font-variant-numeric: tabular-nums;
   background: var(--tuc-elevated);
@@ -199,7 +204,9 @@
 }
 
 .tuc-colorpicker__pick {
-  @apply grid size-8 shrink-0 place-items-center  transition-colors;
+  @apply grid shrink-0 place-items-center  transition-colors;
+  width: var(--tuc-swatch);
+  height: var(--tuc-swatch);
   border-radius: var(--tuc-radius-sm);
   background: var(--tuc-elevated);
   color: var(--tuc-muted);

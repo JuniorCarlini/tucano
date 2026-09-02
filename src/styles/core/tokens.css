@@ -35,6 +35,10 @@
   /* Altura dos campos (select e campo de cor), para casar com os seus inputs. */
   --tuc-control-height: 2.375rem;
 
+  /* Altura da linha amostra + valor + conta-gotas, dentro do color picker.
+     Os tres saem daqui para nunca sairem do mesmo tamanho. */
+  --tuc-swatch: 2rem;
+
   --tuc-ring: rgb(0 0 0 / 0.12);
   --tuc-shadow:
     0 0 0 1px var(--tuc-ring),
@@ -117,5 +121,6 @@
   .tuc-colorpicker,
   .tuc-color-field {
     --tuc-text: 1rem;
+    --tuc-swatch: 2.5rem;   /* acompanha o texto maior no toque */
   }
 }
