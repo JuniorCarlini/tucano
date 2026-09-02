@@ -23,8 +23,8 @@ distribuídos já compilados — o projeto que consome não precisa de build.
 Dois arquivos e nada mais — sem npm, sem build, sem escrever JavaScript:
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.3.0/dist/tucano.min.css">
-<script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.3.0/dist/tucano.min.js" defer></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.4.0/dist/tucano.min.css">
+<script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.4.0/dist/tucano.min.js" defer></script>
 
 <input type="text" name="data" data-tuc-datepicker>
 <select name="uf" data-tuc-select><option>...</option></select>
@@ -317,10 +317,21 @@ Modo escuro segue a classe `.dark` no `<html>` (convenção do Tailwind). Para
 seguir o sistema operacional, use `<html data-tuc-theme="auto">` — é opt-in de
 propósito, para o componente não escurecer sozinho numa página clara.
 
-Variáveis: `--tuc-accent`, `--tuc-accent-hover`, `--tuc-accent-fg`,
-`--tuc-accent-soft`, `--tuc-bg`, `--tuc-fg`, `--tuc-muted`, `--tuc-subtle`,
-`--tuc-border`, `--tuc-hover`, `--tuc-elevated`, `--tuc-ring`, `--tuc-shadow`,
-`--tuc-radius`, `--tuc-cell`, `--tuc-text`, `--tuc-duration`, `--tuc-ease`.
+Variáveis, agrupadas:
+
+**Cor** — `--tuc-accent`, `--tuc-accent-hover`, `--tuc-accent-fg`,
+`--tuc-accent-soft`, `--tuc-accent-ring`, `--tuc-bg`, `--tuc-fg`,
+`--tuc-muted`, `--tuc-subtle`, `--tuc-border`, `--tuc-hover`, `--tuc-elevated`
+
+**Forma e tamanho** — `--tuc-radius`, `--tuc-radius-md`, `--tuc-radius-sm`,
+`--tuc-radius-xs`, `--tuc-border-width`, `--tuc-control-height`, `--tuc-cell`,
+`--tuc-text`, `--tuc-font`
+
+**Profundidade e movimento** — `--tuc-shadow`, `--tuc-ring`, `--tuc-duration`,
+`--tuc-ease`
+
+Nenhum valor de cor, raio, borda ou altura está fixo no CSS dos componentes:
+todos saem dessas variáveis, dentro e fora do calendário.
 
 ---
 

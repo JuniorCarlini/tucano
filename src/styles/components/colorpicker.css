@@ -21,13 +21,13 @@
  */
 .tuc-color-field {
   @apply flex w-full cursor-text items-center gap-2;
-  height: 2.375rem;
+  height: var(--tuc-control-height);
   padding: 0 0.75rem 0 0.3125rem;
   font-family: var(--tuc-font);
   font-size: var(--tuc-text);
   color: var(--tuc-fg);
   background: var(--tuc-bg);
-  border: 1px solid var(--tuc-border);
+  border: var(--tuc-border-width) solid var(--tuc-border);
   border-radius: var(--tuc-radius-md);
   transition: border-color 140ms var(--tuc-ease), box-shadow 140ms var(--tuc-ease);
 }
@@ -38,7 +38,8 @@
 }
 
 .tuc-color-field__swatch {
-  @apply relative size-7 shrink-0 overflow-hidden rounded-md transition-transform;
+  @apply relative size-7 shrink-0 overflow-hidden  transition-transform;
+  border-radius: var(--tuc-radius-xs);
   box-shadow: inset 0 0 0 1px var(--tuc-ring);
 }
 .tuc-color-field__swatch::after {
@@ -102,7 +103,8 @@
  * ------------------------------------------------------------------ */
 
 .tuc-colorpicker__area {
-  @apply relative h-36 w-full cursor-crosshair touch-none rounded-xl;
+  @apply relative h-36 w-full cursor-crosshair touch-none ;
+  border-radius: var(--tuc-radius);
   /* Contorno interno para a area nao "vazar" no fundo branco do painel. */
   box-shadow: inset 0 0 0 1px var(--tuc-ring);
   /* Branco na horizontal, preto na vertical, matiz pura ao fundo. */
@@ -173,7 +175,8 @@
 }
 
 .tuc-colorpicker__preview {
-  @apply relative size-8 shrink-0 overflow-hidden rounded-lg;
+  @apply relative size-8 shrink-0 overflow-hidden ;
+  border-radius: var(--tuc-radius-sm);
   box-shadow: inset 0 0 0 1px var(--tuc-ring);
 }
 .tuc-colorpicker__preview::after {
@@ -183,10 +186,11 @@
 }
 
 .tuc-colorpicker input.tuc-colorpicker__field {
-  @apply min-w-0 flex-1 rounded-lg px-2.5 py-1.5 font-medium;
+  @apply min-w-0 flex-1  px-2.5 py-1.5 font-medium;
+  border-radius: var(--tuc-radius-sm);
   font-variant-numeric: tabular-nums;
   background: var(--tuc-elevated);
-  border: 1px solid var(--tuc-border);
+  border: var(--tuc-border-width) solid var(--tuc-border);
 }
 .tuc-colorpicker input.tuc-colorpicker__field:focus {
   border-color: var(--tuc-accent);
@@ -195,10 +199,11 @@
 }
 
 .tuc-colorpicker__pick {
-  @apply grid size-8 shrink-0 place-items-center rounded-lg transition-colors;
+  @apply grid size-8 shrink-0 place-items-center  transition-colors;
+  border-radius: var(--tuc-radius-sm);
   background: var(--tuc-elevated);
   color: var(--tuc-muted);
-  border: 1px solid var(--tuc-border);
+  border: var(--tuc-border-width) solid var(--tuc-border);
 }
 .tuc-colorpicker__pick:hover { background: var(--tuc-hover); color: var(--tuc-fg); }
 
@@ -208,12 +213,13 @@
 
 .tuc-colorpicker__swatches {
   @apply grid grid-cols-5 gap-2 pt-0.5;
-  border-top: 1px solid var(--tuc-border);
+  border-top: var(--tuc-border-width) solid var(--tuc-border);
   padding-top: 0.875rem;
 }
 
 .tuc-colorpicker__swatchbtn {
-  @apply relative aspect-square w-full rounded-lg;
+  @apply relative aspect-square w-full ;
+  border-radius: var(--tuc-radius-sm);
   background: var(--cor);
   box-shadow: inset 0 0 0 1px var(--tuc-ring);
   transition: transform 120ms var(--tuc-ease), box-shadow 120ms var(--tuc-ease);

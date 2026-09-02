@@ -59,7 +59,8 @@
 }
 
 .tuc-dp__nav {
-  @apply grid size-7 shrink-0 place-items-center rounded-lg transition-colors;
+  @apply grid size-7 shrink-0 place-items-center  transition-colors;
+  border-radius: var(--tuc-radius-sm);
   color: var(--tuc-muted);
 }
 .tuc-dp__nav:hover:not(:disabled) { background: var(--tuc-hover); color: var(--tuc-fg); }
@@ -67,7 +68,8 @@
 .tuc-dp__nav.is-ghost { @apply pointer-events-none invisible; }
 
 .tuc-dp__label {
-  @apply flex items-center gap-1 rounded-lg px-2 py-1 font-semibold capitalize transition-colors;
+  @apply flex items-center gap-1  px-2 py-1 font-semibold capitalize transition-colors;
+  border-radius: var(--tuc-radius-sm);
   font-size: 0.875rem;
   letter-spacing: -0.01em;
 }
@@ -86,7 +88,7 @@
   @apply flex gap-2;
 }
 .tuc-dp__months > .tuc-dp__month + .tuc-dp__month {
-  border-left: 1px solid var(--tuc-border);
+  border-left: var(--tuc-border-width) solid var(--tuc-border);
   @apply pl-3;
 }
 
@@ -220,7 +222,7 @@
 
 .tuc-dp__time {
   @apply mt-2 flex justify-center gap-2 px-1 pt-2.5;
-  border-top: 1px solid var(--tuc-border);
+  border-top: var(--tuc-border-width) solid var(--tuc-border);
 }
 
 .tuc-dp__timegroup {
@@ -245,13 +247,15 @@
 
 .tuc-dp__timecols {
   /* Colunas dividem a largura do grupo em partes iguais. */
-  @apply flex w-full items-stretch gap-1 rounded-xl p-1;
+  @apply flex w-full items-stretch gap-1  p-1;
+  border-radius: var(--tuc-radius);
   background: var(--tuc-elevated);
-  border: 1px solid var(--tuc-border);
+  border: var(--tuc-border-width) solid var(--tuc-border);
 }
 
 .tuc-dp__timelist {
-  @apply flex flex-1 snap-y flex-col gap-px overflow-y-auto overscroll-contain rounded-lg;
+  @apply flex flex-1 snap-y flex-col gap-px overflow-y-auto overscroll-contain ;
+  border-radius: var(--tuc-radius-sm);
   min-width: 2.75rem;
   max-height: 8.5rem;
   scrollbar-width: thin;
@@ -265,7 +269,8 @@
 .tuc-dp__timelist::-webkit-scrollbar-track { background: transparent; }
 
 .tuc-dp__timeitem {
-  @apply shrink-0 snap-center rounded-md py-1.5 text-center font-medium transition-colors;
+  @apply shrink-0 snap-center  py-1.5 text-center font-medium transition-colors;
+  border-radius: var(--tuc-radius-xs);
   color: var(--tuc-fg);
 }
 .tuc-dp__timeitem:hover:not(:disabled):not(.is-selected) { background: var(--tuc-hover); }
@@ -283,11 +288,12 @@
 .tuc-dp__presets {
   @apply flex shrink-0 flex-col gap-px overflow-y-auto p-1;
   width: 9.5rem;
-  border-right: 1px solid var(--tuc-border);
+  border-right: var(--tuc-border-width) solid var(--tuc-border);
 }
 
 .tuc-dp__preset {
-  @apply truncate rounded-lg px-2.5 py-1.5 text-left font-medium transition-colors;
+  @apply truncate  px-2.5 py-1.5 text-left font-medium transition-colors;
+  border-radius: var(--tuc-radius-sm);
   color: var(--tuc-muted);
 }
 .tuc-dp__preset:hover { background: var(--tuc-hover); color: var(--tuc-fg); }
@@ -303,13 +309,14 @@
 
 .tuc-dp__footer {
   @apply mt-2 flex items-center gap-2 px-1 pt-2;
-  border-top: 1px solid var(--tuc-border);
+  border-top: var(--tuc-border-width) solid var(--tuc-border);
 }
 
 .tuc-dp__spacer { @apply flex-1; }
 
 .tuc-dp__btn {
-  @apply rounded-lg px-3 py-1.5 font-semibold transition-colors;
+  @apply  px-3 py-1.5 font-semibold transition-colors;
+  border-radius: var(--tuc-radius-sm);
 }
 .tuc-dp__btn.is-ghost { color: var(--tuc-muted); }
 .tuc-dp__btn.is-ghost:hover { background: var(--tuc-hover); color: var(--tuc-fg); }
@@ -345,7 +352,7 @@
   .tuc-dp__months > .tuc-dp__month + .tuc-dp__month {
     @apply mt-3 pl-0 pt-3;
     border-left: 0;
-    border-top: 1px solid var(--tuc-border);
+    border-top: var(--tuc-border-width) solid var(--tuc-border);
   }
 
   /* Empilhado o painel fica alto; role dentro dele em vez de vazar da tela. */
@@ -366,7 +373,7 @@
   .tuc-dp__presets {
     @apply w-full flex-row overflow-x-auto pb-2;
     border-right: 0;
-    border-bottom: 1px solid var(--tuc-border);
+    border-bottom: var(--tuc-border-width) solid var(--tuc-border);
   }
   .tuc-dp__preset { @apply shrink-0; }
   .tuc-dp__time { @apply flex-col; }

@@ -15,13 +15,13 @@
      as tags rolam na horizontal, nao precisam definir a largura minima. */
   @apply relative flex w-full min-w-0 cursor-text items-center gap-1.5;
   /* Altura fixa: todos os campos do formulario ficam na mesma linha de base. */
-  height: 2.375rem;
+  height: var(--tuc-control-height);
   padding: 0.25rem 0.5rem 0.25rem 0.75rem;
   font-family: var(--tuc-font);
   font-size: var(--tuc-text);
   color: var(--tuc-fg);
   background: var(--tuc-bg);
-  border: 1px solid var(--tuc-border);
+  border: var(--tuc-border-width) solid var(--tuc-border);
   border-radius: var(--tuc-radius-md);
   transition: border-color 140ms var(--tuc-ease), box-shadow 140ms var(--tuc-ease);
 }
@@ -50,7 +50,7 @@
 /* Opt-in para quem prefere o campo crescendo: .tuc-select.is-wrap */
 .tuc-select.is-wrap {
   height: auto;
-  min-height: 2.375rem;
+  min-height: var(--tuc-control-height);
 }
 .tuc-select.is-wrap .tuc-select__values {
   @apply flex-wrap overflow-visible;
@@ -92,7 +92,8 @@
 .tuc-select__clear { display: none; }
 
 .tuc-select.has-value .tuc-select__clear {
-  @apply grid size-5 shrink-0 place-items-center rounded-md transition-colors;
+  @apply grid size-5 shrink-0 place-items-center  transition-colors;
+  border-radius: var(--tuc-radius-xs);
   color: var(--tuc-subtle);
 }
 .tuc-select.has-value .tuc-select__clear:hover { background: var(--tuc-hover); color: var(--tuc-fg); }
@@ -102,7 +103,8 @@
  * ------------------------------------------------------------------ */
 
 .tuc-select__tag {
-  @apply flex max-w-40 shrink-0 items-center gap-1 rounded-md py-0.5 pl-2 pr-1 font-medium;
+  @apply flex max-w-40 shrink-0 items-center gap-1  py-0.5 pl-2 pr-1 font-medium;
+  border-radius: var(--tuc-radius-xs);
   font-size: 0.75rem;
   background: var(--tuc-accent-soft);
   color: var(--tuc-accent);
@@ -164,7 +166,8 @@
 }
 
 .tuc-select__option {
-  @apply flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-1.5;
+  @apply flex cursor-pointer items-center gap-2  px-2.5 py-1.5;
+  border-radius: var(--tuc-radius-sm);
   border-radius: var(--tuc-radius-sm);
 }
 

@@ -163,6 +163,9 @@ export class ColorPicker {
       }),
       on(this.area, 'keydown', (e) => this._teclasArea(e)),
       on(this.input, 'change', () => {
+        // Ignora o `change` que nos mesmos disparamos em _emit(): sem isso,
+        // setValue -> _emit -> change -> setValue vira recursao infinita.
+        if (this._emitting) return;
         // Texto invalido volta para o valor atual, em vez de zerar a cor.
         if (!this.setValue(this.input.value)) this._syncInput();
       }),
@@ -313,9 +316,15 @@ export class ColorPicker {
   _emit() {
     const value = this.getValue();
     const detail = { value, rgb: this.getRgb(), hsva: { ...this.hsva }, instance: this };
-    this.opts.onChange?.(value, detail);
-    this.input.dispatchEvent(new CustomEvent('tucano:change', { detail, bubbles: true }));
-    this.input.dispatchEvent(new Event('change', { bubbles: true }));
+    this._emitting = true;
+    try {
+      this.opts.onChange?.(value, detail);
+      this.input.dispatchEvent(new CustomEvent('tucano:change', { detail, bubbles: true }));
+      // 'change' nativo para validacao de formulario e HTMX enxergarem o valor.
+      this.input.dispatchEvent(new Event('change', { bubbles: true }));
+    } finally {
+      this._emitting = false;
+    }
   }
 }
 

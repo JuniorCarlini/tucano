@@ -13,8 +13,8 @@ Licença: MIT
 
 Dois arquivos, sem build e sem npm:
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.3.0/dist/tucano.min.css">
-    <script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.3.0/dist/tucano.min.js" defer></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.4.0/dist/tucano.min.css">
+    <script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.4.0/dist/tucano.min.js" defer></script>
 
 Sempre prenda a versão. Global JS: `Tucano`.
 
@@ -114,8 +114,17 @@ ColorPicker tem getRgb.
 
 ## Tema
 
-Todas as cores e medidas são variáveis CSS com prefixo --tuc-. Sobrescreva sem
-recompilar:
+Todas as cores e medidas são variáveis CSS com prefixo --tuc-. Nada de cor,
+raio, espessura de borda ou altura está fixo no CSS dos componentes.
+
+Cor: --tuc-accent, --tuc-accent-hover, --tuc-accent-fg, --tuc-accent-soft,
+--tuc-accent-ring, --tuc-bg, --tuc-fg, --tuc-muted, --tuc-subtle,
+--tuc-border, --tuc-hover, --tuc-elevated
+Forma: --tuc-radius, --tuc-radius-md, --tuc-radius-sm, --tuc-radius-xs,
+--tuc-border-width, --tuc-control-height, --tuc-cell, --tuc-text, --tuc-font
+Profundidade: --tuc-shadow, --tuc-ring, --tuc-duration, --tuc-ease
+
+Sobrescreva sem recompilar:
 
     .tuc-dp, .tuc-select, .tuc-select__menu, .tuc-color-field, .tuc-colorpicker {
       --tuc-accent: #0d9488;

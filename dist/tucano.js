@@ -406,7 +406,7 @@ var Tucano = (() => {
       if (!this.open) return;
       const a = this.anchor.getBoundingClientRect();
       if (this.matchWidth) this.panel.style.minWidth = `${Math.round(a.width)}px`;
-      const p = this.panel.getBoundingClientRect();
+      const p = { width: this.panel.offsetWidth, height: this.panel.offsetHeight };
       const vw = document.documentElement.clientWidth;
       const vh = document.documentElement.clientHeight;
       const [side, align = "start"] = this.placement.split("-");
@@ -417,9 +417,15 @@ var Tucano = (() => {
       if (side === "top" && p.height > spaceAbove && spaceBelow > spaceAbove) placeSide = "bottom";
       let top = placeSide === "top" ? a.top - p.height - this.offset : a.bottom + this.offset;
       let left;
-      if (align === "end") left = a.right - p.width;
-      else if (align === "center") left = a.left + a.width / 2 - p.width / 2;
-      else left = a.left;
+      if (p.width >= vw * 0.85) {
+        left = (vw - p.width) / 2;
+      } else if (align === "end") {
+        left = a.right - p.width;
+      } else if (align === "center") {
+        left = a.left + a.width / 2 - p.width / 2;
+      } else {
+        left = a.left;
+      }
       left = Math.min(Math.max(left, this.padding), Math.max(this.padding, vw - p.width - this.padding));
       top = Math.min(Math.max(top, this.padding), Math.max(this.padding, vh - p.height - this.padding));
       const host = this.appendTo === document.body ? { top: window.scrollY, left: window.scrollX } : (() => {
@@ -2123,6 +2129,7 @@ var Tucano = (() => {
         }),
         on(this.area, "keydown", (e) => this._teclasArea(e)),
         on(this.input, "change", () => {
+          if (this._emitting) return;
           if (!this.setValue(this.input.value)) this._syncInput();
         }),
         on(this.input, "focus", () => this.open()),
@@ -2272,9 +2279,14 @@ var Tucano = (() => {
     _emit() {
       const value = this.getValue();
       const detail = { value, rgb: this.getRgb(), hsva: { ...this.hsva }, instance: this };
-      this.opts.onChange?.(value, detail);
-      this.input.dispatchEvent(new CustomEvent("tucano:change", { detail, bubbles: true }));
-      this.input.dispatchEvent(new Event("change", { bubbles: true }));
+      this._emitting = true;
+      try {
+        this.opts.onChange?.(value, detail);
+        this.input.dispatchEvent(new CustomEvent("tucano:change", { detail, bubbles: true }));
+        this.input.dispatchEvent(new Event("change", { bubbles: true }));
+      } finally {
+        this._emitting = false;
+      }
     }
   };
   function normalizar(cor) {

@@ -66,8 +66,11 @@
   --tuc-hover: #f5f5f5;
   --tuc-elevated: #fafafa;
   --tuc-radius: 0.875rem;
-  --tuc-radius-sm: 0.5rem;
   --tuc-radius-md: 0.625rem;
+  --tuc-radius-sm: 0.5rem;
+  --tuc-radius-xs: 0.375rem;
+  --tuc-border-width: 1px;
+  --tuc-control-height: 2.375rem;
   --tuc-ring: rgb(0 0 0 / 0.12);
   --tuc-shadow: 0 0 0 1px var(--tuc-ring),
     0 1px 2px -1px rgb(0 0 0 / 0.08),
@@ -178,10 +181,10 @@
   height: calc(var(--spacing, 0.25rem) * 7);
   flex-shrink: 0;
   place-items: center;
-  border-radius: var(--radius-lg, 0.5rem);
   transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
   transition-timing-function: var(--tw-ease, var(--default-transition-timing-function, cubic-bezier(0.4, 0, 0.2, 1)));
   transition-duration: var(--tw-duration, var(--default-transition-duration, 150ms));
+  border-radius: var(--tuc-radius-sm);
   color: var(--tuc-muted);
 }
 .tuc-dp__nav:hover:not(:disabled) {
@@ -200,7 +203,6 @@
   display: flex;
   align-items: center;
   gap: var(--spacing, 0.25rem);
-  border-radius: var(--radius-lg, 0.5rem);
   padding-inline: calc(var(--spacing, 0.25rem) * 2);
   padding-block: var(--spacing, 0.25rem);
   --tw-font-weight: var(--font-weight-semibold, 600);
@@ -209,6 +211,7 @@
   transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
   transition-timing-function: var(--tw-ease, var(--default-transition-timing-function, cubic-bezier(0.4, 0, 0.2, 1)));
   transition-duration: var(--tw-duration, var(--default-transition-duration, 150ms));
+  border-radius: var(--tuc-radius-sm);
   font-size: 0.875rem;
   letter-spacing: -0.01em;
 }
@@ -228,7 +231,7 @@
   gap: calc(var(--spacing, 0.25rem) * 2);
 }
 .tuc-dp__months > .tuc-dp__month + .tuc-dp__month {
-  border-left: 1px solid var(--tuc-border);
+  border-left: var(--tuc-border-width) solid var(--tuc-border);
   padding-left: calc(var(--spacing, 0.25rem) * 3);
 }
 .tuc-dp__weekdays, .tuc-dp__grid {
@@ -387,7 +390,7 @@
   gap: calc(var(--spacing, 0.25rem) * 2);
   padding-inline: var(--spacing, 0.25rem);
   padding-top: calc(var(--spacing, 0.25rem) * 2.5);
-  border-top: 1px solid var(--tuc-border);
+  border-top: var(--tuc-border-width) solid var(--tuc-border);
 }
 .tuc-dp__timegroup {
   display: flex;
@@ -427,10 +430,10 @@
   width: 100%;
   align-items: stretch;
   gap: var(--spacing, 0.25rem);
-  border-radius: var(--radius-xl, 0.75rem);
   padding: var(--spacing, 0.25rem);
+  border-radius: var(--tuc-radius);
   background: var(--tuc-elevated);
-  border: 1px solid var(--tuc-border);
+  border: var(--tuc-border-width) solid var(--tuc-border);
 }
 .tuc-dp__timelist {
   display: flex;
@@ -440,7 +443,7 @@
   gap: 1px;
   overflow-y: auto;
   overscroll-behavior: contain;
-  border-radius: var(--radius-lg, 0.5rem);
+  border-radius: var(--tuc-radius-sm);
   min-width: 2.75rem;
   max-height: 8.5rem;
   scrollbar-width: thin;
@@ -459,7 +462,6 @@
 .tuc-dp__timeitem {
   flex-shrink: 0;
   scroll-snap-align: center;
-  border-radius: var(--radius-md, 0.375rem);
   padding-block: calc(var(--spacing, 0.25rem) * 1.5);
   text-align: center;
   --tw-font-weight: var(--font-weight-medium, 500);
@@ -467,6 +469,7 @@
   transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
   transition-timing-function: var(--tw-ease, var(--default-transition-timing-function, cubic-bezier(0.4, 0, 0.2, 1)));
   transition-duration: var(--tw-duration, var(--default-transition-duration, 150ms));
+  border-radius: var(--tuc-radius-xs);
   color: var(--tuc-fg);
 }
 .tuc-dp__timeitem:hover:not(:disabled):not(.is-selected) {
@@ -490,13 +493,12 @@
   overflow-y: auto;
   padding: var(--spacing, 0.25rem);
   width: 9.5rem;
-  border-right: 1px solid var(--tuc-border);
+  border-right: var(--tuc-border-width) solid var(--tuc-border);
 }
 .tuc-dp__preset {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  border-radius: var(--radius-lg, 0.5rem);
   padding-inline: calc(var(--spacing, 0.25rem) * 2.5);
   padding-block: calc(var(--spacing, 0.25rem) * 1.5);
   text-align: left;
@@ -505,6 +507,7 @@
   transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
   transition-timing-function: var(--tw-ease, var(--default-transition-timing-function, cubic-bezier(0.4, 0, 0.2, 1)));
   transition-duration: var(--tw-duration, var(--default-transition-duration, 150ms));
+  border-radius: var(--tuc-radius-sm);
   color: var(--tuc-muted);
 }
 .tuc-dp__preset:hover {
@@ -524,13 +527,12 @@
   gap: calc(var(--spacing, 0.25rem) * 2);
   padding-inline: var(--spacing, 0.25rem);
   padding-top: calc(var(--spacing, 0.25rem) * 2);
-  border-top: 1px solid var(--tuc-border);
+  border-top: var(--tuc-border-width) solid var(--tuc-border);
 }
 .tuc-dp__spacer {
   flex: 1;
 }
 .tuc-dp__btn {
-  border-radius: var(--radius-lg, 0.5rem);
   padding-inline: calc(var(--spacing, 0.25rem) * 3);
   padding-block: calc(var(--spacing, 0.25rem) * 1.5);
   --tw-font-weight: var(--font-weight-semibold, 600);
@@ -538,6 +540,7 @@
   transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
   transition-timing-function: var(--tw-ease, var(--default-transition-timing-function, cubic-bezier(0.4, 0, 0.2, 1)));
   transition-duration: var(--tw-duration, var(--default-transition-duration, 150ms));
+  border-radius: var(--tuc-radius-sm);
 }
 .tuc-dp__btn.is-ghost {
   color: var(--tuc-muted);
@@ -576,7 +579,7 @@
     padding-top: calc(var(--spacing, 0.25rem) * 3);
     padding-left: 0px;
     border-left: 0;
-    border-top: 1px solid var(--tuc-border);
+    border-top: var(--tuc-border-width) solid var(--tuc-border);
   }
   .tuc-dp {
     max-height: calc(100vh - 1.5rem);
@@ -604,7 +607,7 @@
     overflow-x: auto;
     padding-bottom: calc(var(--spacing, 0.25rem) * 2);
     border-right: 0;
-    border-bottom: 1px solid var(--tuc-border);
+    border-bottom: var(--tuc-border-width) solid var(--tuc-border);
   }
   .tuc-dp__preset {
     flex-shrink: 0;
@@ -655,13 +658,13 @@
   cursor: text;
   align-items: center;
   gap: calc(var(--spacing, 0.25rem) * 1.5);
-  height: 2.375rem;
+  height: var(--tuc-control-height);
   padding: 0.25rem 0.5rem 0.25rem 0.75rem;
   font-family: var(--tuc-font);
   font-size: var(--tuc-text);
   color: var(--tuc-fg);
   background: var(--tuc-bg);
-  border: 1px solid var(--tuc-border);
+  border: var(--tuc-border-width) solid var(--tuc-border);
   border-radius: var(--tuc-radius-md);
   transition: border-color 140ms var(--tuc-ease), box-shadow 140ms var(--tuc-ease);
 }
@@ -685,7 +688,7 @@
 }
 .tuc-select.is-wrap {
   height: auto;
-  min-height: 2.375rem;
+  min-height: var(--tuc-control-height);
 }
 .tuc-select.is-wrap .tuc-select__values {
   flex-wrap: wrap;
@@ -735,10 +738,10 @@
   height: calc(var(--spacing, 0.25rem) * 5);
   flex-shrink: 0;
   place-items: center;
-  border-radius: var(--radius-md, 0.375rem);
   transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
   transition-timing-function: var(--tw-ease, var(--default-transition-timing-function, cubic-bezier(0.4, 0, 0.2, 1)));
   transition-duration: var(--tw-duration, var(--default-transition-duration, 150ms));
+  border-radius: var(--tuc-radius-xs);
   color: var(--tuc-subtle);
 }
 .tuc-select.has-value .tuc-select__clear:hover {
@@ -751,12 +754,12 @@
   flex-shrink: 0;
   align-items: center;
   gap: var(--spacing, 0.25rem);
-  border-radius: var(--radius-md, 0.375rem);
   padding-block: calc(var(--spacing, 0.25rem) * 0.5);
   padding-right: var(--spacing, 0.25rem);
   padding-left: calc(var(--spacing, 0.25rem) * 2);
   --tw-font-weight: var(--font-weight-medium, 500);
   font-weight: var(--font-weight-medium, 500);
+  border-radius: var(--tuc-radius-xs);
   font-size: 0.75rem;
   background: var(--tuc-accent-soft);
   color: var(--tuc-accent);
@@ -850,7 +853,6 @@
   cursor: pointer;
   align-items: center;
   gap: calc(var(--spacing, 0.25rem) * 2);
-  border-radius: var(--radius-lg, 0.5rem);
   padding-inline: calc(var(--spacing, 0.25rem) * 2.5);
   padding-block: calc(var(--spacing, 0.25rem) * 1.5);
   border-radius: var(--tuc-radius-sm);
@@ -898,13 +900,13 @@
   cursor: text;
   align-items: center;
   gap: calc(var(--spacing, 0.25rem) * 2);
-  height: 2.375rem;
+  height: var(--tuc-control-height);
   padding: 0 0.75rem 0 0.3125rem;
   font-family: var(--tuc-font);
   font-size: var(--tuc-text);
   color: var(--tuc-fg);
   background: var(--tuc-bg);
-  border: 1px solid var(--tuc-border);
+  border: var(--tuc-border-width) solid var(--tuc-border);
   border-radius: var(--tuc-radius-md);
   transition: border-color 140ms var(--tuc-ease), box-shadow 140ms var(--tuc-ease);
 }
@@ -918,10 +920,10 @@
   height: calc(var(--spacing, 0.25rem) * 7);
   flex-shrink: 0;
   overflow: hidden;
-  border-radius: var(--radius-md, 0.375rem);
   transition-property: transform, translate, scale, rotate;
   transition-timing-function: var(--tw-ease, var(--default-transition-timing-function, cubic-bezier(0.4, 0, 0.2, 1)));
   transition-duration: var(--tw-duration, var(--default-transition-duration, 150ms));
+  border-radius: var(--tuc-radius-xs);
   box-shadow: inset 0 0 0 1px var(--tuc-ring);
 }
 .tuc-color-field__swatch::after {
@@ -993,7 +995,7 @@
   width: 100%;
   cursor: crosshair;
   touch-action: none;
-  border-radius: var(--radius-xl, 0.75rem);
+  border-radius: var(--tuc-radius);
   box-shadow: inset 0 0 0 1px var(--tuc-ring);
   background: linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, transparent), var(--matiz, #f00);
 }
@@ -1058,7 +1060,7 @@
   height: calc(var(--spacing, 0.25rem) * 8);
   flex-shrink: 0;
   overflow: hidden;
-  border-radius: var(--radius-lg, 0.5rem);
+  border-radius: var(--tuc-radius-sm);
   box-shadow: inset 0 0 0 1px var(--tuc-ring);
 }
 .tuc-colorpicker__preview::after {
@@ -1070,14 +1072,14 @@
 .tuc-colorpicker input.tuc-colorpicker__field {
   min-width: 0px;
   flex: 1;
-  border-radius: var(--radius-lg, 0.5rem);
   padding-inline: calc(var(--spacing, 0.25rem) * 2.5);
   padding-block: calc(var(--spacing, 0.25rem) * 1.5);
   --tw-font-weight: var(--font-weight-medium, 500);
   font-weight: var(--font-weight-medium, 500);
+  border-radius: var(--tuc-radius-sm);
   font-variant-numeric: tabular-nums;
   background: var(--tuc-elevated);
-  border: 1px solid var(--tuc-border);
+  border: var(--tuc-border-width) solid var(--tuc-border);
 }
 .tuc-colorpicker input.tuc-colorpicker__field:focus {
   border-color: var(--tuc-accent);
@@ -1090,13 +1092,13 @@
   height: calc(var(--spacing, 0.25rem) * 8);
   flex-shrink: 0;
   place-items: center;
-  border-radius: var(--radius-lg, 0.5rem);
   transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
   transition-timing-function: var(--tw-ease, var(--default-transition-timing-function, cubic-bezier(0.4, 0, 0.2, 1)));
   transition-duration: var(--tw-duration, var(--default-transition-duration, 150ms));
+  border-radius: var(--tuc-radius-sm);
   background: var(--tuc-elevated);
   color: var(--tuc-muted);
-  border: 1px solid var(--tuc-border);
+  border: var(--tuc-border-width) solid var(--tuc-border);
 }
 .tuc-colorpicker__pick:hover {
   background: var(--tuc-hover);
@@ -1107,14 +1109,14 @@
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: calc(var(--spacing, 0.25rem) * 2);
   padding-top: calc(var(--spacing, 0.25rem) * 0.5);
-  border-top: 1px solid var(--tuc-border);
+  border-top: var(--tuc-border-width) solid var(--tuc-border);
   padding-top: 0.875rem;
 }
 .tuc-colorpicker__swatchbtn {
   position: relative;
   aspect-ratio: 1 / 1;
   width: 100%;
-  border-radius: var(--radius-lg, 0.5rem);
+  border-radius: var(--tuc-radius-sm);
   background: var(--cor);
   box-shadow: inset 0 0 0 1px var(--tuc-ring);
   transition: transform 120ms var(--tuc-ease), box-shadow 120ms var(--tuc-ease);

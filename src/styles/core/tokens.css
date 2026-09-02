@@ -23,9 +23,17 @@
   --tuc-hover: #f5f5f5;
   --tuc-elevated: #fafafa;
 
-  --tuc-radius: 0.875rem;
-  --tuc-radius-sm: 0.5rem;
-  --tuc-radius-md: 0.625rem;
+  /* Raios: painel > controle > detalhe. Todo canto do pacote sai de um destes. */
+  --tuc-radius: 0.875rem;      /* paineis e blocos internos */
+  --tuc-radius-md: 0.625rem;   /* controles e celulas de dia */
+  --tuc-radius-sm: 0.5rem;     /* botoes e opcoes */
+  --tuc-radius-xs: 0.375rem;   /* tags e detalhes */
+
+  /* Espessura de toda borda do pacote. */
+  --tuc-border-width: 1px;
+
+  /* Altura dos campos (select e campo de cor), para casar com os seus inputs. */
+  --tuc-control-height: 2.375rem;
 
   --tuc-ring: rgb(0 0 0 / 0.12);
   --tuc-shadow:

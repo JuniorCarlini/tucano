@@ -69,7 +69,14 @@ export class Popover {
     if (!this.open) return;
     const a = this.anchor.getBoundingClientRect();
     if (this.matchWidth) this.panel.style.minWidth = `${Math.round(a.width)}px`;
-    const p = this.panel.getBoundingClientRect();
+
+    /*
+     * offset* em vez de getBoundingClientRect: o painel abre com `scale(.98)`
+     * pela animacao, e o rect devolve a caixa ja transformada. Posicionar por
+     * ela deixa o painel deslocado pela metade da diferenca de escala — e o
+     * deslocamento some quando a animacao termina, o que dificulta perceber.
+     */
+    const p = { width: this.panel.offsetWidth, height: this.panel.offsetHeight };
     const vw = document.documentElement.clientWidth;
     const vh = document.documentElement.clientHeight;
     const [side, align = 'start'] = this.placement.split('-');
@@ -84,9 +91,21 @@ export class Popover {
     let top = placeSide === 'top' ? a.top - p.height - this.offset : a.bottom + this.offset;
 
     let left;
-    if (align === 'end') left = a.right - p.width;
-    else if (align === 'center') left = a.left + a.width / 2 - p.width / 2;
-    else left = a.left;
+    if (p.width >= vw * 0.85) {
+      /*
+       * Painel quase da largura da tela (celular): centra na viewport, nao na
+       * ancora. Centrado no campo, o centro dele nao coincide com o centro da
+       * tela e sobra folga diferente de cada lado — visivel quando so restam
+       * alguns pixels em cada borda.
+       */
+      left = (vw - p.width) / 2;
+    } else if (align === 'end') {
+      left = a.right - p.width;
+    } else if (align === 'center') {
+      left = a.left + a.width / 2 - p.width / 2;
+    } else {
+      left = a.left;
+    }
 
     // Shift: mantem dentro da viewport com uma folga.
     left = Math.min(Math.max(left, this.padding), Math.max(this.padding, vw - p.width - this.padding));
