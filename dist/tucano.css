@@ -226,6 +226,9 @@ textarea.tuc-md__campo.tuc-md__campo:focus {
   box-shadow: none;
   border-color: transparent;
 }
+textarea.tuc-md__campo[hidden], .tuc-md__preview[hidden] {
+  display: none;
+}
 .tuc-md__preview {
   padding: calc(var(--spacing, 0.25rem) * 3);
   font-size: 0.875rem;

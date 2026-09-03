@@ -39,6 +39,14 @@ textarea.tuc-md__campo.tuc-md__campo {
 }
 textarea.tuc-md__campo.tuc-md__campo:focus { box-shadow: none; border-color: transparent; }
 
+/*
+ * O [hidden] do navegador pesa 0,1,0 e perde para o `display: block` do
+ * .tuc-input, que pesa 0,2,1 de proposito. Sem esta regra o campo continuava
+ * visivel com a pre-visualizacao aberta, e as duas apareciam empilhadas.
+ */
+textarea.tuc-md__campo[hidden],
+.tuc-md__preview[hidden] { display: none; }
+
 .tuc-md__preview {
   @apply p-3;
   font-size: 0.875rem;
