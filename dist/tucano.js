@@ -4257,6 +4257,25 @@ var Tucano = (() => {
         }
         this._cleanups.push(on(gatilho, "click", (e) => this._alternar(e, item)));
       }
+      this._aquecer();
+    }
+    /*
+     * Adianta o primeiro layout do conteudo.
+     *
+     * Enquanto o <details> esta fechado o navegador nao renderiza os filhos, e a
+     * primeira abertura carrega junto o calculo de estilo, o layout e a pintura
+     * de uma subarvore inedita — e e por isso que so a primeira engasga. Aqui o
+     * item e aberto e fechado no mesmo bloco sincrono: nada chega a pintar,
+     * porque o quadro so e desenhado quando a pilha termina, mas o navegador e
+     * obrigado a medir pelo offsetHeight no meio.
+     */
+    _aquecer() {
+      for (const item of this.itens) {
+        if (item.open) continue;
+        item.open = true;
+        void item.querySelector(":scope > .tuc-acordeon__corpo")?.offsetHeight;
+        item.open = false;
+      }
     }
     _alternar(e, item) {
       e.preventDefault();
