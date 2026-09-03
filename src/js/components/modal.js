@@ -15,6 +15,7 @@ const DEFAULTS = {
   text: '',
   tamanho: 'md',       // sm | md | lg | full
   tom: 'padrao',       // padrao | perigo | sucesso | aviso
+  lado: null,          // 'esquerda' | 'direita' | 'cima' | 'baixo' — vira gaveta
   folha: false,        // no celular sobe do rodape em vez de surgir no centro
   fechavel: true,      // botao X e Escape
   fecharNoFundo: true,
@@ -71,7 +72,16 @@ export class Modal {
     ]);
 
     this.node = el('dialog', {
-      class: `tuc-modal is-${this.opts.tamanho} is-${this.opts.tom}${this.opts.folha ? ' is-folha' : ''}${this.opts.classe ? ` ${this.opts.classe}` : ''}`,
+      class: [
+        'tuc-modal',
+        `is-${this.opts.tamanho}`,
+        `is-${this.opts.tom}`,
+        // Gaveta e folha são o mesmo mecanismo em bordas diferentes, então
+        // pedir as duas ao mesmo tempo daria um resultado sem sentido: o lado
+        // explícito ganha.
+        this.opts.lado ? `is-lado-${this.opts.lado}` : (this.opts.folha ? 'is-folha' : ''),
+        this.opts.classe,
+      ].filter(Boolean).join(' '),
       id: this.id,
       // O titulo nomeia o dialogo; sem titulo o proprio texto serve.
       ...(title ? { 'aria-labelledby': tituloId } : {}),
@@ -165,6 +175,16 @@ function ligar(alvo) {
 export function modal(opcoesOuTexto, extra = {}) {
   const base = typeof opcoesOuTexto === 'string' ? { text: opcoesOuTexto } : opcoesOuTexto;
   return new Modal({ ...base, ...extra }).abrir();
+}
+
+/**
+ * Gaveta: o mesmo modal encostado numa borda. Nao e componente separado de
+ * proposito — mudaria so a posicao e duplicaria toda a mecanica do <dialog>.
+ *
+ *   Tucano.gaveta({ title: 'Filtros', lado: 'direita' }).conteudo(form);
+ */
+export function gaveta(opcoes = {}) {
+  return new Modal({ lado: 'direita', ...opcoes }).abrir();
 }
 
 /**

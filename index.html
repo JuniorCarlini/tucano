@@ -23,7 +23,7 @@
 <meta name="twitter:description" content="Componentes de formulário e interface para a web. Sem dependências, funciona com HTML puro.">
 <meta name="twitter:image" content="https://juniorcarlini.github.io/tucano/og.png">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦜</text></svg>">
-<link rel="stylesheet" href="dist/tucano.css?v=0.11.1">
+<link rel="stylesheet" href="dist/tucano.css?v=0.12.0">
 <script>try{if(localStorage.getItem("tucano-tema")==="dark")document.documentElement.classList.add("dark")}catch{}</script>
 <style>
   :root{
@@ -226,7 +226,7 @@
 <header class="topbar">
   <span class="bird" style="font-size:18px">🦜</span>
   <b style="font-size:16px;font-weight:640;letter-spacing:-.02em">Tucano</b>
-  <span class="ver">v0.11.1</span>
+  <span class="ver">v0.12.0</span>
   <div class="topbar__acoes">
     <button class="iconbtn" data-tema aria-label="Alternar tema"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
     <button class="iconbtn" id="menu" aria-label="Abrir menu" aria-expanded="false" aria-controls="side"><svg class="i-menu" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
@@ -238,7 +238,7 @@
     <span class="bird">🦜</span><b>Tucano</b>
     <button class="iconbtn" data-tema aria-label="Alternar tema"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
   </div>
-  <span class="ver">v0.11.1 · 34 KB</span>
+  <span class="ver">v0.12.0 · 34 KB</span>
 
   <nav class="nav">
     <a href="#inicio">Início</a>
@@ -285,8 +285,8 @@
   <p class="lead">Dois arquivos e nada mais. Funciona com HTML puro, sem npm e sem build.</p>
 
   <pre><span class="c">&lt;!-- CDN --&gt;</span>
-&lt;<span class="t">link</span> <span class="a">rel</span>=<span class="s">"stylesheet"</span> <span class="a">href</span>=<span class="s">"https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.11.1/dist/tucano.min.css"</span>&gt;
-&lt;<span class="t">script</span> <span class="a">src</span>=<span class="s">"https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.11.1/dist/tucano.min.js"</span> <span class="a">defer</span>&gt;&lt;/<span class="t">script</span>&gt;</pre>
+&lt;<span class="t">link</span> <span class="a">rel</span>=<span class="s">"stylesheet"</span> <span class="a">href</span>=<span class="s">"https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.12.0/dist/tucano.min.css"</span>&gt;
+&lt;<span class="t">script</span> <span class="a">src</span>=<span class="s">"https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.12.0/dist/tucano.min.js"</span> <span class="a">defer</span>&gt;&lt;/<span class="t">script</span>&gt;</pre>
 
   <h3>npm</h3>
   <pre>npm install tucano</pre>
@@ -1054,6 +1054,14 @@ Tucano.toast.promessa(fetch(url), {
       <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Atenção', text:'Há pendências neste contrato.', tom:'aviso'})">aviso</button>
     </div>
 
+    <span class="lbl">Gaveta — o mesmo diálogo encostado numa borda</span>
+    <div class="bar" style="margin:0 0 16px">
+      <button class="tuc-btn is-outline is-sm" onclick="Tucano.gaveta({title:'Filtros', text:'Refine a lista de contratos.', lado:'direita', acoes:[{texto:'Limpar',variante:'ghost'},{texto:'Aplicar',variante:'primary'}]})">direita</button>
+      <button class="tuc-btn is-outline is-sm" onclick="Tucano.gaveta({title:'Menu', text:'Navegação lateral.', lado:'esquerda'})">esquerda</button>
+      <button class="tuc-btn is-outline is-sm" onclick="Tucano.gaveta({title:'Aviso do sistema', text:'Manutenção programada para domingo.', lado:'cima'})">cima</button>
+      <button class="tuc-btn is-outline is-sm" onclick="Tucano.gaveta({title:'Detalhes', text:'Sobe do rodapé.', lado:'baixo'})">baixo</button>
+    </div>
+
     <span class="lbl">Comportamento</span>
     <div class="bar" style="margin:0">
       <button class="tuc-btn is-outline is-sm" onclick="Tucano.confirmar({title:'Excluir contrato?', text:'Esta ação não pode ser desfeita.', confirmar:'Excluir'}).then(ok=>Tucano.toast[ok?'sucesso':'info'](ok?'Excluído':'Cancelado'))">confirmar() com promessa</button>
@@ -1093,6 +1101,21 @@ Tucano.toast.promessa(fetch(url), {
 
 <span class="c">// confirmação como promessa — o caso mais comum num CRUD</span>
 <span class="t">if</span> (<span class="t">await</span> Tucano.confirmar({ title: <span class="s">'Excluir contrato?'</span> })) excluir();</pre>
+
+  <h3>Gaveta (off-canvas)</h3>
+  <p class="lead">Painel de filtros, carrinho, menu no celular, detalhe de um registro. É o mesmo
+     diálogo — mesma <i>top layer</i>, mesmo foco preso, mesmo <code>Esc</code> — só que encostado
+     numa borda e ocupando o eixo inteiro dela. No centro o modal cresce; na borda ele desliza,
+     que é como a gaveta conta de onde veio.</p>
+
+  <pre>Tucano.gaveta({ title: <span class="s">'Filtros'</span>, lado: <span class="s">'direita'</span> })  <span class="c">// esquerda | direita | cima | baixo</span>
+  .conteudo(formulario);
+
+<span class="c">// ou pelo modal, que é a mesma coisa</span>
+Tucano.modal({ title: <span class="s">'Menu'</span>, lado: <span class="s">'esquerda'</span>, tamanho: <span class="s">'sm'</span> });</pre>
+
+  <p class="lead">Nas laterais, <code>tamanho</code> vira largura da coluna — 18, 24 ou 34rem — e no
+     celular ela para em 85% da tela, porque coluna estreita ali não se lê.</p>
 
   <h3>Com o Django</h3>
   <p class="lead">Quando o conteúdo vem renderizado pelo servidor, o <code>&lt;dialog&gt;</code> mora no
@@ -1356,7 +1379,7 @@ Não remova o <span class="s">name</span> do input nem o &lt;select&gt; nativo: 
 
 </main>
 
-<script src="dist/tucano.js?v=0.11.1"></script>
+<script src="dist/tucano.js?v=0.12.0"></script>
 <script>
   const ICONE_MENU = '<svg class="i-menu" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>';
   const ICONE_X = '<svg class="i-x" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>';

@@ -395,6 +395,13 @@ Tucano.modal({
 if (await Tucano.confirmar({ title: 'Excluir contrato?' })) excluir();
 ```
 
+A mesma peça encostada numa borda vira gaveta (off-canvas) — painel de filtros,
+menu, carrinho. Mesma *top layer*, mesmo foco preso, mesmo `Esc`:
+
+```js
+Tucano.gaveta({ title: 'Filtros', lado: 'direita' }).conteudo(formulario);
+```
+
 Com conteúdo do servidor, o `<dialog>` mora no template e o Tucano só abre,
 fecha e anima:
 

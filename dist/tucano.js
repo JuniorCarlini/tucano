@@ -42,6 +42,7 @@ var Tucano = (() => {
     color: () => color_exports,
     confirmar: () => confirmar,
     dates: () => dates_exports,
+    gaveta: () => gaveta,
     init: () => init,
     mask: () => mask_exports,
     modal: () => modal,
@@ -3955,6 +3956,8 @@ var Tucano = (() => {
     // sm | md | lg | full
     tom: "padrao",
     // padrao | perigo | sucesso | aviso
+    lado: null,
+    // 'esquerda' | 'direita' | 'cima' | 'baixo' — vira gaveta
     folha: false,
     // no celular sobe do rodape em vez de surgir no centro
     fechavel: true,
@@ -4006,7 +4009,16 @@ var Tucano = (() => {
         }))) : null
       ]);
       this.node = el("dialog", {
-        class: `tuc-modal is-${this.opts.tamanho} is-${this.opts.tom}${this.opts.folha ? " is-folha" : ""}${this.opts.classe ? ` ${this.opts.classe}` : ""}`,
+        class: [
+          "tuc-modal",
+          `is-${this.opts.tamanho}`,
+          `is-${this.opts.tom}`,
+          // Gaveta e folha são o mesmo mecanismo em bordas diferentes, então
+          // pedir as duas ao mesmo tempo daria um resultado sem sentido: o lado
+          // explícito ganha.
+          this.opts.lado ? `is-lado-${this.opts.lado}` : this.opts.folha ? "is-folha" : "",
+          this.opts.classe
+        ].filter(Boolean).join(" "),
         id: this.id,
         // O titulo nomeia o dialogo; sem titulo o proprio texto serve.
         ...title ? { "aria-labelledby": tituloId } : {}
@@ -4080,6 +4092,9 @@ var Tucano = (() => {
   function modal(opcoesOuTexto, extra = {}) {
     const base = typeof opcoesOuTexto === "string" ? { text: opcoesOuTexto } : opcoesOuTexto;
     return new Modal({ ...base, ...extra }).abrir();
+  }
+  function gaveta(opcoes = {}) {
+    return new Modal({ lado: "direita", ...opcoes }).abrir();
   }
   function confirmar(opcoes = {}) {
     const { confirmar: rotuloOk = "Confirmar", cancelar = "Cancelar", ...resto } = opcoes;

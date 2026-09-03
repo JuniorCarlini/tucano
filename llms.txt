@@ -159,6 +159,13 @@ e Escape vem do proprio elemento.
 
     if (await Tucano.confirmar({ title:'Excluir contrato?' })) excluir();
 
+Gaveta (off-canvas) e o mesmo modal encostado numa borda:
+
+    Tucano.gaveta({ title:'Filtros', lado:'direita' }).conteudo(form);
+
+lado: esquerda | direita | cima | baixo. Nas laterais o tamanho vira largura da
+coluna e no celular para em 85% da tela.
+
 Tons: padrao, perigo, sucesso, aviso (mudam o brilho do fundo e a aura da caixa).
 Tamanhos: sm, md, lg, full. Fechar por fora, pelo X ou por Escape resolve false.
 

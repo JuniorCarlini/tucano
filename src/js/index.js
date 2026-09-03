@@ -5,7 +5,7 @@ export { Upload, autoInit as autoInitUploads } from './components/upload.js';
 export { Mask, FORMATOS, autoInit as autoInitMasks, autoFormat } from './components/mask.js';
 export { Toast, toast, autoInit as autoInitToasts, ouvirEventos } from './components/toast.js';
 export { Tooltip, autoInit as autoInitTooltips } from './components/tooltip.js';
-export { Modal, modal, confirmar, autoInit as autoInitModals } from './components/modal.js';
+export { Modal, modal, gaveta, confirmar, autoInit as autoInitModals } from './components/modal.js';
 export * as mask from './core/mask.js';
 export * as color from './core/color.js';
 export * as dates from './core/dates.js';
