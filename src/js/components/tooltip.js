@@ -85,7 +85,14 @@ export class Tooltip {
     aberto = this;
     this.popover = new Popover(this.anchor, this.painel, {
       placement: this.opts.placement,
-      offset: 6,
+      /*
+       * 13 e nao 6 por causa da seta. Ela e um quadrado de 10px girado 45
+       * graus: a diagonal da 14,1px, e metade disso — 7,1px — projeta para
+       * fora do balao. Com o afastamento antigo a ponta encostava no gatilho,
+       * e o que se via era a dica colada nele. 13 menos os 7 da seta deixam
+       * uns 6px de respiro, que e o que o balao sozinho tinha antes.
+       */
+      offset: 13,
       fecharSeSolto: true,
       onDismiss: () => this._esconder(),
     });
