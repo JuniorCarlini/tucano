@@ -55,3 +55,80 @@
   border: 0;
   border-top: var(--tuc-border-width) solid var(--tuc-border);
 }
+
+/* ------------------------------------------------------------------ */
+
+/*
+ * Submenu: item que abre e revela filhos.
+ *
+ * A abertura reaproveita o acordeao — o item e um <details> e a animacao ja
+ * vem pronta. Aqui fica so a leitura: quem sao filhos de quem, e onde esta o
+ * atual dentro da arvore.
+ */
+
+/* No menu, o gatilho e um item de menu. Estas regras vem depois das do
+   acordeao de proposito, para vencer por ordem no que as duas dizem. */
+.tuc-menu .tuc-acordeon__gatilho {
+  @apply justify-start px-2.5 py-2;
+  font-weight: inherit;
+  border-bottom: 0;
+}
+/*
+ * A seta e empurrada para a direita, e o rotulo nao. Com o justify-between do
+ * acordeao, o texto ficava no meio do item enquanto os vizinhos sem submenu
+ * alinhavam a esquerda — a coluna de rotulos saia torta.
+ */
+.tuc-menu .tuc-acordeon__seta { @apply ml-auto; }
+.tuc-menu .tuc-acordeon__item { border-bottom: 0; }
+
+/*
+ * A seta aponta para a direita quando fechado e para baixo quando aberto, que
+ * e como arvore de navegacao se le: "ha algo aqui dentro" contra "esta e a
+ * ramificacao aberta". Girar so 180 graus diria menos.
+ */
+.tuc-menu .tuc-acordeon__seta { rotate: -90deg; }
+.tuc-menu .tuc-acordeon__item[open]:not(.is-fechando) .tuc-acordeon__seta { rotate: 0deg; }
+
+/*
+ * O trilho a esquerda amarra os filhos ao pai. Sem ele, a indentacao sozinha se
+ * perde assim que a lista passa de quatro ou cinco linhas — o olho deixa de
+ * saber onde o ramo comeca.
+ */
+.tuc-menu__sub {
+  @apply ml-4 flex flex-col gap-0.5 pl-3;
+  border-left: 2px solid var(--tuc-border);
+}
+
+/*
+ * Filho nao repete icone: ele herda o contexto do pai, e uma fileira de icones
+ * indentados competiria com a do nivel de cima. O ponto marca a linha sem
+ * disputar atencao.
+ */
+.tuc-menu__sub .tuc-menu__item {
+  color: var(--tuc-muted);
+  font-weight: 400;
+}
+.tuc-menu__sub .tuc-menu__item::before {
+  content: '';
+  @apply size-1.5 shrink-0 rounded-full;
+  background: currentColor;
+  opacity: 0.4;
+}
+
+/*
+ * No submenu o atual e uma pilula, e nao o traco da borda: o traco brigaria
+ * com o trilho, que ocupa exatamente aquele lugar.
+ */
+.tuc-menu__sub .tuc-menu__item.is-ativo {
+  box-shadow: none;
+  color: var(--tuc-fg);
+  background: var(--tuc-hover);
+  font-weight: 500;
+}
+.tuc-menu__sub .tuc-menu__item.is-ativo::before { opacity: 1; }
+
+/* Rotulo de secao, entre blocos do menu. */
+.tuc-menu__secao {
+  @apply px-2.5 pb-1 pt-3 text-xs font-semibold uppercase tracking-wide;
+  color: var(--tuc-subtle);
+}
