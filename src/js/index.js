@@ -9,6 +9,8 @@ export { Modal, modal, confirmar, autoInit as autoInitModals } from './component
 export { Gaveta, gaveta, autoInit as autoInitGavetas } from './components/offcanvas.js';
 export { Acordeon, autoInit as autoInitAcordeoes } from './components/acordeon.js';
 export { Markdown, autoInit as autoInitMarkdown } from './components/markdown.js';
+export { Rico, autoInit as autoInitRicos } from './components/rico.js';
+export { sanitizar } from './core/sanitizar.js';
 export * as markdown from './core/markdown.js';
 export * as mask from './core/mask.js';
 export * as color from './core/color.js';
@@ -26,6 +28,7 @@ import { autoInit as autoInitModal } from './components/modal.js';
 import { autoInit as autoInitGaveta } from './components/offcanvas.js';
 import { autoInit as autoInitAcordeao } from './components/acordeon.js';
 import { autoInit as autoInitMd } from './components/markdown.js';
+import { autoInit as autoInitRico } from './components/rico.js';
 
 /** Inicializa todos os componentes marcados por data-attribute no escopo dado. */
 export function init(scope = document) {
@@ -42,6 +45,7 @@ export function init(scope = document) {
     gavetas: autoInitGaveta(scope),
     acordeoes: autoInitAcordeao(scope),
     markdown: autoInitMd(scope),
+    ricos: autoInitRico(scope),
   };
 }
 

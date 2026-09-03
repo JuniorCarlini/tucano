@@ -1,12 +1,12 @@
 /*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
 @layer properties;
-.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-md, .tuc-btn {
+.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-md, .tuc-rico, .tuc-btn {
   box-sizing: border-box;
 }
-:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-md, .tuc-btn) *, :where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-md, .tuc-btn) *::before, :where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-md, .tuc-btn) *::after {
+:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-md, .tuc-rico, .tuc-btn) *, :where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-md, .tuc-rico, .tuc-btn) *::before, :where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-md, .tuc-rico, .tuc-btn) *::after {
   box-sizing: border-box;
 }
-:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-md, .tuc-btn) button {
+:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-md, .tuc-rico, .tuc-btn) button {
   appearance: none;
   -webkit-appearance: none;
   margin: 0;
@@ -22,7 +22,7 @@
   text-transform: none;
   cursor: pointer;
 }
-:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-md, .tuc-btn) button:disabled {
+:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-md, .tuc-rico, .tuc-btn) button:disabled {
   cursor: default;
 }
 :where(.tuc-dp, .tuc-select, .tuc-select__menu) abbr[title] {
@@ -30,11 +30,11 @@
   border: 0;
   cursor: inherit;
 }
-:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-md, .tuc-btn) svg {
+:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-md, .tuc-rico, .tuc-btn) svg {
   display: block;
   flex: none;
 }
-:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-md, .tuc-btn) input {
+:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-md, .tuc-rico, .tuc-btn) input {
   font: inherit;
   color: inherit;
 }
@@ -46,7 +46,7 @@
   color: var(--tuc-fg);
   min-width: 0;
 }
-.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-md, .tuc-btn {
+.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-md, .tuc-rico, .tuc-btn {
   --tuc-accent: #4f46e5;
   --tuc-accent-hover: #4338ca;
   --tuc-accent-fg: #ffffff;
@@ -86,7 +86,7 @@
   --tuc-text: 0.8125rem;
   --tuc-cell: 2.25rem;
 }
-:where(.dark, [data-theme='dark']) :is(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-md, .tuc-btn), :where(.dark, [data-theme='dark']).tuc-dp {
+:where(.dark, [data-theme='dark']) :is(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-md, .tuc-rico, .tuc-btn), :where(.dark, [data-theme='dark']).tuc-dp {
   --tuc-accent: #6366f1;
   --tuc-accent-hover: #818cf8;
   --tuc-accent-fg: #ffffff;
@@ -103,7 +103,7 @@
     0 16px 48px -24px rgb(0 0 0 / 0.8);
 }
 @media (prefers-color-scheme: dark) {
-  :where(html[data-tuc-theme='auto']) :is(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-md, .tuc-btn) {
+  :where(html[data-tuc-theme='auto']) :is(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-md, .tuc-rico, .tuc-btn) {
     --tuc-accent: #6366f1;
     --tuc-accent-hover: #818cf8;
     --tuc-bg: #171717;
@@ -314,6 +314,128 @@ textarea.tuc-md__campo[hidden], .tuc-md__preview[hidden] {
 .tuc-md__preview pre code {
   padding: 0px;
   background: none;
+}
+.tuc-rico {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  font-family: var(--tuc-font);
+  border: var(--tuc-border-width) solid var(--tuc-border);
+  border-radius: var(--tuc-radius-md);
+  background: var(--tuc-bg);
+  transition: border-color var(--tuc-duration) ease-out, box-shadow var(--tuc-duration) ease-out;
+}
+.tuc-rico:focus-within {
+  border-color: var(--tuc-accent);
+  box-shadow: 0 0 0 3px var(--tuc-accent);
+  @supports (color: color-mix(in lab, red, red)) {
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--tuc-accent) 22%, transparent);
+  }
+}
+.tuc-rico__barra {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: calc(var(--spacing, 0.25rem) * 0.5);
+  padding: calc(var(--spacing, 0.25rem) * 1.5);
+  border-bottom: var(--tuc-border-width) solid var(--tuc-border);
+}
+.tuc-rico__barra .tuc-btn.is-ativo {
+  background: var(--tuc-hover);
+  color: var(--tuc-accent);
+}
+.tuc-rico__area {
+  overflow-y: auto;
+  padding: calc(var(--spacing, 0.25rem) * 3);
+  font-size: var(--tuc-text);
+  line-height: 1.65;
+  color: var(--tuc-fg);
+  outline: 0;
+}
+textarea.tuc-rico__valor[hidden] {
+  display: none;
+}
+.tuc-rico__area:empty::before, .tuc-rico__area > p:only-child:empty::before {
+  content: attr(data-placeholder);
+  color: var(--tuc-subtle);
+  pointer-events: none;
+}
+.tuc-rico__area > :first-child {
+  margin-top: 0;
+}
+.tuc-rico__area > :last-child {
+  margin-bottom: 0;
+}
+.tuc-rico__area p {
+  margin-block: calc(var(--spacing, 0.25rem) * 2);
+}
+.tuc-rico__area h2 {
+  margin-top: calc(var(--spacing, 0.25rem) * 4);
+  margin-bottom: calc(var(--spacing, 0.25rem) * 2);
+  font-size: var(--text-lg, 1.125rem);
+  line-height: var(--tw-leading, var(--text-lg--line-height, calc(1.75 / 1.125)));
+  --tw-font-weight: var(--font-weight-semibold, 600);
+  font-weight: var(--font-weight-semibold, 600);
+}
+.tuc-rico__area h3 {
+  margin-top: calc(var(--spacing, 0.25rem) * 3);
+  margin-bottom: calc(var(--spacing, 0.25rem) * 1.5);
+  font-size: var(--text-base, 1rem);
+  line-height: var(--tw-leading, var(--text-base--line-height, calc(1.5 / 1)));
+  --tw-font-weight: var(--font-weight-semibold, 600);
+  font-weight: var(--font-weight-semibold, 600);
+}
+.tuc-rico__area ul {
+  margin-block: calc(var(--spacing, 0.25rem) * 2);
+  list-style-type: disc;
+  padding-left: calc(var(--spacing, 0.25rem) * 5);
+}
+.tuc-rico__area ol {
+  margin-block: calc(var(--spacing, 0.25rem) * 2);
+  list-style-type: decimal;
+  padding-left: calc(var(--spacing, 0.25rem) * 5);
+}
+.tuc-rico__area li {
+  margin-block: calc(var(--spacing, 0.25rem) * 0.5);
+}
+.tuc-rico__area a {
+  color: var(--tuc-accent);
+  text-decoration: underline;
+}
+.tuc-rico__area blockquote {
+  margin-block: calc(var(--spacing, 0.25rem) * 2);
+  padding-left: calc(var(--spacing, 0.25rem) * 3);
+  border-left: 2px solid var(--tuc-border);
+  color: var(--tuc-muted);
+}
+.tuc-rico__area code {
+  border-radius: 0.25rem;
+  padding-inline: var(--spacing, 0.25rem);
+  padding-block: calc(var(--spacing, 0.25rem) * 0.5);
+  font-size: 0.8125rem;
+  background: var(--tuc-elevated);
+}
+.tuc-rico__area table {
+  margin-block: calc(var(--spacing, 0.25rem) * 3);
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+.tuc-rico__area th, .tuc-rico__area td {
+  padding-inline: calc(var(--spacing, 0.25rem) * 2.5);
+  padding-block: calc(var(--spacing, 0.25rem) * 1.5);
+  vertical-align: top;
+  border: var(--tuc-border-width) solid var(--tuc-border);
+  min-width: 3rem;
+}
+.tuc-rico__area th {
+  text-align: left;
+  --tw-font-weight: var(--font-weight-semibold, 600);
+  font-weight: var(--font-weight-semibold, 600);
+  background: var(--tuc-elevated);
+}
+.tuc-rico__area th:focus-within, .tuc-rico__area td:focus-within {
+  box-shadow: inset 0 0 0 2px var(--tuc-accent);
 }
 .tuc-dp {
   z-index: 50;

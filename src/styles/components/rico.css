@@ -1,0 +1,86 @@
+@reference "tailwindcss";
+
+.tuc-rico {
+  @apply flex w-full flex-col;
+  font-family: var(--tuc-font);
+  border: var(--tuc-border-width) solid var(--tuc-border);
+  border-radius: var(--tuc-radius-md);
+  background: var(--tuc-bg);
+  transition: border-color var(--tuc-duration) ease-out, box-shadow var(--tuc-duration) ease-out;
+}
+/* A moldura de foco e do conjunto: quem tem borda aqui e a caixa, nao a area. */
+.tuc-rico:focus-within {
+  border-color: var(--tuc-accent);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--tuc-accent) 22%, transparent);
+}
+
+.tuc-rico__barra {
+  @apply flex flex-wrap items-center gap-0.5 p-1.5;
+  border-bottom: var(--tuc-border-width) solid var(--tuc-border);
+}
+/* Botao aceso enquanto o cursor esta dentro daquela formatacao. */
+.tuc-rico__barra .tuc-btn.is-ativo {
+  background: var(--tuc-hover);
+  color: var(--tuc-accent);
+}
+
+.tuc-rico__area {
+  @apply overflow-y-auto p-3;
+  font-size: var(--tuc-text);
+  line-height: 1.65;
+  color: var(--tuc-fg);
+  outline: 0;
+}
+/* O textarea guarda o valor e nao aparece; [hidden] sozinho perderia peso. */
+textarea.tuc-rico__valor[hidden] { display: none; }
+
+.tuc-rico__area:empty::before,
+.tuc-rico__area > p:only-child:empty::before {
+  content: attr(data-placeholder);
+  color: var(--tuc-subtle);
+  pointer-events: none;
+}
+
+.tuc-rico__area > :first-child { margin-top: 0; }
+.tuc-rico__area > :last-child { margin-bottom: 0; }
+.tuc-rico__area p { @apply my-2; }
+.tuc-rico__area h2 { @apply mb-2 mt-4 text-lg font-semibold; }
+.tuc-rico__area h3 { @apply mb-1.5 mt-3 text-base font-semibold; }
+.tuc-rico__area ul { @apply my-2 list-disc pl-5; }
+.tuc-rico__area ol { @apply my-2 list-decimal pl-5; }
+.tuc-rico__area li { @apply my-0.5; }
+.tuc-rico__area a { color: var(--tuc-accent); text-decoration: underline; }
+.tuc-rico__area blockquote {
+  @apply my-2 pl-3;
+  border-left: 2px solid var(--tuc-border);
+  color: var(--tuc-muted);
+}
+.tuc-rico__area code {
+  @apply rounded px-1 py-0.5;
+  font-size: 0.8125rem;
+  background: var(--tuc-elevated);
+}
+
+/*
+ * Tabela. `fixed` para a coluna nao pular de largura a cada tecla digitada —
+ * com `auto`, o texto redimensiona a coluna enquanto se escreve, e a linha
+ * inteira dança.
+ */
+.tuc-rico__area table {
+  @apply my-3 w-full;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+.tuc-rico__area th,
+.tuc-rico__area td {
+  @apply px-2.5 py-1.5 align-top;
+  border: var(--tuc-border-width) solid var(--tuc-border);
+  min-width: 3rem;
+}
+.tuc-rico__area th {
+  @apply text-left font-semibold;
+  background: var(--tuc-elevated);
+}
+/* Célula com o cursor dentro: sem isso se perde de vista onde se está. */
+.tuc-rico__area th:focus-within,
+.tuc-rico__area td:focus-within { box-shadow: inset 0 0 0 2px var(--tuc-accent); }
