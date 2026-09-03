@@ -1,7 +1,7 @@
 # Tucano
 
 > Componentes de formulario e interface para a web, sem dependencias em runtime.
-> JavaScript puro, sem dependências em runtime. 27 KB JS + 7 KB CSS (gzip).
+> JavaScript puro, sem dependências em runtime. 28 KB JS + 8 KB CSS (gzip).
 > Os estilos são escritos em Tailwind mas distribuídos já compilados: o projeto
 > que consome não precisa de build e não recebe o preflight do Tailwind.
 
@@ -164,6 +164,20 @@ Tamanhos: sm, md, lg, full. Fechar por fora, pelo X ou por Escape resolve false.
 
 Conteudo do servidor: o <dialog class="tuc-modal"> fica no template, com
 data-tuc-modal="#id" no gatilho e data-tuc-modal-close nos botoes de fechar.
+
+## Acordeao
+
+Sobre <details>/<summary> nativos: teclado, semantica e estado vem do elemento,
+e funciona antes de o JS carregar. O componente so acrescenta a animacao, que o
+nativo nao faz (altura auto nao transiciona, e ao fechar o conteudo some de uma
+vez).
+
+    <div data-tuc-acordeon data-unico="true">
+      <details open><summary>Projetos</summary><p>...</p></details>
+    </div>
+
+data-unico="true" recolhe os outros ao abrir um. .tuc-acordeon.is-limpo tira as
+divisorias, para menu lateral.
 
 ## Gaveta (off-canvas)
 

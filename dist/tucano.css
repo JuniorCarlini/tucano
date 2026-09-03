@@ -1,12 +1,12 @@
 /*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
 @layer properties;
-.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-btn {
+.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-btn {
   box-sizing: border-box;
 }
-:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-btn) *, :where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-btn) *::before, :where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-btn) *::after {
+:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-btn) *, :where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-btn) *::before, :where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-btn) *::after {
   box-sizing: border-box;
 }
-:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-btn) button {
+:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-btn) button {
   appearance: none;
   -webkit-appearance: none;
   margin: 0;
@@ -22,7 +22,7 @@
   text-transform: none;
   cursor: pointer;
 }
-:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-btn) button:disabled {
+:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-btn) button:disabled {
   cursor: default;
 }
 :where(.tuc-dp, .tuc-select, .tuc-select__menu) abbr[title] {
@@ -30,11 +30,11 @@
   border: 0;
   cursor: inherit;
 }
-:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-btn) svg {
+:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-btn) svg {
   display: block;
   flex: none;
 }
-:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-btn) input {
+:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-btn) input {
   font: inherit;
   color: inherit;
 }
@@ -46,7 +46,7 @@
   color: var(--tuc-fg);
   min-width: 0;
 }
-.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-btn {
+.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-btn {
   --tuc-accent: #4f46e5;
   --tuc-accent-hover: #4338ca;
   --tuc-accent-fg: #ffffff;
@@ -86,7 +86,7 @@
   --tuc-text: 0.8125rem;
   --tuc-cell: 2.25rem;
 }
-:where(.dark, [data-theme='dark']) :is(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-btn), :where(.dark, [data-theme='dark']).tuc-dp {
+:where(.dark, [data-theme='dark']) :is(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-btn), :where(.dark, [data-theme='dark']).tuc-dp {
   --tuc-accent: #6366f1;
   --tuc-accent-hover: #818cf8;
   --tuc-accent-fg: #ffffff;
@@ -103,7 +103,7 @@
     0 16px 48px -24px rgb(0 0 0 / 0.8);
 }
 @media (prefers-color-scheme: dark) {
-  :where(html[data-tuc-theme='auto']) :is(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-btn) {
+  :where(html[data-tuc-theme='auto']) :is(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-btn) {
     --tuc-accent: #6366f1;
     --tuc-accent-hover: #818cf8;
     --tuc-bg: #171717;
@@ -1739,6 +1739,99 @@
     animation-name: none;
   }
 }
+.tuc-acordeon {
+  display: flex;
+  flex-direction: column;
+  font-family: var(--tuc-font);
+  font-size: var(--tuc-text);
+  color: var(--tuc-fg);
+}
+.tuc-acordeon__item {
+  border-bottom: var(--tuc-border-width) solid var(--tuc-border);
+}
+.tuc-acordeon__item:last-child {
+  border-bottom: 0;
+}
+.tuc-acordeon__gatilho {
+  display: flex;
+  width: 100%;
+  cursor: pointer;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(var(--spacing, 0.25rem) * 3);
+  padding-block: calc(var(--spacing, 0.25rem) * 3);
+  text-align: left;
+  --tw-font-weight: var(--font-weight-medium, 500);
+  font-weight: var(--font-weight-medium, 500);
+  -webkit-user-select: none;
+  user-select: none;
+  border-radius: var(--tuc-radius-sm);
+  transition: color var(--tuc-duration) ease-out;
+  list-style: none;
+}
+.tuc-acordeon__gatilho::-webkit-details-marker {
+  display: none;
+}
+.tuc-acordeon__gatilho::marker {
+  content: '';
+}
+.tuc-acordeon__gatilho:hover {
+  color: var(--tuc-accent);
+}
+.tuc-acordeon__gatilho:focus-visible {
+  outline: 2px solid var(--tuc-accent);
+  outline-offset: 2px;
+}
+.tuc-acordeon__seta {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  color: var(--tuc-muted);
+  transition: rotate var(--tuc-duration-lg) var(--tuc-ease);
+}
+.tuc-acordeon__item[open]:not(.is-fechando) .tuc-acordeon__seta {
+  rotate: 180deg;
+}
+.tuc-acordeon__corpo {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--tuc-duration-lg) var(--tuc-ease);
+}
+.tuc-acordeon__item[open] .tuc-acordeon__corpo {
+  grid-template-rows: 1fr;
+}
+.tuc-acordeon__item[open].is-fechando .tuc-acordeon__corpo {
+  grid-template-rows: 0fr;
+}
+.tuc-acordeon__conteudo {
+  overflow: hidden;
+  min-height: 0;
+}
+.tuc-acordeon__conteudo > :first-child {
+  margin-top: 0;
+}
+.tuc-acordeon__item[open] .tuc-acordeon__conteudo {
+  padding-bottom: 0.875rem;
+}
+.tuc-acordeon.is-limpo .tuc-acordeon__item {
+  border-bottom: 0;
+}
+.tuc-acordeon.is-limpo .tuc-acordeon__gatilho {
+  padding-inline: calc(var(--spacing, 0.25rem) * 2);
+  font-size: var(--text-xs, 0.75rem);
+  line-height: var(--tw-leading, var(--text-xs--line-height, calc(1 / 0.75)));
+  --tw-font-weight: var(--font-weight-semibold, 600);
+  font-weight: var(--font-weight-semibold, 600);
+  --tw-tracking: var(--tracking-wide, 0.025em);
+  letter-spacing: var(--tracking-wide, 0.025em);
+  text-transform: uppercase;
+  color: var(--tuc-muted);
+}
+@media (prefers-reduced-motion: reduce) {
+  .tuc-acordeon__corpo, .tuc-acordeon__seta {
+    transition-duration: 1ms;
+  }
+}
 .tuc-modal, .tuc-gaveta {
   position: fixed;
   inset: 0px;
@@ -2026,6 +2119,10 @@
   inherits: false;
   initial-value: 1;
 }
+@property --tw-tracking {
+  syntax: "*";
+  inherits: false;
+}
 @layer properties {
   @supports ((-webkit-hyphens: none) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color:rgb(from red r g b)))) {
     *, ::before, ::after, ::backdrop {
@@ -2035,6 +2132,7 @@
       --tw-scale-x: 1;
       --tw-scale-y: 1;
       --tw-scale-z: 1;
+      --tw-tracking: initial;
     }
   }
 }

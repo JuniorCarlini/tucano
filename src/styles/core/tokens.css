@@ -15,6 +15,7 @@
 .tuc-tip,
   .tuc-modal,
   .tuc-gaveta,
+  .tuc-acordeon,
 .tuc-btn {
   --tuc-accent: #4f46e5;
   --tuc-accent-hover: #4338ca;
@@ -72,7 +73,8 @@
 /* Dark por classe (.dark no html) — o padrao de Tailwind e do Django admin moderno. */
 :where(.dark, [data-theme='dark']) :is(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip,
   .tuc-modal,
-  .tuc-gaveta, .tuc-btn),
+  .tuc-gaveta,
+  .tuc-acordeon, .tuc-btn),
 :where(.dark, [data-theme='dark']).tuc-dp {
   --tuc-accent: #6366f1;
   --tuc-accent-hover: #818cf8;
@@ -101,7 +103,8 @@
 @media (prefers-color-scheme: dark) {
   :where(html[data-tuc-theme='auto']) :is(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip,
   .tuc-modal,
-  .tuc-gaveta, .tuc-btn) {
+  .tuc-gaveta,
+  .tuc-acordeon, .tuc-btn) {
     --tuc-accent: #6366f1;
     --tuc-accent-hover: #818cf8;
     --tuc-bg: #171717;

@@ -1487,6 +1487,7 @@ var ICONS_EXTRA = {
   check: "M20 6L9 17l-5-5",
   search: "M11 19a8 8 0 100-16 8 8 0 000 16zM21 21l-4.35-4.35",
   chevronsUpDown: "M7 15l5 5 5-5M7 9l5-5 5 5",
+  chevronDown: "M6 9l6 6 6-6",
   pipette: "M2 22l1-4 10-10 3 3L6 21l-4 1zM15 5l4-4 4 4-4 4-4-4z",
   upload: "M12 16V4M7 9l5-5 5 5M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2",
   file: "M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6",
@@ -4167,6 +4168,85 @@ function autoInit9(scope = document) {
   return out;
 }
 
+// src/js/components/acordeon.js
+var DEFAULTS10 = {
+  unico: false
+  // abrir um recolhe os outros
+};
+var DURACAO2 = 220;
+var Acordeon = class {
+  constructor(alvo, opcoes = {}) {
+    this.node = typeof alvo === "string" ? document.querySelector(alvo) : alvo;
+    if (!this.node) throw new Error("[Acordeon] elemento n\xE3o encontrado");
+    this.opts = { ...DEFAULTS10, ...opcoes };
+    this._cleanups = [];
+    this._montar();
+  }
+  get itens() {
+    return [...this.node.querySelectorAll(":scope > details")];
+  }
+  _montar() {
+    this.node.classList.add("tuc-acordeon");
+    for (const item of this.itens) {
+      item.classList.add("tuc-acordeon__item");
+      const gatilho = item.querySelector(":scope > summary");
+      if (!gatilho) continue;
+      gatilho.classList.add("tuc-acordeon__gatilho");
+      if (!gatilho.querySelector(".tuc-acordeon__seta")) {
+        gatilho.append(el(
+          "span",
+          { class: "tuc-acordeon__seta", "aria-hidden": "true" },
+          [icon(ICONS_EXTRA.chevronDown, 16)]
+        ));
+      }
+      if (!item.querySelector(":scope > .tuc-acordeon__corpo")) {
+        const resto = [...item.childNodes].filter((n) => n !== gatilho);
+        const conteudo = el("div", { class: "tuc-acordeon__conteudo" });
+        conteudo.append(...resto);
+        item.append(el("div", { class: "tuc-acordeon__corpo" }, [conteudo]));
+      }
+      this._cleanups.push(on(gatilho, "click", (e) => this._alternar(e, item)));
+    }
+  }
+  _alternar(e, item) {
+    e.preventDefault();
+    if (item.open) this.fechar(item);
+    else this.abrir(item);
+  }
+  abrir(item) {
+    if (item.open) return this;
+    if (this.opts.unico) {
+      for (const outro of this.itens) if (outro !== item && outro.open) this.fechar(outro);
+    }
+    clearTimeout(item._tucSaida);
+    item.classList.remove("is-fechando");
+    item.open = true;
+    return this;
+  }
+  fechar(item) {
+    if (!item.open || item.classList.contains("is-fechando")) return this;
+    item.classList.add("is-fechando");
+    clearTimeout(item._tucSaida);
+    item._tucSaida = setTimeout(() => {
+      item.open = false;
+      item.classList.remove("is-fechando");
+    }, DURACAO2);
+    return this;
+  }
+  destroy() {
+    this._cleanups.forEach((fn) => fn());
+    this._cleanups = [];
+  }
+};
+function autoInit10(scope = document) {
+  const out = [];
+  for (const node of scope.querySelectorAll("[data-tuc-acordeon]:not([data-tuc-ready])")) {
+    node.setAttribute("data-tuc-ready", "");
+    out.push(new Acordeon(node, { unico: node.dataset.unico === "true" }));
+  }
+  return out;
+}
+
 // src/js/index.js
 function init(scope = document) {
   return {
@@ -4179,7 +4259,8 @@ function init(scope = document) {
     toasts: autoInit6(scope),
     tooltips: autoInit7(scope),
     modals: autoInit8(scope),
-    gavetas: autoInit9(scope)
+    gavetas: autoInit9(scope),
+    acordeoes: autoInit10(scope)
   };
 }
 if (typeof document !== "undefined") {
@@ -4192,6 +4273,7 @@ if (typeof document !== "undefined") {
   document.addEventListener("htmx:afterSwap", (e) => init(e.target));
 }
 export {
+  Acordeon,
   ColorPicker,
   DatePicker,
   FORMATOS,
@@ -4204,6 +4286,7 @@ export {
   Tooltip,
   Upload,
   autoFormat,
+  autoInit10 as autoInitAcordeoes,
   autoInit3 as autoInitColorPickers,
   autoInit as autoInitDatePickers,
   autoInit9 as autoInitGavetas,

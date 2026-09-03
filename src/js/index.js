@@ -7,6 +7,7 @@ export { Toast, toast, autoInit as autoInitToasts, ouvirEventos } from './compon
 export { Tooltip, autoInit as autoInitTooltips } from './components/tooltip.js';
 export { Modal, modal, confirmar, autoInit as autoInitModals } from './components/modal.js';
 export { Gaveta, gaveta, autoInit as autoInitGavetas } from './components/offcanvas.js';
+export { Acordeon, autoInit as autoInitAcordeoes } from './components/acordeon.js';
 export * as mask from './core/mask.js';
 export * as color from './core/color.js';
 export * as dates from './core/dates.js';
@@ -21,6 +22,7 @@ import { autoInit as autoInitToast, ouvirEventos } from './components/toast.js';
 import { autoInit as autoInitTip } from './components/tooltip.js';
 import { autoInit as autoInitModal } from './components/modal.js';
 import { autoInit as autoInitGaveta } from './components/offcanvas.js';
+import { autoInit as autoInitAcordeao } from './components/acordeon.js';
 
 /** Inicializa todos os componentes marcados por data-attribute no escopo dado. */
 export function init(scope = document) {
@@ -35,6 +37,7 @@ export function init(scope = document) {
     tooltips: autoInitTip(scope),
     modals: autoInitModal(scope),
     gavetas: autoInitGaveta(scope),
+    acordeoes: autoInitAcordeao(scope),
   };
 }
 

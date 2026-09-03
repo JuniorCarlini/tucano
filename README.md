@@ -3,7 +3,7 @@
 Componentes de formulário e interface para a web, para quem escreve HTML.
 Sem React, sem Vue, sem dependência em runtime.
 
-**27 KB de JS + 7 KB de CSS** (minificado + gzip).
+**28 KB de JS + 8 KB de CSS** (minificado + gzip).
 
 **[Documentação e exemplos ao vivo →](https://juniorcarlini.github.io/tucano/)**
 
@@ -18,6 +18,7 @@ Sem React, sem Vue, sem dependência em runtime.
 | `Tooltip` — dica ancorada, teclado e toque | pronto |
 | `Modal` — diálogo sobre `<dialog>` nativo, fundo com brilho | pronto |
 | `Gaveta` — off-canvas nas quatro bordas, mesmo motor do modal | pronto |
+| `Acordeão` — sobre `<details>`, funciona sem JavaScript | pronto |
 | `.tuc-btn` — estilo de botão, só classe | pronto |
 
 ---
@@ -395,6 +396,25 @@ Tucano.modal({
 // confirmação como promessa; fechar por fora resolve false
 if (await Tucano.confirmar({ title: 'Excluir contrato?' })) excluir();
 ```
+
+## Acordeão
+
+Sobre `<details>`/`<summary>` nativos: teclado, semântica e estado vêm do
+elemento, e ele abre e fecha antes de o JavaScript carregar. O componente entra
+só onde o nativo não vai — animar.
+
+```html
+<div data-tuc-acordeon data-unico="true">
+  <details open>
+    <summary>Projetos</summary>
+    <p>Listar, criar e acompanhar vistorias.</p>
+  </details>
+</div>
+```
+
+`data-unico="true"` recolhe os outros ao abrir um. Para menu lateral,
+`.tuc-acordeon.is-limpo` tira as divisórias e deixa o título com cara de rótulo
+de grupo.
 
 ## Gaveta (off-canvas)
 
