@@ -670,7 +670,7 @@ export class DatePicker {
     const header = el('div', { class: 'tuc-dp__header' }, [
       showPrev
         ? el('button', {
-            type: 'button', class: 'tuc-dp__nav', 'aria-label': 'Mes anterior',
+            type: 'button', class: 'tuc-btn is-ghost is-icon is-sm tuc-dp__nav', 'aria-label': 'Mes anterior',
             disabled: this._navBlocked(-1), onclick: () => this._shiftView(-1),
           }, [icon(ICONS.chevronLeft)])
         : el('span', { class: 'tuc-dp__nav is-ghost' }),
@@ -680,7 +680,7 @@ export class DatePicker {
       }, [`${this.L.monthsLong[month]} ${year}`, icon(ICONS.chevronDown, 14)]),
       showNext
         ? el('button', {
-            type: 'button', class: 'tuc-dp__nav', 'aria-label': 'Proximo mes',
+            type: 'button', class: 'tuc-btn is-ghost is-icon is-sm tuc-dp__nav', 'aria-label': 'Proximo mes',
             disabled: this._navBlocked(1), onclick: () => this._shiftView(1),
           }, [icon(ICONS.chevronRight)])
         : el('span', { class: 'tuc-dp__nav is-ghost' }),
@@ -791,7 +791,7 @@ export class DatePicker {
     const step = isMonths ? 1 : 12;
     const header = el('div', { class: 'tuc-dp__header' }, [
       el('button', {
-        type: 'button', class: 'tuc-dp__nav', 'aria-label': 'Anterior',
+        type: 'button', class: 'tuc-btn is-ghost is-icon is-sm tuc-dp__nav', 'aria-label': 'Anterior',
         onclick: () => { this.viewDate = addYears(this.viewDate, -step); this._render(); },
       }, [icon(ICONS.chevronLeft)]),
       el('button', {
@@ -799,7 +799,7 @@ export class DatePicker {
         onclick: () => { this.view = isMonths ? 'years' : 'days'; this._render(); },
       }, [isMonths ? String(year) : `${floorTo(year, 12)} – ${floorTo(year, 12) + 11}`]),
       el('button', {
-        type: 'button', class: 'tuc-dp__nav', 'aria-label': 'Proximo',
+        type: 'button', class: 'tuc-btn is-ghost is-icon is-sm tuc-dp__nav', 'aria-label': 'Proximo',
         onclick: () => { this.viewDate = addYears(this.viewDate, step); this._render(); },
       }, [icon(ICONS.chevronRight)]),
     ]);

@@ -145,7 +145,7 @@ export class ColorPicker {
       this.preview,
       this.hexField,
       supportsEyeDropper() ? el('button', {
-        type: 'button', class: 'tuc-colorpicker__pick', 'aria-label': 'Capturar cor da tela',
+        type: 'button', class: 'tuc-btn is-ghost is-icon tuc-colorpicker__pick', 'aria-label': 'Capturar cor da tela',
         onclick: () => this._capturarDaTela(),
       }, [icon(ICONS_EXTRA.pipette, 15)]) : null,
     ]);

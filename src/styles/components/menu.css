@@ -1,0 +1,57 @@
+@reference "tailwindcss";
+
+/*
+ * Lista de navegacao. Nao e uma navbar: e so a lista, que e a parte que se
+ * repete igual em todo projeto. O que vai nela, como agrupa e onde ela mora
+ * continua sendo decisao de quem usa — dentro de uma gaveta no celular, fixa
+ * na lateral no desktop, ou nas duas.
+ */
+.tuc-menu {
+  @apply flex flex-col gap-0.5;
+  font-family: var(--tuc-font);
+  font-size: var(--tuc-text);
+}
+
+.tuc-menu__item {
+  @apply flex items-center gap-2.5 px-2.5 py-2 no-underline;
+  min-height: var(--tuc-control-height);
+  border-radius: var(--tuc-radius-sm);
+  color: var(--tuc-fg);
+  transition:
+    background-color var(--tuc-duration) ease-out,
+    color var(--tuc-duration) ease-out;
+}
+.tuc-menu__item:hover { background: var(--tuc-hover); }
+.tuc-menu__item:focus-visible {
+  outline: 2px solid var(--tuc-accent);
+  outline-offset: -2px;
+}
+
+/*
+ * O item atual leva cor e um traco na borda de dentro. So o fundo nao bastaria:
+ * quem nao distingue bem as cores precisa de uma segunda pista, e a barra e ela.
+ */
+.tuc-menu__item.is-ativo {
+  color: var(--tuc-accent);
+  background: var(--tuc-hover);
+  box-shadow: inset 2px 0 0 0 var(--tuc-accent);
+  font-weight: 550;
+}
+
+.tuc-menu__icone {
+  @apply grid size-4 shrink-0 place-items-center;
+  color: var(--tuc-muted);
+}
+.tuc-menu__item.is-ativo .tuc-menu__icone { color: var(--tuc-accent); }
+
+/* Contador a direita: quantos itens ha naquela tela. */
+.tuc-menu__contagem {
+  @apply ml-auto shrink-0 px-1.5 text-xs tabular-nums;
+  color: var(--tuc-subtle);
+}
+
+.tuc-menu__separador {
+  @apply my-1.5;
+  border: 0;
+  border-top: var(--tuc-border-width) solid var(--tuc-border);
+}

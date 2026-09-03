@@ -16,6 +16,7 @@
   .tuc-modal,
   .tuc-gaveta,
   .tuc-acordeon,
+  .tuc-menu,
 .tuc-btn {
   --tuc-accent: #4f46e5;
   --tuc-accent-hover: #4338ca;
@@ -74,7 +75,8 @@
 :where(.dark, [data-theme='dark']) :is(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip,
   .tuc-modal,
   .tuc-gaveta,
-  .tuc-acordeon, .tuc-btn),
+  .tuc-acordeon,
+  .tuc-menu, .tuc-btn),
 :where(.dark, [data-theme='dark']).tuc-dp {
   --tuc-accent: #6366f1;
   --tuc-accent-hover: #818cf8;
@@ -104,7 +106,8 @@
   :where(html[data-tuc-theme='auto']) :is(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip,
   .tuc-modal,
   .tuc-gaveta,
-  .tuc-acordeon, .tuc-btn) {
+  .tuc-acordeon,
+  .tuc-menu, .tuc-btn) {
     --tuc-accent: #6366f1;
     --tuc-accent-hover: #818cf8;
     --tuc-bg: #171717;

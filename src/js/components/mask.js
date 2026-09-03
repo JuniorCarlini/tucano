@@ -155,7 +155,7 @@ export class Mask {
 
     this.olho = el('button', {
       type: 'button',
-      class: 'tuc-field__eye',
+      class: 'tuc-btn is-ghost is-icon is-sm tuc-field__eye',
       'aria-label': 'Mostrar',
       'aria-pressed': 'false',
       onclick: () => this._alternar(),

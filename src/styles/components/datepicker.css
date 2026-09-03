@@ -39,13 +39,8 @@
   @apply flex items-center justify-between gap-1 px-1 pb-2 pt-1;
 }
 
-.tuc-dp__nav {
-  @apply grid size-7 shrink-0 place-items-center  transition-colors;
-  border-radius: var(--tuc-radius-sm);
-  color: var(--tuc-muted);
-}
-.tuc-dp__nav:hover:not(:disabled) { background: var(--tuc-hover); color: var(--tuc-fg); }
-.tuc-dp__nav:disabled { @apply cursor-not-allowed opacity-30; }
+/* Tamanho, raio, hover, foco e desabilitado vem de .tuc-btn is-ghost is-icon. */
+.tuc-dp__nav { color: var(--tuc-muted); }
 .tuc-dp__nav.is-ghost { @apply pointer-events-none invisible; }
 
 .tuc-dp__label {

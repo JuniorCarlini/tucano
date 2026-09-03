@@ -18,6 +18,7 @@
   .tuc-modal,
   .tuc-gaveta,
   .tuc-acordeon,
+  .tuc-menu,
 .tuc-btn {
   box-sizing: border-box;
 }
@@ -25,22 +26,26 @@
 :where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip,
   .tuc-modal,
   .tuc-gaveta,
-  .tuc-acordeon, .tuc-btn) *,
+  .tuc-acordeon,
+  .tuc-menu, .tuc-btn) *,
 :where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip,
   .tuc-modal,
   .tuc-gaveta,
-  .tuc-acordeon, .tuc-btn) *::before,
+  .tuc-acordeon,
+  .tuc-menu, .tuc-btn) *::before,
 :where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip,
   .tuc-modal,
   .tuc-gaveta,
-  .tuc-acordeon, .tuc-btn) *::after {
+  .tuc-acordeon,
+  .tuc-menu, .tuc-btn) *::after {
   box-sizing: border-box;
 }
 
 :where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip,
   .tuc-modal,
   .tuc-gaveta,
-  .tuc-acordeon, .tuc-btn) button {
+  .tuc-acordeon,
+  .tuc-menu, .tuc-btn) button {
   appearance: none;
   -webkit-appearance: none;
   margin: 0;
@@ -60,7 +65,8 @@
 :where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip,
   .tuc-modal,
   .tuc-gaveta,
-  .tuc-acordeon, .tuc-btn) button:disabled {
+  .tuc-acordeon,
+  .tuc-menu, .tuc-btn) button:disabled {
   cursor: default;
 }
 
@@ -73,7 +79,8 @@
 :where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip,
   .tuc-modal,
   .tuc-gaveta,
-  .tuc-acordeon, .tuc-btn) svg {
+  .tuc-acordeon,
+  .tuc-menu, .tuc-btn) svg {
   display: block;
   flex: none;
 }
@@ -81,7 +88,8 @@
 :where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip,
   .tuc-modal,
   .tuc-gaveta,
-  .tuc-acordeon, .tuc-btn) input {
+  .tuc-acordeon,
+  .tuc-menu, .tuc-btn) input {
   font: inherit;
   color: inherit;
 }

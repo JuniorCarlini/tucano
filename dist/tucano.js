@@ -1144,7 +1144,7 @@ var Tucano = (() => {
       const header = el("div", { class: "tuc-dp__header" }, [
         showPrev ? el("button", {
           type: "button",
-          class: "tuc-dp__nav",
+          class: "tuc-btn is-ghost is-icon is-sm tuc-dp__nav",
           "aria-label": "Mes anterior",
           disabled: this._navBlocked(-1),
           onclick: () => this._shiftView(-1)
@@ -1161,7 +1161,7 @@ var Tucano = (() => {
         }, [`${this.L.monthsLong[month]} ${year}`, icon(ICONS.chevronDown, 14)]),
         showNext ? el("button", {
           type: "button",
-          class: "tuc-dp__nav",
+          class: "tuc-btn is-ghost is-icon is-sm tuc-dp__nav",
           "aria-label": "Proximo mes",
           disabled: this._navBlocked(1),
           onclick: () => this._shiftView(1)
@@ -1264,7 +1264,7 @@ var Tucano = (() => {
       const header = el("div", { class: "tuc-dp__header" }, [
         el("button", {
           type: "button",
-          class: "tuc-dp__nav",
+          class: "tuc-btn is-ghost is-icon is-sm tuc-dp__nav",
           "aria-label": "Anterior",
           onclick: () => {
             this.viewDate = addYears(this.viewDate, -step);
@@ -1281,7 +1281,7 @@ var Tucano = (() => {
         }, [isMonths ? String(year) : `${floorTo(year, 12)} \u2013 ${floorTo(year, 12) + 11}`]),
         el("button", {
           type: "button",
-          class: "tuc-dp__nav",
+          class: "tuc-btn is-ghost is-icon is-sm tuc-dp__nav",
           "aria-label": "Proximo",
           onclick: () => {
             this.viewDate = addYears(this.viewDate, step);
@@ -2398,7 +2398,7 @@ var Tucano = (() => {
         this.hexField,
         supportsEyeDropper() ? el("button", {
           type: "button",
-          class: "tuc-colorpicker__pick",
+          class: "tuc-btn is-ghost is-icon tuc-colorpicker__pick",
           "aria-label": "Capturar cor da tela",
           onclick: () => this._capturarDaTela()
         }, [icon(ICONS_EXTRA.pipette, 15)]) : null
@@ -3030,7 +3030,7 @@ var Tucano = (() => {
     _botao(caminho, rotulo, aoClicar) {
       return el("button", {
         type: "button",
-        class: "tuc-upload__action",
+        class: "tuc-btn is-ghost is-icon is-sm tuc-upload__action",
         "aria-label": rotulo,
         title: rotulo,
         onclick: (e) => {
@@ -3380,7 +3380,7 @@ var Tucano = (() => {
       }
       this.olho = el("button", {
         type: "button",
-        class: "tuc-field__eye",
+        class: "tuc-btn is-ghost is-icon is-sm tuc-field__eye",
         "aria-label": "Mostrar",
         "aria-pressed": "false",
         onclick: () => this._alternar()

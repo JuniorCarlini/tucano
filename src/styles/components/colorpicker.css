@@ -190,11 +190,13 @@
   box-shadow: 0 0 0 3px var(--tuc-accent-ring);
 }
 
+/*
+ * O tamanho fica sobrescrito de proposito: este botao alinha com a fileira de
+ * amostras, e nao com a altura padrao de controle. O resto vem do .tuc-btn.
+ */
 .tuc-colorpicker__pick {
-  @apply grid shrink-0 place-items-center  transition-colors;
   width: var(--tuc-swatch);
   height: var(--tuc-swatch);
-  border-radius: var(--tuc-radius-sm);
   background: var(--tuc-elevated);
   color: var(--tuc-muted);
   border: var(--tuc-border-width) solid var(--tuc-border);

@@ -19,6 +19,7 @@ Sem React, sem Vue, sem dependência em runtime.
 | `Modal` — diálogo sobre `<dialog>` nativo, fundo com brilho | pronto |
 | `Gaveta` — off-canvas nas quatro bordas, mesmo motor do modal | pronto |
 | `Acordeão` — sobre `<details>`, funciona sem JavaScript | pronto |
+| `.tuc-menu` — lista de navegação, só classe | pronto |
 | `.tuc-btn` — estilo de botão, só classe | pronto |
 
 ---

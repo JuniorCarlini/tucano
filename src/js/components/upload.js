@@ -393,7 +393,7 @@ export class Upload {
 
   _botao(caminho, rotulo, aoClicar) {
     return el('button', {
-      type: 'button', class: 'tuc-upload__action', 'aria-label': rotulo, title: rotulo,
+      type: 'button', class: 'tuc-btn is-ghost is-icon is-sm tuc-upload__action', 'aria-label': rotulo, title: rotulo,
       onclick: (e) => { e.stopPropagation(); aoClicar(); },
     }, [icon(caminho, 14)]);
   }

@@ -92,12 +92,7 @@
 .tuc-upload__ok { color: #16a34a; }
 
 .tuc-upload__actions { @apply flex shrink-0 items-center gap-1; }
-.tuc-upload__action {
-  @apply grid size-7 place-items-center transition-colors;
-  border-radius: var(--tuc-radius-sm);
-  color: var(--tuc-subtle);
-}
-.tuc-upload__action:hover { background: var(--tuc-hover); color: var(--tuc-fg); }
+.tuc-upload__action { color: var(--tuc-subtle); }
 
 /* Estados */
 .tuc-upload__item.is-erro { border-color: #dc2626; }
