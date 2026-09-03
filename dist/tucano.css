@@ -1312,6 +1312,7 @@
   white-space: nowrap;
   -webkit-user-select: none;
   user-select: none;
+  --tuc-btn-icone: 0.9375rem;
   height: var(--tuc-control-height);
   font-family: var(--tuc-font);
   font-size: var(--tuc-text);
@@ -1326,6 +1327,10 @@
   outline: none;
   border-color: var(--tuc-accent);
   box-shadow: 0 0 0 3px var(--tuc-accent-ring);
+}
+.tuc-btn > svg {
+  width: var(--tuc-btn-icone);
+  height: var(--tuc-btn-icone);
 }
 .tuc-btn:active:not(:disabled):not([aria-disabled='true']) {
   scale: 0.98;
@@ -1400,6 +1405,12 @@
     }
   }
   color: var(--tuc-accent);
+}
+.tuc-btn.is-sm {
+  --tuc-btn-icone: 0.875rem;
+}
+.tuc-btn.is-lg {
+  --tuc-btn-icone: 1.0625rem;
 }
 .tuc-btn.is-sm {
   padding-inline: calc(var(--spacing, 0.25rem) * 2.5);

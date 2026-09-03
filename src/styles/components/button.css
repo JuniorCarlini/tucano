@@ -13,6 +13,8 @@
 
 .tuc-btn {
   @apply inline-flex shrink-0 cursor-pointer select-none items-center justify-center gap-1.5 whitespace-nowrap px-3 font-medium;
+  /* O icone acompanha o botao, em vez de ser decidido em cada chamada. */
+  --tuc-btn-icone: 0.9375rem;
   height: var(--tuc-control-height);
   font-family: var(--tuc-font);
   font-size: var(--tuc-text);
@@ -44,6 +46,20 @@
  * hover, a cor sozinha nao confirma que o dedo acertou o alvo. Para ficar
  * identico ao shadcn, apague este bloco.
  */
+/*
+ * O tamanho do icone sai do botao, e nao de cada chamada.
+ *
+ * Espalhado pelo JavaScript, ele divergia: o X do toast tinha 14px e o do modal
+ * 15px, no mesmo papel e no mesmo tamanho de botao. E nenhum acompanhava a
+ * escala — um is-lg recebia o icone de um is-sm. O atributo width do <svg> fica
+ * como reserva, para o desenho nao nascer sem tamanho se o CSS nao carregar:
+ * atributo de apresentacao perde para qualquer regra.
+ */
+.tuc-btn > svg {
+  width: var(--tuc-btn-icone);
+  height: var(--tuc-btn-icone);
+}
+
 .tuc-btn:active:not(:disabled):not([aria-disabled='true']) {
   scale: 0.98;
   transition-duration: 60ms;
@@ -115,6 +131,9 @@
 /* ------------------------------------------------------------------ *
  * Tamanhos                                                            *
  * ------------------------------------------------------------------ */
+
+.tuc-btn.is-sm { --tuc-btn-icone: 0.875rem; }
+.tuc-btn.is-lg { --tuc-btn-icone: 1.0625rem; }
 
 .tuc-btn.is-sm {
   @apply px-2.5 text-[0.8125rem];
