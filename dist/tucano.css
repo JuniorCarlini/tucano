@@ -1,12 +1,12 @@
 /*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
 @layer properties;
-.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-btn {
+.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-btn {
   box-sizing: border-box;
 }
-:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-btn) *, :where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-btn) *::before, :where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-btn) *::after {
+:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-btn) *, :where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-btn) *::before, :where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-btn) *::after {
   box-sizing: border-box;
 }
-:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-btn) button {
+:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-btn) button {
   appearance: none;
   -webkit-appearance: none;
   margin: 0;
@@ -22,7 +22,7 @@
   text-transform: none;
   cursor: pointer;
 }
-:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-btn) button:disabled {
+:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-btn) button:disabled {
   cursor: default;
 }
 :where(.tuc-dp, .tuc-select, .tuc-select__menu) abbr[title] {
@@ -30,11 +30,11 @@
   border: 0;
   cursor: inherit;
 }
-:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-btn) svg {
+:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-btn) svg {
   display: block;
   flex: none;
 }
-:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-btn) input {
+:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-btn) input {
   font: inherit;
   color: inherit;
 }
@@ -46,7 +46,7 @@
   color: var(--tuc-fg);
   min-width: 0;
 }
-.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-btn {
+.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-btn {
   --tuc-accent: #4f46e5;
   --tuc-accent-hover: #4338ca;
   --tuc-accent-fg: #ffffff;
@@ -86,7 +86,7 @@
   --tuc-text: 0.8125rem;
   --tuc-cell: 2.25rem;
 }
-:where(.dark, [data-theme='dark']) :is(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-btn), :where(.dark, [data-theme='dark']).tuc-dp {
+:where(.dark, [data-theme='dark']) :is(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-btn), :where(.dark, [data-theme='dark']).tuc-dp {
   --tuc-accent: #6366f1;
   --tuc-accent-hover: #818cf8;
   --tuc-accent-fg: #ffffff;
@@ -103,7 +103,7 @@
     0 16px 48px -24px rgb(0 0 0 / 0.8);
 }
 @media (prefers-color-scheme: dark) {
-  :where(html[data-tuc-theme='auto']) :is(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-btn) {
+  :where(html[data-tuc-theme='auto']) :is(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-btn) {
     --tuc-accent: #6366f1;
     --tuc-accent-hover: #818cf8;
     --tuc-bg: #171717;
@@ -125,6 +125,62 @@
     --tuc-swatch: 2.5rem;
     --tuc-control-height: 2.75rem;
   }
+}
+input.tuc-input.tuc-input, textarea.tuc-input.tuc-input {
+  display: block;
+  width: 100%;
+  appearance: none;
+  height: var(--tuc-control-height);
+  padding: 0 0.75rem;
+  font-family: var(--tuc-font);
+  font-size: var(--tuc-text);
+  font-variant-numeric: tabular-nums;
+  color: var(--tuc-fg);
+  background: var(--tuc-bg);
+  border: var(--tuc-border-width) solid var(--tuc-border);
+  border-radius: var(--tuc-radius-md);
+  transition: border-color var(--tuc-duration) ease-out, box-shadow var(--tuc-duration) ease-out;
+}
+textarea.tuc-input.tuc-input {
+  height: auto;
+  min-height: 5rem;
+  padding: 0.5rem 0.75rem;
+  line-height: 1.5;
+  resize: vertical;
+}
+input.tuc-input.tuc-input::placeholder, textarea.tuc-input.tuc-input::placeholder {
+  color: var(--tuc-subtle);
+}
+input.tuc-input.tuc-input:focus, textarea.tuc-input.tuc-input:focus {
+  outline: 0;
+  border-color: var(--tuc-accent);
+  box-shadow: 0 0 0 3px var(--tuc-accent);
+  @supports (color: color-mix(in lab, red, red)) {
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--tuc-accent) 22%, transparent);
+  }
+}
+input.tuc-input.tuc-input:disabled, textarea.tuc-input.tuc-input:disabled {
+  cursor: not-allowed;
+  opacity: 60%;
+  background: var(--tuc-elevated);
+}
+.tuc-campo {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+.tuc-campo > svg {
+  pointer-events: none;
+  position: absolute;
+  top: calc(1 / 2 * 100%);
+  width: calc(var(--spacing, 0.25rem) * 4);
+  height: calc(var(--spacing, 0.25rem) * 4);
+  left: 0.6875rem;
+  translate: 0 -50%;
+  color: var(--tuc-subtle);
+}
+.tuc-campo:has(> svg) input.tuc-input.tuc-input {
+  padding-left: 2.125rem;
 }
 .tuc-dp {
   z-index: 50;

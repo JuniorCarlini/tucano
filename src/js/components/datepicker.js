@@ -66,6 +66,10 @@ export class DatePicker {
     // A instancia fica acessivel pelo elemento nos dois modos.
     node._tucano = this;
     this.input = node;
+    // O componente e dono do proprio campo, entao ele veste a classe: quem
+    // escreve o template nao deveria ter de lembrar disso, e sem ela o input
+    // aparece com a caixa nativa do navegador ao lado dos nossos controles.
+    node.classList.add('tuc-input');
 
     this._buildPanel();
     this._setupTarget();

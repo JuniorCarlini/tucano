@@ -17,6 +17,8 @@
   .tuc-gaveta,
   .tuc-acordeon,
   .tuc-menu,
+  .tuc-input,
+  .tuc-campo,
 .tuc-btn {
   --tuc-accent: #4f46e5;
   --tuc-accent-hover: #4338ca;
@@ -76,7 +78,9 @@
   .tuc-modal,
   .tuc-gaveta,
   .tuc-acordeon,
-  .tuc-menu, .tuc-btn),
+  .tuc-menu,
+  .tuc-input,
+  .tuc-campo, .tuc-btn),
 :where(.dark, [data-theme='dark']).tuc-dp {
   --tuc-accent: #6366f1;
   --tuc-accent-hover: #818cf8;
@@ -107,7 +111,9 @@
   .tuc-modal,
   .tuc-gaveta,
   .tuc-acordeon,
-  .tuc-menu, .tuc-btn) {
+  .tuc-menu,
+  .tuc-input,
+  .tuc-campo, .tuc-btn) {
     --tuc-accent: #6366f1;
     --tuc-accent-hover: #818cf8;
     --tuc-bg: #171717;

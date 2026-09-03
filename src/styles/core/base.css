@@ -19,6 +19,8 @@
   .tuc-gaveta,
   .tuc-acordeon,
   .tuc-menu,
+  .tuc-input,
+  .tuc-campo,
 .tuc-btn {
   box-sizing: border-box;
 }
@@ -27,17 +29,23 @@
   .tuc-modal,
   .tuc-gaveta,
   .tuc-acordeon,
-  .tuc-menu, .tuc-btn) *,
+  .tuc-menu,
+  .tuc-input,
+  .tuc-campo, .tuc-btn) *,
 :where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip,
   .tuc-modal,
   .tuc-gaveta,
   .tuc-acordeon,
-  .tuc-menu, .tuc-btn) *::before,
+  .tuc-menu,
+  .tuc-input,
+  .tuc-campo, .tuc-btn) *::before,
 :where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip,
   .tuc-modal,
   .tuc-gaveta,
   .tuc-acordeon,
-  .tuc-menu, .tuc-btn) *::after {
+  .tuc-menu,
+  .tuc-input,
+  .tuc-campo, .tuc-btn) *::after {
   box-sizing: border-box;
 }
 
@@ -45,7 +53,9 @@
   .tuc-modal,
   .tuc-gaveta,
   .tuc-acordeon,
-  .tuc-menu, .tuc-btn) button {
+  .tuc-menu,
+  .tuc-input,
+  .tuc-campo, .tuc-btn) button {
   appearance: none;
   -webkit-appearance: none;
   margin: 0;
@@ -66,7 +76,9 @@
   .tuc-modal,
   .tuc-gaveta,
   .tuc-acordeon,
-  .tuc-menu, .tuc-btn) button:disabled {
+  .tuc-menu,
+  .tuc-input,
+  .tuc-campo, .tuc-btn) button:disabled {
   cursor: default;
 }
 
@@ -80,7 +92,9 @@
   .tuc-modal,
   .tuc-gaveta,
   .tuc-acordeon,
-  .tuc-menu, .tuc-btn) svg {
+  .tuc-menu,
+  .tuc-input,
+  .tuc-campo, .tuc-btn) svg {
   display: block;
   flex: none;
 }
@@ -89,7 +103,9 @@
   .tuc-modal,
   .tuc-gaveta,
   .tuc-acordeon,
-  .tuc-menu, .tuc-btn) input {
+  .tuc-menu,
+  .tuc-input,
+  .tuc-campo, .tuc-btn) input {
   font: inherit;
   color: inherit;
 }

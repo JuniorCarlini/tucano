@@ -1,0 +1,69 @@
+@reference "tailwindcss";
+
+/*
+ * Campo de texto.
+ *
+ * Existe porque o date picker e a mascara sao inputs de verdade — nao viram um
+ * controle proprio como o select. Sem uma regra aqui, quem escreve
+ * `<input data-tuc-datepicker>` recebe a caixa nativa do navegador, com borda
+ * 3D e 27px de altura, ao lado de um select de 38px. Era o que acontecia.
+ *
+ * A classe e publica de proposito: serve nos outros campos do formulario, para
+ * a linha inteira ficar da mesma altura.
+ *
+ * O seletor repete a classe para pesar 0,2,1. Projeto que consome costuma ter
+ * `input[type=text] { border: ... }`, com peso 0,1,1, que venceria uma classe
+ * sozinha e desenharia a borda dele por cima da nossa — a mesma razao do
+ * `all: unset` na busca do select.
+ */
+input.tuc-input.tuc-input,
+textarea.tuc-input.tuc-input {
+  @apply block w-full appearance-none;
+  height: var(--tuc-control-height);
+  padding: 0 0.75rem;
+  font-family: var(--tuc-font);
+  font-size: var(--tuc-text);
+  /* Numeros de largura fixa: data e valor nao dancam ao digitar. */
+  font-variant-numeric: tabular-nums;
+  color: var(--tuc-fg);
+  background: var(--tuc-bg);
+  border: var(--tuc-border-width) solid var(--tuc-border);
+  border-radius: var(--tuc-radius-md);
+  transition:
+    border-color var(--tuc-duration) ease-out,
+    box-shadow var(--tuc-duration) ease-out;
+}
+
+textarea.tuc-input.tuc-input {
+  height: auto;
+  min-height: 5rem;
+  padding: 0.5rem 0.75rem;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+input.tuc-input.tuc-input::placeholder,
+textarea.tuc-input.tuc-input::placeholder { color: var(--tuc-subtle); }
+
+input.tuc-input.tuc-input:focus,
+textarea.tuc-input.tuc-input:focus {
+  outline: 0;
+  border-color: var(--tuc-accent);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--tuc-accent) 22%, transparent);
+}
+
+input.tuc-input.tuc-input:disabled,
+textarea.tuc-input.tuc-input:disabled {
+  @apply cursor-not-allowed opacity-60;
+  background: var(--tuc-elevated);
+}
+
+/* Campo com icone a esquerda: o pai marca, o input abre espaco. */
+.tuc-campo { @apply relative block w-full; }
+.tuc-campo > svg {
+  @apply pointer-events-none absolute top-1/2 size-4;
+  left: 0.6875rem;
+  translate: 0 -50%;
+  color: var(--tuc-subtle);
+}
+.tuc-campo:has(> svg) input.tuc-input.tuc-input { padding-left: 2.125rem; }

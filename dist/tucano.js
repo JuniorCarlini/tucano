@@ -597,6 +597,7 @@ var Tucano = (() => {
       this._cleanups = [];
       node._tucano = this;
       this.input = node;
+      node.classList.add("tuc-input");
       this._buildPanel();
       this._setupTarget();
       this._readInitialValue();
@@ -3295,6 +3296,7 @@ var Tucano = (() => {
       this.opts = { ...DEFAULTS5, ...omitUndefined5(options) };
       this.opts.locale = this.opts.locale || document.documentElement.lang || "pt-BR";
       this.input = node;
+      node.classList.add("tuc-input");
       const preset = FORMATOS[this.opts.format];
       this.preset = preset || null;
       this.moeda = !!preset?.moeda;

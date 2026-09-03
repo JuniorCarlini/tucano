@@ -56,6 +56,10 @@ export class Mask {
     this.opts = { ...DEFAULTS, ...omitUndefined(options) };
     this.opts.locale = this.opts.locale || document.documentElement.lang || 'pt-BR';
     this.input = node;
+    // O componente e dono do proprio campo, entao ele veste a classe: quem
+    // escreve o template nao deveria ter de lembrar disso, e sem ela o input
+    // aparece com a caixa nativa do navegador ao lado dos nossos controles.
+    node.classList.add('tuc-input');
 
     const preset = FORMATOS[this.opts.format];
     this.preset = preset || null;
