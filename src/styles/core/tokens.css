@@ -19,8 +19,8 @@
   .tuc-menu,
   .tuc-input,
   .tuc-campo,
-  .tuc-md,
   .tuc-rico,
+  .tuc-prosa,
 .tuc-btn {
   --tuc-accent: #4f46e5;
   --tuc-accent-hover: #4338ca;
@@ -83,8 +83,8 @@
   .tuc-menu,
   .tuc-input,
   .tuc-campo,
-  .tuc-md,
-  .tuc-rico, .tuc-btn),
+  .tuc-rico,
+  .tuc-prosa, .tuc-btn),
 :where(.dark, [data-theme='dark']).tuc-dp {
   --tuc-accent: #6366f1;
   --tuc-accent-hover: #818cf8;
@@ -118,8 +118,8 @@
   .tuc-menu,
   .tuc-input,
   .tuc-campo,
-  .tuc-md,
-  .tuc-rico, .tuc-btn) {
+  .tuc-rico,
+  .tuc-prosa, .tuc-btn) {
     --tuc-accent: #6366f1;
     --tuc-accent-hover: #818cf8;
     --tuc-bg: #171717;
@@ -152,9 +152,18 @@
  * celular sem precisar.
  */
 /*
- * Toast e tooltip ficam de fora de proposito: a regra dos 16px existe para
- * evitar o zoom do iOS ao focar um campo, e neles nao ha campo nenhum. Herdar
- * o tamanho so deixaria o aviso desproporcional no celular.
+ * A regra e simples: entra aqui tudo em que se digita ou se toca.
+ *
+ * Os 16px existem para evitar o zoom automatico do iOS ao focar um campo, e os
+ * 44px para dar alvo de toque confortavel. Componente novo que tenha campo ou
+ * botao precisa entrar nesta lista — .tuc-input ficou de fora quando nasceu, e
+ * o campo de data aparecia com 38px e fonte 13 ao lado de um select de 44 e 16,
+ * pedindo zoom ao ser tocado.
+ *
+ * Toast e tooltip ficam de fora de proposito: neles nao ha campo nenhum, e
+ * herdar o tamanho so deixaria o aviso desproporcional. Menu, acordeao, modal
+ * e gaveta tambem nao entram — os campos que eles contem ja tem classe propria
+ * e pegam a regra por ela.
  */
 @media (max-width: 40rem) {
   .tuc-dp,
@@ -164,6 +173,9 @@
   .tuc-color-field,
   .tuc-upload,
   .tuc-field,
+  .tuc-input,
+  .tuc-campo,
+  .tuc-rico,
   .tuc-btn {
     --tuc-text: 1rem;
     --tuc-swatch: 2.5rem;          /* acompanha o texto maior no toque */

@@ -1,6 +1,6 @@
 {
   "name": "tucano",
-  "version": "0.19.0",
+  "version": "0.22.1",
   "description": "Componentes de formulario e interface para a web. Sem dependencias em runtime, estilos ja compilados.",
   "author": "Junior Carlini",
   "license": "MIT",
@@ -63,6 +63,7 @@
     "build:css": "tailwindcss -i src/styles/index.css -o dist/tucano.css",
     "build:css:min": "tailwindcss -i src/styles/index.css -o dist/tucano.min.css --minify",
     "build": "npm run build:js && npm run build:js:min && npm run build:css && npm run build:css:min && node tools/tamanhos.mjs",
+    "conferir": "node tools/conferir.mjs",
     "dev": "npm run build && npx serve .",
     "serve": "npm run build && python3 -m http.server 4322 --bind 127.0.0.1",
     "prepublishOnly": "npm run build",
