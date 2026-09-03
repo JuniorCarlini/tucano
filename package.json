@@ -1,6 +1,6 @@
 {
   "name": "tucano",
-  "version": "0.14.1",
+  "version": "0.14.2",
   "description": "Componentes de formulario e interface para a web. Sem dependencias em runtime, estilos ja compilados.",
   "author": "Junior Carlini",
   "license": "MIT",

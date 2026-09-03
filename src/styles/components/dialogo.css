@@ -55,11 +55,22 @@
    */
   --tuc-brilho-x: 50%;
   --tuc-brilho-y: 42%;
-  --tuc-brilho-cor: rgb(99 102 241 / 0.22);
+  --tuc-brilho-w: 80rem;
+  --tuc-brilho-h: 58rem;
+  --tuc-brilho-cor: rgb(99 102 241 / 0.24);
 
   opacity: 0;
+  /*
+   * A queda vai ate 78%, e nao 70%: quanto mais tarde ela comeca, mais longe a
+   * luz chega antes de sumir. Elipse curta com queda cedo vira uma mancha com
+   * contorno visivel em vez de um brilho.
+   */
   background:
-    radial-gradient(48rem 32rem at var(--tuc-brilho-x) var(--tuc-brilho-y), var(--tuc-brilho-cor), transparent 70%),
+    radial-gradient(
+      var(--tuc-brilho-w) var(--tuc-brilho-h) at var(--tuc-brilho-x) var(--tuc-brilho-y),
+      var(--tuc-brilho-cor),
+      transparent 78%
+    ),
     rgb(9 9 11 / 0.55);
   backdrop-filter: blur(3px);
   transition: opacity var(--tuc-duration-lg) var(--tuc-ease);

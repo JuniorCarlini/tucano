@@ -55,9 +55,16 @@
 }
 /* O respiro fica aqui dentro: no corpo, ele apareceria com a linha em 0fr. */
 .tuc-acordeon__conteudo > :first-child { margin-top: 0; }
-/* Constante, e nao so em [open]: aparecendo de uma vez na abertura, ele muda a
-   altura no primeiro quadro e a animacao comeca com um solavanco. */
-.tuc-acordeon__conteudo { padding-bottom: 0.875rem; }
+/*
+ * O respiro de baixo e margem do ultimo filho, e nao padding do conteudo.
+ *
+ * Uma faixa em `fr` e minmax(auto, Nfr): ela nao encolhe abaixo do minimo do
+ * conteudo. O min-height: 0 libera a caixa, mas nao o padding — com padding
+ * aqui, a linha parava em 14px em vez de 0 e o bloco fechado ficava com uma
+ * fresta, com a animacao correndo de 14px a 35px. Margem de filho fica dentro
+ * da caixa de conteudo, que o overflow: hidden recorta ate zero.
+ */
+.tuc-acordeon__conteudo > :last-child { margin-bottom: 0.875rem; }
 
 /* Variante sem divisórias, para menu lateral. */
 .tuc-acordeon.is-limpo .tuc-acordeon__item { border-bottom: 0; }

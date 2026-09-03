@@ -23,6 +23,17 @@
 .tuc-gaveta.is-cima::backdrop     { --tuc-brilho-x: 50%;  --tuc-brilho-y: 0%; }
 .tuc-gaveta.is-baixo::backdrop    { --tuc-brilho-x: 50%;  --tuc-brilho-y: 100%; }
 
+/*
+ * Nascendo numa borda, so metade da elipse fica na tela — entao ela precisa ser
+ * maior que a do modal para a luz atravessar a pagina em vez de morrer perto do
+ * painel. Nas laterais, alta o bastante para cobrir a altura toda; em cima e
+ * embaixo, larga o bastante para cobrir a largura.
+ */
+.tuc-gaveta.is-direita::backdrop,
+.tuc-gaveta.is-esquerda::backdrop { --tuc-brilho-w: 90rem; --tuc-brilho-h: 100rem; }
+.tuc-gaveta.is-cima::backdrop,
+.tuc-gaveta.is-baixo::backdrop    { --tuc-brilho-w: 140rem; --tuc-brilho-h: 70rem; }
+
 .tuc-gaveta.is-direita,
 .tuc-gaveta.is-esquerda { @apply items-stretch; }
 .tuc-gaveta.is-direita  { @apply justify-items-end; }
