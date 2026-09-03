@@ -20,8 +20,16 @@ const DEFAULTS = {
   unico: false,   // abrir um recolhe os outros
 };
 
-/** Espelha a duracao do CSS; os dois precisam concordar. */
-const DURACAO = 220;
+/*
+ * Rede de seguranca, nao a duracao da animacao.
+ *
+ * Quem diz que a animacao acabou e o transitionend. Um numero aqui teria de
+ * espelhar o token do CSS, e foi o que deu errado: 220ms contra 280ms fazia o
+ * conteudo ser arrancado 60ms antes do fim, e o fechamento aparecia cortado.
+ * O timeout so cobre o caso em que o evento nunca chega — aba oculta, ou
+ * prefers-reduced-motion deixando a transicao curta demais para disparar.
+ */
+const SOCORRO = 500;
 
 export class Acordeon {
   constructor(alvo, opcoes = {}) {
@@ -72,26 +80,41 @@ export class Acordeon {
   }
 
   abrir(item) {
+    // Reabrir no meio do fechamento e comum: cancela a saida e segue do ponto
+    // em que a altura estava, sem esperar o fim da animacao anterior.
+    item._tucEncerrar?.();
     if (item.open) return this;
     if (this.opts.unico) {
       for (const outro of this.itens) if (outro !== item && outro.open) this.fechar(outro);
     }
-    clearTimeout(item._tucSaida);
-    item.classList.remove('is-fechando');
     item.open = true;
     return this;
   }
 
   fechar(item) {
     if (!item.open || item.classList.contains('is-fechando')) return this;
+    const corpo = item.querySelector(':scope > .tuc-acordeon__corpo');
+
     // `open` so cai no fim: enquanto ele vale, o conteudo continua no fluxo e
     // pode encolher animado. Removido agora, sumiria de uma vez.
     item.classList.add('is-fechando');
-    clearTimeout(item._tucSaida);
-    item._tucSaida = setTimeout(() => {
-      item.open = false;
+
+    const encerrar = () => {
+      clearTimeout(item._tucSaida);
+      corpo?.removeEventListener('transitionend', aoFim);
+      item._tucEncerrar = null;
       item.classList.remove('is-fechando');
-    }, DURACAO);
+      item.open = false;
+    };
+    const aoFim = (e) => {
+      // So a linha do grid encerra: o corpo tem outras propriedades animando,
+      // e qualquer uma delas fecharia o item cedo demais.
+      if (e.target === corpo && e.propertyName === 'grid-template-rows') encerrar();
+    };
+
+    item._tucEncerrar = () => { encerrar(); item.classList.remove('is-fechando'); };
+    corpo?.addEventListener('transitionend', aoFim);
+    item._tucSaida = setTimeout(encerrar, SOCORRO);
     return this;
   }
 

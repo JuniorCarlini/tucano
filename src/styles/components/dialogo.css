@@ -48,9 +48,18 @@
  */
 .tuc-modal::backdrop,
 .tuc-gaveta::backdrop {
+  /*
+   * Posicao e cor saem por variavel para que o brilho possa nascer de onde o
+   * painel esta. Declaradas no proprio ::backdrop, e nao herdadas do elemento,
+   * porque a heranca para o backdrop e recente e nem todo navegador a tem.
+   */
+  --tuc-brilho-x: 50%;
+  --tuc-brilho-y: 42%;
+  --tuc-brilho-cor: rgb(99 102 241 / 0.22);
+
   opacity: 0;
   background:
-    radial-gradient(48rem 32rem at 50% 42%, rgb(99 102 241 / 0.22), transparent 70%),
+    radial-gradient(48rem 32rem at var(--tuc-brilho-x) var(--tuc-brilho-y), var(--tuc-brilho-cor), transparent 70%),
     rgb(9 9 11 / 0.55);
   backdrop-filter: blur(3px);
   transition: opacity var(--tuc-duration-lg) var(--tuc-ease);
@@ -61,17 +70,11 @@
 .tuc-gaveta.is-closing::backdrop { opacity: 0; }
 
 .tuc-modal.is-perigo::backdrop,
-.tuc-gaveta.is-perigo::backdrop {
-  background: radial-gradient(48rem 32rem at 50% 42%, rgb(220 38 38 / 0.22), transparent 70%), rgb(9 9 11 / 0.55);
-}
+.tuc-gaveta.is-perigo::backdrop  { --tuc-brilho-cor: rgb(220 38 38 / 0.22); }
 .tuc-modal.is-sucesso::backdrop,
-.tuc-gaveta.is-sucesso::backdrop {
-  background: radial-gradient(48rem 32rem at 50% 42%, rgb(22 163 74 / 0.22), transparent 70%), rgb(9 9 11 / 0.55);
-}
+.tuc-gaveta.is-sucesso::backdrop { --tuc-brilho-cor: rgb(22 163 74 / 0.22); }
 .tuc-modal.is-aviso::backdrop,
-.tuc-gaveta.is-aviso::backdrop {
-  background: radial-gradient(48rem 32rem at 50% 42%, rgb(217 119 6 / 0.22), transparent 70%), rgb(9 9 11 / 0.55);
-}
+.tuc-gaveta.is-aviso::backdrop   { --tuc-brilho-cor: rgb(217 119 6 / 0.22); }
 
 .tuc-modal.is-perigo,  .tuc-gaveta.is-perigo  { --tuc-modal-glow: rgb(220 38 38 / 0.45); }
 .tuc-modal.is-sucesso, .tuc-gaveta.is-sucesso { --tuc-modal-glow: rgb(22 163 74 / 0.45); }

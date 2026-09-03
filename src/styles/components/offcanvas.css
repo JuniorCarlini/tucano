@@ -13,6 +13,16 @@
   border: 0;
 }
 
+/*
+ * O brilho nasce da borda em que a gaveta encosta, nao do centro da tela.
+ * Centrado, ele apontava para o lugar errado: a luz vinha do meio da pagina
+ * enquanto o painel entrava pela lateral.
+ */
+.tuc-gaveta.is-direita::backdrop  { --tuc-brilho-x: 100%; --tuc-brilho-y: 50%; }
+.tuc-gaveta.is-esquerda::backdrop { --tuc-brilho-x: 0%;   --tuc-brilho-y: 50%; }
+.tuc-gaveta.is-cima::backdrop     { --tuc-brilho-x: 50%;  --tuc-brilho-y: 0%; }
+.tuc-gaveta.is-baixo::backdrop    { --tuc-brilho-x: 50%;  --tuc-brilho-y: 100%; }
+
 .tuc-gaveta.is-direita,
 .tuc-gaveta.is-esquerda { @apply items-stretch; }
 .tuc-gaveta.is-direita  { @apply justify-items-end; }

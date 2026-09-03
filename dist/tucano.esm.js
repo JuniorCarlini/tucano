@@ -4173,7 +4173,7 @@ var DEFAULTS10 = {
   unico: false
   // abrir um recolhe os outros
 };
-var DURACAO2 = 220;
+var SOCORRO = 500;
 var Acordeon = class {
   constructor(alvo, opcoes = {}) {
     this.node = typeof alvo === "string" ? document.querySelector(alvo) : alvo;
@@ -4214,23 +4214,34 @@ var Acordeon = class {
     else this.abrir(item);
   }
   abrir(item) {
+    item._tucEncerrar?.();
     if (item.open) return this;
     if (this.opts.unico) {
       for (const outro of this.itens) if (outro !== item && outro.open) this.fechar(outro);
     }
-    clearTimeout(item._tucSaida);
-    item.classList.remove("is-fechando");
     item.open = true;
     return this;
   }
   fechar(item) {
     if (!item.open || item.classList.contains("is-fechando")) return this;
+    const corpo = item.querySelector(":scope > .tuc-acordeon__corpo");
     item.classList.add("is-fechando");
-    clearTimeout(item._tucSaida);
-    item._tucSaida = setTimeout(() => {
-      item.open = false;
+    const encerrar = () => {
+      clearTimeout(item._tucSaida);
+      corpo?.removeEventListener("transitionend", aoFim);
+      item._tucEncerrar = null;
       item.classList.remove("is-fechando");
-    }, DURACAO2);
+      item.open = false;
+    };
+    const aoFim = (e) => {
+      if (e.target === corpo && e.propertyName === "grid-template-rows") encerrar();
+    };
+    item._tucEncerrar = () => {
+      encerrar();
+      item.classList.remove("is-fechando");
+    };
+    corpo?.addEventListener("transitionend", aoFim);
+    item._tucSaida = setTimeout(encerrar, SOCORRO);
     return this;
   }
   destroy() {

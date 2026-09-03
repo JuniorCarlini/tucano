@@ -1787,7 +1787,7 @@
   flex-shrink: 0;
   place-items: center;
   color: var(--tuc-muted);
-  transition: rotate var(--tuc-duration-lg) var(--tuc-ease);
+  transition: rotate var(--tuc-duration) var(--tuc-ease);
 }
 .tuc-acordeon__item[open]:not(.is-fechando) .tuc-acordeon__seta {
   rotate: 180deg;
@@ -1795,7 +1795,7 @@
 .tuc-acordeon__corpo {
   display: grid;
   grid-template-rows: 0fr;
-  transition: grid-template-rows var(--tuc-duration-lg) var(--tuc-ease);
+  transition: grid-template-rows var(--tuc-duration) var(--tuc-ease);
 }
 .tuc-acordeon__item[open] .tuc-acordeon__corpo {
   grid-template-rows: 1fr;
@@ -1810,7 +1810,7 @@
 .tuc-acordeon__conteudo > :first-child {
   margin-top: 0;
 }
-.tuc-acordeon__item[open] .tuc-acordeon__conteudo {
+.tuc-acordeon__conteudo {
   padding-bottom: 0.875rem;
 }
 .tuc-acordeon.is-limpo .tuc-acordeon__item {
@@ -1856,8 +1856,11 @@
   display: none;
 }
 .tuc-modal::backdrop, .tuc-gaveta::backdrop {
+  --tuc-brilho-x: 50%;
+  --tuc-brilho-y: 42%;
+  --tuc-brilho-cor: rgb(99 102 241 / 0.22);
   opacity: 0;
-  background: radial-gradient(48rem 32rem at 50% 42%, rgb(99 102 241 / 0.22), transparent 70%), rgb(9 9 11 / 0.55);
+  background: radial-gradient(48rem 32rem at var(--tuc-brilho-x) var(--tuc-brilho-y), var(--tuc-brilho-cor), transparent 70%), rgb(9 9 11 / 0.55);
   backdrop-filter: blur(3px);
   transition: opacity var(--tuc-duration-lg) var(--tuc-ease);
 }
@@ -1868,13 +1871,13 @@
   opacity: 0;
 }
 .tuc-modal.is-perigo::backdrop, .tuc-gaveta.is-perigo::backdrop {
-  background: radial-gradient(48rem 32rem at 50% 42%, rgb(220 38 38 / 0.22), transparent 70%), rgb(9 9 11 / 0.55);
+  --tuc-brilho-cor: rgb(220 38 38 / 0.22);
 }
 .tuc-modal.is-sucesso::backdrop, .tuc-gaveta.is-sucesso::backdrop {
-  background: radial-gradient(48rem 32rem at 50% 42%, rgb(22 163 74 / 0.22), transparent 70%), rgb(9 9 11 / 0.55);
+  --tuc-brilho-cor: rgb(22 163 74 / 0.22);
 }
 .tuc-modal.is-aviso::backdrop, .tuc-gaveta.is-aviso::backdrop {
-  background: radial-gradient(48rem 32rem at 50% 42%, rgb(217 119 6 / 0.22), transparent 70%), rgb(9 9 11 / 0.55);
+  --tuc-brilho-cor: rgb(217 119 6 / 0.22);
 }
 .tuc-modal.is-perigo, .tuc-gaveta.is-perigo {
   --tuc-modal-glow: rgb(220 38 38 / 0.45);
@@ -2011,6 +2014,22 @@
 .tuc-gaveta__caixa {
   max-height: none;
   border: 0;
+}
+.tuc-gaveta.is-direita::backdrop {
+  --tuc-brilho-x: 100%;
+  --tuc-brilho-y: 50%;
+}
+.tuc-gaveta.is-esquerda::backdrop {
+  --tuc-brilho-x: 0%;
+  --tuc-brilho-y: 50%;
+}
+.tuc-gaveta.is-cima::backdrop {
+  --tuc-brilho-x: 50%;
+  --tuc-brilho-y: 0%;
+}
+.tuc-gaveta.is-baixo::backdrop {
+  --tuc-brilho-x: 50%;
+  --tuc-brilho-y: 100%;
 }
 .tuc-gaveta.is-direita, .tuc-gaveta.is-esquerda {
   align-items: stretch;

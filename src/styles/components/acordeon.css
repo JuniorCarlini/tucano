@@ -31,7 +31,7 @@
 .tuc-acordeon__seta {
   @apply grid shrink-0 place-items-center;
   color: var(--tuc-muted);
-  transition: rotate var(--tuc-duration-lg) var(--tuc-ease);
+  transition: rotate var(--tuc-duration) var(--tuc-ease);
 }
 .tuc-acordeon__item[open]:not(.is-fechando) .tuc-acordeon__seta { rotate: 180deg; }
 
@@ -43,7 +43,7 @@
 .tuc-acordeon__corpo {
   display: grid;
   grid-template-rows: 0fr;
-  transition: grid-template-rows var(--tuc-duration-lg) var(--tuc-ease);
+  transition: grid-template-rows var(--tuc-duration) var(--tuc-ease);
 }
 .tuc-acordeon__item[open] .tuc-acordeon__corpo { grid-template-rows: 1fr; }
 /* Fechando: `open` ainda vale, para o conteudo encolher em vez de sumir. */
@@ -55,7 +55,9 @@
 }
 /* O respiro fica aqui dentro: no corpo, ele apareceria com a linha em 0fr. */
 .tuc-acordeon__conteudo > :first-child { margin-top: 0; }
-.tuc-acordeon__item[open] .tuc-acordeon__conteudo { padding-bottom: 0.875rem; }
+/* Constante, e nao so em [open]: aparecendo de uma vez na abertura, ele muda a
+   altura no primeiro quadro e a animacao comeca com um solavanco. */
+.tuc-acordeon__conteudo { padding-bottom: 0.875rem; }
 
 /* Variante sem divisórias, para menu lateral. */
 .tuc-acordeon.is-limpo .tuc-acordeon__item { border-bottom: 0; }
