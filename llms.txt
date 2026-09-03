@@ -179,6 +179,32 @@ vez).
 data-unico="true" recolhe os outros ao abrir um. .tuc-acordeon.is-limpo tira as
 divisorias, para menu lateral.
 
+## Menu
+
+Lista de navegacao, so classes — nao ha componente nem JS proprio. Item com
+submenu e um <details>, entao a animacao vem do acordeao.
+
+    <nav class="tuc-menu" data-tuc-acordeon>
+      <a class="tuc-menu__item" href="..."><span class="tuc-menu__icone">svg</span>Faturamento</a>
+
+      <details open>
+        <summary class="tuc-menu__item"><span class="tuc-menu__icone">svg</span>Desempenho</summary>
+        <div class="tuc-menu__sub">
+          <a class="tuc-menu__item is-ativo" href="...">Por periodo</a>
+          <a class="tuc-menu__item" href="...">Unidades</a>
+        </div>
+      </details>
+
+      <div class="tuc-menu__secao">Cadastros</div>
+      <hr class="tuc-menu__separador">
+    </nav>
+
+is-ativo marca o item atual. No primeiro nivel ele leva cor e um traco na borda
+de dentro; no submenu, uma pilula — o traco brigaria com o trilho. Filho de
+submenu nao leva icone: o ponto ja marca a linha.
+
+tuc-menu__contagem poe um numero a direita do item.
+
 ## Gaveta (off-canvas)
 
 Componente proprio, mas divide com o modal a mecanica do <dialog>: top layer,
