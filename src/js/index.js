@@ -8,10 +8,9 @@ export { Tooltip, autoInit as autoInitTooltips } from './components/tooltip.js';
 export { Modal, modal, confirmar, autoInit as autoInitModals } from './components/modal.js';
 export { Gaveta, gaveta, autoInit as autoInitGavetas } from './components/offcanvas.js';
 export { Acordeon, autoInit as autoInitAcordeoes } from './components/acordeon.js';
-export { Markdown, autoInit as autoInitMarkdown } from './components/markdown.js';
 export { Rico, autoInit as autoInitRicos } from './components/rico.js';
 export { sanitizar } from './core/sanitizar.js';
-export * as markdown from './core/markdown.js';
+export { destacar, autoInit as autoInitProsa } from './core/destacar.js';
 export * as mask from './core/mask.js';
 export * as color from './core/color.js';
 export * as dates from './core/dates.js';
@@ -27,8 +26,8 @@ import { autoInit as autoInitTip } from './components/tooltip.js';
 import { autoInit as autoInitModal } from './components/modal.js';
 import { autoInit as autoInitGaveta } from './components/offcanvas.js';
 import { autoInit as autoInitAcordeao } from './components/acordeon.js';
-import { autoInit as autoInitMd } from './components/markdown.js';
 import { autoInit as autoInitRico } from './components/rico.js';
+import { autoInit as autoInitProsa } from './core/destacar.js';
 
 /** Inicializa todos os componentes marcados por data-attribute no escopo dado. */
 export function init(scope = document) {
@@ -40,12 +39,15 @@ export function init(scope = document) {
     masks: autoInitMask(scope),
     formatted: autoFormat(scope),
     toasts: autoInitToast(scope),
-    tooltips: autoInitTip(scope),
     modals: autoInitModal(scope),
     gavetas: autoInitGaveta(scope),
     acordeoes: autoInitAcordeao(scope),
-    markdown: autoInitMd(scope),
     ricos: autoInitRico(scope),
+    prosa: autoInitProsa(scope),
+    // Por último de propósito: componentes que criam a própria barra de botões
+    // marcam neles `data-tuc-tip`, e esses elementos só existem depois que eles
+    // se montam. Antes, os botões do editor nasciam sem dica.
+    tooltips: autoInitTip(scope),
   };
 }
 
