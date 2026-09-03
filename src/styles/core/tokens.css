@@ -86,6 +86,9 @@
   .tuc-rico,
   .tuc-prosa, .tuc-btn),
 :where(.dark, [data-theme='dark']).tuc-dp {
+  /* Faz o navegador desenhar barra de rolagem e campo nativo em tom escuro. */
+  color-scheme: dark;
+
   --tuc-accent: #6366f1;
   --tuc-accent-hover: #818cf8;
   --tuc-accent-fg: #ffffff;

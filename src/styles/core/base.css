@@ -141,3 +141,141 @@
   color: var(--tuc-fg);
   min-width: 0;
 }
+
+/*
+ * Barra de rolagem discreta.
+ *
+ * A do sistema e larga e nao acompanha o tema: num painel escuro ela aparece
+ * cinza-clara, destoando de tudo em volta. Aqui ela le os tokens, entao muda
+ * junto com o tema sem ninguem precisar declarar nada.
+ *
+ * As duas formas convivem de proposito: `scrollbar-color` e a propriedade
+ * padrao, ja valida em Firefox e no Chrome recente, e o ::-webkit- cobre o
+ * Safari, que ainda nao a implementa. Onde as duas existem, a padrao vence — e
+ * e por isso que o `color-scheme` tambem vai declarado: sem ele o Chrome
+ * desenha a barra do tema claro sobre um painel escuro.
+ */
+.tuc-dp,
+.tuc-select,
+.tuc-select__menu,
+.tuc-colorpicker,
+.tuc-upload,
+.tuc-modal,
+.tuc-gaveta,
+.tuc-acordeon,
+.tuc-menu,
+.tuc-rico,
+.tuc-prosa,
+.tuc-dp *,
+.tuc-select *,
+.tuc-select__menu *,
+.tuc-colorpicker *,
+.tuc-upload *,
+.tuc-modal *,
+.tuc-gaveta *,
+.tuc-acordeon *,
+.tuc-menu *,
+.tuc-rico *,
+.tuc-prosa * {
+  scrollbar-width: thin;
+  scrollbar-color: var(--tuc-border) transparent;
+}
+
+.tuc-dp::-webkit-scrollbar,
+.tuc-select::-webkit-scrollbar,
+.tuc-select__menu::-webkit-scrollbar,
+.tuc-colorpicker::-webkit-scrollbar,
+.tuc-upload::-webkit-scrollbar,
+.tuc-modal::-webkit-scrollbar,
+.tuc-gaveta::-webkit-scrollbar,
+.tuc-acordeon::-webkit-scrollbar,
+.tuc-menu::-webkit-scrollbar,
+.tuc-rico::-webkit-scrollbar,
+.tuc-prosa::-webkit-scrollbar,
+.tuc-dp *::-webkit-scrollbar,
+.tuc-select *::-webkit-scrollbar,
+.tuc-select__menu *::-webkit-scrollbar,
+.tuc-colorpicker *::-webkit-scrollbar,
+.tuc-upload *::-webkit-scrollbar,
+.tuc-modal *::-webkit-scrollbar,
+.tuc-gaveta *::-webkit-scrollbar,
+.tuc-acordeon *::-webkit-scrollbar,
+.tuc-menu *::-webkit-scrollbar,
+.tuc-rico *::-webkit-scrollbar,
+.tuc-prosa *::-webkit-scrollbar {
+  width: 0.5rem;
+  height: 0.5rem;
+}
+.tuc-dp::-webkit-scrollbar-track,
+.tuc-select::-webkit-scrollbar-track,
+.tuc-select__menu::-webkit-scrollbar-track,
+.tuc-colorpicker::-webkit-scrollbar-track,
+.tuc-upload::-webkit-scrollbar-track,
+.tuc-modal::-webkit-scrollbar-track,
+.tuc-gaveta::-webkit-scrollbar-track,
+.tuc-acordeon::-webkit-scrollbar-track,
+.tuc-menu::-webkit-scrollbar-track,
+.tuc-rico::-webkit-scrollbar-track,
+.tuc-prosa::-webkit-scrollbar-track,
+.tuc-dp *::-webkit-scrollbar-track,
+.tuc-select *::-webkit-scrollbar-track,
+.tuc-select__menu *::-webkit-scrollbar-track,
+.tuc-colorpicker *::-webkit-scrollbar-track,
+.tuc-upload *::-webkit-scrollbar-track,
+.tuc-modal *::-webkit-scrollbar-track,
+.tuc-gaveta *::-webkit-scrollbar-track,
+.tuc-acordeon *::-webkit-scrollbar-track,
+.tuc-menu *::-webkit-scrollbar-track,
+.tuc-rico *::-webkit-scrollbar-track,
+.tuc-prosa *::-webkit-scrollbar-track {
+  background: transparent;
+}
+.tuc-dp::-webkit-scrollbar-thumb,
+.tuc-select::-webkit-scrollbar-thumb,
+.tuc-select__menu::-webkit-scrollbar-thumb,
+.tuc-colorpicker::-webkit-scrollbar-thumb,
+.tuc-upload::-webkit-scrollbar-thumb,
+.tuc-modal::-webkit-scrollbar-thumb,
+.tuc-gaveta::-webkit-scrollbar-thumb,
+.tuc-acordeon::-webkit-scrollbar-thumb,
+.tuc-menu::-webkit-scrollbar-thumb,
+.tuc-rico::-webkit-scrollbar-thumb,
+.tuc-prosa::-webkit-scrollbar-thumb,
+.tuc-dp *::-webkit-scrollbar-thumb,
+.tuc-select *::-webkit-scrollbar-thumb,
+.tuc-select__menu *::-webkit-scrollbar-thumb,
+.tuc-colorpicker *::-webkit-scrollbar-thumb,
+.tuc-upload *::-webkit-scrollbar-thumb,
+.tuc-modal *::-webkit-scrollbar-thumb,
+.tuc-gaveta *::-webkit-scrollbar-thumb,
+.tuc-acordeon *::-webkit-scrollbar-thumb,
+.tuc-menu *::-webkit-scrollbar-thumb,
+.tuc-rico *::-webkit-scrollbar-thumb,
+.tuc-prosa *::-webkit-scrollbar-thumb {
+  background: var(--tuc-border);
+  border-radius: 99px;
+}
+.tuc-dp::-webkit-scrollbar-thumb:hover,
+.tuc-select::-webkit-scrollbar-thumb:hover,
+.tuc-select__menu::-webkit-scrollbar-thumb:hover,
+.tuc-colorpicker::-webkit-scrollbar-thumb:hover,
+.tuc-upload::-webkit-scrollbar-thumb:hover,
+.tuc-modal::-webkit-scrollbar-thumb:hover,
+.tuc-gaveta::-webkit-scrollbar-thumb:hover,
+.tuc-acordeon::-webkit-scrollbar-thumb:hover,
+.tuc-menu::-webkit-scrollbar-thumb:hover,
+.tuc-rico::-webkit-scrollbar-thumb:hover,
+.tuc-prosa::-webkit-scrollbar-thumb:hover,
+.tuc-dp *::-webkit-scrollbar-thumb:hover,
+.tuc-select *::-webkit-scrollbar-thumb:hover,
+.tuc-select__menu *::-webkit-scrollbar-thumb:hover,
+.tuc-colorpicker *::-webkit-scrollbar-thumb:hover,
+.tuc-upload *::-webkit-scrollbar-thumb:hover,
+.tuc-modal *::-webkit-scrollbar-thumb:hover,
+.tuc-gaveta *::-webkit-scrollbar-thumb:hover,
+.tuc-acordeon *::-webkit-scrollbar-thumb:hover,
+.tuc-menu *::-webkit-scrollbar-thumb:hover,
+.tuc-rico *::-webkit-scrollbar-thumb:hover,
+.tuc-prosa *::-webkit-scrollbar-thumb:hover {
+  background: var(--tuc-muted);
+}
