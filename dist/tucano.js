@@ -23,6 +23,7 @@ var Tucano = (() => {
     ColorPicker: () => ColorPicker,
     DatePicker: () => DatePicker,
     FORMATOS: () => FORMATOS,
+    Gaveta: () => Gaveta,
     Mask: () => Mask,
     Modal: () => Modal,
     Popover: () => Popover,
@@ -33,6 +34,7 @@ var Tucano = (() => {
     autoFormat: () => autoFormat,
     autoInitColorPickers: () => autoInit3,
     autoInitDatePickers: () => autoInit,
+    autoInitGavetas: () => autoInit9,
     autoInitMasks: () => autoInit5,
     autoInitModals: () => autoInit8,
     autoInitSelects: () => autoInit2,
@@ -3948,111 +3950,25 @@ var Tucano = (() => {
     return out;
   }
 
-  // src/js/components/modal.js
-  var DEFAULTS8 = {
-    title: null,
-    text: "",
-    tamanho: "md",
-    // sm | md | lg | full
-    tom: "padrao",
-    // padrao | perigo | sucesso | aviso
-    lado: null,
-    // 'esquerda' | 'direita' | 'cima' | 'baixo' — vira gaveta
-    folha: false,
-    // no celular sobe do rodape em vez de surgir no centro
-    fechavel: true,
-    // botao X e Escape
-    fecharNoFundo: true,
-    acoes: null,
-    // [{ texto, variante, onClick, fecha }]
-    aoFechar: null,
-    classe: ""
-  };
+  // src/js/core/dialogo.js
   var DURACAO_SAIDA2 = 160;
-  function semUndefined(obj) {
-    const out = {};
-    for (const [k, v] of Object.entries(obj || {})) if (v !== void 0) out[k] = v;
-    return out;
-  }
-  var Modal = class _Modal {
-    constructor(opcoes = {}) {
-      this.opts = { ...DEFAULTS8, ...semUndefined(opcoes) };
-      this.id = nextId("modal");
-      this._cleanups = [];
-      this._montar();
-    }
-    _montar() {
-      const { title, text, acoes, fechavel } = this.opts;
-      const tituloId = `${this.id}-titulo`;
-      this.caixa = el("div", { class: "tuc-modal__caixa" }, [
-        el("div", { class: "tuc-modal__topo" }, [
-          el("div", { class: "tuc-modal__cabecalho" }, [
-            title ? el("h2", { class: "tuc-modal__titulo", id: tituloId, text: title }) : null,
-            text ? el("p", { class: "tuc-modal__texto", text }) : null
-          ]),
-          fechavel ? el("button", {
-            type: "button",
-            class: "tuc-btn is-ghost is-icon is-sm tuc-modal__fechar",
-            "aria-label": "Fechar",
-            onclick: () => this.fechar("botao")
-          }, [icon(ICONS.x, 15)]) : null
-        ]),
-        el("div", { class: "tuc-modal__corpo" }),
-        acoes?.length ? el("div", { class: "tuc-modal__rodape" }, acoes.map((a) => el("button", {
-          type: "button",
-          class: `tuc-btn is-${a.variante || "outline"}`,
-          text: a.texto,
-          onclick: () => {
-            a.onClick?.(this);
-            if (a.fecha !== false) this.fechar("acao");
-          }
-        }))) : null
-      ]);
-      this.node = el("dialog", {
-        class: [
-          "tuc-modal",
-          `is-${this.opts.tamanho}`,
-          `is-${this.opts.tom}`,
-          // Gaveta e folha são o mesmo mecanismo em bordas diferentes, então
-          // pedir as duas ao mesmo tempo daria um resultado sem sentido: o lado
-          // explícito ganha.
-          this.opts.lado ? `is-lado-${this.opts.lado}` : this.opts.folha ? "is-folha" : "",
-          this.opts.classe
-        ].filter(Boolean).join(" "),
-        id: this.id,
-        // O titulo nomeia o dialogo; sem titulo o proprio texto serve.
-        ...title ? { "aria-labelledby": tituloId } : {}
-      }, [this.caixa]);
-      this.corpo = this.caixa.querySelector(".tuc-modal__corpo");
-      this.node._tucano = this;
-    }
-    /** Conteudo livre dentro do modal: um form do Django, uma tabela, o que for. */
-    conteudo(no) {
-      this.corpo.replaceChildren(...(Array.isArray(no) ? no : [no]).filter(Boolean));
-      return this;
-    }
+  var Dialogo = class {
     /**
-     * Adota um <dialog class="tuc-modal"> ja escrito no template. O no e de quem
-     * escreveu o HTML: abrir nao o insere e fechar nao o remove.
+     * Adota um <dialog> ja escrito no template. O no e de quem escreveu o HTML:
+     * abrir nao o insere e fechar nao o remove.
      */
-    static adotar(node, opcoes = {}) {
-      const m = Object.create(_Modal.prototype);
-      m.opts = { ...DEFAULTS8, ...semUndefined(opcoes) };
-      m.id = node.id || nextId("modal");
-      m._cleanups = [];
-      m._adotado = true;
-      m.node = node;
-      m.caixa = node.querySelector(".tuc-modal__caixa");
-      m.corpo = node.querySelector(".tuc-modal__corpo");
-      node._tucano = m;
-      return m;
+    _adotar(node) {
+      this._adotado = true;
+      this.node = node;
+      node._tucano = this;
+      return this;
     }
     abrir() {
       if (this.aberto) return this;
       this.aberto = true;
       if (!this._adotado) document.body.append(this.node);
       this.node.showModal();
-      ligar(this);
+      this._ligar();
       void this.node.offsetHeight;
       this.node.classList.add("is-open");
       return this;
@@ -4073,28 +3989,106 @@ var Tucano = (() => {
       }, DURACAO_SAIDA2);
       return this;
     }
+    /** Conteudo livre no corpo: um form do Django, uma tabela, o que for. */
+    conteudo(no) {
+      this.corpo?.replaceChildren(...(Array.isArray(no) ? no : [no]).filter(Boolean));
+      return this;
+    }
+    _ligar() {
+      this._cleanups.push(
+        // O Escape do <dialog> fecha na hora, sem animacao: interceptamos para
+        // fechar pelo nosso caminho, que anima e devolve o motivo.
+        on(this.node, "cancel", (e) => {
+          e.preventDefault();
+          if (this.opts.fechavel) this.fechar("escape");
+        }),
+        on(this.node, "click", (e) => {
+          if (this.opts.fecharNoFundo && e.target === this.node) this.fechar("fundo");
+        })
+      );
+    }
   };
-  function ligar(alvo) {
-    const node = alvo.node;
-    const opts = alvo.opts;
-    alvo._cleanups.push(
-      // O Escape do <dialog> fecha na hora, sem animacao: interceptamos para
-      // fechar pelo nosso caminho, que anima e devolve o motivo.
-      on(node, "cancel", (e) => {
-        e.preventDefault();
-        if (opts.fechavel) alvo.fechar("escape");
-      }),
-      on(node, "click", (e) => {
-        if (opts.fecharNoFundo && e.target === node) alvo.fechar("fundo");
-      })
-    );
+  function montarCaixa(prefixo, opts, dono, tituloId) {
+    const { title, text, acoes, fechavel } = opts;
+    return el("div", { class: `${prefixo}__caixa` }, [
+      el("div", { class: `${prefixo}__topo` }, [
+        el("div", { class: `${prefixo}__cabecalho` }, [
+          title ? el("h2", { class: `${prefixo}__titulo`, id: tituloId, text: title }) : null,
+          text ? el("p", { class: `${prefixo}__texto`, text }) : null
+        ]),
+        fechavel ? el("button", {
+          type: "button",
+          class: `tuc-btn is-ghost is-icon is-sm ${prefixo}__fechar`,
+          "aria-label": "Fechar",
+          onclick: () => dono.fechar("botao")
+        }, [icon(ICONS.x, 15)]) : null
+      ]),
+      el("div", { class: `${prefixo}__corpo` }),
+      acoes?.length ? el("div", { class: `${prefixo}__rodape` }, acoes.map((a) => el("button", {
+        type: "button",
+        class: `tuc-btn is-${a.variante || "outline"}`,
+        text: a.texto,
+        onclick: () => {
+          a.onClick?.(dono);
+          if (a.fecha !== false) dono.fechar("acao");
+        }
+      }))) : null
+    ]);
   }
+  function semUndefined(obj) {
+    const out = {};
+    for (const [k, v] of Object.entries(obj || {})) if (v !== void 0) out[k] = v;
+    return out;
+  }
+
+  // src/js/components/modal.js
+  var DEFAULTS8 = {
+    title: null,
+    text: "",
+    tamanho: "md",
+    // sm | md | lg | full
+    tom: "padrao",
+    // padrao | perigo | sucesso | aviso
+    folha: false,
+    // no celular sobe do rodape em vez de surgir no centro
+    fechavel: true,
+    // botao X e Escape
+    fecharNoFundo: true,
+    acoes: null,
+    // [{ texto, variante, onClick, fecha }]
+    aoFechar: null,
+    classe: ""
+  };
+  var Modal = class extends Dialogo {
+    constructor(opcoes = {}) {
+      super();
+      this.opts = { ...DEFAULTS8, ...semUndefined(opcoes) };
+      this.id = nextId("modal");
+      this._cleanups = [];
+      this._montar();
+    }
+    _montar() {
+      const tituloId = `${this.id}-titulo`;
+      this.caixa = montarCaixa("tuc-modal", this.opts, this, tituloId);
+      this.node = el("dialog", {
+        class: [
+          "tuc-modal",
+          `is-${this.opts.tamanho}`,
+          `is-${this.opts.tom}`,
+          this.opts.folha ? "is-folha" : "",
+          this.opts.classe
+        ].filter(Boolean).join(" "),
+        id: this.id,
+        // O titulo nomeia o dialogo; sem titulo o proprio texto serve.
+        ...this.opts.title ? { "aria-labelledby": tituloId } : {}
+      }, [this.caixa]);
+      this.corpo = this.caixa.querySelector(".tuc-modal__corpo");
+      this.node._tucano = this;
+    }
+  };
   function modal(opcoesOuTexto, extra = {}) {
     const base = typeof opcoesOuTexto === "string" ? { text: opcoesOuTexto } : opcoesOuTexto;
     return new Modal({ ...base, ...extra }).abrir();
-  }
-  function gaveta(opcoes = {}) {
-    return new Modal({ lado: "direita", ...opcoes }).abrir();
   }
   function confirmar(opcoes = {}) {
     const { confirmar: rotuloOk = "Confirmar", cancelar = "Cancelar", ...resto } = opcoes;
@@ -4126,21 +4120,96 @@ var Tucano = (() => {
     for (const node of scope.querySelectorAll("dialog.tuc-modal:not([data-tuc-ready])")) {
       node.setAttribute("data-tuc-ready", "");
       const d = node.dataset;
-      const m = Modal.adotar(node, {
-        fechavel: d.fechavel !== "false",
-        fecharNoFundo: d.fundo !== "false"
-      });
+      const m = Object.create(Modal.prototype);
+      m.opts = { ...DEFAULTS8, fechavel: d.fechavel !== "false", fecharNoFundo: d.fundo !== "false" };
+      m.id = node.id || nextId("modal");
+      m._cleanups = [];
+      m.caixa = node.querySelector(".tuc-modal__caixa");
+      m.corpo = node.querySelector(".tuc-modal__corpo");
+      m._adotar(node);
       for (const b of node.querySelectorAll("[data-tuc-modal-close]")) {
-        on(b, "click", () => m.fechar("botao"));
+        b.addEventListener("click", () => m.fechar("botao"));
       }
       out.push(m);
     }
     for (const gatilho of scope.querySelectorAll("[data-tuc-modal]:not([data-tuc-ready])")) {
       gatilho.setAttribute("data-tuc-ready", "");
-      on(gatilho, "click", (e) => {
+      gatilho.addEventListener("click", (e) => {
         e.preventDefault();
-        const alvo = document.querySelector(gatilho.dataset.tucModal);
-        alvo?._tucano?.abrir();
+        document.querySelector(gatilho.dataset.tucModal)?._tucano?.abrir();
+      });
+    }
+    return out;
+  }
+
+  // src/js/components/offcanvas.js
+  var DEFAULTS9 = {
+    title: null,
+    text: "",
+    lado: "direita",
+    // esquerda | direita | cima | baixo
+    tamanho: "md",
+    // sm | md | lg — nas laterais, largura da coluna
+    tom: "padrao",
+    // padrao | perigo | sucesso | aviso
+    fechavel: true,
+    fecharNoFundo: true,
+    acoes: null,
+    aoFechar: null,
+    classe: ""
+  };
+  var Gaveta = class extends Dialogo {
+    constructor(opcoes = {}) {
+      super();
+      this.opts = { ...DEFAULTS9, ...semUndefined(opcoes) };
+      this.id = nextId("gaveta");
+      this._cleanups = [];
+      this._montar();
+    }
+    _montar() {
+      const tituloId = `${this.id}-titulo`;
+      this.caixa = montarCaixa("tuc-gaveta", this.opts, this, tituloId);
+      this.node = el("dialog", {
+        class: [
+          "tuc-gaveta",
+          `is-${this.opts.lado}`,
+          `is-${this.opts.tamanho}`,
+          `is-${this.opts.tom}`,
+          this.opts.classe
+        ].filter(Boolean).join(" "),
+        id: this.id,
+        ...this.opts.title ? { "aria-labelledby": tituloId } : {}
+      }, [this.caixa]);
+      this.corpo = this.caixa.querySelector(".tuc-gaveta__corpo");
+      this.node._tucano = this;
+    }
+  };
+  function gaveta(opcoesOuTexto, extra = {}) {
+    const base = typeof opcoesOuTexto === "string" ? { text: opcoesOuTexto } : opcoesOuTexto;
+    return new Gaveta({ ...base, ...extra }).abrir();
+  }
+  function autoInit9(scope = document) {
+    const out = [];
+    for (const node of scope.querySelectorAll("dialog.tuc-gaveta:not([data-tuc-ready])")) {
+      node.setAttribute("data-tuc-ready", "");
+      const d = node.dataset;
+      const g = Object.create(Gaveta.prototype);
+      g.opts = { ...DEFAULTS9, fechavel: d.fechavel !== "false", fecharNoFundo: d.fundo !== "false" };
+      g.id = node.id || nextId("gaveta");
+      g._cleanups = [];
+      g.caixa = node.querySelector(".tuc-gaveta__caixa");
+      g.corpo = node.querySelector(".tuc-gaveta__corpo");
+      g._adotar(node);
+      for (const b of node.querySelectorAll("[data-tuc-gaveta-close]")) {
+        b.addEventListener("click", () => g.fechar("botao"));
+      }
+      out.push(g);
+    }
+    for (const gatilho of scope.querySelectorAll("[data-tuc-gaveta]:not([data-tuc-ready])")) {
+      gatilho.setAttribute("data-tuc-ready", "");
+      gatilho.addEventListener("click", (e) => {
+        e.preventDefault();
+        document.querySelector(gatilho.dataset.tucGaveta)?._tucano?.abrir();
       });
     }
     return out;
@@ -4157,7 +4226,8 @@ var Tucano = (() => {
       formatted: autoFormat(scope),
       toasts: autoInit6(scope),
       tooltips: autoInit7(scope),
-      modals: autoInit8(scope)
+      modals: autoInit8(scope),
+      gavetas: autoInit9(scope)
     };
   }
   if (typeof document !== "undefined") {

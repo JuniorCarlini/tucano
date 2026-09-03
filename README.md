@@ -17,6 +17,7 @@ Sem React, sem Vue, sem dependência em runtime.
 | `Toast` — avisos, com integração Django e HTMX | pronto |
 | `Tooltip` — dica ancorada, teclado e toque | pronto |
 | `Modal` — diálogo sobre `<dialog>` nativo, fundo com brilho | pronto |
+| `Gaveta` — off-canvas nas quatro bordas, mesmo motor do modal | pronto |
 | `.tuc-btn` — estilo de botão, só classe | pronto |
 
 ---
@@ -395,12 +396,20 @@ Tucano.modal({
 if (await Tucano.confirmar({ title: 'Excluir contrato?' })) excluir();
 ```
 
-A mesma peça encostada numa borda vira gaveta (off-canvas) — painel de filtros,
-menu, carrinho. Mesma *top layer*, mesmo foco preso, mesmo `Esc`:
+## Gaveta (off-canvas)
+
+Painel que entra por uma borda e ocupa o eixo inteiro dela. Divide com o modal a
+mecânica do `<dialog>` — *top layer*, foco preso, `Esc`, foco devolvido — então
+uma correção num deles vale para o outro:
 
 ```js
-Tucano.gaveta({ title: 'Filtros', lado: 'direita' }).conteudo(formulario);
+Tucano.gaveta({ title: 'Filtros', lado: 'direita' })  // esquerda | direita | cima | baixo
+  .conteudo(formulario);
 ```
+
+Nas laterais o `tamanho` é largura de coluna (18, 24 ou 34rem) e no celular ela
+para em 85% da tela. Do servidor, `<dialog class="tuc-gaveta is-direita">` no
+template com `data-tuc-gaveta="#id"` no gatilho.
 
 Com conteúdo do servidor, o `<dialog>` mora no template e o Tucano só abre,
 fecha e anima:

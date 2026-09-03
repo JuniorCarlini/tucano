@@ -16,21 +16,26 @@
 .tuc-toast,
 .tuc-tip,
   .tuc-modal,
+  .tuc-gaveta,
 .tuc-btn {
   box-sizing: border-box;
 }
 
 :where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip,
-  .tuc-modal, .tuc-btn) *,
+  .tuc-modal,
+  .tuc-gaveta, .tuc-btn) *,
 :where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip,
-  .tuc-modal, .tuc-btn) *::before,
+  .tuc-modal,
+  .tuc-gaveta, .tuc-btn) *::before,
 :where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip,
-  .tuc-modal, .tuc-btn) *::after {
+  .tuc-modal,
+  .tuc-gaveta, .tuc-btn) *::after {
   box-sizing: border-box;
 }
 
 :where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip,
-  .tuc-modal, .tuc-btn) button {
+  .tuc-modal,
+  .tuc-gaveta, .tuc-btn) button {
   appearance: none;
   -webkit-appearance: none;
   margin: 0;
@@ -48,7 +53,8 @@
 }
 
 :where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip,
-  .tuc-modal, .tuc-btn) button:disabled {
+  .tuc-modal,
+  .tuc-gaveta, .tuc-btn) button:disabled {
   cursor: default;
 }
 
@@ -59,13 +65,15 @@
 }
 
 :where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip,
-  .tuc-modal, .tuc-btn) svg {
+  .tuc-modal,
+  .tuc-gaveta, .tuc-btn) svg {
   display: block;
   flex: none;
 }
 
 :where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip,
-  .tuc-modal, .tuc-btn) input {
+  .tuc-modal,
+  .tuc-gaveta, .tuc-btn) input {
   font: inherit;
   color: inherit;
 }

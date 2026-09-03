@@ -1,0 +1,73 @@
+@reference "tailwindcss";
+
+/*
+ * Gaveta (off-canvas): a caixa encostada numa borda.
+ *
+ * O grid do <dialog> deixa de centralizar nos dois eixos e passa a esticar no
+ * eixo da borda, o que faz a caixa ocupar a altura ou a largura inteira dali.
+ * E a entrada muda de natureza: o modal cresce no lugar, a gaveta desliza de
+ * fora, porque e assim que ela conta de onde veio.
+ */
+.tuc-gaveta__caixa {
+  max-height: none;
+  border: 0;
+}
+
+.tuc-gaveta.is-direita,
+.tuc-gaveta.is-esquerda { @apply items-stretch; }
+.tuc-gaveta.is-direita  { @apply justify-items-end; }
+.tuc-gaveta.is-esquerda { @apply justify-items-start; }
+
+.tuc-gaveta.is-cima,
+.tuc-gaveta.is-baixo { @apply justify-items-stretch; }
+.tuc-gaveta.is-cima  { @apply items-start; }
+.tuc-gaveta.is-baixo { @apply items-end; }
+
+.tuc-gaveta.is-direita  .tuc-gaveta__caixa,
+.tuc-gaveta.is-esquerda .tuc-gaveta__caixa { height: 100%; }
+.tuc-gaveta.is-cima  .tuc-gaveta__caixa,
+.tuc-gaveta.is-baixo .tuc-gaveta__caixa { max-width: none; width: 100%; }
+
+/* A borda fica so do lado que encosta no conteudo da pagina. */
+.tuc-gaveta.is-direita  .tuc-gaveta__caixa { border-left:   var(--tuc-border-width) solid var(--tuc-border); }
+.tuc-gaveta.is-esquerda .tuc-gaveta__caixa { border-right:  var(--tuc-border-width) solid var(--tuc-border); }
+.tuc-gaveta.is-cima     .tuc-gaveta__caixa { border-bottom: var(--tuc-border-width) solid var(--tuc-border); }
+.tuc-gaveta.is-baixo    .tuc-gaveta__caixa { border-top:    var(--tuc-border-width) solid var(--tuc-border); }
+
+/* Gaveta lateral e uma coluna, nao um cartao: a escala e outra. */
+.tuc-gaveta.is-direita.is-sm  .tuc-gaveta__caixa,
+.tuc-gaveta.is-esquerda.is-sm .tuc-gaveta__caixa { max-width: 18rem; }
+.tuc-gaveta.is-direita.is-md  .tuc-gaveta__caixa,
+.tuc-gaveta.is-esquerda.is-md .tuc-gaveta__caixa { max-width: 24rem; }
+.tuc-gaveta.is-direita.is-lg  .tuc-gaveta__caixa,
+.tuc-gaveta.is-esquerda.is-lg .tuc-gaveta__caixa { max-width: 34rem; }
+
+.tuc-gaveta.is-direita  .tuc-gaveta__caixa { translate: 100% 0; }
+.tuc-gaveta.is-esquerda .tuc-gaveta__caixa { translate: -100% 0; }
+.tuc-gaveta.is-cima     .tuc-gaveta__caixa { translate: 0 -100%; }
+.tuc-gaveta.is-baixo    .tuc-gaveta__caixa { translate: 0 100%; }
+
+.tuc-gaveta.is-open .tuc-gaveta__caixa {
+  opacity: 1;
+  translate: 0 0;
+  transition:
+    opacity var(--tuc-duration-lg) var(--tuc-ease),
+    translate var(--tuc-duration-lg) var(--tuc-ease);
+}
+.tuc-gaveta.is-closing .tuc-gaveta__caixa {
+  opacity: 0;
+  transition:
+    opacity var(--tuc-duration-out) var(--tuc-ease-in),
+    translate var(--tuc-duration-out) var(--tuc-ease-in);
+}
+
+/* No celular a gaveta lateral quase toma a tela: coluna estreita ali nao le. */
+@media (max-width: 40rem) {
+  .tuc-gaveta.is-direita  .tuc-gaveta__caixa,
+  .tuc-gaveta.is-esquerda .tuc-gaveta__caixa { max-width: min(20rem, 85vw); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tuc-gaveta .tuc-gaveta__caixa,
+  .tuc-gaveta::backdrop { transition-duration: 100ms; translate: none; }
+}

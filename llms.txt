@@ -159,18 +159,23 @@ e Escape vem do proprio elemento.
 
     if (await Tucano.confirmar({ title:'Excluir contrato?' })) excluir();
 
-Gaveta (off-canvas) e o mesmo modal encostado numa borda:
-
-    Tucano.gaveta({ title:'Filtros', lado:'direita' }).conteudo(form);
-
-lado: esquerda | direita | cima | baixo. Nas laterais o tamanho vira largura da
-coluna e no celular para em 85% da tela.
-
 Tons: padrao, perigo, sucesso, aviso (mudam o brilho do fundo e a aura da caixa).
 Tamanhos: sm, md, lg, full. Fechar por fora, pelo X ou por Escape resolve false.
 
 Conteudo do servidor: o <dialog class="tuc-modal"> fica no template, com
 data-tuc-modal="#id" no gatilho e data-tuc-modal-close nos botoes de fechar.
+
+## Gaveta (off-canvas)
+
+Componente proprio, mas divide com o modal a mecanica do <dialog>: top layer,
+foco preso, Escape, foco devolvido. Muda a geometria e o movimento.
+
+    Tucano.gaveta({ title:'Filtros', lado:'direita' }).conteudo(form);
+
+lado: esquerda | direita | cima | baixo. Nas laterais o tamanho e largura de
+coluna (18, 24, 34rem) e no celular para em 85% da tela. Do servidor:
+<dialog class="tuc-gaveta is-direita"> no template, data-tuc-gaveta="#id" no
+gatilho e data-tuc-gaveta-close nos botoes de fechar.
 
 ## Toast e tooltip
 

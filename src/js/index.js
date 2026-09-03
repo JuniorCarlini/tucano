@@ -5,7 +5,8 @@ export { Upload, autoInit as autoInitUploads } from './components/upload.js';
 export { Mask, FORMATOS, autoInit as autoInitMasks, autoFormat } from './components/mask.js';
 export { Toast, toast, autoInit as autoInitToasts, ouvirEventos } from './components/toast.js';
 export { Tooltip, autoInit as autoInitTooltips } from './components/tooltip.js';
-export { Modal, modal, gaveta, confirmar, autoInit as autoInitModals } from './components/modal.js';
+export { Modal, modal, confirmar, autoInit as autoInitModals } from './components/modal.js';
+export { Gaveta, gaveta, autoInit as autoInitGavetas } from './components/offcanvas.js';
 export * as mask from './core/mask.js';
 export * as color from './core/color.js';
 export * as dates from './core/dates.js';
@@ -19,6 +20,7 @@ import { autoInit as autoInitMask, autoFormat } from './components/mask.js';
 import { autoInit as autoInitToast, ouvirEventos } from './components/toast.js';
 import { autoInit as autoInitTip } from './components/tooltip.js';
 import { autoInit as autoInitModal } from './components/modal.js';
+import { autoInit as autoInitGaveta } from './components/offcanvas.js';
 
 /** Inicializa todos os componentes marcados por data-attribute no escopo dado. */
 export function init(scope = document) {
@@ -32,6 +34,7 @@ export function init(scope = document) {
     toasts: autoInitToast(scope),
     tooltips: autoInitTip(scope),
     modals: autoInitModal(scope),
+    gavetas: autoInitGaveta(scope),
   };
 }
 

@@ -1,89 +1,15 @@
 @reference "tailwindcss";
 
 /*
- * O <dialog> ocupa a viewport inteira e e transparente: a caixa e que se ve.
- * Isso serve a duas coisas — centraliza sem posicionamento absoluto, e faz o
- * clique no vazio chegar ao proprio <dialog>, que e como o JS reconhece
- * "clicou no fundo" sem precisar de um elemento de overlay so para isso.
+ * Modal: a caixa no centro. O que ele divide com a gaveta esta em dialogo.css;
+ * aqui fica so a geometria centrada e a entrada que cresce no lugar.
  */
-.tuc-modal {
-  @apply fixed inset-0 m-0 grid max-h-none max-w-none place-items-center p-4;
-  width: 100%;
-  height: 100%;
-  border: 0;
-  background: transparent;
-  font-family: var(--tuc-font);
-  color: var(--tuc-fg);
-  overflow: visible;
-
-  --tuc-modal-glow: color-mix(in srgb, var(--tuc-accent) 45%, transparent);
-}
-
-/*
- * Sem isto o modal quebra a pagina inteira.
- *
- * A folha do navegador esconde <dialog> fechado com `display: none`, mas a
- * regra acima declara `display: grid` e vence — entao um <dialog> escrito no
- * template ficava renderizado, fixo e cobrindo toda a viewport. Transparente,
- * ninguem via; so notava que nenhum clique da pagina funcionava mais.
- *
- * Vale so para o <dialog> parado no HTML: o modal criado por JS e removido do
- * DOM ao fechar, e por isso o problema nao aparecia nos testes por codigo.
- */
-.tuc-modal:not([open]) {
-  display: none;
-}
-
-/*
- * O brilho do fundo. Um radial atras da caixa levanta o centro da tela e
- * separa o modal do que ficou embaixo sem precisar escurecer tudo; o blur
- * termina de tirar a pagina do foco.
- */
-.tuc-modal::backdrop {
-  opacity: 0;
-  background:
-    radial-gradient(48rem 32rem at 50% 42%, rgb(99 102 241 / 0.22), transparent 70%),
-    rgb(9 9 11 / 0.55);
-  backdrop-filter: blur(3px);
-  transition: opacity var(--tuc-duration-lg) var(--tuc-ease);
-}
-.tuc-modal.is-open::backdrop { opacity: 1; }
-.tuc-modal.is-closing::backdrop { opacity: 0; }
-
-.tuc-modal.is-perigo::backdrop {
-  background:
-    radial-gradient(48rem 32rem at 50% 42%, rgb(220 38 38 / 0.22), transparent 70%),
-    rgb(9 9 11 / 0.55);
-}
-.tuc-modal.is-sucesso::backdrop {
-  background:
-    radial-gradient(48rem 32rem at 50% 42%, rgb(22 163 74 / 0.22), transparent 70%),
-    rgb(9 9 11 / 0.55);
-}
-.tuc-modal.is-aviso::backdrop {
-  background:
-    radial-gradient(48rem 32rem at 50% 42%, rgb(217 119 6 / 0.22), transparent 70%),
-    rgb(9 9 11 / 0.55);
-}
-
-.tuc-modal.is-perigo  { --tuc-modal-glow: rgb(220 38 38 / 0.45); }
-.tuc-modal.is-sucesso { --tuc-modal-glow: rgb(22 163 74 / 0.45); }
-.tuc-modal.is-aviso   { --tuc-modal-glow: rgb(217 119 6 / 0.45); }
-
-/* ------------------------------------------------------------------ */
+.tuc-modal { @apply place-items-center p-4; }
 
 .tuc-modal__caixa {
-  @apply flex w-full flex-col gap-4 p-5;
   max-height: calc(100vh - 2rem);
-  background: var(--tuc-bg);
   border: var(--tuc-border-width) solid var(--tuc-border);
   border-radius: var(--tuc-radius);
-  /* A ultima camada e o glow: uma aura da cor do tom, nao uma sombra. */
-  box-shadow:
-    0 24px 60px -12px rgb(0 0 0 / 0.45),
-    0 0 90px -24px var(--tuc-modal-glow);
-
-  opacity: 0;
   scale: 0.95;
 }
 .tuc-modal.is-open .tuc-modal__caixa {
@@ -106,115 +32,13 @@
 .tuc-modal.is-lg  .tuc-modal__caixa { max-width: 44rem; }
 .tuc-modal.is-full .tuc-modal__caixa { max-width: none; height: 100%; max-height: none; }
 
-/* ------------------------------------------------------------------ */
-
-.tuc-modal__topo { @apply flex items-start justify-between gap-4; }
-.tuc-modal__cabecalho { @apply flex min-w-0 flex-col gap-1.5; }
-.tuc-modal__titulo {
-  @apply m-0 font-semibold;
-  font-size: 1.0625rem;
-  line-height: 1.3;
-}
-.tuc-modal__texto {
-  @apply m-0;
-  font-size: 0.875rem;
-  line-height: 1.5;
-  color: var(--tuc-muted);
-}
-/* Alinhado ao topo: com titulo e texto o X acompanha a primeira linha. */
-.tuc-modal__fechar { @apply -mr-1.5 -mt-1 shrink-0; }
-
-/* O corpo e quem rola quando o conteudo passa da altura da tela. */
-.tuc-modal__corpo {
-  @apply min-h-0 flex-1 overflow-y-auto;
-}
-.tuc-modal__corpo:empty { @apply hidden; }
-
-.tuc-modal__rodape { @apply flex flex-wrap items-center justify-end gap-2; }
-
-/* ------------------------------------------------------------------ */
-
-/*
- * Gaveta (off-canvas). Mesmo dialogo, encostado numa borda: o grid do <dialog>
- * deixa de centralizar nos dois eixos e passa a esticar no eixo da borda, o
- * que faz a caixa ocupar a altura ou a largura inteira dali.
- *
- * A entrada tambem muda de natureza. No centro, o modal cresce (escala); na
- * borda, ele desliza de fora, porque e assim que a gaveta conta de onde veio.
- */
-.tuc-modal[class*='is-lado-'] { @apply p-0; }
-
-.tuc-modal[class*='is-lado-'] .tuc-modal__caixa {
-  max-height: none;
-  border-radius: 0;
-  border: 0;
-  /* A escala do modal centrado nao serve aqui: a gaveta entra deslizando. */
-  scale: 1;
-}
-
-.tuc-modal.is-lado-direita,
-.tuc-modal.is-lado-esquerda { @apply items-stretch; }
-.tuc-modal.is-lado-direita  { @apply justify-items-end; }
-.tuc-modal.is-lado-esquerda { @apply justify-items-start; }
-
-.tuc-modal.is-lado-cima,
-.tuc-modal.is-lado-baixo { @apply justify-items-stretch; }
-.tuc-modal.is-lado-cima  { @apply items-start; }
-.tuc-modal.is-lado-baixo { @apply items-end; }
-
-.tuc-modal.is-lado-direita  .tuc-modal__caixa,
-.tuc-modal.is-lado-esquerda .tuc-modal__caixa { height: 100%; }
-.tuc-modal.is-lado-cima  .tuc-modal__caixa,
-.tuc-modal.is-lado-baixo .tuc-modal__caixa { max-width: none; width: 100%; }
-
-/* A borda fica so do lado que encosta no conteudo da pagina. */
-.tuc-modal.is-lado-direita  .tuc-modal__caixa { border-left:   var(--tuc-border-width) solid var(--tuc-border); }
-.tuc-modal.is-lado-esquerda .tuc-modal__caixa { border-right:  var(--tuc-border-width) solid var(--tuc-border); }
-.tuc-modal.is-lado-cima     .tuc-modal__caixa { border-bottom: var(--tuc-border-width) solid var(--tuc-border); }
-.tuc-modal.is-lado-baixo    .tuc-modal__caixa { border-top:    var(--tuc-border-width) solid var(--tuc-border); }
-
-/* Gaveta lateral e mais estreita que modal centrado: e coluna, nao cartao. */
-.tuc-modal.is-lado-direita.is-sm  .tuc-modal__caixa,
-.tuc-modal.is-lado-esquerda.is-sm .tuc-modal__caixa { max-width: 18rem; }
-.tuc-modal.is-lado-direita.is-md  .tuc-modal__caixa,
-.tuc-modal.is-lado-esquerda.is-md .tuc-modal__caixa { max-width: 24rem; }
-.tuc-modal.is-lado-direita.is-lg  .tuc-modal__caixa,
-.tuc-modal.is-lado-esquerda.is-lg .tuc-modal__caixa { max-width: 34rem; }
-
-.tuc-modal.is-lado-direita  .tuc-modal__caixa { translate: 100% 0; }
-.tuc-modal.is-lado-esquerda .tuc-modal__caixa { translate: -100% 0; }
-.tuc-modal.is-lado-cima     .tuc-modal__caixa { translate: 0 -100%; }
-.tuc-modal.is-lado-baixo    .tuc-modal__caixa { translate: 0 100%; }
-
-.tuc-modal[class*='is-lado-'].is-open .tuc-modal__caixa {
-  translate: 0 0;
-  transition:
-    opacity var(--tuc-duration-lg) var(--tuc-ease),
-    translate var(--tuc-duration-lg) var(--tuc-ease);
-}
-.tuc-modal[class*='is-lado-'].is-closing .tuc-modal__caixa {
-  transition:
-    opacity var(--tuc-duration-out) var(--tuc-ease-in),
-    translate var(--tuc-duration-out) var(--tuc-ease-in);
-}
-
-/* No celular a gaveta lateral quase toma a tela: coluna estreita ali nao lê. */
-@media (max-width: 40rem) {
-  .tuc-modal.is-lado-direita  .tuc-modal__caixa,
-  .tuc-modal.is-lado-esquerda .tuc-modal__caixa { max-width: min(20rem, 85vw); }
-}
-
-/* ------------------------------------------------------------------ */
-
 /*
  * No celular a caixa sobe do rodape em vez de surgir no centro: o polegar
  * alcanca os botoes, e o movimento diz de onde a coisa veio. So com is-folha,
  * porque nem todo modal quer virar gaveta.
  */
 @media (max-width: 40rem) {
-  .tuc-modal.is-folha {
-    @apply items-end p-0;
-  }
+  .tuc-modal.is-folha { @apply items-end p-0; }
   .tuc-modal.is-folha .tuc-modal__caixa {
     max-width: none;
     border-radius: var(--tuc-radius) var(--tuc-radius) 0 0;
@@ -235,15 +59,9 @@
       opacity var(--tuc-duration-out) var(--tuc-ease-in),
       translate var(--tuc-duration-out) var(--tuc-ease-in);
   }
-  /* Botao de acao no celular ocupa a linha: alvo de toque maior. */
-  .tuc-modal__rodape .tuc-btn { @apply flex-1; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .tuc-modal .tuc-modal__caixa,
-  .tuc-modal::backdrop {
-    transition-duration: 100ms;
-    scale: none;
-    translate: none;
-  }
+  .tuc-modal::backdrop { transition-duration: 100ms; scale: none; translate: none; }
 }
