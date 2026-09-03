@@ -1,0 +1,81 @@
+@reference "tailwindcss";
+
+.tuc-md {
+  @apply flex w-full flex-col;
+  font-family: var(--tuc-font);
+  border: var(--tuc-border-width) solid var(--tuc-border);
+  border-radius: var(--tuc-radius-md);
+  background: var(--tuc-bg);
+  transition: border-color var(--tuc-duration) ease-out, box-shadow var(--tuc-duration) ease-out;
+}
+/* O foco desenha na moldura, e nao no campo: quem tem borda aqui e o conjunto. */
+.tuc-md:focus-within {
+  border-color: var(--tuc-accent);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--tuc-accent) 22%, transparent);
+}
+
+.tuc-md__barra {
+  @apply flex flex-wrap items-center gap-0.5 p-1.5;
+  border-bottom: var(--tuc-border-width) solid var(--tuc-border);
+}
+.tuc-md__ver { @apply ml-auto; }
+
+/*
+ * O textarea perde a propria moldura: ela subiu para .tuc-md, que envolve
+ * barra e campo. Duas bordas encaixadas ficariam desenhando uma caixa dentro
+ * da outra.
+ */
+textarea.tuc-md__campo.tuc-md__campo {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  min-height: 0;
+  padding: 0.75rem;
+  resize: none;
+  overflow: hidden;
+  font-family: var(--tuc-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+textarea.tuc-md__campo.tuc-md__campo:focus { box-shadow: none; border-color: transparent; }
+
+.tuc-md__preview {
+  @apply p-3;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--tuc-fg);
+}
+.tuc-md__preview > :first-child { margin-top: 0; }
+.tuc-md__preview > :last-child { margin-bottom: 0; }
+.tuc-md__preview p { @apply my-2; }
+.tuc-md__preview h1 { @apply mb-2 mt-3 text-lg font-semibold; }
+.tuc-md__preview h2 { @apply mb-2 mt-3 text-base font-semibold; }
+.tuc-md__preview h3,
+.tuc-md__preview h4,
+.tuc-md__preview h5,
+.tuc-md__preview h6 { @apply mb-1.5 mt-3 text-sm font-semibold; }
+.tuc-md__preview ul { @apply my-2 list-disc pl-5; }
+.tuc-md__preview ol { @apply my-2 list-decimal pl-5; }
+.tuc-md__preview li { @apply my-0.5; }
+.tuc-md__preview a { color: var(--tuc-accent); text-decoration: underline; }
+.tuc-md__preview blockquote {
+  @apply my-2 pl-3;
+  border-left: 2px solid var(--tuc-border);
+  color: var(--tuc-muted);
+}
+.tuc-md__preview hr {
+  @apply my-3;
+  border: 0;
+  border-top: var(--tuc-border-width) solid var(--tuc-border);
+}
+.tuc-md__preview code {
+  @apply rounded px-1 py-0.5;
+  font-family: var(--tuc-mono, ui-monospace, Menlo, monospace);
+  font-size: 0.8125rem;
+  background: var(--tuc-elevated);
+}
+.tuc-md__preview pre {
+  @apply my-2 overflow-x-auto rounded p-3;
+  background: var(--tuc-elevated);
+}
+.tuc-md__preview pre code { @apply p-0; background: none; }

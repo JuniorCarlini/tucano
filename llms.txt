@@ -1,7 +1,7 @@
 # Tucano
 
 > Componentes de formulario e interface para a web, sem dependencias em runtime.
-> JavaScript puro, sem dependências em runtime. 28 KB JS + 8 KB CSS (gzip).
+> JavaScript puro, sem dependências em runtime. 30 KB JS + 9 KB CSS (gzip).
 > Os estilos são escritos em Tailwind mas distribuídos já compilados: o projeto
 > que consome não precisa de build e não recebe o preflight do Tailwind.
 

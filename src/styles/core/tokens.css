@@ -19,6 +19,7 @@
   .tuc-menu,
   .tuc-input,
   .tuc-campo,
+  .tuc-md,
 .tuc-btn {
   --tuc-accent: #4f46e5;
   --tuc-accent-hover: #4338ca;
@@ -80,7 +81,8 @@
   .tuc-acordeon,
   .tuc-menu,
   .tuc-input,
-  .tuc-campo, .tuc-btn),
+  .tuc-campo,
+  .tuc-md, .tuc-btn),
 :where(.dark, [data-theme='dark']).tuc-dp {
   --tuc-accent: #6366f1;
   --tuc-accent-hover: #818cf8;
@@ -113,7 +115,8 @@
   .tuc-acordeon,
   .tuc-menu,
   .tuc-input,
-  .tuc-campo, .tuc-btn) {
+  .tuc-campo,
+  .tuc-md, .tuc-btn) {
     --tuc-accent: #6366f1;
     --tuc-accent-hover: #818cf8;
     --tuc-bg: #171717;
