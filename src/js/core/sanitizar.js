@@ -17,7 +17,7 @@
 
 const PERMITIDAS = new Set([
   'P', 'BR', 'STRONG', 'B', 'EM', 'I', 'U', 'S',
-  'H2', 'H3', 'UL', 'OL', 'LI', 'BLOCKQUOTE', 'CODE', 'A',
+  'H2', 'H3', 'UL', 'OL', 'LI', 'BLOCKQUOTE', 'CODE', 'PRE', 'A',
   'TABLE', 'THEAD', 'TBODY', 'TR', 'TH', 'TD',
 ]);
 
@@ -25,6 +25,21 @@ const PERMITIDAS = new Set([
 const TRANSPARENTES = new Set(['DIV', 'SPAN', 'FONT', 'SECTION', 'ARTICLE', 'MAIN']);
 
 const EQUIVALENTES = { B: 'STRONG', I: 'EM' };
+
+/*
+ * Alinhamento e a unica coisa de `style` que sobrevive — e nem ela passa como
+ * veio. Lemos o valor ja interpretado pelo navegador, conferimos contra quatro
+ * palavras conhecidas e reescrevemos a declaracao do zero. Assim nao existe
+ * caminho por onde um `style` inteiro entre: o que sai daqui foi escrito aqui.
+ */
+const ALINHAMENTOS = new Set(['left', 'center', 'right', 'justify']);
+const ALINHAVEIS = new Set(['P', 'H2', 'H3', 'LI', 'BLOCKQUOTE', 'TD', 'TH']);
+
+function copiarAlinhamento(de, para) {
+  if (!ALINHAVEIS.has(para.tagName)) return;
+  const valor = (de.style?.textAlign || '').toLowerCase();
+  if (ALINHAMENTOS.has(valor)) para.setAttribute('style', `text-align: ${valor}`);
+}
 
 function urlSegura(url) {
   const limpo = (url || '').trim();
@@ -50,6 +65,7 @@ function limparNo(no, destino, doc) {
     }
 
     const novo = doc.createElement(EQUIVALENTES[tag] || tag);
+    copiarAlinhamento(filho, novo);
     if (novo.tagName === 'A') {
       const href = urlSegura(filho.getAttribute('href'));
       if (!href) { limparNo(filho, destino, doc); continue; }

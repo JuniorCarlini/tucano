@@ -14,10 +14,29 @@
   box-shadow: 0 0 0 3px color-mix(in oklab, var(--tuc-accent) 22%, transparent);
 }
 
+/*
+ * Uma linha so, rolando quando nao couber — e nao quebrando em duas.
+ *
+ * Com quebra, a barra principal virava duas fileiras e a de tabela continuava
+ * numa: as duas ficavam de alturas diferentes e pareciam de tamanhos
+ * diferentes, embora botao, icone e espacamento fossem os mesmos. Rolagem
+ * mantem a altura estavel e a ordem previsivel — quem procura um botao sabe
+ * que ele nao mudou de fileira.
+ */
 .tuc-rico__barra {
-  @apply flex flex-wrap items-center gap-0.5 p-1.5;
+  @apply flex items-center gap-0.5 overflow-x-auto p-1.5;
   border-bottom: var(--tuc-border-width) solid var(--tuc-border);
+  scrollbar-width: thin;
 }
+.tuc-rico__barra .tuc-btn { @apply shrink-0; }
+/* A segunda barra e subordinada: fundo levemente afastado e sem borda dupla. */
+.tuc-rico__barra.is-tabela {
+  background: var(--tuc-elevated);
+  padding-block: 0.375rem;
+}
+.tuc-rico__barra.is-tabela .tuc-btn.is-remover { color: #dc2626; }
+.tuc-rico__barra.is-tabela[hidden] { display: none; }
+
 /* Botao aceso enquanto o cursor esta dentro daquela formatacao. */
 .tuc-rico__barra .tuc-btn.is-ativo {
   background: var(--tuc-hover);
@@ -41,21 +60,52 @@ textarea.tuc-rico__valor[hidden] { display: none; }
   pointer-events: none;
 }
 
-.tuc-rico__area > :first-child { margin-top: 0; }
-.tuc-rico__area > :last-child { margin-bottom: 0; }
-.tuc-rico__area p { @apply my-2; }
-.tuc-rico__area h2 { @apply mb-2 mt-4 text-lg font-semibold; }
-.tuc-rico__area h3 { @apply mb-1.5 mt-3 text-base font-semibold; }
-.tuc-rico__area ul { @apply my-2 list-disc pl-5; }
-.tuc-rico__area ol { @apply my-2 list-decimal pl-5; }
-.tuc-rico__area li { @apply my-0.5; }
-.tuc-rico__area a { color: var(--tuc-accent); text-decoration: underline; }
-.tuc-rico__area blockquote {
+.tuc-rico__area > :first-child,
+.tuc-prosa > :first-child { margin-top: 0; }
+.tuc-rico__area > :last-child,
+.tuc-prosa > :last-child { margin-bottom: 0; }
+.tuc-rico__area p,
+.tuc-prosa p { @apply my-2; }
+.tuc-rico__area h2,
+.tuc-prosa h2 { @apply mb-2 mt-4 text-lg font-semibold; }
+.tuc-rico__area h3,
+.tuc-prosa h3 { @apply mb-1.5 mt-3 text-base font-semibold; }
+.tuc-rico__area ul,
+.tuc-prosa ul { @apply my-2 list-disc pl-5; }
+.tuc-rico__area ol,
+.tuc-prosa ol { @apply my-2 list-decimal pl-5; }
+.tuc-rico__area li,
+.tuc-prosa li { @apply my-0.5; }
+.tuc-rico__area a,
+.tuc-prosa a { color: var(--tuc-accent); text-decoration: underline; }
+.tuc-rico__area blockquote,
+.tuc-prosa blockquote {
   @apply my-2 pl-3;
   border-left: 2px solid var(--tuc-border);
   color: var(--tuc-muted);
 }
-.tuc-rico__area code {
+/*
+ * Bloco de codigo. white-space: pre-wrap e nao pre: o editor tem largura fixa,
+ * e rolagem horizontal dentro de um campo de formulario esconde justamente o
+ * que se quer conferir.
+ */
+.tuc-rico__area pre,
+.tuc-prosa pre {
+  @apply my-3 overflow-x-auto rounded p-3;
+  background: var(--tuc-elevated);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.tuc-rico__area pre code,
+.tuc-prosa pre code {
+  @apply p-0;
+  background: none;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+}
+
+.tuc-rico__area code,
+.tuc-prosa code {
   @apply rounded px-1 py-0.5;
   font-size: 0.8125rem;
   background: var(--tuc-elevated);
@@ -66,21 +116,131 @@ textarea.tuc-rico__valor[hidden] { display: none; }
  * com `auto`, o texto redimensiona a coluna enquanto se escreve, e a linha
  * inteira dança.
  */
-.tuc-rico__area table {
+/*
+ * Separador entre grupos da barra. Elemento proprio, e nao borda no botao
+ * vizinho: o botao de icone tem largura fixa e p-0, entao qualquer padding
+ * empurra o desenho para fora do centro, e mudar o raio deixa o realce de
+ * ativo quadrado de um lado so.
+ */
+.tuc-rico__sep {
+  @apply mx-1 self-stretch;
+  width: var(--tuc-border-width);
+  background: var(--tuc-border);
+}
+
+.tuc-rico__area table,
+.tuc-prosa table {
   @apply my-3 w-full;
+  /*
+   * display: table declarado de propósito.
+   *
+   * E comum um projeto ter `table { display: block; overflow-x: auto }` para
+   * deixar tabela rolavel no celular. Herdada aqui, ela desmonta o layout de
+   * tabela: as colunas param de dividir a largura e a grade encolhe dentro de
+   * uma caixa larga. Foi exatamente o que aconteceu.
+   */
+  display: table;
   table-layout: fixed;
   border-collapse: collapse;
 }
 .tuc-rico__area th,
-.tuc-rico__area td {
+.tuc-prosa th,
+.tuc-rico__area td,
+.tuc-prosa td {
   @apply px-2.5 py-1.5 align-top;
   border: var(--tuc-border-width) solid var(--tuc-border);
   min-width: 3rem;
+
+  /*
+   * Devolve a tipografia do editor, desfazendo o que a pagina em volta tiver
+   * imposto a `th` e `td`. Nao e forcar aparencia: e o contrario. Num editor
+   * que promete mostrar o resultado, a celula precisa exibir a formatacao do
+   * conteudo, e nao a da folha de estilo do site — que nem vai junto quando o
+   * texto for publicado em outro lugar.
+   *
+   * O peso fica de fora: negrito em <th> e semantica do navegador, nao
+   * decoracao de quem hospeda o editor.
+   */
+  font-size: inherit;
+  font-family: inherit;
+  color: inherit;
+  text-transform: none;
+  letter-spacing: normal;
 }
-.tuc-rico__area th {
-  @apply text-left font-semibold;
-  background: var(--tuc-elevated);
+/*
+ * O cabecalho nao recebe estilo nosso: nem fundo, nem alinhamento, nem peso.
+ * Ele divide com as celulas comuns so a borda e o respiro, que sao estrutura da
+ * tabela. Tudo o que e aparencia fica com quem escreve — forcado aqui, brigaria
+ * com o que a pessoa escolher na barra, e foi o que aconteceu.
+ */
+/*
+ * Nao ha realce de celula. Tentei marcar a que tem o cursor, mas o cursor
+ * piscando ja diz onde se esta, e a barra de tabela aparecendo confirma que ha
+ * uma por perto — nao vale gastar cor nisso.
+ */
+
+/* ------------------------------------------------------------------ */
+
+/*
+ * Cores do codigo.
+ *
+ * Sao poucas de proposito: comentario, texto, numero, tag, atributo, palavra e
+ * chave de template. Um destacador de verdade separaria dezenas de categorias,
+ * mas o ganho aqui e enxergar a forma do codigo de relance, e para isso meia
+ * duzia de cores basta — e passa a ser legivel em qualquer linguagem, inclusive
+ * nas que ninguem previu.
+ *
+ * As cores vivem aqui, e nao no destacador: ele so nomeia o que encontrou.
+ */
+.tuc-rico__area,
+.tuc-prosa {
+  --tuc-tok-coment: #6b7280;
+  --tuc-tok-texto: #0a7d3f;
+  --tuc-tok-num: #b45309;
+  --tuc-tok-tag: #b91c1c;
+  --tuc-tok-attr: #7c3aed;
+  --tuc-tok-chave: #1d4ed8;
+  --tuc-tok-tmpl: #a16207;
 }
-/* Célula com o cursor dentro: sem isso se perde de vista onde se está. */
-.tuc-rico__area th:focus-within,
-.tuc-rico__area td:focus-within { box-shadow: inset 0 0 0 2px var(--tuc-accent); }
+:where(.dark, [data-theme='dark']) .tuc-rico__area,
+:where(.dark, [data-theme='dark']).tuc-rico .tuc-rico__area,
+.tuc-prosa {
+  --tuc-tok-coment: #8b949e;
+  --tuc-tok-texto: #7ee787;
+  --tuc-tok-num: #ffa657;
+  --tuc-tok-tag: #ff7b72;
+  --tuc-tok-attr: #d2a8ff;
+  --tuc-tok-chave: #79c0ff;
+  --tuc-tok-tmpl: #f0c674;
+}
+
+.tuc-tok-coment { color: var(--tuc-tok-coment); font-style: italic; }
+.tuc-tok-texto  { color: var(--tuc-tok-texto); }
+.tuc-tok-num    { color: var(--tuc-tok-num); }
+.tuc-tok-tag    { color: var(--tuc-tok-tag); }
+.tuc-tok-attr   { color: var(--tuc-tok-attr); }
+.tuc-tok-chave  { color: var(--tuc-tok-chave); }
+.tuc-tok-tmpl   { color: var(--tuc-tok-tmpl); }
+
+
+/* ------------------------------------------------------------------ */
+
+/*
+ * Exibicao do que o editor salvou.
+ *
+ * O HTML guardado nao leva classe nenhuma — de proposito, para servir a
+ * qualquer servidor e sobreviver a uma troca de front. O preco e que, fora do
+ * editor, ele herda o estilo da pagina: o bloco de codigo perde o fundo e a
+ * tabela perde as bordas.
+ *
+ * Envolver a saida nesta classe devolve exatamente a aparencia que a pessoa viu
+ * ao escrever. As regras acima sao compartilhadas com a area de edicao, entao
+ * as duas nao tem como divergir.
+ */
+.tuc-prosa {
+  font-family: var(--tuc-font);
+  font-size: var(--tuc-text);
+  line-height: 1.65;
+  color: var(--tuc-fg);
+}
+.tuc-prosa pre { overflow-x: auto; }
