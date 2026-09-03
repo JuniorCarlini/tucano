@@ -3,7 +3,7 @@
 Componentes de formulário e interface para a web, para quem escreve HTML.
 Sem React, sem Vue, sem dependência em runtime.
 
-**32 KB de JS + 9 KB de CSS** (minificado + gzip).
+**33 KB de JS + 9 KB de CSS** (minificado + gzip).
 
 **[Documentação e exemplos ao vivo →](https://juniorcarlini.github.io/tucano/)**
 
@@ -20,6 +20,8 @@ Sem React, sem Vue, sem dependência em runtime.
 | `Gaveta` — off-canvas nas quatro bordas, mesmo motor do modal | pronto |
 | `Acordeão` — sobre `<details>`, funciona sem JavaScript | pronto |
 | `.tuc-menu` — lista de navegação, só classe | pronto |
+| `Rico` — editor de texto com tabela e bloco de código | pronto |
+| `.tuc-prosa` — exibição do que o editor salvou | pronto |
 | `.tuc-btn` — estilo de botão, só classe | pronto |
 
 ---
@@ -398,6 +400,14 @@ Tucano.modal({
 if (await Tucano.confirmar({ title: 'Excluir contrato?' })) excluir();
 ```
 
+## Utilitários
+
+```js
+Tucano.sanitizar(html)  // aplica a peneira de tags do editor
+Tucano.destacar(codigo) // devolve o código com marcação de cor
+Tucano.init(elemento)   // inicializa data-tuc-* num trecho novo de HTML
+```
+
 ## Acordeão
 
 Sobre `<details>`/`<summary>` nativos: teclado, semântica e estado vêm do
@@ -416,6 +426,38 @@ só onde o nativo não vai — animar.
 `data-unico="true"` recolhe os outros ao abrir um. Para menu lateral,
 `.tuc-acordeon.is-limpo` tira as divisórias e deixa o título com cara de rótulo
 de grupo.
+
+## Editor de texto
+
+Mostra o resultado enquanto se escreve, com tabela e bloco de código. O
+`<textarea>` continua dono do valor, então `name`, `required` e o POST do Django
+funcionam sem nada especial:
+
+```html
+<textarea name="descricao" data-tuc-rico>{{ form.descricao.value|default:"" }}</textarea>
+```
+
+Colar entra sempre como texto puro — é o que evita o HTML do Word. E a saída
+passa por uma peneira de tags a cada leitura: sobrevivem parágrafo, título,
+negrito, itálico, sublinhado, listas, citação, código, link e tabela. Atributo
+nenhum passa, exceto o `href` com destino aceitável.
+
+**Sanitize no servidor antes de publicar.** O HTML chega por POST e ninguém
+garante que veio deste editor.
+
+### Na exibição
+
+O que é salvo é HTML sem classe, para servir a qualquer servidor. Envolver a
+saída em `.tuc-prosa` devolve a aparência que a pessoa viu ao escrever — são as
+mesmas regras de CSS da área de edição:
+
+```html
+<div class="tuc-prosa">{{ projeto.descricao|safe }}</div>
+```
+
+O código publicado é colorido pelo `init()`. O destacador não conhece linguagem
+nenhuma: reconhece comentário, texto entre aspas, número, tag, atributo e chaves
+de template, o que funciona em qualquer linguagem por 2 KB.
 
 ## Gaveta (off-canvas)
 

@@ -108,6 +108,57 @@ dobro.
 **O tamanho do ícone sai do botão, por variável.** Decidido em cada chamada, ele
 divergia: 14px no X do toast e 15px no do modal, mesmo papel.
 
+**O editor de texto escapa antes de marcar, nunca o contrário.** `core/sanitizar.js`
+tem uma lista fechada de tags e derruba todo atributo, exceto `href` com destino
+aceitável e `text-align` reescrito por nós. Marcar primeiro e escapar depois é
+como se escreve um XSS. A peneira roda a cada leitura do valor, e não só no que
+foi digitado: o navegador tem liberdade para marcar como quiser ao executar um
+comando.
+
+**Isso protege o editor, não a publicação.** O HTML chega ao servidor por POST e
+ninguém garante que veio daqui. A documentação diz para sanitizar de novo no
+servidor, e ela não deve deixar de dizer.
+
+**Colar entra sempre como texto puro.** É o que evita o HTML do Word e do Google
+Docs, com tabelas de layout e estilos embutidos.
+
+**`execCommand` está deprecado e é usado assim mesmo.** É o único caminho com
+suporte universal e, sobretudo, o único que se integra ao desfazer nativo.
+Reimplementar à mão significaria reimplementar o Ctrl+Z junto. A exceção é
+desfazer um bloco de código: ali `insertHTML` escreve *dentro* do `<pre>` e o
+deixa de pé, então o elemento é trocado direto no DOM — perde-se o desfazer
+nessa ação só, o que é melhor que entregar um bloco com parágrafos dentro.
+
+**O que o editor salva não leva classe nenhuma.** É o que o faz servir a
+qualquer servidor. Para exibir com a mesma aparência, envolva em `.tuc-prosa` —
+as regras são compartilhadas com a área de edição no CSS, então as duas não têm
+como divergir.
+
+**A coloração de código é exibição, nunca conteúdo.** A peneira dissolve `span`,
+então ela não chega ao banco. O destacador não conhece linguagem nenhuma de
+propósito: reconhece comentário, texto entre aspas, número, tag, atributo e
+chaves de template, o que cobre qualquer linguagem por 2 KB.
+
+**O editor se defende do CSS de quem hospeda.** `display: table` e a tipografia
+das células são declarados de propósito: `table { display: block }` e
+`th { text-transform: uppercase }` são receitas comuns em projeto, e herdadas
+aqui desmontam o layout e mentem sobre o que será publicado.
+
+## Antes de dizer que está pronto
+
+```bash
+npm run conferir
+```
+
+Mede a altura e a fonte de todo controle nas duas larguras e falha se algum sair
+do padrão. Existe porque o mesmo erro aconteceu três vezes — botão de ícone com
+28px ao lado de um de 30, campo de data com 38px e fonte 13 ao lado de um select
+de 44 e 16 — e nas três quem percebeu foi o usuário, olhando a tela.
+
+Componente novo com campo ou botão precisa entrar em `tools/conferir.mjs` e na
+lista do `@media (max-width: 40rem)` em `core/tokens.css`. Foi ficar de fora
+dessa lista que fez o campo de texto pedir zoom no iPhone.
+
 ## Ao testar mudanças visuais
 
 **Confira `document.visibilityState` antes de confiar em qualquer medida.** Um

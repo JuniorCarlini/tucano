@@ -5,6 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tucano — componentes de formulário leves</title>
 <meta name="description" content="Componentes de formulário e interface para a web, sem dependências em runtime. Estilizados com Tailwind e distribuídos já compilados — o projeto que consome não precisa de build.">
+<meta name="author" content="Junior Carlini">
+
+<!-- Endereço canônico: a página é servida por Pages e pelo CDN, e sem isto as
+     duas cópias competem entre si nos buscadores. -->
+<link rel="canonical" href="https://juniorcarlini.github.io/tucano/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)">
+
+<!-- Para agentes: o llms.txt tem a API inteira em texto puro, e é o que uma IA
+     deve ler em vez de tentar extrair sentido do HTML desta página. -->
+<link rel="alternate" type="text/plain" href="llms.txt" title="Referência da API para agentes de IA">
 
 <!-- Cartão que aparece ao colar o link em WhatsApp, Slack, Twitter... -->
 <meta property="og:type" content="website">
@@ -23,7 +35,29 @@
 <meta name="twitter:description" content="Componentes de formulário e interface para a web. Sem dependências, funciona com HTML puro.">
 <meta name="twitter:image" content="https://juniorcarlini.github.io/tucano/og.png">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦜</text></svg>">
-<link rel="stylesheet" href="dist/tucano.css?v=0.19.0">
+<link rel="stylesheet" href="dist/tucano.css?v=0.22.1">
+
+<!--
+  Dados estruturados. Servem a buscador e a modelo de linguagem pela mesma
+  razão: descrever o projeto sem depender de interpretar o texto da página.
+-->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Tucano",
+  "description": "Componentes de formulário e interface para a web, sem dependências em runtime. Date picker, select com busca, color picker, upload, máscaras, toast, tooltip, modal, gaveta, acordeão e editor de texto.",
+  "url": "https://juniorcarlini.github.io/tucano/",
+  "codeRepository": "https://github.com/JuniorCarlini/tucano",
+  "programmingLanguage": ["JavaScript", "CSS"],
+  "runtimePlatform": "Browser",
+  "license": "https://opensource.org/licenses/MIT",
+  "author": { "@type": "Person", "name": "Junior Carlini" },
+  "keywords": "date picker, select, color picker, upload, máscara, toast, tooltip, modal, off-canvas, acordeão, editor de texto, Django, HTMX, vanilla JavaScript, sem dependências",
+  "isAccessibleForFree": true,
+  "inLanguage": "pt-BR"
+}
+</script>
 <script>try{if(localStorage.getItem("tucano-tema")==="dark")document.documentElement.classList.add("dark")}catch{}</script>
 <style>
   :root{
@@ -159,9 +193,9 @@
   html.dark pre .a{color:#7dd3fc}
   html.dark pre .s{color:#86efac}
 
-  table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px}
+  section > table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px}
   th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
-  th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--subtle);font-weight:650}
+  section > table th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--subtle);font-weight:650}
   td code{background:var(--code);padding:1px 5px;border-radius:4px}
   td:first-child{white-space:nowrap}
 
@@ -199,7 +233,7 @@
     .grid{grid-template-columns:minmax(0,1fr)}
 
     /* Tabela vira bloco rolavel: em 390px ela estourava a largura da pagina. */
-    table{display:block;max-width:100%;overflow-x:auto;font-size:13px}
+    section > table{display:block;max-width:100%;overflow-x:auto;font-size:13px}
     th,td{padding:8px 9px}
     td:first-child{white-space:normal}
 
@@ -212,7 +246,7 @@
 <header class="topbar">
   <span class="bird" style="font-size:18px">🦜</span>
   <b style="font-size:16px;font-weight:640;letter-spacing:-.02em">Tucano</b>
-  <span class="ver">v0.19.0</span>
+  <span class="ver">v0.22.1</span>
   <div class="topbar__acoes">
     <button class="iconbtn" data-tema aria-label="Alternar tema"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
     <button class="iconbtn" id="menu" aria-label="Abrir menu" aria-expanded="false" aria-controls="side"><svg class="i-menu" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
@@ -224,7 +258,7 @@
     <span class="bird">🦜</span><b>Tucano</b>
     <button class="iconbtn" data-tema aria-label="Alternar tema"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
   </div>
-  <span class="ver">v0.19.0 · 41 KB</span>
+  <span class="ver">v0.22.1 · 42 KB</span>
 
   <nav class="nav">
     <a href="#inicio">Início</a>
@@ -242,7 +276,6 @@
     <a href="#gaveta">Gaveta</a>
     <a href="#acordeon">Acordeão</a>
     <a href="#rico">Editor de texto</a>
-    <a href="#markdown">Texto formatado</a>
     <div class="grp">Guias</div>
     <a href="#django">Django</a>
     <a href="#tema">Tema</a>
@@ -260,7 +293,7 @@
      Sem dependências em runtime. Estilos escritos em Tailwind e distribuídos já compilados —
      o projeto que consome não precisa de build.</p>
   <div class="pills">
-    <span class="pill"><b>32 KB</b> JS gzip</span>
+    <span class="pill"><b>33 KB</b> JS gzip</span>
     <span class="pill"><b>9 KB</b> CSS gzip</span>
     <span class="pill"><b>0</b> dependências</span>
     <span class="pill">Sem preflight do Tailwind</span>
@@ -275,8 +308,8 @@
   <p class="lead">Dois arquivos e nada mais. Funciona com HTML puro, sem npm e sem build.</p>
 
   <pre><span class="c">&lt;!-- CDN --&gt;</span>
-&lt;<span class="t">link</span> <span class="a">rel</span>=<span class="s">"stylesheet"</span> <span class="a">href</span>=<span class="s">"https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.19.0/dist/tucano.min.css"</span>&gt;
-&lt;<span class="t">script</span> <span class="a">src</span>=<span class="s">"https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.19.0/dist/tucano.min.js"</span> <span class="a">defer</span>&gt;&lt;/<span class="t">script</span>&gt;</pre>
+&lt;<span class="t">link</span> <span class="a">rel</span>=<span class="s">"stylesheet"</span> <span class="a">href</span>=<span class="s">"https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.22.1/dist/tucano.min.css"</span>&gt;
+&lt;<span class="t">script</span> <span class="a">src</span>=<span class="s">"https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.22.1/dist/tucano.min.js"</span> <span class="a">defer</span>&gt;&lt;/<span class="t">script</span>&gt;</pre>
 
   <h3>npm</h3>
   <pre>npm install tucano</pre>
@@ -1330,17 +1363,61 @@ Tucano.toast.promessa(fetch(url), {
 
 <section id="rico">
   <h2>Editor de texto</h2>
-  <p class="lead">Mostra o resultado enquanto se escreve. Para quem preenche uma descrição no
-     sistema e não conhece marcação nenhuma.</p>
+  <p class="lead">Mostra o resultado enquanto se escreve: quem preenche uma descrição no sistema vê
+     negrito em negrito, e não marcação. Com tabela.</p>
 
   <div class="card">
     <label for="rt1">Descrição do projeto</label>
-    <textarea id="rt1" name="descricao" data-tuc-rico data-placeholder="Escreva aqui…">&lt;h2&gt;Escopo&lt;/h2&gt;&lt;p&gt;Levantamento em campo e &lt;strong&gt;relatório fotográfico&lt;/strong&gt;.&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Vistoria inicial&lt;/li&gt;&lt;li&gt;Medição das unidades&lt;/li&gt;&lt;/ul&gt;</textarea>
+    <textarea id="rt1" name="descricao" data-tuc-rico data-placeholder="Escreva aqui…">&lt;h2&gt;Escopo do contrato&lt;/h2&gt;
+&lt;p&gt;Levantamento em campo com &lt;strong&gt;relatório fotográfico&lt;/strong&gt;, &lt;em&gt;medição das unidades&lt;/em&gt; e &lt;u&gt;laudo assinado&lt;/u&gt;.&lt;/p&gt;
+&lt;h3&gt;Etapas&lt;/h3&gt;
+&lt;ol&gt;&lt;li&gt;Vistoria inicial&lt;/li&gt;&lt;li&gt;Medição&lt;/li&gt;&lt;li&gt;Emissão do laudo&lt;/li&gt;&lt;/ol&gt;
+&lt;p&gt;Documentos aceitos:&lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;Matrícula do imóvel&lt;/li&gt;&lt;li&gt;Planta baixa&lt;/li&gt;&lt;/ul&gt;
+&lt;table&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Etapa&lt;/th&gt;&lt;th style="text-align: center"&gt;Prazo&lt;/th&gt;&lt;th style="text-align: right"&gt;Valor&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;Vistoria&lt;/td&gt;&lt;td style="text-align: center"&gt;5 dias&lt;/td&gt;&lt;td style="text-align: right"&gt;R$ 2.400&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Medição&lt;/td&gt;&lt;td style="text-align: center"&gt;10 dias&lt;/td&gt;&lt;td style="text-align: right"&gt;R$ 5.800&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
+&lt;blockquote&gt;O prazo conta a partir da assinatura.&lt;/blockquote&gt;
+&lt;p style="text-align: center"&gt;Parágrafo centralizado, para ver o alinhamento.&lt;/p&gt;
+&lt;p style="text-align: right"&gt;E este à direita.&lt;/p&gt;
+&lt;h3&gt;Como instalar&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;npm install tucano
+npm run build&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;No template do Django:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;{% for m in messages %}
+  &amp;lt;div data-tuc-toast&amp;gt;{{ m }}&amp;lt;/div&amp;gt;
+{% endfor %}&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Condições completas em &lt;a href="https://exemplo.com"&gt;nossa política&lt;/a&gt;. Trecho com &lt;code&gt;código&lt;/code&gt; no meio.&lt;/p&gt;</textarea>
     <div class="out" id="rt1-out"></div>
   </div>
 
-  <h3>No template</h3>
+  <h3>No formulário</h3>
   <pre>&lt;<span class="t">textarea</span> <span class="a">name</span>=<span class="s">"descricao"</span> <span class="a">data-tuc-rico</span>&gt;{{ form.descricao.value|default:"" }}&lt;/<span class="t">textarea</span>&gt;</pre>
+
+  <h3>Na exibição</h3>
+  <p class="lead">O que é salvo é HTML sem classe nenhuma — de propósito, para servir a qualquer
+     servidor e sobreviver a uma troca de front. O preço é que, publicado, ele herdaria o estilo da
+     sua página. Envolver a saída em <code>.tuc-prosa</code> devolve exatamente a aparência que a
+     pessoa viu ao escrever:</p>
+
+  <pre>&lt;<span class="t">div</span> <span class="a">class</span>=<span class="s">"tuc-prosa"</span>&gt;{{ projeto.descricao|safe }}&lt;/<span class="t">div</span>&gt;</pre>
+
+  <div class="card">
+    <span class="lbl">O mesmo conteúdo, já publicado</span>
+    <div class="tuc-prosa">
+      <h2>Escopo do contrato</h2>
+      <p>Levantamento em campo com <strong>relatório fotográfico</strong>.</p>
+      <table><thead><tr><th>Etapa</th><th style="text-align: center">Prazo</th><th style="text-align: right">Valor</th></tr></thead>
+        <tbody><tr><td>Vistoria</td><td style="text-align: center">5 dias</td><td style="text-align: right">R$ 2.400</td></tr></tbody></table>
+      <pre><code>npm install tucano
+npm run build  # gera o dist</code></pre>
+      <blockquote>O prazo conta a partir da assinatura.</blockquote>
+    </div>
+  </div>
+
+  <div class="note">
+    As regras de aparência são <b>as mesmas</b> da área de edição, compartilhadas no CSS — os dois
+    não têm como divergir. E o código publicado também é colorido, pelo <code>init()</code>,
+    inclusive o que chegar depois por swap do HTMX.
+  </div>
 
   <p class="lead">Atalhos: <code>Ctrl/Cmd+B</code>, <code>+I</code>, <code>+U</code> e <code>+K</code>.
      Na tabela, <code>Tab</code> anda entre as células e, na última, cria uma linha nova — dá para
@@ -1366,49 +1443,6 @@ Tucano.toast.promessa(fetch(url), {
     O <code>&lt;textarea&gt;</code> original continua no DOM guardando o valor, então
     <code>name</code>, <code>required</code> e o POST funcionam sem mudar a sua view. Fora do
     escopo: mesclar células e redimensionar coluna — é o que faz editor virar projeto.
-  </div>
-</section>
-
-<section id="markdown">
-  <h2>Texto formatado</h2>
-  <p class="lead">O mesmo texto longo, mas guardando <b>Markdown</b> em vez de HTML. Escolha este
-     quando o conteúdo for versionado, exportado ou renderizado em outro lugar; para quem só
-     preenche um formulário, o <a href="#rico">editor de texto</a> é mais direto.</p>
-
-  <div class="card">
-    <label for="md1">Descrição do projeto</label>
-    <textarea id="md1" name="descricao" data-tuc-markdown placeholder="Escreva aqui. Use **negrito**, listas, links…"># Escopo
-
-Levantamento em campo e **relatório fotográfico**.
-
-- Vistoria inicial
-- Medição das unidades
-- Relatório em até *5 dias úteis*
-
-&gt; Prazo conta a partir da assinatura.
-
-Detalhes em [nossa política](https://exemplo.com).</textarea>
-  </div>
-
-  <h3>No template</h3>
-  <pre>&lt;<span class="t">textarea</span> <span class="a">name</span>=<span class="s">"descricao"</span> <span class="a">data-tuc-markdown</span>&gt;{{ form.descricao.value|default:"" }}&lt;/<span class="t">textarea</span>&gt;</pre>
-
-  <p class="lead">Atalhos: <code>Ctrl/Cmd+B</code>, <code>Ctrl/Cmd+I</code> e <code>Ctrl/Cmd+K</code>.
-     <code>Enter</code> dentro de lista continua a lista, e num item vazio sai dela. Clicar de novo
-     numa marcação de linha a remove. O campo cresce com o texto.</p>
-
-  <div class="note">
-    <b>O que vai para o banco é Markdown, não HTML.</b> O <code>&lt;textarea&gt;</code> continua
-    dono do valor, então <code>name</code>, <code>required</code> e o POST funcionam sem nada
-    especial. Quem transforma isso em HTML para o público é o servidor, com a biblioteca dele —
-    um campo de formulário não deveria ser fronteira de segurança da sua aplicação.
-  </div>
-
-  <div class="note">
-    <b>A pré-visualização escapa antes de marcar.</b> O texto vira entidades primeiro e só depois
-    as marcações que reconhecemos reintroduzem tags — que são nossas, não de quem digitou. Endereço
-    de link passa por peneira: <code>javascript:</code> vira texto puro. A ordem inversa, marcar e
-    escapar depois, é como se escreve um XSS.
   </div>
 </section>
 
@@ -1652,7 +1686,7 @@ seguem funcionando. Não substitua por estado só em JS.</pre>
 
 </main>
 
-<script src="dist/tucano.js?v=0.19.0"></script>
+<script src="dist/tucano.js?v=0.22.1"></script>
 <script>
   const ICONE_MENU = '<svg class="i-menu" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>';
   const ICONE_X = '<svg class="i-x" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>';

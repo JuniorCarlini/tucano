@@ -1,12 +1,12 @@
 /*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
 @layer properties;
-.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-md, .tuc-rico, .tuc-btn {
+.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-rico, .tuc-prosa, .tuc-btn {
   box-sizing: border-box;
 }
-:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-md, .tuc-rico, .tuc-btn) *, :where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-md, .tuc-rico, .tuc-btn) *::before, :where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-md, .tuc-rico, .tuc-btn) *::after {
+:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-rico, .tuc-prosa, .tuc-btn) *, :where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-rico, .tuc-prosa, .tuc-btn) *::before, :where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-rico, .tuc-prosa, .tuc-btn) *::after {
   box-sizing: border-box;
 }
-:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-md, .tuc-rico, .tuc-btn) button {
+:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-rico, .tuc-prosa, .tuc-btn) button {
   appearance: none;
   -webkit-appearance: none;
   margin: 0;
@@ -22,7 +22,7 @@
   text-transform: none;
   cursor: pointer;
 }
-:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-md, .tuc-rico, .tuc-btn) button:disabled {
+:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-rico, .tuc-prosa, .tuc-btn) button:disabled {
   cursor: default;
 }
 :where(.tuc-dp, .tuc-select, .tuc-select__menu) abbr[title] {
@@ -30,11 +30,11 @@
   border: 0;
   cursor: inherit;
 }
-:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-md, .tuc-rico, .tuc-btn) svg {
+:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-rico, .tuc-prosa, .tuc-btn) svg {
   display: block;
   flex: none;
 }
-:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-md, .tuc-rico, .tuc-btn) input {
+:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-rico, .tuc-prosa, .tuc-btn) input {
   font: inherit;
   color: inherit;
 }
@@ -46,7 +46,7 @@
   color: var(--tuc-fg);
   min-width: 0;
 }
-.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-md, .tuc-rico, .tuc-btn {
+.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-rico, .tuc-prosa, .tuc-btn {
   --tuc-accent: #4f46e5;
   --tuc-accent-hover: #4338ca;
   --tuc-accent-fg: #ffffff;
@@ -86,7 +86,7 @@
   --tuc-text: 0.8125rem;
   --tuc-cell: 2.25rem;
 }
-:where(.dark, [data-theme='dark']) :is(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-md, .tuc-rico, .tuc-btn), :where(.dark, [data-theme='dark']).tuc-dp {
+:where(.dark, [data-theme='dark']) :is(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-rico, .tuc-prosa, .tuc-btn), :where(.dark, [data-theme='dark']).tuc-dp {
   --tuc-accent: #6366f1;
   --tuc-accent-hover: #818cf8;
   --tuc-accent-fg: #ffffff;
@@ -103,7 +103,7 @@
     0 16px 48px -24px rgb(0 0 0 / 0.8);
 }
 @media (prefers-color-scheme: dark) {
-  :where(html[data-tuc-theme='auto']) :is(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-md, .tuc-rico, .tuc-btn) {
+  :where(html[data-tuc-theme='auto']) :is(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-input, .tuc-campo, .tuc-rico, .tuc-prosa, .tuc-btn) {
     --tuc-accent: #6366f1;
     --tuc-accent-hover: #818cf8;
     --tuc-bg: #171717;
@@ -120,7 +120,7 @@
   }
 }
 @media (max-width: 40rem) {
-  .tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-btn {
+  .tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-input, .tuc-campo, .tuc-rico, .tuc-btn {
     --tuc-text: 1rem;
     --tuc-swatch: 2.5rem;
     --tuc-control-height: 2.75rem;
@@ -182,139 +182,6 @@ input.tuc-input.tuc-input:disabled, textarea.tuc-input.tuc-input:disabled {
 .tuc-campo:has(> svg) input.tuc-input.tuc-input {
   padding-left: 2.125rem;
 }
-.tuc-md {
-  display: flex;
-  width: 100%;
-  flex-direction: column;
-  font-family: var(--tuc-font);
-  border: var(--tuc-border-width) solid var(--tuc-border);
-  border-radius: var(--tuc-radius-md);
-  background: var(--tuc-bg);
-  transition: border-color var(--tuc-duration) ease-out, box-shadow var(--tuc-duration) ease-out;
-}
-.tuc-md:focus-within {
-  border-color: var(--tuc-accent);
-  box-shadow: 0 0 0 3px var(--tuc-accent);
-  @supports (color: color-mix(in lab, red, red)) {
-    box-shadow: 0 0 0 3px color-mix(in oklab, var(--tuc-accent) 22%, transparent);
-  }
-}
-.tuc-md__barra {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: calc(var(--spacing, 0.25rem) * 0.5);
-  padding: calc(var(--spacing, 0.25rem) * 1.5);
-  border-bottom: var(--tuc-border-width) solid var(--tuc-border);
-}
-.tuc-md__ver {
-  margin-left: auto;
-}
-textarea.tuc-md__campo.tuc-md__campo {
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  min-height: 0;
-  padding: 0.75rem;
-  resize: none;
-  overflow: hidden;
-  font-family: var(--tuc-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 0.875rem;
-  line-height: 1.6;
-}
-textarea.tuc-md__campo.tuc-md__campo:focus {
-  box-shadow: none;
-  border-color: transparent;
-}
-textarea.tuc-md__campo[hidden], .tuc-md__preview[hidden] {
-  display: none;
-}
-.tuc-md__preview {
-  padding: calc(var(--spacing, 0.25rem) * 3);
-  font-size: 0.875rem;
-  line-height: 1.6;
-  color: var(--tuc-fg);
-}
-.tuc-md__preview > :first-child {
-  margin-top: 0;
-}
-.tuc-md__preview > :last-child {
-  margin-bottom: 0;
-}
-.tuc-md__preview p {
-  margin-block: calc(var(--spacing, 0.25rem) * 2);
-}
-.tuc-md__preview h1 {
-  margin-top: calc(var(--spacing, 0.25rem) * 3);
-  margin-bottom: calc(var(--spacing, 0.25rem) * 2);
-  font-size: var(--text-lg, 1.125rem);
-  line-height: var(--tw-leading, var(--text-lg--line-height, calc(1.75 / 1.125)));
-  --tw-font-weight: var(--font-weight-semibold, 600);
-  font-weight: var(--font-weight-semibold, 600);
-}
-.tuc-md__preview h2 {
-  margin-top: calc(var(--spacing, 0.25rem) * 3);
-  margin-bottom: calc(var(--spacing, 0.25rem) * 2);
-  font-size: var(--text-base, 1rem);
-  line-height: var(--tw-leading, var(--text-base--line-height, calc(1.5 / 1)));
-  --tw-font-weight: var(--font-weight-semibold, 600);
-  font-weight: var(--font-weight-semibold, 600);
-}
-.tuc-md__preview h3, .tuc-md__preview h4, .tuc-md__preview h5, .tuc-md__preview h6 {
-  margin-top: calc(var(--spacing, 0.25rem) * 3);
-  margin-bottom: calc(var(--spacing, 0.25rem) * 1.5);
-  font-size: var(--text-sm, 0.875rem);
-  line-height: var(--tw-leading, var(--text-sm--line-height, calc(1.25 / 0.875)));
-  --tw-font-weight: var(--font-weight-semibold, 600);
-  font-weight: var(--font-weight-semibold, 600);
-}
-.tuc-md__preview ul {
-  margin-block: calc(var(--spacing, 0.25rem) * 2);
-  list-style-type: disc;
-  padding-left: calc(var(--spacing, 0.25rem) * 5);
-}
-.tuc-md__preview ol {
-  margin-block: calc(var(--spacing, 0.25rem) * 2);
-  list-style-type: decimal;
-  padding-left: calc(var(--spacing, 0.25rem) * 5);
-}
-.tuc-md__preview li {
-  margin-block: calc(var(--spacing, 0.25rem) * 0.5);
-}
-.tuc-md__preview a {
-  color: var(--tuc-accent);
-  text-decoration: underline;
-}
-.tuc-md__preview blockquote {
-  margin-block: calc(var(--spacing, 0.25rem) * 2);
-  padding-left: calc(var(--spacing, 0.25rem) * 3);
-  border-left: 2px solid var(--tuc-border);
-  color: var(--tuc-muted);
-}
-.tuc-md__preview hr {
-  margin-block: calc(var(--spacing, 0.25rem) * 3);
-  border: 0;
-  border-top: var(--tuc-border-width) solid var(--tuc-border);
-}
-.tuc-md__preview code {
-  border-radius: 0.25rem;
-  padding-inline: var(--spacing, 0.25rem);
-  padding-block: calc(var(--spacing, 0.25rem) * 0.5);
-  font-family: var(--tuc-mono, ui-monospace, Menlo, monospace);
-  font-size: 0.8125rem;
-  background: var(--tuc-elevated);
-}
-.tuc-md__preview pre {
-  margin-block: calc(var(--spacing, 0.25rem) * 2);
-  overflow-x: auto;
-  border-radius: 0.25rem;
-  padding: calc(var(--spacing, 0.25rem) * 3);
-  background: var(--tuc-elevated);
-}
-.tuc-md__preview pre code {
-  padding: 0px;
-  background: none;
-}
 .tuc-rico {
   display: flex;
   width: 100%;
@@ -334,11 +201,25 @@ textarea.tuc-md__campo[hidden], .tuc-md__preview[hidden] {
 }
 .tuc-rico__barra {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   gap: calc(var(--spacing, 0.25rem) * 0.5);
+  overflow-x: auto;
   padding: calc(var(--spacing, 0.25rem) * 1.5);
   border-bottom: var(--tuc-border-width) solid var(--tuc-border);
+  scrollbar-width: thin;
+}
+.tuc-rico__barra .tuc-btn {
+  flex-shrink: 0;
+}
+.tuc-rico__barra.is-tabela {
+  background: var(--tuc-elevated);
+  padding-block: 0.375rem;
+}
+.tuc-rico__barra.is-tabela .tuc-btn.is-remover {
+  color: #dc2626;
+}
+.tuc-rico__barra.is-tabela[hidden] {
+  display: none;
 }
 .tuc-rico__barra .tuc-btn.is-ativo {
   background: var(--tuc-hover);
@@ -360,16 +241,16 @@ textarea.tuc-rico__valor[hidden] {
   color: var(--tuc-subtle);
   pointer-events: none;
 }
-.tuc-rico__area > :first-child {
+.tuc-rico__area > :first-child, .tuc-prosa > :first-child {
   margin-top: 0;
 }
-.tuc-rico__area > :last-child {
+.tuc-rico__area > :last-child, .tuc-prosa > :last-child {
   margin-bottom: 0;
 }
-.tuc-rico__area p {
+.tuc-rico__area p, .tuc-prosa p {
   margin-block: calc(var(--spacing, 0.25rem) * 2);
 }
-.tuc-rico__area h2 {
+.tuc-rico__area h2, .tuc-prosa h2 {
   margin-top: calc(var(--spacing, 0.25rem) * 4);
   margin-bottom: calc(var(--spacing, 0.25rem) * 2);
   font-size: var(--text-lg, 1.125rem);
@@ -377,7 +258,7 @@ textarea.tuc-rico__valor[hidden] {
   --tw-font-weight: var(--font-weight-semibold, 600);
   font-weight: var(--font-weight-semibold, 600);
 }
-.tuc-rico__area h3 {
+.tuc-rico__area h3, .tuc-prosa h3 {
   margin-top: calc(var(--spacing, 0.25rem) * 3);
   margin-bottom: calc(var(--spacing, 0.25rem) * 1.5);
   font-size: var(--text-base, 1rem);
@@ -385,57 +266,124 @@ textarea.tuc-rico__valor[hidden] {
   --tw-font-weight: var(--font-weight-semibold, 600);
   font-weight: var(--font-weight-semibold, 600);
 }
-.tuc-rico__area ul {
+.tuc-rico__area ul, .tuc-prosa ul {
   margin-block: calc(var(--spacing, 0.25rem) * 2);
   list-style-type: disc;
   padding-left: calc(var(--spacing, 0.25rem) * 5);
 }
-.tuc-rico__area ol {
+.tuc-rico__area ol, .tuc-prosa ol {
   margin-block: calc(var(--spacing, 0.25rem) * 2);
   list-style-type: decimal;
   padding-left: calc(var(--spacing, 0.25rem) * 5);
 }
-.tuc-rico__area li {
+.tuc-rico__area li, .tuc-prosa li {
   margin-block: calc(var(--spacing, 0.25rem) * 0.5);
 }
-.tuc-rico__area a {
+.tuc-rico__area a, .tuc-prosa a {
   color: var(--tuc-accent);
   text-decoration: underline;
 }
-.tuc-rico__area blockquote {
+.tuc-rico__area blockquote, .tuc-prosa blockquote {
   margin-block: calc(var(--spacing, 0.25rem) * 2);
   padding-left: calc(var(--spacing, 0.25rem) * 3);
   border-left: 2px solid var(--tuc-border);
   color: var(--tuc-muted);
 }
-.tuc-rico__area code {
+.tuc-rico__area pre, .tuc-prosa pre {
+  margin-block: calc(var(--spacing, 0.25rem) * 3);
+  overflow-x: auto;
+  border-radius: 0.25rem;
+  padding: calc(var(--spacing, 0.25rem) * 3);
+  background: var(--tuc-elevated);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.tuc-rico__area pre code, .tuc-prosa pre code {
+  padding: 0px;
+  background: none;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+}
+.tuc-rico__area code, .tuc-prosa code {
   border-radius: 0.25rem;
   padding-inline: var(--spacing, 0.25rem);
   padding-block: calc(var(--spacing, 0.25rem) * 0.5);
   font-size: 0.8125rem;
   background: var(--tuc-elevated);
 }
-.tuc-rico__area table {
+.tuc-rico__sep {
+  margin-inline: var(--spacing, 0.25rem);
+  align-self: stretch;
+  width: var(--tuc-border-width);
+  background: var(--tuc-border);
+}
+.tuc-rico__area table, .tuc-prosa table {
   margin-block: calc(var(--spacing, 0.25rem) * 3);
   width: 100%;
+  display: table;
   table-layout: fixed;
   border-collapse: collapse;
 }
-.tuc-rico__area th, .tuc-rico__area td {
+.tuc-rico__area th, .tuc-prosa th, .tuc-rico__area td, .tuc-prosa td {
   padding-inline: calc(var(--spacing, 0.25rem) * 2.5);
   padding-block: calc(var(--spacing, 0.25rem) * 1.5);
   vertical-align: top;
   border: var(--tuc-border-width) solid var(--tuc-border);
   min-width: 3rem;
+  font-size: inherit;
+  font-family: inherit;
+  color: inherit;
+  text-transform: none;
+  letter-spacing: normal;
 }
-.tuc-rico__area th {
-  text-align: left;
-  --tw-font-weight: var(--font-weight-semibold, 600);
-  font-weight: var(--font-weight-semibold, 600);
-  background: var(--tuc-elevated);
+.tuc-rico__area, .tuc-prosa {
+  --tuc-tok-coment: #6b7280;
+  --tuc-tok-texto: #0a7d3f;
+  --tuc-tok-num: #b45309;
+  --tuc-tok-tag: #b91c1c;
+  --tuc-tok-attr: #7c3aed;
+  --tuc-tok-chave: #1d4ed8;
+  --tuc-tok-tmpl: #a16207;
 }
-.tuc-rico__area th:focus-within, .tuc-rico__area td:focus-within {
-  box-shadow: inset 0 0 0 2px var(--tuc-accent);
+:where(.dark, [data-theme='dark']) .tuc-rico__area, :where(.dark, [data-theme='dark']).tuc-rico .tuc-rico__area, .tuc-prosa {
+  --tuc-tok-coment: #8b949e;
+  --tuc-tok-texto: #7ee787;
+  --tuc-tok-num: #ffa657;
+  --tuc-tok-tag: #ff7b72;
+  --tuc-tok-attr: #d2a8ff;
+  --tuc-tok-chave: #79c0ff;
+  --tuc-tok-tmpl: #f0c674;
+}
+.tuc-tok-coment {
+  color: var(--tuc-tok-coment);
+  font-style: italic;
+}
+.tuc-tok-texto {
+  color: var(--tuc-tok-texto);
+}
+.tuc-tok-num {
+  color: var(--tuc-tok-num);
+}
+.tuc-tok-tag {
+  color: var(--tuc-tok-tag);
+}
+.tuc-tok-attr {
+  color: var(--tuc-tok-attr);
+}
+.tuc-tok-chave {
+  color: var(--tuc-tok-chave);
+}
+.tuc-tok-tmpl {
+  color: var(--tuc-tok-tmpl);
+}
+.tuc-prosa {
+  font-family: var(--tuc-font);
+  font-size: var(--tuc-text);
+  line-height: 1.65;
+  color: var(--tuc-fg);
+}
+.tuc-prosa pre {
+  overflow-x: auto;
 }
 .tuc-dp {
   z-index: 50;
