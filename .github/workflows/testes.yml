@@ -1,0 +1,41 @@
+# Roda em cada push e cada pull request. Existe porque esta biblioteca ja
+# quebrou tres vezes de um jeito que nao aparece no console: nome renomeado num
+# lugar so, opcao que ninguem le, exemplo da documentacao que nao funciona.
+# Nenhum deles derrubava a pagina — todos derrubavam quem copiasse.
+name: testes
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  testes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # Metade do que interessa so existe num navegador de verdade: <dialog>,
+      # top layer, DOMParser, execCommand. O runner ja traz o Chrome.
+      - name: Onde esta o Chrome
+        run: echo "CHROME=$(which google-chrome || which chromium-browser)" >> $GITHUB_ENV
+
+      - run: npm ci
+
+      # Compila, gera a referencia, carimba a versao, e roda tudo:
+      # funcoes puras, comportamento no navegador, exemplos da documentacao e
+      # as checagens cruzadas de nome.
+      - run: npm test
+
+      # Geometria dos campos nos dois temas — some se um token mudar de valor.
+      - run: npm run conferir
+
+      # O que foi compilado tem que bater com o que esta versionado: build
+      # esquecido antes da tag ja fez o CDN e o npm divergirem.
+      - name: dist e llms.txt estão em dia
+        run: git diff --exit-code -- dist llms.txt README.md index.html

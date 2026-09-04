@@ -67,8 +67,13 @@
     "conferir": "node tools/conferir.mjs",
     "dev": "npm run build && npx serve .",
     "serve": "npm run build && python3 -m http.server 4322 --bind 127.0.0.1",
-    "prepublishOnly": "npm run build",
-    "build:og": "\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless=new --disable-gpu --window-size=1200,630 --hide-scrollbars --virtual-time-budget=4000 --screenshot=og.png tools/og.html"
+    "prepublishOnly": "npm test && npm run conferir",
+    "build:og": "node tools/og.mjs",
+    "test": "npm run build && npm run test:unidade && npm run test:comportamento && npm run test:exemplos && npm run coerencia",
+    "test:unidade": "node --test test/*.test.mjs",
+    "test:comportamento": "node tools/testar.mjs",
+    "test:exemplos": "node tools/exemplos.mjs",
+    "coerencia": "node tools/coerencia.mjs"
   },
   "devDependencies": {
     "@tailwindcss/cli": "^4.3.3",

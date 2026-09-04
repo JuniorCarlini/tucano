@@ -67,6 +67,9 @@ const componentes = readdirSync('src/js/components').filter((f) => f.endsWith('.
 const css = readdirSync('src/styles/components')
   .map((f) => readFileSync(`src/styles/components/${f}`, 'utf8')).join('\n');
 const classes = [...new Set([...css.matchAll(/\.(tuc-[\w-]+)/g)].map((m) => m[1]))].sort();
+/* Ganchos que o JS monta e o CSS nao estiliza — invisiveis para quem so le o
+   CSS, e por isso listados a mao. A mesma lista guarda tools/coerencia.mjs. */
+const GANCHOS = ['tuc-table__sortable', 'tuc-table__check', 'tuc-toast__action', 'tuc-tip__text'];
 const tokens = [...new Set([...readFileSync('src/styles/core/tokens.css', 'utf8')
   .matchAll(/(--tuc-[\w-]+):/g)].map((m) => m[1]))].sort();
 
@@ -119,6 +122,10 @@ linhas.push('');
 linhas.push('### Classes CSS', '');
 linhas.push('Escritas por voce no template (as com __ sao internas, montadas pelo JS):');
 linhas.push('  ' + classes.filter((c) => !c.includes('__')).join(' '));
+linhas.push('');
+linhas.push('Montadas pelo JS dentro do componente — nao escreva no template, mas');
+linhas.push('sao nomes estaveis para o seu proprio CSS:');
+linhas.push('  ' + [...new Set(classes.filter((c) => c.includes('__')).concat(GANCHOS))].sort().join(' '));
 linhas.push('');
 linhas.push('### Tokens', '');
 linhas.push('  ' + tokens.join(' '));

@@ -21,9 +21,10 @@ import { promisify } from 'node:util';
 import { readFileSync, writeFileSync, unlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { exigirChrome } from './chrome.mjs';
 
 const exec = promisify(execFile);
-const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+const CHROME = exigirChrome('conferir');
 
 /*
  * Alvos com altura propria: nao entram no padrao de controle, mas precisam ser
