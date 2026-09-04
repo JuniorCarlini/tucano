@@ -129,20 +129,57 @@ select[data-tuc-select][multiple]:not([data-tuc-ready]) > option {
  */
 textarea[data-tuc-editor]:not([data-tuc-ready]) {
   height: auto;
-  min-height: 12rem;
+  /* Medido: barra (6px + botao 30px + 6px + 1px de borda) + area de 9rem +
+     2px de borda = 189px. Reservar 12rem deixava o texto abaixo pular 3px. */
+  min-height: 11.8125rem;
   padding: 0.75rem;
   resize: none;
 }
 input[type='file'][data-tuc-upload]:not([data-tuc-ready]) {
+  box-sizing: border-box;
   display: block;
   width: 100%;
-  min-height: 8.5rem;
+  /* A zona montada mede 99px (py-7 + icone + duas linhas). Estava em 8.5rem
+     e a pagina subia 63px quando o script rodava. */
+  min-height: 6.25rem;
   padding: 0.75rem;
   color: transparent;
   background: var(--tuc-bg);
   border: 1px dashed var(--tuc-border);
   border-radius: var(--tuc-radius);
 }
+
+/*
+ * Tabela, paginacao e acordeao tambem nascem crus. A tabela sem classe e a do
+ * navegador — fonte 16px, sem largura, sem borda —, e ganhar a classe fazia a
+ * altura dobrar. A paginacao e um <div> vazio ate o script montar os botoes:
+ * reservar a altura de um controle evita o conteudo abaixo subir. O acordeao
+ * e <details> nativo, com marcador e sem respiro.
+ */
+[data-tuc-pagination]:not([data-tuc-ready]) {
+  min-height: var(--tuc-control-height);
+}
+[data-tuc-accordion]:not([data-tuc-ready]) {
+  display: flex;
+  flex-direction: column;
+  font-family: var(--tuc-font);
+  font-size: var(--tuc-text);
+  color: var(--tuc-fg);
+}
+[data-tuc-accordion]:not([data-tuc-ready]) > details {
+  border-bottom: var(--tuc-border-width) solid var(--tuc-border);
+}
+[data-tuc-accordion]:not([data-tuc-ready]) > details:last-child { border-bottom: 0; }
+[data-tuc-accordion]:not([data-tuc-ready]) > details > summary {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 0;
+  font-weight: 500;
+  list-style: none;
+  cursor: pointer;
+}
+[data-tuc-accordion]:not([data-tuc-ready]) > details > summary::-webkit-details-marker { display: none; }
+[data-tuc-accordion]:not([data-tuc-ready]) > details > summary::marker { content: ''; }
 
 /*
  * Caixa de selecao.

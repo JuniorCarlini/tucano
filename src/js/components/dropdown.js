@@ -1,4 +1,4 @@
-import { openWithTransition, el, icon, on } from '../core/dom.js';
+import { el, icon, omitUndefined, on, openWithTransition } from '../core/dom.js';
 import { Popover } from '../core/popover.js';
 
 /*
@@ -23,17 +23,12 @@ const DEFAULTS = {
 
 const FOCUSABLE = '.tuc-dropdown__item:not([disabled]):not([aria-disabled="true"])';
 
-function withoutUndefined(obj) {
-  const out = {};
-  for (const [k, v] of Object.entries(obj || {})) if (v !== undefined) out[k] = v;
-  return out;
-}
 
 export class Dropdown {
   constructor(trigger, options = {}) {
     this.trigger = typeof trigger === 'string' ? document.querySelector(trigger) : trigger;
     if (!this.trigger) throw new Error('[Dropdown] gatilho não encontrado');
-    this.opts = { ...DEFAULTS, ...withoutUndefined(options) };
+    this.opts = { ...DEFAULTS, ...omitUndefined(options) };
     this._cleanups = [];
     this._build();
   }

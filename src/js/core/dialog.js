@@ -1,4 +1,4 @@
-import { el, icon, ICONS, on } from './dom.js';
+import { el, icon, ICON_X, on } from './dom.js';
 
 /*
  * O que um modal e uma gaveta tem em comum.
@@ -102,7 +102,7 @@ export function buildPanel(prefix, opts, owner, titleId) {
         class: `tuc-btn is-ghost is-icon is-sm ${prefix}__close`,
         'aria-label': 'Fechar',
         onclick: () => owner.close('botao'),
-      }, [icon(ICONS.x, 15)]) : null,
+      }, [icon(ICON_X, 15)]) : null,
     ]),
     el('div', { class: `${prefix}__body` }),
     actions?.length ? el('div', { class: `${prefix}__footer` }, actions.map((a) => el('button', {
@@ -117,8 +117,3 @@ export function buildPanel(prefix, opts, owner, titleId) {
   ]);
 }
 
-export function withoutUndefined(obj) {
-  const out = {};
-  for (const [k, v] of Object.entries(obj || {})) if (v !== undefined) out[k] = v;
-  return out;
-}

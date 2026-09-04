@@ -1,4 +1,4 @@
-import { el, icon, on } from '../core/dom.js';
+import { el, icon, omitUndefined, on } from '../core/dom.js';
 
 /*
  * Paginacao.
@@ -28,11 +28,6 @@ const DEFAULTS = {
 const SETA_ESQ = 'M15 18l-6-6 6-6';
 const SETA_DIR = 'M9 18l6-6-6-6';
 
-function withoutUndefined(obj) {
-  const out = {};
-  for (const [k, v] of Object.entries(obj || {})) if (v !== undefined) out[k] = v;
-  return out;
-}
 
 /*
  * Quais numeros aparecem. Com muitas paginas nao cabe tudo, entao ficam as
@@ -61,7 +56,7 @@ export function pageWindow(page, pages, { around = 1, edges = 1 } = {}) {
 
 export class Pagination {
   constructor(options = {}) {
-    this.opts = { ...DEFAULTS, ...withoutUndefined(options) };
+    this.opts = { ...DEFAULTS, ...omitUndefined(options) };
     this._cleanups = [];
     this.node = el('nav', { class: 'tuc-pagination', role: 'navigation', 'aria-label': this.opts.label });
     this.node._tucano = this;

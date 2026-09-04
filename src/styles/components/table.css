@@ -15,7 +15,8 @@
   -webkit-overflow-scrolling: touch;
 }
 
-.tuc-table {
+.tuc-table,
+table[data-tuc-table]:not([data-tuc-ready]) {
   @apply w-full border-collapse text-left;
   font-family: var(--tuc-font);
   font-size: var(--tuc-text);
@@ -23,20 +24,34 @@
 }
 
 .tuc-table th,
-.tuc-table td {
+.tuc-table td,
+table[data-tuc-table]:not([data-tuc-ready]) th,
+table[data-tuc-table]:not([data-tuc-ready]) td {
   @apply px-3 py-2.5 align-middle;
+  /*
+   * Altura de linha fixa. Com `normal`, a caixa de selecao e o botao de
+   * ordenar (16px, alinhados ao meio) esticavam a linha de 37 para 43px assim
+   * que o script os inseria — a tabela inteira pulava no recarregamento. Com
+   * 1.5rem a linha e a mesma antes e depois, e nao depende do que a celula
+   * carrega dentro.
+   */
+  line-height: 1.5rem;
   border-bottom: var(--tuc-border-width) solid var(--tuc-border);
 }
 
-.tuc-table thead th {
+.tuc-table thead th,
+table[data-tuc-table]:not([data-tuc-ready]) thead th {
   @apply text-xs font-medium;
+  /* text-xs traz a propria altura de linha; a fixa vem depois para valer. */
+  line-height: 1.5rem;
   color: var(--tuc-muted);
   background: var(--tuc-elevated);
   white-space: nowrap;
 }
 
 /* A ultima linha nao precisa de risco: a tabela ja acabou ali. */
-.tuc-table tbody tr:last-child > * { border-bottom: 0; }
+.tuc-table tbody tr:last-child > *,
+table[data-tuc-table]:not([data-tuc-ready]) tbody tr:last-child > * { border-bottom: 0; }
 .tuc-table tbody tr { transition: background var(--tuc-duration) var(--tuc-ease); }
 .tuc-table tbody tr:hover { background: var(--tuc-hover); }
 .tuc-table tbody tr.is-selected { background: var(--tuc-accent-soft); }

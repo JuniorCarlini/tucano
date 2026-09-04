@@ -1,5 +1,5 @@
-import { el, nextId } from '../core/dom.js';
-import { Dialog, buildPanel, withoutUndefined } from '../core/dialog.js';
+import { el, nextId, omitUndefined } from '../core/dom.js';
+import { Dialog, buildPanel } from '../core/dialog.js';
 
 /*
  * Modal: dialogo centrado na tela.
@@ -26,7 +26,7 @@ const DEFAULTS = {
 export class Modal extends Dialog {
   constructor(options = {}) {
     super();
-    this.opts = { ...DEFAULTS, ...withoutUndefined(options) };
+    this.opts = { ...DEFAULTS, ...omitUndefined(options) };
     this.id = nextId('modal');
     this._cleanups = [];
     this._build();

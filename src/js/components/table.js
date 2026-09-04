@@ -1,4 +1,4 @@
-import { el, icon, nextId, on } from '../core/dom.js';
+import { el, icon, nextId, omitUndefined, on } from '../core/dom.js';
 
 /*
  * Tabela.
@@ -46,18 +46,13 @@ const COMPARE = {
   text: (a, b) => a.localeCompare(b, 'pt-BR', { numeric: true, sensitivity: 'base' }),
 };
 
-function withoutUndefined(obj) {
-  const out = {};
-  for (const [k, v] of Object.entries(obj || {})) if (v !== undefined) out[k] = v;
-  return out;
-}
 
 export class Table {
   constructor(node, options = {}) {
     this.node = typeof node === 'string' ? document.querySelector(node) : node;
     if (!this.node) throw new Error('[Table] elemento alvo nao encontrado');
     if (this.node.tagName !== 'TABLE') throw new Error('[Table] o alvo precisa ser uma <table>');
-    this.opts = { ...DEFAULTS, ...withoutUndefined(options) };
+    this.opts = { ...DEFAULTS, ...omitUndefined(options) };
     this.id = this.node.id || nextId('table');
     this._cleanups = [];
     this._build();

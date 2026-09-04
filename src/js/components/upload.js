@@ -1,6 +1,5 @@
 import { csrfToken, fileId, formatSize, isImage, matchesAccept, parseSize, uploadFile } from '../core/files.js';
-import { el, icon, ICONS, nextId, on } from '../core/dom.js';
-import { ICONS_EXTRA } from '../core/dom-extra.js';
+import { el, icon, ICON_ALERT, ICON_CHECK, ICON_FILE, ICON_RETRY, ICON_UPLOAD, ICON_X, nextId, omitUndefined, on } from '../core/dom.js';
 
 const DEFAULTS = {
   url: null,             // com url: upload direto. sem: os arquivos vao no submit
@@ -133,7 +132,7 @@ export class Upload {
       tabindex: 0,
       'aria-describedby': `${this.id}-dica`,
     }, [
-      el('span', { class: 'tuc-upload__icon' }, [icon(ICONS_EXTRA.upload, 20)]),
+      el('span', { class: 'tuc-upload__icon' }, [icon(ICON_UPLOAD, 20)]),
       el('span', { class: 'tuc-upload__label', text: this.multiple ? this.t.zone : this.t.zoneOne }),
       el('span', { class: 'tuc-upload__hint', id: `${this.id}-dica`, text: this._hint() }),
     ]);
@@ -321,7 +320,7 @@ export class Upload {
   _fail(message, file) {
     this.opts.onError?.(new Error(message), file);
     const warning = el('li', { class: 'tuc-upload__item is-rejected' }, [
-      el('span', { class: 'tuc-upload__thumb' }, [icon(ICONS_EXTRA.alert, 16)]),
+      el('span', { class: 'tuc-upload__thumb' }, [icon(ICON_ALERT, 16)]),
       el('div', { class: 'tuc-upload__info' }, [
         el('span', { class: 'tuc-upload__name', text: file.name }),
         el('span', { class: 'tuc-upload__meta', text: message }),
@@ -358,12 +357,12 @@ export class Upload {
 
       const actions = [];
       if (item.estado === 'enviando') {
-        actions.push(this._button(ICONS.x, this.t.cancel, () => item.abort?.()));
+        actions.push(this._button(ICON_X, this.t.cancel, () => item.abort?.()));
       } else if (item.estado === 'error') {
-        actions.push(this._button(ICONS_EXTRA.retry, this.t.repeat, () => this._upload(item)));
-        actions.push(this._button(ICONS.x, this.t.remove, () => this._remove(item)));
+        actions.push(this._button(ICON_RETRY, this.t.repeat, () => this._upload(item)));
+        actions.push(this._button(ICON_X, this.t.remove, () => this._remove(item)));
       } else {
-        actions.push(this._button(ICONS.x, this.t.remove, () => this._remove(item)));
+        actions.push(this._button(ICON_X, this.t.remove, () => this._remove(item)));
       }
 
       this.list.append(el('li', {
@@ -372,7 +371,7 @@ export class Upload {
       }, [
         item.preview
           ? el('img', { class: 'tuc-upload__thumb', src: item.preview, alt: '' })
-          : el('span', { class: 'tuc-upload__thumb' }, [icon(ICONS_EXTRA.file, 16)]),
+          : el('span', { class: 'tuc-upload__thumb' }, [icon(ICON_FILE, 16)]),
         el('div', { class: 'tuc-upload__info' }, [
           el('span', { class: 'tuc-upload__name', title: item.file.name, text: item.file.name }),
           el('span', { class: 'tuc-upload__meta', text: meta }),
@@ -382,7 +381,7 @@ export class Upload {
               ])
             : null,
         ]),
-        item.estado === 'pronto' ? el('span', { class: 'tuc-upload__ok' }, [icon(ICONS_EXTRA.check, 15)]) : null,
+        item.estado === 'pronto' ? el('span', { class: 'tuc-upload__ok' }, [icon(ICON_CHECK, 15)]) : null,
         el('div', { class: 'tuc-upload__actions' }, actions),
       ]));
     }
@@ -418,11 +417,6 @@ export class Upload {
 
 /* ------------------------------------------------------------------ */
 
-function omitUndefined(obj) {
-  const out = {};
-  for (const [k, v] of Object.entries(obj || {})) if (v !== undefined) out[k] = v;
-  return out;
-}
 
 export function autoInit(scope = document) {
   const out = [];

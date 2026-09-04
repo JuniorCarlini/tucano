@@ -1,5 +1,4 @@
-import { openWithTransition, el, icon, ICONS, nextId, on } from '../core/dom.js';
-import { ICONS_EXTRA } from '../core/dom-extra.js';
+import { el, icon, ICON_CHECK, ICON_CHEVRONS_UP_DOWN, ICON_X, nextId, omitUndefined, on, openWithTransition } from '../core/dom.js';
 import { Popover } from '../core/popover.js';
 
 const DEFAULTS = {
@@ -180,7 +179,7 @@ export class Select {
       type: 'button', class: 'tuc-select__clear', 'aria-label': 'Limpar selecao',
       tabindex: -1,
       onclick: (e) => { e.stopPropagation(); this.clear(); },
-    }, [icon(ICONS.x, 14)]);
+    }, [icon(ICON_X, 14)]);
 
     this.control = el('div', {
       class: `tuc-select${this.multiple ? ' is-multiple' : ''}${this.opts.wrapTags ? ' is-wrap' : ''}`,
@@ -192,7 +191,7 @@ export class Select {
     }, [
       this.values,
       this.opts.clearable ? this.clearBtn : null,
-      el('span', { class: 'tuc-select__arrow' }, [icon(ICONS_EXTRA.chevronsUpDown, 15)]),
+      el('span', { class: 'tuc-select__arrow' }, [icon(ICON_CHEVRONS_UP_DOWN, 15)]),
     ]);
 
     this.list = el('div', { class: 'tuc-select__list', role: 'listbox', id: `${this.id}-list`, 'aria-multiselectable': this.multiple ? 'true' : null });
@@ -409,7 +408,7 @@ export class Select {
             type: 'button', class: 'tuc-select__tagx', tabindex: -1,
             'aria-label': `Remover ${item.label}`,
             onclick: (e) => { e.stopPropagation(); this._toggleItem(item); },
-          }, [icon(ICONS.x, 12)]),
+          }, [icon(ICON_X, 12)]),
         ]), this.search);
       }
     } else if (chosen.length && !this.query) {
@@ -476,7 +475,7 @@ export class Select {
         onmouseenter: () => { this.activeIndex = i; this._paintActive(); },
       }, [
         el('span', { class: 'tuc-select__label', text: item.label }),
-        item.selected ? el('span', { class: 'tuc-select__check' }, [icon(ICONS_EXTRA.check, 15)]) : null,
+        item.selected ? el('span', { class: 'tuc-select__check' }, [icon(ICON_CHECK, 15)]) : null,
       ]);
       this.list.append(node);
     });
@@ -633,11 +632,6 @@ function firstEmptyLabel(select) {
   return o ? o.textContent.trim() : null;
 }
 
-function omitUndefined(obj) {
-  const out = {};
-  for (const [k, v] of Object.entries(obj || {})) if (v !== undefined) out[k] = v;
-  return out;
-}
 
 export function autoInit(scope = document) {
   const out = [];

@@ -3,7 +3,7 @@ import {
   format, getLocaleData, isSameDay, isSameMonth, isValid, localeDatePattern,
   parseISO, parseUserInput, startOfDay, toISODate, toISODateTime, withTime,
 } from '../core/dates.js';
-import { openWithTransition, el, icon, ICONS, nextId, on } from '../core/dom.js';
+import { el, icon, ICON_CHEVRON_DOWN, ICON_CHEVRON_LEFT, ICON_CHEVRON_RIGHT, nextId, omitUndefined, on, openWithTransition } from '../core/dom.js';
 import { Popover, trapFocus } from '../core/popover.js';
 
 const DEFAULTS = {
@@ -695,17 +695,17 @@ export class DatePicker {
         ? el('button', {
             type: 'button', class: 'tuc-btn is-ghost is-icon is-sm tuc-dp__nav', 'aria-label': 'Mes anterior',
             disabled: this._navBlocked(-1), onclick: () => this._shiftView(-1),
-          }, [icon(ICONS.chevronLeft)])
+          }, [icon(ICON_CHEVRON_LEFT)])
         : el('span', { class: 'tuc-dp__nav is-ghost' }),
       el('button', {
         type: 'button', class: 'tuc-dp__label', 'aria-live': 'polite',
         onclick: () => { this.view = 'months'; this.viewDate = clone(monthDate); this._render(); },
-      }, [`${this.L.monthsLong[month]} ${year}`, icon(ICONS.chevronDown, 14)]),
+      }, [`${this.L.monthsLong[month]} ${year}`, icon(ICON_CHEVRON_DOWN, 14)]),
       showNext
         ? el('button', {
             type: 'button', class: 'tuc-btn is-ghost is-icon is-sm tuc-dp__nav', 'aria-label': 'Proximo mes',
             disabled: this._navBlocked(1), onclick: () => this._shiftView(1),
-          }, [icon(ICONS.chevronRight)])
+          }, [icon(ICON_CHEVRON_RIGHT)])
         : el('span', { class: 'tuc-dp__nav is-ghost' }),
     ]);
 
@@ -816,7 +816,7 @@ export class DatePicker {
       el('button', {
         type: 'button', class: 'tuc-btn is-ghost is-icon is-sm tuc-dp__nav', 'aria-label': 'Anterior',
         onclick: () => { this.viewDate = addYears(this.viewDate, -step); this._render(); },
-      }, [icon(ICONS.chevronLeft)]),
+      }, [icon(ICON_CHEVRON_LEFT)]),
       el('button', {
         type: 'button', class: 'tuc-dp__label',
         onclick: () => { this.view = isMonths ? 'years' : 'days'; this._render(); },
@@ -824,7 +824,7 @@ export class DatePicker {
       el('button', {
         type: 'button', class: 'tuc-btn is-ghost is-icon is-sm tuc-dp__nav', 'aria-label': 'Proximo',
         onclick: () => { this.viewDate = addYears(this.viewDate, step); this._render(); },
-      }, [icon(ICONS.chevronRight)]),
+      }, [icon(ICON_CHEVRON_RIGHT)]),
     ]);
 
     const grid = el('div', { class: 'tuc-dp__periodgrid' });
@@ -1004,11 +1004,6 @@ function buildPresets(option) {
 }
 
 /** Remove chaves com value undefined para que o spread nao apague defaults. */
-function omitUndefined(obj) {
-  const out = {};
-  for (const [k, v] of Object.entries(obj || {})) if (v !== undefined) out[k] = v;
-  return out;
-}
 
 /**
  * Centraliza o item selecionado da coluna quando ele esta fora de vista.

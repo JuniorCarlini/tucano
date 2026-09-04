@@ -257,6 +257,52 @@ foi por isso que os tons `--tuc-success`, `--tuc-warning` e `--tuc-danger`
 saíram de dentro do toast e viraram token: a etiqueta de estado e o toast têm de
 falar a mesma cor.
 
+**Tokens vivem em `:root`; o reset tem um seletor só.** Custom property não
+estiliza nada sozinha — declarada na raiz é inerte para a página. A versão
+anterior escopava os tokens a uma lista de classes repetida quatro vezes em
+`tokens.css` e dezenove em `base.css`, e essa lista foi a origem de três
+defeitos nesta biblioteca (campo sem borda, campo branco no tema escuro, campo
+2px mais alto). Agora o reset usa `:where([class^='tuc-'], [class*=' tuc-'])`
+e os tokens ficam em `:root`, `.dark`/`[data-theme='dark']` e
+`:root[data-tuc-theme='auto']`. A única lista que sobra é a do `--tuc-text`
+no compacto, e ela é semântica ("tudo em que se digita ou se toca"). O único
+ponto ainda escopado é `color-scheme`, que muda campo nativo e barra de rolagem
+e não pode vazar para a página. Medido: `base.css` 335 → 114 linhas, CSS 12 → 11 KB.
+
+**Tom de texto e preenchimento sólido são tokens diferentes.** `--tuc-danger`
+é mais claro no tema escuro para ter contraste sobre fundo escuro — e um botão
+pintado com ele fica pastel com texto branco. `--tuc-danger-fill` é o mesmo nos
+dois temas e é o que o botão usa. Ao promover uma cor escrita à mão a token,
+pergunte que papel ela tem antes de escolher o token.
+
+**Ícone é constante exportada, não chave de objeto.** Objeto é indivisível para
+o empacotador: quem importava uma seta levava o mapa inteiro — medido, 0,6 KB a
+mais para quem usa só o date picker. `ICON_CHEVRON_DOWN` solto o esbuild
+descarta quando ninguém importa. O mapa `ICONS` existe só para a galeria em
+`tools/icones.html`; componente importa a constante.
+
+**Helper compartilhado mora em `core/dom.js`.** `omitUndefined` existia copiado
+em doze componentes com dois nomes; `escapeHtml` em dois. Antes de escrever
+uma função utilitária num componente, procure em `dom.js`.
+
+**O estado de espera vale para tudo que o script transforma — inclusive
+tabela, paginação e acordeão.** A tabela crua é a do navegador e ganhar a
+classe fazia a altura dobrar; a paginação era um `<div>` vazio até montar; o
+acordeão era `<details>` com marcador. E a altura de linha da célula é fixa
+(`1.5rem`): com `normal`, a caixa de seleção e o botão de ordenar esticavam a
+linha de 37 para 43px assim que o script os inseria. A sonda que mede isso
+compara a geometria antes e depois do `load`; qualquer diferença é piscar.
+
+**Reposicionar em `scroll` é coalescido num frame.** `scroll` dispara várias
+vezes por quadro, e `_reposition` lê layout e escreve estilo — intercalado no
+mesmo quadro, força recálculo a cada chamada. `requestAnimationFrame` junta
+tudo numa só, e `hide()` cancela o frame pendente.
+
+**Headless congela transição — inclusive de cor.** Ao trocar o accent e ler o
+`background` do botão, ele continuava o antigo mesmo 400ms depois: a
+transição de 160ms nunca avança aqui. Para medir cor ou posição final, injete
+`* { transition: none !important }` na sonda.
+
 ## Antes de dizer que está pronto
 
 ```bash

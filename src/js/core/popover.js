@@ -31,6 +31,10 @@ export class Popover {
     this.open = false;
     this._cleanups = [];
     this._reposition = this._reposition.bind(this);
+    this._scheduleReposition = () => {
+      if (this._frame) return;
+      this._frame = requestAnimationFrame(() => { this._frame = 0; this._reposition(); });
+    };
   }
 
   show() {
@@ -57,10 +61,16 @@ export class Popover {
      */
     if (!this.open) return;
 
-    // `capture` para reagir a scroll de qualquer ancestral, nao so da janela.
+    /*
+     * `capture` para reagir a scroll de qualquer ancestral, nao so da janela.
+     * O reposicionamento e coalescido num frame: scroll dispara varias vezes
+     * por quadro, e cada _reposition le layout (getBoundingClientRect,
+     * offsetWidth) e escreve estilo — intercalar leitura e escrita dentro do
+     * mesmo quadro forca o navegador a recalcular o layout a cada chamada.
+     */
     this._cleanups.push(
-      on(window, 'scroll', this._reposition, true),
-      on(window, 'resize', this._reposition),
+      on(window, 'scroll', this._scheduleReposition, true),
+      on(window, 'resize', this._scheduleReposition),
       on(document, 'pointerdown', (e) => {
         if (!this.panel.contains(e.target) && !this.anchor.contains(e.target)) this.onDismiss('outside');
       }, true),
@@ -110,6 +120,7 @@ export class Popover {
     this.open = false;
     this._cleanups.forEach((fn) => fn());
     this._cleanups = [];
+    if (this._frame) { cancelAnimationFrame(this._frame); this._frame = 0; }
     this._ro?.disconnect();
     this._ro = null;
 

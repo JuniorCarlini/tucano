@@ -4,93 +4,26 @@
  *
  * O escopo vai dentro de :where() de proposito: assim o reset tem peso zero e
  * qualquer classe do componente (ou do projeto) vence sem precisar de !important.
+ *
+ * O escopo e "qualquer elemento com classe tuc-": um seletor de atributo, e nao
+ * uma lista de classes. A lista existia em dezenove copias neste arquivo e era
+ * fonte recorrente de defeito — componente novo esquecido numa delas nascia sem
+ * box-sizing e 2px mais alto que o vizinho. O atributo casa classe que comeca
+ * com "tuc-" ou que vem depois de um espaco, o que cobre todo componente e toda
+ * parte BEM dele; classe de projeto como "my-tuc-x" nao casa.
  */
 
-.tuc-dp,
-.tuc-select,
-.tuc-select__menu,
-.tuc-colorpicker,
-.tuc-color-field,
-.tuc-upload,
-.tuc-field,
-.tuc-toast,
-.tuc-tip,
-  .tuc-modal,
-  .tuc-drawer,
-  .tuc-accordion,
-  .tuc-menu,
-  .tuc-dropdown,
-  .tuc-badge,
-  .tuc-check,
-  .tuc-table,
-  .tuc-pagination,
-  .tuc-input,
-  .tuc-input-group,
-  .tuc-editor,
-  .tuc-prose,
-.tuc-btn {
+:where([class^='tuc-'], [class*=' tuc-']) {
   box-sizing: border-box;
 }
 
-:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip,
-  .tuc-modal,
-  .tuc-drawer,
-  .tuc-accordion,
-  .tuc-menu,
-  .tuc-dropdown,
-  .tuc-badge,
-  .tuc-check,
-  .tuc-table,
-  .tuc-pagination,
-  .tuc-input,
-  .tuc-input-group,
-  .tuc-editor,
-  .tuc-prose, .tuc-btn) *,
-:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip,
-  .tuc-modal,
-  .tuc-drawer,
-  .tuc-accordion,
-  .tuc-menu,
-  .tuc-dropdown,
-  .tuc-badge,
-  .tuc-check,
-  .tuc-table,
-  .tuc-pagination,
-  .tuc-input,
-  .tuc-input-group,
-  .tuc-editor,
-  .tuc-prose, .tuc-btn) *::before,
-:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip,
-  .tuc-modal,
-  .tuc-drawer,
-  .tuc-accordion,
-  .tuc-menu,
-  .tuc-dropdown,
-  .tuc-badge,
-  .tuc-check,
-  .tuc-table,
-  .tuc-pagination,
-  .tuc-input,
-  .tuc-input-group,
-  .tuc-editor,
-  .tuc-prose, .tuc-btn) *::after {
+:where([class^='tuc-'], [class*=' tuc-']) *,
+:where([class^='tuc-'], [class*=' tuc-']) *::before,
+:where([class^='tuc-'], [class*=' tuc-']) *::after {
   box-sizing: border-box;
 }
 
-:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip,
-  .tuc-modal,
-  .tuc-drawer,
-  .tuc-accordion,
-  .tuc-menu,
-  .tuc-dropdown,
-  .tuc-badge,
-  .tuc-check,
-  .tuc-table,
-  .tuc-pagination,
-  .tuc-input,
-  .tuc-input-group,
-  .tuc-editor,
-  .tuc-prose, .tuc-btn) button {
+:where([class^='tuc-'], [class*=' tuc-']) button {
   appearance: none;
   -webkit-appearance: none;
   margin: 0;
@@ -107,61 +40,22 @@
   cursor: pointer;
 }
 
-:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip,
-  .tuc-modal,
-  .tuc-drawer,
-  .tuc-accordion,
-  .tuc-menu,
-  .tuc-dropdown,
-  .tuc-badge,
-  .tuc-check,
-  .tuc-table,
-  .tuc-pagination,
-  .tuc-input,
-  .tuc-input-group,
-  .tuc-editor,
-  .tuc-prose, .tuc-btn) button:disabled {
+:where([class^='tuc-'], [class*=' tuc-']) button:disabled {
   cursor: default;
 }
 
-:where(.tuc-dp, .tuc-select, .tuc-select__menu) abbr[title] {
+:where([class^='tuc-'], [class*=' tuc-']) abbr[title] {
   text-decoration: none;
   border: 0;
   cursor: inherit;
 }
 
-:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip,
-  .tuc-modal,
-  .tuc-drawer,
-  .tuc-accordion,
-  .tuc-menu,
-  .tuc-dropdown,
-  .tuc-badge,
-  .tuc-check,
-  .tuc-table,
-  .tuc-pagination,
-  .tuc-input,
-  .tuc-input-group,
-  .tuc-editor,
-  .tuc-prose, .tuc-btn) svg {
+:where([class^='tuc-'], [class*=' tuc-']) svg {
   display: block;
   flex: none;
 }
 
-:where(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip,
-  .tuc-modal,
-  .tuc-drawer,
-  .tuc-accordion,
-  .tuc-menu,
-  .tuc-dropdown,
-  .tuc-badge,
-  .tuc-check,
-  .tuc-table,
-  .tuc-pagination,
-  .tuc-input,
-  .tuc-input-group,
-  .tuc-editor,
-  .tuc-prose, .tuc-btn) input {
+:where([class^='tuc-'], [class*=' tuc-']) input {
   font: inherit;
   color: inherit;
 }
@@ -195,141 +89,26 @@
  * e por isso que o `color-scheme` tambem vai declarado: sem ele o Chrome
  * desenha a barra do tema claro sobre um painel escuro.
  */
-.tuc-dp,
-.tuc-select,
-.tuc-select__menu,
-.tuc-colorpicker,
-.tuc-upload,
-.tuc-modal,
-.tuc-drawer,
-.tuc-accordion,
-.tuc-menu,
-  .tuc-dropdown,
-  .tuc-badge,
-  .tuc-check,
-  .tuc-table,
-  .tuc-pagination,
-.tuc-editor,
-.tuc-prose,
-.tuc-dp *,
-.tuc-select *,
-.tuc-select__menu *,
-.tuc-colorpicker *,
-.tuc-upload *,
-.tuc-modal *,
-.tuc-drawer *,
-.tuc-accordion *,
-.tuc-menu,
-  .tuc-dropdown *,
-.tuc-editor *,
-.tuc-prose * {
+:where([class^='tuc-'], [class*=' tuc-']),
+:where([class^='tuc-'], [class*=' tuc-']) * {
   scrollbar-width: thin;
   scrollbar-color: var(--tuc-border) transparent;
 }
-
-.tuc-dp::-webkit-scrollbar,
-.tuc-select::-webkit-scrollbar,
-.tuc-select__menu::-webkit-scrollbar,
-.tuc-colorpicker::-webkit-scrollbar,
-.tuc-upload::-webkit-scrollbar,
-.tuc-modal::-webkit-scrollbar,
-.tuc-drawer::-webkit-scrollbar,
-.tuc-accordion::-webkit-scrollbar,
-.tuc-menu,
-  .tuc-dropdown::-webkit-scrollbar,
-.tuc-editor::-webkit-scrollbar,
-.tuc-prose::-webkit-scrollbar,
-.tuc-dp *::-webkit-scrollbar,
-.tuc-select *::-webkit-scrollbar,
-.tuc-select__menu *::-webkit-scrollbar,
-.tuc-colorpicker *::-webkit-scrollbar,
-.tuc-upload *::-webkit-scrollbar,
-.tuc-modal *::-webkit-scrollbar,
-.tuc-drawer *::-webkit-scrollbar,
-.tuc-accordion *::-webkit-scrollbar,
-.tuc-menu,
-  .tuc-dropdown *::-webkit-scrollbar,
-.tuc-editor *::-webkit-scrollbar,
-.tuc-prose *::-webkit-scrollbar {
+:where([class^='tuc-'], [class*=' tuc-'])::-webkit-scrollbar,
+:where([class^='tuc-'], [class*=' tuc-']) *::-webkit-scrollbar {
   width: 0.5rem;
   height: 0.5rem;
 }
-.tuc-dp::-webkit-scrollbar-track,
-.tuc-select::-webkit-scrollbar-track,
-.tuc-select__menu::-webkit-scrollbar-track,
-.tuc-colorpicker::-webkit-scrollbar-track,
-.tuc-upload::-webkit-scrollbar-track,
-.tuc-modal::-webkit-scrollbar-track,
-.tuc-drawer::-webkit-scrollbar-track,
-.tuc-accordion::-webkit-scrollbar-track,
-.tuc-menu,
-  .tuc-dropdown::-webkit-scrollbar-track,
-.tuc-editor::-webkit-scrollbar-track,
-.tuc-prose::-webkit-scrollbar-track,
-.tuc-dp *::-webkit-scrollbar-track,
-.tuc-select *::-webkit-scrollbar-track,
-.tuc-select__menu *::-webkit-scrollbar-track,
-.tuc-colorpicker *::-webkit-scrollbar-track,
-.tuc-upload *::-webkit-scrollbar-track,
-.tuc-modal *::-webkit-scrollbar-track,
-.tuc-drawer *::-webkit-scrollbar-track,
-.tuc-accordion *::-webkit-scrollbar-track,
-.tuc-menu,
-  .tuc-dropdown *::-webkit-scrollbar-track,
-.tuc-editor *::-webkit-scrollbar-track,
-.tuc-prose *::-webkit-scrollbar-track {
+:where([class^='tuc-'], [class*=' tuc-'])::-webkit-scrollbar-track,
+:where([class^='tuc-'], [class*=' tuc-']) *::-webkit-scrollbar-track {
   background: transparent;
 }
-.tuc-dp::-webkit-scrollbar-thumb,
-.tuc-select::-webkit-scrollbar-thumb,
-.tuc-select__menu::-webkit-scrollbar-thumb,
-.tuc-colorpicker::-webkit-scrollbar-thumb,
-.tuc-upload::-webkit-scrollbar-thumb,
-.tuc-modal::-webkit-scrollbar-thumb,
-.tuc-drawer::-webkit-scrollbar-thumb,
-.tuc-accordion::-webkit-scrollbar-thumb,
-.tuc-menu,
-  .tuc-dropdown::-webkit-scrollbar-thumb,
-.tuc-editor::-webkit-scrollbar-thumb,
-.tuc-prose::-webkit-scrollbar-thumb,
-.tuc-dp *::-webkit-scrollbar-thumb,
-.tuc-select *::-webkit-scrollbar-thumb,
-.tuc-select__menu *::-webkit-scrollbar-thumb,
-.tuc-colorpicker *::-webkit-scrollbar-thumb,
-.tuc-upload *::-webkit-scrollbar-thumb,
-.tuc-modal *::-webkit-scrollbar-thumb,
-.tuc-drawer *::-webkit-scrollbar-thumb,
-.tuc-accordion *::-webkit-scrollbar-thumb,
-.tuc-menu,
-  .tuc-dropdown *::-webkit-scrollbar-thumb,
-.tuc-editor *::-webkit-scrollbar-thumb,
-.tuc-prose *::-webkit-scrollbar-thumb {
+:where([class^='tuc-'], [class*=' tuc-'])::-webkit-scrollbar-thumb,
+:where([class^='tuc-'], [class*=' tuc-']) *::-webkit-scrollbar-thumb {
   background: var(--tuc-border);
   border-radius: 99px;
 }
-.tuc-dp::-webkit-scrollbar-thumb:hover,
-.tuc-select::-webkit-scrollbar-thumb:hover,
-.tuc-select__menu::-webkit-scrollbar-thumb:hover,
-.tuc-colorpicker::-webkit-scrollbar-thumb:hover,
-.tuc-upload::-webkit-scrollbar-thumb:hover,
-.tuc-modal::-webkit-scrollbar-thumb:hover,
-.tuc-drawer::-webkit-scrollbar-thumb:hover,
-.tuc-accordion::-webkit-scrollbar-thumb:hover,
-.tuc-menu,
-  .tuc-dropdown::-webkit-scrollbar-thumb:hover,
-.tuc-editor::-webkit-scrollbar-thumb:hover,
-.tuc-prose::-webkit-scrollbar-thumb:hover,
-.tuc-dp *::-webkit-scrollbar-thumb:hover,
-.tuc-select *::-webkit-scrollbar-thumb:hover,
-.tuc-select__menu *::-webkit-scrollbar-thumb:hover,
-.tuc-colorpicker *::-webkit-scrollbar-thumb:hover,
-.tuc-upload *::-webkit-scrollbar-thumb:hover,
-.tuc-modal *::-webkit-scrollbar-thumb:hover,
-.tuc-drawer *::-webkit-scrollbar-thumb:hover,
-.tuc-accordion *::-webkit-scrollbar-thumb:hover,
-.tuc-menu,
-  .tuc-dropdown *::-webkit-scrollbar-thumb:hover,
-.tuc-editor *::-webkit-scrollbar-thumb:hover,
-.tuc-prose *::-webkit-scrollbar-thumb:hover {
+:where([class^='tuc-'], [class*=' tuc-'])::-webkit-scrollbar-thumb:hover,
+:where([class^='tuc-'], [class*=' tuc-']) *::-webkit-scrollbar-thumb:hover {
   background: var(--tuc-muted);
 }

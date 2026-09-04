@@ -1,4 +1,4 @@
-import { openWithTransition, el, nextId, on } from '../core/dom.js';
+import { el, nextId, omitUndefined, on, openWithTransition } from '../core/dom.js';
 import { Popover } from '../core/popover.js';
 
 const DEFAULTS = {
@@ -126,11 +126,6 @@ export class Tooltip {
 
 const FOCUSABLE = /^(A|BUTTON|INPUT|SELECT|TEXTAREA)$/;
 
-function omitUndefined(obj) {
-  const out = {};
-  for (const [k, v] of Object.entries(obj || {})) if (v !== undefined) out[k] = v;
-  return out;
-}
 
 export function autoInit(scope = document) {
   const out = [];

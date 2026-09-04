@@ -1,3 +1,4 @@
+import { escapeHtml } from './dom.js';
 /*
  * Destaque de codigo, generico.
  *
@@ -11,8 +12,6 @@
  * so exibicao e nunca entra no que vai para o banco.
  */
 
-const ESCAPES = { '&': '&amp;', '<': '&lt;', '>': '&gt;' };
-const escape = (t) => String(t).replace(/[&<>]/g, (c) => ESCAPES[c]);
 
 const WORDS = [
     // fluxo, comum a quase tudo
@@ -63,7 +62,7 @@ const COMBINADA = new RegExp(RULES.map(([, re]) => re.source).join('|'), 'g');
 
 /** Recebe codigo cru e devolve HTML com as marcacoes de cor. */
 export function highlight(code) {
-  const text = escape(code ?? '');
+  const text = escapeHtml(code ?? '');
   return text.replace(COMBINADA, (todo, ...grupos) => {
     const i = grupos.findIndex((g) => g !== undefined);
     const className = RULES[i]?.[0];

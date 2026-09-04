@@ -1,5 +1,4 @@
-import { el, icon, on } from '../core/dom.js';
-import { ICONS_EXTRA } from '../core/dom-extra.js';
+import { el, icon, ICON_CHEVRON_DOWN, omitUndefined, on } from '../core/dom.js';
 
 /*
  * Acordeao sobre <details>/<summary> nativos.
@@ -35,7 +34,7 @@ export class Accordion {
   constructor(target, options = {}) {
     this.node = typeof target === 'string' ? document.querySelector(target) : target;
     if (!this.node) throw new Error('[Accordion] elemento não encontrado');
-    this.opts = { ...DEFAULTS, ...options };
+    this.opts = { ...DEFAULTS, ...omitUndefined(options) };
     this._cleanups = [];
     this._build();
   }
@@ -57,7 +56,7 @@ export class Accordion {
       // junto do titulo, ja que <details> ja informa o estado.
       if (!trigger.querySelector('.tuc-accordion__arrow')) {
         trigger.append(el('span', { class: 'tuc-accordion__arrow', 'aria-hidden': 'true' },
-          [icon(ICONS_EXTRA.chevronDown, 16)]));
+          [icon(ICON_CHEVRON_DOWN, 16)]));
       }
 
       // O corpo precisa de dois elementos: o de fora anima a altura pelo grid,

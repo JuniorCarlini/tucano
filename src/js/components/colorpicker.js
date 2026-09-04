@@ -1,6 +1,5 @@
 import { clamp, formatColor, hsvToRgb, isDark, parseColor, rgbToHex } from '../core/color.js';
-import { openWithTransition, el, icon, ICONS, nextId, on } from '../core/dom.js';
-import { ICONS_EXTRA } from '../core/dom-extra.js';
+import { el, icon, ICON_PIPETTE, nextId, omitUndefined, on, openWithTransition } from '../core/dom.js';
 import { Popover } from '../core/popover.js';
 
 const PALETTE = [
@@ -153,7 +152,7 @@ export class ColorPicker {
       supportsEyeDropper() ? el('button', {
         type: 'button', class: 'tuc-btn is-ghost is-icon tuc-colorpicker__pick', 'aria-label': 'Capturar cor da tela',
         onclick: () => this._pickFromScreen(),
-      }, [icon(ICONS_EXTRA.pipette, 15)]) : null,
+      }, [icon(ICON_PIPETTE, 15)]) : null,
     ]);
 
     const tracks = el('div', { class: 'tuc-colorpicker__tracks' }, [this.hue.root, this.alpha?.root]);
@@ -355,11 +354,6 @@ function supportsEyeDropper() {
   return typeof window !== 'undefined' && 'EyeDropper' in window;
 }
 
-function omitUndefined(obj) {
-  const out = {};
-  for (const [k, v] of Object.entries(obj || {})) if (v !== undefined) out[k] = v;
-  return out;
-}
 
 export function autoInit(scope = document) {
   const out = [];

@@ -301,14 +301,28 @@ function icon(path, size = 16) {
   svg.append(p);
   return svg;
 }
-var ICONS = {
-  chevronLeft: "M15 18l-6-6 6-6",
-  chevronRight: "M9 18l6-6-6-6",
-  chevronDown: "M6 9l6 6 6-6",
-  calendar: "M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z",
-  clock: "M12 22a10 10 0 100-20 10 10 0 000 20zM12 6v6l4 2",
-  x: "M18 6L6 18M6 6l12 12"
-};
+var ICON_CHEVRON_LEFT = "M15 18l-6-6 6-6";
+var ICON_CHEVRON_RIGHT = "M9 18l6-6-6-6";
+var ICON_CHEVRON_DOWN = "M6 9l6 6 6-6";
+var ICON_X = "M18 6L6 18M6 6l12 12";
+var ICON_CHECK = "M20 6L9 17l-5-5";
+var ICON_CHEVRONS_UP_DOWN = "M7 15l5 5 5-5M7 9l5-5 5 5";
+var ICON_PIPETTE = "M2 22l1-4 10-10 3 3L6 21l-4 1zM15 5l4-4 4 4-4 4-4-4z";
+var ICON_UPLOAD = "M12 16V4M7 9l5-5 5 5M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2";
+var ICON_FILE = "M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6";
+var ICON_RETRY = "M21 12a9 9 0 11-9-9c2.5 0 4.9 1 6.7 2.7L21 8M21 3v5h-5";
+var ICON_SPINNER = "M21 12a9 9 0 11-9-9";
+var ICON_ALERT = "M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z";
+var ICON_INFO = "M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z";
+var ICON_EYE = "M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z M12 15a3 3 0 100-6 3 3 0 000 6z";
+var ICON_EYE_OFF = "M10.6 10.6a3 3 0 004.2 4.2 M9.4 5.2A9.7 9.7 0 0112 5c6.4 0 10 7 10 7a17 17 0 01-2.8 3.7 M6.6 6.6A17 17 0 002 12s3.6 7 10 7c1.7 0 3.2-.4 4.5-1 M2 2l20 20";
+function omitUndefined(obj) {
+  const out = {};
+  for (const [k, v] of Object.entries(obj || {})) if (v !== void 0) out[k] = v;
+  return out;
+}
+var ESCAPES = { "&": "&amp;", "<": "&lt;", ">": "&gt;" };
+var escapeHtml = (t) => String(t).replace(/[&<>]/g, (c) => ESCAPES[c]);
 var uid = 0;
 function nextId(prefix = "ui") {
   return `${prefix}-${Date.now().toString(36)}-${(uid++).toString(36)}`;
@@ -340,6 +354,13 @@ var Popover = class {
     this.open = false;
     this._cleanups = [];
     this._reposition = this._reposition.bind(this);
+    this._scheduleReposition = () => {
+      if (this._frame) return;
+      this._frame = requestAnimationFrame(() => {
+        this._frame = 0;
+        this._reposition();
+      });
+    };
   }
   show() {
     if (this.open) return;
@@ -355,8 +376,8 @@ var Popover = class {
     this._reposition();
     if (!this.open) return;
     this._cleanups.push(
-      on(window, "scroll", this._reposition, true),
-      on(window, "resize", this._reposition),
+      on(window, "scroll", this._scheduleReposition, true),
+      on(window, "resize", this._scheduleReposition),
       on(document, "pointerdown", (e) => {
         if (!this.panel.contains(e.target) && !this.anchor.contains(e.target)) this.onDismiss("outside");
       }, true),
@@ -389,6 +410,10 @@ var Popover = class {
     this.open = false;
     this._cleanups.forEach((fn) => fn());
     this._cleanups = [];
+    if (this._frame) {
+      cancelAnimationFrame(this._frame);
+      this._frame = 0;
+    }
     this._ro?.disconnect();
     this._ro = null;
     clearTimeout(this._exitTimer);
@@ -1117,7 +1142,7 @@ var DatePicker = class {
         "aria-label": "Mes anterior",
         disabled: this._navBlocked(-1),
         onclick: () => this._shiftView(-1)
-      }, [icon(ICONS.chevronLeft)]) : el("span", { class: "tuc-dp__nav is-ghost" }),
+      }, [icon(ICON_CHEVRON_LEFT)]) : el("span", { class: "tuc-dp__nav is-ghost" }),
       el("button", {
         type: "button",
         class: "tuc-dp__label",
@@ -1127,14 +1152,14 @@ var DatePicker = class {
           this.viewDate = clone(monthDate);
           this._render();
         }
-      }, [`${this.L.monthsLong[month]} ${year}`, icon(ICONS.chevronDown, 14)]),
+      }, [`${this.L.monthsLong[month]} ${year}`, icon(ICON_CHEVRON_DOWN, 14)]),
       showNext ? el("button", {
         type: "button",
         class: "tuc-btn is-ghost is-icon is-sm tuc-dp__nav",
         "aria-label": "Proximo mes",
         disabled: this._navBlocked(1),
         onclick: () => this._shiftView(1)
-      }, [icon(ICONS.chevronRight)]) : el("span", { class: "tuc-dp__nav is-ghost" })
+      }, [icon(ICON_CHEVRON_RIGHT)]) : el("span", { class: "tuc-dp__nav is-ghost" })
     ]);
     const weekdays = el("div", { class: `tuc-dp__weekdays${this.opts.weekNumbers ? " has-weeknums" : ""}` });
     if (this.opts.weekNumbers) weekdays.append(el("span", { class: "tuc-dp__weeknum-head" }));
@@ -1239,7 +1264,7 @@ var DatePicker = class {
           this.viewDate = addYears(this.viewDate, -step);
           this._render();
         }
-      }, [icon(ICONS.chevronLeft)]),
+      }, [icon(ICON_CHEVRON_LEFT)]),
       el("button", {
         type: "button",
         class: "tuc-dp__label",
@@ -1256,7 +1281,7 @@ var DatePicker = class {
           this.viewDate = addYears(this.viewDate, step);
           this._render();
         }
-      }, [icon(ICONS.chevronRight)])
+      }, [icon(ICON_CHEVRON_RIGHT)])
     ]);
     const grid = el("div", { class: "tuc-dp__periodgrid" });
     const items = isMonths ? this.L.monthsShort.map((label, m) => ({ label, date: new Date(year, m, 1) })) : Array.from({ length: 12 }, (_, i) => {
@@ -1430,11 +1455,6 @@ function buildPresets(option) {
     } }
   ];
 }
-function omitUndefined(obj) {
-  const out = {};
-  for (const [k, v] of Object.entries(obj || {})) if (v !== void 0) out[k] = v;
-  return out;
-}
 function revealSelected(list) {
   const item = list.querySelector(".is-selected");
   if (!item) return;
@@ -1501,23 +1521,6 @@ function autoInit(scope = document) {
   return out;
 }
 
-// src/js/core/dom-extra.js
-var ICONS_EXTRA = {
-  check: "M20 6L9 17l-5-5",
-  search: "M11 19a8 8 0 100-16 8 8 0 000 16zM21 21l-4.35-4.35",
-  chevronsUpDown: "M7 15l5 5 5-5M7 9l5-5 5 5",
-  chevronDown: "M6 9l6 6 6-6",
-  pipette: "M2 22l1-4 10-10 3 3L6 21l-4 1zM15 5l4-4 4 4-4 4-4-4z",
-  upload: "M12 16V4M7 9l5-5 5 5M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2",
-  file: "M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6",
-  retry: "M21 12a9 9 0 11-9-9c2.5 0 4.9 1 6.7 2.7L21 8M21 3v5h-5",
-  spinner: "M21 12a9 9 0 11-9-9",
-  alert: "M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z",
-  info: "M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z",
-  eye: "M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z M12 15a3 3 0 100-6 3 3 0 000 6z",
-  eyeOff: "M10.6 10.6a3 3 0 004.2 4.2 M9.4 5.2A9.7 9.7 0 0112 5c6.4 0 10 7 10 7a17 17 0 01-2.8 3.7 M6.6 6.6A17 17 0 002 12s3.6 7 10 7c1.7 0 3.2-.4 4.5-1 M2 2l20 20"
-};
-
 // src/js/components/select.js
 var DEFAULTS2 = {
   search: void 0,
@@ -1560,7 +1563,7 @@ var Select = class {
     const node = typeof target === "string" ? document.querySelector(target) : target;
     if (!node) throw new Error("[Select] elemento alvo nao encontrado");
     if (node.tagName !== "SELECT") throw new Error("[Select] o alvo precisa ser um <select>");
-    this.opts = { ...DEFAULTS2, ...omitUndefined2(options) };
+    this.opts = { ...DEFAULTS2, ...omitUndefined(options) };
     this.native = node;
     this.multiple = node.multiple;
     this.opts.closeOnSelect = this.opts.closeOnSelect ?? !this.multiple;
@@ -1686,7 +1689,7 @@ var Select = class {
         e.stopPropagation();
         this.clear();
       }
-    }, [icon(ICONS.x, 14)]);
+    }, [icon(ICON_X, 14)]);
     this.control = el("div", {
       class: `tuc-select${this.multiple ? " is-multiple" : ""}${this.opts.wrapTags ? " is-wrap" : ""}`,
       role: "combobox",
@@ -1697,7 +1700,7 @@ var Select = class {
     }, [
       this.values,
       this.opts.clearable ? this.clearBtn : null,
-      el("span", { class: "tuc-select__arrow" }, [icon(ICONS_EXTRA.chevronsUpDown, 15)])
+      el("span", { class: "tuc-select__arrow" }, [icon(ICON_CHEVRONS_UP_DOWN, 15)])
     ]);
     this.list = el("div", { class: "tuc-select__list", role: "listbox", id: `${this.id}-list`, "aria-multiselectable": this.multiple ? "true" : null });
     this.menu = el("div", { class: "tuc-select__menu" }, [this.list]);
@@ -1891,7 +1894,7 @@ var Select = class {
               e.stopPropagation();
               this._toggleItem(item);
             }
-          }, [icon(ICONS.x, 12)])
+          }, [icon(ICON_X, 12)])
         ]), this.search);
       }
     } else if (chosen.length && !this.query) {
@@ -1954,7 +1957,7 @@ var Select = class {
         }
       }, [
         el("span", { class: "tuc-select__label", text: item.label }),
-        item.selected ? el("span", { class: "tuc-select__check" }, [icon(ICONS_EXTRA.check, 15)]) : null
+        item.selected ? el("span", { class: "tuc-select__check" }, [icon(ICON_CHECK, 15)]) : null
       ]);
       this.list.append(node);
     });
@@ -2087,11 +2090,6 @@ function normalize(s) {
 function firstEmptyLabel(select) {
   const o = [...select.options].find((x) => x.value === "");
   return o ? o.textContent.trim() : null;
-}
-function omitUndefined2(obj) {
-  const out = {};
-  for (const [k, v] of Object.entries(obj || {})) if (v !== void 0) out[k] = v;
-  return out;
 }
 function autoInit2(scope = document) {
   const out = [];
@@ -2268,7 +2266,7 @@ var ColorPicker = class {
   constructor(target, options = {}) {
     const node = typeof target === "string" ? document.querySelector(target) : target;
     if (!node) throw new Error("[ColorPicker] elemento alvo nao encontrado");
-    this.opts = { ...DEFAULTS3, ...omitUndefined3(options) };
+    this.opts = { ...DEFAULTS3, ...omitUndefined(options) };
     this.input = node;
     this.id = nextId("cor");
     this.isOpen = false;
@@ -2385,7 +2383,7 @@ var ColorPicker = class {
         class: "tuc-btn is-ghost is-icon tuc-colorpicker__pick",
         "aria-label": "Capturar cor da tela",
         onclick: () => this._pickFromScreen()
-      }, [icon(ICONS_EXTRA.pipette, 15)]) : null
+      }, [icon(ICON_PIPETTE, 15)]) : null
     ]);
     const tracks = el("div", { class: "tuc-colorpicker__tracks" }, [this.hue.root, this.alpha?.root]);
     this.panel = el("div", {
@@ -2580,11 +2578,6 @@ function normalize2(color) {
 function supportsEyeDropper() {
   return typeof window !== "undefined" && "EyeDropper" in window;
 }
-function omitUndefined3(obj) {
-  const out = {};
-  for (const [k, v] of Object.entries(obj || {})) if (v !== void 0) out[k] = v;
-  return out;
-}
 function autoInit3(scope = document) {
   const out = [];
   for (const node of scope.querySelectorAll("[data-tuc-color]:not([data-tuc-ready])")) {
@@ -2717,7 +2710,7 @@ var Upload = class {
     if (node.tagName !== "INPUT" || node.type !== "file") {
       throw new Error('[Upload] o alvo precisa ser um <input type="file">');
     }
-    this.opts = { ...DEFAULTS4, ...omitUndefined4(options) };
+    this.opts = { ...DEFAULTS4, ...omitUndefined(options) };
     this.opts.locale = this.opts.locale || document.documentElement.lang || "pt-BR";
     this.t = { ...TEXTS, ...this.opts.texts };
     this.opts.maxSize = this.opts.maxSize == null ? null : parseSize(this.opts.maxSize);
@@ -2785,7 +2778,7 @@ var Upload = class {
       tabindex: 0,
       "aria-describedby": `${this.id}-dica`
     }, [
-      el("span", { class: "tuc-upload__icon" }, [icon(ICONS_EXTRA.upload, 20)]),
+      el("span", { class: "tuc-upload__icon" }, [icon(ICON_UPLOAD, 20)]),
       el("span", { class: "tuc-upload__label", text: this.multiple ? this.t.zone : this.t.zoneOne }),
       el("span", { class: "tuc-upload__hint", id: `${this.id}-dica`, text: this._hint() })
     ]);
@@ -2969,7 +2962,7 @@ var Upload = class {
   _fail(message, file) {
     this.opts.onError?.(new Error(message), file);
     const warning = el("li", { class: "tuc-upload__item is-rejected" }, [
-      el("span", { class: "tuc-upload__thumb" }, [icon(ICONS_EXTRA.alert, 16)]),
+      el("span", { class: "tuc-upload__thumb" }, [icon(ICON_ALERT, 16)]),
       el("div", { class: "tuc-upload__info" }, [
         el("span", { class: "tuc-upload__name", text: file.name }),
         el("span", { class: "tuc-upload__meta", text: message })
@@ -2997,18 +2990,18 @@ var Upload = class {
       const meta = item.estado === "enviando" ? `${pct}% \xB7 ${formatSize(item.file.size, this.opts.locale)}` : item.estado === "error" ? item.error : formatSize(item.file.size, this.opts.locale);
       const actions = [];
       if (item.estado === "enviando") {
-        actions.push(this._button(ICONS.x, this.t.cancel, () => item.abort?.()));
+        actions.push(this._button(ICON_X, this.t.cancel, () => item.abort?.()));
       } else if (item.estado === "error") {
-        actions.push(this._button(ICONS_EXTRA.retry, this.t.repeat, () => this._upload(item)));
-        actions.push(this._button(ICONS.x, this.t.remove, () => this._remove(item)));
+        actions.push(this._button(ICON_RETRY, this.t.repeat, () => this._upload(item)));
+        actions.push(this._button(ICON_X, this.t.remove, () => this._remove(item)));
       } else {
-        actions.push(this._button(ICONS.x, this.t.remove, () => this._remove(item)));
+        actions.push(this._button(ICON_X, this.t.remove, () => this._remove(item)));
       }
       this.list.append(el("li", {
         class: `tuc-upload__item is-${item.estado}`,
         dataset: { key: item.key }
       }, [
-        item.preview ? el("img", { class: "tuc-upload__thumb", src: item.preview, alt: "" }) : el("span", { class: "tuc-upload__thumb" }, [icon(ICONS_EXTRA.file, 16)]),
+        item.preview ? el("img", { class: "tuc-upload__thumb", src: item.preview, alt: "" }) : el("span", { class: "tuc-upload__thumb" }, [icon(ICON_FILE, 16)]),
         el("div", { class: "tuc-upload__info" }, [
           el("span", { class: "tuc-upload__name", title: item.file.name, text: item.file.name }),
           el("span", { class: "tuc-upload__meta", text: meta }),
@@ -3016,7 +3009,7 @@ var Upload = class {
             el("span", { class: "tuc-upload__barfill", style: `width:${pct}%` })
           ]) : null
         ]),
-        item.estado === "pronto" ? el("span", { class: "tuc-upload__ok" }, [icon(ICONS_EXTRA.check, 15)]) : null,
+        item.estado === "pronto" ? el("span", { class: "tuc-upload__ok" }, [icon(ICON_CHECK, 15)]) : null,
         el("div", { class: "tuc-upload__actions" }, actions)
       ]));
     }
@@ -3052,11 +3045,6 @@ var Upload = class {
     this.input.dispatchEvent(new CustomEvent("tucano:change", { detail, bubbles: true }));
   }
 };
-function omitUndefined4(obj) {
-  const out = {};
-  for (const [k, v] of Object.entries(obj || {})) if (v !== void 0) out[k] = v;
-  return out;
-}
 function autoInit4(scope = document) {
   const out = [];
   for (const node of scope.querySelectorAll("input[type=file][data-tuc-upload]:not([data-tuc-ready])")) {
@@ -3288,7 +3276,7 @@ var Mask = class {
   constructor(target, options = {}) {
     const node = typeof target === "string" ? document.querySelector(target) : target;
     if (!node) throw new Error("[Mask] elemento alvo nao encontrado");
-    this.opts = { ...DEFAULTS5, ...omitUndefined5(options) };
+    this.opts = { ...DEFAULTS5, ...omitUndefined(options) };
     this.opts.locale = this.opts.locale || document.documentElement.lang || "pt-BR";
     this.input = node;
     node.classList.add("tuc-input");
@@ -3422,7 +3410,7 @@ var Mask = class {
         input.readOnly = true;
       }
     }
-    this.eye.replaceChildren(icon(showing ? ICONS_EXTRA.eyeOff : ICONS_EXTRA.eye, 16));
+    this.eye.replaceChildren(icon(showing ? ICON_EYE_OFF : ICON_EYE, 16));
     this.eye.setAttribute("aria-label", showing ? "Ocultar" : "Mostrar");
     this.eye.setAttribute("aria-pressed", String(showing));
     this.wrapper.classList.toggle("is-hidden", !showing);
@@ -3517,11 +3505,6 @@ var Mask = class {
     this.input.dispatchEvent(new CustomEvent("tucano:change", { detail, bubbles: true }));
   }
 };
-function omitUndefined5(obj) {
-  const out = {};
-  for (const [k, v] of Object.entries(obj || {})) if (v !== void 0) out[k] = v;
-  return out;
-}
 function autoInit5(scope = document) {
   const out = [];
   const targets = scope.querySelectorAll("[data-tuc-mask]:not([data-tuc-ready]), [data-tuc-reveal]:not([data-tuc-ready])");
@@ -3573,11 +3556,11 @@ var DEFAULTS6 = {
   // toasts simultaneos na mesma posicao
 };
 var ICON = {
-  info: ICONS_EXTRA.info,
-  success: ICONS_EXTRA.check,
-  warning: ICONS_EXTRA.alert,
-  error: ICONS_EXTRA.alert,
-  loading: ICONS_EXTRA.spinner
+  info: ICON_INFO,
+  success: ICON_CHECK,
+  warning: ICON_ALERT,
+  error: ICON_ALERT,
+  loading: ICON_SPINNER
 };
 var DURATION = { info: 4e3, success: 3500, warning: 6e3, error: 8e3, loading: null };
 var containers = /* @__PURE__ */ new Map();
@@ -3640,7 +3623,7 @@ function arrange(container2) {
 }
 var Toast = class {
   constructor(options = {}) {
-    this.opts = { ...DEFAULTS6, ...omitUndefined6(options) };
+    this.opts = { ...DEFAULTS6, ...omitUndefined(options) };
     if (this.opts.duration === void 0) {
       this.opts.duration = this.opts.type in DURATION ? DURATION[this.opts.type] : 4e3;
     }
@@ -3671,7 +3654,7 @@ var Toast = class {
         class: "tuc-btn is-ghost is-icon is-sm tuc-toast__close",
         "aria-label": "Fechar",
         onclick: () => this.close()
-      }, [icon(ICONS.x, 14)]) : null
+      }, [icon(ICON_X, 14)]) : null
     ];
   }
   /**
@@ -3682,7 +3665,7 @@ var Toast = class {
   update(options = {}) {
     if (!this.node) return this;
     const anterior = this.opts.type;
-    this.opts = { ...this.opts, ...omitUndefined6(options) };
+    this.opts = { ...this.opts, ...omitUndefined(options) };
     const { type } = this.opts;
     if (options.duration === void 0 && type !== anterior) {
       this.opts.duration = type in DURATION ? DURATION[type] : 4e3;
@@ -3799,11 +3782,6 @@ toast.promise = (promise, msgs = {}) => {
   );
   return promise;
 };
-function omitUndefined6(obj) {
-  const out = {};
-  for (const [k, v] of Object.entries(obj || {})) if (v !== void 0) out[k] = v;
-  return out;
-}
 var DJANGO_MAP = { debug: "info", info: "info", success: "success", warning: "warning", error: "error" };
 function autoInit6(scope = document) {
   const out = [];
@@ -3848,7 +3826,7 @@ var Tooltip = class {
   constructor(target, options = {}) {
     const node = typeof target === "string" ? document.querySelector(target) : target;
     if (!node) throw new Error("[Tooltip] elemento alvo nao encontrado");
-    this.opts = { ...DEFAULTS7, ...omitUndefined7(options) };
+    this.opts = { ...DEFAULTS7, ...omitUndefined(options) };
     this.anchor = node;
     this.id = nextId("tip");
     this._cleanups = [];
@@ -3938,11 +3916,6 @@ var Tooltip = class {
   }
 };
 var FOCUSABLE = /^(A|BUTTON|INPUT|SELECT|TEXTAREA)$/;
-function omitUndefined7(obj) {
-  const out = {};
-  for (const [k, v] of Object.entries(obj || {})) if (v !== void 0) out[k] = v;
-  return out;
-}
 function autoInit7(scope = document) {
   const out = [];
   for (const node of scope.querySelectorAll("[data-tuc-tip]:not([data-tuc-ready])")) {
@@ -4028,7 +4001,7 @@ function buildPanel(prefix, opts, owner, titleId) {
         class: `tuc-btn is-ghost is-icon is-sm ${prefix}__close`,
         "aria-label": "Fechar",
         onclick: () => owner.close("botao")
-      }, [icon(ICONS.x, 15)]) : null
+      }, [icon(ICON_X, 15)]) : null
     ]),
     el("div", { class: `${prefix}__body` }),
     actions?.length ? el("div", { class: `${prefix}__footer` }, actions.map((a) => el("button", {
@@ -4041,11 +4014,6 @@ function buildPanel(prefix, opts, owner, titleId) {
       }
     }))) : null
   ]);
-}
-function withoutUndefined(obj) {
-  const out = {};
-  for (const [k, v] of Object.entries(obj || {})) if (v !== void 0) out[k] = v;
-  return out;
 }
 
 // src/js/components/modal.js
@@ -4069,7 +4037,7 @@ var DEFAULTS8 = {
 var Modal = class extends Dialog {
   constructor(options = {}) {
     super();
-    this.opts = { ...DEFAULTS8, ...withoutUndefined(options) };
+    this.opts = { ...DEFAULTS8, ...omitUndefined(options) };
     this.id = nextId("modal");
     this._cleanups = [];
     this._build();
@@ -4168,7 +4136,7 @@ var DEFAULTS9 = {
 var Drawer = class extends Dialog {
   constructor(options = {}) {
     super();
-    this.opts = { ...DEFAULTS9, ...withoutUndefined(options) };
+    this.opts = { ...DEFAULTS9, ...omitUndefined(options) };
     this.id = nextId("drawer");
     this._cleanups = [];
     this._build();
@@ -4232,7 +4200,7 @@ var Accordion = class {
   constructor(target, options = {}) {
     this.node = typeof target === "string" ? document.querySelector(target) : target;
     if (!this.node) throw new Error("[Accordion] elemento n\xE3o encontrado");
-    this.opts = { ...DEFAULTS10, ...options };
+    this.opts = { ...DEFAULTS10, ...omitUndefined(options) };
     this._cleanups = [];
     this._build();
   }
@@ -4250,7 +4218,7 @@ var Accordion = class {
         trigger.append(el(
           "span",
           { class: "tuc-accordion__arrow", "aria-hidden": "true" },
-          [icon(ICONS_EXTRA.chevronDown, 16)]
+          [icon(ICON_CHEVRON_DOWN, 16)]
         ));
       }
       if (!item.querySelector(":scope > .tuc-accordion__body")) {
@@ -4340,16 +4308,11 @@ var DEFAULTS11 = {
   closeOnPick: true
 };
 var FOCUSABLE2 = '.tuc-dropdown__item:not([disabled]):not([aria-disabled="true"])';
-function withoutUndefined2(obj) {
-  const out = {};
-  for (const [k, v] of Object.entries(obj || {})) if (v !== void 0) out[k] = v;
-  return out;
-}
 var Dropdown = class {
   constructor(trigger, options = {}) {
     this.trigger = typeof trigger === "string" ? document.querySelector(trigger) : trigger;
     if (!this.trigger) throw new Error("[Dropdown] gatilho n\xE3o encontrado");
-    this.opts = { ...DEFAULTS11, ...withoutUndefined2(options) };
+    this.opts = { ...DEFAULTS11, ...omitUndefined(options) };
     this._cleanups = [];
     this._build();
   }
@@ -4507,17 +4470,12 @@ var COMPARE = {
   date: (a, b) => new Date(a).getTime() - new Date(b).getTime(),
   text: (a, b) => a.localeCompare(b, "pt-BR", { numeric: true, sensitivity: "base" })
 };
-function withoutUndefined3(obj) {
-  const out = {};
-  for (const [k, v] of Object.entries(obj || {})) if (v !== void 0) out[k] = v;
-  return out;
-}
 var Table = class {
   constructor(node, options = {}) {
     this.node = typeof node === "string" ? document.querySelector(node) : node;
     if (!this.node) throw new Error("[Table] elemento alvo nao encontrado");
     if (this.node.tagName !== "TABLE") throw new Error("[Table] o alvo precisa ser uma <table>");
-    this.opts = { ...DEFAULTS12, ...withoutUndefined3(options) };
+    this.opts = { ...DEFAULTS12, ...omitUndefined(options) };
     this.id = this.node.id || nextId("table");
     this._cleanups = [];
     this._build();
@@ -4710,11 +4668,6 @@ var DEFAULTS13 = {
 };
 var SETA_ESQ = "M15 18l-6-6 6-6";
 var SETA_DIR = "M9 18l6-6-6-6";
-function withoutUndefined4(obj) {
-  const out = {};
-  for (const [k, v] of Object.entries(obj || {})) if (v !== void 0) out[k] = v;
-  return out;
-}
 function pageWindow(page, pages, { around = 1, edges = 1 } = {}) {
   const mostrar = /* @__PURE__ */ new Set();
   for (let i = 1; i <= Math.min(edges, pages); i++) mostrar.add(i);
@@ -4733,7 +4686,7 @@ function pageWindow(page, pages, { around = 1, edges = 1 } = {}) {
 }
 var Pagination = class {
   constructor(options = {}) {
-    this.opts = { ...DEFAULTS13, ...withoutUndefined4(options) };
+    this.opts = { ...DEFAULTS13, ...omitUndefined(options) };
     this._cleanups = [];
     this.node = el("nav", { class: "tuc-pagination", role: "navigation", "aria-label": this.opts.label });
     this.node._tucano = this;
@@ -4917,8 +4870,6 @@ function textOnly(html) {
 }
 
 // src/js/core/highlight.js
-var ESCAPES = { "&": "&amp;", "<": "&lt;", ">": "&gt;" };
-var escape = (t) => String(t).replace(/[&<>]/g, (c) => ESCAPES[c]);
 var WORDS = [
   // fluxo, comum a quase tudo
   "if",
@@ -5043,7 +4994,7 @@ var RULES = [
 ];
 var COMBINADA = new RegExp(RULES.map(([, re]) => re.source).join("|"), "g");
 function highlight(code) {
-  const text = escape(code ?? "");
+  const text = escapeHtml(code ?? "");
   return text.replace(COMBINADA, (todo, ...grupos) => {
     const i = grupos.findIndex((g) => g !== void 0);
     const className = RULES[i]?.[0];
@@ -5083,7 +5034,7 @@ var DEFAULTS14 = {
   minHeight: "9rem",
   placeholder: ""
 };
-var ICONS2 = {
+var ICONS = {
   bold: "M6 4h6a4 4 0 010 8H6zM6 12h7a4 4 0 010 8H6z",
   italic: "M19 4h-9M14 20H5M15 4L9 20",
   underline: "M6 4v6a6 6 0 0012 0V4M4 21h16",
@@ -5155,7 +5106,6 @@ var ANCESTORS = {
   table: "table"
 };
 var SHORTCUTS = { b: "bold", i: "italic", u: "underline", k: "link" };
-var ESCAPES2 = { "&": "&amp;", "<": "&lt;", ">": "&gt;" };
 function toggleCode() {
   const sel = window.getSelection();
   if (!sel?.rangeCount) return;
@@ -5193,7 +5143,7 @@ function toggleCode() {
   }
   const text = sel.toString();
   if (!text) return;
-  const escaped = text.replace(/\n{2,}/g, "\n").replace(/[&<>]/g, (c) => ESCAPES2[c]);
+  const escaped = escapeHtml(text.replace(/\n{2,}/g, "\n"));
   if (/\n/.test(text)) {
     document.execCommand("insertHTML", false, `<pre><code>${escaped}</code></pre><p><br></p>`);
     return;
@@ -5339,16 +5289,11 @@ function restoreOffset(block, howMany) {
     counted += no.length;
   }
 }
-function withoutUndefined5(obj) {
-  const out = {};
-  for (const [k, v] of Object.entries(obj || {})) if (v !== void 0) out[k] = v;
-  return out;
-}
 var Editor = class {
   constructor(target, options = {}) {
     this.field = typeof target === "string" ? document.querySelector(target) : target;
     if (!this.field) throw new Error("[Editor] elemento n\xE3o encontrado");
-    this.opts = { ...DEFAULTS14, ...withoutUndefined5(options) };
+    this.opts = { ...DEFAULTS14, ...omitUndefined(options) };
     this._cleanups = [];
     this._build();
   }
@@ -5380,7 +5325,7 @@ var Editor = class {
             e.preventDefault();
             this.apply(name);
           }
-        }, [icon(ICONS2[name] ?? ICONS2.clear, 15)]);
+        }, [icon(ICONS[name] ?? ICONS.clear, 15)]);
         b.dataset.action = name;
         return GROUPS.has(name) ? [el("span", { class: "tuc-editor__sep", "aria-hidden": "true" }), b] : [b];
       })

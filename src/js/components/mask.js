@@ -1,7 +1,6 @@
 import { apply, applyCurrency, capacity, cursorAfter, pickTemplate, format, clear, validateCpfCnpj, validateCNPJ, validateCPF } from '../core/mask.js';
 import { maskMiddle } from '../core/mask.js';
-import { el, icon, on } from '../core/dom.js';
-import { ICONS_EXTRA } from '../core/dom-extra.js';
+import { el, icon, ICON_EYE, ICON_EYE_OFF, omitUndefined, on } from '../core/dom.js';
 
 /**
  * Formatos prontos.
@@ -211,7 +210,7 @@ export class Mask {
       }
     }
 
-    this.eye.replaceChildren(icon(showing ? ICONS_EXTRA.eyeOff : ICONS_EXTRA.eye, 16));
+    this.eye.replaceChildren(icon(showing ? ICON_EYE_OFF : ICON_EYE, 16));
     this.eye.setAttribute('aria-label', showing ? 'Ocultar' : 'Mostrar');
     this.eye.setAttribute('aria-pressed', String(showing));
     this.wrapper.classList.toggle('is-hidden', !showing);
@@ -323,11 +322,6 @@ export class Mask {
 
 /* ------------------------------------------------------------------ */
 
-function omitUndefined(obj) {
-  const out = {};
-  for (const [k, v] of Object.entries(obj || {})) if (v !== undefined) out[k] = v;
-  return out;
-}
 
 export function autoInit(scope = document) {
   const out = [];

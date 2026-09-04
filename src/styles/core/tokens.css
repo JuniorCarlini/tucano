@@ -2,44 +2,19 @@
  * Tokens do Tucano.
  * Tudo que e cor, raio ou sombra passa por aqui — trocar o tema do componente
  * e sobrescrever variavel, sem recompilar nada.
+ *
+ * Os tokens vivem em :root de proposito. Custom property nao estiliza nada
+ * sozinha: declarada na raiz ela e inerte para a pagina e apenas fica
+ * disponivel para quem a le. A versao anterior escopava cada token a uma lista
+ * de classes de componente, repetida quatro vezes — e a lista era fonte
+ * recorrente de defeito: componente novo esquecido numa das quatro nascia sem
+ * borda, ou piscava branco no tema escuro. Com a raiz, nao ha lista.
+ *
+ * O unico ponto que continua escopado e `color-scheme`, porque esse sim muda
+ * o desenho de campo nativo e barra de rolagem, e nao deve vazar para a pagina.
  */
 
-/*
- * Os seletores de estado pre-inicializacao entram nas listas junto com as
- * classes: o campo cru ainda nao tem .tuc-input, entao sem eles var(--tuc-border)
- * nao resolve e a borda desenhada em input.css cai fora — o campo nasceria sem
- * contorno ate o script rodar.
- */
-[data-tuc-color]:not([data-tuc-ready]),
-[data-tuc-datepicker]:not([data-tuc-ready]),
-[data-tuc-mask]:not([data-tuc-ready]),
-[data-tuc-reveal]:not([data-tuc-ready]),
-[data-tuc-select]:not([data-tuc-ready]),
-[data-tuc-editor]:not([data-tuc-ready]),
-[data-tuc-upload]:not([data-tuc-ready]),
-.tuc-dp,
-.tuc-select,
-.tuc-select__menu,
-.tuc-colorpicker,
-.tuc-color-field,
-.tuc-upload,
-.tuc-field,
-.tuc-toast,
-.tuc-tip,
-  .tuc-modal,
-  .tuc-drawer,
-  .tuc-accordion,
-  .tuc-menu,
-  .tuc-dropdown,
-  .tuc-badge,
-  .tuc-check,
-  .tuc-table,
-  .tuc-pagination,
-  .tuc-input,
-  .tuc-input-group,
-  .tuc-editor,
-  .tuc-prose,
-.tuc-btn {
+:root {
   --tuc-accent: #4f46e5;
   --tuc-accent-hover: #4338ca;
   --tuc-accent-fg: #ffffff;
@@ -54,6 +29,12 @@
   --tuc-success: #16a34a;
   --tuc-warning: #d97706;
   --tuc-danger: #dc2626;
+  /*
+   * Preenchimento solido e outro papel: o vermelho de texto no tema escuro e
+   * mais claro para ter contraste sobre fundo escuro, mas um botao pintado com
+   * ele fica pastel com texto branco em cima. O fill e o mesmo nos dois temas.
+   */
+  --tuc-danger-fill: #dc2626;
   --tuc-success-soft: color-mix(in oklab, var(--tuc-success) 12%, transparent);
   --tuc-warning-soft: color-mix(in oklab, var(--tuc-warning) 14%, transparent);
   --tuc-danger-soft: color-mix(in oklab, var(--tuc-danger) 12%, transparent);
@@ -106,37 +87,15 @@
 }
 
 /* Dark por classe (.dark no html) — o padrao de Tailwind e do Django admin moderno. */
-:where(.dark, [data-theme='dark']) :is([data-tuc-color]:not([data-tuc-ready]),
-  [data-tuc-datepicker]:not([data-tuc-ready]),
-  [data-tuc-mask]:not([data-tuc-ready]),
-  [data-tuc-reveal]:not([data-tuc-ready]),
-  [data-tuc-select]:not([data-tuc-ready]),
-  [data-tuc-editor]:not([data-tuc-ready]),
-  [data-tuc-upload]:not([data-tuc-ready]),
-  .tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip,
-  .tuc-modal,
-  .tuc-drawer,
-  .tuc-accordion,
-  .tuc-menu,
-  .tuc-dropdown,
-  .tuc-badge,
-  .tuc-check,
-  .tuc-table,
-  .tuc-pagination,
-  .tuc-input,
-  .tuc-input-group,
-  .tuc-editor,
-  .tuc-prose, .tuc-btn),
-:where(.dark, [data-theme='dark']).tuc-dp {
-  /* Faz o navegador desenhar barra de rolagem e campo nativo em tom escuro. */
-  color-scheme: dark;
-
+.dark,
+[data-theme='dark'] {
   --tuc-accent: #6366f1;
   --tuc-accent-hover: #818cf8;
 
   --tuc-success: #4ade80;
   --tuc-warning: #fbbf24;
   --tuc-danger: #f87171;
+  --tuc-danger-fill: #dc2626;
   --tuc-accent-fg: #ffffff;
 
   --tuc-bg: #171717;
@@ -155,57 +114,52 @@
 }
 
 /*
+ * Faz o navegador desenhar barra de rolagem e campo nativo em tom escuro —
+ * so dentro dos componentes, para nao impor color-scheme a pagina inteira.
+ */
+:where(.dark, [data-theme='dark']) :where([class^='tuc-'], [class*=' tuc-']) {
+  color-scheme: dark;
+}
+
+/*
  * Seguir o tema do SO e opt-in: <html data-tuc-theme="auto">.
  * Sem isso o componente escurecia sozinho numa pagina clara — o projeto que
  * manda no tema, nao o sistema operacional.
  */
 @media (prefers-color-scheme: dark) {
-  :where(html[data-tuc-theme='auto']) :is([data-tuc-color]:not([data-tuc-ready]),
-  [data-tuc-datepicker]:not([data-tuc-ready]),
-  [data-tuc-mask]:not([data-tuc-ready]),
-  [data-tuc-reveal]:not([data-tuc-ready]),
-  [data-tuc-select]:not([data-tuc-ready]),
-  [data-tuc-editor]:not([data-tuc-ready]),
-  [data-tuc-upload]:not([data-tuc-ready]),
-  .tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip,
-  .tuc-modal,
-  .tuc-drawer,
-  .tuc-accordion,
-  .tuc-menu,
-  .tuc-dropdown,
-  .tuc-badge,
-  .tuc-check,
-  .tuc-table,
-  .tuc-pagination,
-  .tuc-input,
-  .tuc-input-group,
-  .tuc-editor,
-  .tuc-prose, .tuc-btn) {
-    --tuc-accent: #6366f1;
-    --tuc-accent-hover: #818cf8;
+  :root[data-tuc-theme='auto'] {
+  --tuc-accent: #6366f1;
+  --tuc-accent-hover: #818cf8;
 
   --tuc-success: #4ade80;
   --tuc-warning: #fbbf24;
   --tuc-danger: #f87171;
-    --tuc-bg: #171717;
-    --tuc-fg: #fafafa;
-    --tuc-muted: #a3a3a3;
-    --tuc-subtle: #737373;
-    --tuc-border: #2e2e2e;
-    --tuc-hover: #262626;
-    --tuc-elevated: #1f1f1f;
-    --tuc-ring: rgb(255 255 255 / 0.14);
-    --tuc-shadow:
-      0 0 0 1px var(--tuc-ring),
-      0 8px 24px -8px rgb(0 0 0 / 0.6),
-      0 16px 48px -24px rgb(0 0 0 / 0.8);
+  --tuc-danger-fill: #dc2626;
+  --tuc-accent-fg: #ffffff;
+
+  --tuc-bg: #171717;
+  --tuc-fg: #fafafa;
+  --tuc-muted: #a3a3a3;
+  --tuc-subtle: #737373;
+  --tuc-border: #2e2e2e;
+  --tuc-hover: #262626;
+  --tuc-elevated: #1f1f1f;
+
+  --tuc-ring: rgb(255 255 255 / 0.14);
+  --tuc-shadow:
+    0 0 0 1px var(--tuc-ring),
+    0 8px 24px -8px rgb(0 0 0 / 0.6),
+    0 16px 48px -24px rgb(0 0 0 / 0.8);
+  }
+  :root[data-tuc-theme='auto'] :where([class^='tuc-'], [class*=' tuc-']) {
+    color-scheme: dark;
   }
 }
 
 /*
  * PONTO DE CORTE DO LAYOUT COMPACTO: 40rem (640px).
  *
- * O mesmo valor vale para o CSS e para o JS (ver `_compacto` no datepicker).
+ * O mesmo valor vale para o CSS e para o JS (ver `_compact` no datepicker).
  * Mudou aqui, muda la.
  *
  * Abaixo dele o texto base sobe para 16px. Nao e estetica: o Safari do iOS
@@ -216,21 +170,24 @@
  * notebook com tela de toque casaria `coarse` e receberia comportamento de
  * celular sem precisar.
  */
-/*
- * A regra e simples: entra aqui tudo em que se digita ou se toca.
- *
- * Os 16px existem para evitar o zoom automatico do iOS ao focar um campo, e os
- * 44px para dar alvo de toque confortavel. Componente novo que tenha campo ou
- * botao precisa entrar nesta lista — .tuc-input ficou de fora quando nasceu, e
- * o campo de data aparecia com 38px e fonte 13 ao lado de um select de 44 e 16,
- * pedindo zoom ao ser tocado.
- *
- * Toast e tooltip ficam de fora de proposito: neles nao ha campo nenhum, e
- * herdar o tamanho so deixaria o aviso desproporcional. Menu, acordeao, modal
- * e gaveta tambem nao entram — os campos que eles contem ja tem classe propria
- * e pegam a regra por ela.
- */
 @media (max-width: 40rem) {
+  :root {
+    --tuc-swatch: 2.5rem;          /* acompanha o texto maior no toque */
+    --tuc-control-height: 2.75rem; /* 44px: alvo de toque confortavel, e o
+                                      mesmo tamanho que os campos do projeto
+                                      costumam adotar no celular */
+  }
+
+  /*
+   * Esta e a unica lista de classes que sobra no arquivo, e ela e semantica:
+   * entra aqui tudo em que se digita ou se toca. Os 16px existem para evitar o
+   * zoom do iOS ao focar um campo. Toast e tooltip ficam de fora de proposito —
+   * neles nao ha campo, e o aviso ficaria desproporcional. Menu, acordeao,
+   * modal e gaveta tambem nao entram: os campos que eles contem ja tem classe
+   * propria e pegam a regra por ela. Os seletores de estado pre-inicializacao
+   * estao aqui porque o campo cru ainda nao tem classe, e precisa nascer com a
+   * fonte certa.
+   */
   [data-tuc-color]:not([data-tuc-ready]),
   [data-tuc-datepicker]:not([data-tuc-ready]),
   [data-tuc-mask]:not([data-tuc-ready]),
@@ -251,9 +208,5 @@
   .tuc-pagination,
   .tuc-btn {
     --tuc-text: 1rem;
-    --tuc-swatch: 2.5rem;          /* acompanha o texto maior no toque */
-    --tuc-control-height: 2.75rem; /* 44px: alvo de toque confortavel, e o
-                                      mesmo tamanho que os campos do projeto
-                                      costumam adotar no celular */
   }
 }

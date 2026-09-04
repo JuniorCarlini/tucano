@@ -1,5 +1,4 @@
-import { openWithTransition, el, icon, ICONS, nextId, on } from '../core/dom.js';
-import { ICONS_EXTRA } from '../core/dom-extra.js';
+import { el, icon, ICON_ALERT, ICON_CHECK, ICON_INFO, ICON_SPINNER, ICON_X, nextId, omitUndefined, on, openWithTransition } from '../core/dom.js';
 
 const DEFAULTS = {
   type: 'info',        // 'info' | 'success' | 'warning' | 'error' | 'loading'
@@ -13,11 +12,11 @@ const DEFAULTS = {
 };
 
 const ICON = {
-  info: ICONS_EXTRA.info,
-  success: ICONS_EXTRA.check,
-  warning: ICONS_EXTRA.alert,
-  error: ICONS_EXTRA.alert,
-  loading: ICONS_EXTRA.spinner,
+  info: ICON_INFO,
+  success: ICON_CHECK,
+  warning: ICON_ALERT,
+  error: ICON_ALERT,
+  loading: ICON_SPINNER,
 };
 
 /**
@@ -159,7 +158,7 @@ export class Toast {
       closable ? el('button', {
         type: 'button', class: 'tuc-btn is-ghost is-icon is-sm tuc-toast__close',
         'aria-label': 'Fechar', onclick: () => this.close(),
-      }, [icon(ICONS.x, 14)]) : null,
+      }, [icon(ICON_X, 14)]) : null,
     ];
   }
 
@@ -334,11 +333,6 @@ toast.promise = (promise, msgs = {}) => {
   return promise;
 };
 
-function omitUndefined(obj) {
-  const out = {};
-  for (const [k, v] of Object.entries(obj || {})) if (v !== undefined) out[k] = v;
-  return out;
-}
 
 const DJANGO_MAP = { debug: 'info', info: 'info', success: 'success', warning: 'warning', error: 'error' };
 

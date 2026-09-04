@@ -34,7 +34,7 @@
   background: var(--tuc-elevated);
   padding-block: 0.375rem;
 }
-.tuc-editor__toolbar.is-table .tuc-btn.is-remove { color: #dc2626; }
+.tuc-editor__toolbar.is-table .tuc-btn.is-remove { color: var(--tuc-danger); }
 .tuc-editor__toolbar.is-table[hidden] { display: none; }
 
 /* Botao aceso enquanto o cursor esta dentro daquela formatacao. */

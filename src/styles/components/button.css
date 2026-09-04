@@ -92,7 +92,7 @@
 }
 .tuc-btn.is-primary:disabled:hover { background: var(--tuc-accent); }
 .tuc-btn.is-outline:disabled:hover { background: var(--tuc-bg); border-color: var(--tuc-border); }
-.tuc-btn.is-danger:disabled:hover  { background: #dc2626; }
+.tuc-btn.is-danger:disabled:hover  { background: var(--tuc-danger-fill); }
 .tuc-btn.is-ghost:disabled:hover   { background: transparent; color: var(--tuc-muted); }
 
 /* ------------------------------------------------------------------ *
@@ -117,11 +117,11 @@
 .tuc-btn.is-ghost:hover { background: var(--tuc-hover); color: var(--tuc-fg); }
 
 .tuc-btn.is-danger {
-  background: #dc2626;
+  background: var(--tuc-danger-fill);
   color: #fff;
   box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
 }
-.tuc-btn.is-danger:hover { background: #b91c1c; }
+.tuc-btn.is-danger:hover { background: color-mix(in oklab, var(--tuc-danger-fill) 85%, black); }
 
 .tuc-btn.is-link {
   @apply h-auto px-0 underline-offset-4 hover:underline;

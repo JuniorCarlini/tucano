@@ -1,4 +1,4 @@
-import { el, icon, on } from '../core/dom.js';
+import { el, escapeHtml, icon, omitUndefined, on } from '../core/dom.js';
 import { sanitize, textOnly } from '../core/sanitize.js';
 import { Modal } from './modal.js';
 import { highlight } from '../core/highlight.js';
@@ -120,7 +120,6 @@ const SHORTCUTS = { b: 'bold', i: 'italic', u: 'underline', k: 'link' };
  * precisa voltar como qualquer outra formatacao, senao o editor mente sobre o
  * proprio historico.
  */
-const ESCAPES = { '&': '&amp;', '<': '&lt;', '>': '&gt;' };
 
 function toggleCode() {
   const sel = window.getSelection();
@@ -184,7 +183,7 @@ function toggleCode() {
    * toString junta cada um com duas quebras — o bloco saia com um vazio entre
    * todas as rows, como se o codigo tivesse sido espacado de proposito.
    */
-  const escaped = text.replace(/\n{2,}/g, '\n').replace(/[&<>]/g, (c) => ESCAPES[c]);
+  const escaped = escapeHtml(text.replace(/\n{2,}/g, '\n'));
 
   /*
    * Selecao que atravessa rows vira bloco, e nao codigo no meio da frase.
@@ -369,17 +368,12 @@ function restoreOffset(block, howMany) {
   }
 }
 
-function withoutUndefined(obj) {
-  const out = {};
-  for (const [k, v] of Object.entries(obj || {})) if (v !== undefined) out[k] = v;
-  return out;
-}
 
 export class Editor {
   constructor(target, options = {}) {
     this.field = typeof target === 'string' ? document.querySelector(target) : target;
     if (!this.field) throw new Error('[Editor] elemento não encontrado');
-    this.opts = { ...DEFAULTS, ...withoutUndefined(options) };
+    this.opts = { ...DEFAULTS, ...omitUndefined(options) };
     this._cleanups = [];
     this._build();
   }
