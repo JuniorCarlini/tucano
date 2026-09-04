@@ -5007,23 +5007,17 @@ var Tucano = (() => {
     /*
      * Foco sem arrastar a pagina.
      *
-     * focus() traz o elemento a vista, e num editor que ja esta na tela isso vira
-     * um salto: aplicar um titulo na primeira linha jogava a pagina para cima. O
-     * preventScroll resolve o foco, e guardar a rolagem cobre o resto — trocar um
-     * <p> por um <h2> muda a altura do bloco, e o navegador reposiciona sozinho
-     * para manter o cursor visivel.
+     * focus() traz o elemento a vista, e num editor ja visivel isso vira salto:
+     * aplicar um titulo na primeira linha jogava a pagina para cima.
+     *
+     * Aqui para. Devolver a rolagem depois, como eu fazia, criava uma segunda
+     * correcao competindo com o ajuste que o proprio navegador faz — o resultado
+     * era a pagina ir e voltar, que e pior que o salto original. Quando um bloco
+     * acima cresce, quem mantem a viewport parada e o scroll anchoring, e ele so
+     * funciona se ninguem mexer na rolagem por fora.
      */
     _focar() {
-      const x = window.scrollX;
-      const y = window.scrollY;
       this.area.focus({ preventScroll: true });
-      if (window.scrollX !== x || window.scrollY !== y) window.scrollTo(x, y);
-    }
-    _semPular(acao) {
-      const x = window.scrollX;
-      const y = window.scrollY;
-      acao();
-      if (window.scrollX !== x || window.scrollY !== y) window.scrollTo(x, y);
     }
     /* Elemento em volta do cursor, dentro da area. */
     _noAtual() {
@@ -5113,7 +5107,7 @@ var Tucano = (() => {
         this._pedirLink();
         return this;
       }
-      this._semPular(() => COMANDOS[nome]?.());
+      COMANDOS[nome]?.();
       this._sincronizar();
       this._marcarAtivos();
       this._pintar();
@@ -5164,7 +5158,7 @@ var Tucano = (() => {
         acoes,
         aoFechar: () => {
           if (!decidido) return;
-          this._semPular(() => {
+          {
             if (decidido === "remover") {
               this.area.focus({ preventScroll: true });
               const r = document.createRange();
@@ -5179,7 +5173,7 @@ var Tucano = (() => {
             }
             this._sincronizar();
             this._marcarAtivos();
-          });
+          }
         }
       });
       dialogo.conteudo(campo);

@@ -247,6 +247,7 @@ input.tuc-input.tuc-input:disabled, textarea.tuc-input.tuc-input:disabled {
 .tuc-rico__area {
   overflow-y: auto;
   padding: calc(var(--spacing, 0.25rem) * 3);
+  overflow-anchor: auto;
   font-size: var(--tuc-text);
   line-height: 1.65;
   color: var(--tuc-fg);

@@ -45,6 +45,13 @@
 
 .tuc-rico__area {
   @apply overflow-y-auto p-3;
+  /*
+   * Ancoragem de rolagem ligada. E o mecanismo do navegador que mantem a
+   * viewport parada quando um bloco acima muda de altura — trocar um paragrafo
+   * por um titulo, por exemplo. Vem ligada por padrao; esta aqui declarada
+   * para nao ser desligada sem querer por uma regra herdada.
+   */
+  overflow-anchor: auto;
   font-size: var(--tuc-text);
   line-height: 1.65;
   color: var(--tuc-fg);
