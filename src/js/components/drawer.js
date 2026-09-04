@@ -73,7 +73,7 @@ export function autoInit(scope = document) {
     node.setAttribute('data-tuc-ready', '');
     const d = node.dataset;
     const g = Object.create(Drawer.prototype);
-    g.opts = { ...DEFAULTS, closable: d.closable !== 'false', closeOnBackdrop: d.fundo !== 'false' };
+    g.opts = { ...DEFAULTS, closable: d.closable !== 'false', closeOnBackdrop: d.backdrop !== 'false' };
     g.id = node.id || nextId('drawer');
     g._cleanups = [];
     g.panel = node.querySelector('.tuc-drawer__panel');

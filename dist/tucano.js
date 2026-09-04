@@ -441,7 +441,7 @@ var Tucano = (() => {
      * isso ele desaparece no mesmo quadro, e so a entrada tem movimento — o
      * fechamento fica seco em comparacao.
      */
-    hide({ animar = true } = {}) {
+    hide({ animate = true } = {}) {
       if (!this.open) return;
       this.open = false;
       this._cleanups.forEach((fn) => fn());
@@ -449,7 +449,7 @@ var Tucano = (() => {
       this._ro?.disconnect();
       this._ro = null;
       clearTimeout(this._exitTimer);
-      if (!animar) {
+      if (!animate) {
         this.panel.classList.remove("is-closing");
         this.panel.remove();
         return;
@@ -475,15 +475,15 @@ var Tucano = (() => {
         return;
       }
       const [side, align = "start"] = this.placement.split("-");
-      const deitado = side === "left" || side === "right";
+      const landscape = side === "left" || side === "right";
       let placeSide = side;
       let top;
       let left;
-      if (deitado) {
-        const folgaDir = vw - a.right - this.offset;
-        const folgaEsq = a.left - this.offset;
-        if (side === "right" && p.width > folgaDir && folgaEsq > folgaDir) placeSide = "left";
-        if (side === "left" && p.width > folgaEsq && folgaDir > folgaEsq) placeSide = "right";
+      if (landscape) {
+        const gapRight = vw - a.right - this.offset;
+        const gapLeft = a.left - this.offset;
+        if (side === "right" && p.width > gapRight && gapLeft > gapRight) placeSide = "left";
+        if (side === "left" && p.width > gapLeft && gapRight > gapLeft) placeSide = "right";
         left = placeSide === "left" ? a.left - p.width - this.offset : a.right + this.offset;
         if (align === "end") top = a.bottom - p.height;
         else if (align === "center") top = a.top + a.height / 2 - p.height / 2;
@@ -514,14 +514,14 @@ var Tucano = (() => {
       this.panel.style.top = `${Math.round(top + host.top)}px`;
       this.panel.dataset.side = placeSide;
       if (this._arrow) {
-        const meia = this._arrow.offsetWidth / 2;
-        const limite = 12 + meia;
-        const preso = (v, total) => total <= limite * 2 ? total / 2 : Math.min(Math.max(v, limite), total - limite);
-        if (deitado) {
-          this._arrow.style.top = `${preso(a.top + a.height / 2 - top, p.height)}px`;
+        const half = this._arrow.offsetWidth / 2;
+        const limit = 12 + half;
+        const trapped = (v, total) => total <= limit * 2 ? total / 2 : Math.min(Math.max(v, limit), total - limit);
+        if (landscape) {
+          this._arrow.style.top = `${trapped(a.top + a.height / 2 - top, p.height)}px`;
           this._arrow.style.left = placeSide === "left" ? `${p.width}px` : "0px";
         } else {
-          this._arrow.style.left = `${preso(a.left + a.width / 2 - left, p.width)}px`;
+          this._arrow.style.left = `${trapped(a.left + a.width / 2 - left, p.width)}px`;
           this._arrow.style.top = placeSide === "top" ? `${p.height}px` : "0px";
         }
       }
@@ -695,7 +695,7 @@ var Tucano = (() => {
       this._releaseFocus?.();
       this._releaseFocus = null;
       this.input.setAttribute("aria-expanded", "false");
-      if (restoreFocus && !this._compacto) {
+      if (restoreFocus && !this._compact) {
         this._suppressOpen = true;
         this.input.focus();
         this._suppressOpen = false;
@@ -753,14 +753,14 @@ var Tucano = (() => {
      * concordar. A condicao de toque entra junto para nao desabilitar a
      * digitacao numa janela estreita de desktop.
      */
-    get _compacto() {
+    get _compact() {
       if (typeof window === "undefined") return false;
       return !!window.matchMedia?.("(max-width: 40rem) and (pointer: coarse)").matches;
     }
     _setupTarget() {
       if (this.native) return this._setupNative();
       const input = this.input;
-      if (this._compacto) {
+      if (this._compact) {
         input.readOnly = true;
         this._cleanups.push(on(input, "pointerdown", (e) => {
           e.preventDefault();
@@ -768,7 +768,7 @@ var Tucano = (() => {
         }));
       }
       input.setAttribute("autocomplete", "off");
-      this._mask = this._compacto ? null : this._maskTemplate();
+      this._mask = this._compact ? null : this._maskTemplate();
       this._maskDigits = "";
       if (this._mask) {
         input.setAttribute("inputmode", "numeric");
@@ -789,7 +789,7 @@ var Tucano = (() => {
           if (this.opts.openOnFocus && !this._suppressOpen) this.open();
         }),
         on(input, "click", () => {
-          if (!this._suppressOpen && !this._compacto) this.open();
+          if (!this._suppressOpen && !this._compact) this.open();
         }),
         on(input, "keydown", (e) => {
           if (e.key === "ArrowDown" && !this.isOpen) {
@@ -935,22 +935,22 @@ var Tucano = (() => {
       const input = this.input;
       const raw = input.value;
       const caret = input.selectionStart ?? raw.length;
-      const apagando = typeof e.inputType === "string" && e.inputType.startsWith("delete");
+      const deleting = typeof e.inputType === "string" && e.inputType.startsWith("delete");
       let digits = raw.replace(/\D/g, "");
-      let antes = raw.slice(0, caret).replace(/\D/g, "").length;
-      if (apagando && digits === this._maskDigits) {
-        const paraFrente = e.inputType === "deleteContentForward";
-        const idx = paraFrente ? antes : antes - 1;
+      let before = raw.slice(0, caret).replace(/\D/g, "").length;
+      if (deleting && digits === this._maskDigits) {
+        const forward = e.inputType === "deleteContentForward";
+        const idx = forward ? before : before - 1;
         if (idx >= 0 && idx < digits.length) {
           digits = digits.slice(0, idx) + digits.slice(idx + 1);
-          if (!paraFrente) antes -= 1;
+          if (!forward) before -= 1;
         }
       }
       digits = digits.slice(0, this._maskSlots());
       const masked = maskFormat(digits, this._mask);
       this._maskDigits = digits;
       input.value = masked;
-      const pos = caretAfterDigits(masked, Math.min(antes, digits.length));
+      const pos = caretAfterDigits(masked, Math.min(before, digits.length));
       input.setSelectionRange(pos, pos);
       if (digits.length === this._maskSlots()) this._previewTyped();
     }
@@ -962,9 +962,9 @@ var Tucano = (() => {
       const raw = this.input.value;
       if (this.isRange) {
         const [a, b] = raw.split(/\s*—\s*/);
-        const inicio = this._keepTime(parseUserInput(a, this.opts.locale), this.start);
-        if (!inicio) return;
-        this.start = inicio;
+        const start = this._keepTime(parseUserInput(a, this.opts.locale), this.start);
+        if (!start) return;
+        this.start = start;
         this.end = this._keepTime(parseUserInput(b, this.opts.locale), this.end);
         this.pendingRange = false;
       } else {
@@ -1628,13 +1628,13 @@ var Tucano = (() => {
       this.activeIndex = -1;
       this._cleanups = [];
       this.items = readOptions(node);
-      this.remoto = !!(this.opts.url || this.opts.loadOptions);
-      this.opts.search = this.remoto ? true : this.opts.search ?? this.items.length >= this.opts.searchMinItems;
+      this.remote = !!(this.opts.url || this.opts.loadOptions);
+      this.opts.search = this.remote ? true : this.opts.search ?? this.items.length >= this.opts.searchMinItems;
       this.searchState = null;
       this._cache = /* @__PURE__ */ new Map();
-      this._vazios = /* @__PURE__ */ new Set();
+      this._empties = /* @__PURE__ */ new Set();
       this._page = 1;
-      this._temMais = false;
+      this._hasMore = false;
       this._build();
       this._syncFromNative();
       node._tucano = this;
@@ -1643,8 +1643,8 @@ var Tucano = (() => {
      * API publica                                                       *
      * ---------------------------------------------------------------- */
     getValue() {
-      const escolhidos = this.items.filter((i) => i.selected).map((i) => i.value);
-      return this.multiple ? escolhidos : escolhidos[0] ?? null;
+      const chosen = this.items.filter((i) => i.selected).map((i) => i.value);
+      return this.multiple ? chosen : chosen[0] ?? null;
     }
     setValue(value, { silent = false } = {}) {
       const target = new Set([].concat(value ?? []).map(String));
@@ -1660,7 +1660,7 @@ var Tucano = (() => {
     /** Relê as <option> do select nativo — use depois de trocar as opções por HTMX. */
     refresh() {
       this._cache.clear();
-      this._vazios.clear();
+      this._empties.clear();
       this.items = readOptions(this.native);
       this._renderControl();
       if (this.isOpen) this._renderMenu();
@@ -1670,8 +1670,8 @@ var Tucano = (() => {
       this.isOpen = true;
       this.query = "";
       this.search.value = "";
-      if (this.remoto) {
-        this.items = this._escolhidos();
+      if (this.remote) {
+        this.items = this._chosen();
         this.searchState = null;
       }
       this.activeIndex = this.items.findIndex((i) => i.selected && !i.disabled);
@@ -1707,7 +1707,7 @@ var Tucano = (() => {
     }
     destroy() {
       clearTimeout(this._searchTimer);
-      this._abortar();
+      this._abort();
       this.close();
       this._cleanups.forEach((fn) => fn());
       this._cleanups = [];
@@ -1769,7 +1769,7 @@ var Tucano = (() => {
         on(this.search, "input", () => {
           this.query = this.search.value;
           if (!this.isOpen) this.open();
-          if (this.remoto) {
+          if (this.remote) {
             this._scheduleSearch();
             return;
           }
@@ -1786,24 +1786,24 @@ var Tucano = (() => {
       );
     }
     _syncFromNative() {
-      const escolhidos = new Set([...this.native.selectedOptions].map((o) => o.value));
-      for (const item of this.items) item.selected = escolhidos.has(item.value);
+      const chosen = new Set([...this.native.selectedOptions].map((o) => o.value));
+      for (const item of this.items) item.selected = chosen.has(item.value);
       this._renderControl();
     }
     _pushToNative() {
       this._pushing = true;
-      if (this.remoto) {
+      if (this.remote) {
         for (const item of this.items) {
           if (!item.selected) continue;
           if ([...this.native.options].some((o) => o.value === item.value)) continue;
           this.native.append(el("option", { value: item.value, text: item.label }));
         }
       }
-      const escolhidos = new Set(this.items.filter((i) => i.selected).map((i) => i.value));
-      for (const opt of this.native.options) opt.selected = escolhidos.has(opt.value);
-      if (!this.multiple && !escolhidos.size) {
-        const vazia = [...this.native.options].find((o) => o.value === "");
-        if (vazia) vazia.selected = true;
+      const chosen = new Set(this.items.filter((i) => i.selected).map((i) => i.value));
+      for (const opt of this.native.options) opt.selected = chosen.has(opt.value);
+      if (!this.multiple && !chosen.size) {
+        const empty = [...this.native.options].find((o) => o.value === "");
+        if (empty) empty.selected = true;
       }
       this.native.dispatchEvent(new Event("change", { bubbles: true }));
       this._pushing = false;
@@ -1818,33 +1818,33 @@ var Tucano = (() => {
      */
     _scheduleSearch() {
       clearTimeout(this._searchTimer);
-      const termo = this.query.trim();
+      const term = this.query.trim();
       this._page = 1;
-      if (termo.length < this.opts.minChars) {
-        this._abortar();
+      if (term.length < this.opts.minChars) {
+        this._abort();
         this.searchState = null;
-        this.items = this._escolhidos();
-        this._temMais = false;
+        this.items = this._chosen();
+        this._hasMore = false;
         this._renderMenu();
         return;
       }
-      const guardado = this.opts.cache ? this._cache.get(termo) : null;
-      if (guardado) {
-        this._abortar();
+      const saved = this.opts.cache ? this._cache.get(term) : null;
+      if (saved) {
+        this._abort();
         this.searchState = null;
-        this._applyResult(guardado, { anexar: false });
+        this._applyResult(saved, { append: false });
         return;
       }
-      if (this._semChance(termo)) {
-        this._abortar();
+      if (this._noChance(term)) {
+        this._abort();
         this.searchState = null;
-        this._applyResult([], { anexar: false });
+        this._applyResult([], { append: false });
         return;
       }
-      if (this._termoEmVoo === termo) return;
+      if (this._termInFlight === term) return;
       this.searchState = "loading";
       this._renderMenu();
-      this._searchTimer = setTimeout(() => this._buscar(termo), this.opts.debounce);
+      this._searchTimer = setTimeout(() => this._fetch(term), this.opts.debounce);
     }
     /**
      * Se "lucas" nao trouxe nada, "lucass" tambem nao traz — desde que a busca
@@ -1854,60 +1854,60 @@ var Tucano = (() => {
      * relevancia, um termo maior pode sim trazer resultado, e cortar aqui
      * esconderia dados sem aviso.
      */
-    _semChance(termo) {
+    _noChance(term) {
       if (!this.opts.shortCircuit) return false;
-      for (const empty of this._vazios) if (termo.startsWith(empty)) return true;
+      for (const empty of this._empties) if (term.startsWith(empty)) return true;
       return false;
     }
-    _guardar(termo, items) {
+    _store(term, items) {
       if (!this.opts.cache) return;
       if (this._cache.size >= this.opts.cacheSize) {
         this._cache.delete(this._cache.keys().next().value);
       }
-      this._cache.set(termo, items);
-      if (!items.length) this._vazios.add(termo);
+      this._cache.set(term, items);
+      if (!items.length) this._empties.add(term);
     }
     /** Junta o que veio com quem ja estava escolhido e desenha. */
-    _applyResult(vindos, { anexar }) {
-      const escolhidos = this._escolhidos();
-      const base = anexar ? this.items : escolhidos;
-      const novos = vindos.filter((i) => !base.some((e) => e.value === i.value));
-      this.items = [...base, ...novos];
+    _applyResult(incoming, { append }) {
+      const chosen = this._chosen();
+      const base = append ? this.items : chosen;
+      const fresh = incoming.filter((i) => !base.some((e) => e.value === i.value));
+      this.items = [...base, ...fresh];
       this.activeIndex = this.items.findIndex((i) => !i.disabled && !i.selected);
       this._renderMenu();
     }
-    _abortar() {
-      this._controle?.abort();
-      this._controle = null;
+    _abort() {
+      this._control?.abort();
+      this._control = null;
     }
-    async _buscar(termo, { page = 1 } = {}) {
-      this._abortar();
-      const controle = new AbortController();
-      this._controle = controle;
-      this._termoEmVoo = termo;
+    async _fetch(term, { page = 1 } = {}) {
+      this._abort();
+      const control = new AbortController();
+      this._control = control;
+      this._termInFlight = term;
       try {
-        const brutos = this.opts.loadOptions ? await this.opts.loadOptions(termo, { signal: controle.signal, page }) : await this._buscarUrl(termo, controle.signal, page);
-        if (controle.signal.aborted) return;
-        const vindos = normalizeOptions(brutos);
-        this._temMais = hasNextPage(brutos, vindos, this.opts.pageParam);
+        const raws = this.opts.loadOptions ? await this.opts.loadOptions(term, { signal: control.signal, page }) : await this._fetchUrl(term, control.signal, page);
+        if (control.signal.aborted) return;
+        const incoming = normalizeOptions(raws);
+        this._hasMore = hasNextPage(raws, incoming, this.opts.pageParam);
         this.searchState = null;
-        if (page === 1) this._guardar(termo, vindos);
-        this._applyResult(vindos, { anexar: page > 1 });
+        if (page === 1) this._store(term, incoming);
+        this._applyResult(incoming, { append: page > 1 });
         return;
       } catch (e) {
-        if (e.name === "AbortError" || controle.signal.aborted) return;
+        if (e.name === "AbortError" || control.signal.aborted) return;
         this.searchState = "error";
         this._renderMenu();
       } finally {
-        if (this._controle === controle) {
-          this._controle = null;
-          this._termoEmVoo = null;
+        if (this._control === control) {
+          this._control = null;
+          this._termInFlight = null;
         }
       }
     }
-    async _buscarUrl(termo, signal, page = 1) {
+    async _fetchUrl(term, signal, page = 1) {
       const url = new URL(this.opts.url, location.href);
-      url.searchParams.set(this.opts.queryParam, termo);
+      url.searchParams.set(this.opts.queryParam, term);
       if (page > 1 && this.opts.pageParam) url.searchParams.set(this.opts.pageParam, String(page));
       const r = await fetch(url, { signal, headers: { Accept: "application/json" } });
       if (!r.ok) throw new Error(`O servidor respondeu ${r.status}`);
@@ -1918,25 +1918,25 @@ var Tucano = (() => {
      * dez mil registros e o que trava a pagina; vinte por vez, nao.
      */
     _onListScroll() {
-      if (!this.remoto || !this._temMais || this.searchState === "loading") return;
+      if (!this.remote || !this._hasMore || this.searchState === "loading") return;
       const l = this.list;
       if (l.scrollTop + l.clientHeight < l.scrollHeight - 48) return;
       this._page += 1;
       this.searchState = "loading";
       this._renderMenu();
-      this._buscar(this.query.trim(), { page: this._page });
+      this._fetch(this.query.trim(), { page: this._page });
     }
-    _escolhidos() {
+    _chosen() {
       return this.items.filter((i) => i.selected);
     }
     /* ---------------------------------------------------------------- *
      * Render                                                            *
      * ---------------------------------------------------------------- */
     _renderControl() {
-      const escolhidos = this.items.filter((i) => i.selected);
+      const chosen = this.items.filter((i) => i.selected);
       for (const n of [...this.values.children]) if (n !== this.search) n.remove();
       if (this.multiple) {
-        for (const item of escolhidos) {
+        for (const item of chosen) {
           this.values.insertBefore(el("span", { class: "tuc-select__tag" }, [
             el("span", { class: "tuc-select__tagtext", text: item.label }),
             el("button", {
@@ -1951,26 +1951,26 @@ var Tucano = (() => {
             }, [icon(ICONS.x, 12)])
           ]), this.search);
         }
-      } else if (escolhidos.length && !this.query) {
+      } else if (chosen.length && !this.query) {
         this.values.insertBefore(
-          el("span", { class: "tuc-select__single", text: escolhidos[0].label }),
+          el("span", { class: "tuc-select__single", text: chosen[0].label }),
           this.search
         );
       }
-      const empty = !escolhidos.length && !this.query;
+      const empty = !chosen.length && !this.query;
       this.search.placeholder = empty ? this.opts.placeholder : this.isOpen && this.opts.search ? this.opts.searchPlaceholder : "";
       this.control.classList.toggle("is-empty", empty);
-      this.control.classList.toggle("has-value", escolhidos.length > 0);
+      this.control.classList.toggle("has-value", chosen.length > 0);
       this.search.readOnly = !this.opts.search;
     }
     _filtered() {
-      if (this.remoto) return this.items;
+      if (this.remote) return this.items;
       const q = this.query.trim().toLowerCase();
       if (!q) return this.items;
       return this.items.filter((i) => i.search.includes(q));
     }
     _renderMenu() {
-      const visiveis = this._filtered();
+      const visible = this._filtered();
       this.list.replaceChildren();
       if (this.searchState === "loading") {
         this.list.append(el("div", { class: "tuc-select__empty is-loading", text: this.opts.loadingText }));
@@ -1980,16 +1980,16 @@ var Tucano = (() => {
         this.list.append(el("div", { class: "tuc-select__empty is-error", text: this.opts.errorText }));
         return;
       }
-      if (!visiveis.length) {
-        const faltaDigitar = this.remoto && this.query.trim().length < this.opts.minChars;
+      if (!visible.length) {
+        const remainingToType = this.remote && this.query.trim().length < this.opts.minChars;
         this.list.append(el("div", {
           class: "tuc-select__empty",
-          text: faltaDigitar ? `Digite ${this.opts.minChars} caractere${this.opts.minChars > 1 ? "s" : ""} para buscar` : this.opts.emptyText
+          text: remainingToType ? `Digite ${this.opts.minChars} caractere${this.opts.minChars > 1 ? "s" : ""} para buscar` : this.opts.emptyText
         }));
         return;
       }
       let currentGroup = null;
-      visiveis.forEach((item, i) => {
+      visible.forEach((item, i) => {
         if (item.group && item.group !== currentGroup) {
           currentGroup = item.group;
           this.list.append(el("div", { class: "tuc-select__group", text: item.group, role: "presentation" }));
@@ -2060,14 +2060,14 @@ var Tucano = (() => {
       }
     }
     _onKeydown(e) {
-      const visiveis = this._filtered();
+      const visible = this._filtered();
       if (e.key === "ArrowDown" || e.key === "ArrowUp") {
         e.preventDefault();
         if (!this.isOpen) return this.open();
         const step = e.key === "ArrowDown" ? 1 : -1;
-        for (let n = 1; n <= visiveis.length; n++) {
-          const i = (this.activeIndex + step * n + visiveis.length * n) % visiveis.length;
-          if (!visiveis[i].disabled) {
+        for (let n = 1; n <= visible.length; n++) {
+          const i = (this.activeIndex + step * n + visible.length * n) % visible.length;
+          if (!visible[i].disabled) {
             this.activeIndex = i;
             break;
           }
@@ -2082,7 +2082,7 @@ var Tucano = (() => {
         }
         if (e.key === " ") return;
         e.preventDefault();
-        const item = visiveis[this.activeIndex];
+        const item = visible[this.activeIndex];
         if (item) this._toggleItem(item);
       } else if (e.key === "Escape") {
         if (this.isOpen) {
@@ -2092,12 +2092,12 @@ var Tucano = (() => {
           this.control.focus?.();
         }
       } else if (e.key === "Backspace" && !this.search.value && this.multiple) {
-        const escolhidos = this.items.filter((i) => i.selected);
-        if (escolhidos.length) this._toggleItem(escolhidos[escolhidos.length - 1]);
+        const chosen = this.items.filter((i) => i.selected);
+        if (chosen.length) this._toggleItem(chosen[chosen.length - 1]);
       } else if (e.key === "Home" || e.key === "End") {
         if (!this.isOpen) return;
         e.preventDefault();
-        this.activeIndex = e.key === "Home" ? 0 : visiveis.length - 1;
+        this.activeIndex = e.key === "Home" ? 0 : visible.length - 1;
         this._paintActive();
         this._scrollToActive();
       }
@@ -2116,14 +2116,14 @@ var Tucano = (() => {
       if (typeof o !== "object") return { value: String(o), label: String(o), disabled: false, group: null, selected: false, search: normalize(String(o)) };
       const value = String(o.value ?? o.id ?? o.pk ?? "");
       const label = String(o.label ?? o.text ?? o.name ?? o.name ?? value);
-      return { value, label, disabled: !!o.disabled, group: o.group ?? o.grupo ?? null, selected: false, search: normalize(`${label} ${value}`) };
+      return { value, label, disabled: !!o.disabled, group: o.group ?? o.group ?? null, selected: false, search: normalize(`${label} ${value}`) };
     }).filter((o) => o && o.value !== "");
   }
-  function hasNextPage(brutos, items, pageParam) {
+  function hasNextPage(raws, items, pageParam) {
     if (!pageParam) return false;
-    if (brutos && typeof brutos === "object" && !Array.isArray(brutos)) {
-      if ("next" in brutos) return !!brutos.next;
-      if ("has_more" in brutos) return !!brutos.has_more;
+    if (raws && typeof raws === "object" && !Array.isArray(raws)) {
+      if ("next" in raws) return !!raws.next;
+      if ("has_more" in raws) return !!raws.has_more;
     }
     return items.length > 0;
   }
@@ -2197,7 +2197,7 @@ var Tucano = (() => {
     const c = v * s;
     const x = c * (1 - Math.abs(h / 60 % 2 - 1));
     const m = v - c;
-    const setor = Math.floor(h / 60) % 6;
+    const sector = Math.floor(h / 60) % 6;
     const [r, g, b] = [
       [c, x, 0],
       [x, c, 0],
@@ -2205,7 +2205,7 @@ var Tucano = (() => {
       [0, x, c],
       [x, 0, c],
       [c, 0, x]
-    ][setor];
+    ][sector];
     return { r: round(r + m), g: round(g + m), b: round(b + m) };
   }
   function rgbToHsv({ r, g, b }) {
@@ -2293,7 +2293,7 @@ var Tucano = (() => {
   }
 
   // src/js/components/colorpicker.js
-  var PALETA = [
+  var PALETTE = [
     "#0a0a0a",
     "#525252",
     "#a3a3a3",
@@ -2314,7 +2314,7 @@ var Tucano = (() => {
     format: "hex",
     // 'hex' | 'rgb' | 'hsl'
     alpha: true,
-    swatches: PALETA,
+    swatches: PALETTE,
     // false desliga
     placement: "bottom-center",
     // mesma regra do date picker: centralizado, preso na borda da tela
@@ -2441,16 +2441,16 @@ var Tucano = (() => {
           type: "button",
           class: "tuc-btn is-ghost is-icon tuc-colorpicker__pick",
           "aria-label": "Capturar cor da tela",
-          onclick: () => this._capturarDaTela()
+          onclick: () => this._pickFromScreen()
         }, [icon(ICONS_EXTRA.pipette, 15)]) : null
       ]);
-      const trilhas = el("div", { class: "tuc-colorpicker__tracks" }, [this.hue.root, this.alpha?.root]);
+      const tracks = el("div", { class: "tuc-colorpicker__tracks" }, [this.hue.root, this.alpha?.root]);
       this.panel = el("div", {
         class: "tuc-colorpicker",
         role: "dialog",
         "aria-label": "Seletor de cor",
         id: this.id
-      }, [this.area, trilhas, fieldRow, this.opts.swatches ? this._buildSwatches() : null]);
+      }, [this.area, tracks, fieldRow, this.opts.swatches ? this._buildSwatches() : null]);
       this._cleanups.push(
         this._dragHandler(this.area, (x, y) => {
           this.hsva = { ...this.hsva, s: x, v: 1 - y };
@@ -2555,13 +2555,13 @@ var Tucano = (() => {
     }
     _areaKeys(e) {
       const step = (e.shiftKey ? 10 : 2) / 100;
-      const mapa = {
+      const map = {
         ArrowLeft: { s: -step },
         ArrowRight: { s: step },
         ArrowUp: { v: step },
         ArrowDown: { v: -step }
       };
-      const d = mapa[e.key];
+      const d = map[e.key];
       if (!d) return;
       e.preventDefault();
       this.hsva = {
@@ -2571,7 +2571,7 @@ var Tucano = (() => {
       };
       this._commit();
     }
-    async _capturarDaTela() {
+    async _pickFromScreen() {
       try {
         const { sRGBHex } = await new window.EyeDropper().open();
         this.setValue(sRGBHex);
@@ -2611,9 +2611,9 @@ var Tucano = (() => {
         this.alpha.root.setAttribute("aria-valuenow", a.toFixed(2));
       }
       this.preview.style.setProperty("--color", formatColor(this.hsva, "rgb"));
-      const atual = rgbToHex(hsvToRgb(this.hsva));
+      const current = rgbToHex(hsvToRgb(this.hsva));
       for (const btn of this.panel.querySelectorAll(".tuc-colorpicker__swatchbtn")) {
-        btn.classList.toggle("is-selected", btn.dataset.color === atual);
+        btn.classList.toggle("is-selected", btn.dataset.color === current);
       }
       if (document.activeElement !== this.hexField) this.hexField.value = this.getValue();
     }
@@ -2661,32 +2661,32 @@ var Tucano = (() => {
   function formatSize(bytes, locale = "pt-BR") {
     if (!Number.isFinite(bytes) || bytes < 0) return "";
     if (bytes < 1024) return `${bytes} B`;
-    const unidades = ["KB", "MB", "GB", "TB"];
+    const units = ["KB", "MB", "GB", "TB"];
     let n = bytes / 1024;
     let i = 0;
-    while (n >= 1024 && i < unidades.length - 1) {
+    while (n >= 1024 && i < units.length - 1) {
       n /= 1024;
       i++;
     }
-    const casas = n < 10 ? 1 : 0;
-    return `${n.toLocaleString(locale, { maximumFractionDigits: casas })} ${unidades[i]}`;
+    const places = n < 10 ? 1 : 0;
+    return `${n.toLocaleString(locale, { maximumFractionDigits: places })} ${units[i]}`;
   }
   function parseSize(value) {
     if (typeof value === "number") return value;
     const m = /^([\d.,]+)\s*(b|kb|mb|gb)?$/i.exec(String(value || "").trim());
     if (!m) return null;
     const n = parseFloat(m[1].replace(",", "."));
-    const fator = { b: 1, kb: 1024, mb: 1024 ** 2, gb: 1024 ** 3 }[(m[2] || "b").toLowerCase()];
-    return Math.round(n * fator);
+    const factor = { b: 1, kb: 1024, mb: 1024 ** 2, gb: 1024 ** 3 }[(m[2] || "b").toLowerCase()];
+    return Math.round(n * factor);
   }
   function matchesAccept(file, accept) {
     if (!accept) return true;
     const name = file.name.toLowerCase();
     const type = (file.type || "").toLowerCase();
-    return accept.split(",").map((s) => s.trim().toLowerCase()).filter(Boolean).some((regra) => {
-      if (regra.startsWith(".")) return name.endsWith(regra);
-      if (regra.endsWith("/*")) return type.startsWith(regra.slice(0, -1));
-      return type === regra;
+    return accept.split(",").map((s) => s.trim().toLowerCase()).filter(Boolean).some((rule) => {
+      if (rule.startsWith(".")) return name.endsWith(rule);
+      if (rule.endsWith("/*")) return type.startsWith(rule.slice(0, -1));
+      return type === rule;
     });
   }
   function isImage(file) {
@@ -2716,10 +2716,10 @@ var Tucano = (() => {
         }
       });
       xhr.addEventListener("error", () => reject(new Error("Falha de rede")));
-      xhr.addEventListener("abort", () => reject(Object.assign(new Error("Cancelado"), { cancelado: true })));
+      xhr.addEventListener("abort", () => reject(Object.assign(new Error("Cancelado"), { canceled: true })));
       xhr.send(data);
     });
-    return { promise, abortar: () => xhr.abort() };
+    return { promise, abort: () => xhr.abort() };
   }
   var seq = 0;
   function fileId() {
@@ -2754,18 +2754,18 @@ var Tucano = (() => {
     onChange: null,
     onError: null
   };
-  var TEXTOS = {
-    zona: "Arraste arquivos aqui ou clique para escolher",
-    zonaUm: "Arraste um arquivo aqui ou clique para escolher",
-    soltar: "Solte para enviar",
+  var TEXTS = {
+    zone: "Arraste arquivos aqui ou clique para escolher",
+    zoneOne: "Arraste um arquivo aqui ou clique para escolher",
+    drop: "Solte para enviar",
     uploading: "Enviando...",
     pronto: "Enviado",
     cancel: "Cancelar",
     remove: "Remover",
-    repetir: "Tentar de novo",
-    grande: (max) => `Arquivo maior que ${max}`,
+    repeat: "Tentar de novo",
+    large: (max) => `Arquivo maior que ${max}`,
     type: "Tipo de arquivo n\xE3o aceito",
-    demais: (n) => `No m\xE1ximo ${n} arquivo${n > 1 ? "s" : ""}`
+    others: (n) => `No m\xE1ximo ${n} arquivo${n > 1 ? "s" : ""}`
   };
   var Upload = class {
     constructor(target, options = {}) {
@@ -2776,11 +2776,11 @@ var Tucano = (() => {
       }
       this.opts = { ...DEFAULTS4, ...omitUndefined4(options) };
       this.opts.locale = this.opts.locale || document.documentElement.lang || "pt-BR";
-      this.t = { ...TEXTOS, ...this.opts.texts };
+      this.t = { ...TEXTS, ...this.opts.texts };
       this.opts.maxSize = this.opts.maxSize == null ? null : parseSize(this.opts.maxSize);
       this.input = node;
-      this.direto = !!this.opts.url;
-      this.multiplo = node.multiple;
+      this.direct = !!this.opts.url;
+      this.multiple = node.multiple;
       this.id = nextId("up");
       this.items = [];
       this._cleanups = [];
@@ -2798,7 +2798,7 @@ var Tucano = (() => {
         size: i.file.size,
         type: i.file.type,
         status: i.estado,
-        progress: i.progresso,
+        progress: i.progress,
         id: i.idServidor ?? null,
         url: i.url ?? null,
         file: i.file
@@ -2806,15 +2806,15 @@ var Tucano = (() => {
     }
     /** Ids devolvidos pelo servidor (modo direto). E o que o formulario posta. */
     getValue() {
-      const prontos = this.items.filter((i) => i.estado === "pronto" && i.idServidor != null);
-      return this.direto ? prontos.map((i) => i.idServidor) : this.items.map((i) => i.file);
+      const ready = this.items.filter((i) => i.estado === "pronto" && i.idServidor != null);
+      return this.direct ? ready.map((i) => i.idServidor) : this.items.map((i) => i.file);
     }
     /** Sobe o que estiver pendente. Util com autoUpload: false. */
     uploadAll() {
-      for (const item of this.items) if (item.estado === "pendente") this._enviar(item);
+      for (const item of this.items) if (item.estado === "pendente") this._upload(item);
     }
     clear() {
-      for (const item of [...this.items]) this._remove(item, { silencioso: true });
+      for (const item of [...this.items]) this._remove(item, { silent: true });
       this._emit();
     }
     destroy() {
@@ -2832,89 +2832,89 @@ var Tucano = (() => {
     _build() {
       const input = this.input;
       input.classList.add("tuc-upload-native");
-      if (this.direto && input.name) {
+      if (this.direct && input.name) {
         this.fieldName = input.name;
         input.removeAttribute("name");
       }
-      this.zona = el("div", {
+      this.zone = el("div", {
         class: "tuc-upload__zone",
         role: "button",
         tabindex: 0,
         "aria-describedby": `${this.id}-dica`
       }, [
         el("span", { class: "tuc-upload__icon" }, [icon(ICONS_EXTRA.upload, 20)]),
-        el("span", { class: "tuc-upload__label", text: this.multiplo ? this.t.zona : this.t.zonaUm }),
-        el("span", { class: "tuc-upload__hint", id: `${this.id}-dica`, text: this._dica() })
+        el("span", { class: "tuc-upload__label", text: this.multiple ? this.t.zone : this.t.zoneOne }),
+        el("span", { class: "tuc-upload__hint", id: `${this.id}-dica`, text: this._hint() })
       ]);
       this.list = el("ul", { class: "tuc-upload__list" });
-      this.root = el("div", { class: "tuc-upload", id: this.id }, [this.zona, this.list]);
+      this.root = el("div", { class: "tuc-upload", id: this.id }, [this.zone, this.list]);
       input.replaceWith(this.root);
       this.root.append(input);
       const open = () => input.click();
       this._cleanups.push(
-        on(this.zona, "click", open),
-        on(this.zona, "keydown", (e) => {
+        on(this.zone, "click", open),
+        on(this.zone, "keydown", (e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
             open();
           }
         }),
         on(input, "change", () => {
-          this._adicionar([...input.files]);
+          this._add([...input.files]);
         }),
-        ...this._arrastarESoltar()
+        ...this._dragAndDrop()
       );
       this._renderList();
     }
-    _dica() {
-      const partes = [];
-      if (this.input.accept) partes.push(this.input.accept.split(",").map((s) => s.trim()).join(", "));
-      if (this.opts.maxSize) partes.push(`at\xE9 ${formatSize(this.opts.maxSize, this.opts.locale)}`);
-      if (this.opts.maxFiles) partes.push(this.t.demais(this.opts.maxFiles).toLowerCase());
-      return partes.join(" \xB7 ");
+    _hint() {
+      const parts = [];
+      if (this.input.accept) parts.push(this.input.accept.split(",").map((s) => s.trim()).join(", "));
+      if (this.opts.maxSize) parts.push(`at\xE9 ${formatSize(this.opts.maxSize, this.opts.locale)}`);
+      if (this.opts.maxFiles) parts.push(this.t.others(this.opts.maxFiles).toLowerCase());
+      return parts.join(" \xB7 ");
     }
     /**
      * Arrastar e soltar. O contador existe porque `dragleave` dispara tambem ao
      * passar de um filho para outro dentro da zona — sem contar entradas e
      * saidas, o realce pisca.
      */
-    _arrastarESoltar() {
-      const parar = (e) => {
+    _dragAndDrop() {
+      const stop = (e) => {
         e.preventDefault();
         e.stopPropagation();
       };
       return [
         on(this.root, "dragenter", (e) => {
-          parar(e);
+          stop(e);
           this._dragging++;
           this.root.classList.add("is-dragging");
-          this.zona.querySelector(".tuc-upload__label").textContent = this.t.soltar;
+          this.zone.querySelector(".tuc-upload__label").textContent = this.t.drop;
         }),
-        on(this.root, "dragover", parar),
+        on(this.root, "dragover", stop),
         on(this.root, "dragleave", (e) => {
-          parar(e);
-          if (--this._dragging <= 0) this._pararArraste();
+          stop(e);
+          if (--this._dragging <= 0) this._stopDrag();
         }),
         on(this.root, "drop", (e) => {
-          parar(e);
+          stop(e);
           this._dragging = 0;
-          this._pararArraste();
-          this._adicionar([...e.dataTransfer?.files || []]);
+          this._stopDrag();
+          this._add([...e.dataTransfer?.files || []]);
         })
       ];
     }
-    _pararArraste() {
+    _stopDrag() {
       this._dragging = 0;
       this.root.classList.remove("is-dragging");
-      this.zona.querySelector(".tuc-upload__label").textContent = this.multiplo ? this.t.zona : this.t.zonaUm;
+      this.zone.querySelector(".tuc-upload__label").textContent = this.multiple ? this.t.zone : this.t.zoneOne;
     }
     /* ---------------------------------------------------------------- *
      * Arquivos                                                          *
      * ---------------------------------------------------------------- */
-    _adicionar(files) {
+    _add(files) {
       if (!files.length) return;
-      if (!this.multiplo) {
-        for (const item of [...this.items]) this._remove(item, { silencioso: true });
+      if (!this.multiple) {
+        for (const item of [...this.items]) this._remove(item, { silent: true });
         files = files.slice(0, 1);
       }
       for (const file of files) {
@@ -2927,22 +2927,22 @@ var Tucano = (() => {
           key: fileId(),
           file,
           estado: "pendente",
-          progresso: 0,
+          progress: 0,
           preview: isImage(file) ? URL.createObjectURL(file) : null
         };
         this.items.push(item);
-        if (this.direto && this.opts.autoUpload) this._enviar(item);
+        if (this.direct && this.opts.autoUpload) this._upload(item);
       }
-      this._sincronizarNativo();
+      this._syncNative();
       this._renderList();
       this._emit();
     }
     _validate(file) {
       if (this.opts.maxFiles && this.items.length >= this.opts.maxFiles) {
-        return this.t.demais(this.opts.maxFiles);
+        return this.t.others(this.opts.maxFiles);
       }
       if (this.opts.maxSize && file.size > this.opts.maxSize) {
-        return this.t.grande(formatSize(this.opts.maxSize, this.opts.locale));
+        return this.t.large(formatSize(this.opts.maxSize, this.opts.locale));
       }
       if (!matchesAccept(file, this.input.accept)) return this.t.type;
       return null;
@@ -2952,8 +2952,8 @@ var Tucano = (() => {
      * inclusive os que vieram por arrastar. DataTransfer e a unica forma de
      * escrever em input.files.
      */
-    _sincronizarNativo() {
-      if (this.direto) return;
+    _syncNative() {
+      if (this.direct) return;
       try {
         const dt = new DataTransfer();
         for (const item of this.items) dt.items.add(item.file);
@@ -2961,9 +2961,9 @@ var Tucano = (() => {
       } catch {
       }
     }
-    _enviar(item) {
+    _upload(item) {
       item.estado = "enviando";
-      item.progresso = 0;
+      item.progress = 0;
       item.error = null;
       this._renderList();
       const headers = { ...this.opts.headers };
@@ -2971,26 +2971,26 @@ var Tucano = (() => {
         const token = csrfToken();
         if (token) headers["X-CSRFToken"] = token;
       }
-      const { promise, abortar } = uploadFile({
+      const { promise, abort } = uploadFile({
         url: this.opts.url,
         file: item.file,
         field: this.opts.fieldName,
         extras: this.opts.extraData,
         headers,
         onProgress: (fraction) => {
-          item.progresso = fraction;
+          item.progress = fraction;
           this._paintProgress(item);
         }
       });
-      item.abortar = abortar;
-      promise.then((resposta) => {
+      item.abort = abort;
+      promise.then((response) => {
         item.estado = "pronto";
-        item.progresso = 1;
-        item.resposta = resposta;
-        item.idServidor = resposta?.[this.opts.responseId] ?? null;
-        item.url = resposta?.[this.opts.responseUrl] ?? null;
+        item.progress = 1;
+        item.response = response;
+        item.idServidor = response?.[this.opts.responseId] ?? null;
+        item.url = response?.[this.opts.responseUrl] ?? null;
       }).catch((e) => {
-        if (e.cancelado) {
+        if (e.canceled) {
           const i = this.items.indexOf(item);
           if (i >= 0) this.items.splice(i, 1);
           if (item.preview) URL.revokeObjectURL(item.preview);
@@ -3000,17 +3000,17 @@ var Tucano = (() => {
           this.opts.onError?.(e, item.file);
         }
       }).finally(() => {
-        item.abortar = null;
+        item.abort = null;
         this._renderList();
         this._emit();
       });
     }
-    _remove(item, { silencioso = false } = {}) {
-      item.abortar?.();
+    _remove(item, { silent = false } = {}) {
+      item.abort?.();
       const i = this.items.indexOf(item);
       if (i >= 0) this.items.splice(i, 1);
       if (item.preview) URL.revokeObjectURL(item.preview);
-      if (this.direto && this.opts.deleteUrl && item.idServidor != null) {
+      if (this.direct && this.opts.deleteUrl && item.idServidor != null) {
         const headers = { ...this.opts.headers };
         if (this.opts.csrf) {
           const t = csrfToken();
@@ -3019,9 +3019,9 @@ var Tucano = (() => {
         fetch(`${this.opts.deleteUrl}${item.idServidor}/`, { method: "DELETE", headers }).catch(() => {
         });
       }
-      this._sincronizarNativo();
+      this._syncNative();
       this._renderList();
-      if (!silencioso) this._emit();
+      if (!silent) this._emit();
     }
     _fail(message, file) {
       this.opts.onError?.(new Error(message), file);
@@ -3043,23 +3043,23 @@ var Tucano = (() => {
       const li = this.list.querySelector(`[data-key="${item.key}"]`);
       if (!li) return;
       const toolbar = li.querySelector(".tuc-upload__barfill");
-      if (toolbar) toolbar.style.width = `${Math.round(item.progresso * 100)}%`;
+      if (toolbar) toolbar.style.width = `${Math.round(item.progress * 100)}%`;
       const meta = li.querySelector(".tuc-upload__meta");
-      if (meta) meta.textContent = `${Math.round(item.progresso * 100)}% \xB7 ${formatSize(item.file.size, this.opts.locale)}`;
+      if (meta) meta.textContent = `${Math.round(item.progress * 100)}% \xB7 ${formatSize(item.file.size, this.opts.locale)}`;
     }
     _renderList() {
       for (const n of [...this.list.children]) if (!n.classList.contains("is-rejected")) n.remove();
       for (const item of this.items) {
-        const pct = Math.round(item.progresso * 100);
+        const pct = Math.round(item.progress * 100);
         const meta = item.estado === "enviando" ? `${pct}% \xB7 ${formatSize(item.file.size, this.opts.locale)}` : item.estado === "error" ? item.error : formatSize(item.file.size, this.opts.locale);
         const actions = [];
         if (item.estado === "enviando") {
-          actions.push(this._botao(ICONS.x, this.t.cancel, () => item.abortar?.()));
+          actions.push(this._button(ICONS.x, this.t.cancel, () => item.abort?.()));
         } else if (item.estado === "error") {
-          actions.push(this._botao(ICONS_EXTRA.retry, this.t.repetir, () => this._enviar(item)));
-          actions.push(this._botao(ICONS.x, this.t.remove, () => this._remove(item)));
+          actions.push(this._button(ICONS_EXTRA.retry, this.t.repeat, () => this._upload(item)));
+          actions.push(this._button(ICONS.x, this.t.remove, () => this._remove(item)));
         } else {
-          actions.push(this._botao(ICONS.x, this.t.remove, () => this._remove(item)));
+          actions.push(this._button(ICONS.x, this.t.remove, () => this._remove(item)));
         }
         this.list.append(el("li", {
           class: `tuc-upload__item is-${item.estado}`,
@@ -3077,10 +3077,10 @@ var Tucano = (() => {
           el("div", { class: "tuc-upload__actions" }, actions)
         ]));
       }
-      this._sincronizarHidden();
+      this._syncHidden();
       this.root.classList.toggle("is-empty", !this.items.length);
     }
-    _botao(caminho, label, aoClicar) {
+    _button(path, label, onClick) {
       return el("button", {
         type: "button",
         class: "tuc-btn is-ghost is-icon is-sm tuc-upload__action",
@@ -3088,13 +3088,13 @@ var Tucano = (() => {
         title: label,
         onclick: (e) => {
           e.stopPropagation();
-          aoClicar();
+          onClick();
         }
-      }, [icon(caminho, 14)]);
+      }, [icon(path, 14)]);
     }
     /** Modo direto: os ids prontos viram inputs hidden com o `name` original. */
-    _sincronizarHidden() {
-      if (!this.direto || !this.fieldName) return;
+    _syncHidden() {
+      if (!this.direct || !this.fieldName) return;
       this.hidden?.remove();
       this.hidden = el(
         "span",
@@ -3151,72 +3151,72 @@ var Tucano = (() => {
     validateCPF: () => validateCPF,
     validateCpfCnpj: () => validateCpfCnpj
   });
-  var MARCADORES = {
+  var MARKERS = {
     "#": (c) => c >= "0" && c <= "9",
     "A": (c) => /[a-zA-Z]/.test(c),
     "*": (c) => /[0-9a-zA-Z]/.test(c)
   };
   function isPlaceholder(c) {
-    return Object.hasOwn(MARCADORES, c);
+    return Object.hasOwn(MARKERS, c);
   }
   function clear(value, template) {
-    const aceita = [...new Set([...template].filter(isPlaceholder))].map((m) => MARCADORES[m]);
-    if (!aceita.length) return "";
-    return [...String(value ?? "")].filter((c) => aceita.some((f) => f(c))).join("");
+    const accepts = [...new Set([...template].filter(isPlaceholder))].map((m) => MARKERS[m]);
+    if (!accepts.length) return "";
+    return [...String(value ?? "")].filter((c) => accepts.some((f) => f(c))).join("");
   }
   function capacity(template) {
     return [...template].filter(isPlaceholder).length;
   }
-  function apply(caracteres, template) {
-    if (!caracteres.length) return "";
-    let saida = "";
+  function apply(chars, template) {
+    if (!chars.length) return "";
+    let exit = "";
     let i = 0;
     for (const ch of template) {
       if (isPlaceholder(ch)) {
-        let aceito = null;
-        while (i < caracteres.length) {
-          const candidato = caracteres[i++];
-          if (MARCADORES[ch](candidato)) {
-            aceito = candidato;
+        let accepted = null;
+        while (i < chars.length) {
+          const candidate = chars[i++];
+          if (MARKERS[ch](candidate)) {
+            accepted = candidate;
             break;
           }
         }
-        if (aceito === null) break;
-        saida += aceito;
+        if (accepted === null) break;
+        exit += accepted;
       } else {
-        saida += ch;
+        exit += ch;
       }
     }
-    return saida;
+    return exit;
   }
   function cursorAfter(text, n) {
     if (n <= 0) return 0;
-    let vistos = 0;
+    let seen = 0;
     for (let i = 0; i < text.length; i++) {
-      if (/[0-9A-Za-z]/.test(text[i]) && ++vistos === n) return i + 1;
+      if (/[0-9A-Za-z]/.test(text[i]) && ++seen === n) return i + 1;
     }
     return text.length;
   }
-  function pickTemplate(caracteres, templates) {
+  function pickTemplate(chars, templates) {
     const list = [].concat(templates);
     if (list.length === 1) return list[0];
-    const n = caracteres.length;
+    const n = chars.length;
     return list.find((g) => n <= capacity(g)) || list[list.length - 1];
   }
   function applyCurrency(digits, { decimals = 2, locale = "pt-BR", currency = null } = {}) {
-    const limpos = String(digits).replace(/\D/g, "").replace(/^0+(?=\d)/, "");
-    if (!limpos) return "";
-    const n = Number(limpos) / 10 ** decimals;
+    const cleaned = String(digits).replace(/\D/g, "").replace(/^0+(?=\d)/, "");
+    if (!cleaned) return "";
+    const n = Number(cleaned) / 10 ** decimals;
     return n.toLocaleString(locale, {
       minimumFractionDigits: decimals,
       maximumFractionDigits: decimals,
       ...currency ? { style: "currency", currency } : {}
     });
   }
-  function digitoModulo11(valores, pesoInicial) {
+  function mod11Digit(values, startWeight) {
     let soma = 0;
-    let peso = pesoInicial;
-    for (const v of valores) {
+    let peso = startWeight;
+    for (const v of values) {
       soma += v * peso;
       peso = peso === 2 ? 9 : peso - 1;
     }
@@ -3228,19 +3228,19 @@ var Tucano = (() => {
     if (d.length !== 11) return false;
     if (/^(\d)\1{10}$/.test(d)) return false;
     const n = [...d].map(Number);
-    const dv1 = digitoModulo11(n.slice(0, 9), 10);
-    const dv2 = digitoModulo11(n.slice(0, 10), 11);
-    return dv1 === n[9] && dv2 === n[10];
+    const check1 = mod11Digit(n.slice(0, 9), 10);
+    const check2 = mod11Digit(n.slice(0, 10), 11);
+    return check1 === n[9] && check2 === n[10];
   }
   function validateCNPJ(value) {
     const s = String(value ?? "").toUpperCase().replace(/[^0-9A-Z]/g, "");
     if (s.length !== 14) return false;
     if (!/^[0-9A-Z]{12}\d{2}$/.test(s)) return false;
     if (/^(.)\1{13}$/.test(s)) return false;
-    const valores = [...s].map((c) => c.charCodeAt(0) - 48);
-    const dv1 = digitoModulo11(valores.slice(0, 12), 5);
-    const dv2 = digitoModulo11(valores.slice(0, 13), 6);
-    return dv1 === valores[12] && dv2 === valores[13];
+    const values = [...s].map((c) => c.charCodeAt(0) - 48);
+    const check1 = mod11Digit(values.slice(0, 12), 5);
+    const check2 = mod11Digit(values.slice(0, 13), 6);
+    return check1 === values[12] && check2 === values[13];
   }
   function validateCpfCnpj(value) {
     const s = String(value ?? "").replace(/[^0-9A-Za-z]/g, "");
@@ -3249,11 +3249,11 @@ var Tucano = (() => {
     return false;
   }
   function format2(value, format3, options = {}) {
-    const bruto = String(value ?? "").trim();
-    if (!bruto) return "";
+    const raw = String(value ?? "").trim();
+    if (!raw) return "";
     if (format3 === "currency" || format3 === "real") {
-      const n = typeof value === "number" ? value : Number(bruto.replace(/\.(?=\d{3}\b)/g, "").replace(",", "."));
-      if (!Number.isFinite(n)) return bruto;
+      const n = typeof value === "number" ? value : Number(raw.replace(/\.(?=\d{3}\b)/g, "").replace(",", "."));
+      if (!Number.isFinite(n)) return raw;
       const { decimals = 2, locale = "pt-BR" } = options;
       const currency = options.currency ?? (format3 === "real" ? "BRL" : null);
       return n.toLocaleString(locale, {
@@ -3263,11 +3263,11 @@ var Tucano = (() => {
       });
     }
     const templates = DISPLAY_TEMPLATES[format3] ?? format3;
-    const todos = [].concat(templates).join("");
-    const chars = clear(bruto, todos);
-    if (!chars) return bruto;
+    const all = [].concat(templates).join("");
+    const chars = clear(raw, all);
+    if (!chars) return raw;
     const template = pickTemplate(chars, templates);
-    return chars.length === capacity(template) ? apply(chars, template) : bruto;
+    return chars.length === capacity(template) ? apply(chars, template) : raw;
   }
   var DISPLAY_TEMPLATES = {
     cpf: "###.###.###-##",
@@ -3275,23 +3275,23 @@ var Tucano = (() => {
     "cpf-cnpj": ["###.###.###-##", "**.***.***/****-##"],
     document: ["###.###.###-##", "**.***.***/****-##"],
     phone: ["(##) ####-####", "(##) #####-####"],
-    celular: "(##) #####-####",
+    mobile: "(##) #####-####",
     cep: "#####-###",
     card: "#### #### #### ####"
   };
   var PONTO = "\u2022";
-  function maskMiddle(text, visiveis = 2, modo = "fim") {
+  function maskMiddle(text, visible = 2, mode = "fim") {
     const s = String(text ?? "");
     if (!s) return s;
-    if (modo === "email") return maskEmail(s);
-    const alfanumerico = (c) => /[0-9A-Za-z]/.test(c);
-    const total = [...s].filter(alfanumerico).length;
-    const mostrar = modo === "tudo" ? 0 : visiveis;
-    let vistos = 0;
+    if (mode === "email") return maskEmail(s);
+    const alphanumeric = (c) => /[0-9A-Za-z]/.test(c);
+    const total = [...s].filter(alphanumeric).length;
+    const show = mode === "tudo" ? 0 : visible;
+    let seen = 0;
     return [...s].map((c) => {
-      if (!alfanumerico(c)) return modo === "tudo" ? PONTO : c;
-      vistos++;
-      return vistos > total - mostrar ? c : PONTO;
+      if (!alphanumeric(c)) return mode === "tudo" ? PONTO : c;
+      seen++;
+      return seen > total - show ? c : PONTO;
     }).join("");
   }
   function maskEmail(value) {
@@ -3299,8 +3299,8 @@ var Tucano = (() => {
     const arroba = s.lastIndexOf("@");
     if (arroba < 1) return maskMiddle(s, 0, "tudo");
     const local = s.slice(0, arroba);
-    const dominio = s.slice(arroba);
-    return local[0] + PONTO.repeat(Math.max(local.length - 1, 1)) + dominio;
+    const domain = s.slice(arroba);
+    return local[0] + PONTO.repeat(Math.max(local.length - 1, 1)) + domain;
   }
 
   // src/js/components/mask.js
@@ -3389,17 +3389,17 @@ var Tucano = (() => {
     isValid() {
       const validate = this.preset?.validate;
       if (!validate) return true;
-      const bruto = this.getRaw();
-      return bruto ? validate(bruto) : true;
+      const raw = this.getRaw();
+      return raw ? validate(raw) : true;
     }
     destroy() {
       this._cleanups.forEach((fn) => fn());
       this._cleanups = [];
-      if (this.envolucro) {
+      if (this.wrapper) {
         if (this.rawValue != null) this.input.value = this.rawValue;
         if (this.realName) this.input.name = this.realName;
         this.input.readOnly = this.readOnlyOriginal ?? false;
-        this.envolucro.replaceWith(this.input);
+        this.wrapper.replaceWith(this.input);
         this.hidden?.remove();
       }
       this.input.setCustomValidity?.("");
@@ -3423,23 +3423,23 @@ var Tucano = (() => {
     _buildEye() {
       const input = this.input;
       this.password = input.type === "password";
-      this.envolucro = el("span", { class: "tuc-field" });
-      input.replaceWith(this.envolucro);
-      this.envolucro.append(input);
+      this.wrapper = el("span", { class: "tuc-field" });
+      input.replaceWith(this.wrapper);
+      this.wrapper.append(input);
       if (!this.password && input.name) {
         this.realName = input.name;
         input.removeAttribute("name");
         this.hidden = el("input", { type: "hidden", name: this.realName, value: this.getRaw() });
-        this.envolucro.append(this.hidden);
+        this.wrapper.append(this.hidden);
       }
-      this.olho = el("button", {
+      this.eye = el("button", {
         type: "button",
         class: "tuc-btn is-ghost is-icon is-sm tuc-field__eye",
         "aria-label": "Mostrar",
         "aria-pressed": "false",
         onclick: () => this._toggle()
       });
-      this.envolucro.append(this.olho);
+      this.wrapper.append(this.eye);
       this.showing = !input.value;
       this._paintEye();
       this._cleanups.push(on(input, "input", () => {
@@ -3479,17 +3479,17 @@ var Tucano = (() => {
           input.readOnly = true;
         }
       }
-      this.olho.replaceChildren(icon(showing ? ICONS_EXTRA.eyeOff : ICONS_EXTRA.eye, 16));
-      this.olho.setAttribute("aria-label", showing ? "Ocultar" : "Mostrar");
-      this.olho.setAttribute("aria-pressed", String(showing));
-      this.envolucro.classList.toggle("is-hidden", !showing);
+      this.eye.replaceChildren(icon(showing ? ICONS_EXTRA.eyeOff : ICONS_EXTRA.eye, 16));
+      this.eye.setAttribute("aria-label", showing ? "Ocultar" : "Mostrar");
+      this.eye.setAttribute("aria-pressed", String(showing));
+      this.wrapper.classList.toggle("is-hidden", !showing);
     }
     /* ---------------------------------------------------------------- *
      * Interno                                                           *
      * ---------------------------------------------------------------- */
-    _template(caracteres) {
+    _template(given) {
       if (this.isCurrency) return "";
-      const chars = caracteres ?? clear(this.input.value, [].concat(this.templates).join(""));
+      const chars = given ?? clear(this.input.value, [].concat(this.templates).join(""));
       return pickTemplate(chars, this.templates);
     }
     _wire() {
@@ -3499,30 +3499,30 @@ var Tucano = (() => {
       }
       input.setAttribute("autocomplete", input.getAttribute("autocomplete") || "off");
       this._cleanups.push(
-        on(input, "input", (e) => this._aoDigitar(e)),
+        on(input, "input", (e) => this._onType(e)),
         on(input, "blur", () => {
           if (this.opts.validate) this._validate();
         }),
         on(input, "focus", () => this._mark(true))
       );
     }
-    _aoDigitar(e) {
+    _onType(e) {
       const input = this.input;
       const cursor = input.selectionStart ?? input.value.length;
       const type = typeof e.inputType === "string" ? e.inputType : "";
       this._format({
         cursor,
         deleting: type.startsWith("delete"),
-        paraFrente: type === "deleteContentForward"
+        forward: type === "deleteContentForward"
       });
       this._emit();
       if (this.opts.validate) this._mark(true);
     }
-    _format({ cursor = null, deleting = false, paraFrente = false, keepCursor = true } = {}) {
+    _format({ cursor = null, deleting = false, forward = false, keepCursor = true } = {}) {
       const input = this.input;
-      const bruto = input.value;
+      const raw = input.value;
       if (this.isCurrency) {
-        const digits = bruto.replace(/\D/g, "");
+        const digits = raw.replace(/\D/g, "");
         const text2 = applyCurrency(digits, {
           decimals: this.opts.decimals,
           locale: this.opts.locale,
@@ -3532,15 +3532,15 @@ var Tucano = (() => {
         if (keepCursor) input.setSelectionRange(text2.length, text2.length);
         return;
       }
-      const todos = [].concat(this.templates).join("");
-      let chars = [...clear(bruto, todos)];
+      const all = [].concat(this.templates).join("");
+      let chars = [...clear(raw, all)];
       if (this.uppercase) chars = chars.map((c) => c.toUpperCase());
-      let before = cursor === null ? chars.length : [...clear(bruto.slice(0, cursor), todos)].length;
+      let before = cursor === null ? chars.length : [...clear(raw.slice(0, cursor), all)].length;
       if (deleting && chars.length === this._last?.length) {
-        const idx = paraFrente ? before : before - 1;
+        const idx = forward ? before : before - 1;
         if (idx >= 0 && idx < chars.length) {
           chars.splice(idx, 1);
-          if (!paraFrente) before -= 1;
+          if (!forward) before -= 1;
         }
       }
       const template = pickTemplate(chars, this.templates);
@@ -3603,8 +3603,8 @@ var Tucano = (() => {
     for (const node of scope.querySelectorAll("[data-tuc-format]:not([data-tuc-formatted])")) {
       const d = node.dataset;
       node.setAttribute("data-tuc-formatted", "");
-      const bruto = (node.dataset.value ?? node.textContent).trim();
-      node.textContent = format2(bruto, d.tucFormat, {
+      const raw = (node.dataset.value ?? node.textContent).trim();
+      node.textContent = format2(raw, d.tucFormat, {
         decimals: d.decimals ? +d.decimals : void 0,
         currency: d.currency || void 0
       });
@@ -3665,34 +3665,34 @@ var Tucano = (() => {
     });
     return node;
   }
-  var RECUO = 14;
-  var VISIVEIS = 3;
+  var INDENT = 14;
+  var VISIBLE = 3;
   var GAP = 12;
   var seq2 = 0;
-  function arrange(cont) {
-    void cont.offsetHeight;
-    if (!cont.offsetWidth) return;
-    const debaixo = cont.className.includes("is-bottom");
-    const sentido = debaixo ? -1 : 1;
-    const isOpen2 = cont.classList.contains("is-expanded");
-    const stage = cont.querySelector(".tuc-toasts__stage");
+  function arrange(container2) {
+    void container2.offsetHeight;
+    if (!container2.offsetWidth) return;
+    const below = container2.className.includes("is-bottom");
+    const direction = below ? -1 : 1;
+    const isOpen2 = container2.classList.contains("is-expanded");
+    const stage = container2.querySelector(".tuc-toasts__stage");
     const toasts = [...stage.querySelectorAll(".tuc-toast:not(.is-closing)")].sort((a, b) => +a.dataset.seq - +b.dataset.seq);
-    const frente = toasts.length - 1;
-    let acumulado = 0;
-    for (let i = frente; i >= 0; i--) {
-      const k = frente - i;
+    const front = toasts.length - 1;
+    let accrued = 0;
+    for (let i = front; i >= 0; i--) {
+      const k = front - i;
       const t = toasts[i];
-      const y = isOpen2 ? acumulado : k * RECUO;
-      const escala = isOpen2 ? 1 : 1 - k * 0.05;
-      t.style.setProperty("--tuc-toast-y", `${sentido * y}px`);
-      t.style.setProperty("--tuc-toast-escala", String(escala));
+      const y = isOpen2 ? accrued : k * INDENT;
+      const scale = isOpen2 ? 1 : 1 - k * 0.05;
+      t.style.setProperty("--tuc-toast-y", `${direction * y}px`);
+      t.style.setProperty("--tuc-toast-scale", String(scale));
       t.style.zIndex = String(100 - k);
-      t.classList.toggle("is-hidden", !isOpen2 && k >= VISIVEIS);
-      t.setAttribute("aria-hidden", !isOpen2 && k >= VISIVEIS ? "true" : "false");
-      acumulado += t.offsetHeight + GAP;
+      t.classList.toggle("is-hidden", !isOpen2 && k >= VISIBLE);
+      t.setAttribute("aria-hidden", !isOpen2 && k >= VISIBLE ? "true" : "false");
+      accrued += t.offsetHeight + GAP;
     }
-    const frontHeight = toasts[frente]?.offsetHeight ?? 0;
-    const total = isOpen2 ? acumulado - GAP : frontHeight + Math.min(toasts.length - 1, VISIVEIS - 1) * RECUO;
+    const frontHeight = toasts[front]?.offsetHeight ?? 0;
+    const total = isOpen2 ? accrued - GAP : frontHeight + Math.min(toasts.length - 1, VISIBLE - 1) * INDENT;
     stage.style.height = toasts.length ? `${total}px` : "0px";
   }
   var Toast = class {
@@ -3748,15 +3748,15 @@ var Tucano = (() => {
       this.node.replaceChildren(...this._content().filter(Boolean));
       const urgent = type === "error";
       this.node.setAttribute("role", urgent ? "alert" : "status");
-      const destino = this.container.querySelector(
+      const destination = this.container.querySelector(
         urgent ? ".is-urgent" : ".tuc-toasts__live:not(.is-urgent)"
       );
-      if (destino !== this.regiao) {
-        destino.append(this.node);
-        this.regiao = destino;
+      if (destination !== this.region) {
+        destination.append(this.node);
+        this.region = destination;
       }
       clearTimeout(this.timer);
-      if (this.opts.duration) this._iniciarRelogio();
+      if (this.opts.duration) this._startClock();
       arrange(this.container);
       return this;
     }
@@ -3772,18 +3772,18 @@ var Tucano = (() => {
       this.node.dataset.seq = String(++seq2);
       const target = container(this.opts.position);
       this.container = target;
-      const regiao = target.querySelector(urgent ? ".is-urgent" : ".tuc-toasts__live:not(.is-urgent)");
-      regiao.append(this.node);
-      this.regiao = regiao;
+      const region = target.querySelector(urgent ? ".is-urgent" : ".tuc-toasts__live:not(.is-urgent)");
+      region.append(this.node);
+      this.region = region;
       this._capStack(target);
       arrange(target);
       if (this.opts.duration) {
-        this._iniciarRelogio();
+        this._startClock();
         this._cleanups.push(
-          on(this.node, "mouseenter", () => this._pausar()),
-          on(this.node, "mouseleave", () => this._retomar()),
-          on(this.node, "focusin", () => this._pausar()),
-          on(this.node, "focusout", () => this._retomar())
+          on(this.node, "mouseenter", () => this._pause()),
+          on(this.node, "mouseleave", () => this._resume()),
+          on(this.node, "focusin", () => this._pause()),
+          on(this.node, "focusout", () => this._resume())
         );
       }
       openWithTransition(this.node);
@@ -3794,26 +3794,26 @@ var Tucano = (() => {
      * A instancia fica no proprio no: sem isso nao ha como chamar close() a
      * partir do elemento, e o limite nao acontece.
      */
-    _capStack(cont) {
-      const abertos = [...cont.querySelectorAll(".tuc-toast:not(.is-closing)")].sort((a, b) => +a.dataset.seq - +b.dataset.seq);
-      const excedente = abertos.length - this.opts.max;
-      for (let i = 0; i < excedente; i++) abertos[i]._tucano?.close();
+    _capStack(container2) {
+      const openOnes = [...container2.querySelectorAll(".tuc-toast:not(.is-closing)")].sort((a, b) => +a.dataset.seq - +b.dataset.seq);
+      const overflow = openOnes.length - this.opts.max;
+      for (let i = 0; i < overflow; i++) openOnes[i]._tucano?.close();
     }
-    _iniciarRelogio() {
-      this.restante = this.opts.duration;
-      this.inicio = Date.now();
-      this.timer = setTimeout(() => this.close(), this.restante);
+    _startClock() {
+      this.remaining = this.opts.duration;
+      this.start = Date.now();
+      this.timer = setTimeout(() => this.close(), this.remaining);
     }
-    _pausar() {
+    _pause() {
       if (!this.timer) return;
       clearTimeout(this.timer);
       this.timer = null;
-      this.restante -= Date.now() - this.inicio;
+      this.remaining -= Date.now() - this.start;
     }
-    _retomar() {
+    _resume() {
       if (this.timer || !this.opts.duration) return;
-      this.inicio = Date.now();
-      this.timer = setTimeout(() => this.close(), Math.max(this.restante, 0));
+      this.start = Date.now();
+      this.timer = setTimeout(() => this.close(), Math.max(this.remaining, 0));
     }
     close() {
       if (this._closing) return;
@@ -3824,8 +3824,8 @@ var Tucano = (() => {
       this.node.classList.add("is-closing");
       arrange(this.container);
       const remove = () => {
-        if (this._removido) return;
-        this._removido = true;
+        if (this._removed) return;
+        this._removed = true;
         this.node.remove();
         arrange(this.container);
         this.node.dispatchEvent(new CustomEvent("tucano:toast-fechado"));
@@ -3846,13 +3846,13 @@ var Tucano = (() => {
   toast.promise = (promise, msgs = {}) => {
     const { loading, success, error, ...rest } = msgs;
     const t = toast.loading(loading ?? "Carregando...", rest);
-    const render = (v, dado, padrao) => {
-      const r = typeof v === "function" ? v(dado) : v;
-      return r ?? padrao;
+    const render = (v, data, fallback) => {
+      const r = typeof v === "function" ? v(data) : v;
+      return r ?? fallback;
     };
     Promise.resolve(promise).then(
-      (dado) => t.update({ type: "success", text: render(success, dado, "Pronto") }),
-      (falha) => t.update({ type: "error", text: render(error, falha, "Algo deu errado") })
+      (data) => t.update({ type: "success", text: render(success, data, "Pronto") }),
+      (failure) => t.update({ type: "error", text: render(error, failure, "Algo deu errado") })
     );
     return promise;
   };
@@ -3861,15 +3861,15 @@ var Tucano = (() => {
     for (const [k, v] of Object.entries(obj || {})) if (v !== void 0) out[k] = v;
     return out;
   }
-  var MAPA_DJANGO = { debug: "info", info: "info", success: "success", warning: "warning", error: "error" };
+  var DJANGO_MAP = { debug: "info", info: "info", success: "success", warning: "warning", error: "error" };
   function autoInit6(scope = document) {
     const out = [];
     for (const node of scope.querySelectorAll("[data-tuc-toast]:not([data-tuc-ready])")) {
       node.setAttribute("data-tuc-ready", "");
       const d = node.dataset;
-      const bruto = (d.type || "info").trim().split(/\s+/)[0];
+      const raw = (d.type || "info").trim().split(/\s+/)[0];
       out.push(toast({
-        type: MAPA_DJANGO[bruto] ?? bruto,
+        type: DJANGO_MAP[raw] ?? raw,
         title: d.title || void 0,
         text: (d.text ?? node.textContent).trim(),
         duration: d.duration === "false" ? null : d.duration ? +d.duration : void 0,
@@ -3880,8 +3880,8 @@ var Tucano = (() => {
     return out;
   }
   function listenForEvents() {
-    if (typeof document === "undefined" || document.__tucToastOuvindo) return;
-    document.__tucToastOuvindo = true;
+    if (typeof document === "undefined" || document.__tucToastListening) return;
+    document.__tucToastListening = true;
     document.body?.addEventListener("tucano:toast", (e) => {
       const d = e.detail;
       if (!d) return;
@@ -3929,10 +3929,10 @@ var Tucano = (() => {
       const toque = () => window.matchMedia?.("(pointer: coarse)").matches;
       this._cleanups.push(
         on(node, "pointerenter", (e) => {
-          if (e.pointerType !== "touch") this._agendar(true);
+          if (e.pointerType !== "touch") this._schedule(true);
         }),
         on(node, "pointerleave", (e) => {
-          if (e.pointerType !== "touch") this._agendar(false);
+          if (e.pointerType !== "touch") this._schedule(false);
         }),
         on(node, "focusin", () => this._show()),
         on(node, "focusout", () => this._hide()),
@@ -3945,11 +3945,11 @@ var Tucano = (() => {
       );
       node._tucano = this;
     }
-    _agendar(mostrar) {
+    _schedule(show) {
       clearTimeout(this._timer);
       this._timer = setTimeout(
-        () => mostrar ? this._show() : this._hide(),
-        mostrar ? this.opts.delay : this.opts.delayOut
+        () => show ? this._show() : this._hide(),
+        show ? this.opts.delay : this.opts.delayOut
       );
     }
     _show() {
@@ -4022,7 +4022,7 @@ var Tucano = (() => {
      * abrir nao o insere e fechar nao o remove.
      */
     _adopt(node) {
-      this._adotado = true;
+      this._adopted = true;
       this.node = node;
       node._tucano = this;
       return this;
@@ -4030,14 +4030,14 @@ var Tucano = (() => {
     open() {
       if (this.isOpen) return this;
       this.isOpen = true;
-      if (!this._adotado) document.body.append(this.node);
+      if (!this._adopted) document.body.append(this.node);
       this.node.showModal();
       this._wire();
       void this.node.offsetHeight;
       this.node.classList.add("is-open");
       return this;
     }
-    close(motivo = "api") {
+    close(reason = "api") {
       if (!this.isOpen) return this;
       this.isOpen = false;
       this._cleanups.forEach((fn) => fn());
@@ -4048,8 +4048,8 @@ var Tucano = (() => {
       this._exitTimer = setTimeout(() => {
         this.node.classList.remove("is-closing");
         if (this.node.open) this.node.close();
-        if (!this._adotado) this.node.remove();
-        this.opts.onClose?.(motivo, this);
+        if (!this._adopted) this.node.remove();
+        this.opts.onClose?.(reason, this);
       }, EXIT_MS2);
       return this;
     }
@@ -4072,7 +4072,7 @@ var Tucano = (() => {
       );
     }
   };
-  function buildPanel(prefix, opts, dono, titleId) {
+  function buildPanel(prefix, opts, owner, titleId) {
     const { title, text, actions, closable } = opts;
     return el("div", { class: `${prefix}__panel` }, [
       el("div", { class: `${prefix}__top` }, [
@@ -4084,7 +4084,7 @@ var Tucano = (() => {
           type: "button",
           class: `tuc-btn is-ghost is-icon is-sm ${prefix}__close`,
           "aria-label": "Fechar",
-          onclick: () => dono.close("botao")
+          onclick: () => owner.close("botao")
         }, [icon(ICONS.x, 15)]) : null
       ]),
       el("div", { class: `${prefix}__body` }),
@@ -4093,8 +4093,8 @@ var Tucano = (() => {
         class: `tuc-btn is-${a.variant || "outline"}`,
         text: a.text,
         onclick: () => {
-          a.onClick?.(dono);
-          if (a.fecha !== false) dono.close("action");
+          a.onClick?.(owner);
+          if (a.closes !== false) owner.close("action");
         }
       }))) : null
     ]);
@@ -4158,9 +4158,9 @@ var Tucano = (() => {
     const { confirm: okLabel = "Confirmar", cancel = "Cancelar", ...rest } = options;
     const tone = rest.tone ?? "danger";
     return new Promise((resolve) => {
-      let decidido = false;
+      let decided = false;
       const responder = (v) => {
-        decidido = true;
+        decided = true;
         resolve(v);
       };
       new Modal({
@@ -4172,9 +4172,9 @@ var Tucano = (() => {
         ],
         // Fechar pelo X, pelo Escape ou pelo fundo e uma recusa, nao um limbo:
         // sem isto a promessa ficaria pendente para sempre.
-        onClose: (motivo, m) => {
-          if (!decidido) resolve(false);
-          rest.onClose?.(motivo, m);
+        onClose: (reason, m) => {
+          if (!decided) resolve(false);
+          rest.onClose?.(reason, m);
         }
       }).open();
     });
@@ -4185,7 +4185,7 @@ var Tucano = (() => {
       node.setAttribute("data-tuc-ready", "");
       const d = node.dataset;
       const m = Object.create(Modal.prototype);
-      m.opts = { ...DEFAULTS8, closable: d.closable !== "false", closeOnBackdrop: d.fundo !== "false" };
+      m.opts = { ...DEFAULTS8, closable: d.closable !== "false", closeOnBackdrop: d.backdrop !== "false" };
       m.id = node.id || nextId("modal");
       m._cleanups = [];
       m.panel = node.querySelector(".tuc-modal__panel");
@@ -4258,7 +4258,7 @@ var Tucano = (() => {
       node.setAttribute("data-tuc-ready", "");
       const d = node.dataset;
       const g = Object.create(Drawer.prototype);
-      g.opts = { ...DEFAULTS9, closable: d.closable !== "false", closeOnBackdrop: d.fundo !== "false" };
+      g.opts = { ...DEFAULTS9, closable: d.closable !== "false", closeOnBackdrop: d.backdrop !== "false" };
       g.id = node.id || nextId("drawer");
       g._cleanups = [];
       g.panel = node.querySelector(".tuc-drawer__panel");
@@ -4344,10 +4344,10 @@ var Tucano = (() => {
       else this.open(item);
     }
     open(item) {
-      item._tucEncerrar?.();
+      item._tucTeardown?.();
       if (item.open) return this;
       if (this.opts.single) {
-        for (const outro of this.items) if (outro !== item && outro.open) this.close(outro);
+        for (const other of this.items) if (other !== item && other.open) this.close(other);
       }
       item.open = true;
       return this;
@@ -4356,22 +4356,22 @@ var Tucano = (() => {
       if (!item.open || item.classList.contains("is-closing")) return this;
       const body = item.querySelector(":scope > .tuc-accordion__body");
       item.classList.add("is-closing");
-      const encerrar = () => {
+      const teardown = () => {
         clearTimeout(item._tucExit);
-        body?.removeEventListener("transitionend", aoFim);
-        item._tucEncerrar = null;
+        body?.removeEventListener("transitionend", onDone);
+        item._tucTeardown = null;
         item.classList.remove("is-closing");
         item.open = false;
       };
-      const aoFim = (e) => {
-        if (e.target === body && e.propertyName === "grid-template-rows") encerrar();
+      const onDone = (e) => {
+        if (e.target === body && e.propertyName === "grid-template-rows") teardown();
       };
-      item._tucEncerrar = () => {
-        encerrar();
+      item._tucTeardown = () => {
+        teardown();
         item.classList.remove("is-closing");
       };
-      body?.addEventListener("transitionend", aoFim);
-      item._tucExit = setTimeout(encerrar, SAFETY_MS);
+      body?.addEventListener("transitionend", onDone);
+      item._tucExit = setTimeout(teardown, SAFETY_MS);
       return this;
     }
     destroy() {
@@ -4396,7 +4396,7 @@ var Tucano = (() => {
     // ou { separador: true } / { rotulo: 'Seção' }
     closeOnPick: true
   };
-  var FOCAVEIS = '.tuc-dropdown__item:not([disabled]):not([aria-disabled="true"])';
+  var FOCUSABLE2 = '.tuc-dropdown__item:not([disabled]):not([aria-disabled="true"])';
   function withoutUndefined2(obj) {
     const out = {};
     for (const [k, v] of Object.entries(obj || {})) if (v !== void 0) out[k] = v;
@@ -4462,15 +4462,15 @@ var Tucano = (() => {
       }, children);
     }
     get items() {
-      return [...this.panel.querySelectorAll(FOCAVEIS)];
+      return [...this.panel.querySelectorAll(FOCUSABLE2)];
     }
-    _move(step, absoluto = false) {
+    _move(step, absolute = false) {
       const items = this.items;
       if (!items.length) return;
-      const atual = items.indexOf(document.activeElement);
+      const current = items.indexOf(document.activeElement);
       let i;
-      if (absoluto) i = step < 0 ? items.length - 1 : 0;
-      else i = (atual + step + items.length) % items.length;
+      if (absolute) i = step < 0 ? items.length - 1 : 0;
+      else i = (current + step + items.length) % items.length;
       items[i]?.focus();
     }
     _onKey(e) {
@@ -4545,7 +4545,7 @@ var Tucano = (() => {
   }
 
   // src/js/core/sanitize.js
-  var PERMITIDAS = /* @__PURE__ */ new Set([
+  var ALLOWED = /* @__PURE__ */ new Set([
     "P",
     "BR",
     "STRONG",
@@ -4570,38 +4570,38 @@ var Tucano = (() => {
     "TH",
     "TD"
   ]);
-  var TRANSPARENTES = /* @__PURE__ */ new Set(["DIV", "SPAN", "FONT", "SECTION", "ARTICLE", "MAIN"]);
-  var EQUIVALENTES = { B: "STRONG", I: "EM" };
-  var ALINHAMENTOS = /* @__PURE__ */ new Set(["left", "center", "right", "justify"]);
-  var ALINHAVEIS = /* @__PURE__ */ new Set(["P", "H2", "H3", "LI", "BLOCKQUOTE", "TD", "TH"]);
+  var TRANSPARENT = /* @__PURE__ */ new Set(["DIV", "SPAN", "FONT", "SECTION", "ARTICLE", "MAIN"]);
+  var EQUIVALENTS = { B: "STRONG", I: "EM" };
+  var ALIGNMENTS = /* @__PURE__ */ new Set(["left", "center", "right", "justify"]);
+  var ALIGNABLE = /* @__PURE__ */ new Set(["P", "H2", "H3", "LI", "BLOCKQUOTE", "TD", "TH"]);
   function copyAlignment(de, para) {
-    if (!ALINHAVEIS.has(para.tagName)) return;
+    if (!ALIGNABLE.has(para.tagName)) return;
     const value = (de.style?.textAlign || "").toLowerCase();
-    if (ALINHAMENTOS.has(value)) para.setAttribute("style", `text-align: ${value}`);
+    if (ALIGNMENTS.has(value)) para.setAttribute("style", `text-align: ${value}`);
   }
-  function urlSegura(url) {
+  function safeUrl(url) {
     const plain = (url || "").trim();
     return /^(https?:|mailto:|tel:|#|\/)/i.test(plain) ? plain : "";
   }
-  function clearNode(no, destino, doc) {
+  function clearNode(no, destination, doc) {
     for (const child of [...no.childNodes]) {
       if (child.nodeType === Node.TEXT_NODE) {
-        destino.append(doc.createTextNode(child.nodeValue));
+        destination.append(doc.createTextNode(child.nodeValue));
         continue;
       }
       if (child.nodeType !== Node.ELEMENT_NODE) continue;
       const tag = child.tagName;
       if (tag === "SCRIPT" || tag === "STYLE" || tag === "IFRAME" || tag === "OBJECT") continue;
-      if (TRANSPARENTES.has(tag) || !PERMITIDAS.has(tag)) {
-        clearNode(child, destino, doc);
+      if (TRANSPARENT.has(tag) || !ALLOWED.has(tag)) {
+        clearNode(child, destination, doc);
         continue;
       }
-      const novo = doc.createElement(EQUIVALENTES[tag] || tag);
+      const novo = doc.createElement(EQUIVALENTS[tag] || tag);
       copyAlignment(child, novo);
       if (novo.tagName === "A") {
-        const href = urlSegura(child.getAttribute("href"));
+        const href = safeUrl(child.getAttribute("href"));
         if (!href) {
-          clearNode(child, destino, doc);
+          clearNode(child, destination, doc);
           continue;
         }
         novo.setAttribute("href", href);
@@ -4609,16 +4609,16 @@ var Tucano = (() => {
         novo.setAttribute("rel", "noopener noreferrer");
       }
       clearNode(child, novo, doc);
-      destino.append(novo);
+      destination.append(novo);
     }
   }
   function sanitize(html) {
     const doc = document.implementation.createHTMLDocument("");
-    const entrada = doc.createElement("div");
-    entrada.innerHTML = String(html ?? "");
-    const saida = doc.createElement("div");
-    clearNode(entrada, saida, doc);
-    return saida.innerHTML;
+    const input = doc.createElement("div");
+    input.innerHTML = String(html ?? "");
+    const exit = doc.createElement("div");
+    clearNode(input, exit, doc);
+    return exit.innerHTML;
   }
   function textOnly(html) {
     const doc = document.implementation.createHTMLDocument("");
@@ -4629,8 +4629,8 @@ var Tucano = (() => {
 
   // src/js/core/highlight.js
   var ESCAPES = { "&": "&amp;", "<": "&lt;", ">": "&gt;" };
-  var escapar = (t) => String(t).replace(/[&<>]/g, (c) => ESCAPES[c]);
-  var PALAVRAS = [
+  var escape = (t) => String(t).replace(/[&<>]/g, (c) => ESCAPES[c]);
+  var WORDS = [
     // fluxo, comum a quase tudo
     "if",
     "else",
@@ -4734,7 +4734,7 @@ var Tucano = (() => {
     "func",
     "let"
   ].join("|");
-  var REGRAS = [
+  var RULES = [
     ["coment", /(&lt;!--[\s\S]*?--&gt;|\/\*[\s\S]*?\*\/|\/\/[^\n]*|#[^\n]*)/],
     ["text", /("(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*'|`(?:[^`\\]|\\.)*`)/],
     ["tmpl", /(\{%[\s\S]*?%\}|\{\{[\s\S]*?\}\})/],
@@ -4750,24 +4750,24 @@ var Tucano = (() => {
      * resultado era marcacao aninhada quebrada, que o navegador mostrava como
      * text solto no meio do codigo.
      */
-    ["key", new RegExp(`\\b(${PALAVRAS})\\b`)]
+    ["key", new RegExp(`\\b(${WORDS})\\b`)]
   ];
-  var COMBINADA = new RegExp(REGRAS.map(([, re]) => re.source).join("|"), "g");
-  function highlight(codigo) {
-    const text = escapar(codigo ?? "");
+  var COMBINADA = new RegExp(RULES.map(([, re]) => re.source).join("|"), "g");
+  function highlight(code) {
+    const text = escape(code ?? "");
     return text.replace(COMBINADA, (todo, ...grupos) => {
       const i = grupos.findIndex((g) => g !== void 0);
-      const className = REGRAS[i]?.[0];
-      return className ? `<span class="tuc-tok-${className}tuc-tok-${className}tuc-tok-${className}tuc-tok-${className}">${todo}</span>` : todo;
+      const className = RULES[i]?.[0];
+      return className ? `<span class="tuc-tok-${className}tuc-tok-${className}tuc-tok-${className}tuc-tok-${className}tuc-tok-${className}tuc-tok-${className}tuc-tok-${className}tuc-tok-${className}">${todo}</span>` : todo;
     });
   }
   function autoInit12(scope = document) {
-    const blocos = [...scope.querySelectorAll(".tuc-prose pre > code:not([data-tuc-painted])")];
-    for (const code of blocos) {
+    const blocks = [...scope.querySelectorAll(".tuc-prose pre > code:not([data-tuc-painted])")];
+    for (const code of blocks) {
       code.setAttribute("data-tuc-painted", "");
       code.innerHTML = highlight(code.textContent);
     }
-    return blocos;
+    return blocks;
   }
 
   // src/js/components/editor.js
@@ -4794,7 +4794,7 @@ var Tucano = (() => {
     minHeight: "9rem",
     placeholder: ""
   };
-  var ICONES = {
+  var ICONS2 = {
     bold: "M6 4h6a4 4 0 010 8H6zM6 12h7a4 4 0 010 8H6z",
     italic: "M19 4h-9M14 20H5M15 4L9 20",
     underline: "M6 4v6a6 6 0 0012 0V4M4 21h16",
@@ -4830,7 +4830,7 @@ var Tucano = (() => {
     justify: "Justificar",
     code: "C\xF3digo"
   };
-  var COMANDOS = {
+  var COMMANDS = {
     bold: () => document.execCommand("bold"),
     italic: () => document.execCommand("italic"),
     underline: () => document.execCommand("underline"),
@@ -4857,7 +4857,7 @@ var Tucano = (() => {
     right: "justifyRight",
     justify: "justifyFull"
   };
-  var ANCESTRAIS = {
+  var ANCESTORS = {
     title: "h2",
     subheading: "h3",
     quote: "blockquote",
@@ -4865,13 +4865,13 @@ var Tucano = (() => {
     link: "a",
     table: "table"
   };
-  var ATALHOS = { b: "bold", i: "italic", u: "underline", k: "link" };
+  var SHORTCUTS = { b: "bold", i: "italic", u: "underline", k: "link" };
   var ESCAPES2 = { "&": "&amp;", "<": "&lt;", ">": "&gt;" };
   function toggleCode() {
     const sel = window.getSelection();
     if (!sel?.rangeCount) return;
-    const inicio = sel.anchorNode?.nodeType === Node.ELEMENT_NODE ? sel.anchorNode : sel.anchorNode?.parentElement;
-    const inside = inicio?.closest?.("pre, code");
+    const start = sel.anchorNode?.nodeType === Node.ELEMENT_NODE ? sel.anchorNode : sel.anchorNode?.parentElement;
+    const inside = start?.closest?.("pre, code");
     if (inside) {
       const target = inside.closest("pre") || inside;
       const text2 = target.textContent;
@@ -4881,18 +4881,18 @@ var Tucano = (() => {
       sel.removeAllRanges();
       sel.addRange(r);
       if (target.tagName === "PRE") {
-        const bloco = document.createDocumentFragment();
+        const block = document.createDocumentFragment();
         for (const row of text2.split("\n")) {
           const par = document.createElement("p");
           if (row) par.textContent = row;
           else par.append(document.createElement("br"));
-          bloco.append(par);
+          block.append(par);
         }
-        const primeiro = bloco.firstChild;
-        target.replaceWith(bloco);
-        if (primeiro) {
+        const first = block.firstChild;
+        target.replaceWith(block);
+        if (first) {
           const pos = document.createRange();
-          pos.selectNodeContents(primeiro);
+          pos.selectNodeContents(first);
           pos.collapse(true);
           sel.removeAllRanges();
           sel.addRange(pos);
@@ -4904,16 +4904,16 @@ var Tucano = (() => {
     }
     const text = sel.toString();
     if (!text) return;
-    const escapado = text.replace(/\n{2,}/g, "\n").replace(/[&<>]/g, (c) => ESCAPES2[c]);
+    const escaped = text.replace(/\n{2,}/g, "\n").replace(/[&<>]/g, (c) => ESCAPES2[c]);
     if (/\n/.test(text)) {
-      document.execCommand("insertHTML", false, `<pre><code>${escapado}</code></pre><p><br></p>`);
+      document.execCommand("insertHTML", false, `<pre><code>${escaped}</code></pre><p><br></p>`);
       return;
     }
-    document.execCommand("insertHTML", false, `<code>${escapado}</code>`);
+    document.execCommand("insertHTML", false, `<code>${escaped}</code>`);
   }
   function toggleBlock(tag) {
-    const atual = document.queryCommandValue("formatBlock")?.toUpperCase();
-    document.execCommand("formatBlock", false, atual === tag ? "P" : tag);
+    const current = document.queryCommandValue("formatBlock")?.toUpperCase();
+    document.execCommand("formatBlock", false, current === tag ? "P" : tag);
   }
   function buildTable(doc, rows, cols) {
     const cel = (tag) => {
@@ -4924,21 +4924,21 @@ var Tucano = (() => {
     const table = doc.createElement("table");
     const thead = doc.createElement("thead");
     const trCab = doc.createElement("tr");
-    for (let c = 0; c < colunas; c++) trCab.append(cel("th"));
+    for (let c = 0; c < cols; c++) trCab.append(cel("th"));
     thead.append(trCab);
     const tbody = doc.createElement("tbody");
     for (let l = 0; l < rows - 1; l++) {
       const tr = doc.createElement("tr");
-      for (let c = 0; c < colunas; c++) tr.append(cel("td"));
+      for (let c = 0; c < cols; c++) tr.append(cel("td"));
       tbody.append(tr);
     }
     table.append(thead, tbody);
     return table;
   }
-  function nextCell(cell, tras) {
+  function nextCell(cell, back) {
     const table = cell.closest("table");
-    const celulas = [...table.querySelectorAll("th, td")];
-    return celulas[celulas.indexOf(cell) + (tras ? -1 : 1)] || null;
+    const cells = [...table.querySelectorAll("th, td")];
+    return cells[cells.indexOf(cell) + (back ? -1 : 1)] || null;
   }
   var TABLE = {
     rowAbove: (c) => insertRow(c, 0),
@@ -4987,9 +4987,9 @@ var Tucano = (() => {
   function insertColumn(cell, after) {
     const i = [...cell.parentElement.children].indexOf(cell);
     for (const row of cell.closest("table").querySelectorAll("tr")) {
-      const modelo = row.children[i];
-      const nova = emptyCell(modelo?.tagName === "TH" ? "th" : "td");
-      row.insertBefore(nova, after ? modelo?.nextSibling : modelo);
+      const model = row.children[i];
+      const nova = emptyCell(model?.tagName === "TH" ? "th" : "td");
+      row.insertBefore(nova, after ? model?.nextSibling : model);
     }
     return cell.parentElement.children[after ? i + 1 : i];
   }
@@ -5000,9 +5000,9 @@ var Tucano = (() => {
       table.remove();
       return null;
     }
-    const vizinha = row.nextElementSibling || row.previousElementSibling;
+    const sibling = row.nextElementSibling || row.previousElementSibling;
     row.remove();
-    return vizinha?.firstElementChild ?? null;
+    return sibling?.firstElementChild ?? null;
   }
   function deleteColumn(cell) {
     const row = cell.parentElement;
@@ -5024,23 +5024,23 @@ var Tucano = (() => {
     s.removeAllRanges();
     s.addRange(r);
   }
-  function offsetInBlock(bloco) {
+  function offsetInBlock(block) {
     const sel = window.getSelection();
-    if (!sel?.rangeCount || !bloco.contains(sel.anchorNode)) return null;
+    if (!sel?.rangeCount || !block.contains(sel.anchorNode)) return null;
     const r = sel.getRangeAt(0).cloneRange();
-    r.selectNodeContents(bloco);
+    r.selectNodeContents(block);
     r.setEnd(sel.getRangeAt(0).endContainer, sel.getRangeAt(0).endOffset);
     return r.toString().length;
   }
-  function restoreOffset(bloco, quantos) {
-    if (quantos == null) return;
-    const step = document.createTreeWalker(bloco, NodeFilter.SHOW_TEXT);
+  function restoreOffset(block, howMany) {
+    if (howMany == null) return;
+    const step = document.createTreeWalker(block, NodeFilter.SHOW_TEXT);
     let counted = 0;
     let no;
     while (no = step.nextNode()) {
-      if (counted + no.length >= quantos) {
+      if (counted + no.length >= howMany) {
         const r = document.createRange();
-        r.setStart(no, quantos - counted);
+        r.setStart(no, howMany - counted);
         r.collapse(true);
         const sel = window.getSelection();
         sel.removeAllRanges();
@@ -5074,7 +5074,7 @@ var Tucano = (() => {
       });
       this.area.style.minHeight = this.opts.minHeight;
       this.area.innerHTML = sanitize(field.value) || "<p><br></p>";
-      const GRUPOS = /* @__PURE__ */ new Set(["left", "quote"]);
+      const GROUPS = /* @__PURE__ */ new Set(["left", "quote"]);
       this.toolbar = el(
         "div",
         { class: "tuc-editor__toolbar", role: "toolbar", "aria-label": "Formata\xE7\xE3o" },
@@ -5091,9 +5091,9 @@ var Tucano = (() => {
               e.preventDefault();
               this.apply(name);
             }
-          }, [icon(ICONES[name] ?? ICONES.clear, 15)]);
+          }, [icon(ICONS2[name] ?? ICONS2.clear, 15)]);
           b.dataset.action = name;
-          return GRUPOS.has(name) ? [el("span", { class: "tuc-editor__sep", "aria-hidden": "true" }), b] : [b];
+          return GROUPS.has(name) ? [el("span", { class: "tuc-editor__sep", "aria-hidden": "true" }), b] : [b];
         })
       );
       this.tableBar = el("div", {
@@ -5118,11 +5118,11 @@ var Tucano = (() => {
       field.classList.add("tuc-editor__value");
       this._cleanups.push(
         on(this.area, "input", () => {
-          this._sincronizar();
-          this._agendarPintura();
+          this._sync();
+          this._schedulePaint();
         }),
-        on(this.area, "blur", () => this._sincronizar()),
-        on(this.area, "paste", (e) => this._colar(e)),
+        on(this.area, "blur", () => this._sync()),
+        on(this.area, "paste", (e) => this._paste(e)),
         on(this.area, "keydown", (e) => this._onKey(e)),
         on(this.area, "keyup", () => this._markActive()),
         on(this.area, "mouseup", () => this._markActive()),
@@ -5144,16 +5144,16 @@ var Tucano = (() => {
      */
     _paint() {
       for (const code of this.area.querySelectorAll("pre > code")) {
-        const cru = code.textContent;
-        const painted = highlight(cru);
+        const raw = code.textContent;
+        const painted = highlight(raw);
         if (code.innerHTML === painted) continue;
-        const onde = offsetInBlock(code);
+        const where = offsetInBlock(code);
         code.innerHTML = painted;
-        restoreOffset(code, onde);
+        restoreOffset(code, where);
       }
     }
     /* O textarea escondido e a fonte da verdade para o formulario. */
-    _sincronizar() {
+    _sync() {
       const plain = sanitize(this.area.innerHTML);
       if (this.field.value === plain) return;
       this.field.value = plain;
@@ -5161,11 +5161,11 @@ var Tucano = (() => {
       this.field.dispatchEvent(new Event("change", { bubbles: true }));
     }
     /* Adiado: repintar a cada tecla brigaria com a digitacao. */
-    _agendarPintura() {
-      clearTimeout(this._pincel);
-      this._pincel = setTimeout(() => this._paint(), 180);
+    _schedulePaint() {
+      clearTimeout(this._brush);
+      this._brush = setTimeout(() => this._paint(), 180);
     }
-    _colar(e) {
+    _paste(e) {
       e.preventDefault();
       const text = e.clipboardData?.getData("text/plain") ?? textOnly(e.clipboardData?.getData("text/html"));
       document.execCommand("insertText", false, text);
@@ -5178,16 +5178,16 @@ var Tucano = (() => {
           let target = nextCell(cell, e.shiftKey);
           if (!target && !e.shiftKey) {
             const body = cell.closest("table").querySelector("tbody") || cell.closest("table");
-            const modelo = body.querySelector("tr") || cell.parentElement;
+            const model = body.querySelector("tr") || cell.parentElement;
             const nova = document.createElement("tr");
-            for (let i = 0; i < modelo.children.length; i++) {
+            for (let i = 0; i < model.children.length; i++) {
               const td = document.createElement("td");
               td.append(document.createElement("br"));
               nova.append(td);
             }
             body.append(nova);
             target = nova.firstElementChild;
-            this._sincronizar();
+            this._sync();
           }
           if (target) {
             const r = document.createRange();
@@ -5201,9 +5201,9 @@ var Tucano = (() => {
         }
       }
       const t = e.key.toLowerCase();
-      if ((e.metaKey || e.ctrlKey) && ATALHOS[t]) {
+      if ((e.metaKey || e.ctrlKey) && SHORTCUTS[t]) {
         e.preventDefault();
-        this.apply(ATALHOS[t]);
+        this.apply(SHORTCUTS[t]);
       }
     }
     /* Botao aceso quando o cursor esta dentro daquela formatacao. */
@@ -5233,8 +5233,8 @@ var Tucano = (() => {
       for (const b of this.toolbar.querySelectorAll("[data-action]")) {
         const action = b.dataset.action;
         const cmd = STATES[action];
-        const seletor = ANCESTRAIS[action];
-        if (!cmd && !seletor) continue;
+        const selector = ANCESTORS[action];
+        if (!cmd && !selector) continue;
         let active = false;
         if (cmd) {
           try {
@@ -5242,7 +5242,7 @@ var Tucano = (() => {
           } catch {
           }
         } else if (no) {
-          active = !!no.closest?.(seletor);
+          active = !!no.closest?.(selector);
         }
         b.setAttribute("aria-pressed", String(active));
         b.classList.toggle("is-active", active);
@@ -5264,10 +5264,10 @@ var Tucano = (() => {
     inTable(name) {
       const cell = this._currentCell();
       if (!cell) return this;
-      const destino = TABLE[name]?.(cell);
+      const destination = TABLE[name]?.(cell);
       this._focus();
-      focusCell(destino);
-      this._sincronizar();
+      focusCell(destination);
+      this._sync();
       this._syncTableBar();
       return this;
     }
@@ -5284,7 +5284,7 @@ var Tucano = (() => {
           p.append(document.createElement("br"));
           table.after(p);
           focusCell(table.querySelector("th"));
-          this._sincronizar();
+          this._sync();
           return this;
         }
         if (sel?.rangeCount) {
@@ -5294,24 +5294,24 @@ var Tucano = (() => {
           const p = document.createElement("p");
           p.append(document.createElement("br"));
           table.after(p);
-          const primeira = table.querySelector("th");
-          if (primeira) {
+          const first = table.querySelector("th");
+          if (first) {
             const r = document.createRange();
-            r.selectNodeContents(primeira);
+            r.selectNodeContents(first);
             r.collapse(true);
             sel.removeAllRanges();
             sel.addRange(r);
           }
         }
-        this._sincronizar();
+        this._sync();
         return this;
       }
       if (name === "link") {
         this._askForLink();
         return this;
       }
-      COMANDOS[name]?.();
-      this._sincronizar();
+      COMMANDS[name]?.();
+      this._sync();
       this._markActive();
       this._paint();
       return this;
@@ -5326,55 +5326,55 @@ var Tucano = (() => {
      */
     _askForLink() {
       const sel = window.getSelection();
-      const marca = sel?.rangeCount ? sel.getRangeAt(0).cloneRange() : null;
-      const existente = this._currentNode()?.closest("a");
+      const mark = sel?.rangeCount ? sel.getRangeAt(0).cloneRange() : null;
+      const existing = this._currentNode()?.closest("a");
       const field = el("input", {
         type: "url",
         class: "tuc-input",
         placeholder: "https://",
-        value: existente?.getAttribute("href") ?? "https://"
+        value: existing?.getAttribute("href") ?? "https://"
       });
       const restoreSelection = () => {
         this.area.focus({ preventScroll: true });
-        if (!marca) return;
+        if (!mark) return;
         const s = window.getSelection();
         s.removeAllRanges();
-        s.addRange(marca);
+        s.addRange(mark);
       };
-      let decidido = null;
+      let decided = null;
       const actions = [{ text: "Cancelar", variant: "outline" }];
-      if (existente) {
+      if (existing) {
         actions.push({ text: "Remover", variant: "ghost", onClick: () => {
-          decidido = "remove";
+          decided = "remove";
         } });
       }
       actions.push({
-        text: existente ? "Salvar" : "Inserir",
+        text: existing ? "Salvar" : "Inserir",
         variant: "primary",
         onClick: () => {
-          decidido = field.value.trim();
+          decided = field.value.trim();
         }
       });
       const dialog = new Modal({
-        title: existente ? "Editar link" : "Inserir link",
+        title: existing ? "Editar link" : "Inserir link",
         size: "sm",
         actions,
         onClose: () => {
-          if (!decidido) return;
+          if (!decided) return;
           {
-            if (decidido === "remove") {
+            if (decided === "remove") {
               this.area.focus({ preventScroll: true });
               const r = document.createRange();
-              r.selectNodeContents(existente);
+              r.selectNodeContents(existing);
               const sel2 = window.getSelection();
               sel2.removeAllRanges();
               sel2.addRange(r);
               document.execCommand("unlink");
             } else {
               restoreSelection();
-              if (decidido !== "https://") document.execCommand("createLink", false, decidido);
+              if (decided !== "https://") document.execCommand("createLink", false, decided);
             }
-            this._sincronizar();
+            this._sync();
             this._markActive();
           }
         }
@@ -5396,7 +5396,7 @@ var Tucano = (() => {
     setValue(html) {
       this.area.innerHTML = sanitize(html) || "<p><br></p>";
       this._paint();
-      this._sincronizar();
+      this._sync();
       return this;
     }
     destroy() {
@@ -5429,10 +5429,10 @@ var Tucano = (() => {
       formatted: autoFormat(scope),
       toasts: autoInit6(scope),
       modals: autoInit8(scope),
-      gavetas: autoInit9(scope),
+      drawers: autoInit9(scope),
       accordions: autoInit10(scope),
       dropdowns: autoInit11(scope),
-      ricos: autoInit13(scope),
+      editors: autoInit13(scope),
       prose: autoInit12(scope),
       // Por último de propósito: componentes que criam a própria barra de botões
       // marcam neles `data-tuc-tip`, e esses elementos só existem depois que eles

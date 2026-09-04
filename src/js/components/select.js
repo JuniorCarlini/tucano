@@ -55,15 +55,15 @@ export class Select {
     this._cleanups = [];
 
     this.items = readOptions(node);
-    this.remoto = !!(this.opts.url || this.opts.loadOptions);
+    this.remote = !!(this.opts.url || this.opts.loadOptions);
     // Com busca no servidor o campo de busca e obrigatorio: e o unico jeito de
     // pedir algo.
-    this.opts.search = this.remoto ? true : (this.opts.search ?? this.items.length >= this.opts.searchMinItems);
+    this.opts.search = this.remote ? true : (this.opts.search ?? this.items.length >= this.opts.searchMinItems);
     this.searchState = null;   // null | 'loading' | 'error'
     this._cache = new Map();   // termo -> itens
-    this._vazios = new Set();  // termos que nao trouxeram nada
+    this._empties = new Set();  // termos que nao trouxeram nada
     this._page = 1;
-    this._temMais = false;
+    this._hasMore = false;
 
     this._build();
     this._syncFromNative();
@@ -75,8 +75,8 @@ export class Select {
    * ---------------------------------------------------------------- */
 
   getValue() {
-    const escolhidos = this.items.filter((i) => i.selected).map((i) => i.value);
-    return this.multiple ? escolhidos : (escolhidos[0] ?? null);
+    const chosen = this.items.filter((i) => i.selected).map((i) => i.value);
+    return this.multiple ? chosen : (chosen[0] ?? null);
   }
 
   setValue(value, { silent = false } = {}) {
@@ -95,7 +95,7 @@ export class Select {
   /** Relê as <option> do select nativo — use depois de trocar as opções por HTMX. */
   refresh() {
     this._cache.clear();
-    this._vazios.clear();
+    this._empties.clear();
     this.items = readOptions(this.native);
     this._renderControl();
     if (this.isOpen) this._renderMenu();
@@ -106,7 +106,7 @@ export class Select {
     this.isOpen = true;
     this.query = '';
     this.search.value = '';
-    if (this.remoto) { this.items = this._escolhidos(); this.searchState = null; }
+    if (this.remote) { this.items = this._chosen(); this.searchState = null; }
     this.activeIndex = this.items.findIndex((i) => i.selected && !i.disabled);
     this._renderMenu();
 
@@ -144,7 +144,7 @@ export class Select {
 
   destroy() {
     clearTimeout(this._searchTimer);
-    this._abortar();
+    this._abort();
     this.close();
     this._cleanups.forEach((fn) => fn());
     this._cleanups = [];
@@ -211,7 +211,7 @@ export class Select {
       on(this.search, 'input', () => {
         this.query = this.search.value;
         if (!this.isOpen) this.open();
-        if (this.remoto) { this._scheduleSearch(); return; }
+        if (this.remote) { this._scheduleSearch(); return; }
         this.activeIndex = this._filtered().findIndex((i) => !i.disabled);
         this._renderMenu();
         this._renderControl();
@@ -224,8 +224,8 @@ export class Select {
   }
 
   _syncFromNative() {
-    const escolhidos = new Set([...this.native.selectedOptions].map((o) => o.value));
-    for (const item of this.items) item.selected = escolhidos.has(item.value);
+    const chosen = new Set([...this.native.selectedOptions].map((o) => o.value));
+    for (const item of this.items) item.selected = chosen.has(item.value);
     this._renderControl();
   }
 
@@ -233,20 +233,20 @@ export class Select {
     this._pushing = true;
     // Itens vindos do servidor nao existem no <select>: cria a <option> para o
     // valor poder ser postado.
-    if (this.remoto) {
+    if (this.remote) {
       for (const item of this.items) {
         if (!item.selected) continue;
         if ([...this.native.options].some((o) => o.value === item.value)) continue;
         this.native.append(el('option', { value: item.value, text: item.label }));
       }
     }
-    const escolhidos = new Set(this.items.filter((i) => i.selected).map((i) => i.value));
-    for (const opt of this.native.options) opt.selected = escolhidos.has(opt.value);
+    const chosen = new Set(this.items.filter((i) => i.selected).map((i) => i.value));
+    for (const opt of this.native.options) opt.selected = chosen.has(opt.value);
     // Nada escolhido num select simples: volta para a <option value=""> para o
     // formulario postar vazio e o `required` do Django continuar valendo.
-    if (!this.multiple && !escolhidos.size) {
-      const vazia = [...this.native.options].find((o) => o.value === '');
-      if (vazia) vazia.selected = true;
+    if (!this.multiple && !chosen.size) {
+      const empty = [...this.native.options].find((o) => o.value === '');
+      if (empty) empty.selected = true;
     }
     this.native.dispatchEvent(new Event('change', { bubbles: true }));
     this._pushing = false;
@@ -264,38 +264,38 @@ export class Select {
    */
   _scheduleSearch() {
     clearTimeout(this._searchTimer);
-    const termo = this.query.trim();
+    const term = this.query.trim();
     this._page = 1;
 
-    if (termo.length < this.opts.minChars) {
-      this._abortar();
+    if (term.length < this.opts.minChars) {
+      this._abort();
       this.searchState = null;
-      this.items = this._escolhidos();
-      this._temMais = false;
+      this.items = this._chosen();
+      this._hasMore = false;
       this._renderMenu();
       return;
     }
 
-    const guardado = this.opts.cache ? this._cache.get(termo) : null;
-    if (guardado) {
-      this._abortar();
+    const saved = this.opts.cache ? this._cache.get(term) : null;
+    if (saved) {
+      this._abort();
       this.searchState = null;
-      this._applyResult(guardado, { anexar: false });
+      this._applyResult(saved, { append: false });
       return;
     }
 
-    if (this._semChance(termo)) {
-      this._abortar();
+    if (this._noChance(term)) {
+      this._abort();
       this.searchState = null;
-      this._applyResult([], { anexar: false });
+      this._applyResult([], { append: false });
       return;
     }
 
-    if (this._termoEmVoo === termo) return;
+    if (this._termInFlight === term) return;
 
     this.searchState = 'loading';
     this._renderMenu();
-    this._searchTimer = setTimeout(() => this._buscar(termo), this.opts.debounce);
+    this._searchTimer = setTimeout(() => this._fetch(term), this.opts.debounce);
   }
 
   /**
@@ -306,69 +306,69 @@ export class Select {
    * relevancia, um termo maior pode sim trazer resultado, e cortar aqui
    * esconderia dados sem aviso.
    */
-  _semChance(termo) {
+  _noChance(term) {
     if (!this.opts.shortCircuit) return false;
-    for (const empty of this._vazios) if (termo.startsWith(empty)) return true;
+    for (const empty of this._empties) if (term.startsWith(empty)) return true;
     return false;
   }
 
-  _guardar(termo, items) {
+  _store(term, items) {
     if (!this.opts.cache) return;
     // Map preserva ordem de insercao: o mais antigo sai primeiro.
     if (this._cache.size >= this.opts.cacheSize) {
       this._cache.delete(this._cache.keys().next().value);
     }
-    this._cache.set(termo, items);
-    if (!items.length) this._vazios.add(termo);
+    this._cache.set(term, items);
+    if (!items.length) this._empties.add(term);
   }
 
   /** Junta o que veio com quem ja estava escolhido e desenha. */
-  _applyResult(vindos, { anexar }) {
-    const escolhidos = this._escolhidos();
-    const base = anexar ? this.items : escolhidos;
-    const novos = vindos.filter((i) => !base.some((e) => e.value === i.value));
-    this.items = [...base, ...novos];
+  _applyResult(incoming, { append }) {
+    const chosen = this._chosen();
+    const base = append ? this.items : chosen;
+    const fresh = incoming.filter((i) => !base.some((e) => e.value === i.value));
+    this.items = [...base, ...fresh];
     this.activeIndex = this.items.findIndex((i) => !i.disabled && !i.selected);
     this._renderMenu();
   }
 
-  _abortar() {
-    this._controle?.abort();
-    this._controle = null;
+  _abort() {
+    this._control?.abort();
+    this._control = null;
   }
 
-  async _buscar(termo, { page = 1 } = {}) {
+  async _fetch(term, { page = 1 } = {}) {
     // Cancela a anterior: sem isso, uma resposta lenta chega depois de uma
     // rapida e sobrescreve a lista com resultado de um termo ja abandonado.
-    this._abortar();
-    const controle = new AbortController();
-    this._controle = controle;
-    this._termoEmVoo = termo;
+    this._abort();
+    const control = new AbortController();
+    this._control = control;
+    this._termInFlight = term;
 
     try {
-      const brutos = this.opts.loadOptions
-        ? await this.opts.loadOptions(termo, { signal: controle.signal, page: page })
-        : await this._buscarUrl(termo, controle.signal, page);
-      if (controle.signal.aborted) return;
+      const raws = this.opts.loadOptions
+        ? await this.opts.loadOptions(term, { signal: control.signal, page: page })
+        : await this._fetchUrl(term, control.signal, page);
+      if (control.signal.aborted) return;
 
-      const vindos = normalizeOptions(brutos);
-      this._temMais = hasNextPage(brutos, vindos, this.opts.pageParam);
+      const incoming = normalizeOptions(raws);
+      this._hasMore = hasNextPage(raws, incoming, this.opts.pageParam);
       this.searchState = null;
-      if (page === 1) this._guardar(termo, vindos);
-      this._applyResult(vindos, { anexar: page > 1 });
+      if (page === 1) this._store(term, incoming);
+      this._applyResult(incoming, { append: page > 1 });
       return;
     } catch (e) {
-      if (e.name === 'AbortError' || controle.signal.aborted) return;
+      if (e.name === 'AbortError' || control.signal.aborted) return;
       this.searchState = 'error';
       this._renderMenu();
     } finally {
-      if (this._controle === controle) { this._controle = null; this._termoEmVoo = null; }
+      if (this._control === control) { this._control = null; this._termInFlight = null; }
     }
   }
 
-  async _buscarUrl(termo, signal, page = 1) {
+  async _fetchUrl(term, signal, page = 1) {
     const url = new URL(this.opts.url, location.href);
-    url.searchParams.set(this.opts.queryParam, termo);
+    url.searchParams.set(this.opts.queryParam, term);
     if (page > 1 && this.opts.pageParam) url.searchParams.set(this.opts.pageParam, String(page));
     const r = await fetch(url, { signal, headers: { Accept: 'application/json' } });
     if (!r.ok) throw new Error(`O servidor respondeu ${r.status}`);
@@ -380,16 +380,16 @@ export class Select {
    * dez mil registros e o que trava a pagina; vinte por vez, nao.
    */
   _onListScroll() {
-    if (!this.remoto || !this._temMais || this.searchState === 'loading') return;
+    if (!this.remote || !this._hasMore || this.searchState === 'loading') return;
     const l = this.list;
     if (l.scrollTop + l.clientHeight < l.scrollHeight - 48) return;
     this._page += 1;
     this.searchState = 'loading';
     this._renderMenu();
-    this._buscar(this.query.trim(), { page: this._page });
+    this._fetch(this.query.trim(), { page: this._page });
   }
 
-  _escolhidos() {
+  _chosen() {
     return this.items.filter((i) => i.selected);
   }
 
@@ -398,11 +398,11 @@ export class Select {
    * ---------------------------------------------------------------- */
 
   _renderControl() {
-    const escolhidos = this.items.filter((i) => i.selected);
+    const chosen = this.items.filter((i) => i.selected);
     for (const n of [...this.values.children]) if (n !== this.search) n.remove();
 
     if (this.multiple) {
-      for (const item of escolhidos) {
+      for (const item of chosen) {
         this.values.insertBefore(el('span', { class: 'tuc-select__tag' }, [
           el('span', { class: 'tuc-select__tagtext', text: item.label }),
           el('button', {
@@ -412,32 +412,32 @@ export class Select {
           }, [icon(ICONS.x, 12)]),
         ]), this.search);
       }
-    } else if (escolhidos.length && !this.query) {
+    } else if (chosen.length && !this.query) {
       this.values.insertBefore(
-        el('span', { class: 'tuc-select__single', text: escolhidos[0].label }), this.search);
+        el('span', { class: 'tuc-select__single', text: chosen[0].label }), this.search);
     }
 
-    const empty = !escolhidos.length && !this.query;
+    const empty = !chosen.length && !this.query;
     // Placeholder no input: some assim que existe tag ou rotulo ao lado.
     this.search.placeholder = empty
       ? this.opts.placeholder
       : (this.isOpen && this.opts.search ? this.opts.searchPlaceholder : '');
     this.control.classList.toggle('is-empty', empty);
-    this.control.classList.toggle('has-value', escolhidos.length > 0);
+    this.control.classList.toggle('has-value', chosen.length > 0);
     this.search.readOnly = !this.opts.search;
   }
 
   _filtered() {
     // No modo remoto o servidor ja devolveu o recorte: filtrar de novo
     // esconderia resultados que ele considerou relevantes.
-    if (this.remoto) return this.items;
+    if (this.remote) return this.items;
     const q = this.query.trim().toLowerCase();
     if (!q) return this.items;
     return this.items.filter((i) => i.search.includes(q));
   }
 
   _renderMenu() {
-    const visiveis = this._filtered();
+    const visible = this._filtered();
     this.list.replaceChildren();
 
     if (this.searchState === 'loading') {
@@ -448,11 +448,11 @@ export class Select {
       this.list.append(el('div', { class: 'tuc-select__empty is-error', text: this.opts.errorText }));
       return;
     }
-    if (!visiveis.length) {
-      const faltaDigitar = this.remoto && this.query.trim().length < this.opts.minChars;
+    if (!visible.length) {
+      const remainingToType = this.remote && this.query.trim().length < this.opts.minChars;
       this.list.append(el('div', {
         class: 'tuc-select__empty',
-        text: faltaDigitar
+        text: remainingToType
           ? `Digite ${this.opts.minChars} caractere${this.opts.minChars > 1 ? 's' : ''} para buscar`
           : this.opts.emptyText,
       }));
@@ -460,7 +460,7 @@ export class Select {
     }
 
     let currentGroup = null;
-    visiveis.forEach((item, i) => {
+    visible.forEach((item, i) => {
       if (item.group && item.group !== currentGroup) {
         currentGroup = item.group;
         this.list.append(el('div', { class: 'tuc-select__group', text: item.group, role: 'presentation' }));
@@ -525,14 +525,14 @@ export class Select {
   }
 
   _onKeydown(e) {
-    const visiveis = this._filtered();
+    const visible = this._filtered();
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
       e.preventDefault();
       if (!this.isOpen) return this.open();
       const step = e.key === 'ArrowDown' ? 1 : -1;
-      for (let n = 1; n <= visiveis.length; n++) {
-        const i = (this.activeIndex + step * n + visiveis.length * n) % visiveis.length;
-        if (!visiveis[i].disabled) { this.activeIndex = i; break; }
+      for (let n = 1; n <= visible.length; n++) {
+        const i = (this.activeIndex + step * n + visible.length * n) % visible.length;
+        if (!visible[i].disabled) { this.activeIndex = i; break; }
       }
       this._paintActive();
       this._scrollToActive();
@@ -552,18 +552,18 @@ export class Select {
       }
       if (e.key === ' ') return;
       e.preventDefault();
-      const item = visiveis[this.activeIndex];
+      const item = visible[this.activeIndex];
       if (item) this._toggleItem(item);
     } else if (e.key === 'Escape') {
       if (this.isOpen) { e.preventDefault(); e.stopPropagation(); this.close(); this.control.focus?.(); }
     } else if (e.key === 'Backspace' && !this.search.value && this.multiple) {
       // Campo de busca vazio: apagar remove a ultima tag, como em qualquer editor de tags.
-      const escolhidos = this.items.filter((i) => i.selected);
-      if (escolhidos.length) this._toggleItem(escolhidos[escolhidos.length - 1]);
+      const chosen = this.items.filter((i) => i.selected);
+      if (chosen.length) this._toggleItem(chosen[chosen.length - 1]);
     } else if (e.key === 'Home' || e.key === 'End') {
       if (!this.isOpen) return;
       e.preventDefault();
-      this.activeIndex = e.key === 'Home' ? 0 : visiveis.length - 1;
+      this.activeIndex = e.key === 'Home' ? 0 : visible.length - 1;
       this._paintActive();
       this._scrollToActive();
     }
@@ -591,7 +591,7 @@ function normalizeOptions(data) {
     if (typeof o !== 'object') return { value: String(o), label: String(o), disabled: false, group: null, selected: false, search: normalize(String(o)) };
     const value = String(o.value ?? o.id ?? o.pk ?? '');
     const label = String(o.label ?? o.text ?? o.name ?? o.name ?? value);
-    return { value, label, disabled: !!o.disabled, group: o.group ?? o.grupo ?? null, selected: false, search: normalize(`${label} ${value}`) };
+    return { value, label, disabled: !!o.disabled, group: o.group ?? o.group ?? null, selected: false, search: normalize(`${label} ${value}`) };
   }).filter((o) => o && o.value !== '');
 }
 
@@ -599,11 +599,11 @@ function normalizeOptions(data) {
  * Ha mais paginas? O DRF diz em `next`. Sem essa pista, so da para supor: uma
  * pagina que veio vazia acabou; uma que veio cheia pode ter mais.
  */
-function hasNextPage(brutos, items, pageParam) {
+function hasNextPage(raws, items, pageParam) {
   if (!pageParam) return false;
-  if (brutos && typeof brutos === 'object' && !Array.isArray(brutos)) {
-    if ('next' in brutos) return !!brutos.next;
-    if ('has_more' in brutos) return !!brutos.has_more;
+  if (raws && typeof raws === 'object' && !Array.isArray(raws)) {
+    if ('next' in raws) return !!raws.next;
+    if ('has_more' in raws) return !!raws.has_more;
   }
   return items.length > 0;
 }

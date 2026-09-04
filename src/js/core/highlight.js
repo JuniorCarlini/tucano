@@ -12,9 +12,9 @@
  */
 
 const ESCAPES = { '&': '&amp;', '<': '&lt;', '>': '&gt;' };
-const escapar = (t) => String(t).replace(/[&<>]/g, (c) => ESCAPES[c]);
+const escape = (t) => String(t).replace(/[&<>]/g, (c) => ESCAPES[c]);
 
-const PALAVRAS = [
+const WORDS = [
     // fluxo, comum a quase tudo
     'if', 'else', 'elif', 'for', 'while', 'return', 'break', 'continue', 'try', 'catch', 'except',
     'finally', 'switch', 'case', 'in', 'is', 'not', 'and', 'or', 'with', 'as', 'from',
@@ -40,7 +40,7 @@ const PALAVRAS = [
  * comentario abriria texto; string antes de tudo o mais, senao uma palavra
  * dentro de aspas seria pintada como palavra-chave.
  */
-const REGRAS = [
+const RULES = [
   ['coment', /(&lt;!--[\s\S]*?--&gt;|\/\*[\s\S]*?\*\/|\/\/[^\n]*|#[^\n]*)/],
   ['text',  /("(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*'|`(?:[^`\\]|\\.)*`)/],
   ['tmpl',   /(\{%[\s\S]*?%\}|\{\{[\s\S]*?\}\})/],
@@ -56,33 +56,33 @@ const REGRAS = [
    * resultado era marcacao aninhada quebrada, que o navegador mostrava como
    * text solto no meio do codigo.
    */
-  ['key',  new RegExp(`\\b(${PALAVRAS})\\b`)],
+  ['key',  new RegExp(`\\b(${WORDS})\\b`)],
 ];
 
-const COMBINADA = new RegExp(REGRAS.map(([, re]) => re.source).join('|'), 'g');
+const COMBINADA = new RegExp(RULES.map(([, re]) => re.source).join('|'), 'g');
 
 /** Recebe codigo cru e devolve HTML com as marcacoes de cor. */
-export function highlight(codigo) {
-  const text = escapar(codigo ?? '');
+export function highlight(code) {
+  const text = escape(code ?? '');
   return text.replace(COMBINADA, (todo, ...grupos) => {
     const i = grupos.findIndex((g) => g !== undefined);
-    const className = REGRAS[i]?.[0];
-    return className ? `<span class="tuc-tok-${className}tuc-tok-${className}tuc-tok-${className}tuc-tok-${className}">${todo}</span>` : todo;
+    const className = RULES[i]?.[0];
+    return className ? `<span class="tuc-tok-${className}tuc-tok-${className}tuc-tok-${className}tuc-tok-${className}tuc-tok-${className}tuc-tok-${className}tuc-tok-${className}tuc-tok-${className}">${todo}</span>` : todo;
   });
 }
 
 /**
- * Pinta os blocos de code do content ja publicado.
+ * Pinta os blocks de code do content ja published.
  *
  * O que foi salvo e text pure inside de <pre><code>, porque color nao e
- * content. Aqui ela e reposta na time de mostrar — e so aqui, do side de quem
+ * content. Aqui ela e reposta na time de show — e so aqui, do side de quem
  * le. Roda sozinho pelo init(), inclusive no que chegar after por HTMX.
  */
 export function autoInit(scope = document) {
-  const blocos = [...scope.querySelectorAll('.tuc-prose pre > code:not([data-tuc-painted])')];
-  for (const code of blocos) {
+  const blocks = [...scope.querySelectorAll('.tuc-prose pre > code:not([data-tuc-painted])')];
+  for (const code of blocks) {
     code.setAttribute('data-tuc-painted', '');
     code.innerHTML = highlight(code.textContent);
   }
-  return blocos;
+  return blocks;
 }

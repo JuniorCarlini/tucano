@@ -22,7 +22,7 @@ export class Dialog {
    * abrir nao o insere e fechar nao o remove.
    */
   _adopt(node) {
-    this._adotado = true;
+    this._adopted = true;
     this.node = node;
     node._tucano = this;
     return this;
@@ -31,7 +31,7 @@ export class Dialog {
   open() {
     if (this.isOpen) return this;
     this.isOpen = true;
-    if (!this._adotado) document.body.append(this.node);
+    if (!this._adopted) document.body.append(this.node);
     this.node.showModal();
     this._wire();
     // Reflow antes da classe: sem isto o navegador agrupa as duas mudancas e
@@ -41,7 +41,7 @@ export class Dialog {
     return this;
   }
 
-  close(motivo = 'api') {
+  close(reason = 'api') {
     if (!this.isOpen) return this;
     this.isOpen = false;
     this._cleanups.forEach((fn) => fn());
@@ -54,8 +54,8 @@ export class Dialog {
       this.node.classList.remove('is-closing');
       // close() antes de remover: e o que devolve o foco a quem abriu.
       if (this.node.open) this.node.close();
-      if (!this._adotado) this.node.remove();
-      this.opts.onClose?.(motivo, this);
+      if (!this._adopted) this.node.remove();
+      this.opts.onClose?.(reason, this);
     }, EXIT_MS);
     return this;
   }
@@ -89,7 +89,7 @@ export class Dialog {
  * as classes seguem o nome de cada componente — .tuc-modal__panel continua
  * sendo .tuc-modal__panel, que e o que quem escreve o template digita a mao.
  */
-export function buildPanel(prefix, opts, dono, titleId) {
+export function buildPanel(prefix, opts, owner, titleId) {
   const { title, text, actions, closable } = opts;
   return el('div', { class: `${prefix}__panel` }, [
     el('div', { class: `${prefix}__top` }, [
@@ -101,7 +101,7 @@ export function buildPanel(prefix, opts, dono, titleId) {
         type: 'button',
         class: `tuc-btn is-ghost is-icon is-sm ${prefix}__close`,
         'aria-label': 'Fechar',
-        onclick: () => dono.close('botao'),
+        onclick: () => owner.close('botao'),
       }, [icon(ICONS.x, 15)]) : null,
     ]),
     el('div', { class: `${prefix}__body` }),
@@ -110,8 +110,8 @@ export function buildPanel(prefix, opts, dono, titleId) {
       class: `tuc-btn is-${a.variant || 'outline'}`,
       text: a.text,
       onclick: () => {
-        a.onClick?.(dono);
-        if (a.fecha !== false) dono.close('action');
+        a.onClick?.(owner);
+        if (a.closes !== false) owner.close('action');
       },
     }))) : null,
   ]);

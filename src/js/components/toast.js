@@ -72,8 +72,8 @@ function container(position) {
   return node;
 }
 
-const RECUO = 14;      // quanto de cada toast de tras fica a mostra
-const VISIVEIS = 3;    // alem disso some: uma pilha de dez nao ajuda ninguem
+const INDENT = 14;      // quanto de cada toast de tras fica a mostra
+const VISIBLE = 3;    // alem disso some: uma pilha de dez nao ajuda ninguem
 const GAP = 12;    // espaco entre toasts quando aberto em leque
 
 // A ordem do DOM percorre uma regiao inteira antes da outra, entao ela nao
@@ -88,45 +88,45 @@ let seq = 0;
  * medida vem do DOM e nao de um valor fixo: toast com titulo e mais alto que
  * um sem, e chutar a altura desalinha a pilha.
  */
-function arrange(cont) {
+function arrange(container) {
   // Uma leitura de layout antes de medir: recem-inserido, o toast ainda nao
   // teve o CSS aplicado, e offsetHeight devolveria a altura sem estilo.
-  void cont.offsetHeight;
+  void container.offsetHeight;
 
   // Sem largura nao ha layout de verdade — aba oculta, container escondido.
   // Medir aqui gravaria posicoes absurdas nos elementos; melhor esperar a
   // proxima chamada, que vem no proximo toast ou no hover.
-  if (!cont.offsetWidth) return;
+  if (!container.offsetWidth) return;
 
-  const debaixo = cont.className.includes('is-bottom');
-  const sentido = debaixo ? -1 : 1;
-  const isOpen = cont.classList.contains('is-expanded');
+  const below = container.className.includes('is-bottom');
+  const direction = below ? -1 : 1;
+  const isOpen = container.classList.contains('is-expanded');
 
-  const stage = cont.querySelector('.tuc-toasts__stage');
+  const stage = container.querySelector('.tuc-toasts__stage');
   const toasts = [...stage.querySelectorAll('.tuc-toast:not(.is-closing)')]
     .sort((a, b) => +a.dataset.seq - +b.dataset.seq);
-  const frente = toasts.length - 1;   // o mais novo fica na frente
-  let acumulado = 0;
+  const front = toasts.length - 1;   // o mais novo fica na frente
+  let accrued = 0;
 
-  for (let i = frente; i >= 0; i--) {
-    const k = frente - i;             // 0 = frente
+  for (let i = front; i >= 0; i--) {
+    const k = front - i;             // 0 = frente
     const t = toasts[i];
-    const y = isOpen ? acumulado : k * RECUO;
-    const escala = isOpen ? 1 : 1 - k * 0.05;
+    const y = isOpen ? accrued : k * INDENT;
+    const scale = isOpen ? 1 : 1 - k * 0.05;
 
-    t.style.setProperty('--tuc-toast-y', `${sentido * y}px`);
-    t.style.setProperty('--tuc-toast-escala', String(escala));
+    t.style.setProperty('--tuc-toast-y', `${direction * y}px`);
+    t.style.setProperty('--tuc-toast-scale', String(scale));
     t.style.zIndex = String(100 - k);
-    t.classList.toggle('is-hidden', !isOpen && k >= VISIVEIS);
-    t.setAttribute('aria-hidden', !isOpen && k >= VISIVEIS ? 'true' : 'false');
+    t.classList.toggle('is-hidden', !isOpen && k >= VISIBLE);
+    t.setAttribute('aria-hidden', !isOpen && k >= VISIBLE ? 'true' : 'false');
 
-    acumulado += t.offsetHeight + GAP;
+    accrued += t.offsetHeight + GAP;
   }
 
   // A altura do palco acompanha o conteudo: sem isso o ponteiro nao alcanca
   // os de tras, e o leque abriria para fora da area sensivel.
-  const frontHeight = toasts[frente]?.offsetHeight ?? 0;
-  const total = isOpen ? acumulado - GAP : frontHeight + Math.min(toasts.length - 1, VISIVEIS - 1) * RECUO;
+  const frontHeight = toasts[front]?.offsetHeight ?? 0;
+  const total = isOpen ? accrued - GAP : frontHeight + Math.min(toasts.length - 1, VISIBLE - 1) * INDENT;
   stage.style.height = toasts.length ? `${total}px` : '0px';
 }
 
@@ -189,15 +189,15 @@ export class Toast {
     // nada na tela porque a posicao vem do palco, e nao da regiao.
     const urgent = type === 'error';
     this.node.setAttribute('role', urgent ? 'alert' : 'status');
-    const destino = this.container.querySelector(
+    const destination = this.container.querySelector(
       urgent ? '.is-urgent' : '.tuc-toasts__live:not(.is-urgent)');
-    if (destino !== this.regiao) {
-      destino.append(this.node);
-      this.regiao = destino;
+    if (destination !== this.region) {
+      destination.append(this.node);
+      this.region = destination;
     }
 
     clearTimeout(this.timer);
-    if (this.opts.duration) this._iniciarRelogio();
+    if (this.opts.duration) this._startClock();
     arrange(this.container);
     return this;
   }
@@ -216,22 +216,22 @@ export class Toast {
     this.node.dataset.seq = String(++seq);
     const target = container(this.opts.position);
     this.container = target;
-    const regiao = target.querySelector(urgent ? '.is-urgent' : '.tuc-toasts__live:not(.is-urgent)');
-    regiao.append(this.node);
-    this.regiao = regiao;
+    const region = target.querySelector(urgent ? '.is-urgent' : '.tuc-toasts__live:not(.is-urgent)');
+    region.append(this.node);
+    this.region = region;
 
     this._capStack(target);
     arrange(target);
 
     if (this.opts.duration) {
-      this._iniciarRelogio();
+      this._startClock();
       // Parar ao passar o mouse ou focar: ninguem consegue ler algo que some
       // enquanto se tenta clicar no botao dele.
       this._cleanups.push(
-        on(this.node, 'mouseenter', () => this._pausar()),
-        on(this.node, 'mouseleave', () => this._retomar()),
-        on(this.node, 'focusin', () => this._pausar()),
-        on(this.node, 'focusout', () => this._retomar()),
+        on(this.node, 'mouseenter', () => this._pause()),
+        on(this.node, 'mouseleave', () => this._resume()),
+        on(this.node, 'focusin', () => this._pause()),
+        on(this.node, 'focusout', () => this._resume()),
       );
     }
 
@@ -244,32 +244,32 @@ export class Toast {
    * A instancia fica no proprio no: sem isso nao ha como chamar close() a
    * partir do elemento, e o limite nao acontece.
    */
-  _capStack(cont) {
+  _capStack(container) {
     // O limite vale para a pilha inteira, nao por regiao de acessibilidade:
     // contadas em separado, tres avisos e tres erros passariam seis na tela.
-    const abertos = [...cont.querySelectorAll('.tuc-toast:not(.is-closing)')]
+    const openOnes = [...container.querySelectorAll('.tuc-toast:not(.is-closing)')]
       .sort((a, b) => +a.dataset.seq - +b.dataset.seq);
-    const excedente = abertos.length - this.opts.max;
-    for (let i = 0; i < excedente; i++) abertos[i]._tucano?.close();
+    const overflow = openOnes.length - this.opts.max;
+    for (let i = 0; i < overflow; i++) openOnes[i]._tucano?.close();
   }
 
-  _iniciarRelogio() {
-    this.restante = this.opts.duration;
-    this.inicio = Date.now();
-    this.timer = setTimeout(() => this.close(), this.restante);
+  _startClock() {
+    this.remaining = this.opts.duration;
+    this.start = Date.now();
+    this.timer = setTimeout(() => this.close(), this.remaining);
   }
 
-  _pausar() {
+  _pause() {
     if (!this.timer) return;
     clearTimeout(this.timer);
     this.timer = null;
-    this.restante -= Date.now() - this.inicio;
+    this.remaining -= Date.now() - this.start;
   }
 
-  _retomar() {
+  _resume() {
     if (this.timer || !this.opts.duration) return;
-    this.inicio = Date.now();
-    this.timer = setTimeout(() => this.close(), Math.max(this.restante, 0));
+    this.start = Date.now();
+    this.timer = setTimeout(() => this.close(), Math.max(this.remaining, 0));
   }
 
   close() {
@@ -285,8 +285,8 @@ export class Toast {
     arrange(this.container);
 
     const remove = () => {
-      if (this._removido) return;
-      this._removido = true;
+      if (this._removed) return;
+      this._removed = true;
       this.node.remove();
       arrange(this.container);
       this.node.dispatchEvent(new CustomEvent('tucano:toast-fechado'));
@@ -323,13 +323,13 @@ for (const type of ['info', 'success', 'warning', 'error', 'loading']) {
 toast.promise = (promise, msgs = {}) => {
   const { loading, success, error, ...rest } = msgs;
   const t = toast.loading(loading ?? 'Carregando...', rest);
-  const render = (v, dado, padrao) => {
-    const r = typeof v === 'function' ? v(dado) : v;
-    return r ?? padrao;
+  const render = (v, data, fallback) => {
+    const r = typeof v === 'function' ? v(data) : v;
+    return r ?? fallback;
   };
   Promise.resolve(promise).then(
-    (dado) => t.update({ type: 'success', text: render(success, dado, 'Pronto') }),
-    (falha) => t.update({ type: 'error', text: render(error, falha, 'Algo deu errado') }),
+    (data) => t.update({ type: 'success', text: render(success, data, 'Pronto') }),
+    (failure) => t.update({ type: 'error', text: render(error, failure, 'Algo deu errado') }),
   );
   return promise;
 };
@@ -340,7 +340,7 @@ function omitUndefined(obj) {
   return out;
 }
 
-const MAPA_DJANGO = { debug: 'info', info: 'info', success: 'success', warning: 'warning', error: 'error' };
+const DJANGO_MAP = { debug: 'info', info: 'info', success: 'success', warning: 'warning', error: 'error' };
 
 /**
  * Converte mensagens ja renderizadas em toast — a saida do framework de
@@ -355,9 +355,9 @@ export function autoInit(scope = document) {
   for (const node of scope.querySelectorAll('[data-tuc-toast]:not([data-tuc-ready])')) {
     node.setAttribute('data-tuc-ready', '');
     const d = node.dataset;
-    const bruto = (d.type || 'info').trim().split(/\s+/)[0];
+    const raw = (d.type || 'info').trim().split(/\s+/)[0];
     out.push(toast({
-      type: MAPA_DJANGO[bruto] ?? bruto,
+      type: DJANGO_MAP[raw] ?? raw,
       title: d.title || undefined,
       text: (d.text ?? node.textContent).trim(),
       duration: d.duration === 'false' ? null : (d.duration ? +d.duration : undefined),
@@ -375,8 +375,8 @@ export function autoInit(scope = document) {
  *       {"tucano:toast": {"type": "success", "text": "Salvo"}})})
  */
 export function listenForEvents() {
-  if (typeof document === 'undefined' || document.__tucToastOuvindo) return;
-  document.__tucToastOuvindo = true;
+  if (typeof document === 'undefined' || document.__tucToastListening) return;
+  document.__tucToastListening = true;
   document.body?.addEventListener('tucano:toast', (e) => {
     const d = e.detail;
     if (!d) return;

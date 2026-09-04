@@ -8,22 +8,22 @@
  * Qualquer outro caractere e literal e entra sozinho.
  */
 
-const MARCADORES = {
+const MARKERS = {
   '#': (c) => c >= '0' && c <= '9',
   'A': (c) => /[a-zA-Z]/.test(c),
   '*': (c) => /[0-9a-zA-Z]/.test(c),
 };
 
 export function isPlaceholder(c) {
-  return Object.hasOwn(MARCADORES, c);
+  return Object.hasOwn(MARKERS, c);
 }
 
 /** So os caracteres que podem ocupar um marcador do gabarito. */
 export function clear(value, template) {
-  const aceita = [...new Set([...template].filter(isPlaceholder))]
-    .map((m) => MARCADORES[m]);
-  if (!aceita.length) return '';
-  return [...String(value ?? '')].filter((c) => aceita.some((f) => f(c))).join('');
+  const accepts = [...new Set([...template].filter(isPlaceholder))]
+    .map((m) => MARKERS[m]);
+  if (!accepts.length) return '';
+  return [...String(value ?? '')].filter((c) => accepts.some((f) => f(c))).join('');
 }
 
 export function capacity(template) {
@@ -34,37 +34,37 @@ export function capacity(template) {
  * Distribui os caracteres pelo gabarito. O literal seguinte entra assim que o
  * grupo anterior fecha, para o usuario nao precisar digita-lo.
  */
-export function apply(caracteres, template) {
-  if (!caracteres.length) return '';
-  let saida = '';
+export function apply(chars, template) {
+  if (!chars.length) return '';
+  let exit = '';
   let i = 0;
   for (const ch of template) {
     if (isPlaceholder(ch)) {
       // Descarta o que nao serve para esta posicao sem gastar a vaga: uma letra
       // digitada onde so cabe digito nao pode empurrar o resto do gabarito.
-      let aceito = null;
-      while (i < caracteres.length) {
-        const candidato = caracteres[i++];
-        if (MARCADORES[ch](candidato)) { aceito = candidato; break; }
+      let accepted = null;
+      while (i < chars.length) {
+        const candidate = chars[i++];
+        if (MARKERS[ch](candidate)) { accepted = candidate; break; }
       }
-      if (aceito === null) break;
-      saida += aceito;
+      if (accepted === null) break;
+      exit += accepted;
     } else {
       // Literais entram sempre. O corte vem do break acima, quando acaba a
       // entrada — sem isso um gabarito que comeca com literal, como
       // "(##) #####-####", parava no primeiro caractere e devolvia vazio.
-      saida += ch;
+      exit += ch;
     }
   }
-  return saida;
+  return exit;
 }
 
 /** Posicao do cursor logo apos o n-esimo caractere preenchido. */
 export function cursorAfter(text, n) {
   if (n <= 0) return 0;
-  let vistos = 0;
+  let seen = 0;
   for (let i = 0; i < text.length; i++) {
-    if (/[0-9A-Za-z]/.test(text[i]) && ++vistos === n) return i + 1;
+    if (/[0-9A-Za-z]/.test(text[i]) && ++seen === n) return i + 1;
   }
   return text.length;
 }
@@ -73,10 +73,10 @@ export function cursorAfter(text, n) {
  * Escolhe o gabarito pelo tamanho do conteudo — telefone com 8 ou 9 digitos,
  * documento que pode ser CPF ou CNPJ.
  */
-export function pickTemplate(caracteres, templates) {
+export function pickTemplate(chars, templates) {
   const list = [].concat(templates);
   if (list.length === 1) return list[0];
-  const n = caracteres.length;
+  const n = chars.length;
   return list.find((g) => n <= capacity(g)) || list[list.length - 1];
 }
 
@@ -89,9 +89,9 @@ export function pickTemplate(caracteres, templates) {
  * 12,34. E como todo campo de valor se comporta, e o contrario do resto.
  */
 export function applyCurrency(digits, { decimals = 2, locale = 'pt-BR', currency = null } = {}) {
-  const limpos = String(digits).replace(/\D/g, '').replace(/^0+(?=\d)/, '');
-  if (!limpos) return '';
-  const n = Number(limpos) / 10 ** decimals;
+  const cleaned = String(digits).replace(/\D/g, '').replace(/^0+(?=\d)/, '');
+  if (!cleaned) return '';
+  const n = Number(cleaned) / 10 ** decimals;
   return n.toLocaleString(locale, {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
@@ -104,10 +104,10 @@ export function applyCurrency(digits, { decimals = 2, locale = 'pt-BR', currency
  * ------------------------------------------------------------------ */
 
 /** Digito verificador por soma ponderada, modulo 11. */
-function digitoModulo11(valores, pesoInicial) {
+function mod11Digit(values, startWeight) {
   let soma = 0;
-  let peso = pesoInicial;
-  for (const v of valores) {
+  let peso = startWeight;
+  for (const v of values) {
     soma += v * peso;
     peso = peso === 2 ? 9 : peso - 1;
   }
@@ -121,9 +121,9 @@ export function validateCPF(value) {
   if (/^(\d)\1{10}$/.test(d)) return false;   // 111.111.111-11 e afins
 
   const n = [...d].map(Number);
-  const dv1 = digitoModulo11(n.slice(0, 9), 10);
-  const dv2 = digitoModulo11(n.slice(0, 10), 11);
-  return dv1 === n[9] && dv2 === n[10];
+  const check1 = mod11Digit(n.slice(0, 9), 10);
+  const check2 = mod11Digit(n.slice(0, 10), 11);
+  return check1 === n[9] && check2 === n[10];
 }
 
 /**
@@ -140,10 +140,10 @@ export function validateCNPJ(value) {
   if (!/^[0-9A-Z]{12}\d{2}$/.test(s)) return false;
   if (/^(.)\1{13}$/.test(s)) return false;
 
-  const valores = [...s].map((c) => c.charCodeAt(0) - 48);
-  const dv1 = digitoModulo11(valores.slice(0, 12), 5);
-  const dv2 = digitoModulo11(valores.slice(0, 13), 6);
-  return dv1 === valores[12] && dv2 === valores[13];
+  const values = [...s].map((c) => c.charCodeAt(0) - 48);
+  const check1 = mod11Digit(values.slice(0, 12), 5);
+  const check2 = mod11Digit(values.slice(0, 13), 6);
+  return check1 === values[12] && check2 === values[13];
 }
 
 /** Aceita os dois, decidindo pelo tamanho. */
@@ -165,12 +165,12 @@ export function validateCpfCnpj(value) {
  * `123.456.789-01` sem precisar de input nenhum.
  */
 export function format(value, format, options = {}) {
-  const bruto = String(value ?? '').trim();
-  if (!bruto) return '';
+  const raw = String(value ?? '').trim();
+  if (!raw) return '';
 
   if (format === 'currency' || format === 'real') {
-    const n = typeof value === 'number' ? value : Number(bruto.replace(/\.(?=\d{3}\b)/g, '').replace(',', '.'));
-    if (!Number.isFinite(n)) return bruto;
+    const n = typeof value === 'number' ? value : Number(raw.replace(/\.(?=\d{3}\b)/g, '').replace(',', '.'));
+    if (!Number.isFinite(n)) return raw;
     const { decimals = 2, locale = 'pt-BR' } = options;
     const currency = options.currency ?? (format === 'real' ? 'BRL' : null);
     return n.toLocaleString(locale, {
@@ -181,13 +181,13 @@ export function format(value, format, options = {}) {
   }
 
   const templates = DISPLAY_TEMPLATES[format] ?? format;
-  const todos = [].concat(templates).join('');
-  const chars = clear(bruto, todos);
-  if (!chars) return bruto;
+  const all = [].concat(templates).join('');
+  const chars = clear(raw, all);
+  if (!chars) return raw;
   const template = pickTemplate(chars, templates);
   // Conteudo que nao preenche o gabarito volta como veio, em vez de sair
   // pela metade e parecer corrompido.
-  return chars.length === capacity(template) ? apply(chars, template) : bruto;
+  return chars.length === capacity(template) ? apply(chars, template) : raw;
 }
 
 const DISPLAY_TEMPLATES = {
@@ -196,7 +196,7 @@ const DISPLAY_TEMPLATES = {
   'cpf-cnpj': ['###.###.###-##', '**.***.***/****-##'],
   document: ['###.###.###-##', '**.***.***/****-##'],
   phone: ['(##) ####-####', '(##) #####-####'],
-  celular: '(##) #####-####',
+  mobile: '(##) #####-####',
   cep: '#####-###',
   card: '#### #### #### ####',
 };
@@ -212,20 +212,20 @@ const PONTO = '\u2022';
  *   'email' deixa a primeira letra e o dominio: `j•••@empresa.com.br`
  *   'tudo'  esconde tudo — para senha, token e chave
  */
-export function maskMiddle(text, visiveis = 2, modo = 'fim') {
+export function maskMiddle(text, visible = 2, mode = 'fim') {
   const s = String(text ?? '');
   if (!s) return s;
 
-  if (modo === 'email') return maskEmail(s);
+  if (mode === 'email') return maskEmail(s);
 
-  const alfanumerico = (c) => /[0-9A-Za-z]/.test(c);
-  const total = [...s].filter(alfanumerico).length;
-  const mostrar = modo === 'tudo' ? 0 : visiveis;
-  let vistos = 0;
+  const alphanumeric = (c) => /[0-9A-Za-z]/.test(c);
+  const total = [...s].filter(alphanumeric).length;
+  const show = mode === 'tudo' ? 0 : visible;
+  let seen = 0;
   return [...s].map((c) => {
-    if (!alfanumerico(c)) return modo === 'tudo' ? PONTO : c;
-    vistos++;
-    return vistos > total - mostrar ? c : PONTO;
+    if (!alphanumeric(c)) return mode === 'tudo' ? PONTO : c;
+    seen++;
+    return seen > total - show ? c : PONTO;
   }).join('');
 }
 
@@ -239,6 +239,6 @@ export function maskEmail(value) {
   const arroba = s.lastIndexOf('@');
   if (arroba < 1) return maskMiddle(s, 0, 'tudo');
   const local = s.slice(0, arroba);
-  const dominio = s.slice(arroba);
-  return local[0] + PONTO.repeat(Math.max(local.length - 1, 1)) + dominio;
+  const domain = s.slice(arroba);
+  return local[0] + PONTO.repeat(Math.max(local.length - 1, 1)) + domain;
 }

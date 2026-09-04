@@ -21,7 +21,7 @@ const DEFAULTS = {
   closeOnPick: true,
 };
 
-const FOCAVEIS = '.tuc-dropdown__item:not([disabled]):not([aria-disabled="true"])';
+const FOCUSABLE = '.tuc-dropdown__item:not([disabled]):not([aria-disabled="true"])';
 
 function withoutUndefined(obj) {
   const out = {};
@@ -93,16 +93,16 @@ export class Dropdown {
   }
 
   get items() {
-    return [...this.panel.querySelectorAll(FOCAVEIS)];
+    return [...this.panel.querySelectorAll(FOCUSABLE)];
   }
 
-  _move(step, absoluto = false) {
+  _move(step, absolute = false) {
     const items = this.items;
     if (!items.length) return;
-    const atual = items.indexOf(document.activeElement);
+    const current = items.indexOf(document.activeElement);
     let i;
-    if (absoluto) i = step < 0 ? items.length - 1 : 0;
-    else i = (atual + step + items.length) % items.length;
+    if (absolute) i = step < 0 ? items.length - 1 : 0;
+    else i = (current + step + items.length) % items.length;
     items[i]?.focus();
   }
 

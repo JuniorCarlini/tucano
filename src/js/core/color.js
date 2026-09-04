@@ -18,10 +18,10 @@ export function hsvToRgb({ h, s, v }) {
   const c = v * s;
   const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
   const m = v - c;
-  const setor = Math.floor(h / 60) % 6;
+  const sector = Math.floor(h / 60) % 6;
   const [r, g, b] = [
     [c, x, 0], [x, c, 0], [0, c, x], [0, x, c], [x, 0, c], [c, 0, x],
-  ][setor];
+  ][sector];
   return { r: round(r + m), g: round(g + m), b: round(b + m) };
 }
 

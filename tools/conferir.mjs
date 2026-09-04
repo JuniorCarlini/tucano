@@ -31,41 +31,41 @@ const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
  * ninguem espera que uma tag tenha a altura de um input, mas duas tags de
  * alturas diferentes, ou uma que estoure o campo, sao defeito.
  */
-const INTERNOS = {
-  'tag do select': { sel: '.tuc-select__tag', cabeEm: '.tuc-select' },
-  'opção do menu': { sel: '.tuc-select__option', cabeEm: null },
+const INNER = {
+  'tag do select': { sel: '.tuc-select__tag', fitsIn: '.tuc-select' },
+  'opção do menu': { sel: '.tuc-select__option', fitsIn: null },
 };
 
 /*
- * `digitavel` decide quem responde pela fonte minima. A regra dos 16px existe
+ * `typable` decide quem responde pela fonte minima. A regra dos 16px existe
  * para o iOS nao dar zoom ao focar um campo de texto — tocar num botao nao faz
  * isso, e cobrar 16px dele condenaria o is-sm, que existe justamente para ser
  * pequeno.
  */
-const ALVOS = {
-  'campo de data': { sel: '#c-data', digitavel: true },
-  'select': { sel: '.tuc-select', digitavel: true },
-  'campo com máscara': { sel: '#c-mask', digitavel: true },
-  'campo de cor': { sel: '.tuc-color-field', digitavel: true },
-  'campo de texto': { sel: '#c-input', digitavel: true },
+const TARGETS = {
+  'campo de data': { sel: '#c-data', typable: true },
+  'select': { sel: '.tuc-select', typable: true },
+  'campo com máscara': { sel: '#c-mask', typable: true },
+  'campo de cor': { sel: '.tuc-color-field', typable: true },
+  'campo de texto': { sel: '#c-input', typable: true },
   'botão padrão': { sel: '#c-btn' },
   'botão pequeno': { sel: '#c-btn-sm' },
   'botão grande': { sel: '#c-btn-lg' },
   'botão de ícone': { sel: '#c-icone' },
 };
 
-const ESPERADO = {
-  desktop: { largura: 1280, altura: 38, variantes: { 'botão pequeno': 30, 'botão grande': 44 } },
+const EXPECTED = {
+  desktop: { width: 1280, height: 38, variants: { 'botão pequeno': 30, 'botão grande': 44 } },
   /*
    * 500 e nao 375: o Chrome sem cabeca nao encolhe a janela abaixo disso. Serve
    * ao proposito porque o corte do compacto e 40rem (640px), entao as regras de
    * toque entram do mesmo jeito — mas o numero relatado e o real, para ninguem
    * ler 375 e acreditar que foi medido ali.
    */
-  celular: { largura: 500, altura: 44, fonteMinima: 16, variantes: { 'botão pequeno': 30, 'botão grande': 44 } },
+  mobile: { width: 500, height: 44, minFontSize: 16, variants: { 'botão pequeno': 30, 'botão grande': 44 } },
 };
 
-const pagina = () => `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
+const page = () => `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
 <style>${readFileSync('dist/tucano.css', 'utf8')}
 body{margin:0;padding:16px;font-family:system-ui,sans-serif}</style></head><body>
 <input data-tuc-datepicker id="c-data">
@@ -83,80 +83,80 @@ body{margin:0;padding:16px;font-family:system-ui,sans-serif}</style></head><body
 (function () {
   try {
     Tucano.init(document);
-    var alvos = ${JSON.stringify(ALVOS)}, out = {};
-    for (var nome in alvos) {
-      var el = document.querySelector(alvos[nome].sel);
-      out[nome] = el ? { altura: Math.round(el.getBoundingClientRect().height), fonte: getComputedStyle(el).fontSize, digitavel: !!alvos[nome].digitavel } : null;
+    var targets = ${JSON.stringify(TARGETS)}, out = {};
+    for (var name in targets) {
+      var el = document.querySelector(targets[name].sel);
+      out[name] = el ? { height: Math.round(el.getBoundingClientRect().height), fontSize: getComputedStyle(el).fontSize, typable: !!targets[name].typable } : null;
     }
     // O menu so existe aberto: precisa disso para medir a opcao.
     document.querySelector('#c-select')._tucano.open();
-    var internos = ${JSON.stringify(INTERNOS)}, dentro = {};
-    for (var k in internos) {
-      var e = document.querySelector(internos[k].sel);
-      if (!e) { dentro[k] = null; continue; }
-      var pai = internos[k].cabeEm ? document.querySelector(internos[k].cabeEm) : null;
-      dentro[k] = {
-        altura: Math.round(e.getBoundingClientRect().height),
-        fonte: getComputedStyle(e).fontSize,
-        cabe: pai ? e.getBoundingClientRect().height <= pai.getBoundingClientRect().height : null,
+    var inner = ${JSON.stringify(INNER)}, within = {};
+    for (var k in inner) {
+      var e = document.querySelector(inner[k].sel);
+      if (!e) { within[k] = null; continue; }
+      var parent = inner[k].fitsIn ? document.querySelector(inner[k].fitsIn) : null;
+      within[k] = {
+        height: Math.round(e.getBoundingClientRect().height),
+        fontSize: getComputedStyle(e).fontSize,
+        fitsIn: parent ? e.getBoundingClientRect().height <= parent.getBoundingClientRect().height : null,
       };
     }
-    out.__internos = dentro;
-    out.__largura = innerWidth;
+    out.__inner = within;
+    out.__width = innerWidth;
     document.getElementById('resultado').textContent = JSON.stringify(out);
   } catch (e) {
-    document.getElementById('resultado').textContent = JSON.stringify({ __erro: String(e) });
+    document.getElementById('resultado').textContent = JSON.stringify({ __error: String(e) });
   }
 })();
 </script></body></html>`;
 
-async function medir(largura, arquivo) {
+async function measure(width, file) {
   const { stdout } = await exec(CHROME, [
     '--headless=new', '--disable-gpu', '--hide-scrollbars',
-    `--window-size=${largura},900`, '--virtual-time-budget=3000',
-    '--dump-dom', `file://${arquivo}`,
+    `--window-size=${width},900`, '--virtual-time-budget=3000',
+    '--dump-dom', `file://${file}`,
   ], { maxBuffer: 40 * 1024 * 1024 });
   const m = stdout.match(/<pre id="resultado">([\s\S]*?)<\/pre>/);
   if (!m || !m[1].trim()) throw new Error('a página de medidas não produziu resultado');
-  const dados = JSON.parse(m[1].replace(/&quot;/g, '"').replace(/&amp;/g, '&'));
-  if (dados.__erro) throw new Error(dados.__erro);
-  return dados;
+  const data = JSON.parse(m[1].replace(/&quot;/g, '"').replace(/&amp;/g, '&'));
+  if (data.__error) throw new Error(data.__error);
+  return data;
 }
 
-const arquivo = join(tmpdir(), `tucano-medidas-${process.pid}.html`);
-writeFileSync(arquivo, pagina());
+const file = join(tmpdir(), `tucano-medidas-${process.pid}.html`);
+writeFileSync(file, page());
 
-let falhas = 0;
+let failures = 0;
 try {
-  for (const [tela, regra] of Object.entries(ESPERADO)) {
-    const medidas = await medir(regra.largura, arquivo);
-    console.log(`\n${tela} (${medidas.__largura}px) — padrão ${regra.altura}px${regra.fonteMinima ? `, fonte mínima ${regra.fonteMinima}px` : ''}`);
+  for (const [screen, rule] of Object.entries(EXPECTED)) {
+    const measures = await measure(rule.width, file);
+    console.log(`\n${screen} (${measures.__width}px) — padrão ${rule.height}px${rule.minFontSize ? `, fonte mínima ${rule.minFontSize}px` : ''}`);
 
-    for (const [nome, valor] of Object.entries(medidas)) {
-      if (nome.startsWith('__')) continue;
-      if (!valor) { console.log(`  ausente  ${nome}`); falhas++; continue; }
+    for (const [name, value] of Object.entries(measures)) {
+      if (name.startsWith('__')) continue;
+      if (!value) { console.log(`  ausente  ${name}`); failures++; continue; }
 
-      const alvo = regra.variantes[nome] ?? regra.altura;
-      const erros = [];
-      if (valor.altura !== alvo) erros.push(`altura ${valor.altura} ≠ ${alvo}`);
-      if (valor.digitavel && regra.fonteMinima && parseFloat(valor.fonte) < regra.fonteMinima) {
-        erros.push(`fonte ${valor.fonte} — abaixo de ${regra.fonteMinima}px o iOS dá zoom`);
+      const target = rule.variants[name] ?? rule.height;
+      const errors = [];
+      if (value.height !== target) errors.push(`altura ${value.height} ≠ ${target}`);
+      if (value.typable && rule.minFontSize && parseFloat(value.fontSize) < rule.minFontSize) {
+        errors.push(`fonte ${value.fontSize} — abaixo de ${rule.minFontSize}px o iOS dá zoom`);
       }
-      console.log(`  ${erros.length ? 'FALHA ' : 'ok    '} ${nome.padEnd(20)} ${String(valor.altura).padStart(3)}px / ${valor.fonte.padStart(5)}${erros.length ? '   ' + erros.join('; ') : ''}`);
-      falhas += erros.length ? 1 : 0;
+      console.log(`  ${errors.length ? 'FALHA ' : 'ok    '} ${name.padEnd(20)} ${String(value.height).padStart(3)}px / ${value.fontSize.padStart(5)}${errors.length ? '   ' + errors.join('; ') : ''}`);
+      failures += errors.length ? 1 : 0;
     }
 
     console.log('  — partes internas, que tem altura propria —');
-    for (const [nome, v] of Object.entries(medidas.__internos ?? {})) {
-      if (!v) { console.log(`  ausente  ${nome}`); falhas++; continue; }
-      const erros = [];
-      if (v.cabe === false) erros.push('mais alta que o campo que a contém');
-      console.log(`  ${erros.length ? 'FALHA ' : 'ok    '} ${nome.padEnd(20)} ${String(v.altura).padStart(3)}px / ${v.fonte.padStart(5)}${erros.length ? '   ' + erros.join('; ') : ''}`);
-      falhas += erros.length ? 1 : 0;
+    for (const [name, v] of Object.entries(measures.__inner ?? {})) {
+      if (!v) { console.log(`  ausente  ${name}`); failures++; continue; }
+      const errors = [];
+      if (v.fitsIn === false) errors.push('mais alta que o campo que a contém');
+      console.log(`  ${errors.length ? 'FALHA ' : 'ok    '} ${name.padEnd(20)} ${String(v.height).padStart(3)}px / ${v.fontSize.padStart(5)}${errors.length ? '   ' + errors.join('; ') : ''}`);
+      failures += errors.length ? 1 : 0;
     }
   }
 } finally {
-  unlinkSync(arquivo);
+  unlinkSync(file);
 }
 
 /*
@@ -173,17 +173,17 @@ try {
  * quadro o campo em espera tem de estar igual a um .tuc-input de verdade, que
  * e classe pura e nunca depende de JavaScript. Vale nos dois temas.
  */
-const ESPERA = ['[data-tuc-datepicker]', '[data-tuc-mask]', '[data-tuc-select]', '[data-tuc-color]'];
+const WAIT = ['[data-tuc-datepicker]', '[data-tuc-mask]', '[data-tuc-select]', '[data-tuc-color]'];
 
-const paginaEspera = () => `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
+const waitPage = () => `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
 <style>${readFileSync('dist/tucano.css', 'utf8')}
 body{margin:0;padding:16px;font-family:system-ui,sans-serif}</style></head><body>
-<div id="claro">
+<div id="light">
   <input type="text" class="tuc-input" data-ref>
   <input data-tuc-datepicker><input data-tuc-mask="cpf-cnpj"><input data-tuc-color>
   <select data-tuc-select><option>Um</option></select>
 </div>
-<div id="escuro" class="dark">
+<div id="dark" class="dark">
   <input type="text" class="tuc-input" data-ref>
   <input data-tuc-datepicker><input data-tuc-mask="cpf-cnpj"><input data-tuc-color>
   <select data-tuc-select><option>Um</option></select>
@@ -192,50 +192,50 @@ body{margin:0;padding:16px;font-family:system-ui,sans-serif}</style></head><body
 <script>
 (function () {
   try {
-    var alvos = ${JSON.stringify(ESPERA)}, out = {};
-    ['claro', 'escuro'].forEach(function (tema) {
-      var raiz = document.getElementById(tema);
-      var lido = function (el) {
+    var targets = ${JSON.stringify(WAIT)}, out = {};
+    ['light', 'dark'].forEach(function (theme) {
+      var root = document.getElementById(theme);
+      var read = function (el) {
         var c = getComputedStyle(el);
         return {
-          altura: Math.round(el.getBoundingClientRect().height),
-          raio: c.borderTopLeftRadius, fundo: c.backgroundColor,
-          borda: c.borderTopWidth + ' ' + c.borderTopStyle + ' ' + c.borderTopColor,
+          height: Math.round(el.getBoundingClientRect().height),
+          radius: c.borderTopLeftRadius, background: c.backgroundColor,
+          border: c.borderTopWidth + ' ' + c.borderTopStyle + ' ' + c.borderTopColor,
         };
       };
-      var grupo = { __ref: lido(raiz.querySelector('[data-ref]')) };
-      alvos.forEach(function (sel) {
-        var el = raiz.querySelector(sel);
-        grupo[sel] = el ? lido(el) : null;
+      var group = { __ref: read(root.querySelector('[data-ref]')) };
+      targets.forEach(function (sel) {
+        var el = root.querySelector(sel);
+        group[sel] = el ? read(el) : null;
       });
-      out[tema] = grupo;
+      out[theme] = group;
     });
     document.getElementById('resultado').textContent = JSON.stringify(out);
   } catch (e) {
-    document.getElementById('resultado').textContent = JSON.stringify({ __erro: String(e) });
+    document.getElementById('resultado').textContent = JSON.stringify({ __error: String(e) });
   }
 })();
 </script></body></html>`;
 
-const arquivoEspera = join(tmpdir(), `tucano-espera-${process.pid}.html`);
-writeFileSync(arquivoEspera, paginaEspera());
+const waitFile = join(tmpdir(), `tucano-espera-${process.pid}.html`);
+writeFileSync(waitFile, waitPage());
 try {
-  const espera = await medir(1280, arquivoEspera);
+  const wait = await measure(1280, waitFile);
   console.log('\nestado de espera (antes do script) — igual a um .tuc-input de verdade');
-  for (const [tema, grupo] of Object.entries(espera)) {
-    const ref = grupo.__ref;
-    for (const [sel, v] of Object.entries(grupo)) {
+  for (const [theme, group] of Object.entries(wait)) {
+    const ref = group.__ref;
+    for (const [sel, v] of Object.entries(group)) {
       if (sel === '__ref') continue;
-      if (!v) { console.log(`  ausente  ${tema} ${sel}`); falhas++; continue; }
-      const erros = Object.keys(ref).filter((k) => v[k] !== ref[k])
+      if (!v) { console.log(`  ausente  ${theme} ${sel}`); failures++; continue; }
+      const errors = Object.keys(ref).filter((k) => v[k] !== ref[k])
         .map((k) => `${k} ${v[k]} ≠ ${ref[k]}`);
-      console.log(`  ${erros.length ? 'FALHA ' : 'ok    '} ${(tema + ' ' + sel).padEnd(34)}${erros.length ? erros.join('; ') : v.altura + 'px'}`);
-      falhas += erros.length ? 1 : 0;
+      console.log(`  ${errors.length ? 'FALHA ' : 'ok    '} ${(theme + ' ' + sel).padEnd(34)}${errors.length ? errors.join('; ') : v.height + 'px'}`);
+      failures += errors.length ? 1 : 0;
     }
   }
 } finally {
-  unlinkSync(arquivoEspera);
+  unlinkSync(waitFile);
 }
 
-console.log(falhas ? `\n${falhas} fora do padrão` : '\ntodos os controles respeitam o padrão');
-process.exit(falhas ? 1 : 0);
+console.log(failures ? `\n${failures} fora do padrão` : '\ntodos os controles respeitam o padrão');
+process.exit(failures ? 1 : 0);

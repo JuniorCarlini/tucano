@@ -105,7 +105,7 @@ export class Popover {
    * isso ele desaparece no mesmo quadro, e so a entrada tem movimento — o
    * fechamento fica seco em comparacao.
    */
-  hide({ animar = true } = {}) {
+  hide({ animate = true } = {}) {
     if (!this.open) return;
     this.open = false;
     this._cleanups.forEach((fn) => fn());
@@ -114,7 +114,7 @@ export class Popover {
     this._ro = null;
 
     clearTimeout(this._exitTimer);
-    if (!animar) { this.panel.classList.remove('is-closing'); this.panel.remove(); return; }
+    if (!animate) { this.panel.classList.remove('is-closing'); this.panel.remove(); return; }
 
     this.panel.classList.add('is-closing');
     this._exitTimer = setTimeout(() => {
@@ -155,16 +155,16 @@ export class Popover {
      * lado pedido nao cabe E o oposto cabe melhor — trocar de lado por trocar
      * faria o painel pular a cada rolagem.
      */
-    const deitado = side === 'left' || side === 'right';
+    const landscape = side === 'left' || side === 'right';
     let placeSide = side;
     let top;
     let left;
 
-    if (deitado) {
-      const folgaDir = vw - a.right - this.offset;
-      const folgaEsq = a.left - this.offset;
-      if (side === 'right' && p.width > folgaDir && folgaEsq > folgaDir) placeSide = 'left';
-      if (side === 'left' && p.width > folgaEsq && folgaDir > folgaEsq) placeSide = 'right';
+    if (landscape) {
+      const gapRight = vw - a.right - this.offset;
+      const gapLeft = a.left - this.offset;
+      if (side === 'right' && p.width > gapRight && gapLeft > gapRight) placeSide = 'left';
+      if (side === 'left' && p.width > gapLeft && gapRight > gapLeft) placeSide = 'right';
 
       left = placeSide === 'left' ? a.left - p.width - this.offset : a.right + this.offset;
 
@@ -233,21 +233,21 @@ export class Popover {
      * suba no canto arredondado, onde sairia meia seta.
      */
     if (this._arrow) {
-      const meia = this._arrow.offsetWidth / 2;
-      const limite = 12 + meia;
+      const half = this._arrow.offsetWidth / 2;
+      const limit = 12 + half;
       /*
        * Num balao curto — uma dica de uma linha tem ~31px — o limite passa da
        * metade e os dois extremos se cruzam, empurrando a seta para longe do
        * centro justamente onde ela deveria estar bem no meio. Nesse caso o
        * centro e o melhor lugar possivel.
        */
-      const preso = (v, total) =>
-        (total <= limite * 2 ? total / 2 : Math.min(Math.max(v, limite), total - limite));
-      if (deitado) {
-        this._arrow.style.top = `${preso(a.top + a.height / 2 - top, p.height)}px`;
+      const trapped = (v, total) =>
+        (total <= limit * 2 ? total / 2 : Math.min(Math.max(v, limit), total - limit));
+      if (landscape) {
+        this._arrow.style.top = `${trapped(a.top + a.height / 2 - top, p.height)}px`;
         this._arrow.style.left = placeSide === 'left' ? `${p.width}px` : '0px';
       } else {
-        this._arrow.style.left = `${preso(a.left + a.width / 2 - left, p.width)}px`;
+        this._arrow.style.left = `${trapped(a.left + a.width / 2 - left, p.width)}px`;
         this._arrow.style.top = placeSide === 'top' ? `${p.height}px` : '0px';
       }
     }

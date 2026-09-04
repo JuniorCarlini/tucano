@@ -71,8 +71,8 @@ export function confirm(options = {}) {
   // que veio de fora, um dialogo vermelho ganhava botao azul de confirmar.
   const tone = rest.tone ?? 'danger';
   return new Promise((resolve) => {
-    let decidido = false;
-    const responder = (v) => { decidido = true; resolve(v); };
+    let decided = false;
+    const responder = (v) => { decided = true; resolve(v); };
     new Modal({
       ...rest,
       tone,
@@ -82,7 +82,7 @@ export function confirm(options = {}) {
       ],
       // Fechar pelo X, pelo Escape ou pelo fundo e uma recusa, nao um limbo:
       // sem isto a promessa ficaria pendente para sempre.
-      onClose: (motivo, m) => { if (!decidido) resolve(false); rest.onClose?.(motivo, m); },
+      onClose: (reason, m) => { if (!decided) resolve(false); rest.onClose?.(reason, m); },
     }).open();
   });
 }
@@ -101,7 +101,7 @@ export function autoInit(scope = document) {
     node.setAttribute('data-tuc-ready', '');
     const d = node.dataset;
     const m = Object.create(Modal.prototype);
-    m.opts = { ...DEFAULTS, closable: d.closable !== 'false', closeOnBackdrop: d.fundo !== 'false' };
+    m.opts = { ...DEFAULTS, closable: d.closable !== 'false', closeOnBackdrop: d.backdrop !== 'false' };
     m.id = node.id || nextId('modal');
     m._cleanups = [];
     m.panel = node.querySelector('.tuc-modal__panel');

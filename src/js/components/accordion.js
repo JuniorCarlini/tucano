@@ -103,10 +103,10 @@ export class Accordion {
   open(item) {
     // Reabrir no meio do fechamento e comum: cancela a saida e segue do ponto
     // em que a altura estava, sem esperar o fim da animacao anterior.
-    item._tucEncerrar?.();
+    item._tucTeardown?.();
     if (item.open) return this;
     if (this.opts.single) {
-      for (const outro of this.items) if (outro !== item && outro.open) this.close(outro);
+      for (const other of this.items) if (other !== item && other.open) this.close(other);
     }
     item.open = true;
     return this;
@@ -120,22 +120,22 @@ export class Accordion {
     // pode encolher animado. Removido agora, sumiria de uma vez.
     item.classList.add('is-closing');
 
-    const encerrar = () => {
+    const teardown = () => {
       clearTimeout(item._tucExit);
-      body?.removeEventListener('transitionend', aoFim);
-      item._tucEncerrar = null;
+      body?.removeEventListener('transitionend', onDone);
+      item._tucTeardown = null;
       item.classList.remove('is-closing');
       item.open = false;
     };
-    const aoFim = (e) => {
+    const onDone = (e) => {
       // So a linha do grid encerra: o corpo tem outras propriedades animando,
       // e qualquer uma delas fecharia o item cedo demais.
-      if (e.target === body && e.propertyName === 'grid-template-rows') encerrar();
+      if (e.target === body && e.propertyName === 'grid-template-rows') teardown();
     };
 
-    item._tucEncerrar = () => { encerrar(); item.classList.remove('is-closing'); };
-    body?.addEventListener('transitionend', aoFim);
-    item._tucExit = setTimeout(encerrar, SAFETY_MS);
+    item._tucTeardown = () => { teardown(); item.classList.remove('is-closing'); };
+    body?.addEventListener('transitionend', onDone);
+    item._tucExit = setTimeout(teardown, SAFETY_MS);
     return this;
   }
 

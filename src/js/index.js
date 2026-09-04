@@ -26,7 +26,7 @@ import { autoInit as autoInitToast, listenForEvents } from './components/toast.j
 import { autoInit as autoInitTip } from './components/tooltip.js';
 import { autoInit as autoInitModal } from './components/modal.js';
 import { autoInit as autoInitDrawer } from './components/drawer.js';
-import { autoInit as autoInitAcordeao } from './components/accordion.js';
+import { autoInit as autoInitAccordion } from './components/accordion.js';
 import { autoInit as autoInitDropdown } from './components/dropdown.js';
 import { autoInit as autoInitEditor } from './components/editor.js';
 import { autoInit as autoInitProse } from './core/highlight.js';
@@ -42,10 +42,10 @@ export function init(scope = document) {
     formatted: autoFormat(scope),
     toasts: autoInitToast(scope),
     modals: autoInitModal(scope),
-    gavetas: autoInitDrawer(scope),
-    accordions: autoInitAcordeao(scope),
+    drawers: autoInitDrawer(scope),
+    accordions: autoInitAccordion(scope),
     dropdowns: autoInitDropdown(scope),
-    ricos: autoInitEditor(scope),
+    editors: autoInitEditor(scope),
     prose: autoInitProse(scope),
     // Por último de propósito: componentes que criam a própria barra de botões
     // marcam neles `data-tuc-tip`, e esses elementos só existem depois que eles

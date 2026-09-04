@@ -158,7 +158,7 @@ export class DatePicker {
     this._releaseFocus = null;
     this.input.setAttribute('aria-expanded', 'false');
 
-    if (restoreFocus && !this._compacto) {
+    if (restoreFocus && !this._compact) {
       // Devolver o foco ao input dispararia 'focus' e reabriria o painel na hora
       // — era isso que fazia o calendario piscar ao escolher um dia.
       this._suppressOpen = true;
@@ -220,7 +220,7 @@ export class DatePicker {
    * concordar. A condicao de toque entra junto para nao desabilitar a
    * digitacao numa janela estreita de desktop.
    */
-  get _compacto() {
+  get _compact() {
     if (typeof window === 'undefined') return false;
     return !!window.matchMedia?.('(max-width: 40rem) and (pointer: coarse)').matches;
   }
@@ -236,7 +236,7 @@ export class DatePicker {
      * teclado, que cobriria o calendario. Quem digita e o desktop; no celular
      * a entrada e o proprio painel.
      */
-    if (this._compacto) {
+    if (this._compact) {
       input.readOnly = true;
       this._cleanups.push(on(input, 'pointerdown', (e) => {
         e.preventDefault();
@@ -245,7 +245,7 @@ export class DatePicker {
     }
 
     input.setAttribute('autocomplete', 'off');
-    this._mask = this._compacto ? null : this._maskTemplate();
+    this._mask = this._compact ? null : this._maskTemplate();
     this._maskDigits = '';
     if (this._mask) {
       input.setAttribute('inputmode', 'numeric');
@@ -266,7 +266,7 @@ export class DatePicker {
 
     this._cleanups.push(
       on(input, 'focus', () => { if (this.opts.openOnFocus && !this._suppressOpen) this.open(); }),
-      on(input, 'click', () => { if (!this._suppressOpen && !this._compacto) this.open(); }),
+      on(input, 'click', () => { if (!this._suppressOpen && !this._compact) this.open(); }),
       on(input, 'keydown', (e) => {
         if (e.key === 'ArrowDown' && !this.isOpen) { e.preventDefault(); this.open(); }
         /*
@@ -422,20 +422,20 @@ export class DatePicker {
     const input = this.input;
     const raw = input.value;
     const caret = input.selectionStart ?? raw.length;
-    const apagando = typeof e.inputType === 'string' && e.inputType.startsWith('delete');
+    const deleting = typeof e.inputType === 'string' && e.inputType.startsWith('delete');
 
     let digits = raw.replace(/\D/g, '');
-    let antes = raw.slice(0, caret).replace(/\D/g, '').length;
+    let before = raw.slice(0, caret).replace(/\D/g, '').length;
 
     // Digitos iguais aos de antes = so um separator foi apagado. Nesse caso
     // removemos o digito vizinho ao cursor — senao a mascara recolocaria o
     // separator na hora e a tecla nao faria nada.
-    if (apagando && digits === this._maskDigits) {
-      const paraFrente = e.inputType === 'deleteContentForward';
-      const idx = paraFrente ? antes : antes - 1;
+    if (deleting && digits === this._maskDigits) {
+      const forward = e.inputType === 'deleteContentForward';
+      const idx = forward ? before : before - 1;
       if (idx >= 0 && idx < digits.length) {
         digits = digits.slice(0, idx) + digits.slice(idx + 1);
-        if (!paraFrente) antes -= 1;
+        if (!forward) before -= 1;
       }
     }
     digits = digits.slice(0, this._maskSlots());
@@ -443,7 +443,7 @@ export class DatePicker {
     const masked = maskFormat(digits, this._mask);
     this._maskDigits = digits;
     input.value = masked;
-    const pos = caretAfterDigits(masked, Math.min(antes, digits.length));
+    const pos = caretAfterDigits(masked, Math.min(before, digits.length));
     input.setSelectionRange(pos, pos);
 
     if (digits.length === this._maskSlots()) this._previewTyped();
@@ -457,9 +457,9 @@ export class DatePicker {
     const raw = this.input.value;
     if (this.isRange) {
       const [a, b] = raw.split(/\s*—\s*/);
-      const inicio = this._keepTime(parseUserInput(a, this.opts.locale), this.start);
-      if (!inicio) return;
-      this.start = inicio;
+      const start = this._keepTime(parseUserInput(a, this.opts.locale), this.start);
+      if (!start) return;
+      this.start = start;
       this.end = this._keepTime(parseUserInput(b, this.opts.locale), this.end);
       this.pendingRange = false;
     } else {
@@ -1027,8 +1027,8 @@ function revealSelected(list) {
 }
 
 /**
- * Distribui os digitos pelo template ("##/##/######/##/####"), inserindo os separadores.
- * O separator entra assim que o grupo anterior fecha, para o user nao
+ * Distribui os digitos pelo template ("##/##/######/##/######/##/######/##/####"), inserting os separators.
+ * O separator entra assim que o group anterior closes, para o user nao
  * precisar digita-lo.
  */
 function maskFormat(digits, template) {
@@ -1046,7 +1046,7 @@ function maskFormat(digits, template) {
   return out;
 }
 
-/** Position do cursor logo after o n-esimo digito do text ja mascarado. */
+/** Position do cursor logo after o n-esimo digito do text ja masked. */
 function caretAfterDigits(masked, n) {
   if (n <= 0) return 0;
   let seen = 0;
@@ -1060,7 +1060,7 @@ function floorTo(value, size) {
   return Math.floor(value / size) * size;
 }
 
-/** Numero da semana ISO-8601. */
+/** Numero da week ISO-8601. */
 function isoWeek(date) {
   const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
   d.setDate(d.getDate() + 3 - ((d.getDay() + 6) % 7));
@@ -1069,7 +1069,7 @@ function isoWeek(date) {
 }
 
 /**
- * Inicializa todo [data-tuc-datepicker] do escopo. Options vem de data-attributes:
+ * Inicializa todo [data-tuc-datepicker] do scope. Options vem de data-attributes:
  * data-mode, data-time, data-min, data-max, data-months, data-locale, data-format...
  */
 export function autoInit(scope = document) {

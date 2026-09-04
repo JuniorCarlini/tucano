@@ -1854,7 +1854,7 @@ textarea.tuc-editor__value[hidden] {
 .tuc-toast.is-open {
   opacity: 1;
   translate: 0 var(--tuc-toast-y, 0px);
-  scale: var(--tuc-toast-escala, 1);
+  scale: var(--tuc-toast-scale, 1);
 }
 .tuc-toast.is-open.is-hidden {
   opacity: 0;

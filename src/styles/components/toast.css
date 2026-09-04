@@ -92,7 +92,7 @@
 .tuc-toast.is-open {
   opacity: 1;
   translate: 0 var(--tuc-toast-y, 0px);
-  scale: var(--tuc-toast-escala, 1);
+  scale: var(--tuc-toast-scale, 1);
 }
 
 /* Alem do terceiro, some — pilha de dez nao ajuda ninguem. */

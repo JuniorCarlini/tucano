@@ -171,7 +171,7 @@ exatamente o que receberia sem o componente — inclusive `getlist()` no múltip
 
 ```js
 const s = new Tucano.Select('#uf', { search: true, maxItems: 3 });
-s.getValue();          // 'SP'  (array no modo multiplo)
+s.getValue();          // 'SP'  (array no mode multiple)
 s.setValue(['a','b']);
 s.refresh();           // releia as <option> after de um swap do HTMX
 ```
@@ -202,7 +202,7 @@ vazia remove a última tag, `Home`/`End` vão às pontas.
 
 ```html
 <input type="text" name="color" value="#4f46e5" data-tuc-color>
-<input type="text" name="marca" value="#0d9488" data-tuc-color data-alpha="false"
+<input type="text" name="mark" value="#0d9488" data-tuc-color data-alpha="false"
        data-swatches="#0a0a0a,#ea580c,#16a34a">
 ```
 
@@ -252,9 +252,9 @@ repetir. O formulário posta só os ids devolvidos. Funciona também sem `<form>
 
 ```python
 def upload_temp(request):
-    arquivo = request.FILES["file"]
-    temp = TempUpload.objects.create(arquivo=arquivo)
-    return JsonResponse({"id": str(temp.id), "url": temp.arquivo.url})
+    file = request.FILES["file"]
+    temp = TempUpload.objects.create(file=file)
+    return JsonResponse({"id": str(temp.id), "url": temp.file.url})
 ```
 
 | Atributo | Padrão | O que faz |
@@ -338,13 +338,13 @@ O tipo `loading` não fecha sozinho: quem o encerra é o fim da operação. E el
 vira o resultado **no mesmo cartão**, em vez de fechar um e abrir outro:
 
 ```js
-const t = Tucano.toast.loading('Enviando arquivo...');
+const t = Tucano.toast.loading('Enviando file...');
 await enviar();
 t.update({ type: 'success', text: 'Arquivo enviado' });
 
 // ou entregue a promise e deixe os três estados por fieldRow dela
 Tucano.toast.promise(fetch(url), {
-  loading: 'Enviando arquivo...',
+  loading: 'Enviando file...',
   success: (r) => `Enviado (${r.status})`,
   error: 'Não deu para enviar',
 });
@@ -388,9 +388,9 @@ Armadilha de foco, devolução do foco e `Escape` vêm junto.
 Tucano.modal({
   title: 'Excluir contrato',
   text: 'Esta ação não pode ser desfeita.',
-  tone: 'perigo',      // padrao | perigo | success | warning — muda o brilho do fundo
+  tone: 'danger',      // default | danger | success | warning — muda o brilho do backdrop
   size: 'md',      // sm | md | lg | full
-  sheet: true,        // no celular sobe do rodapé
+  sheet: true,        // no mobile sobe do rodapé
   actions: [
     { text: 'Cancelar', variant: 'outline' },
     { text: 'Excluir', variant: 'danger', onClick: () => excluir() },
@@ -436,7 +436,7 @@ import 'tucano/auto';   // comporta-se como o script do CDN
 
 ```js
 Tucano.sanitize(html)  // aplica a peneira de tags do editor
-Tucano.highlight(code) // devolve o código com marcação de color
+Tucano.highlight(code) // devolve o código com markção de color
 Tucano.init(elemento)   // inicializa data-tuc-* num trecho novo de HTML
 ```
 
@@ -542,7 +542,7 @@ new Tucano.Dropdown('#actions', {
     { text: 'Editar', shortcut: '⌘E', onClick: () => abrirEdicao() },
     { text: 'Abrir', href: '/contratos/12/' },
     { separator: true },
-    { text: 'Excluir', variant: 'perigo', onClick: () => excluir() },
+    { text: 'Excluir', variant: 'danger', onClick: () => excluir() },
   ],
 });
 ```
@@ -559,7 +559,7 @@ mecânica do `<dialog>` — *top layer*, foco preso, `Esc`, foco devolvido — e
 uma correção num deles vale para o outro:
 
 ```js
-Tucano.drawer({ title: 'Filtros', side: 'right' })  // left | right | cima | baixo
+Tucano.drawer({ title: 'Filtros', side: 'right' })  // left | right | top | bottom
   .content(formulario);
 ```
 
@@ -594,7 +594,7 @@ A cor sai por duas variáveis, e a seta lê as mesmas:
 ```
 
 ```html
-<button data-tuc-tip="Gera o PDF com o layout atual">Exportar</button>
+<button data-tuc-tip="Gera o PDF com o layout current">Exportar</button>
 <button data-tuc-tip title="Vem do title">Do title</button>
 <button data-tuc-tip="..." data-placement="right-center" data-delay="600">
 <button data-tuc-tip="..." data-tip-class="tip-roxo">
@@ -718,8 +718,8 @@ O seletor do sistema (a roda do iOS, o diálogo do Android) é opt-in:
 
 ```js
 native: false     // padrão: o panel em todo lugar
-native: 'auto'    // seletor do sistema onde o ponteiro é de toque
-native: true      // sempre o seletor do sistema
+native: 'auto'    // selector do sistema where o ponteiro é de toque
+native: true      // sempre o selector do sistema
 ```
 
 Por atributo: `data-native="true"`.
@@ -751,8 +751,8 @@ class ReservaForm(forms.Form):
     periodo = forms.CharField()
 
     def clean_periodo(self):
-        inicio, _, fim = self.cleaned_data['periodo'].partition(',')
-        return date.fromisoformat(inicio), date.fromisoformat(fim)
+        start, _, fim = self.cleaned_data['periodo'].partition(',')
+        return date.fromisoformat(start), date.fromisoformat(fim)
 ```
 
 ---

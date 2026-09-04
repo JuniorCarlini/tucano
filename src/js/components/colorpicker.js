@@ -3,7 +3,7 @@ import { openWithTransition, el, icon, ICONS, nextId, on } from '../core/dom.js'
 import { ICONS_EXTRA } from '../core/dom-extra.js';
 import { Popover } from '../core/popover.js';
 
-const PALETA = [
+const PALETTE = [
   '#0a0a0a', '#525252', '#a3a3a3', '#e5e5e5', '#ffffff',
   '#e11d48', '#ea580c', '#f59e0b', '#16a34a', '#0d9488',
   '#0284c7', '#4f46e5', '#7c3aed', '#c026d3', '#be123c',
@@ -12,7 +12,7 @@ const PALETA = [
 const DEFAULTS = {
   format: 'hex',          // 'hex' | 'rgb' | 'hsl'
   alpha: true,
-  swatches: PALETA,       // false desliga
+  swatches: PALETTE,       // false desliga
   placement: 'bottom-center',   // mesma regra do date picker: centralizado, preso na borda da tela
   appendTo: undefined,
   onChange: null,
@@ -152,15 +152,15 @@ export class ColorPicker {
       this.hexField,
       supportsEyeDropper() ? el('button', {
         type: 'button', class: 'tuc-btn is-ghost is-icon tuc-colorpicker__pick', 'aria-label': 'Capturar cor da tela',
-        onclick: () => this._capturarDaTela(),
+        onclick: () => this._pickFromScreen(),
       }, [icon(ICONS_EXTRA.pipette, 15)]) : null,
     ]);
 
-    const trilhas = el('div', { class: 'tuc-colorpicker__tracks' }, [this.hue.root, this.alpha?.root]);
+    const tracks = el('div', { class: 'tuc-colorpicker__tracks' }, [this.hue.root, this.alpha?.root]);
 
     this.panel = el('div', {
       class: 'tuc-colorpicker', role: 'dialog', 'aria-label': 'Seletor de cor', id: this.id,
-    }, [this.area, trilhas, fieldRow, this.opts.swatches ? this._buildSwatches() : null]);
+    }, [this.area, tracks, fieldRow, this.opts.swatches ? this._buildSwatches() : null]);
 
     this._cleanups.push(
       this._dragHandler(this.area, (x, y) => {
@@ -257,11 +257,11 @@ export class ColorPicker {
 
   _areaKeys(e) {
     const step = (e.shiftKey ? 10 : 2) / 100;
-    const mapa = {
+    const map = {
       ArrowLeft: { s: -step }, ArrowRight: { s: step },
       ArrowUp: { v: step }, ArrowDown: { v: -step },
     };
-    const d = mapa[e.key];
+    const d = map[e.key];
     if (!d) return;
     e.preventDefault();
     this.hsva = {
@@ -272,7 +272,7 @@ export class ColorPicker {
     this._commit();
   }
 
-  async _capturarDaTela() {
+  async _pickFromScreen() {
     try {
       const { sRGBHex } = await new window.EyeDropper().open();
       this.setValue(sRGBHex);
@@ -321,9 +321,9 @@ export class ColorPicker {
     this.preview.style.setProperty('--color', formatColor(this.hsva, 'rgb'));
 
     // Marca a amostra da paleta que corresponde a cor atual.
-    const atual = rgbToHex(hsvToRgb(this.hsva));
+    const current = rgbToHex(hsvToRgb(this.hsva));
     for (const btn of this.panel.querySelectorAll('.tuc-colorpicker__swatchbtn')) {
-      btn.classList.toggle('is-selected', btn.dataset.color === atual);
+      btn.classList.toggle('is-selected', btn.dataset.color === current);
     }
     if (document.activeElement !== this.hexField) this.hexField.value = this.getValue();
   }

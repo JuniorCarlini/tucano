@@ -59,8 +59,8 @@ export class Tooltip {
     const toque = () => window.matchMedia?.('(pointer: coarse)').matches;
 
     this._cleanups.push(
-      on(node, 'pointerenter', (e) => { if (e.pointerType !== 'touch') this._agendar(true); }),
-      on(node, 'pointerleave', (e) => { if (e.pointerType !== 'touch') this._agendar(false); }),
+      on(node, 'pointerenter', (e) => { if (e.pointerType !== 'touch') this._schedule(true); }),
+      on(node, 'pointerleave', (e) => { if (e.pointerType !== 'touch') this._schedule(false); }),
       on(node, 'focusin', () => this._show()),
       on(node, 'focusout', () => this._hide()),
       on(node, 'click', () => { if (toque()) this.isOpen ? this._hide() : this._show(); }),
@@ -70,11 +70,11 @@ export class Tooltip {
     node._tucano = this;
   }
 
-  _agendar(mostrar) {
+  _schedule(show) {
     clearTimeout(this._timer);
     this._timer = setTimeout(
-      () => (mostrar ? this._show() : this._hide()),
-      mostrar ? this.opts.delay : this.opts.delayOut,
+      () => (show ? this._show() : this._hide()),
+      show ? this.opts.delay : this.opts.delayOut,
     );
   }
 

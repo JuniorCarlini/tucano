@@ -21,18 +21,18 @@ const DEFAULTS = {
   onError: null,
 };
 
-const TEXTOS = {
-  zona: 'Arraste arquivos aqui ou clique para escolher',
-  zonaUm: 'Arraste um arquivo aqui ou clique para escolher',
-  soltar: 'Solte para enviar',
+const TEXTS = {
+  zone: 'Arraste arquivos aqui ou clique para escolher',
+  zoneOne: 'Arraste um arquivo aqui ou clique para escolher',
+  drop: 'Solte para enviar',
   uploading: 'Enviando...',
   pronto: 'Enviado',
   cancel: 'Cancelar',
   remove: 'Remover',
-  repetir: 'Tentar de novo',
-  grande: (max) => `Arquivo maior que ${max}`,
+  repeat: 'Tentar de novo',
+  large: (max) => `Arquivo maior que ${max}`,
   type: 'Tipo de arquivo não aceito',
-  demais: (n) => `No máximo ${n} arquivo${n > 1 ? 's' : ''}`,
+  others: (n) => `No máximo ${n} arquivo${n > 1 ? 's' : ''}`,
 };
 
 /**
@@ -59,12 +59,12 @@ export class Upload {
 
     this.opts = { ...DEFAULTS, ...omitUndefined(options) };
     this.opts.locale = this.opts.locale || document.documentElement.lang || 'pt-BR';
-    this.t = { ...TEXTOS, ...this.opts.texts };
+    this.t = { ...TEXTS, ...this.opts.texts };
     this.opts.maxSize = this.opts.maxSize == null ? null : parseSize(this.opts.maxSize);
 
     this.input = node;
-    this.direto = !!this.opts.url;
-    this.multiplo = node.multiple;
+    this.direct = !!this.opts.url;
+    this.multiple = node.multiple;
     this.id = nextId('up');
     this.items = [];
     this._cleanups = [];
@@ -82,24 +82,24 @@ export class Upload {
   getFiles() {
     return this.items.map((i) => ({
       name: i.file.name, size: i.file.size, type: i.file.type,
-      status: i.estado, progress: i.progresso, id: i.idServidor ?? null, url: i.url ?? null,
+      status: i.estado, progress: i.progress, id: i.idServidor ?? null, url: i.url ?? null,
       file: i.file,
     }));
   }
 
   /** Ids devolvidos pelo servidor (modo direto). E o que o formulario posta. */
   getValue() {
-    const prontos = this.items.filter((i) => i.estado === 'pronto' && i.idServidor != null);
-    return this.direto ? prontos.map((i) => i.idServidor) : this.items.map((i) => i.file);
+    const ready = this.items.filter((i) => i.estado === 'pronto' && i.idServidor != null);
+    return this.direct ? ready.map((i) => i.idServidor) : this.items.map((i) => i.file);
   }
 
   /** Sobe o que estiver pendente. Util com autoUpload: false. */
   uploadAll() {
-    for (const item of this.items) if (item.estado === 'pendente') this._enviar(item);
+    for (const item of this.items) if (item.estado === 'pendente') this._upload(item);
   }
 
   clear() {
-    for (const item of [...this.items]) this._remove(item, { silencioso: true });
+    for (const item of [...this.items]) this._remove(item, { silent: true });
     this._emit();
   }
 
@@ -122,46 +122,46 @@ export class Upload {
     input.classList.add('tuc-upload-native');
 
     // No modo direto quem posta sao os ids, nao os arquivos.
-    if (this.direto && input.name) {
+    if (this.direct && input.name) {
       this.fieldName = input.name;
       input.removeAttribute('name');
     }
 
-    this.zona = el('div', {
+    this.zone = el('div', {
       class: 'tuc-upload__zone',
       role: 'button',
       tabindex: 0,
       'aria-describedby': `${this.id}-dica`,
     }, [
       el('span', { class: 'tuc-upload__icon' }, [icon(ICONS_EXTRA.upload, 20)]),
-      el('span', { class: 'tuc-upload__label', text: this.multiplo ? this.t.zona : this.t.zonaUm }),
-      el('span', { class: 'tuc-upload__hint', id: `${this.id}-dica`, text: this._dica() }),
+      el('span', { class: 'tuc-upload__label', text: this.multiple ? this.t.zone : this.t.zoneOne }),
+      el('span', { class: 'tuc-upload__hint', id: `${this.id}-dica`, text: this._hint() }),
     ]);
 
     this.list = el('ul', { class: 'tuc-upload__list' });
-    this.root = el('div', { class: 'tuc-upload', id: this.id }, [this.zona, this.list]);
+    this.root = el('div', { class: 'tuc-upload', id: this.id }, [this.zone, this.list]);
     input.replaceWith(this.root);
     this.root.append(input);
 
     const open = () => input.click();
     this._cleanups.push(
-      on(this.zona, 'click', open),
-      on(this.zona, 'keydown', (e) => {
+      on(this.zone, 'click', open),
+      on(this.zone, 'keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); }
       }),
-      on(input, 'change', () => { this._adicionar([...input.files]); }),
-      ...this._arrastarESoltar(),
+      on(input, 'change', () => { this._add([...input.files]); }),
+      ...this._dragAndDrop(),
     );
 
     this._renderList();
   }
 
-  _dica() {
-    const partes = [];
-    if (this.input.accept) partes.push(this.input.accept.split(',').map((s) => s.trim()).join(', '));
-    if (this.opts.maxSize) partes.push(`até ${formatSize(this.opts.maxSize, this.opts.locale)}`);
-    if (this.opts.maxFiles) partes.push(this.t.demais(this.opts.maxFiles).toLowerCase());
-    return partes.join(' · ');
+  _hint() {
+    const parts = [];
+    if (this.input.accept) parts.push(this.input.accept.split(',').map((s) => s.trim()).join(', '));
+    if (this.opts.maxSize) parts.push(`até ${formatSize(this.opts.maxSize, this.opts.locale)}`);
+    if (this.opts.maxFiles) parts.push(this.t.others(this.opts.maxFiles).toLowerCase());
+    return parts.join(' · ');
   }
 
   /**
@@ -169,43 +169,43 @@ export class Upload {
    * passar de um filho para outro dentro da zona — sem contar entradas e
    * saidas, o realce pisca.
    */
-  _arrastarESoltar() {
-    const parar = (e) => { e.preventDefault(); e.stopPropagation(); };
+  _dragAndDrop() {
+    const stop = (e) => { e.preventDefault(); e.stopPropagation(); };
     return [
       on(this.root, 'dragenter', (e) => {
-        parar(e);
+        stop(e);
         this._dragging++;
         this.root.classList.add('is-dragging');
-        this.zona.querySelector('.tuc-upload__label').textContent = this.t.soltar;
+        this.zone.querySelector('.tuc-upload__label').textContent = this.t.drop;
       }),
-      on(this.root, 'dragover', parar),
+      on(this.root, 'dragover', stop),
       on(this.root, 'dragleave', (e) => {
-        parar(e);
-        if (--this._dragging <= 0) this._pararArraste();
+        stop(e);
+        if (--this._dragging <= 0) this._stopDrag();
       }),
       on(this.root, 'drop', (e) => {
-        parar(e);
+        stop(e);
         this._dragging = 0;
-        this._pararArraste();
-        this._adicionar([...(e.dataTransfer?.files || [])]);
+        this._stopDrag();
+        this._add([...(e.dataTransfer?.files || [])]);
       }),
     ];
   }
 
-  _pararArraste() {
+  _stopDrag() {
     this._dragging = 0;
     this.root.classList.remove('is-dragging');
-    this.zona.querySelector('.tuc-upload__label').textContent = this.multiplo ? this.t.zona : this.t.zonaUm;
+    this.zone.querySelector('.tuc-upload__label').textContent = this.multiple ? this.t.zone : this.t.zoneOne;
   }
 
   /* ---------------------------------------------------------------- *
    * Arquivos                                                          *
    * ---------------------------------------------------------------- */
 
-  _adicionar(files) {
+  _add(files) {
     if (!files.length) return;
-    if (!this.multiplo) {
-      for (const item of [...this.items]) this._remove(item, { silencioso: true });
+    if (!this.multiple) {
+      for (const item of [...this.items]) this._remove(item, { silent: true });
       files = files.slice(0, 1);
     }
 
@@ -214,24 +214,24 @@ export class Upload {
       if (error) { this._fail(error, file); continue; }
 
       const item = {
-        key: fileId(), file, estado: 'pendente', progresso: 0,
+        key: fileId(), file, estado: 'pendente', progress: 0,
         preview: isImage(file) ? URL.createObjectURL(file) : null,
       };
       this.items.push(item);
-      if (this.direto && this.opts.autoUpload) this._enviar(item);
+      if (this.direct && this.opts.autoUpload) this._upload(item);
     }
 
-    this._sincronizarNativo();
+    this._syncNative();
     this._renderList();
     this._emit();
   }
 
   _validate(file) {
     if (this.opts.maxFiles && this.items.length >= this.opts.maxFiles) {
-      return this.t.demais(this.opts.maxFiles);
+      return this.t.others(this.opts.maxFiles);
     }
     if (this.opts.maxSize && file.size > this.opts.maxSize) {
-      return this.t.grande(formatSize(this.opts.maxSize, this.opts.locale));
+      return this.t.large(formatSize(this.opts.maxSize, this.opts.locale));
     }
     if (!matchesAccept(file, this.input.accept)) return this.t.type;
     return null;
@@ -242,8 +242,8 @@ export class Upload {
    * inclusive os que vieram por arrastar. DataTransfer e a unica forma de
    * escrever em input.files.
    */
-  _sincronizarNativo() {
-    if (this.direto) return;
+  _syncNative() {
+    if (this.direct) return;
     try {
       const dt = new DataTransfer();
       for (const item of this.items) dt.items.add(item.file);
@@ -253,9 +253,9 @@ export class Upload {
     }
   }
 
-  _enviar(item) {
+  _upload(item) {
     item.estado = 'enviando';
-    item.progresso = 0;
+    item.progress = 0;
     item.error = null;
     this._renderList();
 
@@ -265,27 +265,27 @@ export class Upload {
       if (token) headers['X-CSRFToken'] = token;
     }
 
-    const { promise, abortar } = uploadFile({
+    const { promise, abort } = uploadFile({
       url: this.opts.url,
       file: item.file,
       field: this.opts.fieldName,
       extras: this.opts.extraData,
       headers,
       onProgress: (fraction) => {
-        item.progresso = fraction;
+        item.progress = fraction;
         this._paintProgress(item);
       },
     });
-    item.abortar = abortar;
+    item.abort = abort;
 
-    promise.then((resposta) => {
+    promise.then((response) => {
       item.estado = 'pronto';
-      item.progresso = 1;
-      item.resposta = resposta;
-      item.idServidor = resposta?.[this.opts.responseId] ?? null;
-      item.url = resposta?.[this.opts.responseUrl] ?? null;
+      item.progress = 1;
+      item.response = response;
+      item.idServidor = response?.[this.opts.responseId] ?? null;
+      item.url = response?.[this.opts.responseUrl] ?? null;
     }).catch((e) => {
-      if (e.cancelado) {
+      if (e.canceled) {
         const i = this.items.indexOf(item);
         if (i >= 0) this.items.splice(i, 1);
         if (item.preview) URL.revokeObjectURL(item.preview);
@@ -295,27 +295,27 @@ export class Upload {
         this.opts.onError?.(e, item.file);
       }
     }).finally(() => {
-      item.abortar = null;
+      item.abort = null;
       this._renderList();
       this._emit();
     });
   }
 
-  _remove(item, { silencioso = false } = {}) {
-    item.abortar?.();
+  _remove(item, { silent = false } = {}) {
+    item.abort?.();
     const i = this.items.indexOf(item);
     if (i >= 0) this.items.splice(i, 1);
     if (item.preview) URL.revokeObjectURL(item.preview);
 
-    if (this.direto && this.opts.deleteUrl && item.idServidor != null) {
+    if (this.direct && this.opts.deleteUrl && item.idServidor != null) {
       const headers = { ...this.opts.headers };
       if (this.opts.csrf) { const t = csrfToken(); if (t) headers['X-CSRFToken'] = t; }
       fetch(`${this.opts.deleteUrl}${item.idServidor}/`, { method: 'DELETE', headers }).catch(() => {});
     }
 
-    this._sincronizarNativo();
+    this._syncNative();
     this._renderList();
-    if (!silencioso) this._emit();
+    if (!silent) this._emit();
   }
 
   _fail(message, file) {
@@ -340,16 +340,16 @@ export class Upload {
     const li = this.list.querySelector(`[data-key="${item.key}"]`);
     if (!li) return;
     const toolbar = li.querySelector('.tuc-upload__barfill');
-    if (toolbar) toolbar.style.width = `${Math.round(item.progresso * 100)}%`;
+    if (toolbar) toolbar.style.width = `${Math.round(item.progress * 100)}%`;
     const meta = li.querySelector('.tuc-upload__meta');
-    if (meta) meta.textContent = `${Math.round(item.progresso * 100)}% · ${formatSize(item.file.size, this.opts.locale)}`;
+    if (meta) meta.textContent = `${Math.round(item.progress * 100)}% · ${formatSize(item.file.size, this.opts.locale)}`;
   }
 
   _renderList() {
     for (const n of [...this.list.children]) if (!n.classList.contains('is-rejected')) n.remove();
 
     for (const item of this.items) {
-      const pct = Math.round(item.progresso * 100);
+      const pct = Math.round(item.progress * 100);
       const meta = item.estado === 'enviando'
         ? `${pct}% · ${formatSize(item.file.size, this.opts.locale)}`
         : item.estado === 'error'
@@ -358,12 +358,12 @@ export class Upload {
 
       const actions = [];
       if (item.estado === 'enviando') {
-        actions.push(this._botao(ICONS.x, this.t.cancel, () => item.abortar?.()));
+        actions.push(this._button(ICONS.x, this.t.cancel, () => item.abort?.()));
       } else if (item.estado === 'error') {
-        actions.push(this._botao(ICONS_EXTRA.retry, this.t.repetir, () => this._enviar(item)));
-        actions.push(this._botao(ICONS.x, this.t.remove, () => this._remove(item)));
+        actions.push(this._button(ICONS_EXTRA.retry, this.t.repeat, () => this._upload(item)));
+        actions.push(this._button(ICONS.x, this.t.remove, () => this._remove(item)));
       } else {
-        actions.push(this._botao(ICONS.x, this.t.remove, () => this._remove(item)));
+        actions.push(this._button(ICONS.x, this.t.remove, () => this._remove(item)));
       }
 
       this.list.append(el('li', {
@@ -387,20 +387,20 @@ export class Upload {
       ]));
     }
 
-    this._sincronizarHidden();
+    this._syncHidden();
     this.root.classList.toggle('is-empty', !this.items.length);
   }
 
-  _botao(caminho, label, aoClicar) {
+  _button(path, label, onClick) {
     return el('button', {
       type: 'button', class: 'tuc-btn is-ghost is-icon is-sm tuc-upload__action', 'aria-label': label, title: label,
-      onclick: (e) => { e.stopPropagation(); aoClicar(); },
-    }, [icon(caminho, 14)]);
+      onclick: (e) => { e.stopPropagation(); onClick(); },
+    }, [icon(path, 14)]);
   }
 
   /** Modo direto: os ids prontos viram inputs hidden com o `name` original. */
-  _sincronizarHidden() {
-    if (!this.direto || !this.fieldName) return;
+  _syncHidden() {
+    if (!this.direct || !this.fieldName) return;
     this.hidden?.remove();
     this.hidden = el('span', { class: 'tuc-upload__hidden' },
       this.items

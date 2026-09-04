@@ -32,7 +32,7 @@ const DEFAULTS = {
   placeholder: '',
 };
 
-const ICONES = {
+const ICONS = {
   bold:    'M6 4h6a4 4 0 010 8H6zM6 12h7a4 4 0 010 8H6z',
   italic:    'M19 4h-9M14 20H5M15 4L9 20',
   underline: 'M6 4v6a6 6 0 0012 0V4M4 21h16',
@@ -68,7 +68,7 @@ const LABELS = {
  * significaria reimplementar tambem o Ctrl+Z, que e onde editores caseiros
  * costumam decepcionar.
  */
-const COMANDOS = {
+const COMMANDS = {
   bold:    () => document.execCommand('bold'),
   italic:    () => document.execCommand('italic'),
   underline: () => document.execCommand('underline'),
@@ -102,7 +102,7 @@ const STATES = {
  * ficava apagada mesmo com o cursor dentro do bloco que ela aplica, e nao havia
  * como saber que clicar de novo desfaz.
  */
-const ANCESTRAIS = {
+const ANCESTORS = {
   title: 'h2',
   subheading: 'h3',
   quote: 'blockquote',
@@ -111,7 +111,7 @@ const ANCESTRAIS = {
   table: 'table',
 };
 
-const ATALHOS = { b: 'bold', i: 'italic', u: 'underline', k: 'link' };
+const SHORTCUTS = { b: 'bold', i: 'italic', u: 'underline', k: 'link' };
 
 /*
  * O execCommand nao tem comando de codigo, entao a marcacao e montada aqui —
@@ -125,8 +125,8 @@ const ESCAPES = { '&': '&amp;', '<': '&lt;', '>': '&gt;' };
 function toggleCode() {
   const sel = window.getSelection();
   if (!sel?.rangeCount) return;
-  const inicio = sel.anchorNode?.nodeType === Node.ELEMENT_NODE ? sel.anchorNode : sel.anchorNode?.parentElement;
-  const inside = inicio?.closest?.('pre, code');
+  const start = sel.anchorNode?.nodeType === Node.ELEMENT_NODE ? sel.anchorNode : sel.anchorNode?.parentElement;
+  const inside = start?.closest?.('pre, code');
 
   // Ja e codigo: seleciona a marcacao inteira e devolve o texto sem ela.
   if (inside) {
@@ -155,18 +155,18 @@ function toggleCode() {
      * arrependeu, e ela precisa funcionar de primeira.
      */
     if (target.tagName === 'PRE') {
-      const bloco = document.createDocumentFragment();
+      const block = document.createDocumentFragment();
       for (const row of text.split('\n')) {
         const par = document.createElement('p');
         if (row) par.textContent = row;
         else par.append(document.createElement('br'));
-        bloco.append(par);
+        block.append(par);
       }
-      const primeiro = bloco.firstChild;
-      target.replaceWith(bloco);
-      if (primeiro) {
+      const first = block.firstChild;
+      target.replaceWith(block);
+      if (first) {
         const pos = document.createRange();
-        pos.selectNodeContents(primeiro);
+        pos.selectNodeContents(first);
         pos.collapse(true);
         sel.removeAllRanges();
         sel.addRange(pos);
@@ -184,7 +184,7 @@ function toggleCode() {
    * toString junta cada um com duas quebras — o bloco saia com um vazio entre
    * todas as rows, como se o codigo tivesse sido espacado de proposito.
    */
-  const escapado = text.replace(/\n{2,}/g, '\n').replace(/[&<>]/g, (c) => ESCAPES[c]);
+  const escaped = text.replace(/\n{2,}/g, '\n').replace(/[&<>]/g, (c) => ESCAPES[c]);
 
   /*
    * Selecao que atravessa rows vira bloco, e nao codigo no meio da frase.
@@ -193,16 +193,16 @@ function toggleCode() {
    * elemento que existe para preservar quebra e recuo.
    */
   if (/\n/.test(text)) {
-    document.execCommand('insertHTML', false, `<pre><code>${escapado}</code></pre><p><br></p>`);
+    document.execCommand('insertHTML', false, `<pre><code>${escaped}</code></pre><p><br></p>`);
     return;
   }
-  document.execCommand('insertHTML', false, `<code>${escapado}</code>`);
+  document.execCommand('insertHTML', false, `<code>${escaped}</code>`);
 }
 
 /** Aplica o bloco, ou volta para paragrafo se ele ja estiver aplicado. */
 function toggleBlock(tag) {
-  const atual = document.queryCommandValue('formatBlock')?.toUpperCase();
-  document.execCommand('formatBlock', false, atual === tag ? 'P' : tag);
+  const current = document.queryCommandValue('formatBlock')?.toUpperCase();
+  document.execCommand('formatBlock', false, current === tag ? 'P' : tag);
 }
 
 /*
@@ -215,12 +215,12 @@ function buildTable(doc, rows, cols) {
   const table = doc.createElement('table');
   const thead = doc.createElement('thead');
   const trCab = doc.createElement('tr');
-  for (let c = 0; c < colunas; c++) trCab.append(cel('th'));
+  for (let c = 0; c < cols; c++) trCab.append(cel('th'));
   thead.append(trCab);
   const tbody = doc.createElement('tbody');
   for (let l = 0; l < rows - 1; l++) {
     const tr = doc.createElement('tr');
-    for (let c = 0; c < colunas; c++) tr.append(cel('td'));
+    for (let c = 0; c < cols; c++) tr.append(cel('td'));
     tbody.append(tr);
   }
   table.append(thead, tbody);
@@ -228,10 +228,10 @@ function buildTable(doc, rows, cols) {
 }
 
 /** Proxima celula na ordem de leitura, ou nada se for a ultima. */
-function nextCell(cell, tras) {
+function nextCell(cell, back) {
   const table = cell.closest('table');
-  const celulas = [...table.querySelectorAll('th, td')];
-  return celulas[celulas.indexOf(cell) + (tras ? -1 : 1)] || null;
+  const cells = [...table.querySelectorAll('th, td')];
+  return cells[cells.indexOf(cell) + (back ? -1 : 1)] || null;
 }
 
 /*
@@ -295,9 +295,9 @@ function insertRow(cell, after) {
 function insertColumn(cell, after) {
   const i = [...cell.parentElement.children].indexOf(cell);
   for (const row of cell.closest('table').querySelectorAll('tr')) {
-    const modelo = row.children[i];
-    const nova = emptyCell(modelo?.tagName === 'TH' ? 'th' : 'td');
-    row.insertBefore(nova, after ? modelo?.nextSibling : modelo);
+    const model = row.children[i];
+    const nova = emptyCell(model?.tagName === 'TH' ? 'th' : 'td');
+    row.insertBefore(nova, after ? model?.nextSibling : model);
   }
   return cell.parentElement.children[after ? i + 1 : i];
 }
@@ -307,9 +307,9 @@ function deleteRow(cell) {
   const table = cell.closest('table');
   // Ultima linha: some a tabela inteira, senao sobra uma moldura vazia.
   if (table.querySelectorAll('tr').length <= 1) { table.remove(); return null; }
-  const vizinha = row.nextElementSibling || row.previousElementSibling;
+  const sibling = row.nextElementSibling || row.previousElementSibling;
   row.remove();
-  return vizinha?.firstElementChild ?? null;
+  return sibling?.firstElementChild ?? null;
 }
 
 function deleteColumn(cell) {
@@ -341,24 +341,24 @@ function focusCell(cell) {
  * salta para o comeco a cada tecla. Contar caracteres sobrevive a troca porque
  * o texto nao muda — so a marcacao em volta dele.
  */
-function offsetInBlock(bloco) {
+function offsetInBlock(block) {
   const sel = window.getSelection();
-  if (!sel?.rangeCount || !bloco.contains(sel.anchorNode)) return null;
+  if (!sel?.rangeCount || !block.contains(sel.anchorNode)) return null;
   const r = sel.getRangeAt(0).cloneRange();
-  r.selectNodeContents(bloco);
+  r.selectNodeContents(block);
   r.setEnd(sel.getRangeAt(0).endContainer, sel.getRangeAt(0).endOffset);
   return r.toString().length;
 }
 
-function restoreOffset(bloco, quantos) {
-  if (quantos == null) return;
-  const step = document.createTreeWalker(bloco, NodeFilter.SHOW_TEXT);
+function restoreOffset(block, howMany) {
+  if (howMany == null) return;
+  const step = document.createTreeWalker(block, NodeFilter.SHOW_TEXT);
   let counted = 0;
   let no;
   while ((no = step.nextNode())) {
-    if (counted + no.length >= quantos) {
+    if (counted + no.length >= howMany) {
       const r = document.createRange();
-      r.setStart(no, quantos - counted);
+      r.setStart(no, howMany - counted);
       r.collapse(true);
       const sel = window.getSelection();
       sel.removeAllRanges();
@@ -399,7 +399,7 @@ export class Editor {
     this.area.innerHTML = sanitize(field.value) || '<p><br></p>';
 
     // Onde a barra muda de assunto: marcacao de texto, alinhamento, blocos.
-    const GRUPOS = new Set(['left', 'quote']);
+    const GROUPS = new Set(['left', 'quote']);
 
     this.toolbar = el('div', { class: 'tuc-editor__toolbar', role: 'toolbar', 'aria-label': 'Formatação' },
       this.opts.toolbar.flatMap((name) => {
@@ -412,9 +412,9 @@ export class Editor {
           // mousedown e nao click: click viria depois do blur, e a selecao
           // dentro da area ja teria sido perdida.
           onmousedown: (e) => { e.preventDefault(); this.apply(name); },
-        }, [icon(ICONES[name] ?? ICONES.clear, 15)]);
+        }, [icon(ICONS[name] ?? ICONS.clear, 15)]);
         b.dataset.action = name;
-        return GRUPOS.has(name)
+        return GROUPS.has(name)
           ? [el('span', { class: 'tuc-editor__sep', 'aria-hidden': 'true' }), b]
           : [b];
       }));
@@ -444,9 +444,9 @@ export class Editor {
     field.classList.add('tuc-editor__value');
 
     this._cleanups.push(
-      on(this.area, 'input', () => { this._sincronizar(); this._agendarPintura(); }),
-      on(this.area, 'blur', () => this._sincronizar()),
-      on(this.area, 'paste', (e) => this._colar(e)),
+      on(this.area, 'input', () => { this._sync(); this._schedulePaint(); }),
+      on(this.area, 'blur', () => this._sync()),
+      on(this.area, 'paste', (e) => this._paste(e)),
       on(this.area, 'keydown', (e) => this._onKey(e)),
       on(this.area, 'keyup', () => this._markActive()),
       on(this.area, 'mouseup', () => this._markActive()),
@@ -467,17 +467,17 @@ export class Editor {
    */
   _paint() {
     for (const code of this.area.querySelectorAll('pre > code')) {
-      const cru = code.textContent;
-      const painted = highlight(cru);
+      const raw = code.textContent;
+      const painted = highlight(raw);
       if (code.innerHTML === painted) continue;
-      const onde = offsetInBlock(code);
+      const where = offsetInBlock(code);
       code.innerHTML = painted;
-      restoreOffset(code, onde);
+      restoreOffset(code, where);
     }
   }
 
   /* O textarea escondido e a fonte da verdade para o formulario. */
-  _sincronizar() {
+  _sync() {
     const plain = sanitize(this.area.innerHTML);
     if (this.field.value === plain) return;
     this.field.value = plain;
@@ -486,12 +486,12 @@ export class Editor {
   }
 
   /* Adiado: repintar a cada tecla brigaria com a digitacao. */
-  _agendarPintura() {
-    clearTimeout(this._pincel);
-    this._pincel = setTimeout(() => this._paint(), 180);
+  _schedulePaint() {
+    clearTimeout(this._brush);
+    this._brush = setTimeout(() => this._paint(), 180);
   }
 
-  _colar(e) {
+  _paste(e) {
     e.preventDefault();
     const text = e.clipboardData?.getData('text/plain')
       ?? textOnly(e.clipboardData?.getData('text/html'));
@@ -508,16 +508,16 @@ export class Editor {
         // sem tirar as maos do teclado.
         if (!target && !e.shiftKey) {
           const body = cell.closest('table').querySelector('tbody') || cell.closest('table');
-          const modelo = body.querySelector('tr') || cell.parentElement;
+          const model = body.querySelector('tr') || cell.parentElement;
           const nova = document.createElement('tr');
-          for (let i = 0; i < modelo.children.length; i++) {
+          for (let i = 0; i < model.children.length; i++) {
             const td = document.createElement('td');
             td.append(document.createElement('br'));
             nova.append(td);
           }
           body.append(nova);
           target = nova.firstElementChild;
-          this._sincronizar();
+          this._sync();
         }
         if (target) {
           const r = document.createRange();
@@ -531,9 +531,9 @@ export class Editor {
       }
     }
     const t = e.key.toLowerCase();
-    if ((e.metaKey || e.ctrlKey) && ATALHOS[t]) {
+    if ((e.metaKey || e.ctrlKey) && SHORTCUTS[t]) {
       e.preventDefault();
-      this.apply(ATALHOS[t]);
+      this.apply(SHORTCUTS[t]);
     }
   }
 
@@ -566,14 +566,14 @@ export class Editor {
     for (const b of this.toolbar.querySelectorAll('[data-action]')) {
       const action = b.dataset.action;
       const cmd = STATES[action];
-      const seletor = ANCESTRAIS[action];
-      if (!cmd && !seletor) continue;
+      const selector = ANCESTORS[action];
+      if (!cmd && !selector) continue;
 
       let active = false;
       if (cmd) {
         try { active = document.queryCommandState(cmd); } catch { /* sem selecao */ }
       } else if (no) {
-        active = !!no.closest?.(seletor);
+        active = !!no.closest?.(selector);
       }
       b.setAttribute('aria-pressed', String(active));
       b.classList.toggle('is-active', active);
@@ -604,10 +604,10 @@ export class Editor {
   inTable(name) {
     const cell = this._currentCell();
     if (!cell) return this;
-    const destino = TABLE[name]?.(cell);
+    const destination = TABLE[name]?.(cell);
     this._focus();
-    focusCell(destino);
-    this._sincronizar();
+    focusCell(destination);
+    this._sync();
     this._syncTableBar();
     return this;
   }
@@ -632,7 +632,7 @@ export class Editor {
         p.append(document.createElement('br'));
         table.after(p);
         focusCell(table.querySelector('th'));
-        this._sincronizar();
+        this._sync();
         return this;
       }
 
@@ -645,24 +645,24 @@ export class Editor {
         const p = document.createElement('p');
         p.append(document.createElement('br'));
         table.after(p);
-        const primeira = table.querySelector('th');
-        if (primeira) {
+        const first = table.querySelector('th');
+        if (first) {
           const r = document.createRange();
-          r.selectNodeContents(primeira);
+          r.selectNodeContents(first);
           r.collapse(true);
           sel.removeAllRanges();
           sel.addRange(r);
         }
       }
-      this._sincronizar();
+      this._sync();
       return this;
     }
     if (name === 'link') {
       this._askForLink();
       return this;
     }
-    COMANDOS[name]?.();
-    this._sincronizar();
+    COMMANDS[name]?.();
+    this._sync();
     this._markActive();
     this._paint();
     return this;
@@ -678,22 +678,22 @@ export class Editor {
    */
   _askForLink() {
     const sel = window.getSelection();
-    const marca = sel?.rangeCount ? sel.getRangeAt(0).cloneRange() : null;
-    const existente = this._currentNode()?.closest('a');
+    const mark = sel?.rangeCount ? sel.getRangeAt(0).cloneRange() : null;
+    const existing = this._currentNode()?.closest('a');
 
     const field = el('input', {
       type: 'url',
       class: 'tuc-input',
       placeholder: 'https://',
-      value: existente?.getAttribute('href') ?? 'https://',
+      value: existing?.getAttribute('href') ?? 'https://',
     });
 
     const restoreSelection = () => {
       this.area.focus({ preventScroll: true });
-      if (!marca) return;
+      if (!mark) return;
       const s = window.getSelection();
       s.removeAllRanges();
-      s.addRange(marca);
+      s.addRange(mark);
     };
 
     /*
@@ -703,25 +703,25 @@ export class Editor {
      * selecao ao editor por baixo nao funciona: o createLink nao encontrava
      * trecho nenhum e o link simplesmente nao aparecia.
      */
-    let decidido = null;
+    let decided = null;
     const actions = [{ text: 'Cancelar', variant: 'outline' }];
-    if (existente) {
-      actions.push({ text: 'Remover', variant: 'ghost', onClick: () => { decidido = 'remove'; } });
+    if (existing) {
+      actions.push({ text: 'Remover', variant: 'ghost', onClick: () => { decided = 'remove'; } });
     }
     actions.push({
-      text: existente ? 'Salvar' : 'Inserir',
+      text: existing ? 'Salvar' : 'Inserir',
       variant: 'primary',
-      onClick: () => { decidido = field.value.trim(); },
+      onClick: () => { decided = field.value.trim(); },
     });
 
     const dialog = new Modal({
-      title: existente ? 'Editar link' : 'Inserir link',
+      title: existing ? 'Editar link' : 'Inserir link',
       size: 'sm',
       actions,
       onClose: () => {
-        if (!decidido) return;
+        if (!decided) return;
         {
-          if (decidido === 'remove') {
+          if (decided === 'remove') {
             /*
              * O unlink exige uma selecao que abranja o link inteiro: com o
              * cursor apenas dentro dele o comando nao faz nada. Por isso a
@@ -729,16 +729,16 @@ export class Editor {
              */
             this.area.focus({ preventScroll: true });
             const r = document.createRange();
-            r.selectNodeContents(existente);
+            r.selectNodeContents(existing);
             const sel2 = window.getSelection();
             sel2.removeAllRanges();
             sel2.addRange(r);
             document.execCommand('unlink');
           } else {
             restoreSelection();
-            if (decidido !== 'https://') document.execCommand('createLink', false, decidido);
+            if (decided !== 'https://') document.execCommand('createLink', false, decided);
           }
-          this._sincronizar();
+          this._sync();
           this._markActive();
         }
       },
@@ -760,7 +760,7 @@ export class Editor {
   setValue(html) {
     this.area.innerHTML = sanitize(html) || '<p><br></p>';
     this._paint();
-    this._sincronizar();
+    this._sync();
     return this;
   }
 

@@ -9,18 +9,18 @@
  * cujo argumento e ser leve.
  *
  * Cada substituicao e verificada: se um trecho mudar de forma no HTML e o
- * padrao deixar de casar, o build quebra em vez de seguir com numero velho.
+ * pattern deixar de casar, o build quebra em vez de seguir com numero velho.
  */
 import { readFileSync, writeFileSync } from 'node:fs';
 import { gzipSync } from 'node:zlib';
 
-const kb = (arquivo) => Math.round(gzipSync(readFileSync(arquivo)).length / 1024);
+const kb = (file) => Math.round(gzipSync(readFileSync(file)).length / 1024);
 
 const js = kb('dist/tucano.min.js');
 const css = kb('dist/tucano.min.css');
 const total = js + css;
 
-const arquivos = {
+const files = {
   'index.html': [
     [/<b>\d+ KB<\/b> JS gzip/g, `<b>${js} KB</b> JS gzip`],
     [/<b>\d+ KB<\/b> CSS gzip/g, `<b>${css} KB</b> CSS gzip`],
@@ -37,17 +37,17 @@ const arquivos = {
   ],
 };
 
-for (const [arquivo, trocas] of Object.entries(arquivos)) {
-  let texto = readFileSync(arquivo, 'utf8');
-  for (const [padrao, novo] of trocas) {
-    if (!padrao.test(texto)) {
-      console.error(`[tamanhos] padrão sem correspondência em ${arquivo}: ${padrao}`);
+for (const [file, swaps] of Object.entries(files)) {
+  let text = readFileSync(file, 'utf8');
+  for (const [pattern, replacement] of swaps) {
+    if (!pattern.test(text)) {
+      console.error(`[tamanhos] padrão sem correspondência em ${file}: ${pattern}`);
       process.exit(1);
     }
-    padrao.lastIndex = 0;
-    texto = texto.replace(padrao, novo);
+    pattern.lastIndex = 0;
+    text = text.replace(pattern, replacement);
   }
-  writeFileSync(arquivo, texto);
+  writeFileSync(file, text);
 }
 
 console.log(`tamanhos: ${js} KB JS + ${css} KB CSS gzip (${total} KB no total)`);

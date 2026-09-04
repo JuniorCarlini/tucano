@@ -53,10 +53,15 @@ Ao renomear em massa, três armadilhas apareceram e todas passam pelo build:
 string literal tratada como código traduz frase da interface pela metade
 ("Excluir tabela" virou "Excluir table"); `${...}` dentro de template literal é
 código e fica para trás, apontando para variável que já mudou de nome — foi
-assim que `.tuc-modal__panel` ficou sem o JS que a monta; e prefixo de nome
+assim que `.tuc-modal__panel` ficou sem o JS que a monta; prefixo de nome
 antigo dentro de nome novo duplica letra (`is-erro` dentro de `is-error` virou
-`is-errorr`). Nenhuma das três quebra o build: só um teste que instancia os
-componentes no navegador pega.
+`is-errorr`); um literal de regex contendo `//` faz um scanner ingênuo tratar o
+resto do arquivo como comentário, e nada dali para baixo é renomeado — foi o que
+deixou `highlight.js` pela metade; e substituir palavra em texto corrido traduz
+a documentação junto, então a passada nos docs só pode entrar em `<pre>`,
+`<code>` e cerca de crase. Nenhuma dessas quebra o build: só um teste que
+instancia os componentes no navegador pega, e a prosa só um diff contra a versão
+anterior.
 
 Cada uma custou um bug real.
 

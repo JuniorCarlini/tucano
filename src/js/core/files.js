@@ -6,12 +6,12 @@
 export function formatSize(bytes, locale = 'pt-BR') {
   if (!Number.isFinite(bytes) || bytes < 0) return '';
   if (bytes < 1024) return `${bytes} B`;
-  const unidades = ['KB', 'MB', 'GB', 'TB'];
+  const units = ['KB', 'MB', 'GB', 'TB'];
   let n = bytes / 1024;
   let i = 0;
-  while (n >= 1024 && i < unidades.length - 1) { n /= 1024; i++; }
-  const casas = n < 10 ? 1 : 0;
-  return `${n.toLocaleString(locale, { maximumFractionDigits: casas })} ${unidades[i]}`;
+  while (n >= 1024 && i < units.length - 1) { n /= 1024; i++; }
+  const places = n < 10 ? 1 : 0;
+  return `${n.toLocaleString(locale, { maximumFractionDigits: places })} ${units[i]}`;
 }
 
 /** "5mb", "500kb", 1048576 -> bytes. */
@@ -20,8 +20,8 @@ export function parseSize(value) {
   const m = /^([\d.,]+)\s*(b|kb|mb|gb)?$/i.exec(String(value || '').trim());
   if (!m) return null;
   const n = parseFloat(m[1].replace(',', '.'));
-  const fator = { b: 1, kb: 1024, mb: 1024 ** 2, gb: 1024 ** 3 }[(m[2] || 'b').toLowerCase()];
-  return Math.round(n * fator);
+  const factor = { b: 1, kb: 1024, mb: 1024 ** 2, gb: 1024 ** 3 }[(m[2] || 'b').toLowerCase()];
+  return Math.round(n * factor);
 }
 
 /**
@@ -32,10 +32,10 @@ export function matchesAccept(file, accept) {
   if (!accept) return true;
   const name = file.name.toLowerCase();
   const type = (file.type || '').toLowerCase();
-  return accept.split(',').map((s) => s.trim().toLowerCase()).filter(Boolean).some((regra) => {
-    if (regra.startsWith('.')) return name.endsWith(regra);
-    if (regra.endsWith('/*')) return type.startsWith(regra.slice(0, -1));
-    return type === regra;
+  return accept.split(',').map((s) => s.trim().toLowerCase()).filter(Boolean).some((rule) => {
+    if (rule.startsWith('.')) return name.endsWith(rule);
+    if (rule.endsWith('/*')) return type.startsWith(rule.slice(0, -1));
+    return type === rule;
   });
 }
 
@@ -80,10 +80,10 @@ export function uploadFile({ url, file, field = 'file', extras = {}, headers = {
       }
     });
     xhr.addEventListener('error', () => reject(new Error('Falha de rede')));
-    xhr.addEventListener('abort', () => reject(Object.assign(new Error('Cancelado'), { cancelado: true })));
+    xhr.addEventListener('abort', () => reject(Object.assign(new Error('Cancelado'), { canceled: true })));
     xhr.send(data);
   });
-  return { promise, abortar: () => xhr.abort() };
+  return { promise, abort: () => xhr.abort() };
 }
 
 let seq = 0;

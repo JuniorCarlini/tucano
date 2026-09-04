@@ -107,18 +107,18 @@ export class Mask {
   isValid() {
     const validate = this.preset?.validate;
     if (!validate) return true;
-    const bruto = this.getRaw();
-    return bruto ? validate(bruto) : true;   // vazio e problema do `required`
+    const raw = this.getRaw();
+    return raw ? validate(raw) : true;   // vazio e problema do `required`
   }
 
   destroy() {
     this._cleanups.forEach((fn) => fn());
     this._cleanups = [];
-    if (this.envolucro) {
+    if (this.wrapper) {
       if (this.rawValue != null) this.input.value = this.rawValue;
       if (this.realName) this.input.name = this.realName;
       this.input.readOnly = this.readOnlyOriginal ?? false;
-      this.envolucro.replaceWith(this.input);
+      this.wrapper.replaceWith(this.input);
       this.hidden?.remove();
     }
     this.input.setCustomValidity?.('');
@@ -146,25 +146,25 @@ export class Mask {
     const input = this.input;
     this.password = input.type === 'password';
 
-    this.envolucro = el('span', { class: 'tuc-field' });
-    input.replaceWith(this.envolucro);
-    this.envolucro.append(input);
+    this.wrapper = el('span', { class: 'tuc-field' });
+    input.replaceWith(this.wrapper);
+    this.wrapper.append(input);
 
     if (!this.password && input.name) {
       this.realName = input.name;
       input.removeAttribute('name');
       this.hidden = el('input', { type: 'hidden', name: this.realName, value: this.getRaw() });
-      this.envolucro.append(this.hidden);
+      this.wrapper.append(this.hidden);
     }
 
-    this.olho = el('button', {
+    this.eye = el('button', {
       type: 'button',
       class: 'tuc-btn is-ghost is-icon is-sm tuc-field__eye',
       'aria-label': 'Mostrar',
       'aria-pressed': 'false',
       onclick: () => this._toggle(),
     });
-    this.envolucro.append(this.olho);
+    this.wrapper.append(this.eye);
 
     // Vazio comeca a mostra; com conteudo, comeca escondido.
     this.showing = !input.value;
@@ -211,19 +211,19 @@ export class Mask {
       }
     }
 
-    this.olho.replaceChildren(icon(showing ? ICONS_EXTRA.eyeOff : ICONS_EXTRA.eye, 16));
-    this.olho.setAttribute('aria-label', showing ? 'Ocultar' : 'Mostrar');
-    this.olho.setAttribute('aria-pressed', String(showing));
-    this.envolucro.classList.toggle('is-hidden', !showing);
+    this.eye.replaceChildren(icon(showing ? ICONS_EXTRA.eyeOff : ICONS_EXTRA.eye, 16));
+    this.eye.setAttribute('aria-label', showing ? 'Ocultar' : 'Mostrar');
+    this.eye.setAttribute('aria-pressed', String(showing));
+    this.wrapper.classList.toggle('is-hidden', !showing);
   }
 
   /* ---------------------------------------------------------------- *
    * Interno                                                           *
    * ---------------------------------------------------------------- */
 
-  _template(caracteres) {
+  _template(given) {
     if (this.isCurrency) return '';
-    const chars = caracteres ?? clear(this.input.value, [].concat(this.templates).join(''));
+    const chars = given ?? clear(this.input.value, [].concat(this.templates).join(''));
     return pickTemplate(chars, this.templates);
   }
 
@@ -235,31 +235,31 @@ export class Mask {
     input.setAttribute('autocomplete', input.getAttribute('autocomplete') || 'off');
 
     this._cleanups.push(
-      on(input, 'input', (e) => this._aoDigitar(e)),
+      on(input, 'input', (e) => this._onType(e)),
       on(input, 'blur', () => { if (this.opts.validate) this._validate(); }),
       on(input, 'focus', () => this._mark(true)),
     );
   }
 
-  _aoDigitar(e) {
+  _onType(e) {
     const input = this.input;
     const cursor = input.selectionStart ?? input.value.length;
     const type = typeof e.inputType === 'string' ? e.inputType : '';
     this._format({
       cursor,
       deleting: type.startsWith('delete'),
-      paraFrente: type === 'deleteContentForward',
+      forward: type === 'deleteContentForward',
     });
     this._emit();
     if (this.opts.validate) this._mark(true);   // some o erro enquanto digita
   }
 
-  _format({ cursor = null, deleting = false, paraFrente = false, keepCursor = true } = {}) {
+  _format({ cursor = null, deleting = false, forward = false, keepCursor = true } = {}) {
     const input = this.input;
-    const bruto = input.value;
+    const raw = input.value;
 
     if (this.isCurrency) {
-      const digits = bruto.replace(/\D/g, '');
+      const digits = raw.replace(/\D/g, '');
       const text = applyCurrency(digits, {
         decimals: this.opts.decimals, locale: this.opts.locale, currency: this.opts.currency,
       });
@@ -269,19 +269,19 @@ export class Mask {
       return;
     }
 
-    const todos = [].concat(this.templates).join('');
-    let chars = [...clear(bruto, todos)];
+    const all = [].concat(this.templates).join('');
+    let chars = [...clear(raw, all)];
     if (this.uppercase) chars = chars.map((c) => c.toUpperCase());
 
-    let before = cursor === null ? chars.length : [...clear(bruto.slice(0, cursor), todos)].length;
+    let before = cursor === null ? chars.length : [...clear(raw.slice(0, cursor), all)].length;
 
     // Apagar em cima de um separador remove o caractere vizinho: senao a
     // mascara o recolocaria na hora e a tecla nao faria nada.
     if (deleting && chars.length === this._last?.length) {
-      const idx = paraFrente ? before : before - 1;
+      const idx = forward ? before : before - 1;
       if (idx >= 0 && idx < chars.length) {
         chars.splice(idx, 1);
-        if (!paraFrente) before -= 1;
+        if (!forward) before -= 1;
       }
     }
 
@@ -358,8 +358,8 @@ export function autoFormat(scope = document) {
   for (const node of scope.querySelectorAll('[data-tuc-format]:not([data-tuc-formatted])')) {
     const d = node.dataset;
     node.setAttribute('data-tuc-formatted', '');
-    const bruto = (node.dataset.value ?? node.textContent).trim();
-    node.textContent = format(bruto, d.tucFormat, {
+    const raw = (node.dataset.value ?? node.textContent).trim();
+    node.textContent = format(raw, d.tucFormat, {
       decimals: d.decimals ? +d.decimals : undefined,
       currency: d.currency || undefined,
     });
