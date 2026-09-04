@@ -225,6 +225,18 @@ Exibicao: envolva a saida em .tuc-prosa para ela ficar igual ao editor.
 O codigo publicado e colorido pelo init(). Tucano.destacar(texto) faz isso a
 mao; Tucano.sanitizar(html) aplica a peneira.
 
+## Levar so o que se usa
+
+Pelo CDN vem tudo (33 KB gzip) e o navegador guarda em cache por um ano.
+
+Empacotando, importe de 'tucano' e leve so o referenciado: date picker sozinho
+9,8 KB, select 6,2 KB, toast 3,1 KB, os dois primeiros juntos 13,7 KB, tudo
+30,2 KB. Nao e linear porque o nucleo e compartilhado.
+
+Importando de 'tucano' os campos NAO se inicializam sozinhos: chame
+Tucano.init(document), ou importe 'tucano/auto', que inicializa e escuta os
+swaps do HTMX como o script do CDN.
+
 ## Conferencia de tamanhos
 
     npm run conferir

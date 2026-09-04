@@ -400,6 +400,37 @@ Tucano.modal({
 if (await Tucano.confirmar({ title: 'Excluir contrato?' })) excluir();
 ```
 
+## Baixar só o que se usa
+
+Pelo CDN vem tudo — um arquivo, sem build, e o navegador guarda em cache por um
+ano. É a escolha certa para a maioria dos casos.
+
+Quem empacota pode levar menos, importando de `tucano`:
+
+```js
+import { DatePicker, Select } from 'tucano';   // 13,7 KB em vez de 33
+```
+
+| o que se importa | gzip |
+| --- | --- |
+| só o date picker | 9,8 KB |
+| só o select | 6,2 KB |
+| só o toast | 3,1 KB |
+| date picker + select | 13,7 KB |
+| tudo | 30,2 KB |
+
+Não é linear porque o núcleo — posicionamento, datas, utilidades de DOM — é
+compartilhado: o primeiro componente paga por ele e os seguintes saem mais
+baratos.
+
+Ao importar de `tucano`, os campos **não** se inicializam sozinhos: chame
+`Tucano.init(document)` uma vez, ou importe `tucano/auto`, que faz isso e
+também escuta os swaps do HTMX.
+
+```js
+import 'tucano/auto';   // comporta-se como o script do CDN
+```
+
 ## Utilitários
 
 ```js

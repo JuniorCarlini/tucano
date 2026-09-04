@@ -50,11 +50,3 @@ export function init(scope = document) {
     tooltips: autoInitTip(scope),
   };
 }
-
-// Auto-init no DOM inicial e depois de cada swap do HTMX.
-if (typeof document !== 'undefined') {
-  const boot = () => { ouvirEventos(); init(document); };
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
-  else boot();
-  document.addEventListener('htmx:afterSwap', (e) => init(e.target));
-}

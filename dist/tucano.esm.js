@@ -5187,15 +5187,6 @@ function init(scope = document) {
     tooltips: autoInit7(scope)
   };
 }
-if (typeof document !== "undefined") {
-  const boot = () => {
-    ouvirEventos();
-    init(document);
-  };
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
-  else boot();
-  document.addEventListener("htmx:afterSwap", (e) => init(e.target));
-}
 export {
   Acordeon,
   ColorPicker,

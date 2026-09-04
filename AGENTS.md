@@ -144,6 +144,13 @@ das células são declarados de propósito: `table { display: block }` e
 `th { text-transform: uppercase }` são receitas comuns em projeto, e herdadas
 aqui desmontam o layout e mentem sobre o que será publicado.
 
+**`index.js` não tem efeito colateral, e isso é deliberado.** O auto-init mora
+em `auto.js`, que é a entrada do build IIFE. Enquanto o boot morava no index,
+importar `tucano` executava `init()`, que alcança os onze componentes — e
+empacotador nenhum consegue descartar o que é usado. Medido: importar só o date
+picker custava os mesmos 31,9 KB de importar tudo, contra 9,8 KB depois da
+separação. Não devolva o boot para o index.
+
 ## Antes de dizer que está pronto
 
 ```bash

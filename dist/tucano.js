@@ -17,9 +17,9 @@ var Tucano = (() => {
   };
   var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-  // src/js/index.js
-  var index_exports = {};
-  __export(index_exports, {
+  // src/js/auto.js
+  var auto_exports = {};
+  __export(auto_exports, {
     Acordeon: () => Acordeon,
     ColorPicker: () => ColorPicker,
     DatePicker: () => DatePicker,
@@ -5242,6 +5242,8 @@ var Tucano = (() => {
       tooltips: autoInit7(scope)
     };
   }
+
+  // src/js/auto.js
   if (typeof document !== "undefined") {
     const boot = () => {
       ouvirEventos();
@@ -5251,5 +5253,5 @@ var Tucano = (() => {
     else boot();
     document.addEventListener("htmx:afterSwap", (e) => init(e.target));
   }
-  return __toCommonJS(index_exports);
+  return __toCommonJS(auto_exports);
 })();
