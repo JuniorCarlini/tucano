@@ -5028,7 +5028,7 @@ function addCopy(pre) {
   pre.classList.add("tuc-prose__block");
   const btn = el("button", {
     type: "button",
-    class: "tuc-copy",
+    class: "tuc-btn is-outline is-icon is-sm tuc-copy",
     "aria-label": "Copiar c\xF3digo"
   }, [icon(ICON_COPY, 14), icon(ICON_OK, 14)]);
   btn.children[1].classList.add("tuc-copy__ok");

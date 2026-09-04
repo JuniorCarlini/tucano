@@ -269,18 +269,17 @@ textarea.tuc-editor__value[hidden] { display: none; }
  */
 .tuc-prose__block { position: relative; }
 
+/*
+ * O botao e o `.tuc-btn is-outline is-icon is-sm` do sistema — altura, raio,
+ * borda, foco e toque ja resolvidos la. Aqui fica so o que e proprio deste
+ * lugar: o canto do bloco e o aparecer no hover.
+ */
 .tuc-copy {
-  @apply absolute grid size-7 cursor-pointer place-items-center p-0;
+  @apply absolute;
   top: 0.5rem;
   right: 0.5rem;
-  color: var(--tuc-muted);
-  background: var(--tuc-bg);
-  border: var(--tuc-border-width) solid var(--tuc-border);
-  border-radius: var(--tuc-radius-xs);
   opacity: 0;
-  transition:
-    opacity var(--tuc-duration) var(--tuc-ease),
-    color var(--tuc-duration) var(--tuc-ease);
+  transition: opacity var(--tuc-duration) var(--tuc-ease);
 }
 
 /*
@@ -289,8 +288,6 @@ textarea.tuc-editor__value[hidden] { display: none; }
  */
 .tuc-prose__block:hover .tuc-copy,
 .tuc-copy:focus-visible { opacity: 1; }
-.tuc-copy:hover { color: var(--tuc-fg); background: var(--tuc-hover); }
-.tuc-copy:focus-visible { outline: 2px solid var(--tuc-ring); outline-offset: 2px; }
 
 /* No toque nao existe hover: ali ele fica sempre visivel, mais discreto. */
 @media (hover: none) {

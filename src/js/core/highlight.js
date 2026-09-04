@@ -107,8 +107,10 @@ function addCopy(pre) {
   if (!pre || pre.querySelector('.tuc-copy')) return;
   pre.classList.add('tuc-prose__block');
 
+  // O botao e o do sistema; .tuc-copy so o posiciona no canto do bloco.
   const btn = el('button', {
-    type: 'button', class: 'tuc-copy', 'aria-label': 'Copiar código',
+    type: 'button', class: 'tuc-btn is-outline is-icon is-sm tuc-copy',
+    'aria-label': 'Copiar código',
   }, [icon(ICON_COPY, 14), icon(ICON_OK, 14)]);
   btn.children[1].classList.add('tuc-copy__ok');
 
