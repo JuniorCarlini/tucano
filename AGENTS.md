@@ -351,6 +351,20 @@ console, e passa em qualquer teste que instancie os componentes por JavaScript.
 Só clicando o botão da página. Ao renomear, varra também `on\w+="..."` — e teste
 clicando, não chamando a API.
 
+A primeira correção disso ainda deixou passar as chaves **aninhadas**: eu montei
+a lista de renomeações a partir das opções de primeiro nível e esqueci
+`actions:[{texto:'...'}]` e o rótulo `confirmar:` do `confirm()`. O resultado
+foi um botão sem rótulo dentro do modal — um retângulo vazio. Lista escrita à
+mão erra; o teste que não erra é comparar cada chave passada nos handlers com o
+que os componentes de fato leem (`DEFAULTS`, `this.opts.*`, `a.*`) e apontar as
+que ninguém lê. Chave desconhecida é silenciosamente ignorada pelo
+`{ ...DEFAULTS, ...omitUndefined(options) }`, então nada avisa.
+
+**Ícone precisa ser olhado grande.** O de "limpar formatação" era uma lixeira —
+o mesmo desenho de "excluir tabela", que faz sentido lá e nenhum aqui. E os
+dígitos da lista numerada saíam como rabiscos em 15px. Renderize o mapa de
+ícones em 64px antes de dar por bom; em tamanho de barra tudo parece aceitável.
+
 **A máscara deriva o placeholder do gabarito.** `###.###.###-##` vira
 `000.000.000-00`, e com dois gabaritos vale o primeiro. Existe porque escrever
 à mão é trabalho que se esquece: a página tinha cinco campos com placeholder e

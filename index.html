@@ -1091,9 +1091,9 @@ Tucano.toast.promise(fetch(url), {
 
     <span class="lbl">Comportamento</span>
     <div class="bar" style="margin:0">
-      <button class="tuc-btn is-outline is-sm" onclick="Tucano.confirm({title:'Excluir contrato?', text:'Esta ação não pode ser desfeita.', confirmar:'Excluir'}).then(ok=>Tucano.toast[ok?'sucesso':'info'](ok?'Excluído':'Cancelado'))">confirmar() com promessa</button>
-      <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Folha', text:'No celular sobe do rodapé. Estreite a janela para ver.', sheet:true, actions:[{texto:'Entendi'}]})">folha (celular)</button>
-      <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Sem fechar por fora', text:'Só pelo botão. Útil quando há algo em andamento.', closeOnBackdrop:false, actions:[{texto:'Fechar'}]})">preso</button>
+      <button class="tuc-btn is-outline is-sm" onclick="Tucano.confirm({title:'Excluir contrato?', text:'Esta ação não pode ser desfeita.', confirm:'Excluir'}).then(ok=>Tucano.toast[ok?'success':'info'](ok?'Excluído':'Cancelado'))">confirmar() com promessa</button>
+      <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Folha', text:'No celular sobe do rodapé. Estreite a janela para ver.', sheet:true, actions:[{text:'Entendi'}]})">folha (celular)</button>
+      <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Sem fechar por fora', text:'Só pelo botão. Útil quando há algo em andamento.', closeOnBackdrop:false, actions:[{text:'Fechar'}]})">preso</button>
       <button class="tuc-btn is-outline is-sm" data-tuc-modal="#modal-template">vindo do template</button>
     </div>
   </div>
@@ -1160,7 +1160,7 @@ Tucano.toast.promise(fetch(url), {
   <div class="card">
     <span class="lbl">De onde ela entra</span>
     <div class="bar" style="margin:0 0 16px">
-      <button class="tuc-btn is-outline is-sm" onclick="Tucano.drawer({title:'Filtros', text:'Refine a lista de contratos.', side:'right', actions:[{texto:'Limpar',variant:'ghost'},{texto:'Aplicar',variant:'primary'}]})">direita</button>
+      <button class="tuc-btn is-outline is-sm" onclick="Tucano.drawer({title:'Filtros', text:'Refine a lista de contratos.', side:'right', actions:[{text:'Limpar',variant:'ghost'},{text:'Aplicar',variant:'primary'}]})">direita</button>
       <button class="tuc-btn is-outline is-sm" onclick="Tucano.drawer({title:'Menu', text:'Navegação lateral.', side:'left', size:'sm'})">esquerda</button>
       <button class="tuc-btn is-outline is-sm" onclick="Tucano.drawer({title:'Aviso do sistema', text:'Manutenção programada para domingo.', side:'top'})">cima</button>
       <button class="tuc-btn is-outline is-sm" onclick="Tucano.drawer({title:'Detalhes', text:'Sobe do rodapé.', side:'bottom'})">baixo</button>
