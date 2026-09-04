@@ -38,8 +38,8 @@ Sem React, sem Vue, sem dependência em runtime.
 Dois arquivos e nada mais — sem npm, sem build, sem escrever JavaScript:
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.30.1/dist/tucano.min.css">
-<script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.30.1/dist/tucano.min.js" defer></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.30.2/dist/tucano.min.css">
+<script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.30.2/dist/tucano.min.js" defer></script>
 
 <input type="text" name="data" data-tuc-datepicker>
 <select name="uf" data-tuc-select><option>...</option></select>
@@ -50,7 +50,7 @@ Funciona junto com o CDN do Tailwind sem conflito: o pacote **não** envia o
 preflight, e os elementos internos têm reset próprio para não serem atingidos
 pelo preflight do Tailwind nem pelo CSS do projeto.
 
-Prenda sempre a versão (`@0.30.1`). `@latest` quebra sozinho quando você publicar
+Prenda sempre a versão (`@0.30.2`). `@latest` quebra sozinho quando você publicar
 uma versão nova.
 
 ### Estático (Django, Rails, HTML puro)

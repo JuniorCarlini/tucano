@@ -432,6 +432,17 @@ evento numa sonda, `e.target.name` veio vazio no date picker — ele move o `nam
 para um `<input type=hidden>` com o valor ISO, e o campo visível fica sem. Os
 três arquivos ensinavam `e.target.name` como se valesse para todos.
 
+**A tag é o último passo, depois do último commit.** Criei a tag `v0.30.1` e só
+então continuei mexendo: o commit seguinte renomeou o evento público
+`tucano:toast-fechado` para `tucano:toast-closed`. Resultado — o npm, publicado
+depois, saiu com o nome novo, e o jsDelivr, que serve da tag, ficou servindo o
+antigo. Mesmo número de versão, código diferente em cada canal.
+
+Tag publicada não se move: o jsDelivr cacheia de forma agressiva e alguém pode
+já ter fixado aquela versão. A saída é subir a próxima. A ordem é sempre build →
+conferir → commit → tag → push → publish, e nada entra entre a tag e o publish.
+Antes de publicar, compare o que a tag contém com o que o `HEAD` contém.
+
 ## Antes de dizer que está pronto
 
 ```bash
