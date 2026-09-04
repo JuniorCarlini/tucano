@@ -398,6 +398,19 @@ paleta de sintaxe, `.tuc-prose` estava sem o `:where(.dark …)` na frente — e
 a paleta escura valia nos dois temas, verde-claro sobre fundo claro. Vírgula não
 distribui prefixo.
 
+**Para achar comentário traduzido por engano, compare com o original — não
+adivinhe a palavra errada.** `git show <antes>:<arquivo>` e um diff linha a
+linha dos comentários separa em duas pilhas: prosa em português que voltou
+errada (restaurar) e nome de API novo que deve mesmo aparecer (manter). Foi
+assim que apareceram 29 linhas em `datepicker.js`, `editor.js` e `dialog.js`
+que três varreduras por heurística tinham deixado passar.
+
+**Código escrito depois do rename também nasce em português.** Metade dos
+identificadores que sobraram (`mostrar`, `ordenadas`, `saida`, `classe`,
+`filhos`, `texto`) estava em `pagination.js`, `table.js` e no copiar do
+`highlight.js` — arquivos que eu mesmo escrevi já com a regra valendo. Rode a
+varredura de identificadores depois de escrever, não só depois de renomear.
+
 ## Antes de dizer que está pronto
 
 ```bash

@@ -16,8 +16,8 @@ import { Popover } from '../core/popover.js';
 
 const DEFAULTS = {
   placement: 'bottom-start',
-  items: null,       // [{ texto, icone, atalho, onClick, href, variante, desabilitado }]
-                     // ou { separador: true } / { rotulo: 'Seção' }
+  items: null,       // [{ text, icon, shortcut, onClick, href, variant, disabled }]
+                     // ou { separator: true } / { label: 'Seção' }
   closeOnPick: true,
 };
 

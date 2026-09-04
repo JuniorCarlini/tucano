@@ -35,23 +35,23 @@ const SETA_DIR = 'M9 18l6-6-6-6';
  * devolve `null` onde entra a reticencia, e nunca duas seguidas.
  */
 export function pageWindow(page, pages, { around = 1, edges = 1 } = {}) {
-  const mostrar = new Set();
-  for (let i = 1; i <= Math.min(edges, pages); i++) mostrar.add(i);
-  for (let i = Math.max(1, pages - edges + 1); i <= pages; i++) mostrar.add(i);
-  for (let i = page - around; i <= page + around; i++) if (i >= 1 && i <= pages) mostrar.add(i);
+  const visible = new Set();
+  for (let i = 1; i <= Math.min(edges, pages); i++) visible.add(i);
+  for (let i = Math.max(1, pages - edges + 1); i <= pages; i++) visible.add(i);
+  for (let i = page - around; i <= page + around; i++) if (i >= 1 && i <= pages) visible.add(i);
 
-  const ordenadas = [...mostrar].sort((a, b) => a - b);
-  const saida = [];
-  let anterior = 0;
-  for (const n of ordenadas) {
+  const sorted = [...visible].sort((a, b) => a - b);
+  const out = [];
+  let previous = 0;
+  for (const n of sorted) {
     // Buraco de uma pagina so nao merece reticencia: mostrar o numero ocupa o
     // mesmo espaco e da um destino a mais para clicar.
-    if (n - anterior === 2) saida.push(anterior + 1);
-    else if (n - anterior > 2) saida.push(null);
-    saida.push(n);
-    anterior = n;
+    if (n - previous === 2) out.push(previous + 1);
+    else if (n - previous > 2) out.push(null);
+    out.push(n);
+    previous = n;
   }
-  return saida;
+  return out;
 }
 
 export class Pagination {
@@ -76,25 +76,25 @@ export class Pagination {
      * preenchimento: numa barra com dez alvos, dez botoes solidos brigam entre
      * si, e o contorno ja diz onde estamos — o aria-current diz a quem nao ve.
      */
-    const classe = [
+    const className = [
       'tuc-btn',
       current ? 'is-outline' : 'is-ghost',
       edge ? 'tuc-pagination__edge' : '',
       disabled ? 'is-disabled' : '',
     ].filter(Boolean).join(' ');
-    const filhos = typeof text === 'string' ? [text] : text;
+    const children = typeof text === 'string' ? [text] : text;
 
     /*
      * Ponta desativada e <span>, nao <a> sem href: um link que nao leva a lugar
      * nenhum continua no caminho do Tab e e anunciado como link pelo leitor de
      * tela. Assim ele simplesmente sai do caminho.
      */
-    if (disabled) return el('span', { class: classe, 'aria-hidden': 'true' }, filhos);
+    if (disabled) return el('span', { class: className, 'aria-hidden': 'true' }, children);
 
     const a = el('a', {
-      class: classe, href: this.href(page),
+      class: className, href: this.href(page),
       ...(current ? { 'aria-current': 'page' } : {}),
-    }, filhos);
+    }, children);
     this._cleanups.push(on(a, 'click', (e) => {
       if (!this.opts.onChange) return;
       e.preventDefault();

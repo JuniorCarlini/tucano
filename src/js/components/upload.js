@@ -81,20 +81,20 @@ export class Upload {
   getFiles() {
     return this.items.map((i) => ({
       name: i.file.name, size: i.file.size, type: i.file.type,
-      status: i.estado, progress: i.progress, id: i.idServidor ?? null, url: i.url ?? null,
+      status: i.state, progress: i.progress, id: i.serverId ?? null, url: i.url ?? null,
       file: i.file,
     }));
   }
 
   /** Ids devolvidos pelo servidor (modo direto). E o que o formulario posta. */
   getValue() {
-    const ready = this.items.filter((i) => i.estado === 'pronto' && i.idServidor != null);
-    return this.direct ? ready.map((i) => i.idServidor) : this.items.map((i) => i.file);
+    const ready = this.items.filter((i) => i.state === 'ready' && i.serverId != null);
+    return this.direct ? ready.map((i) => i.serverId) : this.items.map((i) => i.file);
   }
 
   /** Sobe o que estiver pendente. Util com autoUpload: false. */
   uploadAll() {
-    for (const item of this.items) if (item.estado === 'pendente') this._upload(item);
+    for (const item of this.items) if (item.state === 'pending') this._upload(item);
   }
 
   clear() {
@@ -213,7 +213,7 @@ export class Upload {
       if (error) { this._fail(error, file); continue; }
 
       const item = {
-        key: fileId(), file, estado: 'pendente', progress: 0,
+        key: fileId(), file, state: 'pending', progress: 0,
         preview: isImage(file) ? URL.createObjectURL(file) : null,
       };
       this.items.push(item);
@@ -253,7 +253,7 @@ export class Upload {
   }
 
   _upload(item) {
-    item.estado = 'enviando';
+    item.state = 'uploading';
     item.progress = 0;
     item.error = null;
     this._renderList();
@@ -278,10 +278,10 @@ export class Upload {
     item.abort = abort;
 
     promise.then((response) => {
-      item.estado = 'pronto';
+      item.state = 'ready';
       item.progress = 1;
       item.response = response;
-      item.idServidor = response?.[this.opts.responseId] ?? null;
+      item.serverId = response?.[this.opts.responseId] ?? null;
       item.url = response?.[this.opts.responseUrl] ?? null;
     }).catch((e) => {
       if (e.canceled) {
@@ -289,7 +289,7 @@ export class Upload {
         if (i >= 0) this.items.splice(i, 1);
         if (item.preview) URL.revokeObjectURL(item.preview);
       } else {
-        item.estado = 'error';
+        item.state = 'error';
         item.error = e.message;
         this.opts.onError?.(e, item.file);
       }
@@ -306,10 +306,10 @@ export class Upload {
     if (i >= 0) this.items.splice(i, 1);
     if (item.preview) URL.revokeObjectURL(item.preview);
 
-    if (this.direct && this.opts.deleteUrl && item.idServidor != null) {
+    if (this.direct && this.opts.deleteUrl && item.serverId != null) {
       const headers = { ...this.opts.headers };
       if (this.opts.csrf) { const t = csrfToken(); if (t) headers['X-CSRFToken'] = t; }
-      fetch(`${this.opts.deleteUrl}${item.idServidor}/`, { method: 'DELETE', headers }).catch(() => {});
+      fetch(`${this.opts.deleteUrl}${item.serverId}/`, { method: 'DELETE', headers }).catch(() => {});
     }
 
     this._syncNative();
@@ -349,16 +349,16 @@ export class Upload {
 
     for (const item of this.items) {
       const pct = Math.round(item.progress * 100);
-      const meta = item.estado === 'enviando'
+      const meta = item.state === 'uploading'
         ? `${pct}% · ${formatSize(item.file.size, this.opts.locale)}`
-        : item.estado === 'error'
+        : item.state === 'error'
           ? item.error
           : formatSize(item.file.size, this.opts.locale);
 
       const actions = [];
-      if (item.estado === 'enviando') {
+      if (item.state === 'uploading') {
         actions.push(this._button(ICON_X, this.t.cancel, () => item.abort?.()));
-      } else if (item.estado === 'error') {
+      } else if (item.state === 'error') {
         actions.push(this._button(ICON_RETRY, this.t.repeat, () => this._upload(item)));
         actions.push(this._button(ICON_X, this.t.remove, () => this._remove(item)));
       } else {
@@ -366,7 +366,7 @@ export class Upload {
       }
 
       this.list.append(el('li', {
-        class: `tuc-upload__item is-${item.estado}`,
+        class: `tuc-upload__item is-${item.state}`,
         dataset: { key: item.key },
       }, [
         item.preview
@@ -375,13 +375,13 @@ export class Upload {
         el('div', { class: 'tuc-upload__info' }, [
           el('span', { class: 'tuc-upload__name', title: item.file.name, text: item.file.name }),
           el('span', { class: 'tuc-upload__meta', text: meta }),
-          item.estado === 'enviando'
+          item.state === 'uploading'
             ? el('span', { class: 'tuc-upload__bar' }, [
                 el('span', { class: 'tuc-upload__barfill', style: `width:${pct}%` }),
               ])
             : null,
         ]),
-        item.estado === 'pronto' ? el('span', { class: 'tuc-upload__ok' }, [icon(ICON_CHECK, 15)]) : null,
+        item.state === 'ready' ? el('span', { class: 'tuc-upload__ok' }, [icon(ICON_CHECK, 15)]) : null,
         el('div', { class: 'tuc-upload__actions' }, actions),
       ]));
     }
@@ -403,8 +403,8 @@ export class Upload {
     this.hidden?.remove();
     this.hidden = el('span', { class: 'tuc-upload__hidden' },
       this.items
-        .filter((i) => i.estado === 'pronto' && i.idServidor != null)
-        .map((i) => el('input', { type: 'hidden', name: this.fieldName, value: String(i.idServidor) })));
+        .filter((i) => i.state === 'ready' && i.serverId != null)
+        .map((i) => el('input', { type: 'hidden', name: this.fieldName, value: String(i.serverId) })));
     this.root.append(this.hidden);
   }
 

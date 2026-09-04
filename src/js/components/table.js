@@ -90,12 +90,12 @@ export class Table {
     const head = this.node.tHead?.rows[0];
     if (!head) return;
     this.sortable = [];
-    const noServidor = this.opts.sortMode !== 'client';
+    const onServer = this.opts.sortMode !== 'client';
     // O estado atual sai da URL: assim a seta continua certa depois do reload,
     // e nao de uma variavel que so existe enquanto a pagina esta aberta.
-    const atual = new URLSearchParams(location.search);
-    const campoAtual = atual.get(this.opts.sortParam);
-    const dirAtual = atual.get(this.opts.dirParam) === 'desc' ? 'descending' : 'ascending';
+    const current = new URLSearchParams(location.search);
+    const currentField = current.get(this.opts.sortParam);
+    const currentDir = current.get(this.opts.dirParam) === 'desc' ? 'descending' : 'ascending';
 
     [...head.cells].forEach((th, i) => {
       const type = th.dataset.sort;
@@ -103,11 +103,11 @@ export class Table {
       const field = th.dataset.field || String(i);
       th.classList.add('tuc-table__sortable');
 
-      const marcada = noServidor && campoAtual === field;
-      th.setAttribute('aria-sort', marcada ? dirAtual : 'none');
-      const proxima = marcada && dirAtual === 'ascending' ? 'desc' : 'asc';
+      const marked = onServer && currentField === field;
+      th.setAttribute('aria-sort', marked ? currentDir : 'none');
+      const next = marked && currentDir === 'ascending' ? 'desc' : 'asc';
 
-      const filhos = [
+      const children = [
         el('span', { text: th.textContent.trim() }),
         el('span', { class: 'tuc-table__sorticon', 'aria-hidden': 'true' }, [icon(SETAS, 13)]),
       ];
@@ -117,14 +117,14 @@ export class Table {
        * query string — filtro e busca nao se perdem ao trocar a ordem. No
        * cliente e <button>, porque ali nao ha navegacao nenhuma.
        */
-      const gatilho = noServidor
-        ? el('a', { class: 'tuc-table__sortbtn', href: this._sortHref(field, proxima) }, filhos)
-        : el('button', { type: 'button', class: 'tuc-table__sortbtn' }, filhos);
+      const trigger = onServer
+        ? el('a', { class: 'tuc-table__sortbtn', href: this._sortHref(field, next) }, children)
+        : el('button', { type: 'button', class: 'tuc-table__sortbtn' }, children);
 
       th.textContent = '';
-      th.append(gatilho);
+      th.append(trigger);
       this.sortable.push({ th, index: i, type, field });
-      this._cleanups.push(on(gatilho, 'click', (e) => this._onSortClick(e, th, i, type, field)));
+      this._cleanups.push(on(trigger, 'click', (e) => this._onSortClick(e, th, i, type, field)));
     });
   }
 
@@ -140,27 +140,27 @@ export class Table {
   }
 
   _onSortClick(e, th, index, type, field) {
-    const noServidor = this.opts.sortMode !== 'client';
-    const anterior = th.getAttribute('aria-sort');
-    const dir = anterior === 'ascending' ? 'descending' : 'ascending';
-    const detalhe = { column: index, field, direction: dir === 'ascending' ? 'asc' : 'desc' };
+    const onServer = this.opts.sortMode !== 'client';
+    const previous = th.getAttribute('aria-sort');
+    const dir = previous === 'ascending' ? 'descending' : 'ascending';
+    const detail = { column: index, field, direction: dir === 'ascending' ? 'asc' : 'desc' };
 
-    this.node.dispatchEvent(new CustomEvent('tuc:sort', { bubbles: true, detail: detalhe }));
+    this.node.dispatchEvent(new CustomEvent('tuc:sort', { bubbles: true, detail: detail }));
 
     // Quem passou onSort assume a responsabilidade — e ai o link nao navega.
     if (this.opts.onSort) {
       e.preventDefault();
-      this.opts.onSort(detalhe, this);
+      this.opts.onSort(detail, this);
       return;
     }
     // No servidor o <a> faz o trabalho sozinho: nao mexemos nas linhas nem no
     // aria-sort, porque a pagina que vier ja chega com a ordem certa.
-    if (noServidor) return;
+    if (onServer) return;
 
     e.preventDefault();
     for (const s of this.sortable) s.th.setAttribute('aria-sort', 'none');
     th.setAttribute('aria-sort', dir);
-    this.sort(index, detalhe.direction, type);
+    this.sort(index, detail.direction, type);
   }
 
   /** Ordena as linhas visíveis. `type`: text | number | date. */
@@ -168,15 +168,15 @@ export class Table {
     const body = this.node.tBodies[0];
     if (!body) return this;
     const cmp = COMPARE[type] ?? COMPARE.text;
-    const chave = (tr) => {
+    const key = (tr) => {
       const cell = tr.cells[index];
       // data-sort-value existe para quando o texto exibido nao ordena bem:
       // "há 3 dias", "R$ 1.234,50", "Em análise".
       return cell?.dataset.sortValue ?? cell?.textContent.trim() ?? '';
     };
-    const sinal = direction === 'desc' ? -1 : 1;
-    const ordenadas = this.rows.sort((a, b) => sinal * cmp(chave(a), chave(b)));
-    for (const tr of ordenadas) body.append(tr);
+    const sign = direction === 'desc' ? -1 : 1;
+    const sorted = this.rows.sort((a, b) => sign * cmp(key(a), key(b)));
+    for (const tr of sorted) body.append(tr);
     return this;
   }
 
@@ -218,16 +218,16 @@ export class Table {
        * relendo ali dentro, da segunda linha em diante ja chegava `false`:
        * marcar tudo marcava so a primeira.
        */
-      const marcar = this.checkAll.checked;
+      const checked = this.checkAll.checked;
       for (const tr of this.rows) {
         const c = tr.querySelector('.tuc-table__check');
-        if (c) { c.checked = marcar; this._afterPick(tr, marcar); }
+        if (c) { c.checked = checked; this._afterPick(tr, checked); }
       }
     }));
   }
 
-  _afterPick(tr, marcada) {
-    tr.classList.toggle('is-selected', marcada);
+  _afterPick(tr, marked) {
+    tr.classList.toggle('is-selected', marked);
     const todas = this.rows.map((r) => r.querySelector('.tuc-table__check')).filter(Boolean);
     const marcadas = todas.filter((c) => c.checked);
     if (this.checkAll) {
@@ -236,9 +236,9 @@ export class Table {
       // selecao assim que uma linha e desmarcada.
       this.checkAll.indeterminate = marcadas.length > 0 && marcadas.length < todas.length;
     }
-    const detalhe = { selected: this.getSelected(), row: tr };
-    this.node.dispatchEvent(new CustomEvent('tuc:select', { bubbles: true, detail: detalhe }));
-    this.opts.onSelect?.(detalhe, this);
+    const detail = { selected: this.getSelected(), row: tr };
+    this.node.dispatchEvent(new CustomEvent('tuc:select', { bubbles: true, detail: detail }));
+    this.opts.onSelect?.(detail, this);
   }
 
   /** Valores marcados — os mesmos que o formulário enviaria. */

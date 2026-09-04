@@ -414,9 +414,9 @@ export class DatePicker {
   }
 
   /**
-   * Reescreve o field a cada tecla mantendo o template. Apagar em cima de um
-   * separator remove o digito anterior junto — senao a mascara o recolocaria
-   * na hora e o field travaria.
+   * Reescreve o campo a cada tecla mantendo o gabarito. Apagar em cima de um
+   * separador remove o digito anterior junto — senao a mascara o recolocaria
+   * na hora e o campo travaria.
    */
   _onMaskInput(e) {
     const input = this.input;
@@ -427,9 +427,9 @@ export class DatePicker {
     let digits = raw.replace(/\D/g, '');
     let before = raw.slice(0, caret).replace(/\D/g, '').length;
 
-    // Digitos iguais aos de antes = so um separator foi apagado. Nesse caso
+    // Digitos iguais aos de antes = so um separador foi apagado. Nesse caso
     // removemos o digito vizinho ao cursor — senao a mascara recolocaria o
-    // separator na hora e a tecla nao faria nada.
+    // separador na hora e a tecla nao faria nada.
     if (deleting && digits === this._maskDigits) {
       const forward = e.inputType === 'deleteContentForward';
       const idx = forward ? before : before - 1;
@@ -450,8 +450,8 @@ export class DatePicker {
   }
 
   /**
-   * Com a mascara completa, move o calendario para a data digitada sem close
-   * nem reescrever o field — commit de verdade so no Enter ou ao sair.
+   * Com a mascara completa, move o calendario para a data digitada sem fechar
+   * nem reescrever o campo — commit de verdade so no Enter ou ao sair.
    */
   _previewTyped() {
     const raw = this.input.value;
@@ -507,14 +507,14 @@ export class DatePicker {
     // O overlay guarda o ISO: e dele que o seletor do sistema parte.
     if (this.overlay) this.overlay.value = this._nativeValue();
     if (this.isoInput) this.isoInput.value = this._isoValue();
-    // Mantem o contador da mascara alinhado com o text escrito por codigo.
+    // Mantem o contador da mascara alinhado com o texto escrito por codigo.
     if (this.input && this._mask) this._maskDigits = this.input.value.replace(/\D/g, '');
   }
 
   _commitTyped() {
     if (!this.input) return;
     const raw = this.input.value.trim();
-    // Texto identico ao value atual: nada a reinterpretar — e evita emitir de novo.
+    // Texto identico ao valor atual: nada a reinterpretar — e evita emitir de novo.
     if (raw === this._displayValue()) return;
     if (!raw) { this.clear(); return; }
     if (this.isRange) {
@@ -531,9 +531,9 @@ export class DatePicker {
   }
 
   /**
-   * Normaliza o que foi digitado. Quando o text nao traz hora (parseUserInput
+   * Normaliza o que foi digitado. Quando o texto nao traz hora (parseUserInput
    * marca isso em `hasTime`), mantem a hora que ja estava selecionada em vez de
-   * jogar o value para meia-noite.
+   * jogar o valor para meia-noite.
    */
   _keepTime(parsed, previous) {
     if (!parsed) return null;
@@ -548,7 +548,7 @@ export class DatePicker {
     try {
       this.opts.onChange?.(value, detail);
       this.input.dispatchEvent(new CustomEvent('tucano:change', { detail, bubbles: true }));
-      // 'change' nativo para que validacao de form e HTMX enxerguem o value.
+      // 'change' nativo para que validacao de form e HTMX enxerguem o valor.
       this.input?.dispatchEvent(new Event('change', { bubbles: true }));
     } finally {
       this._emitting = false;
@@ -633,7 +633,7 @@ export class DatePicker {
    * ---------------------------------------------------------------- */
 
   _render() {
-    // Guarda o scroll por coluna (key estavel), nao por posicao no DOM.
+    // Guarda o scroll por coluna (chave estavel), nao por posicao no DOM.
     const scrollState = new Map();
     for (const n of this.panel.querySelectorAll('.tuc-dp__timelist')) {
       scrollState.set(`${n.dataset.which}|${n.dataset.unit}`, n.scrollTop);
@@ -664,7 +664,7 @@ export class DatePicker {
   }
 
   /**
-   * Rola cada coluna de hora ate o value selecionado — mas so quando esse value
+   * Rola cada coluna de hora ate o valor selecionado — mas so quando esse valor
    * mudou. Assim o scroll que o usuario deu na coluna nao e desfeito a cada
    * re-render (que acontece a todo hover no modo periodo).
    */
@@ -709,7 +709,7 @@ export class DatePicker {
         : el('span', { class: 'tuc-dp__nav is-ghost' }),
     ]);
 
-    // Mesma className da grade: com numero de semana sao 8 colunas, nao 7. Sem isso
+    // Mesma classe da grade: com numero de semana sao 8 colunas, nao 7. Sem isso
     // o sabado quebrava para a linha de baixo e desalinhava o cabecalho inteiro.
     const weekdays = el('div', { class: `tuc-dp__weekdays${this.opts.weekNumbers ? ' has-weeknums' : ''}` });
     if (this.opts.weekNumbers) weekdays.append(el('span', { class: 'tuc-dp__weeknum-head' }));
@@ -762,7 +762,7 @@ export class DatePicker {
     if (isStart && distintas) classes.push('is-start');
     if (isEnd && distintas) classes.push('is-end');
     if (inRange) classes.push('is-in-range');
-    // So a ponta sob o cursor e "preview"; o tone da faixa vem de .is-picking.
+    // So a ponta sob o cursor e "preview"; o tom da faixa vem de .is-picking.
     if (this.pendingRange && isEnd) classes.push('is-preview');
     return classes;
   }
@@ -770,7 +770,7 @@ export class DatePicker {
   /**
    * Repinta as celulas ja existentes. E o que roda a cada mouseenter: refazer a
    * grade ali trocaria o elemento entre o mousedown e o mouseup, e o browser
-   * engoliria o clique — era isso que impedia de close o periodo.
+   * engoliria o clique — era isso que impedia de fechar o periodo.
    */
   _paintDays() {
     this.panel.classList.toggle('is-picking', this.pendingRange && !!this.hover);
@@ -1003,18 +1003,18 @@ function buildPresets(option) {
   ];
 }
 
-/** Remove chaves com value undefined para que o spread nao apague defaults. */
+/** Remove chaves com valor undefined para que o spread nao apague defaults. */
 
 /**
  * Centraliza o item selecionado da coluna quando ele esta fora de vista.
- * Mexe so no scroll da list — scrollIntoView arrastaria a pagina inteira junto.
+ * Mexe so no scroll da lista — scrollIntoView arrastaria a pagina inteira junto.
  */
 function revealSelected(list) {
   const item = list.querySelector('.is-selected');
   if (!item) return;
   const lr = list.getBoundingClientRect();
   const ir = item.getBoundingClientRect();
-  // offsetTop seria relativo ao ancestral posicionado (o panel), nao a list.
+  // offsetTop seria relativo ao ancestral posicionado (o painel), nao a lista.
   const top = ir.top - lr.top + list.scrollTop;
   if (top < list.scrollTop || top + ir.height > list.scrollTop + list.clientHeight) {
     list.scrollTop = top - (list.clientHeight - ir.height) / 2;
@@ -1022,8 +1022,8 @@ function revealSelected(list) {
 }
 
 /**
- * Distribui os digitos pelo template ("##/##/######/##/######/##/######/##/####"), inserting os separators.
- * O separator entra assim que o group anterior closes, para o user nao
+ * Distribui os digitos pelo gabarito ("##/##/####"), inserindo os separadores.
+ * O separador entra assim que o grupo anterior fecha, para o usuario nao
  * precisar digita-lo.
  */
 function maskFormat(digits, template) {
@@ -1041,7 +1041,7 @@ function maskFormat(digits, template) {
   return out;
 }
 
-/** Position do cursor logo after o n-esimo digito do text ja masked. */
+/** Posicao do cursor logo apos o n-esimo digito do texto ja mascarado. */
 function caretAfterDigits(masked, n) {
   if (n <= 0) return 0;
   let seen = 0;
@@ -1055,7 +1055,7 @@ function floorTo(value, size) {
   return Math.floor(value / size) * size;
 }
 
-/** Numero da week ISO-8601. */
+/** Numero da semana ISO-8601. */
 function isoWeek(date) {
   const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
   d.setDate(d.getDate() + 3 - ((d.getDay() + 6) % 7));
@@ -1064,7 +1064,7 @@ function isoWeek(date) {
 }
 
 /**
- * Inicializa todo [data-tuc-datepicker] do scope. Options vem de data-attributes:
+ * Inicializa todo [data-tuc-datepicker] do escopo. Opcoes vem de data-attributes:
  * data-mode, data-time, data-min, data-max, data-months, data-locale, data-format...
  */
 export function autoInit(scope = document) {

@@ -85,7 +85,7 @@ export class Dialog {
 
 /*
  * A caixa por dentro e a mesma nos dois: cabecalho com titulo, texto e X, um
- * corpo que rola, e um rodape de acoes. O prefix entra por parametro porque
+ * corpo que rola, e um rodape de acoes. O prefixo entra por parametro porque
  * as classes seguem o nome de cada componente — .tuc-modal__panel continua
  * sendo .tuc-modal__panel, que e o que quem escreve o template digita a mao.
  */

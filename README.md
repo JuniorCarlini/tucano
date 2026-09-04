@@ -575,7 +575,7 @@ O `<table>` do template continua sendo a fonte da verdade, e a célula é livre.
 Para a célula: `.tuc-table__user` + `__avatar` + `__sub` (foto ou iniciais, nome e
 uma segunda linha), `.tuc-badge` com `is-success`/`is-warning`/`is-danger`/`is-info`,
 `.tuc-table__actions` (encosta à direita, com os botões do sistema) e
-`.is-number` (alinha à direita com dígitos de largura fixa). Para a segunda linha
+`.is-number` (alinha à direita com dígitos de largura fixa) e `.tuc-table__empty` para a célula de estado vazio. Para a segunda linha
 cortar com reticência, dê largura à coluna. Variantes: `is-striped`,
 `is-bordered`, `is-compact`.
 

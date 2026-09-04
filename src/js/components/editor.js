@@ -181,12 +181,12 @@ function toggleCode() {
   /*
    * Linha em branco dupla vira simples. A selecao atravessa paragrafos, e
    * toString junta cada um com duas quebras — o bloco saia com um vazio entre
-   * todas as rows, como se o codigo tivesse sido espacado de proposito.
+   * todas as linhas, como se o codigo tivesse sido espacado de proposito.
    */
   const escaped = escapeHtml(text.replace(/\n{2,}/g, '\n'));
 
   /*
-   * Selecao que atravessa rows vira bloco, e nao codigo no meio da frase.
+   * Selecao que atravessa linhas vira bloco, e nao codigo no meio da frase.
    * Um <code> solto nao guarda quebra: o navegador dissolvia a marcacao e
    * sobravam paragrafos com o texto cru, sem formatacao nenhuma. <pre> e o
    * elemento que existe para preservar quebra e recuo.
@@ -312,7 +312,7 @@ function deleteRow(cell) {
 }
 
 function deleteColumn(cell) {
-  // A linha e guardada antes do laco: ele apaga a coluna em todas as rows,
+  // A linha e guardada antes do laco: ele apaga a coluna em todas as linhas,
   // inclusive nesta, e a partir dai a celula que recebemos nao tem mais pai.
   const row = cell.parentElement;
   const i = [...row.children].indexOf(cell);

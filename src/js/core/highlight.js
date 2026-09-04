@@ -63,10 +63,10 @@ const COMBINADA = new RegExp(RULES.map(([, re]) => re.source).join('|'), 'g');
 /** Recebe codigo cru e devolve HTML com as marcacoes de cor. */
 export function highlight(code) {
   const text = escapeHtml(code ?? '');
-  return text.replace(COMBINADA, (todo, ...grupos) => {
-    const i = grupos.findIndex((g) => g !== undefined);
+  return text.replace(COMBINADA, (whole, ...groups) => {
+    const i = groups.findIndex((g) => g !== undefined);
     const className = RULES[i]?.[0];
-    return className ? `<span class="tuc-tok-${className}">${todo}</span>` : todo;
+    return className ? `<span class="tuc-tok-${className}">${whole}</span>` : whole;
   });
 }
 
@@ -115,9 +115,9 @@ function addCopy(pre) {
   btn.children[1].classList.add('tuc-copy__ok');
 
   on(btn, 'click', async () => {
-    const texto = pre.querySelector('code')?.textContent ?? pre.textContent;
+    const text = pre.querySelector('code')?.textContent ?? pre.textContent;
     try {
-      await navigator.clipboard.writeText(texto.trim());
+      await navigator.clipboard.writeText(text.trim());
     } catch {
       const sel = getSelection();
       sel.removeAllRanges();

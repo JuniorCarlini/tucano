@@ -895,9 +895,9 @@ var DatePicker = class {
     return this._mask ? (this._mask.match(/#/g) || []).length : 0;
   }
   /**
-   * Reescreve o field a cada tecla mantendo o template. Apagar em cima de um
-   * separator remove o digito anterior junto — senao a mascara o recolocaria
-   * na hora e o field travaria.
+   * Reescreve o campo a cada tecla mantendo o gabarito. Apagar em cima de um
+   * separador remove o digito anterior junto — senao a mascara o recolocaria
+   * na hora e o campo travaria.
    */
   _onMaskInput(e) {
     const input = this.input;
@@ -923,8 +923,8 @@ var DatePicker = class {
     if (digits.length === this._maskSlots()) this._previewTyped();
   }
   /**
-   * Com a mascara completa, move o calendario para a data digitada sem close
-   * nem reescrever o field — commit de verdade so no Enter ou ao sair.
+   * Com a mascara completa, move o calendario para a data digitada sem fechar
+   * nem reescrever o campo — commit de verdade so no Enter ou ao sair.
    */
   _previewTyped() {
     const raw = this.input.value;
@@ -996,9 +996,9 @@ var DatePicker = class {
     }
   }
   /**
-   * Normaliza o que foi digitado. Quando o text nao traz hora (parseUserInput
+   * Normaliza o que foi digitado. Quando o texto nao traz hora (parseUserInput
    * marca isso em `hasTime`), mantem a hora que ja estava selecionada em vez de
-   * jogar o value para meia-noite.
+   * jogar o valor para meia-noite.
    */
   _keepTime(parsed, previous) {
     if (!parsed) return null;
@@ -1112,7 +1112,7 @@ var DatePicker = class {
     this._revealTimes();
   }
   /**
-   * Rola cada coluna de hora ate o value selecionado — mas so quando esse value
+   * Rola cada coluna de hora ate o valor selecionado — mas so quando esse valor
    * mudou. Assim o scroll que o usuario deu na coluna nao e desfeito a cada
    * re-render (que acontece a todo hover no modo periodo).
    */
@@ -1214,7 +1214,7 @@ var DatePicker = class {
   /**
    * Repinta as celulas ja existentes. E o que roda a cada mouseenter: refazer a
    * grade ali trocaria o elemento entre o mousedown e o mouseup, e o browser
-   * engoliria o clique — era isso que impedia de close o periodo.
+   * engoliria o clique — era isso que impedia de fechar o periodo.
    */
   _paintDays() {
     this.panel.classList.toggle("is-picking", this.pendingRange && !!this.hover);
@@ -2735,21 +2735,21 @@ var Upload = class {
       name: i.file.name,
       size: i.file.size,
       type: i.file.type,
-      status: i.estado,
+      status: i.state,
       progress: i.progress,
-      id: i.idServidor ?? null,
+      id: i.serverId ?? null,
       url: i.url ?? null,
       file: i.file
     }));
   }
   /** Ids devolvidos pelo servidor (modo direto). E o que o formulario posta. */
   getValue() {
-    const ready = this.items.filter((i) => i.estado === "pronto" && i.idServidor != null);
-    return this.direct ? ready.map((i) => i.idServidor) : this.items.map((i) => i.file);
+    const ready = this.items.filter((i) => i.state === "ready" && i.serverId != null);
+    return this.direct ? ready.map((i) => i.serverId) : this.items.map((i) => i.file);
   }
   /** Sobe o que estiver pendente. Util com autoUpload: false. */
   uploadAll() {
-    for (const item of this.items) if (item.estado === "pendente") this._upload(item);
+    for (const item of this.items) if (item.state === "pending") this._upload(item);
   }
   clear() {
     for (const item of [...this.items]) this._remove(item, { silent: true });
@@ -2864,7 +2864,7 @@ var Upload = class {
       const item = {
         key: fileId(),
         file,
-        estado: "pendente",
+        state: "pending",
         progress: 0,
         preview: isImage(file) ? URL.createObjectURL(file) : null
       };
@@ -2900,7 +2900,7 @@ var Upload = class {
     }
   }
   _upload(item) {
-    item.estado = "enviando";
+    item.state = "uploading";
     item.progress = 0;
     item.error = null;
     this._renderList();
@@ -2922,10 +2922,10 @@ var Upload = class {
     });
     item.abort = abort;
     promise.then((response) => {
-      item.estado = "pronto";
+      item.state = "ready";
       item.progress = 1;
       item.response = response;
-      item.idServidor = response?.[this.opts.responseId] ?? null;
+      item.serverId = response?.[this.opts.responseId] ?? null;
       item.url = response?.[this.opts.responseUrl] ?? null;
     }).catch((e) => {
       if (e.canceled) {
@@ -2933,7 +2933,7 @@ var Upload = class {
         if (i >= 0) this.items.splice(i, 1);
         if (item.preview) URL.revokeObjectURL(item.preview);
       } else {
-        item.estado = "error";
+        item.state = "error";
         item.error = e.message;
         this.opts.onError?.(e, item.file);
       }
@@ -2948,13 +2948,13 @@ var Upload = class {
     const i = this.items.indexOf(item);
     if (i >= 0) this.items.splice(i, 1);
     if (item.preview) URL.revokeObjectURL(item.preview);
-    if (this.direct && this.opts.deleteUrl && item.idServidor != null) {
+    if (this.direct && this.opts.deleteUrl && item.serverId != null) {
       const headers = { ...this.opts.headers };
       if (this.opts.csrf) {
         const t = csrfToken();
         if (t) headers["X-CSRFToken"] = t;
       }
-      fetch(`${this.opts.deleteUrl}${item.idServidor}/`, { method: "DELETE", headers }).catch(() => {
+      fetch(`${this.opts.deleteUrl}${item.serverId}/`, { method: "DELETE", headers }).catch(() => {
       });
     }
     this._syncNative();
@@ -2989,29 +2989,29 @@ var Upload = class {
     for (const n of [...this.list.children]) if (!n.classList.contains("is-rejected")) n.remove();
     for (const item of this.items) {
       const pct = Math.round(item.progress * 100);
-      const meta = item.estado === "enviando" ? `${pct}% \xB7 ${formatSize(item.file.size, this.opts.locale)}` : item.estado === "error" ? item.error : formatSize(item.file.size, this.opts.locale);
+      const meta = item.state === "uploading" ? `${pct}% \xB7 ${formatSize(item.file.size, this.opts.locale)}` : item.state === "error" ? item.error : formatSize(item.file.size, this.opts.locale);
       const actions = [];
-      if (item.estado === "enviando") {
+      if (item.state === "uploading") {
         actions.push(this._button(ICON_X, this.t.cancel, () => item.abort?.()));
-      } else if (item.estado === "error") {
+      } else if (item.state === "error") {
         actions.push(this._button(ICON_RETRY, this.t.repeat, () => this._upload(item)));
         actions.push(this._button(ICON_X, this.t.remove, () => this._remove(item)));
       } else {
         actions.push(this._button(ICON_X, this.t.remove, () => this._remove(item)));
       }
       this.list.append(el("li", {
-        class: `tuc-upload__item is-${item.estado}`,
+        class: `tuc-upload__item is-${item.state}`,
         dataset: { key: item.key }
       }, [
         item.preview ? el("img", { class: "tuc-upload__thumb", src: item.preview, alt: "" }) : el("span", { class: "tuc-upload__thumb" }, [icon(ICON_FILE, 16)]),
         el("div", { class: "tuc-upload__info" }, [
           el("span", { class: "tuc-upload__name", title: item.file.name, text: item.file.name }),
           el("span", { class: "tuc-upload__meta", text: meta }),
-          item.estado === "enviando" ? el("span", { class: "tuc-upload__bar" }, [
+          item.state === "uploading" ? el("span", { class: "tuc-upload__bar" }, [
             el("span", { class: "tuc-upload__barfill", style: `width:${pct}%` })
           ]) : null
         ]),
-        item.estado === "pronto" ? el("span", { class: "tuc-upload__ok" }, [icon(ICON_CHECK, 15)]) : null,
+        item.state === "ready" ? el("span", { class: "tuc-upload__ok" }, [icon(ICON_CHECK, 15)]) : null,
         el("div", { class: "tuc-upload__actions" }, actions)
       ]));
     }
@@ -3037,7 +3037,7 @@ var Upload = class {
     this.hidden = el(
       "span",
       { class: "tuc-upload__hidden" },
-      this.items.filter((i) => i.estado === "pronto" && i.idServidor != null).map((i) => el("input", { type: "hidden", name: this.fieldName, value: String(i.idServidor) }))
+      this.items.filter((i) => i.state === "ready" && i.serverId != null).map((i) => el("input", { type: "hidden", name: this.fieldName, value: String(i.serverId) }))
     );
     this.root.append(this.hidden);
   }
@@ -3675,13 +3675,13 @@ var Toast = class {
    */
   update(options = {}) {
     if (!this.node) return this;
-    const anterior = this.opts.type;
+    const previous = this.opts.type;
     this.opts = { ...this.opts, ...omitUndefined(options) };
     const { type } = this.opts;
-    if (options.duration === void 0 && type !== anterior) {
+    if (options.duration === void 0 && type !== previous) {
       this.opts.duration = type in DURATION ? DURATION[type] : 4e3;
     }
-    this.node.classList.replace(`is-${anterior}`, `is-${type}`);
+    this.node.classList.replace(`is-${previous}`, `is-${type}`);
     this.node.replaceChildren(...this._content().filter(Boolean));
     const urgent = type === "error";
     this.node.setAttribute("role", urgent ? "alert" : "status");
@@ -4314,8 +4314,8 @@ function autoInit10(scope = document) {
 var DEFAULTS11 = {
   placement: "bottom-start",
   items: null,
-  // [{ texto, icone, atalho, onClick, href, variante, desabilitado }]
-  // ou { separador: true } / { rotulo: 'Seção' }
+  // [{ text, icon, shortcut, onClick, href, variant, disabled }]
+  // ou { separator: true } / { label: 'Seção' }
   closeOnPick: true
 };
 var FOCUSABLE2 = '.tuc-dropdown__item:not([disabled]):not([aria-disabled="true"])';
@@ -4513,27 +4513,27 @@ var Table = class {
     const head = this.node.tHead?.rows[0];
     if (!head) return;
     this.sortable = [];
-    const noServidor = this.opts.sortMode !== "client";
-    const atual = new URLSearchParams(location.search);
-    const campoAtual = atual.get(this.opts.sortParam);
-    const dirAtual = atual.get(this.opts.dirParam) === "desc" ? "descending" : "ascending";
+    const onServer = this.opts.sortMode !== "client";
+    const current = new URLSearchParams(location.search);
+    const currentField = current.get(this.opts.sortParam);
+    const currentDir = current.get(this.opts.dirParam) === "desc" ? "descending" : "ascending";
     [...head.cells].forEach((th, i) => {
       const type = th.dataset.sort;
       if (!type || type === "none") return;
       const field = th.dataset.field || String(i);
       th.classList.add("tuc-table__sortable");
-      const marcada = noServidor && campoAtual === field;
-      th.setAttribute("aria-sort", marcada ? dirAtual : "none");
-      const proxima = marcada && dirAtual === "ascending" ? "desc" : "asc";
-      const filhos = [
+      const marked = onServer && currentField === field;
+      th.setAttribute("aria-sort", marked ? currentDir : "none");
+      const next = marked && currentDir === "ascending" ? "desc" : "asc";
+      const children = [
         el("span", { text: th.textContent.trim() }),
         el("span", { class: "tuc-table__sorticon", "aria-hidden": "true" }, [icon(SETAS, 13)])
       ];
-      const gatilho = noServidor ? el("a", { class: "tuc-table__sortbtn", href: this._sortHref(field, proxima) }, filhos) : el("button", { type: "button", class: "tuc-table__sortbtn" }, filhos);
+      const trigger = onServer ? el("a", { class: "tuc-table__sortbtn", href: this._sortHref(field, next) }, children) : el("button", { type: "button", class: "tuc-table__sortbtn" }, children);
       th.textContent = "";
-      th.append(gatilho);
+      th.append(trigger);
       this.sortable.push({ th, index: i, type, field });
-      this._cleanups.push(on(gatilho, "click", (e) => this._onSortClick(e, th, i, type, field)));
+      this._cleanups.push(on(trigger, "click", (e) => this._onSortClick(e, th, i, type, field)));
     });
   }
   /** Mesma URL, com a ordem trocada e o resto da query string intacto. */
@@ -4545,34 +4545,34 @@ var Table = class {
     return `${url.pathname}${url.search}${url.hash}`;
   }
   _onSortClick(e, th, index, type, field) {
-    const noServidor = this.opts.sortMode !== "client";
-    const anterior = th.getAttribute("aria-sort");
-    const dir = anterior === "ascending" ? "descending" : "ascending";
-    const detalhe = { column: index, field, direction: dir === "ascending" ? "asc" : "desc" };
-    this.node.dispatchEvent(new CustomEvent("tuc:sort", { bubbles: true, detail: detalhe }));
+    const onServer = this.opts.sortMode !== "client";
+    const previous = th.getAttribute("aria-sort");
+    const dir = previous === "ascending" ? "descending" : "ascending";
+    const detail = { column: index, field, direction: dir === "ascending" ? "asc" : "desc" };
+    this.node.dispatchEvent(new CustomEvent("tuc:sort", { bubbles: true, detail }));
     if (this.opts.onSort) {
       e.preventDefault();
-      this.opts.onSort(detalhe, this);
+      this.opts.onSort(detail, this);
       return;
     }
-    if (noServidor) return;
+    if (onServer) return;
     e.preventDefault();
     for (const s of this.sortable) s.th.setAttribute("aria-sort", "none");
     th.setAttribute("aria-sort", dir);
-    this.sort(index, detalhe.direction, type);
+    this.sort(index, detail.direction, type);
   }
   /** Ordena as linhas visíveis. `type`: text | number | date. */
   sort(index, direction = "asc", type = "text") {
     const body = this.node.tBodies[0];
     if (!body) return this;
     const cmp = COMPARE[type] ?? COMPARE.text;
-    const chave = (tr) => {
+    const key = (tr) => {
       const cell = tr.cells[index];
       return cell?.dataset.sortValue ?? cell?.textContent.trim() ?? "";
     };
-    const sinal = direction === "desc" ? -1 : 1;
-    const ordenadas = this.rows.sort((a, b) => sinal * cmp(chave(a), chave(b)));
-    for (const tr of ordenadas) body.append(tr);
+    const sign = direction === "desc" ? -1 : 1;
+    const sorted = this.rows.sort((a, b) => sign * cmp(key(a), key(b)));
+    for (const tr of sorted) body.append(tr);
     return this;
   }
   /* ---------------------------------------------------------------- *
@@ -4601,27 +4601,27 @@ var Table = class {
       this._cleanups.push(on(check, "change", () => this._afterPick(tr, check.checked)));
     }
     this._cleanups.push(on(this.checkAll, "change", () => {
-      const marcar = this.checkAll.checked;
+      const checked = this.checkAll.checked;
       for (const tr of this.rows) {
         const c = tr.querySelector(".tuc-table__check");
         if (c) {
-          c.checked = marcar;
-          this._afterPick(tr, marcar);
+          c.checked = checked;
+          this._afterPick(tr, checked);
         }
       }
     }));
   }
-  _afterPick(tr, marcada) {
-    tr.classList.toggle("is-selected", marcada);
+  _afterPick(tr, marked) {
+    tr.classList.toggle("is-selected", marked);
     const todas = this.rows.map((r) => r.querySelector(".tuc-table__check")).filter(Boolean);
     const marcadas = todas.filter((c) => c.checked);
     if (this.checkAll) {
       this.checkAll.checked = marcadas.length === todas.length && todas.length > 0;
       this.checkAll.indeterminate = marcadas.length > 0 && marcadas.length < todas.length;
     }
-    const detalhe = { selected: this.getSelected(), row: tr };
-    this.node.dispatchEvent(new CustomEvent("tuc:select", { bubbles: true, detail: detalhe }));
-    this.opts.onSelect?.(detalhe, this);
+    const detail = { selected: this.getSelected(), row: tr };
+    this.node.dispatchEvent(new CustomEvent("tuc:select", { bubbles: true, detail }));
+    this.opts.onSelect?.(detail, this);
   }
   /** Valores marcados — os mesmos que o formulário enviaria. */
   getSelected() {
@@ -4680,20 +4680,20 @@ var DEFAULTS13 = {
 var SETA_ESQ = "M15 18l-6-6 6-6";
 var SETA_DIR = "M9 18l6-6-6-6";
 function pageWindow(page, pages, { around = 1, edges = 1 } = {}) {
-  const mostrar = /* @__PURE__ */ new Set();
-  for (let i = 1; i <= Math.min(edges, pages); i++) mostrar.add(i);
-  for (let i = Math.max(1, pages - edges + 1); i <= pages; i++) mostrar.add(i);
-  for (let i = page - around; i <= page + around; i++) if (i >= 1 && i <= pages) mostrar.add(i);
-  const ordenadas = [...mostrar].sort((a, b) => a - b);
-  const saida = [];
-  let anterior = 0;
-  for (const n of ordenadas) {
-    if (n - anterior === 2) saida.push(anterior + 1);
-    else if (n - anterior > 2) saida.push(null);
-    saida.push(n);
-    anterior = n;
+  const visible = /* @__PURE__ */ new Set();
+  for (let i = 1; i <= Math.min(edges, pages); i++) visible.add(i);
+  for (let i = Math.max(1, pages - edges + 1); i <= pages; i++) visible.add(i);
+  for (let i = page - around; i <= page + around; i++) if (i >= 1 && i <= pages) visible.add(i);
+  const sorted = [...visible].sort((a, b) => a - b);
+  const out = [];
+  let previous = 0;
+  for (const n of sorted) {
+    if (n - previous === 2) out.push(previous + 1);
+    else if (n - previous > 2) out.push(null);
+    out.push(n);
+    previous = n;
   }
-  return saida;
+  return out;
 }
 var Pagination = class {
   constructor(options = {}) {
@@ -4710,19 +4710,19 @@ var Pagination = class {
     return `${url.pathname}${url.search}${url.hash}`;
   }
   _item(page, { text, current = false, disabled = false, edge = false } = {}) {
-    const classe = [
+    const className = [
       "tuc-btn",
       current ? "is-outline" : "is-ghost",
       edge ? "tuc-pagination__edge" : "",
       disabled ? "is-disabled" : ""
     ].filter(Boolean).join(" ");
-    const filhos = typeof text === "string" ? [text] : text;
-    if (disabled) return el("span", { class: classe, "aria-hidden": "true" }, filhos);
+    const children = typeof text === "string" ? [text] : text;
+    if (disabled) return el("span", { class: className, "aria-hidden": "true" }, children);
     const a = el("a", {
-      class: classe,
+      class: className,
       href: this.href(page),
       ...current ? { "aria-current": "page" } : {}
-    }, filhos);
+    }, children);
     this._cleanups.push(on(a, "click", (e) => {
       if (!this.opts.onChange) return;
       e.preventDefault();
@@ -4849,20 +4849,20 @@ function clearNode(no, destination, doc) {
       clearNode(child, destination, doc);
       continue;
     }
-    const novo = doc.createElement(EQUIVALENTS[tag] || tag);
-    copyAlignment(child, novo);
-    if (novo.tagName === "A") {
+    const fresh = doc.createElement(EQUIVALENTS[tag] || tag);
+    copyAlignment(child, fresh);
+    if (fresh.tagName === "A") {
       const href = safeUrl(child.getAttribute("href"));
       if (!href) {
         clearNode(child, destination, doc);
         continue;
       }
-      novo.setAttribute("href", href);
-      novo.setAttribute("target", "_blank");
-      novo.setAttribute("rel", "noopener noreferrer");
+      fresh.setAttribute("href", href);
+      fresh.setAttribute("target", "_blank");
+      fresh.setAttribute("rel", "noopener noreferrer");
     }
-    clearNode(child, novo, doc);
-    destination.append(novo);
+    clearNode(child, fresh, doc);
+    destination.append(fresh);
   }
 }
 function sanitize(html) {
@@ -5006,10 +5006,10 @@ var RULES = [
 var COMBINADA = new RegExp(RULES.map(([, re]) => re.source).join("|"), "g");
 function highlight(code) {
   const text = escapeHtml(code ?? "");
-  return text.replace(COMBINADA, (todo, ...grupos) => {
-    const i = grupos.findIndex((g) => g !== void 0);
+  return text.replace(COMBINADA, (whole, ...groups) => {
+    const i = groups.findIndex((g) => g !== void 0);
     const className = RULES[i]?.[0];
-    return className ? `<span class="tuc-tok-${className}">${todo}</span>` : todo;
+    return className ? `<span class="tuc-tok-${className}">${whole}</span>` : whole;
   });
 }
 function autoInit14(scope = document) {
@@ -5033,9 +5033,9 @@ function addCopy(pre) {
   }, [icon(ICON_COPY, 14), icon(ICON_OK, 14)]);
   btn.children[1].classList.add("tuc-copy__ok");
   on(btn, "click", async () => {
-    const texto = pre.querySelector("code")?.textContent ?? pre.textContent;
+    const text = pre.querySelector("code")?.textContent ?? pre.textContent;
     try {
-      await navigator.clipboard.writeText(texto.trim());
+      await navigator.clipboard.writeText(text.trim());
     } catch {
       const sel = getSelection();
       sel.removeAllRanges();

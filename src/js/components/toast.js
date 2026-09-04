@@ -170,17 +170,17 @@ export class Toast {
   update(options = {}) {
     if (!this.node) return this;
 
-    const anterior = this.opts.type;
+    const previous = this.opts.type;
     this.opts = { ...this.opts, ...omitUndefined(options) };
     const { type } = this.opts;
 
     // Mudou de tipo sem duracao explicita: vale a do tipo novo. Sem isto o
     // carregando, que nao fecha sozinho, viraria um "salvo" eterno na tela.
-    if (options.duration === undefined && type !== anterior) {
+    if (options.duration === undefined && type !== previous) {
       this.opts.duration = type in DURATION ? DURATION[type] : 4000;
     }
 
-    this.node.classList.replace(`is-${anterior}`, `is-${type}`);
+    this.node.classList.replace(`is-${previous}`, `is-${type}`);
     this.node.replaceChildren(...this._content().filter(Boolean));
 
     // Erro fala numa live region assertiva e o resto numa polida; mudar de

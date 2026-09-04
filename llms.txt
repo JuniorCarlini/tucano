@@ -293,7 +293,8 @@ Celula livre. Classes de apoio: .tuc-table__user + __avatar + __sub (foto ou
 iniciais, nome, segunda linha), .tuc-badge (is-success | is-warning | is-danger |
 is-info), .tuc-table__actions (encosta a direita; use os botoes do sistema,
 .tuc-btn is-outline is-icon is-sm),
-.is-number (direita, digitos de largura fixa). Truncar a segunda linha exige
+.is-number (direita, digitos de largura fixa), .tuc-table__empty (celula
+de estado vazio). Truncar a segunda linha exige
 largura na coluna. Variantes: is-striped, is-bordered, is-compact.
 
 data-sort: text | number | date | none. data-sort-value guarda o valor cru.

@@ -64,17 +64,17 @@ function clearNode(no, destination, doc) {
       continue;
     }
 
-    const novo = doc.createElement(EQUIVALENTS[tag] || tag);
-    copyAlignment(child, novo);
-    if (novo.tagName === 'A') {
+    const fresh = doc.createElement(EQUIVALENTS[tag] || tag);
+    copyAlignment(child, fresh);
+    if (fresh.tagName === 'A') {
       const href = safeUrl(child.getAttribute('href'));
       if (!href) { clearNode(child, destination, doc); continue; }
-      novo.setAttribute('href', href);
-      novo.setAttribute('target', '_blank');
-      novo.setAttribute('rel', 'noopener noreferrer');
+      fresh.setAttribute('href', href);
+      fresh.setAttribute('target', '_blank');
+      fresh.setAttribute('rel', 'noopener noreferrer');
     }
-    clearNode(child, novo, doc);
-    destination.append(novo);
+    clearNode(child, fresh, doc);
+    destination.append(fresh);
   }
 }
 
