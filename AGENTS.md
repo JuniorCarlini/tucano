@@ -483,6 +483,44 @@ bug contra build antigo. Confirme o código carregado, não só o arquivo em dis
 
 ## Ainda em aberto
 
-- Não há suite de testes automatizados.
-- O Backspace da máscara foi validado por `InputEvent` simulado, não por teclado
-  real.
+Em ordem do que mais dói.
+
+**Não há suite de testes automatizados.** É a lacuna que explica a maior parte
+dos defeitos desta lista. Toda verificação feita até hoje foi sonda
+descartável: escrita, rodada uma vez e apagada. As funções puras são as que
+mais pedem, porque são entrada e saída sem DOM e rodariam em segundos —
+`dates` (formatar, interpretar, grade do mês), `mask` (CPF, CNPJ, moeda,
+gabarito), `color` (conversões), `pageWindow`, e principalmente `sanitize`, que
+é peça de segurança e hoje não tem um único teste.
+
+**Nada roda sozinho.** Não há CI: `npm run conferir` e o resto só rodam se
+alguém lembrar. Um push com regressão passa sem ninguém notar.
+
+**O `conferir` mede geometria, não comportamento.** Ele cobre altura, fonte e o
+estado de espera nos dois temas — nada de clique, foco ou evento. O teste que
+instancia os componentes e clica neles existe, mas vive fora do repositório, e
+por isso foi reescrito umas dez vezes nesta sessão. Devia virar
+`npm run testar`.
+
+**Ninguém verifica que os exemplos da documentação rodam.** Escrever o exemplo
+e executá-lo achou três defeitos reais só nesta sessão: `Tucano.color.isDark`
+quebrava com string, o exemplo do `maskEmail` estava errado, e o trecho que uma
+IA copia ensinava um preset de máscara que não existe. Isso podia ser um teste.
+
+**As checagens cruzadas viraram script de rascunho.** Três defeitos vieram de
+nome que existe em dois lugares e mudou só num: `.block` no CSS e `'bloco'` no
+JS, chave de opção nos `onclick=` que nenhum componente lê, classe do
+destacador multiplicada por oito. Cada um foi achado por um script que não
+ficou no repositório.
+
+**O `tools/conferir.mjs` depende do Chrome instalado em
+`/Applications/Google Chrome.app`.** Não roda em outra máquina nem em CI sem
+mudar o caminho à mão.
+
+**A referência do `llms.txt` é gerada, mas a do `README.md` não.** As opções
+listadas lá são escritas à mão e podem envelhecer sem aviso — foi o que
+aconteceu antes com a seção de Tema.
+
+**O Backspace da máscara foi validado por `InputEvent` simulado, não por teclado
+real.** Evento sintético não dispara ação padrão, então o caminho real do
+cursor continua sem prova.
