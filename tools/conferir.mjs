@@ -52,7 +52,7 @@ const TARGETS = {
   'botão pequeno': { sel: '#c-btn-sm' },
   'botão grande': { sel: '#c-btn-lg' },
   'botão de ícone': { sel: '#c-icone' },
-  'página da paginação': { sel: '.tuc-pagination__item:not(.is-edge)' },
+  'página da paginação': { sel: '.tuc-pagination .tuc-btn:not(.tuc-pagination__edge)' },
 };
 
 const EXPECTED = {

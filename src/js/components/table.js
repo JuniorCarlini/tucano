@@ -7,19 +7,32 @@ import { el, icon, nextId, on } from '../core/dom.js';
  * vem do template ja e a fonte da verdade. O JavaScript entra so onde o HTML
  * nao alcanca — ordenar pela coluna e marcar linhas em massa.
  *
- * Ordenacao acontece no cliente, sobre as linhas que estao na pagina. Isso e o
- * certo para uma lista ja paginada: reordenar o conjunto inteiro e trabalho do
- * banco, e para isso existe o evento `tuc:sort`, que o servidor pode ouvir via
- * HTMX. Ordenar no cliente o que veio paginado seria mentira — por isso, quando
- * a tabela declara `data-sort-url`, o clique nao reordena nada: so navega.
+ * Ordenar e trabalho do servidor, e esse e o padrao.
+ *
+ * Numa lista paginada — que e o caso de praticamente toda tela de sistema —
+ * reordenar as vinte linhas que estao na tela produz uma ordem falsa: o maior
+ * valor real pode estar na pagina 7, e a tabela passa a mentir com cara de
+ * verdade. Quem sabe ordenar o conjunto inteiro e o banco.
+ *
+ * Entao o cabecalho e um <a> com href de verdade, apontando para a mesma URL
+ * com ?sort= e ?dir=. Isso funciona sem JavaScript nenhum, funciona com HTMX
+ * (hx-boost ou hx-get no proprio link), abre em outra aba e volta pelo botao do
+ * navegador. O estado da seta sai da query string, entao ele continua certo
+ * depois do recarregamento.
+ *
+ * `data-sort-mode="client"` existe para o outro caso: tabela pequena e
+ * completa, sem paginacao, onde ordenar na tela e a coisa certa. Ali o
+ * cabecalho vira <button>, porque nao ha para onde navegar.
  */
 
 const DEFAULTS = {
   sortable: true,
+  sortMode: 'server',  // server | client
+  sortParam: 'sort',
+  dirParam: 'dir',
   selectable: false,   // coluna de selecao em massa
   selectName: 'selected',
-  sortUrl: null,       // quando existe, ordenar e responsabilidade do servidor
-  onSort: null,
+  onSort: null,        // definido, intercepta o clique e cancela a navegacao
   onSelect: null,
 };
 
@@ -82,43 +95,76 @@ export class Table {
     const head = this.node.tHead?.rows[0];
     if (!head) return;
     this.sortable = [];
+    const noServidor = this.opts.sortMode !== 'client';
+    // O estado atual sai da URL: assim a seta continua certa depois do reload,
+    // e nao de uma variavel que so existe enquanto a pagina esta aberta.
+    const atual = new URLSearchParams(location.search);
+    const campoAtual = atual.get(this.opts.sortParam);
+    const dirAtual = atual.get(this.opts.dirParam) === 'desc' ? 'descending' : 'ascending';
 
     [...head.cells].forEach((th, i) => {
       const type = th.dataset.sort;
       if (!type || type === 'none') return;
+      const field = th.dataset.field || String(i);
       th.classList.add('tuc-table__sortable');
-      th.setAttribute('aria-sort', 'none');
-      // O rotulo vira botao para chegar pelo Tab e responder a Enter e Espaco;
-      // <th> sozinho nao e focavel, e o clique ficaria so para quem usa mouse.
-      const label = el('button', { type: 'button', class: 'tuc-table__sortbtn' }, [
+
+      const marcada = noServidor && campoAtual === field;
+      th.setAttribute('aria-sort', marcada ? dirAtual : 'none');
+      const proxima = marcada && dirAtual === 'ascending' ? 'desc' : 'asc';
+
+      const filhos = [
         el('span', { text: th.textContent.trim() }),
         el('span', { class: 'tuc-table__sorticon', 'aria-hidden': 'true' }, [icon(SETAS, 13)]),
-      ]);
+      ];
+
+      /*
+       * No servidor e <a>: link de verdade, com href que preserva o resto da
+       * query string — filtro e busca nao se perdem ao trocar a ordem. No
+       * cliente e <button>, porque ali nao ha navegacao nenhuma.
+       */
+      const gatilho = noServidor
+        ? el('a', { class: 'tuc-table__sortbtn', href: this._sortHref(field, proxima) }, filhos)
+        : el('button', { type: 'button', class: 'tuc-table__sortbtn' }, filhos);
+
       th.textContent = '';
-      th.append(label);
-      this.sortable.push({ th, index: i, type });
-      this._cleanups.push(on(label, 'click', () => this._onSortClick(th, i, type)));
+      th.append(gatilho);
+      this.sortable.push({ th, index: i, type, field });
+      this._cleanups.push(on(gatilho, 'click', (e) => this._onSortClick(e, th, i, type, field)));
     });
   }
 
-  _onSortClick(th, index, type) {
-    const atual = th.getAttribute('aria-sort');
-    const dir = atual === 'ascending' ? 'descending' : 'ascending';
-    for (const s of this.sortable) s.th.setAttribute('aria-sort', 'none');
-    th.setAttribute('aria-sort', dir);
+  /** Mesma URL, com a ordem trocada e o resto da query string intacto. */
+  _sortHref(field, direction) {
+    const url = new URL(location.href);
+    url.searchParams.set(this.opts.sortParam, field);
+    url.searchParams.set(this.opts.dirParam, direction);
+    // Trocar a ordem volta para a primeira pagina: continuar na 7 com outra
+    // ordem mostra um pedaco do meio de uma lista que o usuario nunca viu.
+    url.searchParams.delete('page');
+    return `${url.pathname}${url.search}${url.hash}`;
+  }
 
-    const detalhe = { column: index, field: th.dataset.field || null, direction: dir === 'ascending' ? 'asc' : 'desc' };
+  _onSortClick(e, th, index, type, field) {
+    const noServidor = this.opts.sortMode !== 'client';
+    const anterior = th.getAttribute('aria-sort');
+    const dir = anterior === 'ascending' ? 'descending' : 'ascending';
+    const detalhe = { column: index, field, direction: dir === 'ascending' ? 'asc' : 'desc' };
+
     this.node.dispatchEvent(new CustomEvent('tuc:sort', { bubbles: true, detail: detalhe }));
-    this.opts.onSort?.(detalhe, this);
 
-    // Servidor manda: nao reordenamos a pagina atual por cima do que ele fara.
-    if (this.opts.sortUrl) {
-      const url = new URL(this.opts.sortUrl, location.href);
-      url.searchParams.set('sort', detalhe.field ?? String(index));
-      url.searchParams.set('dir', detalhe.direction);
-      location.href = url.toString();
+    // Quem passou onSort assume a responsabilidade — e ai o link nao navega.
+    if (this.opts.onSort) {
+      e.preventDefault();
+      this.opts.onSort(detalhe, this);
       return;
     }
+    // No servidor o <a> faz o trabalho sozinho: nao mexemos nas linhas nem no
+    // aria-sort, porque a pagina que vier ja chega com a ordem certa.
+    if (noServidor) return;
+
+    e.preventDefault();
+    for (const s of this.sortable) s.th.setAttribute('aria-sort', 'none');
+    th.setAttribute('aria-sort', dir);
     this.sort(index, detalhe.direction, type);
   }
 
@@ -148,7 +194,7 @@ export class Table {
     if (!head) return;
 
     this.checkAll = el('input', {
-      type: 'checkbox', class: 'tuc-table__check',
+      type: 'checkbox', class: 'tuc-check tuc-table__check',
       'aria-label': 'Selecionar todas as linhas desta página',
     });
     const th = el('th', { class: 'tuc-table__pick', scope: 'col' }, [this.checkAll]);
@@ -161,7 +207,7 @@ export class Table {
        * O identificador sai do data-id da linha, que o template ja escreve.
        */
       const check = el('input', {
-        type: 'checkbox', class: 'tuc-table__check',
+        type: 'checkbox', class: 'tuc-check tuc-table__check',
         name: this.opts.selectName, value: tr.dataset.id ?? '',
         'aria-label': 'Selecionar linha',
       });
@@ -229,6 +275,9 @@ export class Table {
  *     <thead><tr><th data-sort="text" data-field="nome">Nome</th></tr></thead>
  *     <tbody><tr data-id="12"><td>Ana</td></tr></tbody>
  *   </table>
+ *
+ * O cabecalho vira link para ?sort=nome&dir=asc. Numa tabela pequena e sem
+ * paginacao, `data-sort-mode="client"` ordena na propria tela.
  */
 export function autoInit(scope = document) {
   const out = [];
@@ -237,9 +286,11 @@ export function autoInit(scope = document) {
     const d = node.dataset;
     out.push(new Table(node, {
       sortable: d.sortable !== 'false',
+      sortMode: d.sortMode || undefined,
+      sortParam: d.sortParam || undefined,
+      dirParam: d.dirParam || undefined,
       selectable: d.selectable !== undefined && d.selectable !== 'false',
       selectName: d.selectName || undefined,
-      sortUrl: d.sortUrl || undefined,
     }));
   }
   return out;

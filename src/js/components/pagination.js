@@ -75,8 +75,18 @@ export class Pagination {
     return `${url.pathname}${url.search}${url.hash}`;
   }
 
-  _item(page, { text, current = false, disabled = false, extra = '' } = {}) {
-    const classe = `tuc-pagination__item${extra}${current ? ' is-current' : ''}${disabled ? ' is-disabled' : ''}`;
+  _item(page, { text, current = false, disabled = false, edge = false } = {}) {
+    /*
+     * O item e o botao do sistema. A pagina atual ganha contorno em vez de
+     * preenchimento: numa barra com dez alvos, dez botoes solidos brigam entre
+     * si, e o contorno ja diz onde estamos — o aria-current diz a quem nao ve.
+     */
+    const classe = [
+      'tuc-btn',
+      current ? 'is-outline' : 'is-ghost',
+      edge ? 'tuc-pagination__edge' : '',
+      disabled ? 'is-disabled' : '',
+    ].filter(Boolean).join(' ');
     const filhos = typeof text === 'string' ? [text] : text;
 
     /*
@@ -108,7 +118,7 @@ export class Pagination {
     this.node.append(this._item(page - 1, {
       text: [el('span', { class: 'tuc-pagination__ico', 'aria-hidden': 'true' }, [icon(SETA_ESQ, 15)]),
              el('span', { class: 'tuc-pagination__word', text: this.opts.prevText })],
-      disabled: page <= 1, extra: ' is-edge',
+      disabled: page <= 1, edge: true,
     }));
 
     for (const n of pageWindow(page, pages, this.opts)) {
@@ -122,7 +132,7 @@ export class Pagination {
     this.node.append(this._item(page + 1, {
       text: [el('span', { class: 'tuc-pagination__word', text: this.opts.nextText }),
              el('span', { class: 'tuc-pagination__ico', 'aria-hidden': 'true' }, [icon(SETA_DIR, 15)])],
-      disabled: page >= pages, extra: ' is-edge',
+      disabled: page >= pages, edge: true,
     }));
     return this;
   }

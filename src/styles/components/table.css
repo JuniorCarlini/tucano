@@ -71,8 +71,9 @@
  * Ordenacao                                                        *
  * ---------------------------------------------------------------- */
 
+/* Serve para <a> e para <button>: no servidor e link, no cliente e botao. */
 .tuc-table__sortbtn {
-  @apply inline-flex cursor-pointer items-center gap-1 border-0 bg-transparent p-0 text-left;
+  @apply inline-flex cursor-pointer items-center gap-1 border-0 bg-transparent p-0 text-left no-underline;
   font: inherit;
   color: inherit;
   border-radius: var(--tuc-radius-xs);
@@ -109,12 +110,7 @@
  * Selecao                                                          *
  * ---------------------------------------------------------------- */
 
-.tuc-table__pick { @apply w-10 pr-0; }
-.tuc-table__check {
-  @apply size-4 cursor-pointer align-middle;
-  accent-color: var(--tuc-accent);
-}
-.tuc-table__check:focus-visible { outline: 2px solid var(--tuc-ring); outline-offset: 2px; }
+.tuc-table__pick { @apply w-10 pr-0 align-middle; }
 
 /* Estado vazio: a tabela sem linhas continua sendo tabela, com uma so celula. */
 .tuc-table__empty {
@@ -131,4 +127,72 @@
 @media (prefers-reduced-motion: reduce) {
   .tuc-table tbody tr,
   .tuc-table__sorticon { transition: none; }
+}
+
+/* ---------------------------------------------------------------- *
+ * Conteudo de celula                                               *
+ * ---------------------------------------------------------------- */
+
+/*
+ * A celula e livre — cabe imagem, etiqueta, botao. O que segue sao so os
+ * arranjos que aparecem em toda listagem de sistema, para ninguem ter de
+ * reinventar o alinhamento de um avatar ao lado de um nome.
+ */
+
+.tuc-table__user { @apply flex items-center gap-2.5 text-left; }
+/*
+ * min-width: 0 no filho de texto. Sem isso o item de flex se recusa a encolher
+ * abaixo do proprio conteudo, e o `truncate` da segunda linha nunca acontece —
+ * a celula so cresce e empurra a tabela para fora da tela.
+ */
+.tuc-table__user > :not(.tuc-table__avatar) { @apply min-w-0 truncate; }
+
+.tuc-table__avatar {
+  @apply grid size-8 shrink-0 place-items-center overflow-hidden rounded-full;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--tuc-accent);
+  background: var(--tuc-accent-soft);
+  /* Iniciais quando nao ha foto; com <img> dentro, a imagem cobre o circulo. */
+  text-transform: uppercase;
+}
+.tuc-table__avatar > img { @apply size-full object-cover; }
+
+/* Segunda linha da celula: e-mail sob o nome, código sob o título. */
+.tuc-table__sub {
+  @apply block truncate;
+  font-size: 0.75rem;
+  color: var(--tuc-muted);
+}
+
+/*
+ * Coluna de acoes. Encosta a direita e os botoes so ganham cor no hover da
+ * linha: numa lista de vinte itens, quarenta icones acesos disputam a atencao
+ * com o conteudo que a pessoa veio ler.
+ */
+/*
+ * A coluna encosta a direita por alinhamento de texto, e nao por flex: um
+ * <th>/<td> com display:flex deixa de ser celula de tabela, sai do calculo de
+ * colunas e passa a desenhar a propria caixa por cima do cabecalho.
+ */
+.tuc-table th.tuc-table__actions,
+.tuc-table td.tuc-table__actions { @apply pl-2 text-right whitespace-nowrap; }
+.tuc-table__actions .tuc-btn { @apply align-middle; }
+.tuc-table__actions .tuc-btn + .tuc-btn { @apply ml-1; }
+.tuc-table__actions .tuc-btn {
+  opacity: 0.55;
+  transition: opacity var(--tuc-duration) var(--tuc-ease);
+}
+.tuc-table tbody tr:hover .tuc-table__actions .tuc-btn,
+.tuc-table__actions .tuc-btn:focus-visible,
+.tuc-table__actions .tuc-btn[aria-expanded='true'] { opacity: 1; }
+
+/* No toque nao existe hover: ali os botoes ficam sempre visiveis. */
+@media (hover: none) {
+  .tuc-table__actions .tuc-btn { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tuc-table__actions .tuc-btn { transition: none; }
 }

@@ -155,11 +155,11 @@
 
 .tuc-toast__close { @apply -mr-1; }
 
-.tuc-toast.is-info    { --tuc-toast-cor: var(--tuc-accent); }
-.tuc-toast.is-success { --tuc-toast-cor: #16a34a; }
-.tuc-toast.is-warning   { --tuc-toast-cor: #d97706; }
-.tuc-toast.is-error    { --tuc-toast-cor: #dc2626; }
-.tuc-toast.is-loading { --tuc-toast-cor: var(--tuc-muted); }
+.tuc-toast.is-info    { --tuc-toast-color: var(--tuc-accent); }
+.tuc-toast.is-success { --tuc-toast-color: var(--tuc-success); }
+.tuc-toast.is-warning   { --tuc-toast-color: var(--tuc-warning); }
+.tuc-toast.is-error    { --tuc-toast-color: var(--tuc-danger); }
+.tuc-toast.is-loading { --tuc-toast-color: var(--tuc-muted); }
 
 /*
  * O icone de carregando e um arco de 3/4: parado ele nao diz nada, girando
@@ -178,7 +178,7 @@
 @media (prefers-reduced-motion: reduce) {
   .tuc-toast.is-loading .tuc-toast__icon svg { animation-duration: 2.4s; }
 }
-.tuc-toast .tuc-toast__icon { color: var(--tuc-toast-cor); }
+.tuc-toast .tuc-toast__icon { color: var(--tuc-toast-color); }
 
 /* ------------------------------------------------------------------ *
  * Tooltip                                                             *

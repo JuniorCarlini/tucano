@@ -143,3 +143,68 @@ input[type='file'][data-tuc-upload]:not([data-tuc-ready]) {
   border: 1px dashed var(--tuc-border);
   border-radius: var(--tuc-radius);
 }
+
+/*
+ * Caixa de selecao.
+ *
+ * `accent-color` resolveria em uma linha, mas entrega o desenho do sistema: no
+ * macOS um azul que nao e o nosso, no Windows outro canto, e nenhum dos dois
+ * com o raio do resto dos campos. Aqui a caixa e desenhada, entao ela combina
+ * com o input ao lado em qualquer sistema.
+ *
+ * O <input> continua sendo o <input>: o valor, o `name` e o estado misto sao os
+ * nativos, e quem le a tela ouve "caixa de selecao" como sempre.
+ */
+input.tuc-check.tuc-check {
+  @apply inline-grid size-4 shrink-0 cursor-pointer place-content-center p-0;
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--tuc-bg);
+  border: var(--tuc-border-width) solid var(--tuc-border);
+  border-radius: var(--tuc-radius-xs);
+  transition:
+    background var(--tuc-duration) var(--tuc-ease),
+    border-color var(--tuc-duration) var(--tuc-ease);
+}
+
+/*
+ * O sinal e um canto de borda girado: duas linhas de CSS no lugar de um SVG,
+ * e ele acompanha a cor de texto do destaque sem precisar de segunda regra.
+ */
+input.tuc-check.tuc-check::after {
+  content: '';
+  width: 0.3125rem;
+  height: 0.5625rem;
+  border: solid var(--tuc-accent-fg);
+  border-width: 0 2px 2px 0;
+  rotate: 45deg;
+  translate: 0 -1px;
+  scale: 0;
+  transition: scale var(--tuc-duration) var(--tuc-ease);
+}
+
+input.tuc-check.tuc-check:checked,
+input.tuc-check.tuc-check:indeterminate {
+  background: var(--tuc-accent);
+  border-color: var(--tuc-accent);
+}
+input.tuc-check.tuc-check:checked::after { scale: 1; }
+
+/* Estado misto: um traco, nao um sinal pela metade. */
+input.tuc-check.tuc-check:indeterminate::after {
+  width: 0.5rem;
+  height: 0;
+  border-width: 0 0 2px 0;
+  rotate: 0deg;
+  translate: 0;
+  scale: 1;
+}
+
+input.tuc-check.tuc-check:hover:not(:checked):not(:indeterminate) { border-color: var(--tuc-subtle); }
+input.tuc-check.tuc-check:focus-visible { outline: 2px solid var(--tuc-ring); outline-offset: 2px; }
+input.tuc-check.tuc-check:disabled { @apply cursor-not-allowed opacity-50; }
+
+@media (prefers-reduced-motion: reduce) {
+  input.tuc-check.tuc-check,
+  input.tuc-check.tuc-check::after { transition: none; }
+}

@@ -31,6 +31,8 @@
   .tuc-accordion,
   .tuc-menu,
   .tuc-dropdown,
+  .tuc-badge,
+  .tuc-check,
   .tuc-table,
   .tuc-pagination,
   .tuc-input,
@@ -43,6 +45,18 @@
   --tuc-accent-fg: #ffffff;
   --tuc-accent-soft: color-mix(in oklab, var(--tuc-accent) 12%, transparent);
   --tuc-accent-ring: color-mix(in oklab, var(--tuc-accent) 35%, transparent);
+
+  /*
+   * Tons semanticos. Estavam escritos a mao dentro do toast; virando token,
+   * a etiqueta de estado e o toast falam a mesma cor, e quem troca o tema
+   * troca nos dois de uma vez.
+   */
+  --tuc-success: #16a34a;
+  --tuc-warning: #d97706;
+  --tuc-danger: #dc2626;
+  --tuc-success-soft: color-mix(in oklab, var(--tuc-success) 12%, transparent);
+  --tuc-warning-soft: color-mix(in oklab, var(--tuc-warning) 14%, transparent);
+  --tuc-danger-soft: color-mix(in oklab, var(--tuc-danger) 12%, transparent);
 
   --tuc-bg: #ffffff;
   --tuc-fg: #0a0a0a;
@@ -105,6 +119,8 @@
   .tuc-accordion,
   .tuc-menu,
   .tuc-dropdown,
+  .tuc-badge,
+  .tuc-check,
   .tuc-table,
   .tuc-pagination,
   .tuc-input,
@@ -117,6 +133,10 @@
 
   --tuc-accent: #6366f1;
   --tuc-accent-hover: #818cf8;
+
+  --tuc-success: #4ade80;
+  --tuc-warning: #fbbf24;
+  --tuc-danger: #f87171;
   --tuc-accent-fg: #ffffff;
 
   --tuc-bg: #171717;
@@ -153,6 +173,8 @@
   .tuc-accordion,
   .tuc-menu,
   .tuc-dropdown,
+  .tuc-badge,
+  .tuc-check,
   .tuc-table,
   .tuc-pagination,
   .tuc-input,
@@ -161,6 +183,10 @@
   .tuc-prose, .tuc-btn) {
     --tuc-accent: #6366f1;
     --tuc-accent-hover: #818cf8;
+
+  --tuc-success: #4ade80;
+  --tuc-warning: #fbbf24;
+  --tuc-danger: #f87171;
     --tuc-bg: #171717;
     --tuc-fg: #fafafa;
     --tuc-muted: #a3a3a3;

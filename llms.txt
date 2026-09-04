@@ -1,7 +1,7 @@
 # Tucano
 
 > Componentes de formulario e interface para a web, sem dependencias em runtime.
-> JavaScript puro, sem dependências em runtime. 36 KB JS + 11 KB CSS (gzip).
+> JavaScript puro, sem dependências em runtime. 36 KB JS + 12 KB CSS (gzip).
 > Os estilos são escritos em Tailwind mas distribuídos já compilados: o projeto
 > que consome não precisa de build e não recebe o preflight do Tailwind.
 
@@ -249,43 +249,40 @@ campo ou botao precisa entrar em tools/conferir.mjs e na lista do
 
 ## Tabela
 
-O <table> do template e a fonte da verdade; o JS so ordena e marca linhas.
-
     <table data-tuc-table data-selectable class="is-striped">
       <thead><tr>
-        <th data-sort="text" data-field="cliente">Cliente</th>
-        <th data-sort="number" class="is-number">Valor</th>
-        <th data-sort="none">Acoes</th>
+        <th data-sort="text" data-field="cliente" style="width:38%">Cliente</th>
+        <th data-sort="number" data-field="valor" class="is-number">Valor</th>
+        <th data-sort="none" class="tuc-table__actions">Acoes</th>
       </tr></thead>
-      <tbody><tr data-id="{{ obj.pk }}"><td>...</td></tr></tbody>
+      <tbody><tr data-id="{{ obj.pk }}"> ... </tr></tbody>
     </table>
 
-data-sort: text | number | date | none. data-sort-value guarda o valor cru
-quando o texto exibido nao ordena bem ("R$ 1.234,50", "12/09/2026"). Variantes:
-is-striped, is-bordered, is-compact; is-number alinha a coluna a direita.
+Celula livre. Classes de apoio: .tuc-table__user + __avatar + __sub (foto ou
+iniciais, nome, segunda linha), .tuc-badge (is-success | is-warning | is-danger |
+is-info), .tuc-table__actions (encosta a direita, botoes acendem no hover),
+.is-number (direita, digitos de largura fixa). Truncar a segunda linha exige
+largura na coluna. Variantes: is-striped, is-bordered, is-compact.
 
-A selecao gera <input type="checkbox" name="selected" value="{{ data-id }}"> de
-verdade: no Django chega em request.POST.getlist('selected'), sem JS no meio.
+data-sort: text | number | date | none. data-sort-value guarda o valor cru.
 
-Ordenar vale so para a pagina atual, de proposito — numa lista paginada,
-reordenar o que esta na tela seria mentira. Para ordenar de verdade: ouca o
-evento tuc:sort (detail.field, detail.direction) e recarregue, ou declare
-data-sort-url e o clique vira navegacao.
+ORDENAR E DO SERVIDOR, E ESSE E O PADRAO. Numa lista paginada, reordenar as
+linhas da tela produz ordem falsa — o maior valor pode estar na pagina 7. O
+cabecalho e um <a> para a mesma URL com ?sort= e ?dir=: funciona sem JS, com
+hx-boost, abre em outra aba, e o estado da seta sai da query string. Trocar a
+ordem volta para a pagina 1. Na view, ?sort e ?dir entram no order_by() antes do
+Paginator. data-sort-mode="client" ordena na tela — so para tabela pequena e
+completa, sem paginacao.
 
-## Paginacao
+Selecao gera <input type="checkbox" name="selected" value="{{ data-id }}">:
+chega em request.POST.getlist('selected').
 
-    <div data-tuc-pagination
-         data-page="{{ page_obj.number }}"
-         data-pages="{{ page_obj.paginator.num_pages }}"></div>
+## Etiqueta de estado
 
-data-param (padrao "page"), data-around, data-edges, data-prev-text,
-data-next-text. Alinhamento: is-center, is-end.
+    <span class="tuc-badge is-success">Aprovado</span>
 
-Os itens sao <a> com href real e preservam o resto da query string, entao filtro
-e busca sobrevivem a troca de pagina — e abrir em outra aba, voltar e indexar
-continuam funcionando. Quem intercepta passa onChange. Ponta inativa e <span>,
-nao <a> sem href, para sair do caminho do Tab. Com uma pagina so, nada e
-renderizado.
+Tons: is-success, is-warning, is-danger, is-info; sem tom fica neutra.
+is-plain tira o ponto. Vale fora da tabela tambem.
 
 ## Menu suspenso (dropdown)
 

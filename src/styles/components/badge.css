@@ -1,0 +1,38 @@
+@reference "tailwindcss";
+
+/*
+ * Etiqueta de estado.
+ *
+ * Nasceu para a coluna "situacao" de uma tabela, que e onde ela sempre aparece,
+ * mas nao depende da tabela: vale em card, em lista, ao lado de um titulo.
+ *
+ * A cor e de fundo suave com texto forte, e nao preenchida: numa lista de vinte
+ * linhas, vinte etiquetas solidas competem com o conteudo e a tabela vira um
+ * semaforo. O tom carrega o significado, o peso fica com o texto da linha.
+ */
+.tuc-badge {
+  @apply inline-flex items-center gap-1.5 px-2 py-0.5 whitespace-nowrap;
+  font-family: var(--tuc-font);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--tuc-muted);
+  background: var(--tuc-elevated);
+  border: var(--tuc-border-width) solid var(--tuc-border);
+  border-radius: 999px;
+}
+
+/* O ponto diz o estado sem depender so da cor de fundo — util para daltonismo
+   quando somado ao texto, e desenha melhor em tela pequena. */
+.tuc-badge::before {
+  content: '';
+  @apply size-1.5 shrink-0 rounded-full;
+  background: currentColor;
+  opacity: 0.7;
+}
+.tuc-badge.is-plain::before { display: none; }
+
+.tuc-badge.is-success { color: var(--tuc-success); background: var(--tuc-success-soft); border-color: transparent; }
+.tuc-badge.is-warning { color: var(--tuc-warning); background: var(--tuc-warning-soft); border-color: transparent; }
+.tuc-badge.is-danger  { color: var(--tuc-danger);  background: var(--tuc-danger-soft);  border-color: transparent; }
+.tuc-badge.is-info    { color: var(--tuc-accent);  background: var(--tuc-accent-soft);  border-color: transparent; }

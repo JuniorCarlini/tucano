@@ -3,7 +3,7 @@
 Componentes de formulário e interface para a web, para quem escreve HTML.
 Sem React, sem Vue, sem dependência em runtime.
 
-**36 KB de JS + 11 KB de CSS** (minificado + gzip).
+**36 KB de JS + 12 KB de CSS** (minificado + gzip).
 
 **[Documentação e exemplos ao vivo →](https://juniorcarlini.github.io/tucano/)**
 
@@ -516,54 +516,56 @@ Para voltar ao comportamento antigo no date picker, `openOnFocus: true`.
 
 ## Tabela
 
-O `<table>` do template continua sendo a fonte da verdade. O JavaScript entra só
-para ordenar pela coluna e marcar linhas.
+O `<table>` do template continua sendo a fonte da verdade, e a célula é livre.
 
 ```html
 <table data-tuc-table data-selectable class="is-striped">
   <thead><tr>
-    <th data-sort="text" data-field="cliente">Cliente</th>
-    <th data-sort="number" class="is-number">Valor</th>
-    <th data-sort="none">Ações</th>
+    <th data-sort="text" data-field="cliente" style="width:38%">Cliente</th>
+    <th data-sort="number" data-field="valor" class="is-number">Valor</th>
+    <th data-sort="none" class="tuc-table__actions">Ações</th>
   </tr></thead>
   <tbody>
     <tr data-id="{{ obj.pk }}">
-      <td>{{ obj.cliente }}</td>
-      <td class="is-number" data-sort-value="{{ obj.valor }}">{{ obj.valor }}</td>
-      <td>...</td>
+      <td>
+        <span class="tuc-table__user">
+          <span class="tuc-table__avatar"><img src="{{ obj.foto.url }}" alt=""></span>
+          <span>{{ obj.nome }}<span class="tuc-table__sub">{{ obj.doc }}</span></span>
+        </span>
+      </td>
+      <td class="is-number" data-sort-value="{{ obj.valor }}">{{ obj.valor|floatformat:2 }}</td>
+      <td class="tuc-table__actions">
+        <button class="tuc-btn is-ghost is-icon is-sm">...</button>
+      </td>
     </tr>
   </tbody>
 </table>
 ```
 
-Tipos: `text`, `number`, `date`, `none`. Quando o texto exibido não ordena bem
-(`R$ 1.234,50`, `12/09/2026`), ponha o valor cru em `data-sort-value`. Variantes:
-`is-striped`, `is-bordered`, `is-compact`; `is-number` alinha a coluna à direita.
+Para a célula: `.tuc-table__user` + `__avatar` + `__sub` (foto ou iniciais, nome e
+uma segunda linha), `.tuc-badge` com `is-success`/`is-warning`/`is-danger`/`is-info`,
+`.tuc-table__actions` (encosta à direita; os botões acendem no hover da linha) e
+`.is-number` (alinha à direita com dígitos de largura fixa). Para a segunda linha
+cortar com reticência, dê largura à coluna. Variantes: `is-striped`,
+`is-bordered`, `is-compact`.
 
-A seleção é um formulário de verdade — cada linha ganha um
-`<input type="checkbox" name="selected" value="{{ data-id }}">`, então no Django
-chega como `request.POST.getlist('selected')`.
+Ordenação: `data-sort` aceita `text`, `number`, `date`, `none`;
+`data-sort-value` guarda o valor cru quando o texto exibido não ordena bem.
 
-Ordenar acontece sobre a página atual, de propósito: numa lista já paginada,
-reordenar só o que está na tela seria mentira. Para ordenar de verdade, ouça o
-evento `tuc:sort` (traz `field` e `direction`) e recarregue, ou declare
-`data-sort-url` e o clique vira navegação.
+**Ordenar é trabalho do servidor, e esse é o padrão.** Numa lista paginada,
+reordenar as vinte linhas da tela produz uma ordem falsa — o maior valor real
+pode estar na página 7. Por isso o cabeçalho é um `<a>` para a mesma URL com
+`?sort=` e `?dir=`: funciona sem JavaScript, funciona com `hx-boost`, abre em
+outra aba, e a seta continua certa depois do reload porque o estado sai da query
+string. Trocar a ordem volta para a página 1. Na sua view, `?sort` e `?dir`
+entram no `order_by()` antes do `Paginator`.
 
-## Paginação
+`data-sort-mode="client"` ordena na própria tela — para tabela pequena e
+completa, sem paginação.
 
-```html
-<div data-tuc-pagination
-     data-page="{{ page_obj.number }}"
-     data-pages="{{ page_obj.paginator.num_pages }}"></div>
-```
-
-Atributos: `data-param` (padrão `page`), `data-around`, `data-edges`,
-`data-prev-text`, `data-next-text`. Alinhamento com `is-center` ou `is-end`.
-
-Os itens são `<a>` com `href` de verdade e preservam o resto da query string, então
-filtros e busca não se perdem ao virar a página — e o botão do meio, o voltar do
-navegador e o buscador continuam funcionando. Quem precisa interceptar passa
-`onChange`.
+A seleção é um formulário de verdade: cada linha ganha um
+`<input type="checkbox" name="selected" value="{{ data-id }}">`, então chega como
+`request.POST.getlist('selected')`.
 
 ## Menu suspenso
 

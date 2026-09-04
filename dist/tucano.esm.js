@@ -4490,12 +4490,15 @@ function autoInit11(scope = document) {
 // src/js/components/table.js
 var DEFAULTS12 = {
   sortable: true,
+  sortMode: "server",
+  // server | client
+  sortParam: "sort",
+  dirParam: "dir",
   selectable: false,
   // coluna de selecao em massa
   selectName: "selected",
-  sortUrl: null,
-  // quando existe, ordenar e responsabilidade do servidor
   onSort: null,
+  // definido, intercepta o clique e cancela a navegacao
   onSelect: null
 };
 var SETAS = "M7 15l5 5 5-5M7 9l5-5 5 5";
@@ -4541,36 +4544,52 @@ var Table = class {
     const head = this.node.tHead?.rows[0];
     if (!head) return;
     this.sortable = [];
+    const noServidor = this.opts.sortMode !== "client";
+    const atual = new URLSearchParams(location.search);
+    const campoAtual = atual.get(this.opts.sortParam);
+    const dirAtual = atual.get(this.opts.dirParam) === "desc" ? "descending" : "ascending";
     [...head.cells].forEach((th, i) => {
       const type = th.dataset.sort;
       if (!type || type === "none") return;
+      const field = th.dataset.field || String(i);
       th.classList.add("tuc-table__sortable");
-      th.setAttribute("aria-sort", "none");
-      const label = el("button", { type: "button", class: "tuc-table__sortbtn" }, [
+      const marcada = noServidor && campoAtual === field;
+      th.setAttribute("aria-sort", marcada ? dirAtual : "none");
+      const proxima = marcada && dirAtual === "ascending" ? "desc" : "asc";
+      const filhos = [
         el("span", { text: th.textContent.trim() }),
         el("span", { class: "tuc-table__sorticon", "aria-hidden": "true" }, [icon(SETAS, 13)])
-      ]);
+      ];
+      const gatilho = noServidor ? el("a", { class: "tuc-table__sortbtn", href: this._sortHref(field, proxima) }, filhos) : el("button", { type: "button", class: "tuc-table__sortbtn" }, filhos);
       th.textContent = "";
-      th.append(label);
-      this.sortable.push({ th, index: i, type });
-      this._cleanups.push(on(label, "click", () => this._onSortClick(th, i, type)));
+      th.append(gatilho);
+      this.sortable.push({ th, index: i, type, field });
+      this._cleanups.push(on(gatilho, "click", (e) => this._onSortClick(e, th, i, type, field)));
     });
   }
-  _onSortClick(th, index, type) {
-    const atual = th.getAttribute("aria-sort");
-    const dir = atual === "ascending" ? "descending" : "ascending";
-    for (const s of this.sortable) s.th.setAttribute("aria-sort", "none");
-    th.setAttribute("aria-sort", dir);
-    const detalhe = { column: index, field: th.dataset.field || null, direction: dir === "ascending" ? "asc" : "desc" };
+  /** Mesma URL, com a ordem trocada e o resto da query string intacto. */
+  _sortHref(field, direction) {
+    const url = new URL(location.href);
+    url.searchParams.set(this.opts.sortParam, field);
+    url.searchParams.set(this.opts.dirParam, direction);
+    url.searchParams.delete("page");
+    return `${url.pathname}${url.search}${url.hash}`;
+  }
+  _onSortClick(e, th, index, type, field) {
+    const noServidor = this.opts.sortMode !== "client";
+    const anterior = th.getAttribute("aria-sort");
+    const dir = anterior === "ascending" ? "descending" : "ascending";
+    const detalhe = { column: index, field, direction: dir === "ascending" ? "asc" : "desc" };
     this.node.dispatchEvent(new CustomEvent("tuc:sort", { bubbles: true, detail: detalhe }));
-    this.opts.onSort?.(detalhe, this);
-    if (this.opts.sortUrl) {
-      const url = new URL(this.opts.sortUrl, location.href);
-      url.searchParams.set("sort", detalhe.field ?? String(index));
-      url.searchParams.set("dir", detalhe.direction);
-      location.href = url.toString();
+    if (this.opts.onSort) {
+      e.preventDefault();
+      this.opts.onSort(detalhe, this);
       return;
     }
+    if (noServidor) return;
+    e.preventDefault();
+    for (const s of this.sortable) s.th.setAttribute("aria-sort", "none");
+    th.setAttribute("aria-sort", dir);
     this.sort(index, detalhe.direction, type);
   }
   /** Ordena as linhas visíveis. `type`: text | number | date. */
@@ -4595,7 +4614,7 @@ var Table = class {
     if (!head) return;
     this.checkAll = el("input", {
       type: "checkbox",
-      class: "tuc-table__check",
+      class: "tuc-check tuc-table__check",
       "aria-label": "Selecionar todas as linhas desta p\xE1gina"
     });
     const th = el("th", { class: "tuc-table__pick", scope: "col" }, [this.checkAll]);
@@ -4603,7 +4622,7 @@ var Table = class {
     for (const tr of this.rows) {
       const check = el("input", {
         type: "checkbox",
-        class: "tuc-table__check",
+        class: "tuc-check tuc-table__check",
         name: this.opts.selectName,
         value: tr.dataset.id ?? "",
         "aria-label": "Selecionar linha"
@@ -4665,9 +4684,11 @@ function autoInit12(scope = document) {
     const d = node.dataset;
     out.push(new Table(node, {
       sortable: d.sortable !== "false",
+      sortMode: d.sortMode || void 0,
+      sortParam: d.sortParam || void 0,
+      dirParam: d.dirParam || void 0,
       selectable: d.selectable !== void 0 && d.selectable !== "false",
-      selectName: d.selectName || void 0,
-      sortUrl: d.sortUrl || void 0
+      selectName: d.selectName || void 0
     }));
   }
   return out;
@@ -4724,8 +4745,13 @@ var Pagination = class {
     url.searchParams.set(this.opts.param, String(page));
     return `${url.pathname}${url.search}${url.hash}`;
   }
-  _item(page, { text, current = false, disabled = false, extra = "" } = {}) {
-    const classe = `tuc-pagination__item${extra}${current ? " is-current" : ""}${disabled ? " is-disabled" : ""}`;
+  _item(page, { text, current = false, disabled = false, edge = false } = {}) {
+    const classe = [
+      "tuc-btn",
+      current ? "is-outline" : "is-ghost",
+      edge ? "tuc-pagination__edge" : "",
+      disabled ? "is-disabled" : ""
+    ].filter(Boolean).join(" ");
     const filhos = typeof text === "string" ? [text] : text;
     if (disabled) return el("span", { class: classe, "aria-hidden": "true" }, filhos);
     const a = el("a", {
@@ -4752,7 +4778,7 @@ var Pagination = class {
         el("span", { class: "tuc-pagination__word", text: this.opts.prevText })
       ],
       disabled: page <= 1,
-      extra: " is-edge"
+      edge: true
     }));
     for (const n of pageWindow(page, pages, this.opts)) {
       if (n === null) {
@@ -4767,7 +4793,7 @@ var Pagination = class {
         el("span", { class: "tuc-pagination__ico", "aria-hidden": "true" }, [icon(SETA_DIR, 15)])
       ],
       disabled: page >= pages,
-      extra: " is-edge"
+      edge: true
     }));
     return this;
   }

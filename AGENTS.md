@@ -234,6 +234,29 @@ o `Espaço`, e só com o campo vazio, porque em modo com hora se digita
 `07/09/2026 14:30` — mesma ressalva do `Espaço` no select, onde o foco está num
 campo de busca.
 
+**Ordenar tabela é do servidor, não do cliente.** Numa lista paginada,
+reordenar as linhas que estão na tela produz uma ordem falsa: o maior valor real
+pode estar na página 7, e a tabela mente com cara de verdade. O cabeçalho é um
+`<a>` para a mesma URL com `?sort=` e `?dir=` — funciona sem JavaScript, com
+`hx-boost`, abre em outra aba, e o estado da seta sai da query string, então
+sobrevive ao reload. `data-sort-mode="client"` existe só para tabela pequena e
+completa, sem paginação.
+
+**Célula de tabela não vira container flex.** `display: flex` num `<th>` ou
+`<td>` tira a célula do algoritmo de colunas da tabela: ela deixa de participar
+da largura e passa a desenhar a própria caixa por cima do cabeçalho. Para
+encostar uma coluna à direita, use `text-align`; o flex fica no conteúdo dentro
+da célula. E `truncate` só funciona com a coluna tendo largura — em
+`table-layout: auto` a coluna cresce com o conteúdo e a reticência nunca
+aparece.
+
+**Não existe um segundo desenho de botão.** A paginação usa `.tuc-btn is-ghost`
+e `is-outline`; altura, raio, foco e comportamento no toque já estão resolvidos
+lá. Um segundo botão na mesma página é o que denuncia biblioteca remendada — e
+foi por isso que os tons `--tuc-success`, `--tuc-warning` e `--tuc-danger`
+saíram de dentro do toast e viraram token: a etiqueta de estado e o toast têm de
+falar a mesma cor.
+
 ## Antes de dizer que está pronto
 
 ```bash
