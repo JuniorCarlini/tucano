@@ -1,0 +1,43 @@
+# Toda tag empurrada vira um release. Existe porque o repositório tem 56 tags e
+# nenhum release: quem chega pela página não vê versão nenhuma, e a coluna
+# Releases fica vazia mesmo com o histórico todo publicado no CDN e no npm.
+#
+# O corpo do release sai da anotação da própria tag, então a nota de versão se
+# escreve uma vez só, no `git tag -a`, e não em dois lugares que divergem.
+name: release
+
+on:
+  push:
+    tags: ['v*']
+  # Para as tags que já existiam antes deste workflow: Actions → release → Run.
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag existente a publicar (ex: v0.31.0)'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      # fetch-depth 0 porque a anotação da tag não vem num clone raso.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Publica o release com a anotação da tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          set -euo pipefail
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "release $TAG já existe"; exit 0
+          fi
+          # Tag leve não tem anotação; nesse caso o corpo fica com o commit.
+          NOTAS="$(git tag -l --format='%(contents)' "$TAG")"
+          [ -n "$NOTAS" ] || NOTAS="$(git log -1 --format=%B "$TAG")"
+          gh release create "$TAG" --verify-tag --title "$TAG" --notes "$NOTAS"
