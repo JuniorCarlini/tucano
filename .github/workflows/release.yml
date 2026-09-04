@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # fetch-depth 0 porque a anotação da tag não vem num clone raso.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 

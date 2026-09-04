@@ -13,11 +13,14 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      # 24 e nao 22: o teste de teclado usa o WebSocket global, que so ficou
+      # estavel no 22.4 — pedir a major inteira deixaria a suite dependendo de
+      # qual minor o runner instalou naquele dia.
+      - uses: actions/setup-node@v7
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
 
       # Metade do que interessa so existe num navegador de verdade: <dialog>,
