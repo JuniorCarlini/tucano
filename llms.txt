@@ -1,7 +1,7 @@
 # Tucano
 
 > Componentes de formulario e interface para a web, sem dependencias em runtime.
-> JavaScript puro, sem dependências em runtime. 33 KB JS + 10 KB CSS (gzip).
+> JavaScript puro, sem dependências em runtime. 34 KB JS + 10 KB CSS (gzip).
 > Os estilos são escritos em Tailwind mas distribuídos já compilados: o projeto
 > que consome não precisa de build e não recebe o preflight do Tailwind.
 
@@ -246,6 +246,37 @@ algum sair do padrao: 38px no desktop, 44px no toque, e nunca abaixo de 16px de
 fonte em campo digitavel, senao o iOS da zoom ao focar. Componente novo com
 campo ou botao precisa entrar em tools/conferir.mjs e na lista do
 @media (max-width: 40rem) em src/styles/core/tokens.css.
+
+## Menu suspenso (dropdown)
+
+Sobre o mesmo popover do tooltip: vira de lado quando nao cabe, fecha no clique
+fora e no Escape. Do servidor:
+
+    <button data-tuc-dropdown="#acoes" data-placement="bottom-end">Acoes</button>
+    <div class="tuc-dropdown" id="acoes" hidden>
+      <div class="tuc-dropdown__rotulo">Contrato</div>
+      <button class="tuc-dropdown__item">
+        <span class="tuc-dropdown__texto">Editar</span>
+        <span class="tuc-dropdown__atalho">Cmd E</span>
+      </button>
+      <hr class="tuc-dropdown__separador">
+      <button class="tuc-dropdown__item is-perigo">...</button>
+    </div>
+
+O hidden e obrigatorio: sem ele o painel aparece no meio da pagina ate o script
+rodar. Em JS:
+
+    new Tucano.Dropdown('#acoes', { placement:'bottom-start', itens:[
+      { rotulo:'Contrato' },
+      { texto:'Editar', icone:PATH_SVG, atalho:'Cmd E', onClick:fn },
+      { texto:'Abrir', href:'/contratos/12/' },
+      { separador:true },
+      { texto:'Excluir', variante:'perigo', onClick:fn },
+    ]});
+
+Item com href vira <a>; sem href vira <button>. Teclado: setas andam, Home e End
+vao as pontas, Escape e Tab fecham, e o foco volta ao gatilho. Os itens tem
+tabindex="-1" de proposito — dentro de um menu quem navega e a seta, nao o Tab.
 
 ## Gaveta (off-canvas)
 

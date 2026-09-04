@@ -4286,6 +4286,161 @@ function autoInit10(scope = document) {
   return out;
 }
 
+// src/js/components/dropdown.js
+var DEFAULTS11 = {
+  placement: "bottom-start",
+  itens: null,
+  // [{ texto, icone, atalho, onClick, href, variante, desabilitado }]
+  // ou { separador: true } / { rotulo: 'Seção' }
+  fecharAoEscolher: true
+};
+var FOCAVEIS = '.tuc-dropdown__item:not([disabled]):not([aria-disabled="true"])';
+function semUndefined2(obj) {
+  const out = {};
+  for (const [k, v] of Object.entries(obj || {})) if (v !== void 0) out[k] = v;
+  return out;
+}
+var Dropdown = class {
+  constructor(gatilho, opcoes = {}) {
+    this.gatilho = typeof gatilho === "string" ? document.querySelector(gatilho) : gatilho;
+    if (!this.gatilho) throw new Error("[Dropdown] gatilho n\xE3o encontrado");
+    this.opts = { ...DEFAULTS11, ...semUndefined2(opcoes) };
+    this._cleanups = [];
+    this._montar();
+  }
+  _montar() {
+    this.painel = this.opts.painel ?? el(
+      "div",
+      { class: "tuc-dropdown", role: "menu" },
+      (this.opts.itens ?? []).map((i) => this._item(i))
+    );
+    this.painel.classList.add("tuc-dropdown");
+    this.painel.setAttribute("role", "menu");
+    this.gatilho.setAttribute("aria-haspopup", "menu");
+    this.gatilho.setAttribute("aria-expanded", "false");
+    this._cleanups.push(
+      on(this.gatilho, "click", (e) => {
+        e.preventDefault();
+        this.alternar();
+      }),
+      on(this.gatilho, "keydown", (e) => {
+        if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+          e.preventDefault();
+          this.abrir();
+          this._mover(e.key === "ArrowUp" ? -1 : 0, true);
+        }
+      }),
+      on(this.painel, "keydown", (e) => this._teclado(e)),
+      on(this.painel, "click", (e) => {
+        const item = e.target.closest(".tuc-dropdown__item");
+        if (!item || item.hasAttribute("aria-disabled")) return;
+        if (this.opts.fecharAoEscolher) this.fechar();
+      })
+    );
+    this.gatilho._tucano = this;
+    this.painel._tucano = this;
+  }
+  _item(dados) {
+    if (dados.separador) return el("hr", { class: "tuc-dropdown__separador", role: "separator" });
+    if (dados.rotulo) return el("div", { class: "tuc-dropdown__rotulo", text: dados.rotulo });
+    const tag = dados.href ? "a" : "button";
+    const filhos = [];
+    if (dados.icone) filhos.push(el("span", { class: "tuc-dropdown__icone", "aria-hidden": "true" }, [icon(dados.icone, 15)]));
+    filhos.push(el("span", { class: "tuc-dropdown__texto", text: dados.texto ?? "" }));
+    if (dados.atalho) filhos.push(el("span", { class: "tuc-dropdown__atalho", text: dados.atalho }));
+    return el(tag, {
+      class: `tuc-dropdown__item${dados.variante ? ` is-${dados.variante}` : ""}`,
+      role: "menuitem",
+      // tabindex -1 de proposito: quem navega e a seta, nao o Tab. Deixar os
+      // itens tabulaveis faria o Tab sair do menu item a item.
+      tabindex: "-1",
+      ...dados.href ? { href: dados.href } : { type: "button" },
+      ...dados.desabilitado ? { "aria-disabled": "true" } : {},
+      ...dados.desabilitado ? {} : { onclick: () => dados.onClick?.(this) }
+    }, filhos);
+  }
+  get itens() {
+    return [...this.painel.querySelectorAll(FOCAVEIS)];
+  }
+  _mover(passo, absoluto = false) {
+    const itens = this.itens;
+    if (!itens.length) return;
+    const atual = itens.indexOf(document.activeElement);
+    let i;
+    if (absoluto) i = passo < 0 ? itens.length - 1 : 0;
+    else i = (atual + passo + itens.length) % itens.length;
+    itens[i]?.focus();
+  }
+  _teclado(e) {
+    const teclas = {
+      ArrowDown: () => this._mover(1),
+      ArrowUp: () => this._mover(-1),
+      Home: () => this._mover(0, true),
+      End: () => this._mover(-1, true),
+      Escape: () => this.fechar(),
+      Tab: () => this.fechar()
+    };
+    const acao = teclas[e.key];
+    if (!acao) return;
+    if (e.key !== "Tab") e.preventDefault();
+    acao();
+  }
+  abrir() {
+    if (this.aberto) return this;
+    this.aberto = true;
+    this.gatilho.setAttribute("aria-expanded", "true");
+    this.popover = new Popover(this.gatilho, this.painel, {
+      placement: this.opts.placement,
+      offset: 6,
+      fecharSeSolto: true,
+      onDismiss: () => this.fechar()
+    });
+    this.popover.show();
+    abrirComTransicao(this.painel);
+    this._mover(0, true);
+    return this;
+  }
+  fechar() {
+    if (!this.aberto) return this;
+    this.aberto = false;
+    this.gatilho.setAttribute("aria-expanded", "false");
+    this.painel.classList.remove("is-open");
+    this.popover?.destroy();
+    this.popover = null;
+    if (this.painel.contains(document.activeElement)) {
+      this.gatilho.focus({ preventScroll: true });
+    }
+    return this;
+  }
+  alternar() {
+    return this.aberto ? this.fechar() : this.abrir();
+  }
+  destroy() {
+    this.fechar();
+    this._cleanups.forEach((fn) => fn());
+    this._cleanups = [];
+  }
+};
+function autoInit11(scope = document) {
+  const out = [];
+  for (const gatilho of scope.querySelectorAll("[data-tuc-dropdown]:not([data-tuc-ready])")) {
+    gatilho.setAttribute("data-tuc-ready", "");
+    const painel = document.querySelector(gatilho.dataset.tucDropdown);
+    if (!painel) continue;
+    painel.hidden = false;
+    painel.remove();
+    for (const item of painel.querySelectorAll(".tuc-dropdown__item")) {
+      item.setAttribute("role", "menuitem");
+      item.setAttribute("tabindex", "-1");
+    }
+    out.push(new Dropdown(gatilho, {
+      painel,
+      placement: gatilho.dataset.placement || void 0
+    }));
+  }
+  return out;
+}
+
 // src/js/core/sanitizar.js
 var PERMITIDAS = /* @__PURE__ */ new Set([
   "P",
@@ -4503,7 +4658,7 @@ function destacar(codigo) {
     return classe ? `<span class="tuc-tok-${classe}">${todo}</span>` : todo;
   });
 }
-function autoInit11(scope = document) {
+function autoInit12(scope = document) {
   const blocos = [...scope.querySelectorAll(".tuc-prosa pre > code:not([data-tuc-pintado])")];
   for (const code of blocos) {
     code.setAttribute("data-tuc-pintado", "");
@@ -4513,7 +4668,7 @@ function autoInit11(scope = document) {
 }
 
 // src/js/components/rico.js
-var DEFAULTS11 = {
+var DEFAULTS12 = {
   toolbar: [
     "negrito",
     "italico",
@@ -4792,7 +4947,7 @@ function devolverPosicao(bloco, quantos) {
     contados += no.length;
   }
 }
-function semUndefined2(obj) {
+function semUndefined3(obj) {
   const out = {};
   for (const [k, v] of Object.entries(obj || {})) if (v !== void 0) out[k] = v;
   return out;
@@ -4801,7 +4956,7 @@ var Rico = class {
   constructor(alvo, opcoes = {}) {
     this.campo = typeof alvo === "string" ? document.querySelector(alvo) : alvo;
     if (!this.campo) throw new Error("[Rico] elemento n\xE3o encontrado");
-    this.opts = { ...DEFAULTS11, ...semUndefined2(opcoes) };
+    this.opts = { ...DEFAULTS12, ...semUndefined3(opcoes) };
     this._cleanups = [];
     this._montar();
   }
@@ -5148,7 +5303,7 @@ var Rico = class {
     this.raiz.remove();
   }
 };
-function autoInit12(scope = document) {
+function autoInit13(scope = document) {
   const out = [];
   for (const node of scope.querySelectorAll("[data-tuc-rico]:not([data-tuc-ready])")) {
     node.setAttribute("data-tuc-ready", "");
@@ -5173,8 +5328,9 @@ function init(scope = document) {
     modals: autoInit8(scope),
     gavetas: autoInit9(scope),
     acordeoes: autoInit10(scope),
-    ricos: autoInit12(scope),
-    prosa: autoInit11(scope),
+    dropdowns: autoInit11(scope),
+    ricos: autoInit13(scope),
+    prosa: autoInit12(scope),
     // Por último de propósito: componentes que criam a própria barra de botões
     // marcam neles `data-tuc-tip`, e esses elementos só existem depois que eles
     // se montam. Antes, os botões do editor nasciam sem dica.
@@ -5185,6 +5341,7 @@ export {
   Acordeon,
   ColorPicker,
   DatePicker,
+  Dropdown,
   FORMATOS,
   Gaveta,
   Mask,
@@ -5199,11 +5356,12 @@ export {
   autoInit10 as autoInitAcordeoes,
   autoInit3 as autoInitColorPickers,
   autoInit as autoInitDatePickers,
+  autoInit11 as autoInitDropdowns,
   autoInit9 as autoInitGavetas,
   autoInit5 as autoInitMasks,
   autoInit8 as autoInitModals,
-  autoInit11 as autoInitProsa,
-  autoInit12 as autoInitRicos,
+  autoInit12 as autoInitProsa,
+  autoInit13 as autoInitRicos,
   autoInit2 as autoInitSelects,
   autoInit6 as autoInitToasts,
   autoInit7 as autoInitTooltips,

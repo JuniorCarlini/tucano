@@ -3,7 +3,7 @@
 Componentes de formulário e interface para a web, para quem escreve HTML.
 Sem React, sem Vue, sem dependência em runtime.
 
-**33 KB de JS + 10 KB de CSS** (minificado + gzip).
+**34 KB de JS + 10 KB de CSS** (minificado + gzip).
 
 **[Documentação e exemplos ao vivo →](https://juniorcarlini.github.io/tucano/)**
 
@@ -19,6 +19,7 @@ Sem React, sem Vue, sem dependência em runtime.
 | `Modal` — diálogo sobre `<dialog>` nativo, fundo com brilho | pronto |
 | `Gaveta` — off-canvas nas quatro bordas, mesmo motor do modal | pronto |
 | `Acordeão` — sobre `<details>`, funciona sem JavaScript | pronto |
+| `Dropdown` — menu de ações ancorado, navegação por setas | pronto |
 | `.tuc-menu` — lista de navegação, só classe | pronto |
 | `Rico` — editor de texto com tabela e bloco de código | pronto |
 | `.tuc-prosa` — exibição do que o editor salvou | pronto |
@@ -489,6 +490,46 @@ mesmas regras de CSS da área de edição:
 O código publicado é colorido pelo `init()`. O destacador não conhece linguagem
 nenhuma: reconhece comentário, texto entre aspas, número, tag, atributo e chaves
 de template, o que funciona em qualquer linguagem por 2 KB.
+
+## Menu suspenso
+
+```html
+<button data-tuc-dropdown="#acoes">Ações</button>
+
+<div class="tuc-dropdown" id="acoes" hidden>
+  <div class="tuc-dropdown__rotulo">Contrato</div>
+  <button class="tuc-dropdown__item">
+    <span class="tuc-dropdown__texto">Editar</span>
+    <span class="tuc-dropdown__atalho">⌘E</span>
+  </button>
+  <hr class="tuc-dropdown__separador">
+  <button class="tuc-dropdown__item is-perigo">
+    <span class="tuc-dropdown__texto">Excluir</span>
+  </button>
+</div>
+```
+
+O `hidden` importa: sem ele o menu aparece no meio da página até o script rodar.
+
+Em JavaScript, quando os itens são calculados na hora:
+
+```js
+new Tucano.Dropdown('#acoes', {
+  placement: 'bottom-start',    // as mesmas posições do tooltip
+  itens: [
+    { rotulo: 'Contrato' },
+    { texto: 'Editar', atalho: '⌘E', onClick: () => abrirEdicao() },
+    { texto: 'Abrir', href: '/contratos/12/' },
+    { separador: true },
+    { texto: 'Excluir', variante: 'perigo', onClick: () => excluir() },
+  ],
+});
+```
+
+O item vira `<a>` quando tem `href`, e `<button>` no resto. Abrir leva o foco ao
+primeiro item, as setas andam entre eles e fechar devolve o foco ao gatilho; os
+itens ficam com `tabindex="-1"` porque dentro de um menu quem navega é a seta, e
+não o `Tab`.
 
 ## Gaveta (off-canvas)
 

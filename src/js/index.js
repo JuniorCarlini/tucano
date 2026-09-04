@@ -8,6 +8,7 @@ export { Tooltip, autoInit as autoInitTooltips } from './components/tooltip.js';
 export { Modal, modal, confirmar, autoInit as autoInitModals } from './components/modal.js';
 export { Gaveta, gaveta, autoInit as autoInitGavetas } from './components/offcanvas.js';
 export { Acordeon, autoInit as autoInitAcordeoes } from './components/acordeon.js';
+export { Dropdown, autoInit as autoInitDropdowns } from './components/dropdown.js';
 export { Rico, autoInit as autoInitRicos } from './components/rico.js';
 export { sanitizar } from './core/sanitizar.js';
 export { destacar, autoInit as autoInitProsa } from './core/destacar.js';
@@ -26,6 +27,7 @@ import { autoInit as autoInitTip } from './components/tooltip.js';
 import { autoInit as autoInitModal } from './components/modal.js';
 import { autoInit as autoInitGaveta } from './components/offcanvas.js';
 import { autoInit as autoInitAcordeao } from './components/acordeon.js';
+import { autoInit as autoInitDropdown } from './components/dropdown.js';
 import { autoInit as autoInitRico } from './components/rico.js';
 import { autoInit as autoInitProsa } from './core/destacar.js';
 
@@ -42,6 +44,7 @@ export function init(scope = document) {
     modals: autoInitModal(scope),
     gavetas: autoInitGaveta(scope),
     acordeoes: autoInitAcordeao(scope),
+    dropdowns: autoInitDropdown(scope),
     ricos: autoInitRico(scope),
     prosa: autoInitProsa(scope),
     // Por último de propósito: componentes que criam a própria barra de botões
