@@ -1,0 +1,134 @@
+@reference "tailwindcss";
+
+/*
+ * Tabela.
+ *
+ * O grosso do componente e este arquivo: quem monta a tabela e o servidor, e o
+ * JavaScript so entra para ordenar e marcar. As linhas se separam por uma borda
+ * de baixo, e nao por zebra: numa lista de trinta linhas a zebra vira ruido, e
+ * a borda ja resolve o acompanhamento com a vista. Quem quiser zebra pede.
+ */
+
+.tuc-table-wrap {
+  @apply w-full overflow-x-auto;
+  /* Rolagem propria pede que a tabela nao encolha as colunas para caber. */
+  -webkit-overflow-scrolling: touch;
+}
+
+.tuc-table {
+  @apply w-full border-collapse text-left;
+  font-family: var(--tuc-font);
+  font-size: var(--tuc-text);
+  color: var(--tuc-fg);
+}
+
+.tuc-table th,
+.tuc-table td {
+  @apply px-3 py-2.5 align-middle;
+  border-bottom: var(--tuc-border-width) solid var(--tuc-border);
+}
+
+.tuc-table thead th {
+  @apply text-xs font-medium;
+  color: var(--tuc-muted);
+  background: var(--tuc-elevated);
+  white-space: nowrap;
+}
+
+/* A ultima linha nao precisa de risco: a tabela ja acabou ali. */
+.tuc-table tbody tr:last-child > * { border-bottom: 0; }
+.tuc-table tbody tr { transition: background var(--tuc-duration) var(--tuc-ease); }
+.tuc-table tbody tr:hover { background: var(--tuc-hover); }
+.tuc-table tbody tr.is-selected { background: var(--tuc-accent-soft); }
+
+.tuc-table.is-striped tbody tr:nth-child(even) { background: var(--tuc-elevated); }
+.tuc-table.is-striped tbody tr:hover { background: var(--tuc-hover); }
+.tuc-table.is-bordered { border: var(--tuc-border-width) solid var(--tuc-border); border-radius: var(--tuc-radius); }
+.tuc-table.is-bordered th,
+.tuc-table.is-bordered td { border-right: var(--tuc-border-width) solid var(--tuc-border); }
+.tuc-table.is-bordered th:last-child,
+.tuc-table.is-bordered td:last-child { border-right: 0; }
+.tuc-table.is-compact th,
+.tuc-table.is-compact td { @apply px-2 py-1.5; }
+
+/*
+ * Cabecalho fixo. Precisa de altura no envolucro para ter contra o que grudar —
+ * sem isso o sticky nao tem area de rolagem e simplesmente nao acontece.
+ */
+.tuc-table-wrap.is-sticky { max-height: 26rem; overflow-y: auto; }
+.tuc-table-wrap.is-sticky thead th {
+  @apply sticky top-0 z-10;
+  /* A borda de baixo some no sticky porque o border-collapse a atribui a
+     celula que rolou; o box-shadow desenha a linha que fica. */
+  box-shadow: inset 0 -1px 0 var(--tuc-border);
+}
+
+/* Coluna numerica alinhada a direita: e assim que se compara valor com a vista. */
+.tuc-table th.is-number,
+.tuc-table td.is-number { @apply text-right; font-variant-numeric: tabular-nums; }
+
+/* ---------------------------------------------------------------- *
+ * Ordenacao                                                        *
+ * ---------------------------------------------------------------- */
+
+.tuc-table__sortbtn {
+  @apply inline-flex cursor-pointer items-center gap-1 border-0 bg-transparent p-0 text-left;
+  font: inherit;
+  color: inherit;
+  border-radius: var(--tuc-radius-xs);
+}
+.tuc-table__sortbtn:hover { color: var(--tuc-fg); }
+.tuc-table__sortbtn:focus-visible {
+  outline: 2px solid var(--tuc-ring);
+  outline-offset: 2px;
+}
+.tuc-table__sorticon {
+  @apply inline-flex shrink-0;
+  color: var(--tuc-subtle);
+  opacity: 0.55;
+  transition: opacity var(--tuc-duration) var(--tuc-ease);
+}
+.tuc-table__sortbtn:hover .tuc-table__sorticon { opacity: 1; }
+
+/*
+ * A seta indica o sentido escondendo a metade que nao vale. O icone e um par
+ * de chevrons; recortar metade dele custa menos que trocar de SVG e mantem o
+ * elemento no lugar, sem o texto pular quando a ordem muda.
+ */
+.tuc-table th[aria-sort='ascending'] .tuc-table__sorticon,
+.tuc-table th[aria-sort='descending'] .tuc-table__sorticon {
+  color: var(--tuc-accent);
+  opacity: 1;
+}
+.tuc-table th[aria-sort='ascending'] .tuc-table__sorticon svg { clip-path: inset(0 0 50% 0); }
+.tuc-table th[aria-sort='descending'] .tuc-table__sorticon svg { clip-path: inset(50% 0 0 0); }
+.tuc-table th[aria-sort='ascending'],
+.tuc-table th[aria-sort='descending'] { color: var(--tuc-fg); }
+
+/* ---------------------------------------------------------------- *
+ * Selecao                                                          *
+ * ---------------------------------------------------------------- */
+
+.tuc-table__pick { @apply w-10 pr-0; }
+.tuc-table__check {
+  @apply size-4 cursor-pointer align-middle;
+  accent-color: var(--tuc-accent);
+}
+.tuc-table__check:focus-visible { outline: 2px solid var(--tuc-ring); outline-offset: 2px; }
+
+/* Estado vazio: a tabela sem linhas continua sendo tabela, com uma so celula. */
+.tuc-table__empty {
+  @apply px-3 py-10 text-center;
+  color: var(--tuc-muted);
+}
+
+@media (max-width: 40rem) {
+  .tuc-table th,
+  .tuc-table td { @apply px-2.5 py-2; }
+  .tuc-table { font-size: var(--tuc-text); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tuc-table tbody tr,
+  .tuc-table__sorticon { transition: none; }
+}

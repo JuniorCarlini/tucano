@@ -1,0 +1,78 @@
+@reference "tailwindcss";
+
+/*
+ * Paginacao.
+ *
+ * Os itens tem a altura de controle do sistema — sao alvo de toque como
+ * qualquer botao, e no celular a regra dos 44px vale aqui igual. As pontas
+ * escondem a palavra e ficam so com a seta quando a tela aperta: "Anterior" e
+ * "Próxima" custam largura que os numeros usam melhor.
+ */
+
+.tuc-pagination {
+  @apply flex flex-wrap items-center gap-1;
+  font-family: var(--tuc-font);
+  font-size: var(--tuc-text);
+}
+
+.tuc-pagination__item {
+  @apply inline-flex select-none items-center justify-center gap-1 px-2.5 no-underline;
+  min-width: var(--tuc-control-height);
+  height: var(--tuc-control-height);
+  color: var(--tuc-fg);
+  background: transparent;
+  border: var(--tuc-border-width) solid transparent;
+  border-radius: var(--tuc-radius-md);
+  font-variant-numeric: tabular-nums;
+  transition:
+    background var(--tuc-duration) var(--tuc-ease),
+    border-color var(--tuc-duration) var(--tuc-ease),
+    color var(--tuc-duration) var(--tuc-ease);
+}
+.tuc-pagination__item:hover { background: var(--tuc-hover); }
+.tuc-pagination__item:focus-visible {
+  outline: 2px solid var(--tuc-ring);
+  outline-offset: 2px;
+}
+
+/*
+ * A pagina atual e a unica com contorno. Preencher com a cor de destaque
+ * pesaria demais numa barra que ja tem muitos alvos — a borda basta para dizer
+ * onde estamos, e o aria-current diz o mesmo a quem nao ve.
+ */
+.tuc-pagination__item.is-current {
+  border-color: var(--tuc-border);
+  background: var(--tuc-elevated);
+  font-weight: 500;
+}
+
+.tuc-pagination__item.is-disabled {
+  color: var(--tuc-subtle);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.tuc-pagination__gap {
+  @apply inline-flex items-center justify-center px-1;
+  min-width: 1.5rem;
+  height: var(--tuc-control-height);
+  color: var(--tuc-subtle);
+}
+
+.tuc-pagination__ico { @apply inline-flex shrink-0; }
+.tuc-pagination__item.is-edge { @apply px-2.5; }
+
+/* Centralizada e alinhada à direita, para quem prefere. */
+.tuc-pagination.is-center { @apply justify-center; }
+.tuc-pagination.is-end { @apply justify-end; }
+
+@media (max-width: 40rem) {
+  /* No celular a palavra sai e fica a seta: o espaco vale mais para os números. */
+  .tuc-pagination__word { @apply hidden; }
+  .tuc-pagination__item.is-edge { @apply px-0; }
+  .tuc-pagination { @apply gap-0.5; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tuc-pagination__item { transition: none; }
+}

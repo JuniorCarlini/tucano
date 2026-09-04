@@ -35,7 +35,7 @@
 <meta name="twitter:description" content="Componentes de formulário e interface para a web. Sem dependências, funciona com HTML puro.">
 <meta name="twitter:image" content="https://juniorcarlini.github.io/tucano/og.png">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦜</text></svg>">
-<link rel="stylesheet" href="dist/tucano.css?v=0.27.0">
+<link rel="stylesheet" href="dist/tucano.css?v=0.28.0">
 
 <!--
   Dados estruturados. Servem a buscador e a model de linguagem pela mesma
@@ -267,7 +267,7 @@
     <span class="bird">🦜</span><b>Tucano</b>
     <button class="iconbtn" data-tema aria-label="Alternar tema"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
   </div>
-  <span class="ver">v0.26.0 · 44 KB</span>
+  <span class="ver">v0.26.0 · 47 KB</span>
 
   <nav class="nav">
     <a href="#inicio">Início</a>
@@ -286,6 +286,8 @@
     <a href="#accordion">Acordeão</a>
     <a href="#editor">Editor de texto</a>
     <a href="#dropdown">Menu suspenso</a>
+    <a href="#table">Tabela</a>
+    <a href="#pagination">Paginação</a>
     <div class="grp">Guias</div>
     <a href="#django">Django</a>
     <a href="#tema">Tema</a>
@@ -303,8 +305,8 @@
      Sem dependências em runtime. Estilos escritos em Tailwind e distribuídos já compilados —
      o projeto que consome não precisa de build.</p>
   <div class="pills">
-    <span class="pill"><b>34 KB</b> JS gzip</span>
-    <span class="pill"><b>10 KB</b> CSS gzip</span>
+    <span class="pill"><b>36 KB</b> JS gzip</span>
+    <span class="pill"><b>11 KB</b> CSS gzip</span>
     <span class="pill"><b>0</b> dependências</span>
     <span class="pill">Sem preflight do Tailwind</span>
     <span class="pill">Pronto para toque</span>
@@ -318,8 +320,8 @@
   <p class="lead">Dois arquivos e nada mais. Funciona com HTML puro, sem npm e sem build.</p>
 
   <pre><span class="c">&lt;!-- CDN --&gt;</span>
-&lt;<span class="t">link</span> <span class="a">rel</span>=<span class="s">"stylesheet"</span> <span class="a">href</span>=<span class="s">"https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.27.0/dist/tucano.min.css"</span>&gt;
-&lt;<span class="t">script</span> <span class="a">src</span>=<span class="s">"https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.27.0/dist/tucano.min.js"</span> <span class="a">defer</span>&gt;&lt;/<span class="t">script</span>&gt;</pre>
+&lt;<span class="t">link</span> <span class="a">rel</span>=<span class="s">"stylesheet"</span> <span class="a">href</span>=<span class="s">"https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.28.0/dist/tucano.min.css"</span>&gt;
+&lt;<span class="t">script</span> <span class="a">src</span>=<span class="s">"https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.28.0/dist/tucano.min.js"</span> <span class="a">defer</span>&gt;&lt;/<span class="t">script</span>&gt;</pre>
 
   <h3>npm</h3>
   <pre>npm install tucano</pre>
@@ -1541,6 +1543,114 @@ npm run build  # gera o dist</code></pre>
   </div>
 </section>
 
+<section id="table">
+  <h2>Tabela</h2>
+  <p class="lead">Lista renderizada pelo servidor. O <code>&lt;table&gt;</code> que vem do
+     template continua sendo a fonte da verdade — o JavaScript entra só para ordenar pela
+     coluna e marcar linhas em massa.</p>
+
+  <div class="card">
+    <span class="lbl">Ordenação no cabeçalho, seleção em massa, coluna numérica à direita</span>
+    <form id="demo-table-form">
+      <table data-tuc-table data-selectable class="is-striped" id="demo-table">
+        <thead>
+          <tr>
+            <th data-sort="text" data-field="cliente">Cliente</th>
+            <th data-sort="text" data-field="situacao">Situação</th>
+            <th data-sort="date" data-field="vencimento">Vencimento</th>
+            <th data-sort="number" data-field="valor" class="is-number">Valor</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-id="1"><td>Construtora Vale</td><td>Em análise</td><td data-sort-value="2026-09-12">12/09/2026</td><td class="is-number" data-sort-value="12400">R$ 12.400,00</td></tr>
+          <tr data-id="2"><td>Agropecuária Serra</td><td>Aprovado</td><td data-sort-value="2026-07-03">03/07/2026</td><td class="is-number" data-sort-value="3890.5">R$ 3.890,50</td></tr>
+          <tr data-id="3"><td>Marcenaria Horizonte</td><td>Pendente</td><td data-sort-value="2026-11-28">28/11/2026</td><td class="is-number" data-sort-value="760">R$ 760,00</td></tr>
+          <tr data-id="4"><td>Transportes Aurora</td><td>Aprovado</td><td data-sort-value="2026-02-19">19/02/2026</td><td class="is-number" data-sort-value="45120.9">R$ 45.120,90</td></tr>
+        </tbody>
+      </table>
+    </form>
+    <p class="lead" style="margin:14px 0 0" id="demo-table-out">Nenhuma linha marcada.</p>
+  </div>
+
+  <pre>&lt;<span class="t">table</span> <span class="a">data-tuc-table</span> <span class="a">data-selectable</span>&gt;
+  &lt;<span class="t">thead</span>&gt;&lt;<span class="t">tr</span>&gt;
+    &lt;<span class="t">th</span> <span class="a">data-sort</span>=<span class="s">"text"</span> <span class="a">data-field</span>=<span class="s">"cliente"</span>&gt;Cliente&lt;/<span class="t">th</span>&gt;
+    &lt;<span class="t">th</span> <span class="a">data-sort</span>=<span class="s">"number"</span> <span class="a">class</span>=<span class="s">"is-number"</span>&gt;Valor&lt;/<span class="t">th</span>&gt;
+    &lt;<span class="t">th</span> <span class="a">data-sort</span>=<span class="s">"none"</span>&gt;Ações&lt;/<span class="t">th</span>&gt;
+  &lt;/<span class="t">tr</span>&gt;&lt;/<span class="t">thead</span>&gt;
+  &lt;<span class="t">tbody</span>&gt;
+    &lt;<span class="t">tr</span> <span class="a">data-id</span>=<span class="s">"{{ obj.pk }}"</span>&gt;
+      &lt;<span class="t">td</span>&gt;{{ obj.cliente }}&lt;/<span class="t">td</span>&gt;
+      &lt;<span class="t">td</span> <span class="a">class</span>=<span class="s">"is-number"</span> <span class="a">data-sort-value</span>=<span class="s">"{{ obj.valor }}"</span>&gt;{{ obj.valor|currency }}&lt;/<span class="t">td</span>&gt;
+      &lt;<span class="t">td</span>&gt;...&lt;/<span class="t">td</span>&gt;
+    &lt;/<span class="t">tr</span>&gt;
+  &lt;/<span class="t">tbody</span>&gt;
+&lt;/<span class="t">table</span>&gt;</pre>
+
+  <p class="lead">Tipos de ordenação: <code>text</code>, <code>number</code>, <code>date</code> e
+     <code>none</code> para a coluna que não ordena. Quando o texto exibido não ordena bem —
+     <code>R$ 1.234,50</code>, <code>12/09/2026</code>, <code>há 3 dias</code> — use
+     <code>data-sort-value</code> com o valor cru. Variantes da tabela:
+     <code>is-striped</code>, <code>is-bordered</code>, <code>is-compact</code>, e
+     <code>is-number</code> na coluna que alinha à direita.</p>
+
+  <div class="note">
+    <b>A seleção continua sendo um formulário.</b> Cada linha ganha um
+    <code>&lt;input type="checkbox" name="selected" value="{{ data-id }}"&gt;</code> de verdade,
+    então no Django o que chega é <code>request.POST.getlist('selected')</code> — sem
+    JavaScript no meio, e funcionando com o botão de submit que você já tem. O
+    <code>data-id</code> da linha é o que vira <code>value</code>.
+  </div>
+
+  <div class="note">
+    <b>Ordenar acontece na página atual, e isso é de propósito.</b> Numa lista já paginada,
+    reordenar só o que está na tela e chamar aquilo de ordem seria mentira: o primeiro
+    resultado real pode estar na página 7. Para ordenar de verdade quem manda é o banco —
+    ouça o evento <code>tuc:sort</code> (que traz <code>field</code> e
+    <code>direction</code>) e recarregue via HTMX, ou declare <code>data-sort-url</code> e o
+    clique vira navegação, sem reordenar nada por cima.
+  </div>
+</section>
+
+<section id="pagination">
+  <h2>Paginação</h2>
+  <p class="lead">Feita para o <code>Paginator</code> do Django: você passa o número da página
+     e o total, e ela monta o resto.</p>
+
+  <div class="card">
+    <span class="lbl">Muitas páginas — pontas, vizinhança e reticência</span>
+    <div data-tuc-pagination data-page="5" data-pages="20" style="margin:0 0 18px"></div>
+    <span class="lbl">Poucas páginas — sem reticência, e a ponta inativa sai do caminho</span>
+    <div data-tuc-pagination data-page="1" data-pages="4"></div>
+  </div>
+
+  <pre>&lt;<span class="t">div</span> <span class="a">data-tuc-pagination</span>
+     <span class="a">data-page</span>=<span class="s">"{{ page_obj.number }}"</span>
+     <span class="a">data-pages</span>=<span class="s">"{{ page_obj.paginator.num_pages }}"</span>&gt;&lt;/<span class="t">div</span>&gt;</pre>
+
+  <p class="lead">Atributos: <code>data-param</code> (o nome na query string, padrão
+     <code>page</code>), <code>data-around</code> e <code>data-edges</code> para quantos
+     números aparecem ao redor da atual e nas pontas, <code>data-prev-text</code> e
+     <code>data-next-text</code>. Alinhamento com <code>is-center</code> ou
+     <code>is-end</code>.</p>
+
+  <div class="note">
+    <b>Os itens são <code>&lt;a&gt;</code> com <code>href</code> de verdade.</b> Numa lista
+    paginada pelo servidor o número da página mora na query string, e o link preserva o resto
+    dela — filtros e busca não se perdem ao virar a página. Isso também é o que faz o botão do
+    meio abrir em outra aba, o botão voltar funcionar e o buscador indexar. Trocar por
+    <code>onclick</code> quebraria as três coisas de uma vez; quem precisa interceptar passa
+    <code>onChange</code> e o clique é cancelado.
+  </div>
+
+  <div class="note">
+    A ponta desativada é <code>&lt;span&gt;</code>, não <code>&lt;a&gt;</code> sem
+    <code>href</code>: um link que não leva a lugar nenhum continua no caminho do
+    <code>Tab</code> e é anunciado como link. E com uma página só a navegação inteira não é
+    renderizada — não há para onde ir.
+  </div>
+</section>
+
 <section id="django">
   <h2>Django</h2>
   <p class="lead">O campo visível mostra a data no formato do locale; um <code>&lt;input type="hidden"&gt;</code>
@@ -1803,7 +1913,7 @@ seguem funcionando. Não substitua por estado só em JS.</pre>
 
 </main>
 
-<script src="dist/tucano.js?v=0.27.0"></script>
+<script src="dist/tucano.js?v=0.28.0"></script>
 <script>
   const MENU_ICON = '<svg class="i-menu" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>';
   const X_ICON = '<svg class="i-x" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>';
@@ -1860,6 +1970,16 @@ seguem funcionando. Não substitua por estado só em JS.</pre>
       { separator: true },
       { text: 'Excluir', icon: trash, variant: 'danger', onClick: () => Tucano.toast.error('Excluir') },
     ],
+  });
+
+  // Mostra o que a seleção da tabela mandaria no POST.
+  const tabelaDemo = document.getElementById('demo-table');
+  const saidaDemo = document.getElementById('demo-table-out');
+  tabelaDemo.addEventListener('tuc:select', () => {
+    const n = tabelaDemo._tucano.getSelected().length;
+    saidaDemo.textContent = n
+      ? `${n} linha${n > 1 ? 's' : ''} marcada${n > 1 ? 's' : ''} — o POST enviaria selected=${tabelaDemo._tucano.getSelected().join('&selected=')}`
+      : 'Nenhuma linha marcada.';
   });
 
   const lateral = document.getElementById('side');

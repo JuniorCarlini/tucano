@@ -16,6 +16,8 @@
 @import './components/accordion.css';
 @import './components/menu.css';
 @import './components/dropdown.css';
+@import './components/table.css';
+@import './components/pagination.css';
 @import './components/dialog.css';
 @import './components/modal.css';
 @import './components/drawer.css';

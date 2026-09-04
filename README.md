@@ -3,7 +3,7 @@
 Componentes de formulário e interface para a web, para quem escreve HTML.
 Sem React, sem Vue, sem dependência em runtime.
 
-**34 KB de JS + 10 KB de CSS** (minificado + gzip).
+**36 KB de JS + 11 KB de CSS** (minificado + gzip).
 
 **[Documentação e exemplos ao vivo →](https://juniorcarlini.github.io/tucano/)**
 
@@ -20,6 +20,8 @@ Sem React, sem Vue, sem dependência em runtime.
 | `Drawer` — off-canvas nas quatro bordas, mesmo motor do modal | pronto |
 | `Acordeão` — sobre `<details>`, funciona sem JavaScript | pronto |
 | `Dropdown` — menu de ações ancorado, navegação por setas | pronto |
+| `Table` — ordenação por coluna e seleção em massa | pronto |
+| `Pagination` — links de página, feita para o Paginator | pronto |
 | `.tuc-menu` — lista de navegação, só classe | pronto |
 | `Editor` — editor de texto com tabela e bloco de código | pronto |
 | `.tuc-prose` — exibição do que o editor salvou | pronto |
@@ -511,6 +513,57 @@ se espera depois de digitar a data. Ali quem abre é o `Espaço`, e só com o ca
 vazio, porque em modo com hora se digita `07/09/2026 14:30`.
 
 Para voltar ao comportamento antigo no date picker, `openOnFocus: true`.
+
+## Tabela
+
+O `<table>` do template continua sendo a fonte da verdade. O JavaScript entra só
+para ordenar pela coluna e marcar linhas.
+
+```html
+<table data-tuc-table data-selectable class="is-striped">
+  <thead><tr>
+    <th data-sort="text" data-field="cliente">Cliente</th>
+    <th data-sort="number" class="is-number">Valor</th>
+    <th data-sort="none">Ações</th>
+  </tr></thead>
+  <tbody>
+    <tr data-id="{{ obj.pk }}">
+      <td>{{ obj.cliente }}</td>
+      <td class="is-number" data-sort-value="{{ obj.valor }}">{{ obj.valor }}</td>
+      <td>...</td>
+    </tr>
+  </tbody>
+</table>
+```
+
+Tipos: `text`, `number`, `date`, `none`. Quando o texto exibido não ordena bem
+(`R$ 1.234,50`, `12/09/2026`), ponha o valor cru em `data-sort-value`. Variantes:
+`is-striped`, `is-bordered`, `is-compact`; `is-number` alinha a coluna à direita.
+
+A seleção é um formulário de verdade — cada linha ganha um
+`<input type="checkbox" name="selected" value="{{ data-id }}">`, então no Django
+chega como `request.POST.getlist('selected')`.
+
+Ordenar acontece sobre a página atual, de propósito: numa lista já paginada,
+reordenar só o que está na tela seria mentira. Para ordenar de verdade, ouça o
+evento `tuc:sort` (traz `field` e `direction`) e recarregue, ou declare
+`data-sort-url` e o clique vira navegação.
+
+## Paginação
+
+```html
+<div data-tuc-pagination
+     data-page="{{ page_obj.number }}"
+     data-pages="{{ page_obj.paginator.num_pages }}"></div>
+```
+
+Atributos: `data-param` (padrão `page`), `data-around`, `data-edges`,
+`data-prev-text`, `data-next-text`. Alinhamento com `is-center` ou `is-end`.
+
+Os itens são `<a>` com `href` de verdade e preservam o resto da query string, então
+filtros e busca não se perdem ao virar a página — e o botão do meio, o voltar do
+navegador e o buscador continuam funcionando. Quem precisa interceptar passa
+`onChange`.
 
 ## Menu suspenso
 

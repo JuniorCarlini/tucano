@@ -52,6 +52,7 @@ const TARGETS = {
   'botão pequeno': { sel: '#c-btn-sm' },
   'botão grande': { sel: '#c-btn-lg' },
   'botão de ícone': { sel: '#c-icone' },
+  'página da paginação': { sel: '.tuc-pagination__item:not(.is-edge)' },
 };
 
 const EXPECTED = {
@@ -77,6 +78,7 @@ body{margin:0;padding:16px;font-family:system-ui,sans-serif}</style></head><body
 <button class="tuc-btn is-outline is-sm" id="c-btn-sm">Pequeno</button>
 <button class="tuc-btn is-outline is-lg" id="c-btn-lg">Grande</button>
 <button class="tuc-btn is-ghost is-icon" id="c-icone">×</button>
+<div data-tuc-pagination data-page="2" data-pages="9"></div>
 <pre id="resultado"></pre>
 <script>${readFileSync('dist/tucano.js', 'utf8')}</script>
 <script>

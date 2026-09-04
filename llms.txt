@@ -1,7 +1,7 @@
 # Tucano
 
 > Componentes de formulario e interface para a web, sem dependencias em runtime.
-> JavaScript puro, sem dependências em runtime. 34 KB JS + 10 KB CSS (gzip).
+> JavaScript puro, sem dependências em runtime. 36 KB JS + 11 KB CSS (gzip).
 > Os estilos são escritos em Tailwind mas distribuídos já compilados: o projeto
 > que consome não precisa de build e não recebe o preflight do Tailwind.
 
@@ -246,6 +246,46 @@ algum sair do padrao: 38px no desktop, 44px no toque, e nunca abaixo de 16px de
 fonte em campo digitavel, senao o iOS da zoom ao focar. Componente novo com
 campo ou botao precisa entrar em tools/conferir.mjs e na lista do
 @media (max-width: 40rem) em src/styles/core/tokens.css.
+
+## Tabela
+
+O <table> do template e a fonte da verdade; o JS so ordena e marca linhas.
+
+    <table data-tuc-table data-selectable class="is-striped">
+      <thead><tr>
+        <th data-sort="text" data-field="cliente">Cliente</th>
+        <th data-sort="number" class="is-number">Valor</th>
+        <th data-sort="none">Acoes</th>
+      </tr></thead>
+      <tbody><tr data-id="{{ obj.pk }}"><td>...</td></tr></tbody>
+    </table>
+
+data-sort: text | number | date | none. data-sort-value guarda o valor cru
+quando o texto exibido nao ordena bem ("R$ 1.234,50", "12/09/2026"). Variantes:
+is-striped, is-bordered, is-compact; is-number alinha a coluna a direita.
+
+A selecao gera <input type="checkbox" name="selected" value="{{ data-id }}"> de
+verdade: no Django chega em request.POST.getlist('selected'), sem JS no meio.
+
+Ordenar vale so para a pagina atual, de proposito — numa lista paginada,
+reordenar o que esta na tela seria mentira. Para ordenar de verdade: ouca o
+evento tuc:sort (detail.field, detail.direction) e recarregue, ou declare
+data-sort-url e o clique vira navegacao.
+
+## Paginacao
+
+    <div data-tuc-pagination
+         data-page="{{ page_obj.number }}"
+         data-pages="{{ page_obj.paginator.num_pages }}"></div>
+
+data-param (padrao "page"), data-around, data-edges, data-prev-text,
+data-next-text. Alinhamento: is-center, is-end.
+
+Os itens sao <a> com href real e preservam o resto da query string, entao filtro
+e busca sobrevivem a troca de pagina — e abrir em outra aba, voltar e indexar
+continuam funcionando. Quem intercepta passa onChange. Ponta inativa e <span>,
+nao <a> sem href, para sair do caminho do Tab. Com uma pagina so, nada e
+renderizado.
 
 ## Menu suspenso (dropdown)
 

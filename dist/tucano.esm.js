@@ -4487,6 +4487,326 @@ function autoInit11(scope = document) {
   return out;
 }
 
+// src/js/components/table.js
+var DEFAULTS12 = {
+  sortable: true,
+  selectable: false,
+  // coluna de selecao em massa
+  selectName: "selected",
+  sortUrl: null,
+  // quando existe, ordenar e responsabilidade do servidor
+  onSort: null,
+  onSelect: null
+};
+var SETAS = "M7 15l5 5 5-5M7 9l5-5 5 5";
+var COMPARE = {
+  number: (a, b) => parseFloat(a.replace(/[^\d,.-]/g, "").replace(/\./g, "").replace(",", ".") || 0) - parseFloat(b.replace(/[^\d,.-]/g, "").replace(/\./g, "").replace(",", ".") || 0),
+  date: (a, b) => new Date(a).getTime() - new Date(b).getTime(),
+  text: (a, b) => a.localeCompare(b, "pt-BR", { numeric: true, sensitivity: "base" })
+};
+function withoutUndefined3(obj) {
+  const out = {};
+  for (const [k, v] of Object.entries(obj || {})) if (v !== void 0) out[k] = v;
+  return out;
+}
+var Table = class {
+  constructor(node, options = {}) {
+    this.node = typeof node === "string" ? document.querySelector(node) : node;
+    if (!this.node) throw new Error("[Table] elemento alvo nao encontrado");
+    if (this.node.tagName !== "TABLE") throw new Error("[Table] o alvo precisa ser uma <table>");
+    this.opts = { ...DEFAULTS12, ...withoutUndefined3(options) };
+    this.id = this.node.id || nextId("table");
+    this._cleanups = [];
+    this._build();
+  }
+  get rows() {
+    return [...this.node.tBodies[0]?.rows ?? []];
+  }
+  _build() {
+    this.node.classList.add("tuc-table");
+    if (!this.node.parentElement?.classList.contains("tuc-table-wrap")) {
+      const wrap = el("div", { class: "tuc-table-wrap" });
+      this.node.replaceWith(wrap);
+      wrap.append(this.node);
+    }
+    this.wrap = this.node.parentElement;
+    this.node._tucano = this;
+    if (this.opts.selectable) this._buildSelection();
+    if (this.opts.sortable) this._buildSort();
+  }
+  /* ---------------------------------------------------------------- *
+   * Ordenacao                                                        *
+   * ---------------------------------------------------------------- */
+  _buildSort() {
+    const head = this.node.tHead?.rows[0];
+    if (!head) return;
+    this.sortable = [];
+    [...head.cells].forEach((th, i) => {
+      const type = th.dataset.sort;
+      if (!type || type === "none") return;
+      th.classList.add("tuc-table__sortable");
+      th.setAttribute("aria-sort", "none");
+      const label = el("button", { type: "button", class: "tuc-table__sortbtn" }, [
+        el("span", { text: th.textContent.trim() }),
+        el("span", { class: "tuc-table__sorticon", "aria-hidden": "true" }, [icon(SETAS, 13)])
+      ]);
+      th.textContent = "";
+      th.append(label);
+      this.sortable.push({ th, index: i, type });
+      this._cleanups.push(on(label, "click", () => this._onSortClick(th, i, type)));
+    });
+  }
+  _onSortClick(th, index, type) {
+    const atual = th.getAttribute("aria-sort");
+    const dir = atual === "ascending" ? "descending" : "ascending";
+    for (const s of this.sortable) s.th.setAttribute("aria-sort", "none");
+    th.setAttribute("aria-sort", dir);
+    const detalhe = { column: index, field: th.dataset.field || null, direction: dir === "ascending" ? "asc" : "desc" };
+    this.node.dispatchEvent(new CustomEvent("tuc:sort", { bubbles: true, detail: detalhe }));
+    this.opts.onSort?.(detalhe, this);
+    if (this.opts.sortUrl) {
+      const url = new URL(this.opts.sortUrl, location.href);
+      url.searchParams.set("sort", detalhe.field ?? String(index));
+      url.searchParams.set("dir", detalhe.direction);
+      location.href = url.toString();
+      return;
+    }
+    this.sort(index, detalhe.direction, type);
+  }
+  /** Ordena as linhas visíveis. `type`: text | number | date. */
+  sort(index, direction = "asc", type = "text") {
+    const body = this.node.tBodies[0];
+    if (!body) return this;
+    const cmp = COMPARE[type] ?? COMPARE.text;
+    const chave = (tr) => {
+      const cell = tr.cells[index];
+      return cell?.dataset.sortValue ?? cell?.textContent.trim() ?? "";
+    };
+    const sinal = direction === "desc" ? -1 : 1;
+    const ordenadas = this.rows.sort((a, b) => sinal * cmp(chave(a), chave(b)));
+    for (const tr of ordenadas) body.append(tr);
+    return this;
+  }
+  /* ---------------------------------------------------------------- *
+   * Selecao em massa                                                 *
+   * ---------------------------------------------------------------- */
+  _buildSelection() {
+    const head = this.node.tHead?.rows[0];
+    if (!head) return;
+    this.checkAll = el("input", {
+      type: "checkbox",
+      class: "tuc-table__check",
+      "aria-label": "Selecionar todas as linhas desta p\xE1gina"
+    });
+    const th = el("th", { class: "tuc-table__pick", scope: "col" }, [this.checkAll]);
+    head.prepend(th);
+    for (const tr of this.rows) {
+      const check = el("input", {
+        type: "checkbox",
+        class: "tuc-table__check",
+        name: this.opts.selectName,
+        value: tr.dataset.id ?? "",
+        "aria-label": "Selecionar linha"
+      });
+      const td = el("td", { class: "tuc-table__pick" }, [check]);
+      tr.prepend(td);
+      this._cleanups.push(on(check, "change", () => this._afterPick(tr, check.checked)));
+    }
+    this._cleanups.push(on(this.checkAll, "change", () => {
+      const marcar = this.checkAll.checked;
+      for (const tr of this.rows) {
+        const c = tr.querySelector(".tuc-table__check");
+        if (c) {
+          c.checked = marcar;
+          this._afterPick(tr, marcar);
+        }
+      }
+    }));
+  }
+  _afterPick(tr, marcada) {
+    tr.classList.toggle("is-selected", marcada);
+    const todas = this.rows.map((r) => r.querySelector(".tuc-table__check")).filter(Boolean);
+    const marcadas = todas.filter((c) => c.checked);
+    if (this.checkAll) {
+      this.checkAll.checked = marcadas.length === todas.length && todas.length > 0;
+      this.checkAll.indeterminate = marcadas.length > 0 && marcadas.length < todas.length;
+    }
+    const detalhe = { selected: this.getSelected(), row: tr };
+    this.node.dispatchEvent(new CustomEvent("tuc:select", { bubbles: true, detail: detalhe }));
+    this.opts.onSelect?.(detalhe, this);
+  }
+  /** Valores marcados — os mesmos que o formulário enviaria. */
+  getSelected() {
+    return this.rows.filter((tr) => tr.querySelector(".tuc-table__check")?.checked).map((tr) => tr.querySelector(".tuc-table__check").value);
+  }
+  clearSelection() {
+    for (const tr of this.rows) {
+      const c = tr.querySelector(".tuc-table__check");
+      if (c) {
+        c.checked = false;
+        tr.classList.remove("is-selected");
+      }
+    }
+    if (this.checkAll) {
+      this.checkAll.checked = false;
+      this.checkAll.indeterminate = false;
+    }
+    return this;
+  }
+  destroy() {
+    this._cleanups.forEach((fn) => fn());
+    this._cleanups = [];
+  }
+};
+function autoInit12(scope = document) {
+  const out = [];
+  for (const node of scope.querySelectorAll("table[data-tuc-table]:not([data-tuc-ready])")) {
+    node.setAttribute("data-tuc-ready", "");
+    const d = node.dataset;
+    out.push(new Table(node, {
+      sortable: d.sortable !== "false",
+      selectable: d.selectable !== void 0 && d.selectable !== "false",
+      selectName: d.selectName || void 0,
+      sortUrl: d.sortUrl || void 0
+    }));
+  }
+  return out;
+}
+
+// src/js/components/pagination.js
+var DEFAULTS13 = {
+  page: 1,
+  pages: 1,
+  param: "page",
+  around: 1,
+  // paginas visiveis de cada lado da atual
+  edges: 1,
+  // paginas visiveis nas pontas
+  prevText: "Anterior",
+  nextText: "Pr\xF3xima",
+  label: "Pagina\xE7\xE3o",
+  onChange: null
+};
+var SETA_ESQ = "M15 18l-6-6 6-6";
+var SETA_DIR = "M9 18l6-6-6-6";
+function withoutUndefined4(obj) {
+  const out = {};
+  for (const [k, v] of Object.entries(obj || {})) if (v !== void 0) out[k] = v;
+  return out;
+}
+function pageWindow(page, pages, { around = 1, edges = 1 } = {}) {
+  const mostrar = /* @__PURE__ */ new Set();
+  for (let i = 1; i <= Math.min(edges, pages); i++) mostrar.add(i);
+  for (let i = Math.max(1, pages - edges + 1); i <= pages; i++) mostrar.add(i);
+  for (let i = page - around; i <= page + around; i++) if (i >= 1 && i <= pages) mostrar.add(i);
+  const ordenadas = [...mostrar].sort((a, b) => a - b);
+  const saida = [];
+  let anterior = 0;
+  for (const n of ordenadas) {
+    if (n - anterior === 2) saida.push(anterior + 1);
+    else if (n - anterior > 2) saida.push(null);
+    saida.push(n);
+    anterior = n;
+  }
+  return saida;
+}
+var Pagination = class {
+  constructor(options = {}) {
+    this.opts = { ...DEFAULTS13, ...withoutUndefined4(options) };
+    this._cleanups = [];
+    this.node = el("nav", { class: "tuc-pagination", role: "navigation", "aria-label": this.opts.label });
+    this.node._tucano = this;
+    this.render();
+  }
+  /** Monta o href preservando o resto da query string — filtros, busca, ordem. */
+  href(page) {
+    const url = new URL(location.href);
+    url.searchParams.set(this.opts.param, String(page));
+    return `${url.pathname}${url.search}${url.hash}`;
+  }
+  _item(page, { text, current = false, disabled = false, extra = "" } = {}) {
+    const classe = `tuc-pagination__item${extra}${current ? " is-current" : ""}${disabled ? " is-disabled" : ""}`;
+    const filhos = typeof text === "string" ? [text] : text;
+    if (disabled) return el("span", { class: classe, "aria-hidden": "true" }, filhos);
+    const a = el("a", {
+      class: classe,
+      href: this.href(page),
+      ...current ? { "aria-current": "page" } : {}
+    }, filhos);
+    this._cleanups.push(on(a, "click", (e) => {
+      if (!this.opts.onChange) return;
+      e.preventDefault();
+      this.opts.onChange(page, this);
+    }));
+    return a;
+  }
+  render() {
+    this._cleanups.forEach((fn) => fn());
+    this._cleanups = [];
+    this.node.textContent = "";
+    const { page, pages } = this.opts;
+    if (pages <= 1) return this;
+    this.node.append(this._item(page - 1, {
+      text: [
+        el("span", { class: "tuc-pagination__ico", "aria-hidden": "true" }, [icon(SETA_ESQ, 15)]),
+        el("span", { class: "tuc-pagination__word", text: this.opts.prevText })
+      ],
+      disabled: page <= 1,
+      extra: " is-edge"
+    }));
+    for (const n of pageWindow(page, pages, this.opts)) {
+      if (n === null) {
+        this.node.append(el("span", { class: "tuc-pagination__gap", "aria-hidden": "true", text: "\u2026" }));
+        continue;
+      }
+      this.node.append(this._item(n, { text: String(n), current: n === page }));
+    }
+    this.node.append(this._item(page + 1, {
+      text: [
+        el("span", { class: "tuc-pagination__word", text: this.opts.nextText }),
+        el("span", { class: "tuc-pagination__ico", "aria-hidden": "true" }, [icon(SETA_DIR, 15)])
+      ],
+      disabled: page >= pages,
+      extra: " is-edge"
+    }));
+    return this;
+  }
+  /** Troca a página mostrada como atual — para quem navega sem recarregar. */
+  setPage(page) {
+    this.opts.page = Math.min(Math.max(1, page), this.opts.pages);
+    return this.render();
+  }
+  destroy() {
+    this._cleanups.forEach((fn) => fn());
+    this._cleanups = [];
+    this.node.remove();
+  }
+};
+function pagination(options = {}) {
+  return new Pagination(options).node;
+}
+function autoInit13(scope = document) {
+  const out = [];
+  for (const node of scope.querySelectorAll("[data-tuc-pagination]:not([data-tuc-ready])")) {
+    node.setAttribute("data-tuc-ready", "");
+    const d = node.dataset;
+    const p = new Pagination({
+      page: parseInt(d.page, 10) || 1,
+      pages: parseInt(d.pages, 10) || 1,
+      param: d.param || void 0,
+      around: d.around ? parseInt(d.around, 10) : void 0,
+      edges: d.edges ? parseInt(d.edges, 10) : void 0,
+      prevText: d.prevText || void 0,
+      nextText: d.nextText || void 0
+    });
+    node.textContent = "";
+    node.append(p.node);
+    node._tucano = p;
+    out.push(p);
+  }
+  return out;
+}
+
 // src/js/core/sanitize.js
 var ALLOWED = /* @__PURE__ */ new Set([
   "P",
@@ -4704,7 +5024,7 @@ function highlight(code) {
     return className ? `<span class="tuc-tok-${className}tuc-tok-${className}tuc-tok-${className}tuc-tok-${className}tuc-tok-${className}tuc-tok-${className}tuc-tok-${className}tuc-tok-${className}">${todo}</span>` : todo;
   });
 }
-function autoInit12(scope = document) {
+function autoInit14(scope = document) {
   const blocks = [...scope.querySelectorAll(".tuc-prose pre > code:not([data-tuc-painted])")];
   for (const code of blocks) {
     code.setAttribute("data-tuc-painted", "");
@@ -4714,7 +5034,7 @@ function autoInit12(scope = document) {
 }
 
 // src/js/components/editor.js
-var DEFAULTS12 = {
+var DEFAULTS14 = {
   toolbar: [
     "bold",
     "italic",
@@ -4993,7 +5313,7 @@ function restoreOffset(block, howMany) {
     counted += no.length;
   }
 }
-function withoutUndefined3(obj) {
+function withoutUndefined5(obj) {
   const out = {};
   for (const [k, v] of Object.entries(obj || {})) if (v !== void 0) out[k] = v;
   return out;
@@ -5002,7 +5322,7 @@ var Editor = class {
   constructor(target, options = {}) {
     this.field = typeof target === "string" ? document.querySelector(target) : target;
     if (!this.field) throw new Error("[Editor] elemento n\xE3o encontrado");
-    this.opts = { ...DEFAULTS12, ...withoutUndefined3(options) };
+    this.opts = { ...DEFAULTS14, ...withoutUndefined5(options) };
     this._cleanups = [];
     this._build();
   }
@@ -5349,7 +5669,7 @@ var Editor = class {
     this.root.remove();
   }
 };
-function autoInit13(scope = document) {
+function autoInit15(scope = document) {
   const out = [];
   for (const node of scope.querySelectorAll("[data-tuc-editor]:not([data-tuc-ready])")) {
     node.setAttribute("data-tuc-ready", "");
@@ -5375,8 +5695,10 @@ function init(scope = document) {
     drawers: autoInit9(scope),
     accordions: autoInit10(scope),
     dropdowns: autoInit11(scope),
-    editors: autoInit13(scope),
-    prose: autoInit12(scope),
+    tables: autoInit12(scope),
+    pagination: autoInit13(scope),
+    editors: autoInit15(scope),
+    prose: autoInit14(scope),
     // Por último de propósito: componentes que criam a própria barra de botões
     // marcam neles `data-tuc-tip`, e esses elementos só existem depois que eles
     // se montam. Antes, os botões do editor nasciam sem dica.
@@ -5393,8 +5715,10 @@ export {
   FORMATS,
   Mask,
   Modal,
+  Pagination,
   Popover,
   Select,
+  Table,
   Toast,
   Tooltip,
   Upload,
@@ -5404,11 +5728,13 @@ export {
   autoInit as autoInitDatePickers,
   autoInit9 as autoInitDrawers,
   autoInit11 as autoInitDropdowns,
-  autoInit13 as autoInitEditors,
+  autoInit15 as autoInitEditors,
   autoInit5 as autoInitMasks,
   autoInit8 as autoInitModals,
-  autoInit12 as autoInitProse,
+  autoInit13 as autoInitPagination,
+  autoInit14 as autoInitProse,
   autoInit2 as autoInitSelects,
+  autoInit12 as autoInitTables,
   autoInit6 as autoInitToasts,
   autoInit7 as autoInitTooltips,
   autoInit4 as autoInitUploads,
@@ -5421,6 +5747,8 @@ export {
   listenForEvents,
   mask_exports as mask,
   modal,
+  pageWindow,
+  pagination,
   sanitize,
   toast
 };
