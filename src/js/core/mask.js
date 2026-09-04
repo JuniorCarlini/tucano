@@ -26,6 +26,21 @@ export function clear(value, template) {
   return [...String(value ?? '')].filter((c) => accepts.some((f) => f(c))).join('');
 }
 
+/**
+ * Placeholder a partir do gabarito: `###.###.###-##` vira `000.000.000-00`.
+ *
+ * Existe porque escrever o placeholder a mao em cada campo e trabalho que a
+ * biblioteca ja tem como fazer — e trabalho que se esquece: a pagina de
+ * exemplos tinha cinco campos com placeholder e um sem, justamente o de
+ * CPF/CNPJ. Com dois gabaritos (o campo aceita os dois), vale o primeiro, que
+ * e o formato com que o campo comeca.
+ */
+export function placeholderFromTemplate(template) {
+  const t = Array.isArray(template) ? template[0] : template;
+  if (typeof t !== 'string') return '';
+  return t.replace(/[#*]/g, '0');
+}
+
 export function capacity(template) {
   return [...template].filter(isPlaceholder).length;
 }

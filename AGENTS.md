@@ -341,6 +341,21 @@ acesos competiriam com o conteúdo. Na tela o efeito foi outro: sem borda e sem
 fundo, o ícone lia como decoração desativada. Ali vão os botões do sistema —
 `tuc-btn is-outline is-icon is-sm` — sem opacidade nenhuma.
 
+**Handler em atributo `onclick=` é código, e nenhuma das minhas varreduras o
+enxergava.** O rename para inglês tratou `<script>` e blocos de código, mas
+deixou vinte e dois `onclick=` da página passando opção em português —
+`tamanho:`, `tom:'perigo'`, `lado:'direita'` — que hoje são ignoradas, e
+chamando `Tucano.gaveta()`, que não existe mais. O sintoma: o brilho do modal
+sempre da mesma cor, e a gaveta não abrindo. Não quebra o build, não aparece no
+console, e passa em qualquer teste que instancie os componentes por JavaScript.
+Só clicando o botão da página. Ao renomear, varra também `on\w+="..."` — e teste
+clicando, não chamando a API.
+
+**A máscara deriva o placeholder do gabarito.** `###.###.###-##` vira
+`000.000.000-00`, e com dois gabaritos vale o primeiro. Existe porque escrever
+à mão é trabalho que se esquece: a página tinha cinco campos com placeholder e
+um sem, justamente o de CPF/CNPJ. Só preenche o que o autor deixou vazio.
+
 ## Antes de dizer que está pronto
 
 ```bash

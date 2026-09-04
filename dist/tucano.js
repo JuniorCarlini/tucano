@@ -3143,6 +3143,7 @@ var Tucano = (() => {
     maskEmail: () => maskEmail,
     maskMiddle: () => maskMiddle,
     pickTemplate: () => pickTemplate,
+    placeholderFromTemplate: () => placeholderFromTemplate,
     validateCNPJ: () => validateCNPJ,
     validateCPF: () => validateCPF,
     validateCpfCnpj: () => validateCpfCnpj
@@ -3159,6 +3160,11 @@ var Tucano = (() => {
     const accepts = [...new Set([...template].filter(isPlaceholder))].map((m) => MARKERS[m]);
     if (!accepts.length) return "";
     return [...String(value ?? "")].filter((c) => accepts.some((f) => f(c))).join("");
+  }
+  function placeholderFromTemplate(template) {
+    const t = Array.isArray(template) ? template[0] : template;
+    if (typeof t !== "string") return "";
+    return t.replace(/[#*]/g, "0");
   }
   function capacity(template) {
     return [...template].filter(isPlaceholder).length;
@@ -3353,6 +3359,9 @@ var Tucano = (() => {
       if (preset?.currency && !this.opts.currency) this.opts.currency = preset.currency;
       if (!this.isCurrency && !this.templates && !this.opts.reveal) {
         throw new Error("[Mask] informe um formato ou gabarito");
+      }
+      if (!node.getAttribute("placeholder") && this.templates && !this.isCurrency) {
+        node.placeholder = placeholderFromTemplate(this.templates);
       }
       this._cleanups = [];
       this._wire();

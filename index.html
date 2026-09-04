@@ -700,12 +700,12 @@
   <div class="grid">
     <div class="card">
       <label for="m1">CPF, com validação</label>
-      <div class="tuc-input-group"><input type="text" id="m1" name="cpf" data-tuc-mask="cpf" data-validate="true" placeholder="000.000.000-00"></div>
+      <div class="tuc-input-group"><input type="text" id="m1" name="cpf" data-tuc-mask="cpf" data-validate="true"></div>
       <div class="out" id="m1-out"></div>
     </div>
     <div class="card">
       <label for="m2">CNPJ — aceita o formato novo</label>
-      <div class="tuc-input-group"><input type="text" id="m2" name="cnpj" data-tuc-mask="cnpj" data-validate="true" placeholder="00.000.000/0000-00"></div>
+      <div class="tuc-input-group"><input type="text" id="m2" name="cnpj" data-tuc-mask="cnpj" data-validate="true"></div>
       <div class="out" id="m2-out"></div>
     </div>
     <div class="card">
@@ -725,7 +725,7 @@
     </div>
     <div class="card">
       <label for="m6">CEP</label>
-      <div class="tuc-input-group"><input type="text" id="m6" name="cep" data-tuc-mask="cep" placeholder="00000-000"></div>
+      <div class="tuc-input-group"><input type="text" id="m6" name="cep" data-tuc-mask="cep"></div>
       <div class="out" id="m6-out"></div>
     </div>
   </div>
@@ -928,10 +928,10 @@
       <button class="tuc-btn is-outline is-sm" onclick="demo.sucesso('Cadastro salvo')">Sucesso</button>
       <button class="tuc-btn is-outline is-sm" onclick="demo.aviso('Sessão expira em 5 minutos')">Aviso</button>
       <button class="tuc-btn is-outline is-sm" onclick="demo.erro('Não foi possível salvar')">Erro</button>
-      <button class="tuc-btn is-outline is-sm" onclick="demo({ type:'sucesso', title:'Contrato excluído', text:'Ainda dá para voltar atrás.', action:{ text:'Desfazer', onClick:()=>demo.info('Restaurado') } })">Com ação</button>
+      <button class="tuc-btn is-outline is-sm" onclick="demo({ type:'success', title:'Contrato excluído', text:'Ainda dá para voltar atrás.', action:{ text:'Desfazer', onClick:()=>demo.info('Restaurado') } })">Com ação</button>
       <button class="tuc-btn is-outline is-sm" onclick="demo.carregando('Enviando arquivo...')">Carregando</button>
-      <button class="tuc-btn is-outline is-sm" onclick="demo.promessa(new Promise((ok)=>setTimeout(()=>ok(3),2200)), { carregando:'Enviando arquivo...', sucesso:(n)=>n+' arquivos enviados' })">Promessa (ok)</button>
-      <button class="tuc-btn is-outline is-sm" onclick="demo.promessa(new Promise((_,f)=>setTimeout(()=>f(new Error('timeout')),2200)), { carregando:'Enviando arquivo...', erro:(e)=>'Falhou: '+e.message }).catch(()=>{})">Promessa (erro)</button>
+      <button class="tuc-btn is-outline is-sm" onclick="demo.promise(new Promise((ok)=>setTimeout(()=>ok(3),2200)), { loading:'Enviando arquivo...', success:(n)=>n+' arquivos enviados' })">Promessa (ok)</button>
+      <button class="tuc-btn is-outline is-sm" onclick="demo.promise(new Promise((_,f)=>setTimeout(()=>f(new Error('timeout')),2200)), { loading:'Enviando arquivo...', error:(e)=>'Falhou: '+e.message }).catch(()=>{})">Promessa (erro)</button>
       <button class="tuc-btn is-outline is-sm" onclick="['Primeiro','Segundo','Terceiro','Quarto','Quinto'].forEach((t,i)=>setTimeout(()=>demo(t),i*180))">Empilhar 5</button>
     </div>
   </div>
@@ -1075,25 +1075,25 @@ Tucano.toast.promise(fetch(url), {
   <div class="card">
     <span class="lbl">Tamanhos</span>
     <div class="bar" style="margin:0 0 16px">
-      <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Pequeno', text:'22rem de largura máxima.', tamanho:'sm'})">sm</button>
-      <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Médio', text:'30rem — o padrão.', tamanho:'md'})">md</button>
-      <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Grande', text:'44rem, para tabela ou formulário largo.', tamanho:'lg'})">lg</button>
-      <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Tela cheia', text:'Ocupa tudo.', tamanho:'full'})">full</button>
+      <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Pequeno', text:'22rem de largura máxima.', size:'sm'})">sm</button>
+      <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Médio', text:'30rem — o padrão.', size:'md'})">md</button>
+      <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Grande', text:'44rem, para tabela ou formulário largo.', size:'lg'})">lg</button>
+      <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Tela cheia', text:'Ocupa tudo.', size:'full'})">full</button>
     </div>
 
     <span class="lbl">Tons — mudam o brilho do fundo e a aura da caixa</span>
     <div class="bar" style="margin:0 0 16px">
-      <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Padrão', text:'Brilho na cor de destaque.', tom:'padrao'})">padrão</button>
-      <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Excluir contrato', text:'Esta ação não pode ser desfeita.', tom:'perigo'})">perigo</button>
-      <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Tudo certo', text:'Importação concluída.', tom:'sucesso'})">sucesso</button>
-      <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Atenção', text:'Há pendências neste contrato.', tom:'aviso'})">aviso</button>
+      <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Padrão', text:'Brilho na cor de destaque.', tone:'default'})">padrão</button>
+      <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Excluir contrato', text:'Esta ação não pode ser desfeita.', tone:'danger'})">perigo</button>
+      <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Tudo certo', text:'Importação concluída.', tone:'success'})">sucesso</button>
+      <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Atenção', text:'Há pendências neste contrato.', tone:'warning'})">aviso</button>
     </div>
 
     <span class="lbl">Comportamento</span>
     <div class="bar" style="margin:0">
-      <button class="tuc-btn is-outline is-sm" onclick="Tucano.confirmar({title:'Excluir contrato?', text:'Esta ação não pode ser desfeita.', confirmar:'Excluir'}).then(ok=>Tucano.toast[ok?'sucesso':'info'](ok?'Excluído':'Cancelado'))">confirmar() com promessa</button>
-      <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Folha', text:'No celular sobe do rodapé. Estreite a janela para ver.', folha:true, acoes:[{texto:'Entendi'}]})">folha (celular)</button>
-      <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Sem fechar por fora', text:'Só pelo botão. Útil quando há algo em andamento.', fecharNoFundo:false, acoes:[{texto:'Fechar'}]})">preso</button>
+      <button class="tuc-btn is-outline is-sm" onclick="Tucano.confirm({title:'Excluir contrato?', text:'Esta ação não pode ser desfeita.', confirmar:'Excluir'}).then(ok=>Tucano.toast[ok?'sucesso':'info'](ok?'Excluído':'Cancelado'))">confirmar() com promessa</button>
+      <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Folha', text:'No celular sobe do rodapé. Estreite a janela para ver.', sheet:true, actions:[{texto:'Entendi'}]})">folha (celular)</button>
+      <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Sem fechar por fora', text:'Só pelo botão. Útil quando há algo em andamento.', closeOnBackdrop:false, actions:[{texto:'Fechar'}]})">preso</button>
       <button class="tuc-btn is-outline is-sm" data-tuc-modal="#modal-template">vindo do template</button>
     </div>
   </div>
@@ -1160,18 +1160,18 @@ Tucano.toast.promise(fetch(url), {
   <div class="card">
     <span class="lbl">De onde ela entra</span>
     <div class="bar" style="margin:0 0 16px">
-      <button class="tuc-btn is-outline is-sm" onclick="Tucano.gaveta({title:'Filtros', text:'Refine a lista de contratos.', lado:'direita', acoes:[{texto:'Limpar',variante:'ghost'},{texto:'Aplicar',variante:'primary'}]})">direita</button>
-      <button class="tuc-btn is-outline is-sm" onclick="Tucano.gaveta({title:'Menu', text:'Navegação lateral.', lado:'esquerda', tamanho:'sm'})">esquerda</button>
-      <button class="tuc-btn is-outline is-sm" onclick="Tucano.gaveta({title:'Aviso do sistema', text:'Manutenção programada para domingo.', lado:'cima'})">cima</button>
-      <button class="tuc-btn is-outline is-sm" onclick="Tucano.gaveta({title:'Detalhes', text:'Sobe do rodapé.', lado:'baixo'})">baixo</button>
+      <button class="tuc-btn is-outline is-sm" onclick="Tucano.drawer({title:'Filtros', text:'Refine a lista de contratos.', side:'right', actions:[{texto:'Limpar',variant:'ghost'},{texto:'Aplicar',variant:'primary'}]})">direita</button>
+      <button class="tuc-btn is-outline is-sm" onclick="Tucano.drawer({title:'Menu', text:'Navegação lateral.', side:'left', size:'sm'})">esquerda</button>
+      <button class="tuc-btn is-outline is-sm" onclick="Tucano.drawer({title:'Aviso do sistema', text:'Manutenção programada para domingo.', side:'top'})">cima</button>
+      <button class="tuc-btn is-outline is-sm" onclick="Tucano.drawer({title:'Detalhes', text:'Sobe do rodapé.', side:'bottom'})">baixo</button>
     </div>
 
     <span class="lbl">Largura da coluna, nas laterais</span>
     <div class="bar" style="margin:0">
-      <button class="tuc-btn is-outline is-sm" onclick="Tucano.gaveta({title:'sm', text:'18rem', lado:'direita', tamanho:'sm'})">sm</button>
-      <button class="tuc-btn is-outline is-sm" onclick="Tucano.gaveta({title:'md', text:'24rem — o padrão', lado:'direita', tamanho:'md'})">md</button>
-      <button class="tuc-btn is-outline is-sm" onclick="Tucano.gaveta({title:'lg', text:'34rem', lado:'direita', tamanho:'lg'})">lg</button>
-      <button class="tuc-btn is-outline is-sm" onclick="Tucano.gaveta({title:'Perigo', text:'O tom muda o brilho do fundo.', lado:'direita', tom:'perigo'})">tom perigo</button>
+      <button class="tuc-btn is-outline is-sm" onclick="Tucano.drawer({title:'sm', text:'18rem', side:'right', size:'sm'})">sm</button>
+      <button class="tuc-btn is-outline is-sm" onclick="Tucano.drawer({title:'md', text:'24rem — o padrão', side:'right', size:'md'})">md</button>
+      <button class="tuc-btn is-outline is-sm" onclick="Tucano.drawer({title:'lg', text:'34rem', side:'right', size:'lg'})">lg</button>
+      <button class="tuc-btn is-outline is-sm" onclick="Tucano.drawer({title:'Perigo', text:'O tom muda o brilho do fundo.', side:'right', tone:'danger'})">tom perigo</button>
     </div>
   </div>
 
@@ -2003,7 +2003,7 @@ Referência completa: https://juniorcarlini.github.io/tucano/llms.txt
 
 &lt;input <span class="a">data-tuc-datepicker</span> <span class="a">data-mode</span>=<span class="s">"range"</span>&gt;
 &lt;select <span class="a">data-tuc-select</span> multiple&gt;
-&lt;input <span class="a">data-tuc-mask</span> <span class="a">data-format</span>=<span class="s">"cpfcnpj"</span>&gt;
+&lt;input <span class="a">data-tuc-mask</span>=<span class="s">"cpf-cnpj"</span>&gt;
 &lt;input type=<span class="s">"file"</span> <span class="a">data-tuc-upload</span>&gt;
 &lt;button <span class="a">data-tuc-tip</span>=<span class="s">"..."</span> class=<span class="s">"tuc-btn is-primary"</span>&gt;
 

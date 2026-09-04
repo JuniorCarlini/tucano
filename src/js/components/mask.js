@@ -1,4 +1,4 @@
-import { apply, applyCurrency, capacity, cursorAfter, pickTemplate, format, clear, validateCpfCnpj, validateCNPJ, validateCPF } from '../core/mask.js';
+import { apply, applyCurrency, capacity, clear, cursorAfter, format, pickTemplate, placeholderFromTemplate, validateCNPJ, validateCPF, validateCpfCnpj } from '../core/mask.js';
 import { maskMiddle } from '../core/mask.js';
 import { el, icon, ICON_EYE, ICON_EYE_OFF, omitUndefined, on } from '../core/dom.js';
 
@@ -68,6 +68,11 @@ export class Mask {
     if (preset?.currency && !this.opts.currency) this.opts.currency = preset.currency;
     if (!this.isCurrency && !this.templates && !this.opts.reveal) {
       throw new Error('[Mask] informe um formato ou gabarito');
+    }
+
+    // So preenche o que o autor deixou vazio: placeholder escrito a mao manda.
+    if (!node.getAttribute('placeholder') && this.templates && !this.isCurrency) {
+      node.placeholder = placeholderFromTemplate(this.templates);
     }
 
     this._cleanups = [];
