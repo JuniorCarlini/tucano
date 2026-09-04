@@ -151,6 +151,29 @@ empacotador nenhum consegue descartar o que é usado. Medido: importar só o dat
 picker custava os mesmos 31,9 KB de importar tudo, contra 9,8 KB depois da
 separação. Não devolva o boot para o index.
 
+**O CSS desenha o estado de espera, e ele faz parte do componente.** Os
+seletores `[data-tuc-*]:not([data-tuc-ready])` dão ao campo cru a altura, borda,
+raio e fundo que ele terá depois do script. Sem isso quem recarrega rápido vê o
+select do sistema e o input quadrado por um quadro, e o conteúdo pula quando o
+JS troca tudo de lugar. Não é FOUC — a folha é bloqueante e já está aplicada; o
+que falta é o JS, que vem com `defer`. Tirar o `defer` custaria bem mais caro.
+
+Duas armadilhas nesse bloco, ambas pelo mesmo motivo — o elemento cru ainda não
+tem classe `.tuc-*`. Os seletores precisam entrar nas listas de escopo de
+`tokens.css`, senão `var(--tuc-border)` não resolve e a borda é descartada
+inteira. E o `box-sizing` tem de ser declarado ali, porque o reset de
+`base.css` também é escopado: sem ele a borda soma sobre a altura e o campo
+nasce 2px mais alto que o vizinho. Componente novo que transforma um elemento
+existente precisa entrar nesse bloco.
+
+**Medição em headless não vê transição.** O Chrome com `--dump-dom` aplica a
+classe `is-open` mas não avança a transição: 400ms depois o `opacity` ainda é 0
+e o `translate` continua no valor de entrada. Medir posição logo depois de abrir
+devolve o estado inicial — no dropdown isso aparecia como 4px de recuo lateral e
+8px a menos de folga, que são exatamente o `scale: .95` e o `translate: -.5rem`
+da entrada. Para conferir geometria final, desligue a transição no probe
+(`.tuc-dropdown { transition: none !important }`) e leia o retângulo.
+
 ## Antes de dizer que está pronto
 
 ```bash
