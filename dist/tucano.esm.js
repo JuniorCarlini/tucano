@@ -4949,6 +4949,27 @@ var Rico = class {
     }
   }
   /* Botao aceso quando o cursor esta dentro daquela formatacao. */
+  /*
+   * Foco sem arrastar a pagina.
+   *
+   * focus() traz o elemento a vista, e num editor que ja esta na tela isso vira
+   * um salto: aplicar um titulo na primeira linha jogava a pagina para cima. O
+   * preventScroll resolve o foco, e guardar a rolagem cobre o resto — trocar um
+   * <p> por um <h2> muda a altura do bloco, e o navegador reposiciona sozinho
+   * para manter o cursor visivel.
+   */
+  _focar() {
+    const x = window.scrollX;
+    const y = window.scrollY;
+    this.area.focus({ preventScroll: true });
+    if (window.scrollX !== x || window.scrollY !== y) window.scrollTo(x, y);
+  }
+  _semPular(acao) {
+    const x = window.scrollX;
+    const y = window.scrollY;
+    acao();
+    if (window.scrollX !== x || window.scrollY !== y) window.scrollTo(x, y);
+  }
   /* Elemento em volta do cursor, dentro da area. */
   _noAtual() {
     const sel = window.getSelection();
@@ -4992,14 +5013,14 @@ var Rico = class {
     const celula = this._celulaAtual();
     if (!celula) return this;
     const destino = TABELA[nome]?.(celula);
-    this.area.focus();
+    this._focar();
     focarCelula(destino);
     this._sincronizar();
     this._verTabela();
     return this;
   }
   aplicar(nome) {
-    this.area.focus();
+    this._focar();
     if (nome === "tabela") {
       const { linhas, colunas } = this.opts.tabela;
       const tabela = montarTabela(document, linhas, colunas);
@@ -5034,14 +5055,87 @@ var Rico = class {
       return this;
     }
     if (nome === "link") {
-      const url = prompt("Endere\xE7o do link:", "https://");
-      if (url) document.execCommand("createLink", false, url);
-    } else {
-      COMANDOS[nome]?.();
+      this._pedirLink();
+      return this;
     }
+    this._semPular(() => COMANDOS[nome]?.());
     this._sincronizar();
     this._marcarAtivos();
     this._pintar();
+    return this;
+  }
+  /*
+   * Endereco do link pelo nosso modal, e nao pelo prompt do navegador.
+   *
+   * O prompt e uma caixa do sistema: aparece fora do desenho da pagina, ignora
+   * o tema e nao da para estilizar. Como o modal rouba o foco, a selecao
+   * precisa ser guardada antes e devolvida depois — sem isso o createLink nao
+   * teria em que trecho aplicar.
+   */
+  _pedirLink() {
+    const sel = window.getSelection();
+    const marca = sel?.rangeCount ? sel.getRangeAt(0).cloneRange() : null;
+    const existente = this._noAtual()?.closest("a");
+    const campo = el("input", {
+      type: "url",
+      class: "tuc-input",
+      placeholder: "https://",
+      value: existente?.getAttribute("href") ?? "https://"
+    });
+    const devolverSelecao = () => {
+      this.area.focus({ preventScroll: true });
+      if (!marca) return;
+      const s = window.getSelection();
+      s.removeAllRanges();
+      s.addRange(marca);
+    };
+    let decidido = null;
+    const acoes = [{ texto: "Cancelar", variante: "outline" }];
+    if (existente) {
+      acoes.push({ texto: "Remover", variante: "ghost", onClick: () => {
+        decidido = "remover";
+      } });
+    }
+    acoes.push({
+      texto: existente ? "Salvar" : "Inserir",
+      variante: "primary",
+      onClick: () => {
+        decidido = campo.value.trim();
+      }
+    });
+    const dialogo = new Modal({
+      title: existente ? "Editar link" : "Inserir link",
+      tamanho: "sm",
+      acoes,
+      aoFechar: () => {
+        if (!decidido) return;
+        this._semPular(() => {
+          if (decidido === "remover") {
+            this.area.focus({ preventScroll: true });
+            const r = document.createRange();
+            r.selectNodeContents(existente);
+            const sel2 = window.getSelection();
+            sel2.removeAllRanges();
+            sel2.addRange(r);
+            document.execCommand("unlink");
+          } else {
+            devolverSelecao();
+            if (decidido !== "https://") document.execCommand("createLink", false, decidido);
+          }
+          this._sincronizar();
+          this._marcarAtivos();
+        });
+      }
+    });
+    dialogo.conteudo(campo);
+    dialogo.abrir();
+    campo.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter") return;
+      e.preventDefault();
+      dialogo.caixa.querySelector(".tuc-btn.is-primary")?.click();
+    });
+    campo.focus();
+    campo.select();
     return this;
   }
   getValue() {
