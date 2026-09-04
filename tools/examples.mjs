@@ -19,25 +19,30 @@
  * Shell, Python e template Django ficam de fora: nao sao para rodar.
  *
  * A pagina roda no navegador porque so la existe o Tucano montado. O codigo que
- * roda la esta na funcao `conferir` abaixo, injetada por toString(): escrita
+ * roda la esta na funcao `audit` abaixo, injetada por toString(): escrita
  * dentro de um template literal, cada `\d` de regex viraria `d` calado.
  */
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { writeFileSync, unlinkSync, existsSync, readFileSync, readdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, dirname, normalize } from 'node:path';
 import { exigirChrome } from './chrome.mjs';
 
 const exec = promisify(execFile);
-const CHROME = exigirChrome('exemplos');
+const CHROME = exigirChrome('examples');
 
 /* ---- o que o codigo aceita, lido do proprio codigo ---- */
 
-const OPCOES = {};
+const ARQUIVOS = [];
 for (const dir of ['src/js/components', 'src/js/core']) {
-  for (const f of readdirSync(dir).filter((x) => x.endsWith('.js'))) {
-    const t = readFileSync(`${dir}/${f}`, 'utf8');
+  for (const f of readdirSync(dir).filter((x) => x.endsWith('.js'))) ARQUIVOS.push(`${dir}/${f}`);
+}
+
+const OPCOES = {};
+{
+  for (const arq of ARQUIVOS) {
+    const t = readFileSync(arq, 'utf8');
     const d = t.match(/const DEFAULTS = \{([\s\S]*?)\n\};/);
     if (!d) continue;
     const chaves = [...d[1].matchAll(/^\s{2}(\w+):/gm)].map((m) => m[1]);
@@ -52,13 +57,84 @@ OPCOES.drawer = OPCOES.Drawer;
 OPCOES.toast = OPCOES.Toast;
 OPCOES.confirm = [...(OPCOES.Modal || []), 'confirm', 'cancel'];
 
-/* Objetos dentro de uma opcao: quem os le mora longe do DEFAULTS. */
-const ANINHADOS = {
-  actions: ['text', 'variant', 'onClick', 'closes'],                    // core/dialog.js
-  action: ['text', 'onClick'],                                          // toast.js
-  items: ['text', 'icon', 'shortcut', 'onClick', 'href', 'variant',
-          'disabled', 'separator', 'label'],                            // dropdown.js
+/*
+ * Objetos dentro de uma opcao — `actions: [{ text, ... }]`.
+ *
+ * A forma nao esta no DEFAULTS: quem le as chaves e outro arquivo, longe dali.
+ * O que existe e o comentario ao lado da opcao, e e justamente ele que envelhece
+ * calado — o modal anunciou `[{ texto, variante, onClick, fecha }]` durante toda
+ * a padronizacao em ingles, com tres dos quatro nomes errados.
+ *
+ * Entao a forma sai do codigo, e o comentario e conferido contra ela. Uma opcao
+ * entra aqui quando o comentario declara chaves entre chaves; as chaves de
+ * verdade saem de onde elas sao lidas: acesso direto (`action.text`), o `.map`
+ * que percorre a lista, e um salto para dentro do metodo quando o map so
+ * encaminha (`items.map((i) => this._item(i))`).
+ */
+const DE_ARRAY = new Set(['map', 'length', 'indexOf', 'forEach', 'filter', 'slice', 'push',
+  'splice', 'find', 'findIndex', 'includes', 'concat', 'join', 'some', 'every', 'sort', 'at']);
+
+const recorte = (src, i, abre, fecha) => {
+  const a = src.indexOf(abre, i);
+  let n = 0;
+  for (let j = a; j < src.length; j++) {
+    if (src[j] === abre) n++;
+    else if (src[j] === fecha && --n === 0) return src.slice(a, j + 1);
+  }
+  return src.slice(a);
 };
+
+/* O arquivo que declara a opcao mais os que ele importa: `actions` e do modal,
+   mas quem le as chaves e o core/dialog.js. Sem esse limite, o `items` do
+   dropdown se mistura com o `items` do upload, que e outra coisa. */
+function escopo(arq) {
+  const src = readFileSync(arq, 'utf8');
+  return [arq, ...[...src.matchAll(/from '(\.[^']+)'/g)]
+    .map((m) => normalize(join(dirname(arq), m[1])))
+    .filter((p) => ARQUIVOS.includes(p))];
+}
+
+function formaDe(arq, nome) {
+  const chaves = new Set();
+  for (const p of escopo(arq)) {
+    const src = readFileSync(p, 'utf8');
+    for (const m of src.matchAll(new RegExp(`\\b${nome}\\.(\\w+)`, 'g'))) chaves.add(m[1]);
+    for (const m of src.matchAll(new RegExp(`\\b${nome}\\b[^\\n]*?\\.map\\(\\((\\w+)\\)\\s*=>`, 'g'))) {
+      const bind = m[1];
+      const trecho = recorte(src, src.indexOf('.map(', m.index) + 4, '(', ')');
+      for (const k of trecho.matchAll(new RegExp(`\\b${bind}\\.(\\w+)`, 'g'))) chaves.add(k[1]);
+      const salto = trecho.match(new RegExp(`this\\.(_\\w+)\\(${bind}\\)`));
+      if (!salto) continue;
+      const metodo = src.match(new RegExp(`\\n  ${salto[1]}\\((\\w+)\\)`));
+      if (!metodo) continue;
+      const dentro = recorte(src, metodo.index + metodo[0].length, '{', '}');
+      for (const k of dentro.matchAll(new RegExp(`\\b${metodo[1]}\\.(\\w+)`, 'g'))) chaves.add(k[1]);
+    }
+  }
+  for (const x of DE_ARRAY) chaves.delete(x);
+  return [...chaves].sort();
+}
+
+const ANINHADOS = {};
+const comentarioErrado = [];
+for (const arq of ARQUIVOS) {
+  const t = readFileSync(arq, 'utf8');
+  const d = t.match(/const DEFAULTS = \{([\s\S]*?)\n\};/);
+  if (!d) continue;
+  for (const m of d[1].matchAll(/^\s{2}(\w+):[^\n]*?\/\/[^\n]*?\{([^}]*)\}/gm)) {
+    const declaradas = m[2].split(',').map((x) => x.trim()).filter((x) => /^\w+$/.test(x)).sort();
+    if (declaradas.length < 2) continue;
+    const reais = formaDe(arq, m[1]);
+    if (!reais.length) continue;
+    ANINHADOS[m[1]] = reais;
+    const sobrando = declaradas.filter((k) => !reais.includes(k));
+    const faltando = reais.filter((k) => !declaradas.includes(k));
+    if (sobrando.length || faltando.length) {
+      comentarioErrado.push(`${arq.replace('src/js/', '')}  ${m[1]}: o comentário diz `
+        + `{ ${declaradas.join(', ')} }, o código lê { ${reais.join(', ')} }`);
+    }
+  }
+}
 
 /* ---- de onde saem os exemplos ---- */
 
@@ -175,7 +251,7 @@ const pagina = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
 catch (e) { document.title = JSON.stringify({ erro: e.message + ' — ' + String(e.stack).slice(0, 200) }); }</script>
 </body></html>`;
 
-const arq = join(tmpdir(), `tucano-exemplos-${process.pid}.html`);
+const arq = join(tmpdir(), `tucano-examples-${process.pid}.html`);
 writeFileSync(arq, pagina);
 let codigo = 0;
 try {
@@ -183,15 +259,18 @@ try {
     '--virtual-time-budget=8000', '--dump-dom', `file://${arq}`], { maxBuffer: 64 * 1024 * 1024 });
   const t = stdout.match(/<title>([\s\S]*?)<\/title>/);
   if (!t) {
-    console.error('[exemplos] a página não terminou de rodar');
+    console.error('[examples] a página não terminou de rodar');
     codigo = 1;
   } else {
     const r = JSON.parse(decode(t[1]));
-    if (r.erro) { console.error('[exemplos] ' + r.erro); codigo = 1; }
+    if (r.erro) { console.error('[examples] ' + r.erro); codigo = 1; }
     else {
+          for (const f of comentarioErrado) console.log('  FALHA  ' + f);
       for (const f of r.falhas) console.log('  FALHA  ' + f);
-      console.log(`${r.total} exemplos conferidos, ${r.falhas.length} com problema`);
-      codigo = r.falhas.length ? 1 : 0;
+      const total = r.falhas.length + comentarioErrado.length;
+      console.log(`${r.total} exemplos conferidos e ${Object.keys(ANINHADOS).length} formas aninhadas`
+        + ` extraídas do código, ${total} com problema`);
+      codigo = total ? 1 : 0;
     }
   }
 } finally {

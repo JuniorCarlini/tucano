@@ -22,8 +22,8 @@ Licença: MIT
 
 Dois arquivos, sem build e sem npm:
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.30.2/dist/tucano.min.css">
-    <script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.30.2/dist/tucano.min.js" defer></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.31.0/dist/tucano.min.css">
+    <script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.31.0/dist/tucano.min.js" defer></script>
 
 Sempre prenda a versão. Global JS: `Tucano`.
 
@@ -248,12 +248,12 @@ swaps do HTMX como o script do CDN.
 
 ## Conferencia de tamanhos
 
-    npm run conferir
+    npm run audit
 
 Mede altura e fonte de todo controle em 1280px e em tela estreita, e falha se
 algum sair do padrao: 38px no desktop, 44px no toque, e nunca abaixo de 16px de
 fonte em campo digitavel, senao o iOS da zoom ao focar. Componente novo com
-campo ou botao precisa entrar em tools/conferir.mjs e na lista do
+campo ou botao precisa entrar em tools/audit.mjs e na lista do
 @media (max-width: 40rem) em src/styles/core/tokens.css.
 
 ## Exibir o que o editor salvou (.tuc-prose)
@@ -624,7 +624,7 @@ Inventario extraido do codigo a cada build. Se algo nao esta aqui, nao existe.
   atributos  data-placement data-tuc-dropdown
   opcoes
     placement          = 'bottom-start'
-    items              = null  — [{ text, icon, shortcut, onClick, href, variant, disabled }]
+    items              = null  — [{ text, icon, shortcut, onClick, href, variant, disabled, separator, label }]
     closeOnPick        = true
   metodos    open close toggle destroy
 
@@ -807,7 +807,7 @@ Escritas por voce no template (as com __ sao internas, montadas pelo JS):
 
 Montadas pelo JS dentro do componente — nao escreva no template, mas
 sao nomes estaveis para o seu proprio CSS:
-  tuc-accordion__arrow tuc-accordion__body tuc-accordion__content tuc-accordion__item tuc-accordion__trigger tuc-color-field__swatch tuc-color-field__value tuc-colorpicker__area tuc-colorpicker__field tuc-colorpicker__pick tuc-colorpicker__preview tuc-colorpicker__row tuc-colorpicker__slider tuc-colorpicker__swatchbtn tuc-colorpicker__swatches tuc-colorpicker__thumb tuc-colorpicker__track tuc-colorpicker__tracks tuc-copy__ok tuc-dp__day tuc-dp__daynum tuc-dp__footer tuc-dp__grid tuc-dp__header tuc-dp__label tuc-dp__main tuc-dp__month tuc-dp__months tuc-dp__nav tuc-dp__period tuc-dp__periodcell tuc-dp__periodgrid tuc-dp__preset tuc-dp__presets tuc-dp__spacer tuc-dp__time tuc-dp__timecols tuc-dp__timegroup tuc-dp__timehead tuc-dp__timeitem tuc-dp__timelabel tuc-dp__timelist tuc-dp__timevalue tuc-dp__weekday tuc-dp__weekdays tuc-dp__weeknum tuc-dp__weeknum-head tuc-drawer__body tuc-drawer__close tuc-drawer__footer tuc-drawer__header tuc-drawer__panel tuc-drawer__text tuc-drawer__title tuc-drawer__top tuc-dropdown__icon tuc-dropdown__item tuc-dropdown__label tuc-dropdown__separator tuc-dropdown__shortcut tuc-dropdown__text tuc-editor__area tuc-editor__sep tuc-editor__toolbar tuc-editor__value tuc-field__eye tuc-menu__count tuc-menu__icon tuc-menu__item tuc-menu__secao tuc-menu__section tuc-menu__separator tuc-menu__sub tuc-modal__body tuc-modal__close tuc-modal__footer tuc-modal__header tuc-modal__panel tuc-modal__text tuc-modal__title tuc-modal__top tuc-pagination__edge tuc-pagination__gap tuc-pagination__ico tuc-pagination__word tuc-prose__block tuc-select__arrow tuc-select__check tuc-select__clear tuc-select__empty tuc-select__group tuc-select__label tuc-select__list tuc-select__menu tuc-select__option tuc-select__search tuc-select__single tuc-select__tag tuc-select__tagtext tuc-select__tagx tuc-select__values tuc-table__actions tuc-table__avatar tuc-table__check tuc-table__empty tuc-table__pick tuc-table__sortable tuc-table__sortbtn tuc-table__sorticon tuc-table__sub tuc-table__user tuc-tip__arrow tuc-tip__text tuc-toast__action tuc-toast__body tuc-toast__close tuc-toast__icon tuc-toast__text tuc-toast__title tuc-toasts__live tuc-toasts__stage tuc-upload__action tuc-upload__actions tuc-upload__bar tuc-upload__barfill tuc-upload__hidden tuc-upload__hint tuc-upload__icon tuc-upload__info tuc-upload__item tuc-upload__label tuc-upload__list tuc-upload__meta tuc-upload__name tuc-upload__ok tuc-upload__thumb tuc-upload__zone
+  tuc-accordion__arrow tuc-accordion__body tuc-accordion__content tuc-accordion__item tuc-accordion__trigger tuc-color-field__swatch tuc-color-field__value tuc-colorpicker__area tuc-colorpicker__field tuc-colorpicker__pick tuc-colorpicker__preview tuc-colorpicker__row tuc-colorpicker__slider tuc-colorpicker__swatchbtn tuc-colorpicker__swatches tuc-colorpicker__thumb tuc-colorpicker__track tuc-colorpicker__tracks tuc-copy__ok tuc-dp__day tuc-dp__daynum tuc-dp__footer tuc-dp__grid tuc-dp__header tuc-dp__label tuc-dp__main tuc-dp__month tuc-dp__months tuc-dp__nav tuc-dp__period tuc-dp__periodcell tuc-dp__periodgrid tuc-dp__preset tuc-dp__presets tuc-dp__spacer tuc-dp__time tuc-dp__timecols tuc-dp__timegroup tuc-dp__timehead tuc-dp__timeitem tuc-dp__timelabel tuc-dp__timelist tuc-dp__timevalue tuc-dp__weekday tuc-dp__weekdays tuc-dp__weeknum tuc-dp__weeknum-head tuc-drawer__body tuc-drawer__close tuc-drawer__footer tuc-drawer__header tuc-drawer__panel tuc-drawer__text tuc-drawer__title tuc-drawer__top tuc-dropdown__icon tuc-dropdown__item tuc-dropdown__label tuc-dropdown__separator tuc-dropdown__shortcut tuc-dropdown__text tuc-editor__area tuc-editor__sep tuc-editor__toolbar tuc-editor__value tuc-field__eye tuc-menu__count tuc-menu__icon tuc-menu__item tuc-menu__section tuc-menu__separator tuc-menu__sub tuc-modal__body tuc-modal__close tuc-modal__footer tuc-modal__header tuc-modal__panel tuc-modal__text tuc-modal__title tuc-modal__top tuc-pagination__edge tuc-pagination__gap tuc-pagination__ico tuc-pagination__word tuc-prose__block tuc-select__arrow tuc-select__check tuc-select__clear tuc-select__empty tuc-select__group tuc-select__label tuc-select__list tuc-select__menu tuc-select__option tuc-select__search tuc-select__single tuc-select__tag tuc-select__tagtext tuc-select__tagx tuc-select__values tuc-table__actions tuc-table__avatar tuc-table__check tuc-table__empty tuc-table__pick tuc-table__sortable tuc-table__sortbtn tuc-table__sorticon tuc-table__sub tuc-table__user tuc-tip__arrow tuc-tip__text tuc-toast__action tuc-toast__body tuc-toast__close tuc-toast__icon tuc-toast__text tuc-toast__title tuc-toasts__live tuc-toasts__stage tuc-upload__action tuc-upload__actions tuc-upload__bar tuc-upload__barfill tuc-upload__hidden tuc-upload__hint tuc-upload__icon tuc-upload__info tuc-upload__item tuc-upload__label tuc-upload__list tuc-upload__meta tuc-upload__name tuc-upload__ok tuc-upload__thumb tuc-upload__zone
 
 ### Tokens
 

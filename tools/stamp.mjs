@@ -54,7 +54,7 @@ for (const [file, swaps] of Object.entries(files)) {
   let text = readFileSync(file, 'utf8');
   for (const [pattern, replacement] of swaps) {
     if (!pattern.test(text)) {
-      console.error(`[carimbo] padrão sem correspondência em ${file}: ${pattern}`);
+      console.error(`[stamp] padrão sem correspondência em ${file}: ${pattern}`);
       process.exit(1);
     }
     pattern.lastIndex = 0;
@@ -63,4 +63,4 @@ for (const [file, swaps] of Object.entries(files)) {
   writeFileSync(file, text);
 }
 
-console.log(`carimbo: v${v} — ${js} KB JS + ${css} KB CSS gzip (${total} KB no total)`);
+console.log(`stamp: v${v} — ${js} KB JS + ${css} KB CSS gzip (${total} KB no total)`);

@@ -187,7 +187,7 @@ tem classe `.tuc-*`. Os seletores precisam entrar em **todas** as listas de
 escopo de `tokens.css` — clara, escura por classe, escura por mídia e compacta
 —, senão `var(--tuc-border)` não resolve e a borda é descartada inteira.
 Esquecer uma é silencioso: faltando nas escuras, o campo piscava branco numa
-página escura. `npm run conferir` cobre isso agora, comparando o campo em espera
+página escura. `npm run audit` cobre isso agora, comparando o campo em espera
 com um `.tuc-input` de verdade nos dois temas. E o `box-sizing` tem de ser declarado ali, porque o reset de
 `base.css` também é escopado: sem ele a borda soma sobre a altura e o campo
 nasce 2px mais alto que o vizinho. Componente novo que transforma um elemento
@@ -279,7 +279,7 @@ pergunte que papel ela tem antes de escolher o token.
 o empacotador: quem importava uma seta levava o mapa inteiro — medido, 0,6 KB a
 mais para quem usa só o date picker. `ICON_CHEVRON_DOWN` solto o esbuild
 descarta quando ninguém importa. O mapa `ICONS` existe só para a galeria em
-`tools/icones.html`; componente importa a constante.
+`tools/icons.html`; componente importa a constante.
 
 **Helper compartilhado mora em `core/dom.js`.** `omitUndefined` existia copiado
 em doze componentes com dois nomes; `escapeHtml` em dois. Antes de escrever
@@ -320,7 +320,7 @@ importa pelo npm.
 objeto hsva. Ninguém tinha percebido porque por dentro sempre chega hsva. O
 exemplo do `maskEmail` também estava errado. Escreveu exemplo, roda o exemplo.
 
-**Versão e tamanho não se escrevem à mão — `tools/carimbo.mjs` carimba os dois
+**Versão e tamanho não se escrevem à mão — `tools/stamp.mjs` carimba os dois
 no fim do build, lendo o `package.json`.** O cabeçalho da página ficou preso em
 v0.26.0 enquanto o `package.json` ia para 0.30.1, e o trecho de instalação do
 README apontava para `@v0.9.2`: quem copiasse levava uma versão de muitas
@@ -419,7 +419,7 @@ simplesmente some. A checagem é cruzar as três fontes — classes definidas no
 uma delas.
 
 **A referência do `llms.txt` é gerada pelo build, não escrita à mão.**
-`tools/referencia.mjs` extrai do código o seletor, os `data-*`, todas as opções
+`tools/reference.mjs` extrai do código o seletor, os `data-*`, todas as opções
 com o comentário que as explica, os métodos, os eventos, as classes e os tokens
 — e reescreve o bloco entre "Referencia completa" e "Ao gerar código". Antes
 dela, 40 opções, 8 métodos e 22 exports públicos não apareciam em lugar nenhum
@@ -446,7 +446,7 @@ Antes de publicar, compare o que a tag contém com o que o `HEAD` contém.
 ## Antes de dizer que está pronto
 
 ```bash
-npm run conferir
+npm run audit
 ```
 
 Mede a altura e a fonte de todo controle nas duas larguras e falha se algum sair
@@ -454,7 +454,7 @@ do padrão. Existe porque o mesmo erro aconteceu três vezes — botão de ícon
 28px ao lado de um de 30, campo de data com 38px e fonte 13 ao lado de um select
 de 44 e 16 — e nas três quem percebeu foi o usuário, olhando a tela.
 
-Componente novo com campo ou botão precisa entrar em `tools/conferir.mjs` e na
+Componente novo com campo ou botão precisa entrar em `tools/audit.mjs` e na
 lista do `@media (max-width: 40rem)` em `core/tokens.css`. Foi ficar de fora
 dessa lista que fez o campo de texto pedir zoom no iPhone.
 
@@ -490,22 +490,22 @@ de um defeito que passou batido.
 dependência). `dates`, `mask`, `color` e `pageWindow` são entrada e saída sem
 DOM. Inclui `sanitize`, que é peça de segurança.
 
-**`tools/testar.mjs` — 30 comportamentos no Chrome sem cabeça.** Abrir, fechar,
+**`tools/behavior.mjs` — 30 comportamentos no Chrome sem cabeça.** Abrir, fechar,
 ordenar, marcar, emitir evento. Armadilha registrada no cabeçalho do arquivo:
 transição não avança ali, então nunca leia opacidade ou posição logo depois de
 abrir algo — a página injeta `transition: none` onde o estado final importa.
 
-**`tools/exemplos.mjs` — os 32 exemplos da documentação.** Os de HTML são
+**`tools/examples.mjs` — os 32 exemplos da documentação.** Os de HTML são
 colados no documento e têm que montar; os de JS não são executados (citam
 `#entrega` e `formulario`, que não existem) e sim conferidos nome por nome
 contra o código: `Tucano.x` existe? o método existe no protótipo? cada chave de
 opção é lida por alguém, inclusive dentro de `actions` e `items`?
 
-**`tools/coerencia.mjs` — nome que existe em dois lugares e mudou só num.** As
+**`tools/consistency.mjs` — nome que existe em dois lugares e mudou só num.** As
 sete checagens saíram de defeitos reais, e cada uma foi testada reintroduzindo
 o defeito que a motivou.
 
-`npm run conferir` continua à parte: mede geometria dos campos nos dois temas.
+`npm run audit` continua à parte: mede geometria dos campos nos dois temas.
 
 Duas armadilhas ao escrever essas ferramentas, ambas custaram tempo nesta
 sessão: um comentário com `</script>` fecha o bloco que ele descreve, e código
@@ -517,14 +517,4 @@ de navegador escrito dentro de template literal perde toda barra de regex
 
 Em ordem do que mais dói.
 
-**O Backspace da máscara foi validado por `InputEvent` simulado, não por teclado
-real.** Evento sintético não dispara ação padrão, então o caminho real do
-cursor continua sem prova.
-
-**`tuc-menu__secao` continua aceito como apelido.** A API virou inglesa em
-0.30, essa classe escapou, e tirá-la agora quebraria o menu de quem atualizou a
-biblioteca sem reescrever o template. Sai numa versão que possa quebrar.
-
-**As formas aninhadas em `tools/exemplos.mjs` são uma lista à mão.** `actions`,
-`action` e `items` têm as chaves escritas no próprio script, copiadas de quem as
-lê. Se um desses componentes ganhar uma chave, a lista envelhece calada.
+Nada aqui no momento.

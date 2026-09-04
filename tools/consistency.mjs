@@ -164,11 +164,9 @@ const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m
   const PT = /^tuc-[\w-]*(secao|acoes|conteudo|titulo|rotulo|icone|corpo|caixa|texto|valor|campo|lista|painel|gatilho|separador|marcar|estado|tamanho|itens|filhos|saida)\b/;
   const css = readdirSync('src/styles/components')
     .map((f) => readFileSync(`src/styles/components/${f}`, 'utf8')).join('\n');
-  const APELIDOS = new Set(['tuc-menu__secao']);   // nome antigo, mantido de proposito
-  const achados = [...new Set([...css.matchAll(/\.(tuc-[\w-]+)/g)].map((m) => m[1]))]
-    .filter((c) => PT.test(c) && !APELIDOS.has(c));
+  const achados = [...new Set([...css.matchAll(/\.(tuc-[\w-]+)/g)].map((m) => m[1]))].filter((c) => PT.test(c));
   if (achados.length) falhar(`classe CSS com nome em português: ${achados.join(' ')}`);
-  else ok('classes CSS: nenhum nome em português fora dos apelidos antigos');
+  else ok('classes CSS: nenhum nome em português');
 }
 
 /* 6. Opcao anunciada no README que o componente nao le, e o contrario. */

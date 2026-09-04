@@ -24,7 +24,7 @@ import { join } from 'node:path';
 import { exigirChrome } from './chrome.mjs';
 
 const exec = promisify(execFile);
-const CHROME = exigirChrome('conferir');
+const CHROME = exigirChrome('audit');
 
 /*
  * Alvos com altura propria: nao entram no padrao de controle, mas precisam ser

@@ -2,7 +2,7 @@
 /*
  * Teste de comportamento, no navegador de verdade.
  *
- * O `conferir` mede geometria; este mede o que o componente faz — abrir,
+ * O `audit` mede geometria; este mede o que o componente faz — abrir,
  * fechar, ordenar, marcar, emitir evento. Ate existir, este teste era uma sonda
  * escrita, rodada uma vez e apagada; foi reescrito umas dez vezes numa sessao
  * so, e cada reescrita perdia os casos da anterior.
@@ -23,7 +23,7 @@ import { exigirChrome } from './chrome.mjs';
 
 const exec = promisify(execFile);
 
-const CHROME = exigirChrome('testar');
+const CHROME = exigirChrome('behavior');
 
 const pagina = () => `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
 <style>${readFileSync('dist/tucano.css', 'utf8')}
