@@ -491,6 +491,22 @@ O código publicado é colorido pelo `init()`. O destacador não conhece linguag
 nenhuma: reconhece comentário, texto entre aspas, número, tag, atributo e chaves
 de template, o que funciona em qualquer linguagem por 2 KB.
 
+## Teclado nos campos que abrem painel
+
+Chegar de `Tab` não abre painel nenhum — quem tabula por um formulário até o
+botão de salvar não deveria levar um calendário na cara a cada campo, com o
+painel cobrindo o campo seguinte. É a regra do `<select>` nativo e do ARIA APG.
+
+Abrir é sempre explícito:
+
+| | abre com |
+|---|---|
+| Date picker | `↓`, clique |
+| Select | `↓`, `Enter`, `Espaço`, clique |
+| Color picker | `↓`, clique — ou `Enter`/`Espaço` na amostra, que é um `<button>` |
+
+Para voltar ao comportamento antigo no date picker, `openOnFocus: true`.
+
 ## Menu suspenso
 
 ```html

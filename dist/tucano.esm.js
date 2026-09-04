@@ -519,7 +519,14 @@ var DEFAULTS = {
   appendTo: void 0,
   isoName: void 0,
   // name do input hidden com o valor ISO
-  openOnFocus: true,
+  /*
+   * Chegar de Tab nao abre o calendario. Quem tabula por um formulario para
+   * alcancar o botao de salvar nao deveria levar um painel na cara a cada
+   * campo, cobrindo o proximo — e era isso que fazia os paineis se empilharem.
+   * Abre com seta para baixo, com clique, ou com openOnFocus: true para quem
+   * prefere o comportamento antigo.
+   */
+  openOnFocus: false,
   // Painel proprio em todo lugar, por padrao: um so comportamento para
   // documentar, estilizar e testar. `true` liga o seletor do sistema no
   // celular, `'auto'` liga so onde o ponteiro e de toque.
@@ -2007,8 +2014,13 @@ var Select = class {
       }
       this._paintActive();
       this._scrollToActive();
-    } else if (e.key === "Enter") {
-      if (!this.isOpen) return;
+    } else if (e.key === "Enter" || e.key === " ") {
+      if (!this.isOpen) {
+        if (e.key === " " && this.search.value) return;
+        e.preventDefault();
+        return this.open();
+      }
+      if (e.key === " ") return;
       e.preventDefault();
       const item = visiveis[this.activeIndex];
       if (item) this._toggleItem(item);
@@ -2326,7 +2338,15 @@ var ColorPicker = class {
       "aria-label": "Escolher cor",
       "aria-haspopup": "dialog",
       "aria-expanded": "false",
-      onclick: () => this.toggle()
+      onclick: () => this.toggle(),
+      // Enter e Espaco o navegador ja converte em clique num <button>; a seta
+      // para baixo e a que falta, e e a mesma dos outros campos.
+      onkeydown: (e) => {
+        if (e.key === "ArrowDown" && !this.isOpen) {
+          e.preventDefault();
+          this.open();
+        }
+      }
     });
     this.field = el("div", { class: "tuc-color-field" });
     this.input.replaceWith(this.field);
@@ -2381,7 +2401,19 @@ var ColorPicker = class {
         if (this._emitting) return;
         if (!this.setValue(this.input.value)) this._syncInput();
       }),
-      on(this.input, "focus", () => this.open()),
+      /*
+       * Abrir no foco do campo de texto atrapalhava duas vezes: o painel subia
+       * so de tabular por um formulario, e cobria o proprio campo de quem
+       * queria digitar o hex. O gatilho e a amostra ao lado, que e <button> e
+       * ja responde a Enter e Espaco por conta do navegador. Aqui fica so a
+       * seta para baixo, igual a do campo de data.
+       */
+      on(this.input, "keydown", (e) => {
+        if (e.key === "ArrowDown" && !this.isOpen) {
+          e.preventDefault();
+          this.open();
+        }
+      }),
       on(this.hexField, "change", () => {
         if (!this.setValue(this.hexField.value)) this._paint();
       }),

@@ -193,6 +193,16 @@ foco em outro lugar e fecharia no primeiro Tab mesmo com o ponteiro em cima. Use
 focusout vem `null` no Safari e no Firefox quando o clique cai num botão do
 painel, e aí o painel se fecha sozinho no meio do uso.
 
+**Chegar de `Tab` não abre painel.** Abrir no foco parecia conveniente e era a
+origem de dois defeitos: os painéis se empilhavam ao tabular, e no campo de cor
+o painel cobria o próprio campo de quem queria digitar o hex. Quem tabula por um
+formulário até o botão de salvar não deveria levar um calendário na cara a cada
+campo. Abrir é sempre explícito — `↓`, clique, e no select também `Enter` e
+`Espaço`, como no `<select>` nativo e no ARIA APG. O gatilho do color picker é a
+amostra ao lado, que é um `<button>` de verdade e por isso já responde a
+`Enter`/`Espaço` sem código nosso. `openOnFocus` continua existindo no date
+picker para quem quiser o comportamento antigo, agora com padrão `false`.
+
 ## Antes de dizer que está pronto
 
 ```bash

@@ -25,7 +25,14 @@ const DEFAULTS = {
   placement: 'bottom-center',   // centralizado no campo; as bordas da tela ainda mandam
   appendTo: undefined,
   isoName: undefined,    // name do input hidden com o valor ISO
-  openOnFocus: true,
+  /*
+   * Chegar de Tab nao abre o calendario. Quem tabula por um formulario para
+   * alcancar o botao de salvar nao deveria levar um painel na cara a cada
+   * campo, cobrindo o proximo — e era isso que fazia os paineis se empilharem.
+   * Abre com seta para baixo, com clique, ou com openOnFocus: true para quem
+   * prefere o comportamento antigo.
+   */
+  openOnFocus: false,
   // Painel proprio em todo lugar, por padrao: um so comportamento para
   // documentar, estilizar e testar. `true` liga o seletor do sistema no
   // celular, `'auto'` liga so onde o ponteiro e de toque.

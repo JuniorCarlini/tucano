@@ -536,8 +536,21 @@ export class Select {
       }
       this._paintActive();
       this._scrollToActive();
-    } else if (e.key === 'Enter') {
-      if (!this.isOpen) return;
+    } else if (e.key === 'Enter' || e.key === ' ') {
+      /*
+       * Fechado, Enter e Espaco abrem — antes o campo so respondia a seta, e
+       * quem chegava de Tab ficava sem saber como entrar na lista.
+       *
+       * O Espaco tem a ressalva de que o foco esta num campo de busca: com
+       * texto digitado ele e digitacao, senao seria impossivel escrever
+       * "Sao Paulo". Fechado o campo esta sempre vazio, entao nao ha conflito.
+       */
+      if (!this.isOpen) {
+        if (e.key === ' ' && this.search.value) return;
+        e.preventDefault();
+        return this.open();
+      }
+      if (e.key === ' ') return;
       e.preventDefault();
       const item = visiveis[this.activeIndex];
       if (item) this._toggleItem(item);

@@ -1659,6 +1659,8 @@ cor         = #4f46e5</pre>
 
   <table>
     <tr><th>Tecla</th><th>Date picker</th><th>Select</th></tr>
+    <tr><td><code>Tab</code></td><td colspan="2">Chega no campo <em>sem</em> abrir o painel</td></tr>
+    <tr><td><code>↓</code> (fechado)</td><td>Abre o calendário</td><td>Abre a lista — <code>Enter</code> e <code>Espaço</code> também</td></tr>
     <tr><td><code>↑ ↓ ← →</code></td><td>Move o dia focado</td><td>Navega as opções</td></tr>
     <tr><td><code>Enter</code></td><td>Seleciona a data</td><td>Escolhe a opção</td></tr>
     <tr><td><code>Esc</code></td><td>Fecha</td><td>Fecha</td></tr>
@@ -1673,6 +1675,16 @@ cor         = #4f46e5</pre>
     <tr><td><code>Tab</code></td><td>Circula dentro do diálogo, sem escapar para a página</td><td>Abre a dica ao focar o elemento</td></tr>
     <tr><td><code>Esc</code></td><td>Fecha e devolve o foco a quem abriu</td><td>Fecha, mesmo com o ponteiro parado em cima</td></tr>
   </table>
+
+  <div class="note">
+    <b>Chegar de <code>Tab</code> não abre nada.</b> Quem tabula por um formulário para
+    alcançar o botão de salvar não deveria levar um calendário na cara a cada campo, com o
+    painel cobrindo o campo seguinte — é a regra do <code>&lt;select&gt;</code> nativo e do
+    ARIA APG. Abrir é sempre explícito: <code>↓</code>, <code>Enter</code>,
+    <code>Espaço</code> ou o clique. No campo de cor o gatilho é a amostra ao lado, que é um
+    <code>&lt;button&gt;</code> de verdade. Quem preferir o comportamento antigo no date
+    picker liga <code>openOnFocus: true</code>.
+  </div>
 
   <div class="note">
     O <code>Esc</code> fechar o tooltip com o mouse ainda em cima não é detalhe: é o que a
