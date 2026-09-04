@@ -159,5 +159,83 @@ try {
   unlinkSync(arquivo);
 }
 
+/*
+ * Estado de espera: o primeiro quadro, antes de o script rodar.
+ *
+ * Existe porque o mesmo erro ja aconteceu duas vezes seguidas. Os seletores
+ * [data-tuc-*]:not([data-tuc-ready]) precisam estar em TODAS as listas de
+ * escopo dos tokens — clara, escura por classe, escura por midia e compacta —
+ * e esquecer uma e silencioso: o campo simplesmente pega o token da lista
+ * errada. Da primeira vez a borda sumia; da segunda o campo piscava branco
+ * numa pagina escura.
+ *
+ * A invariante conferida e a que importa para quem olha a tela: no primeiro
+ * quadro o campo em espera tem de estar igual a um .tuc-input de verdade, que
+ * e classe pura e nunca depende de JavaScript. Vale nos dois temas.
+ */
+const ESPERA = ['[data-tuc-datepicker]', '[data-tuc-mask]', '[data-tuc-select]', '[data-tuc-color]'];
+
+const paginaEspera = () => `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
+<style>${readFileSync('dist/tucano.css', 'utf8')}
+body{margin:0;padding:16px;font-family:system-ui,sans-serif}</style></head><body>
+<div id="claro">
+  <input type="text" class="tuc-input" data-ref>
+  <input data-tuc-datepicker><input data-tuc-mask="cpfcnpj"><input data-tuc-color>
+  <select data-tuc-select><option>Um</option></select>
+</div>
+<div id="escuro" class="dark">
+  <input type="text" class="tuc-input" data-ref>
+  <input data-tuc-datepicker><input data-tuc-mask="cpfcnpj"><input data-tuc-color>
+  <select data-tuc-select><option>Um</option></select>
+</div>
+<pre id="resultado"></pre>
+<script>
+(function () {
+  try {
+    var alvos = ${JSON.stringify(ESPERA)}, out = {};
+    ['claro', 'escuro'].forEach(function (tema) {
+      var raiz = document.getElementById(tema);
+      var lido = function (el) {
+        var c = getComputedStyle(el);
+        return {
+          altura: Math.round(el.getBoundingClientRect().height),
+          raio: c.borderTopLeftRadius, fundo: c.backgroundColor,
+          borda: c.borderTopWidth + ' ' + c.borderTopStyle + ' ' + c.borderTopColor,
+        };
+      };
+      var grupo = { __ref: lido(raiz.querySelector('[data-ref]')) };
+      alvos.forEach(function (sel) {
+        var el = raiz.querySelector(sel);
+        grupo[sel] = el ? lido(el) : null;
+      });
+      out[tema] = grupo;
+    });
+    document.getElementById('resultado').textContent = JSON.stringify(out);
+  } catch (e) {
+    document.getElementById('resultado').textContent = JSON.stringify({ __erro: String(e) });
+  }
+})();
+</script></body></html>`;
+
+const arquivoEspera = join(tmpdir(), `tucano-espera-${process.pid}.html`);
+writeFileSync(arquivoEspera, paginaEspera());
+try {
+  const espera = await medir(1280, arquivoEspera);
+  console.log('\nestado de espera (antes do script) — igual a um .tuc-input de verdade');
+  for (const [tema, grupo] of Object.entries(espera)) {
+    const ref = grupo.__ref;
+    for (const [sel, v] of Object.entries(grupo)) {
+      if (sel === '__ref') continue;
+      if (!v) { console.log(`  ausente  ${tema} ${sel}`); falhas++; continue; }
+      const erros = Object.keys(ref).filter((k) => v[k] !== ref[k])
+        .map((k) => `${k} ${v[k]} ≠ ${ref[k]}`);
+      console.log(`  ${erros.length ? 'FALHA ' : 'ok    '} ${(tema + ' ' + sel).padEnd(34)}${erros.length ? erros.join('; ') : v.altura + 'px'}`);
+      falhas += erros.length ? 1 : 0;
+    }
+  }
+} finally {
+  unlinkSync(arquivoEspera);
+}
+
 console.log(falhas ? `\n${falhas} fora do padrão` : '\ntodos os controles respeitam o padrão');
 process.exit(falhas ? 1 : 0);

@@ -159,9 +159,12 @@ JS troca tudo de lugar. Não é FOUC — a folha é bloqueante e já está aplic
 que falta é o JS, que vem com `defer`. Tirar o `defer` custaria bem mais caro.
 
 Duas armadilhas nesse bloco, ambas pelo mesmo motivo — o elemento cru ainda não
-tem classe `.tuc-*`. Os seletores precisam entrar nas listas de escopo de
-`tokens.css`, senão `var(--tuc-border)` não resolve e a borda é descartada
-inteira. E o `box-sizing` tem de ser declarado ali, porque o reset de
+tem classe `.tuc-*`. Os seletores precisam entrar em **todas** as listas de
+escopo de `tokens.css` — clara, escura por classe, escura por mídia e compacta
+—, senão `var(--tuc-border)` não resolve e a borda é descartada inteira.
+Esquecer uma é silencioso: faltando nas escuras, o campo piscava branco numa
+página escura. `npm run conferir` cobre isso agora, comparando o campo em espera
+com um `.tuc-input` de verdade nos dois temas. E o `box-sizing` tem de ser declarado ali, porque o reset de
 `base.css` também é escopado: sem ele a borda soma sobre a altura e o campo
 nasce 2px mais alto que o vizinho. Componente novo que transforma um elemento
 existente precisa entrar nesse bloco.

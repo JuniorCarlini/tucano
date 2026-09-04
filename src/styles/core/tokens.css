@@ -90,7 +90,14 @@
 }
 
 /* Dark por classe (.dark no html) — o padrao de Tailwind e do Django admin moderno. */
-:where(.dark, [data-theme='dark']) :is(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip,
+:where(.dark, [data-theme='dark']) :is([data-tuc-color]:not([data-tuc-ready]),
+  [data-tuc-datepicker]:not([data-tuc-ready]),
+  [data-tuc-mask]:not([data-tuc-ready]),
+  [data-tuc-reveal]:not([data-tuc-ready]),
+  [data-tuc-select]:not([data-tuc-ready]),
+  [data-tuc-rico]:not([data-tuc-ready]),
+  [data-tuc-upload]:not([data-tuc-ready]),
+  .tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip,
   .tuc-modal,
   .tuc-gaveta,
   .tuc-acordeon,
@@ -129,7 +136,14 @@
  * manda no tema, nao o sistema operacional.
  */
 @media (prefers-color-scheme: dark) {
-  :where(html[data-tuc-theme='auto']) :is(.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip,
+  :where(html[data-tuc-theme='auto']) :is([data-tuc-color]:not([data-tuc-ready]),
+  [data-tuc-datepicker]:not([data-tuc-ready]),
+  [data-tuc-mask]:not([data-tuc-ready]),
+  [data-tuc-reveal]:not([data-tuc-ready]),
+  [data-tuc-select]:not([data-tuc-ready]),
+  [data-tuc-rico]:not([data-tuc-ready]),
+  [data-tuc-upload]:not([data-tuc-ready]),
+  .tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip,
   .tuc-modal,
   .tuc-gaveta,
   .tuc-acordeon,
