@@ -209,9 +209,15 @@ textarea.tuc-editor__value[hidden] { display: none; }
   --tuc-tok-key: #1d4ed8;
   --tuc-tok-tmpl: #a16207;
 }
+/*
+ * O .tuc-prose estava aqui sem o escopo do escuro, entao a paleta escura valia
+ * nos dois temas — verde-claro e laranja sobre fundo claro. Cada seletor tem
+ * de carregar o escopo.
+ */
 :where(.dark, [data-theme='dark']) .tuc-editor__area,
 :where(.dark, [data-theme='dark']).tuc-editor .tuc-editor__area,
-.tuc-prose {
+:where(.dark, [data-theme='dark']) .tuc-prose,
+:where(.dark, [data-theme='dark']).tuc-prose {
   --tuc-tok-comment: #8b949e;
   --tuc-tok-text: #7ee787;
   --tuc-tok-num: #ffa657;
@@ -251,3 +257,52 @@ textarea.tuc-editor__value[hidden] { display: none; }
   color: var(--tuc-fg);
 }
 .tuc-prose pre { overflow-x: auto; }
+
+/* ---------------------------------------------------------------- *
+ * Copiar o bloco de codigo                                         *
+ * ---------------------------------------------------------------- */
+
+/*
+ * O bloco vira a ancora do botao. `position: relative` no <pre> e nao num
+ * envolucro extra: assim o markup salvo pelo editor continua sendo so
+ * <pre><code>, e quem exibe nao precisa mudar nada no template.
+ */
+.tuc-prose__block { position: relative; }
+
+.tuc-copy {
+  @apply absolute grid size-7 cursor-pointer place-items-center p-0;
+  top: 0.5rem;
+  right: 0.5rem;
+  color: var(--tuc-muted);
+  background: var(--tuc-bg);
+  border: var(--tuc-border-width) solid var(--tuc-border);
+  border-radius: var(--tuc-radius-xs);
+  opacity: 0;
+  transition:
+    opacity var(--tuc-duration) var(--tuc-ease),
+    color var(--tuc-duration) var(--tuc-ease);
+}
+
+/*
+ * Aparece no hover do bloco — e no foco, senao quem navega por teclado teria
+ * um botao alcancavel pelo Tab e invisivel na tela.
+ */
+.tuc-prose__block:hover .tuc-copy,
+.tuc-copy:focus-visible { opacity: 1; }
+.tuc-copy:hover { color: var(--tuc-fg); background: var(--tuc-hover); }
+.tuc-copy:focus-visible { outline: 2px solid var(--tuc-ring); outline-offset: 2px; }
+
+/* No toque nao existe hover: ali ele fica sempre visivel, mais discreto. */
+@media (hover: none) {
+  .tuc-copy { opacity: 0.6; }
+}
+
+/* O certo troca de lugar com a folha, sem mexer no tamanho do botao. */
+.tuc-copy__ok { display: none; }
+.tuc-copy.is-copied { color: var(--tuc-success); border-color: var(--tuc-success); opacity: 1; }
+.tuc-copy.is-copied > :first-child { display: none; }
+.tuc-copy.is-copied .tuc-copy__ok { display: block; }
+
+@media (prefers-reduced-motion: reduce) {
+  .tuc-copy { transition: none; }
+}

@@ -1,4 +1,4 @@
-import { escapeHtml } from './dom.js';
+import { el, escapeHtml, icon, on } from './dom.js';
 /*
  * Destaque de codigo, generico.
  *
@@ -40,7 +40,7 @@ const WORDS = [
  * dentro de aspas seria pintada como palavra-chave.
  */
 const RULES = [
-  ['coment', /(&lt;!--[\s\S]*?--&gt;|\/\*[\s\S]*?\*\/|\/\/[^\n]*|#[^\n]*)/],
+  ['comment', /(&lt;!--[\s\S]*?--&gt;|\/\*[\s\S]*?\*\/|\/\/[^\n]*|#[^\n]*)/],
   ['text',  /("(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*'|`(?:[^`\\]|\\.)*`)/],
   ['tmpl',   /(\{%[\s\S]*?%\}|\{\{[\s\S]*?\}\})/],
   ['tag',    /(&lt;\/?[a-zA-Z][\w-]*)/],
@@ -50,7 +50,7 @@ const RULES = [
    * As palavras entram na mesma expressao, e nao numa segunda passada.
    *
    * Separadas, elas eram procuradas de novo no HTML que a primeira passada
-   * acabara de gerar — e `class` esta na list, entao a palavra era encontrada
+   * acabara de gerar — e `class` esta na lista, entao a palavra era encontrada
    * dentro do atributo `class="tuc-tok-attr"` e envolvida outra vez. O
    * resultado era marcacao aninhada quebrada, que o navegador mostrava como
    * text solto no meio do codigo.
@@ -66,22 +66,71 @@ export function highlight(code) {
   return text.replace(COMBINADA, (todo, ...grupos) => {
     const i = grupos.findIndex((g) => g !== undefined);
     const className = RULES[i]?.[0];
-    return className ? `<span class="tuc-tok-${className}tuc-tok-${className}tuc-tok-${className}tuc-tok-${className}tuc-tok-${className}tuc-tok-${className}tuc-tok-${className}tuc-tok-${className}">${todo}</span>` : todo;
+    return className ? `<span class="tuc-tok-${className}">${todo}</span>` : todo;
   });
 }
 
 /**
- * Pinta os blocks de code do content ja published.
+ * Pinta os blocos de codigo do conteudo ja publicado.
  *
- * O que foi salvo e text pure inside de <pre><code>, porque color nao e
- * content. Aqui ela e reposta na time de show — e so aqui, do side de quem
- * le. Roda sozinho pelo init(), inclusive no que chegar after por HTMX.
+ * O que foi salvo e texto puro dentro de <pre><code>, porque cor nao e
+ * conteudo. Aqui ela e reposta na hora de exibir — e so do lado de quem le.
+ * Roda sozinho pelo init(), inclusive no que chegar depois por HTMX.
  */
 export function autoInit(scope = document) {
   const blocks = [...scope.querySelectorAll('.tuc-prose pre > code:not([data-tuc-painted])')];
   for (const code of blocks) {
     code.setAttribute('data-tuc-painted', '');
     code.innerHTML = highlight(code.textContent);
+    addCopy(code.parentElement);
   }
   return blocks;
+}
+
+const ICON_COPY = 'M20 9h-9a2 2 0 00-2 2v9a2 2 0 002 2h9a2 2 0 002-2v-9a2 2 0 00-2-2zM5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1';
+const ICON_OK = 'M20 6L9 17l-5-5';
+
+/*
+ * Botao de copiar no bloco de codigo.
+ *
+ * O texto sai do `textContent`, e nao do HTML: assim vai o codigo cru, sem as
+ * marcacoes de cor que acabamos de inserir.
+ *
+ * Ele so aparece no hover e no foco. Um botao permanente em cada bloco compete
+ * com o codigo, que e o que a pessoa veio ler — mas quem navega por teclado
+ * precisa alcanca-lo, entao ele continua no fluxo do Tab, apenas transparente.
+ *
+ * A area de transferencia exige contexto seguro; fora dele o retorno e
+ * selecionar o bloco, que deixa o Ctrl+C a um toque.
+ */
+function addCopy(pre) {
+  if (!pre || pre.querySelector('.tuc-copy')) return;
+  pre.classList.add('tuc-prose__block');
+
+  const btn = el('button', {
+    type: 'button', class: 'tuc-copy', 'aria-label': 'Copiar código',
+  }, [icon(ICON_COPY, 14), icon(ICON_OK, 14)]);
+  btn.children[1].classList.add('tuc-copy__ok');
+
+  on(btn, 'click', async () => {
+    const texto = pre.querySelector('code')?.textContent ?? pre.textContent;
+    try {
+      await navigator.clipboard.writeText(texto.trim());
+    } catch {
+      const sel = getSelection();
+      sel.removeAllRanges();
+      const r = document.createRange();
+      r.selectNodeContents(pre);
+      sel.addRange(r);
+      return;
+    }
+    btn.classList.add('is-copied');
+    btn.setAttribute('aria-label', 'Copiado');
+    setTimeout(() => {
+      btn.classList.remove('is-copied');
+      btn.setAttribute('aria-label', 'Copiar código');
+    }, 1600);
+  });
+
+  pre.append(btn);
 }

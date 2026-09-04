@@ -26,7 +26,7 @@ Sem React, sem Vue, sem dependência em runtime.
 | `.tuc-badge` — etiqueta de estado, quatro tons, só classe | pronto |
 | `.tuc-check` — caixa de seleção desenhada, sem `accent-color` | pronto |
 | `Editor` — editor de texto com tabela e bloco de código | pronto |
-| `.tuc-prose` — exibição do que o editor salvou | pronto |
+| `.tuc-prose` — exibição do que o editor salvou, com destaque e copiar | pronto |
 | `.tuc-btn` — estilo de botão, só classe | pronto |
 
 ---

@@ -251,6 +251,15 @@ fonte em campo digitavel, senao o iOS da zoom ao focar. Componente novo com
 campo ou botao precisa entrar em tools/conferir.mjs e na lista do
 @media (max-width: 40rem) em src/styles/core/tokens.css.
 
+## Exibir o que o editor salvou (.tuc-prose)
+
+    <div class="tuc-prose">{{ obj.descricao|safe }}</div>
+
+O init() pinta os blocos <pre><code> e poe um botao de copiar em cada um — o
+botao aparece no hover e no foco, e copia o texto cru, sem as marcacoes de cor.
+Sanitize no servidor antes do |safe: a peneira do editor protege o editor, nao
+a publicacao.
+
 ## Utilitarios (Tucano.mask, Tucano.dates, Tucano.color)
 
 Os modulos internos saem prontos como API publica. Nao sao sobra de codigo: sao

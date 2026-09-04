@@ -5049,7 +5049,7 @@ var Tucano = (() => {
     "let"
   ].join("|");
   var RULES = [
-    ["coment", /(&lt;!--[\s\S]*?--&gt;|\/\*[\s\S]*?\*\/|\/\/[^\n]*|#[^\n]*)/],
+    ["comment", /(&lt;!--[\s\S]*?--&gt;|\/\*[\s\S]*?\*\/|\/\/[^\n]*|#[^\n]*)/],
     ["text", /("(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*'|`(?:[^`\\]|\\.)*`)/],
     ["tmpl", /(\{%[\s\S]*?%\}|\{\{[\s\S]*?\}\})/],
     ["tag", /(&lt;\/?[a-zA-Z][\w-]*)/],
@@ -5059,7 +5059,7 @@ var Tucano = (() => {
      * As palavras entram na mesma expressao, e nao numa segunda passada.
      *
      * Separadas, elas eram procuradas de novo no HTML que a primeira passada
-     * acabara de gerar — e `class` esta na list, entao a palavra era encontrada
+     * acabara de gerar — e `class` esta na lista, entao a palavra era encontrada
      * dentro do atributo `class="tuc-tok-attr"` e envolvida outra vez. O
      * resultado era marcacao aninhada quebrada, que o navegador mostrava como
      * text solto no meio do codigo.
@@ -5072,7 +5072,7 @@ var Tucano = (() => {
     return text.replace(COMBINADA, (todo, ...grupos) => {
       const i = grupos.findIndex((g) => g !== void 0);
       const className = RULES[i]?.[0];
-      return className ? `<span class="tuc-tok-${className}tuc-tok-${className}tuc-tok-${className}tuc-tok-${className}tuc-tok-${className}tuc-tok-${className}tuc-tok-${className}tuc-tok-${className}">${todo}</span>` : todo;
+      return className ? `<span class="tuc-tok-${className}">${todo}</span>` : todo;
     });
   }
   function autoInit14(scope = document) {
@@ -5080,8 +5080,41 @@ var Tucano = (() => {
     for (const code of blocks) {
       code.setAttribute("data-tuc-painted", "");
       code.innerHTML = highlight(code.textContent);
+      addCopy(code.parentElement);
     }
     return blocks;
+  }
+  var ICON_COPY = "M20 9h-9a2 2 0 00-2 2v9a2 2 0 002 2h9a2 2 0 002-2v-9a2 2 0 00-2-2zM5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1";
+  var ICON_OK = "M20 6L9 17l-5-5";
+  function addCopy(pre) {
+    if (!pre || pre.querySelector(".tuc-copy")) return;
+    pre.classList.add("tuc-prose__block");
+    const btn = el("button", {
+      type: "button",
+      class: "tuc-copy",
+      "aria-label": "Copiar c\xF3digo"
+    }, [icon(ICON_COPY, 14), icon(ICON_OK, 14)]);
+    btn.children[1].classList.add("tuc-copy__ok");
+    on(btn, "click", async () => {
+      const texto = pre.querySelector("code")?.textContent ?? pre.textContent;
+      try {
+        await navigator.clipboard.writeText(texto.trim());
+      } catch {
+        const sel = getSelection();
+        sel.removeAllRanges();
+        const r = document.createRange();
+        r.selectNodeContents(pre);
+        sel.addRange(r);
+        return;
+      }
+      btn.classList.add("is-copied");
+      btn.setAttribute("aria-label", "Copiado");
+      setTimeout(() => {
+        btn.classList.remove("is-copied");
+        btn.setAttribute("aria-label", "Copiar c\xF3digo");
+      }, 1600);
+    });
+    pre.append(btn);
   }
 
   // src/js/components/editor.js

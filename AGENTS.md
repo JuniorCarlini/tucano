@@ -383,6 +383,18 @@ not found" e a sonda devolve zero byte — o que parece defeito do produto e é
 defeito do comando. Se um `--dump-dom` voltar vazio, confira primeiro se o
 Chrome chegou a rodar.
 
+**O destacador emitia uma classe multiplicada por oito.** O template do span
+tinha virado `class="tuc-tok-${n}tuc-tok-${n}…"` — uma classe única que não casa
+com regra nenhuma, então o código saía sem cor e nada acusava: os `<span>`
+estavam lá, o CSS estava lá, e mesmo assim tudo cinza. Ao mexer em template
+literal por regex, confira o HTML gerado, não só o build. E o nome da regra tem
+de casar com a classe: `'coment'` gerava `.tuc-tok-coment`, que não existe.
+
+**Cada seletor de uma lista carrega o próprio escopo.** No bloco escuro da
+paleta de sintaxe, `.tuc-prose` estava sem o `:where(.dark …)` na frente — então
+a paleta escura valia nos dois temas, verde-claro sobre fundo claro. Vírgula não
+distribui prefixo.
+
 ## Antes de dizer que está pronto
 
 ```bash
