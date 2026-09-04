@@ -174,6 +174,22 @@ devolve o estado inicial — no dropdown isso aparecia como 4px de recuo lateral
 da entrada. Para conferir geometria final, desligue a transição no probe
 (`.tuc-dropdown { transition: none !important }`) e leia o retângulo.
 
+**`[hidden]` perde para o `display` do `@apply`.** Já aconteceu três vezes —
+duas no editor, uma no dropdown. A regra do navegador para `[hidden]` é da
+origem do agente e qualquer `display` de autor a vence, então um painel com
+`@apply flex` marcado como `hidden` fica invisível mas continua ocupando a
+linha, empurrando o que vem depois. Componente que documenta `hidden` no
+template precisa declarar `.tuc-x[hidden] { display: none; }` junto.
+
+**Painel que abre no foco tem de fechar quando o foco sai.** Sem isso, andar de
+Tab pela página ia abrindo painel atrás de painel e nenhum fechava: o único
+jeito era clicar fora ou apertar Escape. Está no Popover, atrás de
+`fecharAoSairFoco`, e é opcional de propósito — o tooltip aparece no hover com o
+foco em outro lugar e fecharia no primeiro Tab mesmo com o ponteiro em cima. Use
+`focusin` no documento, nunca `focusout` na âncora: o `relatedTarget` do
+focusout vem `null` no Safari e no Firefox quando o clique cai num botão do
+painel, e aí o painel se fecha sozinho no meio do uso.
+
 ## Antes de dizer que está pronto
 
 ```bash

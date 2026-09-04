@@ -334,6 +334,7 @@ var Popover = class {
     this.appendTo = options.appendTo || document.body;
     this.matchWidth = options.matchWidth || false;
     this.fecharSeSolto = options.fecharSeSolto || false;
+    this.fecharAoSairFoco = options.fecharAoSairFoco || false;
     this.onDismiss = options.onDismiss || (() => {
     });
     this.open = false;
@@ -366,6 +367,12 @@ var Popover = class {
         }
       }, true)
     );
+    if (this.fecharAoSairFoco) {
+      this._cleanups.push(on(document, "focusin", (e) => {
+        if (this.panel.contains(e.target) || this.anchor.contains(e.target)) return;
+        this.onDismiss("foco");
+      }, true));
+    }
     if (typeof ResizeObserver !== "undefined") {
       this._ro = new ResizeObserver(this._reposition);
       this._ro.observe(this.panel);
@@ -598,6 +605,7 @@ var DatePicker = class {
     this.popover = new Popover(this.input, this.panel, {
       placement: this.opts.placement,
       appendTo: this.opts.appendTo || document.body,
+      fecharAoSairFoco: true,
       // Clique fora: nao devolvemos o foco, senao roubariamos de onde o usuario clicou.
       onDismiss: (reason) => this.close({ restoreFocus: reason === "escape" })
     });
@@ -1605,6 +1613,7 @@ var Select = class {
       placement: this.opts.placement,
       appendTo: this.opts.appendTo || document.body,
       matchWidth: true,
+      fecharAoSairFoco: true,
       onDismiss: () => this.close()
     });
     this.popover.show();
@@ -2280,6 +2289,7 @@ var ColorPicker = class {
     this.popover = new Popover(this.field, this.panel, {
       placement: this.opts.placement,
       appendTo: this.opts.appendTo || document.body,
+      fecharAoSairFoco: true,
       onDismiss: () => this.close()
     });
     this.popover.show();
@@ -4393,6 +4403,7 @@ var Dropdown = class {
       placement: this.opts.placement,
       offset: 6,
       fecharSeSolto: true,
+      fecharAoSairFoco: true,
       onDismiss: () => this.fechar()
     });
     this.popover.show();

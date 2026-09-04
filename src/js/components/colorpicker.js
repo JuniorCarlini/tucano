@@ -73,6 +73,7 @@ export class ColorPicker {
     this.popover = new Popover(this.field, this.panel, {
       placement: this.opts.placement,
       appendTo: this.opts.appendTo || document.body,
+      fecharAoSairFoco: true,
       onDismiss: () => this.close(),
     });
     this.popover.show();

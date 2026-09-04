@@ -114,6 +114,7 @@ export class Select {
       placement: this.opts.placement,
       appendTo: this.opts.appendTo || document.body,
       matchWidth: true,
+      fecharAoSairFoco: true,
       onDismiss: () => this.close(),
     });
     this.popover.show();

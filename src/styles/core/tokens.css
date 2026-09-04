@@ -10,6 +10,7 @@
  * nao resolve e a borda desenhada em input.css cai fora — o campo nasceria sem
  * contorno ate o script rodar.
  */
+[data-tuc-color]:not([data-tuc-ready]),
 [data-tuc-datepicker]:not([data-tuc-ready]),
 [data-tuc-mask]:not([data-tuc-ready]),
 [data-tuc-reveal]:not([data-tuc-ready]),
@@ -184,6 +185,7 @@
  * e pegam a regra por ela.
  */
 @media (max-width: 40rem) {
+  [data-tuc-color]:not([data-tuc-ready]),
   [data-tuc-datepicker]:not([data-tuc-ready]),
   [data-tuc-mask]:not([data-tuc-ready]),
   [data-tuc-reveal]:not([data-tuc-ready]),

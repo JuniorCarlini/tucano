@@ -89,7 +89,8 @@ textarea.tuc-input.tuc-input:disabled {
  * bloquear a analise do HTML, e a pagina inteira demoraria mais para aparecer
  * para poupar um pisca de milissegundos.
  */
-input[data-tuc-datepicker]:not([data-tuc-ready]),
+input[data-tuc-color]:not([data-tuc-ready]),
+[data-tuc-datepicker]:not([data-tuc-ready]),
 input[data-tuc-mask]:not([data-tuc-ready]),
 input[data-tuc-reveal]:not([data-tuc-ready]),
 select[data-tuc-select]:not([data-tuc-ready]),

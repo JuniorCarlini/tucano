@@ -129,6 +129,7 @@ export class Dropdown {
       placement: this.opts.placement,
       offset: 6,
       fecharSeSolto: true,
+      fecharAoSairFoco: true,
       onDismiss: () => this.fechar(),
     });
     this.popover.show();

@@ -26,6 +26,7 @@ export class Popover {
      * encosta na borda.
      */
     this.fecharSeSolto = options.fecharSeSolto || false;
+    this.fecharAoSairFoco = options.fecharAoSairFoco || false;
     this.onDismiss = options.onDismiss || (() => {});
     this.open = false;
     this._cleanups = [];
@@ -67,6 +68,30 @@ export class Popover {
         if (e.key === 'Escape') { e.stopPropagation(); this.onDismiss('escape'); }
       }, true),
     );
+
+    /*
+     * Fechar quando o foco vai para fora.
+     *
+     * Sem isto, andar de Tab pela pagina ia abrindo painel atras de painel e
+     * nenhum fechava: o campo abre no foco, e o unico jeito de fechar era
+     * clicar fora ou apertar Escape. Quem navega por teclado terminava com a
+     * tela coberta de menus abertos.
+     *
+     * Ouvimos `focusin` no documento, e nao `focusout` na ancora: o
+     * relatedTarget do focusout vem null no Safari e no Firefox quando o clique
+     * cai num botao do painel, e ai o painel se fecharia sozinho no meio do
+     * uso. Perguntar onde o foco chegou e sempre confiavel.
+     *
+     * Fica opcional porque nem todo painel quer isso: o tooltip aparece no
+     * hover com o foco em outro lugar, e fecharia no primeiro Tab mesmo com o
+     * ponteiro parado em cima dele.
+     */
+    if (this.fecharAoSairFoco) {
+      this._cleanups.push(on(document, 'focusin', (e) => {
+        if (this.panel.contains(e.target) || this.anchor.contains(e.target)) return;
+        this.onDismiss('foco');
+      }, true));
+    }
 
     if (typeof ResizeObserver !== 'undefined') {
       this._ro = new ResizeObserver(this._reposition);

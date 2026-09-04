@@ -26,6 +26,13 @@
     translate var(--tuc-duration) var(--tuc-ease);
   transform-origin: top center;
 }
+/*
+ * O painel escrito no template nasce com [hidden], e o atributo sozinho nao da
+ * conta: o display: flex daqui e regra de autor e vence a do navegador, entao o
+ * menu ocuparia a largura dele na linha, invisivel, empurrando o que vem depois.
+ */
+.tuc-dropdown[hidden] { display: none; }
+
 .tuc-dropdown[data-side='top'] { translate: 0 0.5rem; transform-origin: bottom center; }
 .tuc-dropdown.is-open { opacity: 1; scale: 1; translate: 0 0; }
 .tuc-dropdown.is-closing { opacity: 0; scale: 0.95; }

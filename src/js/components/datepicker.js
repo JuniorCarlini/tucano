@@ -125,6 +125,7 @@ export class DatePicker {
     this.popover = new Popover(this.input, this.panel, {
       placement: this.opts.placement,
       appendTo: this.opts.appendTo || document.body,
+      fecharAoSairFoco: true,
       // Clique fora: nao devolvemos o foco, senao roubariamos de onde o usuario clicou.
       onDismiss: (reason) => this.close({ restoreFocus: reason === 'escape' }),
     });
