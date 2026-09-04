@@ -1,9 +1,13 @@
 # Tucano
 
-> Componentes de formulario e interface para a web, sem dependencias em runtime.
+> Componentes de formulário e interface para a web, feitos para Django e HTMX.
 > JavaScript puro, sem dependências em runtime. 36 KB JS + 11 KB CSS (gzip).
 > Os estilos são escritos em Tailwind mas distribuídos já compilados: o projeto
 > que consome não precisa de build e não recebe o preflight do Tailwind.
+>
+> Toda a API é em inglês — nomes de classe, métodos, opções, valores, classes
+> CSS e atributos. Os comentários do código-fonte e os textos de interface são
+> em português, porque é o que o usuário final lê.
 
 Documentação: https://juniorcarlini.github.io/tucano/
 Código: https://github.com/JuniorCarlini/tucano
@@ -302,6 +306,28 @@ chega em request.POST.getlist('selected').
 Tons: is-success, is-warning, is-danger, is-info; sem tom fica neutra.
 is-plain tira o ponto. Vale fora da tabela tambem.
 
+## Paginacao
+
+    <div data-tuc-pagination
+         data-page="{{ page_obj.number }}"
+         data-pages="{{ page_obj.paginator.num_pages }}"></div>
+
+data-param (padrao "page"), data-around, data-edges, data-prev-text,
+data-next-text. Alinhamento: is-center, is-end.
+
+Os itens sao .tuc-btn — os mesmos botoes do resto da biblioteca — e sao <a> com
+href real, preservando o resto da query string: filtro, busca e ordem sobrevivem
+a troca de pagina. Quem intercepta passa onChange. Ponta inativa e <span>, nao
+<a> sem href, para sair do caminho do Tab. Com uma pagina so, nada e renderizado.
+
+## Caixa de selecao
+
+    <input type="checkbox" class="tuc-check">
+
+Desenhada, nao accent-color (que entrega o azul do sistema e nao tem o raio dos
+campos). Continua sendo <input> de verdade: valor, name e estado misto sao os
+nativos. E a que a tabela usa na selecao em massa.
+
 ## Menu suspenso (dropdown)
 
 Sobre o mesmo popover do tooltip: vira de lado quando nao cabe, fecha no clique
@@ -432,7 +458,14 @@ O que chega no servidor:
     new Tucano.ColorPicker('#cor', { format: 'rgb' });
 
 Métodos: getValue, setValue, clear, open, close, destroy. Select tem refresh.
-ColorPicker tem getRgb.
+ColorPicker tem getRgb. Modal, Drawer e Dropdown tem open, close, toggle;
+Modal e Drawer tem content(no). Table tem sort, getSelected, clearSelection.
+Pagination tem setPage. Toast tem update e close.
+
+Atalhos: Tucano.modal(), Tucano.confirm(), Tucano.drawer(), Tucano.toast(),
+Tucano.pagination(), Tucano.sanitize(), Tucano.highlight(), Tucano.init(no).
+
+Eventos proprios: tucano:change (campos), tuc:sort e tuc:select (tabela).
 
 ## Tema
 
@@ -444,14 +477,22 @@ Cor: --tuc-accent, --tuc-accent-hover, --tuc-accent-fg, --tuc-accent-soft,
 --tuc-border, --tuc-hover, --tuc-elevated
 Forma: --tuc-radius, --tuc-radius-md, --tuc-radius-sm, --tuc-radius-xs,
 --tuc-border-width, --tuc-control-height, --tuc-cell, --tuc-text, --tuc-font
-Profundidade: --tuc-shadow, --tuc-ring, --tuc-duration, --tuc-ease
+Tons: --tuc-success, --tuc-warning, --tuc-danger e os -soft, usados pelo toast
+e pela etiqueta de estado. --tuc-danger-fill e separado: no escuro o vermelho de
+texto e mais claro para ter contraste, e um botao pintado com ele ficaria
+pastel — o preenchimento e o mesmo nos dois temas.
+Profundidade: --tuc-shadow, --tuc-ring, --tuc-duration, --tuc-duration-lg,
+--tuc-duration-out, --tuc-ease, --tuc-ease-in
 
-Sobrescreva sem recompilar:
+Os tokens vivem em :root. Sobrescreva sem recompilar:
 
-    .tuc-dp, .tuc-select, .tuc-select__menu, .tuc-color-field, .tuc-colorpicker {
+    :root {
       --tuc-accent: #0d9488;
       --tuc-radius: 1rem;
     }
+
+Como sao variaveis, o escopo e seu: em :root valem para a pagina inteira,
+declaradas num container valem so ali dentro.
 
 Escuro segue a classe .dark no <html>. Para seguir o sistema operacional, use
 <html data-tuc-theme="auto"> — é opt-in, para o componente não escurecer sozinho
@@ -463,4 +504,15 @@ numa página clara.
   existem como atributo (disabledDates, presets customizados, onChange).
 - Não escreva date picker, select com busca ou color picker do zero.
 - Não remova o <select> nativo nem o name do input: é neles que o valor vive.
-- Não estilize as classes internas (.tuc-*) diretamente; use as variáveis CSS.
+- Não estilize as classes internas (.tuc-*) diretamente; use as variáveis CSS
+  em :root.
+- A API é toda em inglês: open/close/toggle, size, tone, side, items, actions;
+  valores como 'left', 'right', 'danger', 'success'. Não existe abrir(), tamanho
+  nem 'direita'.
+- Numa lista paginada, não ordene no cliente: o cabeçalho da tabela já é um <a>
+  para ?sort= e ?dir=, e a ordenação tem de entrar no order_by() antes do
+  Paginator. data-sort-mode="client" só para tabela pequena e sem paginação.
+- Chegar de Tab não abre painel — é a regra do <select> nativo e do ARIA APG.
+  Abrir é explícito: seta para baixo, Espaço, clique; Enter também no select.
+- No painel escrito no template (dropdown), o hidden é obrigatório: sem ele o
+  menu aparece no meio da página até o script rodar.

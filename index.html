@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tucano — componentes de formulário leves</title>
-<meta name="description" content="Componentes de formulário e interface para a web, sem dependências em runtime. Estilizados com Tailwind e distribuídos já compilados — o projeto que consome não precisa de build.">
+<title>Tucano — componentes de interface, sem dependências</title>
+<meta name="description" content="Componentes de formulário, listagem e diálogo para a web, sem dependências em runtime. Campo com máscara, calendário, select com busca, tabela ordenável, paginação, modal, editor de texto. Estilizados com Tailwind e distribuídos já compilados — o projeto que consome não precisa de build nem recebe o preflight.">
 <meta name="author" content="Junior Carlini">
 
 <!-- Endereço canônico: a página é servida por Pages e pelo CDN, e sem isto as
@@ -14,15 +14,15 @@
 <meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)">
 
-<!-- Para agentes: o llms.txt tem a API inteira em text puro, e é o que uma IA
+<!-- Para agentes: o llms.txt tem a API inteira em texto puro, e é o que uma IA
      deve ler em vez de tentar extrair direction do HTML desta página. -->
 <link rel="alternate" type="text/plain" href="llms.txt" title="Referência da API para agentes de IA">
 
 <!-- Cartão que aparece ao colar o link em WhatsApp, Slack, Twitter... -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Tucano">
-<meta property="og:title" content="Tucano — componentes de formulário leves">
-<meta property="og:description" content="Componentes de formulário e interface para a web. Sem dependências, funciona com HTML puro.">
+<meta property="og:title" content="Tucano — componentes de interface, sem dependências">
+<meta property="og:description" content="Formulário, listagem e diálogo para quem escreve HTML. Sem dependências em runtime, pronto para Django e HTMX.">
 <meta property="og:url" content="https://juniorcarlini.github.io/tucano/">
 <meta property="og:image" content="https://juniorcarlini.github.io/tucano/og.png">
 <meta property="og:image:width" content="1200">
@@ -31,29 +31,29 @@
 <meta property="og:locale" content="pt_BR">
 
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Tucano — componentes de formulário leves">
-<meta name="twitter:description" content="Componentes de formulário e interface para a web. Sem dependências, funciona com HTML puro.">
+<meta name="twitter:title" content="Tucano — componentes de interface, sem dependências">
+<meta name="twitter:description" content="Formulário, listagem e diálogo para quem escreve HTML. Sem dependências em runtime, pronto para Django e HTMX.">
 <meta name="twitter:image" content="https://juniorcarlini.github.io/tucano/og.png">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦜</text></svg>">
 <link rel="stylesheet" href="dist/tucano.css?v=0.30.1">
 
 <!--
   Dados estruturados. Servem a buscador e a model de linguagem pela mesma
-  razão: descrever o projeto sem depender de interpretar o text da página.
+  razão: descrever o projeto sem depender de interpretar o texto da página.
 -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "SoftwareSourceCode",
   "name": "Tucano",
-  "description": "Componentes de formulário e interface para a web, sem dependências em runtime. Date picker, select com busca, color picker, upload, máscaras, toast, tooltip, modal, gaveta, acordeão e editor de texto.",
+  "description": "Componentes de formulário, listagem e diálogo para a web, sem dependências em runtime. Date picker, select com busca, color picker, upload, máscara, toast, tooltip, modal, gaveta, acordeão, menu suspenso, tabela com ordenação e seleção em massa, paginação e editor de texto. Feito para Django e HTMX.",
   "url": "https://juniorcarlini.github.io/tucano/",
   "codeRepository": "https://github.com/JuniorCarlini/tucano",
   "programmingLanguage": ["JavaScript", "CSS"],
   "runtimePlatform": "Browser",
   "license": "https://opensource.org/licenses/MIT",
   "author": { "@type": "Person", "name": "Junior Carlini" },
-  "keywords": "date picker, select, color picker, upload, máscara, toast, tooltip, modal, off-canvas, acordeão, editor de texto, Django, HTMX, vanilla JavaScript, sem dependências",
+  "keywords": "date picker, select com busca, color picker, upload, máscara de CPF, toast, tooltip, modal, off-canvas, acordeão, menu suspenso, tabela, paginação, editor de texto, Django, HTMX, vanilla JavaScript, sem dependências",
   "isAccessibleForFree": true,
   "inLanguage": "pt-BR"
 }
@@ -100,7 +100,7 @@
   html.dark .i-sun{display:block}
   html.dark .i-moon{display:none}
 
-  /* ---------- navbar do mobile ---------- */
+  /* ---------- barra de navegação do celular ---------- */
   .topbar{display:none}
   .ver{
     display:inline-block;margin:6px 0 22px;padding:2px 7px;border-radius:5px;
@@ -301,7 +301,7 @@
 
 <section id="inicio" class="hero" style="padding-top:0">
   <h1>Tucano</h1>
-  <p>Componentes de formulário e interface para a web, para quem escreve HTML e não quer arrastar um framework junto.
+  <p>Formulário, listagem e diálogo para quem escreve HTML e não quer arrastar um framework junto.
      Sem dependências em runtime. Estilos escritos em Tailwind e distribuídos já compilados —
      o projeto que consome não precisa de build.</p>
   <div class="pills">
@@ -954,7 +954,7 @@ Tucano.toast({
      em vez de fechar um e abrir outro no lugar.</p>
 
   <pre><span class="c">// control manual: guarda a instância e vira o que precisar</span>
-<span class="t">const</span> t = Tucano.toast.loading(<span class="s">'Enviando file...'</span>);
+<span class="t">const</span> t = Tucano.toast.loading(<span class="s">'Enviando arquivo...'</span>);
 <span class="t">await</span> enviar();
 t.update({ type: <span class="s">'success'</span>, text: <span class="s">'Arquivo enviado'</span> });
 
@@ -1789,8 +1789,10 @@ color         = #4f46e5</pre>
 <section id="tema">
   <h2>Tema</h2>
   <p class="lead">Cor, raio, espessura de borda, altura de campo, fonte e movimento passam
-     por variável CSS. Trocar o visual é sobrescrever variável — não precisa recompilar nada,
-     e vale igual dentro e fora do calendário.</p>
+     por variável CSS, e todas vivem em <code>:root</code>. Trocar o visual é sobrescrever
+     variável — não precisa recompilar nada. Como são variáveis, o escopo é seu: em
+     <code>:root</code> valem para a página inteira, e declaradas num contêiner valem só ali
+     dentro, útil para um painel com cor própria.</p>
 
   <div class="card" style="margin-bottom:20px">
     <span class="lbl">Experimente trocar a cor de destaque desta página</span>
@@ -1804,14 +1806,14 @@ color         = #4f46e5</pre>
     </div>
   </div>
 
-  <pre><span class="c">/* Vale para os três componentes de uma vez. */</span>
-<span class="t">.tuc-dp</span>, <span class="t">.tuc-select</span>, <span class="t">.tuc-select__menu</span>, <span class="t">.tuc-color-field</span>, <span class="t">.tuc-colorpicker</span> {
-  <span class="a">--tuc-accent</span>: <span class="s">#0d9488</span>;        <span class="c">/* color da seleção */</span>
+  <pre><span class="c">/* Os tokens vivem em :root: vale para todos os componentes de uma vez. */</span>
+<span class="t">:root</span> {
+  <span class="a">--tuc-accent</span>: <span class="s">#0d9488</span>;        <span class="c">/* cor da seleção */</span>
   <span class="a">--tuc-radius</span>: <span class="s">1.25rem</span>;       <span class="c">/* cantos mais redondos */</span>
   <span class="a">--tuc-border-width</span>: <span class="s">2px</span>;     <span class="c">/* borda mais grossa */</span>
   <span class="a">--tuc-control-height</span>: <span class="s">3rem</span>;  <span class="c">/* campos mais altos */</span>
   <span class="a">--tuc-cell</span>: <span class="s">2.75rem</span>;         <span class="c">/* dias maiores */</span>
-  <span class="a">--tuc-text</span>: <span class="s">0.9rem</span>;          <span class="c">/* fontSize */</span>
+  <span class="a">--tuc-text</span>: <span class="s">0.9rem</span>;          <span class="c">/* tamanho do texto */</span>
 }</pre>
 
   <table>
@@ -1829,6 +1831,13 @@ color         = #4f46e5</pre>
     <tr><td><code>--tuc-border</code></td><td><code>#e5e5e5</code></td><td>Cor das linhas e bordas</td></tr>
     <tr><td><code>--tuc-hover</code></td><td><code>#f5f5f5</code></td><td>Fundo sob o cursor</td></tr>
     <tr><td><code>--tuc-elevated</code></td><td><code>#fafafa</code></td><td>Fundo de blocos internos</td></tr>
+
+    <tr><td colspan="3" style="padding-top:14px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--subtle);border:0">Tons</td></tr>
+    <tr><td><code>--tuc-success</code></td><td><code>#16a34a</code></td><td>Toast de sucesso, etiqueta aprovada</td></tr>
+    <tr><td><code>--tuc-warning</code></td><td><code>#d97706</code></td><td>Toast de aviso, etiqueta em análise</td></tr>
+    <tr><td><code>--tuc-danger</code></td><td><code>#dc2626</code></td><td>Toast de erro, etiqueta e texto de perigo</td></tr>
+    <tr><td><code>--tuc-danger-fill</code></td><td><code>#dc2626</code></td><td>Botão de perigo — igual nos dois temas, para não ficar pastel no escuro</td></tr>
+    <tr><td><code>--tuc-success-soft</code></td><td>12% do tom</td><td>Fundo da etiqueta; existe também para aviso e perigo</td></tr>
 
     <tr><td colspan="3" style="padding-top:14px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--subtle);border:0">Forma e tamanho</td></tr>
     <tr><td><code>--tuc-radius</code></td><td><code>0.875rem</code></td><td>Cantos dos painéis</td></tr>
@@ -1987,8 +1996,9 @@ Tucano.init(el);  <span class="c">// inicializa data-tuc-* num trecho novo de HT
      date picker do zero.</p>
 
   <pre><span class="c">## Interface e formulários
-Este projeto usa a Tucano. Não escreva do zero date picker, select com search,
-color picker, upload, máscara, toast, tooltip, modal, drawer nem acordeão.
+Este projeto usa a Tucano. Não escreva do zero date picker, select com busca,
+color picker, upload, máscara, toast, tooltip, modal, gaveta, acordeão, menu
+suspenso, tabela, paginação nem editor de texto.
 Referência completa: https://juniorcarlini.github.io/tucano/llms.txt
 
 &lt;input <span class="a">data-tuc-datepicker</span> <span class="a">data-mode</span>=<span class="s">"range"</span>&gt;
@@ -2001,7 +2011,7 @@ Tucano.toast.success(<span class="s">'Salvo'</span>);
 <span class="t">await</span> Tucano.confirm({ title: <span class="s">'Excluir?'</span> });
 Tucano.drawer({ title: <span class="s">'Filtros'</span>, side: <span class="s">'right'</span> });
 
-O elemento nativo continua owner do value: name, required e getlist() do Django
+O elemento nativo continua dono do valor: name, required e getlist() do Django
 seguem funcionando. Não substitua por estado só em JS.</pre>
 </section>
 

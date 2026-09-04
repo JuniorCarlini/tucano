@@ -23,6 +23,8 @@ Sem React, sem Vue, sem dependência em runtime.
 | `Table` — ordenação por coluna e seleção em massa | pronto |
 | `Pagination` — links de página, feita para o Paginator | pronto |
 | `.tuc-menu` — lista de navegação, só classe | pronto |
+| `.tuc-badge` — etiqueta de estado, quatro tons, só classe | pronto |
+| `.tuc-check` — caixa de seleção desenhada, sem `accent-color` | pronto |
 | `Editor` — editor de texto com tabela e bloco de código | pronto |
 | `.tuc-prose` — exibição do que o editor salvou | pronto |
 | `.tuc-btn` — estilo de botão, só classe | pronto |
@@ -340,11 +342,11 @@ O tipo `loading` não fecha sozinho: quem o encerra é o fim da operação. E el
 vira o resultado **no mesmo cartão**, em vez de fechar um e abrir outro:
 
 ```js
-const t = Tucano.toast.loading('Enviando file...');
+const t = Tucano.toast.loading('Enviando arquivo...');
 await enviar();
 t.update({ type: 'success', text: 'Arquivo enviado' });
 
-// ou entregue a promise e deixe os três estados por fieldRow dela
+// ou entregue a promessa e deixe os três estados por conta dela
 Tucano.toast.promise(fetch(url), {
   loading: 'Enviando file...',
   success: (r) => `Enviado (${r.status})`,
@@ -390,7 +392,7 @@ Armadilha de foco, devolução do foco e `Escape` vêm junto.
 Tucano.modal({
   title: 'Excluir contrato',
   text: 'Esta ação não pode ser desfeita.',
-  tone: 'danger',      // default | danger | success | warning — muda o brilho do backdrop
+  tone: 'danger',      // default | danger | success | warning — muda o brilho do fundo
   size: 'md',      // sm | md | lg | full
   sheet: true,        // no mobile sobe do rodapé
   actions: [
@@ -434,13 +436,6 @@ também escuta os swaps do HTMX.
 import 'tucano/auto';   // comporta-se como o script do CDN
 ```
 
-## Utilitários
-
-```js
-Tucano.sanitize(html)  // aplica a peneira de tags do editor
-Tucano.highlight(code) // devolve o código com markção de color
-Tucano.init(elemento)   // inicializa data-tuc-* num trecho novo de HTML
-```
 
 ## Acordeão
 
@@ -515,6 +510,12 @@ vazio, porque em modo com hora se digita `07/09/2026 14:30`.
 Para voltar ao comportamento antigo no date picker, `openOnFocus: true`.
 
 ## Utilitários
+
+```js
+Tucano.sanitize(html)   // aplica a peneira de tags do editor
+Tucano.highlight(code)  // devolve o código com marcação de cor
+Tucano.init(elemento)   // inicializa data-tuc-* num trecho novo de HTML
+```
 
 Os três módulos que os componentes usam por dentro também saem prontos, porque
 num CRUD eles resolvem o que sempre falta — validar um CPF na tela antes de
@@ -595,6 +596,56 @@ completa, sem paginação.
 A seleção é um formulário de verdade: cada linha ganha um
 `<input type="checkbox" name="selected" value="{{ data-id }}">`, então chega como
 `request.POST.getlist('selected')`.
+
+## Paginação
+
+```html
+<div data-tuc-pagination
+     data-page="{{ page_obj.number }}"
+     data-pages="{{ page_obj.paginator.num_pages }}"></div>
+```
+
+Atributos: `data-param` (o nome na query string, padrão `page`), `data-around` e
+`data-edges` para quantos números aparecem ao redor da atual e nas pontas,
+`data-prev-text`, `data-next-text`. Alinhamento com `is-center` ou `is-end`.
+
+Os itens são `.tuc-btn` — os mesmos botões do resto da biblioteca, não um
+segundo desenho — e são `<a>` com `href` de verdade. O link preserva o resto da
+query string, então filtro, busca e ordem não se perdem ao virar a página; e é
+isso que faz o botão do meio abrir em outra aba, o voltar do navegador
+funcionar e o buscador indexar. Quem precisa interceptar passa `onChange`.
+
+A ponta desativada é `<span>`, não `<a>` sem `href`, que continuaria no caminho
+do `Tab` sendo anunciado como link. Com uma página só, nada é renderizado.
+
+## Etiqueta de estado
+
+```html
+<span class="tuc-badge is-success">Aprovado</span>
+<span class="tuc-badge is-warning">Em análise</span>
+<span class="tuc-badge is-danger">Vencido</span>
+<span class="tuc-badge">Rascunho</span>
+```
+
+Nasceu para a coluna "situação" de uma tabela, mas não depende dela: vale em
+card, em lista, ao lado de um título. Tons: `is-success`, `is-warning`,
+`is-danger`, `is-info`; sem tom fica neutra, e `is-plain` tira o pontinho.
+
+O fundo é suave com texto forte, e não preenchido: numa lista de vinte linhas,
+vinte etiquetas sólidas competem com o conteúdo e a tabela vira um semáforo.
+
+## Caixa de seleção
+
+```html
+<input type="checkbox" class="tuc-check">
+```
+
+Desenhada, e não `accent-color` — essa entrega o azul do sistema, que muda entre
+macOS e Windows e nunca tem o raio do resto dos campos. Continua sendo um
+`<input>` de verdade: valor, `name` e estado misto são os nativos, e o leitor de
+tela ouve "caixa de seleção" como sempre. É a que a tabela usa na seleção em
+massa.
+
 
 ## Menu suspenso
 
@@ -801,9 +852,9 @@ qualquer campo com menos de 16px**, e a página inteira salta.
 O seletor do sistema (a roda do iOS, o diálogo do Android) é opt-in:
 
 ```js
-native: false     // padrão: o panel em todo lugar
-native: 'auto'    // selector do sistema where o ponteiro é de toque
-native: true      // sempre o selector do sistema
+native: false     // padrão: o painel em todo lugar
+native: 'auto'    // seletor do sistema onde o ponteiro é de toque
+native: true      // sempre o seletor do sistema
 ```
 
 Por atributo: `data-native="true"`.
@@ -843,17 +894,21 @@ class ReservaForm(forms.Form):
 
 ## Tema
 
-Toda cor, raio e sombra é variável CSS. Para mudar o visual, sobrescreva —
-não precisa recompilar:
+Toda cor, raio e sombra é variável CSS, e todas vivem em `:root`. Para mudar o
+visual, sobrescreva — não precisa recompilar:
 
 ```css
-.tuc-dp {
+:root {
   --tuc-accent: #0d9488;
   --tuc-accent-hover: #0f766e;
   --tuc-radius: 1rem;
-  --tuc-cell: 2.5rem;      /* size do dia */
+  --tuc-cell: 2.5rem;      /* tamanho do dia no calendário */
 }
 ```
+
+Como são variáveis, o escopo é seu: em `:root` valem para a página inteira, e
+declaradas num contêiner valem só ali dentro — útil para um painel com cor
+própria.
 
 Modo escuro segue a classe `.dark` no `<html>` (convenção do Tailwind). Para
 seguir o sistema operacional, use `<html data-tuc-theme="auto">` — é opt-in de
@@ -865,15 +920,21 @@ Variáveis, agrupadas:
 `--tuc-accent-soft`, `--tuc-accent-ring`, `--tuc-bg`, `--tuc-fg`,
 `--tuc-muted`, `--tuc-subtle`, `--tuc-border`, `--tuc-hover`, `--tuc-elevated`
 
+**Tons** — `--tuc-success`, `--tuc-warning`, `--tuc-danger` e seus `-soft`,
+usados pelo toast e pela etiqueta de estado. `--tuc-danger-fill` é separado de
+propósito: no tema escuro o vermelho de texto é mais claro para ter contraste, e
+um botão pintado com ele ficaria pastel — o preenchimento é o mesmo nos dois
+temas.
+
 **Forma e tamanho** — `--tuc-radius`, `--tuc-radius-md`, `--tuc-radius-sm`,
 `--tuc-radius-xs`, `--tuc-border-width`, `--tuc-control-height`, `--tuc-cell`,
-`--tuc-text`, `--tuc-font`
+`--tuc-swatch`, `--tuc-text`, `--tuc-font`
 
 **Profundidade e movimento** — `--tuc-shadow`, `--tuc-ring`, `--tuc-duration`,
-`--tuc-ease`
+`--tuc-duration-lg`, `--tuc-duration-out`, `--tuc-ease`, `--tuc-ease-in`
 
 Nenhum valor de cor, raio, borda ou altura está fixo no CSS dos componentes:
-todos saem dessas variáveis, dentro e fora do calendário.
+todos saem dessas variáveis.
 
 ---
 
