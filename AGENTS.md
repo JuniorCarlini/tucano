@@ -370,6 +370,19 @@ dígitos da lista numerada saíam como rabiscos em 15px. Renderize o mapa de
 à mão é trabalho que se esquece: a página tinha cinco campos com placeholder e
 um sem, justamente o de CPF/CNPJ. Só preenche o que o autor deixou vazio.
 
+**Na página de docs, a instância só existe depois do `DOMContentLoaded`.** O
+script da própria página roda durante o parse; o boot do Tucano espera o
+`DOMContentLoaded`. Ler `elemento._tucano` no meio do script devolve `undefined`,
+e um `if (inst)` protetor engole o problema em silêncio — foi assim que o
+cancelamento do clique na paginação da demonstração nunca chegou a ser
+registrado, e os links navegavam de verdade. Para amarrar comportamento na
+página, use delegação no documento, que não depende de ordem de inicialização.
+
+**`timeout` não existe no macOS.** `timeout 60 chrome ...` falha com "command
+not found" e a sonda devolve zero byte — o que parece defeito do produto e é
+defeito do comando. Se um `--dump-dom` voltar vazio, confira primeiro se o
+Chrome chegou a rodar.
+
 ## Antes de dizer que está pronto
 
 ```bash

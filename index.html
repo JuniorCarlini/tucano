@@ -2125,14 +2125,28 @@ seguem funcionando. Não substitua por estado só em JS.</pre>
   });
 
   /*
-   * As paginações da página são demonstração: sem onChange elas navegariam de
-   * verdade e o leitor perderia o lugar. Num projeto o padrão é o contrário —
-   * o link navega, e é isso que faz voltar, abrir em outra aba e indexar.
+   * As paginações desta página são demonstração: o link é de verdade, e sem
+   * isto clicar carregaria a própria página com ?page=N — a rolagem ia para o
+   * topo e o leitor perdia o lugar. Num projeto o padrão é o contrário: o link
+   * navega, e é isso que faz o voltar do navegador, o abrir em outra aba e a
+   * indexação funcionarem. Aqui só a página de demonstração cancela.
+   *
+   * É delegação no documento, e não `onChange` em cada instância, porque este
+   * script roda durante o parse e o Tucano só inicializa no DOMContentLoaded:
+   * a essa altura `_tucano` ainda é undefined, e a versão anterior pulava em
+   * silêncio pelo `if`.
    */
-  for (const id of ['demo-pag', 'demo-pag-2', 'demo-pag-3']) {
-    const p = document.getElementById(id)?._tucano;
-    if (p) p.opts.onChange = (page) => { p.setPage(page); };
-  }
+  document.addEventListener('click', (e) => {
+    const link = e.target.closest('.tuc-pagination a.tuc-btn');
+    if (!link) return;
+    e.preventDefault();
+    const inst = link.closest('.tuc-pagination')?.parentElement?._tucano;
+    if (!inst) return;
+    // O destino sai do próprio href: serve para os números e para as pontas.
+    const alvo = new URL(link.getAttribute('href'), location.href)
+      .searchParams.get(inst.opts.param);
+    if (alvo) inst.setPage(parseInt(alvo, 10));
+  });
 
   const lateral = document.getElementById('side');
   const menu = document.getElementById('menu');
