@@ -418,6 +418,20 @@ simplesmente some. A checagem é cruzar as três fontes — classes definidas no
 `<style>`, usadas no HTML e escritas pelo JS — e apontar as que só aparecem em
 uma delas.
 
+**A referência do `llms.txt` é gerada pelo build, não escrita à mão.**
+`tools/referencia.mjs` extrai do código o seletor, os `data-*`, todas as opções
+com o comentário que as explica, os métodos, os eventos, as classes e os tokens
+— e reescreve o bloco entre "Referencia completa" e "Ao gerar código". Antes
+dela, 40 opções, 8 métodos e 22 exports públicos não apareciam em lugar nenhum
+do arquivo que as IAs leem. Não edite esse bloco à mão: ele é sobrescrito no
+próximo build. Para mudar o que aparece, mude o extrator ou o comentário da
+opção no código-fonte.
+
+**Rodar o exemplo da documentação acha bug de documentação.** Ouvindo cada
+evento numa sonda, `e.target.name` veio vazio no date picker — ele move o `name`
+para um `<input type=hidden>` com o valor ISO, e o campo visível fica sem. Os
+três arquivos ensinavam `e.target.name` como se valesse para todos.
+
 ## Antes de dizer que está pronto
 
 ```bash

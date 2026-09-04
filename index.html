@@ -1917,7 +1917,7 @@ color         = #4f46e5</pre>
      controlar a ordem de inicialização.</p>
 
   <pre>document.addEventListener(<span class="s">'tucano:change'</span>, (e) =&gt; {
-  console.log(e.target.name, e.detail.value, e.detail.iso);
+  console.log(e.detail.value, e.detail.iso);
 });
 
 <span class="t">const</span> dp = <span class="t">new</span> Tucano.DatePicker(<span class="s">'#entrega'</span>, {

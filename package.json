@@ -63,7 +63,7 @@
     "build:js:min": "esbuild src/js/auto.js --bundle --format=iife --global-name=Tucano --minify --outfile=dist/tucano.min.js",
     "build:css": "tailwindcss -i src/styles/index.css -o dist/tucano.css",
     "build:css:min": "tailwindcss -i src/styles/index.css -o dist/tucano.min.css --minify",
-    "build": "npm run build:js && npm run build:js:min && npm run build:css && npm run build:css:min && node tools/carimbo.mjs",
+    "build": "npm run build:js && npm run build:js:min && npm run build:css && npm run build:css:min && node tools/referencia.mjs && node tools/carimbo.mjs",
     "conferir": "node tools/conferir.mjs",
     "dev": "npm run build && npx serve .",
     "serve": "npm run build && python3 -m http.server 4322 --bind 127.0.0.1",

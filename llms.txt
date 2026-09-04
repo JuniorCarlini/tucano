@@ -9,6 +9,11 @@
 > CSS e atributos. Os comentários do código-fonte e os textos de interface são
 > em português, porque é o que o usuário final lê.
 
+> Como este arquivo está organizado: primeiro uma seção por componente, com o
+> caminho declarativo (data-attributes) que é o normal num projeto Django;
+> depois a REFERÊNCIA COMPLETA, gerada do código a cada build — se uma opção não
+> está lá, ela não existe; no fim, as regras do que não fazer.
+
 Documentação: https://juniorcarlini.github.io/tucano/
 Código: https://github.com/JuniorCarlini/tucano
 Licença: MIT
@@ -461,7 +466,7 @@ O que chega no servidor:
 ## API
 
     document.addEventListener('tucano:change', (e) => {
-      e.target.name; e.detail.value; e.detail.iso;
+      e.detail.value; e.detail.iso;   // e.target.name so onde o campo tem name
     });
 
     new Tucano.DatePicker('#campo', { mode: 'range', time: true });
@@ -509,6 +514,300 @@ Escuro segue a classe .dark no <html>. Para seguir o sistema operacional, use
 <html data-tuc-theme="auto"> — é opt-in, para o componente não escurecer sozinho
 numa página clara.
 
+## Eventos
+
+Todos borbulham, então dá para ouvir no documento e pegar o que vier por HTMX.
+
+    document.addEventListener('tucano:change', (e) => {
+      e.detail.value;       // valor pronto para uso
+      e.detail.instance;    // a instancia, se precisar de mais
+      e.target.name;        // ver a ressalva do date picker abaixo
+    });
+
+O evento sai do elemento que guarda o valor. No select, na mascara e no upload
+esse elemento e o proprio campo com `name`, entao `e.target.name` funciona. No
+date picker, nao: ele move o `name` para um <input type=hidden> com o valor ISO
+(e o campo visivel fica sem name, para o servidor receber ISO e nao o texto
+formatado). Ali use `e.detail.iso`, ou leia o hidden.
+
+    tucano:change   date picker  → { value, iso, instance }
+                    select       → { value, instance }        value e array em multiple
+                    mascara      → { value, raw, number, instance }
+                    upload       → { value, files, instance }
+    tuc:sort        tabela       → { column, field, direction }   direction: 'asc'|'desc'
+    tuc:select      tabela       → { selected, row }              selected: array de data-id
+    tucano:toast-closed  toast   → sem detail, disparado no proprio no do toast
+
+O `onChange` de cada componente recebe os mesmos dados: (value, detail).
+
+Para disparar um toast do servidor, o Django manda o cabecalho e o listenForEvents
+(ligado pelo init) cuida do resto — veja a secao Django.
+
+## Referencia completa (gerada pelo build)
+
+Inventario extraido do codigo a cada build. Se algo nao esta aqui, nao existe.
+
+### Accordion
+  marcacao   [data-tuc-accordion]
+  em JS      new Tucano.Accordion(alvo, opcoes)
+  atributos  data-single
+  opcoes
+    single             = false  — abrir um recolhe os outros
+  metodos    open close destroy
+
+### ColorPicker
+  marcacao   [data-tuc-color]
+  em JS      new Tucano.ColorPicker(alvo, opcoes)
+  atributos  data-alpha data-format data-placement data-swatches
+  opcoes
+    format             = 'hex'  — 'hex' | 'rgb' | 'hsl'
+    alpha              = true
+    swatches           = PALETTE  — false desliga
+    placement          = 'bottom-center'  — mesma regra do date picker: centralizado, preso na borda da tela…
+    appendTo           = undefined
+    onChange           = null
+  metodos    getValue getRgb setValue open close toggle destroy
+  eventos    tucano:change
+
+### DatePicker
+  marcacao   [data-tuc-datepicker]
+  em JS      new Tucano.DatePicker(alvo, opcoes)
+  atributos  data-format data-iso-name data-locale data-max data-min data-minute-step data-mode data-months data-native data-placement data-presets data-seconds data-time data-week-numbers
+  opcoes
+    mode               = 'single'  — 'single' | 'range'
+    time               = false  — true habilita seletor de hora
+    seconds            = false
+    minuteStep         = 5
+    locale             = undefined  — default: locale do documento/navegador
+    format             = undefined  — default: padrao numerico do locale
+    firstDayOfWeek     = undefined
+    months             = undefined  — default: 2 em range, 1 em single…
+    min                = null
+    max                = null
+    disabledDates      = null  — (date) => boolean
+    presets            = false  — atalhos de periodo (Hoje, Ultimos 7 dias...): opt-in…
+    autoApply          = undefined  — default: true sem hora, false com hora…
+    clearable          = true
+    weekNumbers        = false
+    placement          = 'bottom-center'  — centralizado no campo; as bordas da tela ainda mandam…
+    appendTo           = undefined
+    isoName            = undefined  — name do input hidden com o valor ISO…
+    openOnFocus        = false
+    native             = false
+    onChange           = null
+    onOpen             = null
+    onClose            = null
+  metodos    getValue setValue clear open close toggle destroy
+  eventos    tucano:change
+
+### Drawer
+  marcacao   dialog.tuc-drawer  ou  [data-tuc-drawer-close]  ou  [data-tuc-drawer]
+  em JS      new Tucano.Drawer(alvo, opcoes)   atalhos: Tucano.drawer()
+  atributos  data-backdrop data-closable data-tuc-drawer
+  opcoes
+    title              = null
+    text               = ''
+    side               = 'right'  — left | right | top | bottom…
+    size               = 'md'  — sm | md | lg — nas laterais, largura da coluna…
+    tone               = 'default'  — default | danger | success | warning…
+    closable           = true
+    closeOnBackdrop    = true
+    actions            = null
+    onClose            = null
+    className          = ''
+  metodos    open close content
+
+### Dropdown
+  marcacao   [data-tuc-dropdown]
+  em JS      new Tucano.Dropdown(alvo, opcoes)
+  atributos  data-placement data-tuc-dropdown
+  opcoes
+    placement          = 'bottom-start'
+    items              = null  — [{ text, icon, shortcut, onClick, href, variant, disabled }]
+    closeOnPick        = true
+  metodos    open close toggle destroy
+
+### Editor
+  marcacao   [data-tuc-editor]
+  em JS      new Tucano.Editor(alvo, opcoes)
+  atributos  data-min-height data-placeholder
+  opcoes
+    toolbar            = ['bold', 'italic', 'underline', 'title', 'subheading'
+    table              = { rows: 3, cols: 3 }
+    minHeight          = '9rem'
+    placeholder        = ''
+  metodos    inTable apply getValue setValue destroy
+
+### Mask
+  marcacao   [data-tuc-mask], [data-tuc-reveal]  ou  [data-tuc-format]:not([data-tuc-formatted])
+  em JS      new Tucano.Mask(alvo, opcoes)   atalhos: Tucano.autoFormat()
+  atributos  data-currency data-decimals data-error-text data-reveal-mode data-reveal-visible data-tuc-format data-tuc-mask data-tuc-reveal data-validate data-value
+  opcoes
+    format             = null  — nome de FORMATOS ou gabarito livre
+    validate           = false  — valida no blur e bloqueia o submit…
+    decimals           = 2
+    currency           = null  — 'BRL' formata com R$
+    reveal             = false  — olhinho para mostrar e ocultar
+    revealVisible      = 2  — quantos caracteres ficam a mostra no modo 'fim'…
+    revealMode         = null  — 'fim' | 'email' | 'tudo'. null decide pelo campo…
+    locale             = undefined
+    errorText          = null
+    onChange           = null
+  metodos    getRaw getNumber setValue isValid destroy
+  eventos    tucano:change
+
+### Modal
+  marcacao   dialog.tuc-modal  ou  [data-tuc-modal-close]  ou  [data-tuc-modal]
+  em JS      new Tucano.Modal(alvo, opcoes)   atalhos: Tucano.modal(), Tucano.confirm()
+  atributos  data-backdrop data-closable data-tuc-modal
+  opcoes
+    title              = null
+    text               = ''
+    size               = 'md'  — sm | md | lg | full…
+    tone               = 'default'  — default | danger | success | warning…
+    sheet              = false  — no celular sobe do rodape em vez de surgir no centro…
+    closable           = true  — botao X e Escape
+    closeOnBackdrop    = true
+    actions            = null  — [{ texto, variante, onClick, fecha }]
+    onClose            = null
+    className          = ''
+  metodos    open close content
+
+### Pagination
+  marcacao   [data-tuc-pagination]
+  em JS      new Tucano.Pagination(alvo, opcoes)   atalhos: Tucano.pageWindow(), Tucano.pagination()
+  atributos  data-around data-edges data-next-text data-page data-pages data-param data-prev-text
+  opcoes
+    page               = 1
+    pages              = 1
+    param              = 'page'
+    around             = 1  — paginas visiveis de cada lado da atual…
+    edges              = 1  — paginas visiveis nas pontas
+    prevText           = 'Anterior'
+    nextText           = 'Próxima'
+    label              = 'Paginação'
+    onChange           = null
+  metodos    href render setPage destroy
+
+### Select
+  marcacao   select[data-tuc-select]
+  em JS      new Tucano.Select(alvo, opcoes)
+  atributos  data-cache data-clearable data-close-on-select data-debounce data-empty-text data-max-items data-min-chars data-page-param data-placeholder data-query-param data-search data-short-circuit data-url data-wrap-tags
+  opcoes
+    search             = undefined  — default: liga a partir de 6 opcoes…
+    searchMinItems     = 6
+    placeholder        = undefined  — default: do atributo ou "Selecione..."
+    searchPlaceholder  = 'Buscar...'
+    emptyText          = 'Nenhum resultado'
+    clearable          = true
+    maxItems           = null  — limite no modo multiplo
+    wrapTags           = false  — true deixa o campo crescer em varias linhas…
+    closeOnSelect      = undefined  — default: true em simples, false em multiplo…
+    placement          = 'bottom-start'
+    appendTo           = undefined
+    url                = null  — com url, a lista vem do servidor a cada digitacao…
+    loadOptions        = null  — (termo) => Promise<[{value,label,disabled,group}]>
+    queryParam         = 'q'
+    pageParam          = 'page'  — paginacao ao rolar; null desliga
+    minChars           = 1
+    debounce           = 300
+    cache              = true  — guarda o resultado de cada termo
+    cacheSize          = 60
+    shortCircuit       = false  — ver _semChance()
+    loadingText        = 'Buscando...'
+    errorText          = 'Falha ao buscar'
+    onChange           = null
+  metodos    getValue setValue clear refresh open close toggle destroy
+  eventos    tucano:change
+
+### Table
+  marcacao   table[data-tuc-table]
+  em JS      new Tucano.Table(alvo, opcoes)
+  atributos  data-dir-param data-select-name data-selectable data-sort-mode data-sort-param data-sortable
+  opcoes
+    sortable           = true
+    sortMode           = 'server'  — server | client
+    sortParam          = 'sort'
+    dirParam           = 'dir'
+    selectable         = false  — coluna de selecao em massa
+    selectName         = 'selected'
+    onSort             = null  — definido, intercepta o clique e cancela a navegacao…
+    onSelect           = null
+  metodos    sort getSelected clearSelection destroy
+  eventos    tuc:sort tuc:select
+
+### Toast
+  marcacao   [data-tuc-toast]
+  em JS      new Tucano.Toast(alvo, opcoes)   atalhos: Tucano.toast(), Tucano.listenForEvents()
+  atributos  data-duration data-position data-text data-title data-type
+  opcoes
+    type               = 'info'  — 'info' | 'success' | 'warning' | 'error' | 'loading'…
+    title              = null
+    text               = ''
+    duration           = undefined  — ms. null nao fecha sozinho. Padrao depende do tipo…
+    position           = 'bottom-end'  — top-start|top-center|top-end|bottom-start|bottom-center|bottom-end
+    closable           = true
+    action             = null  — { text, onClick }
+    max                = 4  — toasts simultaneos na mesma posicao
+  metodos    update close
+  eventos    tucano:toast-closed
+
+### Tooltip
+  marcacao   [data-tuc-tip]
+  em JS      new Tucano.Tooltip(alvo, opcoes)
+  atributos  data-delay data-placement data-tip-class data-tuc-tip
+  opcoes
+    text               = ''
+    placement          = 'top-center'
+    delay              = 350  — atraso ao apontar: evita piscar ao passar o mouse de raspao…
+    delayOut           = 120
+    maxWidth           = '16rem'
+    className          = ''  — classe extra no balao, para variar a cor num caso so…
+  metodos    setText destroy
+
+### Upload
+  marcacao   input[type=file][data-tuc-upload]
+  em JS      new Tucano.Upload(alvo, opcoes)
+  atributos  data-auto-upload data-csrf data-delete-url data-field-name data-max-files data-max-size data-response-id data-response-url data-url
+  opcoes
+    url                = null  — com url: upload direto. sem: os arquivos vao no submit…
+    method             = 'POST'
+    fieldName          = 'file'  — nome do campo no FormData do upload direto…
+    extraData          = {}  — campos extras enviados junto
+    headers            = {}
+    csrf               = true  — manda X-CSRFToken lido do cookie (Django)
+    responseId         = 'id'  — chave do id na resposta JSON
+    responseUrl        = 'url'  — chave da url na resposta JSON
+    deleteUrl          = null  — se definido, remover chama DELETE aqui
+    maxSize            = null  — '5mb' ou bytes
+    maxFiles           = null
+    autoUpload         = true  — no modo direto, comeca ao soltar
+    locale             = undefined
+    texts              = {}
+    onChange           = null
+    onError            = null
+  metodos    getFiles getValue uploadAll clear destroy
+  eventos    tucano:change
+
+### Entradas do pacote
+
+  Tucano.init(no)           inicializa todo data-tuc-* dentro de `no`
+  autoInitAccordions autoInitColorPickers autoInitDatePickers autoInitDrawers autoInitDropdowns autoInitEditors autoInitMasks autoInitModals autoInitPagination autoInitProse autoInitSelects autoInitTables autoInitToasts autoInitTooltips autoInitUploads
+    → um por componente, quando voce quer inicializar so um tipo
+  Accordion ColorPicker DatePicker Drawer Dropdown Editor FORMATS Mask Modal Pagination Popover Select Table Toast Tooltip Upload autoFormat confirm drawer highlight listenForEvents modal pageWindow pagination sanitize toast
+  Tucano.mask / .dates / .color   modulos utilitarios (ver secao Utilitarios)
+
+  FORMATS (mascaras prontas): cpf cnpj cnpj-numerico cpf-cnpj phone mobile cep date time card currency real
+
+### Classes CSS
+
+Escritas por voce no template (as com __ sao internas, montadas pelo JS):
+  tuc-accordion tuc-badge tuc-btn tuc-check tuc-color-field tuc-colorpicker tuc-copy tuc-dp tuc-drawer tuc-dropdown tuc-editor tuc-field tuc-input tuc-input-group tuc-invalid tuc-menu tuc-modal tuc-native tuc-native-wrap tuc-pagination tuc-prose tuc-select tuc-select-native tuc-table tuc-table-wrap tuc-tip tuc-toast tuc-toasts tuc-tok-attr tuc-tok-comment tuc-tok-key tuc-tok-num tuc-tok-tag tuc-tok-text tuc-tok-tmpl tuc-upload tuc-upload-native
+
+### Tokens
+
+  --tuc-accent --tuc-accent-fg --tuc-accent-hover --tuc-accent-ring --tuc-accent-soft --tuc-bg --tuc-border --tuc-border-width --tuc-cell --tuc-control-height --tuc-danger --tuc-danger-fill --tuc-danger-soft --tuc-duration --tuc-duration-lg --tuc-duration-out --tuc-ease --tuc-ease-in --tuc-elevated --tuc-fg --tuc-font --tuc-hover --tuc-muted --tuc-radius --tuc-radius-md --tuc-radius-sm --tuc-radius-xs --tuc-ring --tuc-shadow --tuc-subtle --tuc-success --tuc-success-soft --tuc-swatch --tuc-text --tuc-warning --tuc-warning-soft
+
 ## Ao gerar código que usa Tucano
 
 - Prefira os data-attributes. Só use a API JS quando precisar de opções que não
@@ -527,3 +826,16 @@ numa página clara.
   Abrir é explícito: seta para baixo, Espaço, clique; Enter também no select.
 - No painel escrito no template (dropdown), o hidden é obrigatório: sem ele o
   menu aparece no meio da página até o script rodar.
+- Não desenhe um segundo botão. Para qualquer ação — inclusive ícone dentro de
+  tabela ou de bloco de código — use `.tuc-btn` com `is-outline`, `is-ghost`,
+  `is-icon`, `is-sm`. Classe própria só para posicionar.
+- Não escreva o placeholder de um campo com máscara: ele sai do gabarito
+  sozinho. `data-tuc-mask="cpf"` já nasce com `000.000.000-00`.
+- Sanitize no servidor antes de publicar o que veio do editor com `|safe`. A
+  peneira do editor protege o editor, não a publicação.
+- O `<dialog>` do modal e da gaveta precisa do atributo `hidden`? Não — mas o
+  painel do dropdown precisa. Copie o exemplo de cada seção em vez de deduzir.
+- Componente inicializa sozinho no load e a cada `htmx:afterSwap`. Depois de
+  inserir HTML por outro caminho, chame `Tucano.init(no)` no trecho novo.
+- Elemento já inicializado ganha `data-tuc-ready`; o autoInit ignora quem tem.
+  Não remova esse atributo à mão.

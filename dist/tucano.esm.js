@@ -3765,7 +3765,7 @@ var Toast = class {
       this._removed = true;
       this.node.remove();
       arrange(this.container);
-      this.node.dispatchEvent(new CustomEvent("tucano:toast-fechado"));
+      this.node.dispatchEvent(new CustomEvent("tucano:toast-closed"));
     };
     this.node.addEventListener("transitionend", (e) => {
       if (e.propertyName === "opacity") remove();

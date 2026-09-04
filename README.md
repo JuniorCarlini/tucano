@@ -147,9 +147,15 @@ não controlar a ordem de inicialização:
 
 ```js
 document.addEventListener('tucano:change', (e) => {
-  console.log(e.target.name, e.detail.iso, e.detail.value);
+  console.log(e.detail.value, e.detail.iso);
 });
 ```
+
+O evento sai do elemento que guarda o valor. No select, na máscara e no upload
+esse elemento é o próprio campo com `name`. No date picker não: ele move o
+`name` para um `<input type="hidden">` com o valor ISO — o campo visível fica
+sem `name`, para o servidor receber ISO e não o texto formatado. Ali use
+`e.detail.iso`.
 
 Um `change` nativo também é disparado, então validação de formulário e HTMX
 enxergam o valor normalmente.
