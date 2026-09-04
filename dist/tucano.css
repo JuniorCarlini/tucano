@@ -64,7 +64,7 @@
 .tuc-dp::-webkit-scrollbar-thumb:hover, .tuc-select::-webkit-scrollbar-thumb:hover, .tuc-select__menu::-webkit-scrollbar-thumb:hover, .tuc-colorpicker::-webkit-scrollbar-thumb:hover, .tuc-upload::-webkit-scrollbar-thumb:hover, .tuc-modal::-webkit-scrollbar-thumb:hover, .tuc-gaveta::-webkit-scrollbar-thumb:hover, .tuc-acordeon::-webkit-scrollbar-thumb:hover, .tuc-menu, .tuc-dropdown::-webkit-scrollbar-thumb:hover, .tuc-rico::-webkit-scrollbar-thumb:hover, .tuc-prosa::-webkit-scrollbar-thumb:hover, .tuc-dp *::-webkit-scrollbar-thumb:hover, .tuc-select *::-webkit-scrollbar-thumb:hover, .tuc-select__menu *::-webkit-scrollbar-thumb:hover, .tuc-colorpicker *::-webkit-scrollbar-thumb:hover, .tuc-upload *::-webkit-scrollbar-thumb:hover, .tuc-modal *::-webkit-scrollbar-thumb:hover, .tuc-gaveta *::-webkit-scrollbar-thumb:hover, .tuc-acordeon *::-webkit-scrollbar-thumb:hover, .tuc-menu, .tuc-dropdown *::-webkit-scrollbar-thumb:hover, .tuc-rico *::-webkit-scrollbar-thumb:hover, .tuc-prosa *::-webkit-scrollbar-thumb:hover {
   background: var(--tuc-muted);
 }
-.tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-dropdown, .tuc-input, .tuc-campo, .tuc-rico, .tuc-prosa, .tuc-btn {
+[data-tuc-datepicker]:not([data-tuc-ready]), [data-tuc-mask]:not([data-tuc-ready]), [data-tuc-reveal]:not([data-tuc-ready]), [data-tuc-select]:not([data-tuc-ready]), [data-tuc-rico]:not([data-tuc-ready]), [data-tuc-upload]:not([data-tuc-ready]), .tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-toast, .tuc-tip, .tuc-modal, .tuc-gaveta, .tuc-acordeon, .tuc-menu, .tuc-dropdown, .tuc-input, .tuc-campo, .tuc-rico, .tuc-prosa, .tuc-btn {
   --tuc-accent: #4f46e5;
   --tuc-accent-hover: #4338ca;
   --tuc-accent-fg: #ffffff;
@@ -139,7 +139,7 @@
   }
 }
 @media (max-width: 40rem) {
-  .tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-input, .tuc-campo, .tuc-rico, .tuc-btn {
+  [data-tuc-datepicker]:not([data-tuc-ready]), [data-tuc-mask]:not([data-tuc-ready]), [data-tuc-reveal]:not([data-tuc-ready]), [data-tuc-select]:not([data-tuc-ready]), [data-tuc-rico]:not([data-tuc-ready]), [data-tuc-upload]:not([data-tuc-ready]), .tuc-dp, .tuc-select, .tuc-select__menu, .tuc-colorpicker, .tuc-color-field, .tuc-upload, .tuc-field, .tuc-input, .tuc-campo, .tuc-rico, .tuc-btn {
     --tuc-text: 1rem;
     --tuc-swatch: 2.5rem;
     --tuc-control-height: 2.75rem;
@@ -200,6 +200,37 @@ input.tuc-input.tuc-input:disabled, textarea.tuc-input.tuc-input:disabled {
 }
 .tuc-campo:has(> svg) input.tuc-input.tuc-input {
   padding-left: 2.125rem;
+}
+input[data-tuc-datepicker]:not([data-tuc-ready]), input[data-tuc-mask]:not([data-tuc-ready]), input[data-tuc-reveal]:not([data-tuc-ready]), select[data-tuc-select]:not([data-tuc-ready]), textarea[data-tuc-rico]:not([data-tuc-ready]) {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  height: var(--tuc-control-height, 2.375rem);
+  padding: 0 0.75rem;
+  font-family: var(--tuc-font);
+  font-size: var(--tuc-text);
+  color: var(--tuc-fg);
+  background: var(--tuc-bg);
+  border: var(--tuc-border-width) solid var(--tuc-border);
+  border-radius: var(--tuc-radius-md);
+  appearance: none;
+  -webkit-appearance: none;
+}
+textarea[data-tuc-rico]:not([data-tuc-ready]) {
+  height: auto;
+  min-height: 12rem;
+  padding: 0.75rem;
+  resize: none;
+}
+input[type='file'][data-tuc-upload]:not([data-tuc-ready]) {
+  display: block;
+  width: 100%;
+  min-height: 8.5rem;
+  padding: 0.75rem;
+  color: transparent;
+  background: var(--tuc-bg);
+  border: 1px dashed var(--tuc-border);
+  border-radius: var(--tuc-radius);
 }
 .tuc-rico {
   display: flex;
