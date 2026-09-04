@@ -180,15 +180,10 @@
     overflow-x:auto;font-family:ui-monospace,Menlo,monospace;font-size:12.5px;
     line-height:1.6;border:1px solid var(--line);
   }
-  .copiar{
-    position:absolute;top:9px;right:9px;display:grid;place-items:center;
-    width:28px;height:28px;padding:0;border:1px solid var(--line);border-radius:7px;
-    background:var(--panel);color:var(--muted);cursor:pointer;
-    opacity:0;transition:opacity .14s,color .14s,background .14s;
-  }
+  /* O botao e o .tuc-btn da propria biblioteca; aqui so a posicao e o aparecer. */
+  .copiar{position:absolute;top:9px;right:9px;opacity:0;transition:opacity .14s}
   .block:hover .copiar,.copiar:focus-visible{opacity:1}
-  .copiar:hover{color:var(--fg);background:var(--code)}
-  .copiar.ok{opacity:1;color:#16a34a;border-color:#16a34a}
+  .copiar.ok{opacity:1;color:var(--tuc-success);border-color:var(--tuc-success)}
   .copiar .i-ok{display:none}
   .copiar.ok .i-ok{display:block}
   .copiar.ok .i-cp{display:none}
@@ -2184,7 +2179,7 @@ seguem funcionando. Não substitua por estado só em JS.</pre>
     block.append(pre);
 
     const btn = document.createElement('button');
-    btn.className = 'copiar';
+    btn.className = 'tuc-btn is-outline is-icon is-sm copiar';
     btn.type = 'button';
     btn.setAttribute('aria-label', 'Copiar código');
     btn.innerHTML = CP + OK;

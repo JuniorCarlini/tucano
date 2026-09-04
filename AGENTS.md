@@ -340,9 +340,7 @@ ações da tabela nasceu com `is-ghost` esmaecido a 55%, com a justificativa de
 que vinte linhas de ícones acesos competiriam com o conteúdo. Na tela o efeito
 foi outro: sem borda e sem fundo, o ícone lia como decoração desativada. Ali vão
 os botões do sistema — `tuc-btn is-outline is-icon is-sm` — sem opacidade
-nenhuma. O mesmo vale para o copiar do bloco de código: a primeira versão tinha
-desenho próprio (tamanho, borda, raio, fundo, foco), tudo já resolvido no
-`.tuc-btn`. Classe de posição, sim; segundo desenho de botão, não.
+nenhuma. O mesmo vale para o copiar do bloco de código — nos dois lugares onde ele existe. A biblioteca e a própria página de docs tinham cada uma o seu, com tamanho, borda, raio, fundo e foco declarados à mão. Classe de posição, sim; segundo desenho de botão, não. E a página de docs é vitrine: um botão que não é o da biblioteca ali é a contradição mais visível possível.
 
 **Handler em atributo `onclick=` é código, e nenhuma das minhas varreduras o
 enxergava.** O rename para inglês tratou `<script>` e blocos de código, mas
