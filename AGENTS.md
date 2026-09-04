@@ -411,6 +411,15 @@ identificadores que sobraram (`mostrar`, `ordenadas`, `saida`, `classe`,
 `highlight.js` — arquivos que eu mesmo escrevi já com a regra valendo. Rode a
 varredura de identificadores depois de escrever, não só depois de renomear.
 
+**Classe escrita em CSS e classe escrita em JS são dois lugares, e o rename
+pode acertar só um.** O envolucro do botão de copiar da página de docs virou
+`.block` no `<style>` e continuou `'bloco'` no `className` do script — regra
+nenhuma casava, então o botão ficava com `opacity: 0` e o `<pre>` sem
+`position: relative`. Não quebra nada, não aparece no console: o botão
+simplesmente some. A checagem é cruzar as três fontes — classes definidas no
+`<style>`, usadas no HTML e escritas pelo JS — e apontar as que só aparecem em
+uma delas.
+
 ## Antes de dizer que está pronto
 
 ```bash
