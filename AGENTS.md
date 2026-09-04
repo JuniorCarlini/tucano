@@ -320,6 +320,21 @@ importa pelo npm.
 objeto hsva. Ninguém tinha percebido porque por dentro sempre chega hsva. O
 exemplo do `maskEmail` também estava errado. Escreveu exemplo, roda o exemplo.
 
+**Versão e tamanho não se escrevem à mão — `tools/carimbo.mjs` carimba os dois
+no fim do build, lendo o `package.json`.** O cabeçalho da página ficou preso em
+v0.26.0 enquanto o `package.json` ia para 0.30.1, e o trecho de instalação do
+README apontava para `@v0.9.2`: quem copiasse levava uma versão de muitas
+iterações atrás. O carimbo cobre o selo do cabeçalho, as URLs do jsDelivr no
+README, no `llms.txt` e na página, o cache-busting local e o exemplo de "prenda
+a versão". Cada padrão é obrigatório: se um trecho mudar de forma e deixar de
+casar, o build quebra em vez de seguir com número velho.
+
+**Cuidado ao restaurar prosa de uma versão anterior: o selo da versão é texto.**
+Foi assim que a página voltou para v0.26.0 — a restauração que consertou a
+tradução acidental da prosa reverteu junto o texto do selo, e os bumps seguintes
+procuravam a versão anterior e não achavam. Depois de qualquer restauração em
+massa, rode o build e confira se o selo bate com o `package.json`.
+
 ## Antes de dizer que está pronto
 
 ```bash
