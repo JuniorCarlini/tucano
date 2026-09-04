@@ -15,9 +15,9 @@ export function formatSize(bytes, locale = 'pt-BR') {
 }
 
 /** "5mb", "500kb", 1048576 -> bytes. */
-export function parseSize(valor) {
-  if (typeof valor === 'number') return valor;
-  const m = /^([\d.,]+)\s*(b|kb|mb|gb)?$/i.exec(String(valor || '').trim());
+export function parseSize(value) {
+  if (typeof value === 'number') return value;
+  const m = /^([\d.,]+)\s*(b|kb|mb|gb)?$/i.exec(String(value || '').trim());
   if (!m) return null;
   const n = parseFloat(m[1].replace(',', '.'));
   const fator = { b: 1, kb: 1024, mb: 1024 ** 2, gb: 1024 ** 3 }[(m[2] || 'b').toLowerCase()];
@@ -30,12 +30,12 @@ export function parseSize(valor) {
  */
 export function matchesAccept(file, accept) {
   if (!accept) return true;
-  const nome = file.name.toLowerCase();
-  const tipo = (file.type || '').toLowerCase();
+  const name = file.name.toLowerCase();
+  const type = (file.type || '').toLowerCase();
   return accept.split(',').map((s) => s.trim().toLowerCase()).filter(Boolean).some((regra) => {
-    if (regra.startsWith('.')) return nome.endsWith(regra);
-    if (regra.endsWith('/*')) return tipo.startsWith(regra.slice(0, -1));
-    return tipo === regra;
+    if (regra.startsWith('.')) return name.endsWith(regra);
+    if (regra.endsWith('/*')) return type.startsWith(regra.slice(0, -1));
+    return type === regra;
   });
 }
 
@@ -47,8 +47,8 @@ export function isImage(file) {
  * Le o cookie de CSRF do Django. Sem isso, POST de upload volta 403 —
  * e o erro nao e obvio de diagnosticar.
  */
-export function csrfToken(nome = 'csrftoken') {
-  const m = document.cookie.match(new RegExp(`(?:^|;\\s*)${nome}=([^;]*)`));
+export function csrfToken(name = 'csrftoken') {
+  const m = document.cookie.match(new RegExp(`(?:^|;\\s*)${name}=([^;]*)`));
   return m ? decodeURIComponent(m[1]) : null;
 }
 
@@ -58,12 +58,12 @@ export function csrfToken(nome = 'csrftoken') {
  *
  * Devolve { promessa, abortar }.
  */
-export function uploadFile({ url, file, campo = 'file', extras = {}, headers = {}, onProgress }) {
+export function uploadFile({ url, file, field = 'file', extras = {}, headers = {}, onProgress }) {
   const xhr = new XMLHttpRequest();
-  const promessa = new Promise((resolve, reject) => {
-    const dados = new FormData();
-    dados.append(campo, file);
-    for (const [k, v] of Object.entries(extras)) dados.append(k, v);
+  const promise = new Promise((resolve, reject) => {
+    const data = new FormData();
+    data.append(field, file);
+    for (const [k, v] of Object.entries(extras)) data.append(k, v);
 
     xhr.open('POST', url);
     xhr.responseType = 'json';
@@ -81,9 +81,9 @@ export function uploadFile({ url, file, campo = 'file', extras = {}, headers = {
     });
     xhr.addEventListener('error', () => reject(new Error('Falha de rede')));
     xhr.addEventListener('abort', () => reject(Object.assign(new Error('Cancelado'), { cancelado: true })));
-    xhr.send(dados);
+    xhr.send(data);
   });
-  return { promessa, abortar: () => xhr.abort() };
+  return { promise, abortar: () => xhr.abort() };
 }
 
 let seq = 0;

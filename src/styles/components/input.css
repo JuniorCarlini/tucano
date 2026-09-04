@@ -59,14 +59,14 @@ textarea.tuc-input.tuc-input:disabled {
 }
 
 /* Campo com icone a esquerda: o pai marca, o input abre espaco. */
-.tuc-campo { @apply relative block w-full; }
-.tuc-campo > svg {
+.tuc-input-group { @apply relative block w-full; }
+.tuc-input-group > svg {
   @apply pointer-events-none absolute top-1/2 size-4;
   left: 0.6875rem;
   translate: 0 -50%;
   color: var(--tuc-subtle);
 }
-.tuc-campo:has(> svg) input.tuc-input.tuc-input { padding-left: 2.125rem; }
+.tuc-input-group:has(> svg) input.tuc-input.tuc-input { padding-left: 2.125rem; }
 
 /* ------------------------------------------------------------------ */
 
@@ -94,7 +94,7 @@ input[data-tuc-color]:not([data-tuc-ready]),
 input[data-tuc-mask]:not([data-tuc-ready]),
 input[data-tuc-reveal]:not([data-tuc-ready]),
 select[data-tuc-select]:not([data-tuc-ready]),
-textarea[data-tuc-rico]:not([data-tuc-ready]) {
+textarea[data-tuc-editor]:not([data-tuc-ready]) {
   /* O reset com escopo nao alcanca quem ainda nao tem classe: sem isto a borda
      soma sobre a altura e o campo nasce 2px mais alto que o vizinho. */
   box-sizing: border-box;
@@ -127,7 +127,7 @@ select[data-tuc-select][multiple]:not([data-tuc-ready]) > option {
  * O editor e a area de upload viram blocos altos: reservar a altura evita que o
  * resto da pagina pule para baixo quando eles montam, que e o incomodo maior.
  */
-textarea[data-tuc-rico]:not([data-tuc-ready]) {
+textarea[data-tuc-editor]:not([data-tuc-ready]) {
   height: auto;
   min-height: 12rem;
   padding: 0.75rem;

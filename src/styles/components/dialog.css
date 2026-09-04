@@ -11,7 +11,7 @@
  * um elemento de overlay existindo so para isso.
  */
 .tuc-modal,
-.tuc-gaveta {
+.tuc-drawer {
   @apply fixed inset-0 m-0 grid max-h-none max-w-none;
   width: 100%;
   height: 100%;
@@ -37,7 +37,7 @@
  * ninguem via; so notava que nenhum clique da pagina funcionava mais.
  */
 .tuc-modal:not([open]),
-.tuc-gaveta:not([open]) {
+.tuc-drawer:not([open]) {
   display: none;
 }
 
@@ -47,17 +47,17 @@
  * tirar a pagina do foco.
  */
 .tuc-modal::backdrop,
-.tuc-gaveta::backdrop {
+.tuc-drawer::backdrop {
   /*
    * Posicao e cor saem por variavel para que o brilho possa nascer de onde o
    * painel esta. Declaradas no proprio ::backdrop, e nao herdadas do elemento,
    * porque a heranca para o backdrop e recente e nem todo navegador a tem.
    */
-  --tuc-brilho-x: 50%;
-  --tuc-brilho-y: 42%;
-  --tuc-brilho-w: 80rem;
-  --tuc-brilho-h: 58rem;
-  --tuc-brilho-cor: rgb(99 102 241 / 0.24);
+  --tuc-glow-x: 50%;
+  --tuc-glow-y: 42%;
+  --tuc-glow-w: 80rem;
+  --tuc-glow-h: 58rem;
+  --tuc-glow-color: rgb(99 102 241 / 0.24);
 
   opacity: 0;
   /*
@@ -67,8 +67,8 @@
    */
   background:
     radial-gradient(
-      var(--tuc-brilho-w) var(--tuc-brilho-h) at var(--tuc-brilho-x) var(--tuc-brilho-y),
-      var(--tuc-brilho-cor),
+      var(--tuc-glow-w) var(--tuc-glow-h) at var(--tuc-glow-x) var(--tuc-glow-y),
+      var(--tuc-glow-color),
       transparent 78%
     ),
     rgb(9 9 11 / 0.55);
@@ -76,25 +76,25 @@
   transition: opacity var(--tuc-duration-lg) var(--tuc-ease);
 }
 .tuc-modal.is-open::backdrop,
-.tuc-gaveta.is-open::backdrop { opacity: 1; }
+.tuc-drawer.is-open::backdrop { opacity: 1; }
 .tuc-modal.is-closing::backdrop,
-.tuc-gaveta.is-closing::backdrop { opacity: 0; }
+.tuc-drawer.is-closing::backdrop { opacity: 0; }
 
-.tuc-modal.is-perigo::backdrop,
-.tuc-gaveta.is-perigo::backdrop  { --tuc-brilho-cor: rgb(220 38 38 / 0.22); }
-.tuc-modal.is-sucesso::backdrop,
-.tuc-gaveta.is-sucesso::backdrop { --tuc-brilho-cor: rgb(22 163 74 / 0.22); }
-.tuc-modal.is-aviso::backdrop,
-.tuc-gaveta.is-aviso::backdrop   { --tuc-brilho-cor: rgb(217 119 6 / 0.22); }
+.tuc-modal.is-danger::backdrop,
+.tuc-drawer.is-danger::backdrop  { --tuc-glow-color: rgb(220 38 38 / 0.22); }
+.tuc-modal.is-success::backdrop,
+.tuc-drawer.is-success::backdrop { --tuc-glow-color: rgb(22 163 74 / 0.22); }
+.tuc-modal.is-warning::backdrop,
+.tuc-drawer.is-warning::backdrop   { --tuc-glow-color: rgb(217 119 6 / 0.22); }
 
-.tuc-modal.is-perigo,  .tuc-gaveta.is-perigo  { --tuc-modal-glow: rgb(220 38 38 / 0.45); }
-.tuc-modal.is-sucesso, .tuc-gaveta.is-sucesso { --tuc-modal-glow: rgb(22 163 74 / 0.45); }
-.tuc-modal.is-aviso,   .tuc-gaveta.is-aviso   { --tuc-modal-glow: rgb(217 119 6 / 0.45); }
+.tuc-modal.is-danger,  .tuc-drawer.is-danger  { --tuc-modal-glow: rgb(220 38 38 / 0.45); }
+.tuc-modal.is-success, .tuc-drawer.is-success { --tuc-modal-glow: rgb(22 163 74 / 0.45); }
+.tuc-modal.is-warning,   .tuc-drawer.is-warning   { --tuc-modal-glow: rgb(217 119 6 / 0.45); }
 
 /* ------------------------------------------------------------------ */
 
-.tuc-modal__caixa,
-.tuc-gaveta__caixa {
+.tuc-modal__panel,
+.tuc-drawer__panel {
   @apply flex w-full flex-col gap-4 p-5;
   background: var(--tuc-bg);
   /* A ultima camada e o glow: uma aura da cor do tom, nao uma sombra. */
@@ -104,30 +104,30 @@
   opacity: 0;
 }
 
-.tuc-modal__topo, .tuc-gaveta__topo { @apply flex items-start justify-between gap-4; }
-.tuc-modal__cabecalho, .tuc-gaveta__cabecalho { @apply flex min-w-0 flex-col gap-1.5; }
-.tuc-modal__titulo, .tuc-gaveta__titulo {
+.tuc-modal__top, .tuc-drawer__top { @apply flex items-start justify-between gap-4; }
+.tuc-modal__header, .tuc-drawer__header { @apply flex min-w-0 flex-col gap-1.5; }
+.tuc-modal__title, .tuc-drawer__title {
   @apply m-0 font-semibold;
   font-size: 1.0625rem;
   line-height: 1.3;
 }
-.tuc-modal__texto, .tuc-gaveta__texto {
+.tuc-modal__text, .tuc-drawer__text {
   @apply m-0;
   font-size: 0.875rem;
   line-height: 1.5;
   color: var(--tuc-muted);
 }
 /* Alinhado ao topo: com titulo e texto o X acompanha a primeira linha. */
-.tuc-modal__fechar, .tuc-gaveta__fechar { @apply -mr-1.5 -mt-1 shrink-0; }
+.tuc-modal__close, .tuc-drawer__close { @apply -mr-1.5 -mt-1 shrink-0; }
 
 /* O corpo e quem rola quando o conteudo passa da altura disponivel. */
-.tuc-modal__corpo, .tuc-gaveta__corpo { @apply min-h-0 flex-1 overflow-y-auto; }
-.tuc-modal__corpo:empty, .tuc-gaveta__corpo:empty { @apply hidden; }
+.tuc-modal__body, .tuc-drawer__body { @apply min-h-0 flex-1 overflow-y-auto; }
+.tuc-modal__body:empty, .tuc-drawer__body:empty { @apply hidden; }
 
-.tuc-modal__rodape, .tuc-gaveta__rodape { @apply flex flex-wrap items-center justify-end gap-2; }
+.tuc-modal__footer, .tuc-drawer__footer { @apply flex flex-wrap items-center justify-end gap-2; }
 
 @media (max-width: 40rem) {
   /* Botao de acao no celular ocupa a linha: alvo de toque maior. */
-  .tuc-modal__rodape .tuc-btn,
-  .tuc-gaveta__rodape .tuc-btn { @apply flex-1; }
+  .tuc-modal__footer .tuc-btn,
+  .tuc-drawer__footer .tuc-btn { @apply flex-1; }
 }

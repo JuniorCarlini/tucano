@@ -11,13 +11,13 @@
  * recebendo tudo pronto sem escrever uma linha. Quem empacota importa de
  * `tucano` e leva so o que referenciou.
  */
-import { init, ouvirEventos } from './index.js';
+import { init, listenForEvents } from './index.js';
 
 export * from './index.js';
 
 // Auto-init no DOM inicial e depois de cada swap do HTMX.
 if (typeof document !== 'undefined') {
-  const boot = () => { ouvirEventos(); init(document); };
+  const boot = () => { listenForEvents(); init(document); };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
   document.addEventListener('htmx:afterSwap', (e) => init(e.target));

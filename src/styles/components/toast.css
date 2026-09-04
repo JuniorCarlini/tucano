@@ -12,7 +12,7 @@
 .tuc-toasts[class*='is-bottom'] { padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px)); }
 .tuc-toasts[class*='is-top']    { padding-top:    calc(1rem + env(safe-area-inset-top, 0px)); }
 /* O palco e o sistema de coordenadas de todos os toasts, de qualquer regiao. */
-.tuc-toasts__palco {
+.tuc-toasts__stage {
   @apply relative;
   transition: height var(--tuc-duration-lg) var(--tuc-ease);
 }
@@ -96,7 +96,7 @@
 }
 
 /* Alem do terceiro, some — pilha de dez nao ajuda ninguem. */
-.tuc-toast.is-open.is-oculto { opacity: 0; }
+.tuc-toast.is-open.is-hidden { opacity: 0; }
 
 /* Sai encolhendo no lugar: sair pela borda competiria com o rearranjo da
    pilha e o olho perderia os dois movimentos. */
@@ -111,7 +111,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .tuc-toast, .tuc-toast.is-closing { transition: opacity 100ms linear; }
-  .tuc-toasts__palco { transition: none; }
+  .tuc-toasts__stage { transition: none; }
 }
 
 .tuc-toast__icon { @apply shrink-0; }
@@ -129,8 +129,8 @@
   position: absolute;
   left: 0;
   right: 0;
-  top: calc(var(--tuc-toast-respiro, 12px) * -1);
-  bottom: calc(var(--tuc-toast-respiro, 12px) * -1);
+  top: calc(var(--tuc-toast-gap, 12px) * -1);
+  bottom: calc(var(--tuc-toast-gap, 12px) * -1);
   z-index: -1;
 }
 /* Saindo de cena o toast nao deve mais capturar o ponteiro. */
@@ -156,10 +156,10 @@
 .tuc-toast__close { @apply -mr-1; }
 
 .tuc-toast.is-info    { --tuc-toast-cor: var(--tuc-accent); }
-.tuc-toast.is-sucesso { --tuc-toast-cor: #16a34a; }
-.tuc-toast.is-aviso   { --tuc-toast-cor: #d97706; }
-.tuc-toast.is-erro    { --tuc-toast-cor: #dc2626; }
-.tuc-toast.is-carregando { --tuc-toast-cor: var(--tuc-muted); }
+.tuc-toast.is-success { --tuc-toast-cor: #16a34a; }
+.tuc-toast.is-warning   { --tuc-toast-cor: #d97706; }
+.tuc-toast.is-error    { --tuc-toast-cor: #dc2626; }
+.tuc-toast.is-loading { --tuc-toast-cor: var(--tuc-muted); }
 
 /*
  * O icone de carregando e um arco de 3/4: parado ele nao diz nada, girando
@@ -170,13 +170,13 @@
 @keyframes tuc-girar {
   to { rotate: 360deg; }
 }
-.tuc-toast.is-carregando .tuc-toast__icon svg {
+.tuc-toast.is-loading .tuc-toast__icon svg {
   transform-origin: center;
   animation: tuc-girar 800ms linear infinite;
 }
 /* Spinner parado nao informa nada: em vez de remover o giro, so desacelera. */
 @media (prefers-reduced-motion: reduce) {
-  .tuc-toast.is-carregando .tuc-toast__icon svg { animation-duration: 2.4s; }
+  .tuc-toast.is-loading .tuc-toast__icon svg { animation-duration: 2.4s; }
 }
 .tuc-toast .tuc-toast__icon { color: var(--tuc-toast-cor); }
 
@@ -212,7 +212,7 @@
  * z-index negativo pinta acima do fundo do balao e abaixo do texto, entao a
  * seta nunca cobre a palavra.
  */
-.tuc-tip__seta {
+.tuc-tip__arrow {
   position: absolute;
   z-index: -1;
   width: 0.625rem;

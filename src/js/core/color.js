@@ -53,9 +53,9 @@ export function rgbToHex({ r, g, b }, a = 1) {
  */
 export function parseColor(input) {
   if (!input) return null;
-  const texto = String(input).trim().toLowerCase();
+  const text = String(input).trim().toLowerCase();
 
-  const hex = /^#?([0-9a-f]{3,8})$/.exec(texto);
+  const hex = /^#?([0-9a-f]{3,8})$/.exec(text);
   if (hex) {
     const d = hex[1];
     let r, g, b, a = 1;
@@ -69,7 +69,7 @@ export function parseColor(input) {
     return { ...rgbToHsv({ r, g, b }), a };
   }
 
-  const rgb = /^rgba?\(([^)]+)\)$/.exec(texto);
+  const rgb = /^rgba?\(([^)]+)\)$/.exec(text);
   if (rgb) {
     const p = rgb[1].split(/[\s,/]+/).filter(Boolean).map(Number);
     if (p.length < 3 || p.slice(0, 3).some(Number.isNaN)) return null;
@@ -77,7 +77,7 @@ export function parseColor(input) {
              a: p[3] === undefined ? 1 : clamp(p[3], 0, 1) };
   }
 
-  const hsl = /^hsla?\(([^)]+)\)$/.exec(texto);
+  const hsl = /^hsla?\(([^)]+)\)$/.exec(text);
   if (hsl) {
     const p = hsl[1].replace(/%/g, '').split(/[\s,/]+/).filter(Boolean).map(Number);
     if (p.length < 3 || p.slice(0, 3).some(Number.isNaN)) return null;

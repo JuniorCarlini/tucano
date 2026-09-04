@@ -172,11 +172,11 @@ e funciona antes de o JS carregar. O componente so acrescenta a animacao, que o
 nativo nao faz (altura auto nao transiciona, e ao fechar o conteudo some de uma
 vez).
 
-    <div data-tuc-acordeon data-unico="true">
+    <div data-tuc-accordion data-unico="true">
       <details open><summary>Projetos</summary><p>...</p></details>
     </div>
 
-data-unico="true" recolhe os outros ao abrir um. .tuc-acordeon.is-limpo tira as
+data-unico="true" recolhe os outros ao abrir um. .tuc-accordion.is-plain tira as
 divisorias, para menu lateral.
 
 ## Menu
@@ -184,30 +184,30 @@ divisorias, para menu lateral.
 Lista de navegacao, so classes — nao ha componente nem JS proprio. Item com
 submenu e um <details>, entao a animacao vem do acordeao.
 
-    <nav class="tuc-menu" data-tuc-acordeon>
-      <a class="tuc-menu__item" href="..."><span class="tuc-menu__icone">svg</span>Faturamento</a>
+    <nav class="tuc-menu" data-tuc-accordion>
+      <a class="tuc-menu__item" href="..."><span class="tuc-menu__icon">svg</span>Faturamento</a>
 
       <details open>
-        <summary class="tuc-menu__item"><span class="tuc-menu__icone">svg</span>Desempenho</summary>
+        <summary class="tuc-menu__item"><span class="tuc-menu__icon">svg</span>Desempenho</summary>
         <div class="tuc-menu__sub">
-          <a class="tuc-menu__item is-ativo" href="...">Por periodo</a>
+          <a class="tuc-menu__item is-active" href="...">Por periodo</a>
           <a class="tuc-menu__item" href="...">Unidades</a>
         </div>
       </details>
 
       <div class="tuc-menu__secao">Cadastros</div>
-      <hr class="tuc-menu__separador">
+      <hr class="tuc-menu__separator">
     </nav>
 
-is-ativo marca o item atual. No primeiro nivel ele leva cor e um traco na borda
+is-active marca o item atual. No primeiro nivel ele leva cor e um traco na borda
 de dentro; no submenu, uma pilula — o traco brigaria com o trilho. Filho de
 submenu nao leva icone: o ponto ja marca a linha.
 
-tuc-menu__contagem poe um numero a direita do item.
+tuc-menu__count poe um numero a direita do item.
 
 ## Editor de texto
 
-    <textarea name="descricao" data-tuc-rico>{{ form.descricao.value|default:"" }}</textarea>
+    <textarea name="descricao" data-tuc-editor>{{ form.descricao.value|default:"" }}</textarea>
 
 O <textarea> continua dono do valor: name, required e o POST funcionam sem nada
 especial. Guarda HTML sanitizado. Barra com negrito, italico, sublinhado, dois
@@ -218,9 +218,9 @@ sobrevivem p, h2, h3, strong, em, u, s, ul, ol, li, blockquote, code, pre, a e
 tabela; atributo nenhum passa, exceto href com destino aceitavel e text-align.
 Ainda assim, sanitize no servidor antes de renderizar para o publico.
 
-Exibicao: envolva a saida em .tuc-prosa para ela ficar igual ao editor.
+Exibicao: envolva a saida em .tuc-prose para ela ficar igual ao editor.
 
-    <div class="tuc-prosa">{{ projeto.descricao|safe }}</div>
+    <div class="tuc-prose">{{ projeto.descricao|safe }}</div>
 
 O codigo publicado e colorido pelo init(). Tucano.destacar(texto) faz isso a
 mao; Tucano.sanitizar(html) aplica a peneira.
@@ -254,13 +254,13 @@ fora e no Escape. Do servidor:
 
     <button data-tuc-dropdown="#acoes" data-placement="bottom-end">Acoes</button>
     <div class="tuc-dropdown" id="acoes" hidden>
-      <div class="tuc-dropdown__rotulo">Contrato</div>
+      <div class="tuc-dropdown__label">Contrato</div>
       <button class="tuc-dropdown__item">
-        <span class="tuc-dropdown__texto">Editar</span>
-        <span class="tuc-dropdown__atalho">Cmd E</span>
+        <span class="tuc-dropdown__text">Editar</span>
+        <span class="tuc-dropdown__shortcut">Cmd E</span>
       </button>
-      <hr class="tuc-dropdown__separador">
-      <button class="tuc-dropdown__item is-perigo">...</button>
+      <hr class="tuc-dropdown__separator">
+      <button class="tuc-dropdown__item is-danger">...</button>
     </div>
 
 O hidden e obrigatorio: sem ele o painel aparece no meio da pagina ate o script
@@ -299,8 +299,8 @@ foco preso, Escape, foco devolvido. Muda a geometria e o movimento.
 
 lado: esquerda | direita | cima | baixo. Nas laterais o tamanho e largura de
 coluna (18, 24, 34rem) e no celular para em 85% da tela. Do servidor:
-<dialog class="tuc-gaveta is-direita"> no template, data-tuc-gaveta="#id" no
-gatilho e data-tuc-gaveta-close nos botoes de fechar.
+<dialog class="tuc-drawer is-right"> no template, data-tuc-drawer="#id" no
+gatilho e data-tuc-drawer-close nos botoes de fechar.
 
 ## Toast e tooltip
 

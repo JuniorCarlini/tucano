@@ -35,62 +35,62 @@ const EQUIVALENTES = { B: 'STRONG', I: 'EM' };
 const ALINHAMENTOS = new Set(['left', 'center', 'right', 'justify']);
 const ALINHAVEIS = new Set(['P', 'H2', 'H3', 'LI', 'BLOCKQUOTE', 'TD', 'TH']);
 
-function copiarAlinhamento(de, para) {
+function copyAlignment(de, para) {
   if (!ALINHAVEIS.has(para.tagName)) return;
-  const valor = (de.style?.textAlign || '').toLowerCase();
-  if (ALINHAMENTOS.has(valor)) para.setAttribute('style', `text-align: ${valor}`);
+  const value = (de.style?.textAlign || '').toLowerCase();
+  if (ALINHAMENTOS.has(value)) para.setAttribute('style', `text-align: ${value}`);
 }
 
 function urlSegura(url) {
-  const limpo = (url || '').trim();
-  return /^(https?:|mailto:|tel:|#|\/)/i.test(limpo) ? limpo : '';
+  const plain = (url || '').trim();
+  return /^(https?:|mailto:|tel:|#|\/)/i.test(plain) ? plain : '';
 }
 
-function limparNo(no, destino, doc) {
-  for (const filho of [...no.childNodes]) {
-    if (filho.nodeType === Node.TEXT_NODE) {
-      destino.append(doc.createTextNode(filho.nodeValue));
+function clearNode(no, destino, doc) {
+  for (const child of [...no.childNodes]) {
+    if (child.nodeType === Node.TEXT_NODE) {
+      destino.append(doc.createTextNode(child.nodeValue));
       continue;
     }
-    if (filho.nodeType !== Node.ELEMENT_NODE) continue;
+    if (child.nodeType !== Node.ELEMENT_NODE) continue;
 
-    const tag = filho.tagName;
+    const tag = child.tagName;
 
     // Script e style nao viram texto: o conteudo deles nao e para ser lido.
     if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'IFRAME' || tag === 'OBJECT') continue;
 
     if (TRANSPARENTES.has(tag) || !PERMITIDAS.has(tag)) {
-      limparNo(filho, destino, doc);
+      clearNode(child, destino, doc);
       continue;
     }
 
     const novo = doc.createElement(EQUIVALENTES[tag] || tag);
-    copiarAlinhamento(filho, novo);
+    copyAlignment(child, novo);
     if (novo.tagName === 'A') {
-      const href = urlSegura(filho.getAttribute('href'));
-      if (!href) { limparNo(filho, destino, doc); continue; }
+      const href = urlSegura(child.getAttribute('href'));
+      if (!href) { clearNode(child, destino, doc); continue; }
       novo.setAttribute('href', href);
       novo.setAttribute('target', '_blank');
       novo.setAttribute('rel', 'noopener noreferrer');
     }
-    limparNo(filho, novo, doc);
+    clearNode(child, novo, doc);
     destino.append(novo);
   }
 }
 
 /** Devolve HTML com apenas as tags e atributos que aceitamos. */
-export function sanitizar(html) {
+export function sanitize(html) {
   const doc = document.implementation.createHTMLDocument('');
   const entrada = doc.createElement('div');
   // innerHTML num documento solto: nada aqui executa nem carrega recurso.
   entrada.innerHTML = String(html ?? '');
   const saida = doc.createElement('div');
-  limparNo(entrada, saida, doc);
+  clearNode(entrada, saida, doc);
   return saida.innerHTML;
 }
 
 /** Texto puro, para colar sem trazer a formatacao da origem. */
-export function soTexto(html) {
+export function textOnly(html) {
   const doc = document.implementation.createHTMLDocument('');
   const d = doc.createElement('div');
   d.innerHTML = String(html ?? '');

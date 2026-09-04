@@ -70,7 +70,7 @@ const pagina = () => `<!doctype html><html lang="pt-BR"><head><meta charset="utf
 body{margin:0;padding:16px;font-family:system-ui,sans-serif}</style></head><body>
 <input data-tuc-datepicker id="c-data">
 <select data-tuc-select multiple id="c-select"><option value="a" selected>São Paulo</option><option value="b" selected>Rio</option><option value="c">Minas</option></select>
-<input data-tuc-mask="cpfcnpj" id="c-mask">
+<input data-tuc-mask="cpf-cnpj" id="c-mask">
 <input data-tuc-color id="c-cor">
 <input type="text" class="tuc-input" id="c-input">
 <button class="tuc-btn is-primary" id="c-btn">Botão</button>
@@ -180,12 +180,12 @@ const paginaEspera = () => `<!doctype html><html lang="pt-BR"><head><meta charse
 body{margin:0;padding:16px;font-family:system-ui,sans-serif}</style></head><body>
 <div id="claro">
   <input type="text" class="tuc-input" data-ref>
-  <input data-tuc-datepicker><input data-tuc-mask="cpfcnpj"><input data-tuc-color>
+  <input data-tuc-datepicker><input data-tuc-mask="cpf-cnpj"><input data-tuc-color>
   <select data-tuc-select><option>Um</option></select>
 </div>
 <div id="escuro" class="dark">
   <input type="text" class="tuc-input" data-ref>
-  <input data-tuc-datepicker><input data-tuc-mask="cpfcnpj"><input data-tuc-color>
+  <input data-tuc-datepicker><input data-tuc-mask="cpf-cnpj"><input data-tuc-color>
   <select data-tuc-select><option>Um</option></select>
 </div>
 <pre id="resultado"></pre>

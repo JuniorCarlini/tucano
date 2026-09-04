@@ -1,7 +1,7 @@
 import { on } from './dom.js';
 
 /** Espelha --tuc-duration-out do CSS; os dois precisam concordar. */
-const DURACAO_SAIDA = 170;
+const EXIT_MS = 170;
 
 /**
  * Posiciona um painel flutuante ancorado num elemento.
@@ -25,8 +25,8 @@ export class Popover {
      * dica; um menu aberto prefere continuar visivel enquanto o campo apenas
      * encosta na borda.
      */
-    this.fecharSeSolto = options.fecharSeSolto || false;
-    this.fecharAoSairFoco = options.fecharAoSairFoco || false;
+    this.closeIfDetached = options.closeIfDetached || false;
+    this.closeOnFocusOut = options.closeOnFocusOut || false;
     this.onDismiss = options.onDismiss || (() => {});
     this.open = false;
     this._cleanups = [];
@@ -37,7 +37,7 @@ export class Popover {
     if (this.open) return;
     this.open = true;
 
-    clearTimeout(this._saida);
+    clearTimeout(this._exitTimer);
     this.panel.classList.remove('is-closing');
     this.panel.style.position = 'absolute';
     this.panel.style.top = '0';
@@ -46,7 +46,7 @@ export class Popover {
     this.appendTo.append(this.panel);
     // Procurado uma vez por abertura, nao a cada reposicionamento (que roda em
     // scroll e resize). Painel sem seta simplesmente nao tem o elemento.
-    this._seta = this.panel.querySelector('[data-tuc-seta]');
+    this._arrow = this.panel.querySelector('[data-tuc-arrow]');
     this._reposition();
 
     /*
@@ -86,7 +86,7 @@ export class Popover {
      * hover com o foco em outro lugar, e fecharia no primeiro Tab mesmo com o
      * ponteiro parado em cima dele.
      */
-    if (this.fecharAoSairFoco) {
+    if (this.closeOnFocusOut) {
       this._cleanups.push(on(document, 'focusin', (e) => {
         if (this.panel.contains(e.target) || this.anchor.contains(e.target)) return;
         this.onDismiss('foco');
@@ -113,14 +113,14 @@ export class Popover {
     this._ro?.disconnect();
     this._ro = null;
 
-    clearTimeout(this._saida);
+    clearTimeout(this._exitTimer);
     if (!animar) { this.panel.classList.remove('is-closing'); this.panel.remove(); return; }
 
     this.panel.classList.add('is-closing');
-    this._saida = setTimeout(() => {
+    this._exitTimer = setTimeout(() => {
       this.panel.classList.remove('is-closing');
       this.panel.remove();
-    }, DURACAO_SAIDA);
+    }, EXIT_MS);
   }
 
   destroy() {
@@ -142,7 +142,7 @@ export class Popover {
     const vw = document.documentElement.clientWidth;
     const vh = document.documentElement.clientHeight;
 
-    if (this.fecharSeSolto && (a.bottom < 0 || a.top > vh || a.right < 0 || a.left > vw)) {
+    if (this.closeIfDetached && (a.bottom < 0 || a.top > vh || a.right < 0 || a.left > vw)) {
       this.onDismiss('solto');
       return;
     }
@@ -232,8 +232,8 @@ export class Popover {
      * para o meio do balao indicaria o elemento errado. O limite impede que ela
      * suba no canto arredondado, onde sairia meia seta.
      */
-    if (this._seta) {
-      const meia = this._seta.offsetWidth / 2;
+    if (this._arrow) {
+      const meia = this._arrow.offsetWidth / 2;
       const limite = 12 + meia;
       /*
        * Num balao curto — uma dica de uma linha tem ~31px — o limite passa da
@@ -244,11 +244,11 @@ export class Popover {
       const preso = (v, total) =>
         (total <= limite * 2 ? total / 2 : Math.min(Math.max(v, limite), total - limite));
       if (deitado) {
-        this._seta.style.top = `${preso(a.top + a.height / 2 - top, p.height)}px`;
-        this._seta.style.left = placeSide === 'left' ? `${p.width}px` : '0px';
+        this._arrow.style.top = `${preso(a.top + a.height / 2 - top, p.height)}px`;
+        this._arrow.style.left = placeSide === 'left' ? `${p.width}px` : '0px';
       } else {
-        this._seta.style.left = `${preso(a.left + a.width / 2 - left, p.width)}px`;
-        this._seta.style.top = placeSide === 'top' ? `${p.height}px` : '0px';
+        this._arrow.style.left = `${preso(a.left + a.width / 2 - left, p.width)}px`;
+        this._arrow.style.top = placeSide === 'top' ? `${p.height}px` : '0px';
       }
     }
   }

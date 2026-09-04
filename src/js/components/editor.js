@@ -1,7 +1,7 @@
 import { el, icon, on } from '../core/dom.js';
-import { sanitizar, soTexto } from '../core/sanitizar.js';
+import { sanitize, textOnly } from '../core/sanitize.js';
 import { Modal } from './modal.js';
-import { destacar } from '../core/destacar.js';
+import { highlight } from '../core/highlight.js';
 
 /*
  * Editor de texto formatado, do tipo que mostra o resultado enquanto se
@@ -24,41 +24,41 @@ import { destacar } from '../core/destacar.js';
  */
 
 const DEFAULTS = {
-  toolbar: ['negrito', 'italico', 'sublinhado', 'titulo', 'subtitulo',
-            'lista', 'numerada', 'esquerda', 'centro', 'direita', 'justificar',
-            'citacao', 'codigo', 'link', 'tabela', 'limpar'],
-  tabela: { linhas: 3, colunas: 3 },
+  toolbar: ['bold', 'italic', 'underline', 'title', 'subheading',
+            'list', 'numbered', 'left', 'center', 'right', 'justify',
+            'quote', 'code', 'link', 'table', 'clear'],
+  table: { rows: 3, cols: 3 },
   minHeight: '9rem',
   placeholder: '',
 };
 
 const ICONES = {
-  negrito:    'M6 4h6a4 4 0 010 8H6zM6 12h7a4 4 0 010 8H6z',
-  italico:    'M19 4h-9M14 20H5M15 4L9 20',
-  sublinhado: 'M6 4v6a6 6 0 0012 0V4M4 21h16',
-  titulo:     'M6 4v16M18 4v16M6 12h12',
-  subtitulo:  'M6 6v12M16 6v12M6 12h10',
-  lista:      'M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01',
-  numerada:   'M10 6h11M10 12h11M10 18h11M4 6h1v4M4 10h2M6 15a1.5 1.5 0 10-2 1.4L6 19H4',
-  citacao:    'M6 17h3l2-4V7H5v6h3zM14 17h3l2-4V7h-6v6h3z',
+  bold:    'M6 4h6a4 4 0 010 8H6zM6 12h7a4 4 0 010 8H6z',
+  italic:    'M19 4h-9M14 20H5M15 4L9 20',
+  underline: 'M6 4v6a6 6 0 0012 0V4M4 21h16',
+  title:     'M6 4v16M18 4v16M6 12h12',
+  subheading:  'M6 6v12M16 6v12M6 12h10',
+  list:      'M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01',
+  numbered:   'M10 6h11M10 12h11M10 18h11M4 6h1v4M4 10h2M6 15a1.5 1.5 0 10-2 1.4L6 19H4',
+  quote:    'M6 17h3l2-4V7H5v6h3zM14 17h3l2-4V7h-6v6h3z',
   link:       'M10 13a5 5 0 007 0l3-3a5 5 0 00-7-7l-1 1M14 11a5 5 0 00-7 0l-3 3a5 5 0 007 7l1-1',
-  limpar:     'M4 7h16M10 11v6M14 11v6M5 7l1 13a2 2 0 002 2h8a2 2 0 002-2l1-13',
-  tabela:     'M3 5h18v14H3zM3 10h18M3 15h18M9 5v14M15 5v14',
-  esquerda:   'M3 6h18M3 12h11M3 18h15',
-  centro:     'M3 6h18M6 12h12M4 18h16',
-  direita:    'M3 6h18M10 12h11M6 18h15',
-  justificar: 'M3 6h18M3 12h18M3 18h18',
-  codigo:     'M16 18l6-6-6-6M8 6l-6 6 6 6',
+  clear:     'M4 7h16M10 11v6M14 11v6M5 7l1 13a2 2 0 002 2h8a2 2 0 002-2l1-13',
+  table:     'M3 5h18v14H3zM3 10h18M3 15h18M9 5v14M15 5v14',
+  left:   'M3 6h18M3 12h11M3 18h15',
+  center:     'M3 6h18M6 12h12M4 18h16',
+  right:    'M3 6h18M10 12h11M6 18h15',
+  justify: 'M3 6h18M3 12h18M3 18h18',
+  code:     'M16 18l6-6-6-6M8 6l-6 6 6 6',
 };
 
-const ROTULOS = {
-  negrito: 'Negrito', italico: 'Itálico', sublinhado: 'Sublinhado',
-  titulo: 'Título', subtitulo: 'Subtítulo', lista: 'Lista',
-  numerada: 'Lista numerada', citacao: 'Citação', link: 'Link',
-  limpar: 'Limpar formatação', tabela: 'Inserir tabela',
-  esquerda: 'Alinhar à esquerda', centro: 'Centralizar',
-  direita: 'Alinhar à direita', justificar: 'Justificar',
-  codigo: 'Código',
+const LABELS = {
+  bold: 'Negrito', italic: 'Itálico', underline: 'Sublinhado',
+  title: 'Título', subheading: 'Subtítulo', list: 'Lista',
+  numbered: 'Lista numbered', quote: 'Citação', link: 'Link',
+  clear: 'Limpar formatação', table: 'Inserir tabela',
+  left: 'Alinhar à esquerda', center: 'Centralizar',
+  right: 'Alinhar à direita', justify: 'Justificar',
+  code: 'Código',
 };
 
 /*
@@ -69,28 +69,28 @@ const ROTULOS = {
  * costumam decepcionar.
  */
 const COMANDOS = {
-  negrito:    () => document.execCommand('bold'),
-  italico:    () => document.execCommand('italic'),
-  sublinhado: () => document.execCommand('underline'),
-  titulo:     () => alternarBloco('H2'),
-  subtitulo:  () => alternarBloco('H3'),
-  lista:      () => document.execCommand('insertUnorderedList'),
-  numerada:   () => document.execCommand('insertOrderedList'),
-  citacao:    () => alternarBloco('BLOCKQUOTE'),
-  limpar:     () => document.execCommand('removeFormat'),
-  esquerda:   () => document.execCommand('justifyLeft'),
-  centro:     () => document.execCommand('justifyCenter'),
-  direita:    () => document.execCommand('justifyRight'),
-  justificar: () => document.execCommand('justifyFull'),
-  codigo:     () => alternarCodigo(),
+  bold:    () => document.execCommand('bold'),
+  italic:    () => document.execCommand('italic'),
+  underline: () => document.execCommand('underline'),
+  title:     () => toggleBlock('H2'),
+  subheading:  () => toggleBlock('H3'),
+  list:      () => document.execCommand('insertUnorderedList'),
+  numbered:   () => document.execCommand('insertOrderedList'),
+  quote:    () => toggleBlock('BLOCKQUOTE'),
+  clear:     () => document.execCommand('removeFormat'),
+  left:   () => document.execCommand('justifyLeft'),
+  center:     () => document.execCommand('justifyCenter'),
+  right:    () => document.execCommand('justifyRight'),
+  justify: () => document.execCommand('justifyFull'),
+  code:     () => toggleCode(),
 };
 
 /* Estado que o proprio navegador informa. */
-const ESTADOS = {
-  negrito: 'bold', italico: 'italic', sublinhado: 'underline',
-  lista: 'insertUnorderedList', numerada: 'insertOrderedList',
-  esquerda: 'justifyLeft', centro: 'justifyCenter',
-  direita: 'justifyRight', justificar: 'justifyFull',
+const STATES = {
+  bold: 'bold', italic: 'italic', underline: 'underline',
+  list: 'insertUnorderedList', numbered: 'insertOrderedList',
+  left: 'justifyLeft', center: 'justifyCenter',
+  right: 'justifyRight', justify: 'justifyFull',
 };
 
 /*
@@ -103,15 +103,15 @@ const ESTADOS = {
  * como saber que clicar de novo desfaz.
  */
 const ANCESTRAIS = {
-  titulo: 'h2',
-  subtitulo: 'h3',
-  citacao: 'blockquote',
-  codigo: 'pre, code',
+  title: 'h2',
+  subheading: 'h3',
+  quote: 'blockquote',
+  code: 'pre, code',
   link: 'a',
-  tabela: 'table',
+  table: 'table',
 };
 
-const ATALHOS = { b: 'negrito', i: 'italico', u: 'sublinhado', k: 'link' };
+const ATALHOS = { b: 'bold', i: 'italic', u: 'underline', k: 'link' };
 
 /*
  * O execCommand nao tem comando de codigo, entao a marcacao e montada aqui —
@@ -122,24 +122,24 @@ const ATALHOS = { b: 'negrito', i: 'italico', u: 'sublinhado', k: 'link' };
  */
 const ESCAPES = { '&': '&amp;', '<': '&lt;', '>': '&gt;' };
 
-function alternarCodigo() {
+function toggleCode() {
   const sel = window.getSelection();
   if (!sel?.rangeCount) return;
   const inicio = sel.anchorNode?.nodeType === Node.ELEMENT_NODE ? sel.anchorNode : sel.anchorNode?.parentElement;
-  const dentro = inicio?.closest?.('pre, code');
+  const inside = inicio?.closest?.('pre, code');
 
   // Ja e codigo: seleciona a marcacao inteira e devolve o texto sem ela.
-  if (dentro) {
-    const alvo = dentro.closest('pre') || dentro;
-    const texto = alvo.textContent;
+  if (inside) {
+    const target = inside.closest('pre') || inside;
+    const text = target.textContent;
     const r = document.createRange();
     /*
      * Em volta do elemento, e nao dentro dele. selectNode marca o conteudo, e
      * o insertHTML seguinte escrevia os paragrafos por dentro do <pre>, que
      * ficava de pe — sobrava um bloco de codigo com paragrafos la dentro.
      */
-    r.setStartBefore(alvo);
-    r.setEndAfter(alvo);
+    r.setStartBefore(target);
+    r.setEndAfter(target);
     sel.removeAllRanges();
     sel.addRange(r);
     /*
@@ -154,16 +154,16 @@ function alternarCodigo() {
      * entregar um resultado errado: tirar a formatacao e a acao de quem se
      * arrependeu, e ela precisa funcionar de primeira.
      */
-    if (alvo.tagName === 'PRE') {
+    if (target.tagName === 'PRE') {
       const bloco = document.createDocumentFragment();
-      for (const linha of texto.split('\n')) {
+      for (const row of text.split('\n')) {
         const par = document.createElement('p');
-        if (linha) par.textContent = linha;
+        if (row) par.textContent = row;
         else par.append(document.createElement('br'));
         bloco.append(par);
       }
       const primeiro = bloco.firstChild;
-      alvo.replaceWith(bloco);
+      target.replaceWith(bloco);
       if (primeiro) {
         const pos = document.createRange();
         pos.selectNodeContents(primeiro);
@@ -173,26 +173,26 @@ function alternarCodigo() {
       }
       return;
     }
-    document.execCommand('insertText', false, texto);
+    document.execCommand('insertText', false, text);
     return;
   }
 
-  const texto = sel.toString();
-  if (!texto) return;
+  const text = sel.toString();
+  if (!text) return;
   /*
    * Linha em branco dupla vira simples. A selecao atravessa paragrafos, e
    * toString junta cada um com duas quebras — o bloco saia com um vazio entre
-   * todas as linhas, como se o codigo tivesse sido espacado de proposito.
+   * todas as rows, como se o codigo tivesse sido espacado de proposito.
    */
-  const escapado = texto.replace(/\n{2,}/g, '\n').replace(/[&<>]/g, (c) => ESCAPES[c]);
+  const escapado = text.replace(/\n{2,}/g, '\n').replace(/[&<>]/g, (c) => ESCAPES[c]);
 
   /*
-   * Selecao que atravessa linhas vira bloco, e nao codigo no meio da frase.
+   * Selecao que atravessa rows vira bloco, e nao codigo no meio da frase.
    * Um <code> solto nao guarda quebra: o navegador dissolvia a marcacao e
    * sobravam paragrafos com o texto cru, sem formatacao nenhuma. <pre> e o
    * elemento que existe para preservar quebra e recuo.
    */
-  if (/\n/.test(texto)) {
+  if (/\n/.test(text)) {
     document.execCommand('insertHTML', false, `<pre><code>${escapado}</code></pre><p><br></p>`);
     return;
   }
@@ -200,7 +200,7 @@ function alternarCodigo() {
 }
 
 /** Aplica o bloco, ou volta para paragrafo se ele ja estiver aplicado. */
-function alternarBloco(tag) {
+function toggleBlock(tag) {
   const atual = document.queryCommandValue('formatBlock')?.toUpperCase();
   document.execCommand('formatBlock', false, atual === tag ? 'P' : tag);
 }
@@ -210,28 +210,28 @@ function alternarBloco(tag) {
  * navegador nenhum. Vai com cabecalho porque tabela de sistema quase sempre
  * tem um, e sem ele a primeira linha de dados acaba servindo de titulo.
  */
-function montarTabela(doc, linhas, colunas) {
+function buildTable(doc, rows, cols) {
   const cel = (tag) => { const c = doc.createElement(tag); c.append(doc.createElement('br')); return c; };
-  const tabela = doc.createElement('table');
+  const table = doc.createElement('table');
   const thead = doc.createElement('thead');
   const trCab = doc.createElement('tr');
   for (let c = 0; c < colunas; c++) trCab.append(cel('th'));
   thead.append(trCab);
   const tbody = doc.createElement('tbody');
-  for (let l = 0; l < linhas - 1; l++) {
+  for (let l = 0; l < rows - 1; l++) {
     const tr = doc.createElement('tr');
     for (let c = 0; c < colunas; c++) tr.append(cel('td'));
     tbody.append(tr);
   }
-  tabela.append(thead, tbody);
-  return tabela;
+  table.append(thead, tbody);
+  return table;
 }
 
 /** Proxima celula na ordem de leitura, ou nada se for a ultima. */
-function proximaCelula(celula, tras) {
-  const tabela = celula.closest('table');
-  const celulas = [...tabela.querySelectorAll('th, td')];
-  return celulas[celulas.indexOf(celula) + (tras ? -1 : 1)] || null;
+function nextCell(cell, tras) {
+  const table = cell.closest('table');
+  const celulas = [...table.querySelectorAll('th, td')];
+  return celulas[celulas.indexOf(cell) + (tras ? -1 : 1)] || null;
 }
 
 /*
@@ -241,93 +241,93 @@ function proximaCelula(celula, tras) {
  * conteudo pode ter sido editado entre um clique e outro, e posicao decorada
  * envelhece. Perguntar ao DOM na hora custa nada e nunca erra.
  */
-const TABELA = {
-  linhaAcima:   (c) => inserirLinha(c, 0),
-  linhaAbaixo:  (c) => inserirLinha(c, 1),
-  colunaAntes:  (c) => inserirColuna(c, 0),
-  colunaDepois: (c) => inserirColuna(c, 1),
-  removerLinha:  (c) => removerLinha(c),
-  removerColuna: (c) => removerColuna(c),
-  removerTabela: (c) => c.closest('table')?.remove(),
+const TABLE = {
+  rowAbove:   (c) => insertRow(c, 0),
+  rowBelow:  (c) => insertRow(c, 1),
+  colBefore:  (c) => insertColumn(c, 0),
+  colAfter: (c) => insertColumn(c, 1),
+  deleteRow:  (c) => deleteRow(c),
+  deleteColumn: (c) => deleteColumn(c),
+  deleteTable: (c) => c.closest('table')?.remove(),
 };
 
 /*
  * O verbo vem primeiro porque sem ele o rotulo e ambiguo: "Coluna a esquerda"
  * tanto pode inserir quanto alinhar, e a barra tem as duas coisas.
  */
-const ROTULOS_TABELA = {
-  linhaAcima: 'Inserir linha acima', linhaAbaixo: 'Inserir linha abaixo',
-  colunaAntes: 'Inserir coluna à esquerda', colunaDepois: 'Inserir coluna à direita',
-  removerLinha: 'Excluir linha', removerColuna: 'Excluir coluna',
-  removerTabela: 'Excluir tabela',
+const TABLE_LABELS = {
+  rowAbove: 'Inserir linha acima', rowBelow: 'Inserir linha abaixo',
+  colBefore: 'Inserir coluna à esquerda', colAfter: 'Inserir coluna à direita',
+  deleteRow: 'Excluir linha', deleteColumn: 'Excluir coluna',
+  deleteTable: 'Excluir tabela',
 };
 
-const ICONES_TABELA = {
-  linhaAcima:    'M12 3v8M8 7h8M3 15h18M3 20h18',
-  linhaAbaixo:   'M3 4h18M3 9h18M12 21v-8M8 17h8',
-  colunaAntes:   'M3 12h8M7 8v8M15 3v18M20 3v18',
-  colunaDepois:  'M4 3v18M9 3v18M21 12h-8M17 8v8',
-  removerLinha:  'M3 6h18M3 18h18M9 12h6',
-  removerColuna: 'M6 3v18M18 3v18M12 9v6',
-  removerTabela: 'M4 7h16M10 11v6M14 11v6M5 7l1 13a2 2 0 002 2h8a2 2 0 002-2l1-13M9 7V4h6v3',
+const TABLE_ICONS = {
+  rowAbove:    'M12 3v8M8 7h8M3 15h18M3 20h18',
+  rowBelow:   'M3 4h18M3 9h18M12 21v-8M8 17h8',
+  colBefore:   'M3 12h8M7 8v8M15 3v18M20 3v18',
+  colAfter:  'M4 3v18M9 3v18M21 12h-8M17 8v8',
+  deleteRow:  'M3 6h18M3 18h18M9 12h6',
+  deleteColumn: 'M6 3v18M18 3v18M12 9v6',
+  deleteTable: 'M4 7h16M10 11v6M14 11v6M5 7l1 13a2 2 0 002 2h8a2 2 0 002-2l1-13M9 7V4h6v3',
 };
 
-const celulaVazia = (tag) => {
+const emptyCell = (tag) => {
   const c = document.createElement(tag);
   c.append(document.createElement('br'));
   return c;
 };
 
-function inserirLinha(celula, depois) {
-  const linha = celula.parentElement;
+function insertRow(cell, after) {
+  const row = cell.parentElement;
   const nova = document.createElement('tr');
-  for (let i = 0; i < linha.children.length; i++) nova.append(celulaVazia('td'));
+  for (let i = 0; i < row.children.length; i++) nova.append(emptyCell('td'));
   // Linha acima do cabecalho vira corpo, nao outro cabecalho.
-  const corpo = celula.closest('table').querySelector('tbody');
-  if (linha.parentElement.tagName === 'THEAD' && corpo) {
-    depois ? corpo.prepend(nova) : corpo.prepend(nova);
+  const body = cell.closest('table').querySelector('tbody');
+  if (row.parentElement.tagName === 'THEAD' && body) {
+    after ? body.prepend(nova) : body.prepend(nova);
   } else {
-    linha.parentElement.insertBefore(nova, depois ? linha.nextSibling : linha);
+    row.parentElement.insertBefore(nova, after ? row.nextSibling : row);
   }
   return nova.firstElementChild;
 }
 
-function inserirColuna(celula, depois) {
-  const i = [...celula.parentElement.children].indexOf(celula);
-  for (const linha of celula.closest('table').querySelectorAll('tr')) {
-    const modelo = linha.children[i];
-    const nova = celulaVazia(modelo?.tagName === 'TH' ? 'th' : 'td');
-    linha.insertBefore(nova, depois ? modelo?.nextSibling : modelo);
+function insertColumn(cell, after) {
+  const i = [...cell.parentElement.children].indexOf(cell);
+  for (const row of cell.closest('table').querySelectorAll('tr')) {
+    const modelo = row.children[i];
+    const nova = emptyCell(modelo?.tagName === 'TH' ? 'th' : 'td');
+    row.insertBefore(nova, after ? modelo?.nextSibling : modelo);
   }
-  return celula.parentElement.children[depois ? i + 1 : i];
+  return cell.parentElement.children[after ? i + 1 : i];
 }
 
-function removerLinha(celula) {
-  const linha = celula.parentElement;
-  const tabela = celula.closest('table');
+function deleteRow(cell) {
+  const row = cell.parentElement;
+  const table = cell.closest('table');
   // Ultima linha: some a tabela inteira, senao sobra uma moldura vazia.
-  if (tabela.querySelectorAll('tr').length <= 1) { tabela.remove(); return null; }
-  const vizinha = linha.nextElementSibling || linha.previousElementSibling;
-  linha.remove();
+  if (table.querySelectorAll('tr').length <= 1) { table.remove(); return null; }
+  const vizinha = row.nextElementSibling || row.previousElementSibling;
+  row.remove();
   return vizinha?.firstElementChild ?? null;
 }
 
-function removerColuna(celula) {
-  // A linha e guardada antes do laco: ele apaga a coluna em todas as linhas,
+function deleteColumn(cell) {
+  // A linha e guardada antes do laco: ele apaga a coluna em todas as rows,
   // inclusive nesta, e a partir dai a celula que recebemos nao tem mais pai.
-  const linha = celula.parentElement;
-  const i = [...linha.children].indexOf(celula);
-  const tabela = celula.closest('table');
-  if (linha.children.length <= 1) { tabela.remove(); return null; }
-  for (const l of tabela.querySelectorAll('tr')) l.children[i]?.remove();
-  return linha.children[Math.max(0, i - 1)] ?? null;
+  const row = cell.parentElement;
+  const i = [...row.children].indexOf(cell);
+  const table = cell.closest('table');
+  if (row.children.length <= 1) { table.remove(); return null; }
+  for (const l of table.querySelectorAll('tr')) l.children[i]?.remove();
+  return row.children[Math.max(0, i - 1)] ?? null;
 }
 
 /** Poe o cursor no comeco de uma celula. */
-function focarCelula(celula) {
-  if (!celula) return;
+function focusCell(cell) {
+  if (!cell) return;
   const r = document.createRange();
-  r.selectNodeContents(celula);
+  r.selectNodeContents(cell);
   r.collapse(true);
   const s = window.getSelection();
   s.removeAllRanges();
@@ -341,7 +341,7 @@ function focarCelula(celula) {
  * salta para o comeco a cada tecla. Contar caracteres sobrevive a troca porque
  * o texto nao muda — so a marcacao em volta dele.
  */
-function posicaoNoBloco(bloco) {
+function offsetInBlock(bloco) {
   const sel = window.getSelection();
   if (!sel?.rangeCount || !bloco.contains(sel.anchorNode)) return null;
   const r = sel.getRangeAt(0).cloneRange();
@@ -350,72 +350,72 @@ function posicaoNoBloco(bloco) {
   return r.toString().length;
 }
 
-function devolverPosicao(bloco, quantos) {
+function restoreOffset(bloco, quantos) {
   if (quantos == null) return;
-  const passo = document.createTreeWalker(bloco, NodeFilter.SHOW_TEXT);
-  let contados = 0;
+  const step = document.createTreeWalker(bloco, NodeFilter.SHOW_TEXT);
+  let counted = 0;
   let no;
-  while ((no = passo.nextNode())) {
-    if (contados + no.length >= quantos) {
+  while ((no = step.nextNode())) {
+    if (counted + no.length >= quantos) {
       const r = document.createRange();
-      r.setStart(no, quantos - contados);
+      r.setStart(no, quantos - counted);
       r.collapse(true);
       const sel = window.getSelection();
       sel.removeAllRanges();
       sel.addRange(r);
       return;
     }
-    contados += no.length;
+    counted += no.length;
   }
 }
 
-function semUndefined(obj) {
+function withoutUndefined(obj) {
   const out = {};
   for (const [k, v] of Object.entries(obj || {})) if (v !== undefined) out[k] = v;
   return out;
 }
 
-export class Rico {
-  constructor(alvo, opcoes = {}) {
-    this.campo = typeof alvo === 'string' ? document.querySelector(alvo) : alvo;
-    if (!this.campo) throw new Error('[Rico] elemento não encontrado');
-    this.opts = { ...DEFAULTS, ...semUndefined(opcoes) };
+export class Editor {
+  constructor(target, options = {}) {
+    this.field = typeof target === 'string' ? document.querySelector(target) : target;
+    if (!this.field) throw new Error('[Editor] elemento não encontrado');
+    this.opts = { ...DEFAULTS, ...withoutUndefined(options) };
     this._cleanups = [];
-    this._montar();
+    this._build();
   }
 
-  _montar() {
-    const campo = this.campo;
+  _build() {
+    const field = this.field;
 
     this.area = el('div', {
-      class: 'tuc-rico__area',
+      class: 'tuc-editor__area',
       contenteditable: 'true',
       role: 'textbox',
       'aria-multiline': 'true',
-      'data-placeholder': this.opts.placeholder || campo.placeholder || '',
+      'data-placeholder': this.opts.placeholder || field.placeholder || '',
     });
     this.area.style.minHeight = this.opts.minHeight;
     // O valor inicial tambem passa pela peneira: pode vir do banco.
-    this.area.innerHTML = sanitizar(campo.value) || '<p><br></p>';
+    this.area.innerHTML = sanitize(field.value) || '<p><br></p>';
 
     // Onde a barra muda de assunto: marcacao de texto, alinhamento, blocos.
-    const GRUPOS = new Set(['esquerda', 'citacao']);
+    const GRUPOS = new Set(['left', 'quote']);
 
-    this.barra = el('div', { class: 'tuc-rico__barra', role: 'toolbar', 'aria-label': 'Formatação' },
-      this.opts.toolbar.flatMap((nome) => {
+    this.toolbar = el('div', { class: 'tuc-editor__toolbar', role: 'toolbar', 'aria-label': 'Formatação' },
+      this.opts.toolbar.flatMap((name) => {
         const b = el('button', {
           type: 'button',
           class: 'tuc-btn is-ghost is-icon is-sm',
-          'aria-label': ROTULOS[nome] ?? nome,
-          'data-tuc-tip': ROTULOS[nome] ?? nome,
+          'aria-label': LABELS[name] ?? name,
+          'data-tuc-tip': LABELS[name] ?? name,
           'aria-pressed': 'false',
           // mousedown e nao click: click viria depois do blur, e a selecao
           // dentro da area ja teria sido perdida.
-          onmousedown: (e) => { e.preventDefault(); this.aplicar(nome); },
-        }, [icon(ICONES[nome] ?? ICONES.limpar, 15)]);
-        b.dataset.acao = nome;
-        return GRUPOS.has(nome)
-          ? [el('span', { class: 'tuc-rico__sep', 'aria-hidden': 'true' }), b]
+          onmousedown: (e) => { e.preventDefault(); this.apply(name); },
+        }, [icon(ICONES[name] ?? ICONES.clear, 15)]);
+        b.dataset.action = name;
+        return GRUPOS.has(name)
+          ? [el('span', { class: 'tuc-editor__sep', 'aria-hidden': 'true' }), b]
           : [b];
       }));
 
@@ -424,39 +424,39 @@ export class Rico {
      * visivel encheria a barra principal de botoes inuteis na maior parte do
      * tempo, e escondida ela ensina onde procurar quando faz falta.
      */
-    this.barraTabela = el('div', {
-      class: 'tuc-rico__barra is-tabela',
+    this.tableBar = el('div', {
+      class: 'tuc-editor__toolbar is-table',
       role: 'toolbar',
       'aria-label': 'Tabela',
       hidden: true,
-    }, Object.keys(TABELA).map((nome) => el('button', {
+    }, Object.keys(TABLE).map((name) => el('button', {
       type: 'button',
-      class: `tuc-btn is-ghost is-icon is-sm${nome.startsWith('remover') ? ' is-remover' : ''}`,
-      'aria-label': ROTULOS_TABELA[nome],
-      'data-tuc-tip': ROTULOS_TABELA[nome],
-      onmousedown: (e) => { e.preventDefault(); this.naTabela(nome); },
-    }, [icon(ICONES_TABELA[nome], 15)])));
+      class: `tuc-btn is-ghost is-icon is-sm${name.startsWith('remove') ? ' is-remove' : ''}`,
+      'aria-label': TABLE_LABELS[name],
+      'data-tuc-tip': TABLE_LABELS[name],
+      onmousedown: (e) => { e.preventDefault(); this.inTable(name); },
+    }, [icon(TABLE_ICONS[name], 15)])));
 
-    this.raiz = el('div', { class: 'tuc-rico' }, [this.barra, this.barraTabela, this.area]);
-    campo.parentNode.insertBefore(this.raiz, campo);
-    this.raiz.append(campo);
-    campo.hidden = true;
-    campo.classList.add('tuc-rico__valor');
+    this.root = el('div', { class: 'tuc-editor' }, [this.toolbar, this.tableBar, this.area]);
+    field.parentNode.insertBefore(this.root, field);
+    this.root.append(field);
+    field.hidden = true;
+    field.classList.add('tuc-editor__value');
 
     this._cleanups.push(
       on(this.area, 'input', () => { this._sincronizar(); this._agendarPintura(); }),
       on(this.area, 'blur', () => this._sincronizar()),
       on(this.area, 'paste', (e) => this._colar(e)),
-      on(this.area, 'keydown', (e) => this._teclado(e)),
-      on(this.area, 'keyup', () => this._marcarAtivos()),
-      on(this.area, 'mouseup', () => this._marcarAtivos()),
+      on(this.area, 'keydown', (e) => this._onKey(e)),
+      on(this.area, 'keyup', () => this._markActive()),
+      on(this.area, 'mouseup', () => this._markActive()),
       // selectionchange e global: e o unico evento que pega o cursor mudando
       // de lugar por qualquer caminho, inclusive clique fora e volta.
-      on(document, 'selectionchange', () => { this._verTabela(); this._marcarAtivos(); }),
+      on(document, 'selectionchange', () => { this._syncTableBar(); this._markActive(); }),
     );
 
-    this._pintar();
-    campo._tucano = this;
+    this._paint();
+    field._tucano = this;
     this.area._tucano = this;
   }
 
@@ -465,63 +465,63 @@ export class Rico {
    * <span>, entao nada disso chega ao valor salvo — e nem deveria, porque cor
    * e decisao de quem exibe, nao conteudo.
    */
-  _pintar() {
+  _paint() {
     for (const code of this.area.querySelectorAll('pre > code')) {
       const cru = code.textContent;
-      const pintado = destacar(cru);
-      if (code.innerHTML === pintado) continue;
-      const onde = posicaoNoBloco(code);
-      code.innerHTML = pintado;
-      devolverPosicao(code, onde);
+      const painted = highlight(cru);
+      if (code.innerHTML === painted) continue;
+      const onde = offsetInBlock(code);
+      code.innerHTML = painted;
+      restoreOffset(code, onde);
     }
   }
 
   /* O textarea escondido e a fonte da verdade para o formulario. */
   _sincronizar() {
-    const limpo = sanitizar(this.area.innerHTML);
-    if (this.campo.value === limpo) return;
-    this.campo.value = limpo;
-    this.campo.dispatchEvent(new Event('input', { bubbles: true }));
-    this.campo.dispatchEvent(new Event('change', { bubbles: true }));
+    const plain = sanitize(this.area.innerHTML);
+    if (this.field.value === plain) return;
+    this.field.value = plain;
+    this.field.dispatchEvent(new Event('input', { bubbles: true }));
+    this.field.dispatchEvent(new Event('change', { bubbles: true }));
   }
 
   /* Adiado: repintar a cada tecla brigaria com a digitacao. */
   _agendarPintura() {
     clearTimeout(this._pincel);
-    this._pincel = setTimeout(() => this._pintar(), 180);
+    this._pincel = setTimeout(() => this._paint(), 180);
   }
 
   _colar(e) {
     e.preventDefault();
-    const texto = e.clipboardData?.getData('text/plain')
-      ?? soTexto(e.clipboardData?.getData('text/html'));
-    document.execCommand('insertText', false, texto);
+    const text = e.clipboardData?.getData('text/plain')
+      ?? textOnly(e.clipboardData?.getData('text/html'));
+    document.execCommand('insertText', false, text);
   }
 
-  _teclado(e) {
+  _onKey(e) {
     if (e.key === 'Tab') {
-      const celula = window.getSelection()?.anchorNode?.parentElement?.closest?.('th, td');
-      if (celula) {
+      const cell = window.getSelection()?.anchorNode?.parentElement?.closest?.('th, td');
+      if (cell) {
         e.preventDefault();
-        let alvo = proximaCelula(celula, e.shiftKey);
+        let target = nextCell(cell, e.shiftKey);
         // Tab na ultima celula acrescenta uma linha: e como se preenche tabela
         // sem tirar as maos do teclado.
-        if (!alvo && !e.shiftKey) {
-          const corpo = celula.closest('table').querySelector('tbody') || celula.closest('table');
-          const modelo = corpo.querySelector('tr') || celula.parentElement;
+        if (!target && !e.shiftKey) {
+          const body = cell.closest('table').querySelector('tbody') || cell.closest('table');
+          const modelo = body.querySelector('tr') || cell.parentElement;
           const nova = document.createElement('tr');
           for (let i = 0; i < modelo.children.length; i++) {
             const td = document.createElement('td');
             td.append(document.createElement('br'));
             nova.append(td);
           }
-          corpo.append(nova);
-          alvo = nova.firstElementChild;
+          body.append(nova);
+          target = nova.firstElementChild;
           this._sincronizar();
         }
-        if (alvo) {
+        if (target) {
           const r = document.createRange();
-          r.selectNodeContents(alvo);
+          r.selectNodeContents(target);
           r.collapse(true);
           const s = window.getSelection();
           s.removeAllRanges();
@@ -533,7 +533,7 @@ export class Rico {
     const t = e.key.toLowerCase();
     if ((e.metaKey || e.ctrlKey) && ATALHOS[t]) {
       e.preventDefault();
-      this.aplicar(ATALHOS[t]);
+      this.apply(ATALHOS[t]);
     }
   }
 
@@ -550,73 +550,73 @@ export class Rico {
    * acima cresce, quem mantem a viewport parada e o scroll anchoring, e ele so
    * funciona se ninguem mexer na rolagem por fora.
    */
-  _focar() {
+  _focus() {
     this.area.focus({ preventScroll: true });
   }
 
   /* Elemento em volta do cursor, dentro da area. */
-  _noAtual() {
+  _currentNode() {
     const sel = window.getSelection();
     if (!sel?.anchorNode || !this.area.contains(sel.anchorNode)) return null;
     return sel.anchorNode.nodeType === Node.ELEMENT_NODE ? sel.anchorNode : sel.anchorNode.parentElement;
   }
 
-  _marcarAtivos() {
-    const no = this._noAtual();
-    for (const b of this.barra.querySelectorAll('[data-acao]')) {
-      const acao = b.dataset.acao;
-      const cmd = ESTADOS[acao];
-      const seletor = ANCESTRAIS[acao];
+  _markActive() {
+    const no = this._currentNode();
+    for (const b of this.toolbar.querySelectorAll('[data-action]')) {
+      const action = b.dataset.action;
+      const cmd = STATES[action];
+      const seletor = ANCESTRAIS[action];
       if (!cmd && !seletor) continue;
 
-      let ativo = false;
+      let active = false;
       if (cmd) {
-        try { ativo = document.queryCommandState(cmd); } catch { /* sem selecao */ }
+        try { active = document.queryCommandState(cmd); } catch { /* sem selecao */ }
       } else if (no) {
-        ativo = !!no.closest?.(seletor);
+        active = !!no.closest?.(seletor);
       }
-      b.setAttribute('aria-pressed', String(ativo));
-      b.classList.toggle('is-ativo', ativo);
+      b.setAttribute('aria-pressed', String(active));
+      b.classList.toggle('is-active', active);
     }
   }
 
   /** Celula onde o cursor esta, ou nada. */
-  _celulaAtual() {
+  _currentCell() {
     const sel = window.getSelection();
     if (!sel?.anchorNode || !this.area.contains(sel.anchorNode)) return null;
     const no = sel.anchorNode.nodeType === Node.ELEMENT_NODE ? sel.anchorNode : sel.anchorNode.parentElement;
-    const celula = no?.closest?.('th, td') ?? null;
+    const cell = no?.closest?.('th, td') ?? null;
     /*
      * A selecao sobrevive ao no que ela apontava: remover uma linha deixa o
      * cursor num elemento que ja saiu do documento, e a operacao seguinte
      * receberia uma celula sem pai. Confirmar que ela ainda esta na area custa
      * uma checagem e evita quebrar no segundo clique.
      */
-    return celula && this.area.contains(celula) ? celula : null;
+    return cell && this.area.contains(cell) ? cell : null;
   }
 
-  _verTabela() {
-    const dentro = !!this._celulaAtual();
-    if (this.barraTabela.hidden !== !dentro) this.barraTabela.hidden = !dentro;
+  _syncTableBar() {
+    const inside = !!this._currentCell();
+    if (this.tableBar.hidden !== !inside) this.tableBar.hidden = !inside;
   }
 
   /** Operacao de tabela na celula onde o cursor esta. */
-  naTabela(nome) {
-    const celula = this._celulaAtual();
-    if (!celula) return this;
-    const destino = TABELA[nome]?.(celula);
-    this._focar();
-    focarCelula(destino);
+  inTable(name) {
+    const cell = this._currentCell();
+    if (!cell) return this;
+    const destino = TABLE[name]?.(cell);
+    this._focus();
+    focusCell(destino);
     this._sincronizar();
-    this._verTabela();
+    this._syncTableBar();
     return this;
   }
 
-  aplicar(nome) {
-    this._focar();
-    if (nome === 'tabela') {
-      const { linhas, colunas } = this.opts.tabela;
-      const tabela = montarTabela(document, linhas, colunas);
+  apply(name) {
+    this._focus();
+    if (name === 'table') {
+      const { rows, cols } = this.opts.table;
+      const table = buildTable(document, rows, cols);
       const sel = window.getSelection();
 
       /*
@@ -625,13 +625,13 @@ export class Rico {
        * queria, e desfazer isso pelo editor e trabalhoso — o clique certo e
        * dificil de acertar entre duas molduras encaixadas.
        */
-      const dentro = this._celulaAtual()?.closest('table');
-      if (dentro) {
-        dentro.after(tabela);
+      const inside = this._currentCell()?.closest('table');
+      if (inside) {
+        inside.after(table);
         const p = document.createElement('p');
         p.append(document.createElement('br'));
-        tabela.after(p);
-        focarCelula(tabela.querySelector('th'));
+        table.after(p);
+        focusCell(table.querySelector('th'));
         this._sincronizar();
         return this;
       }
@@ -639,13 +639,13 @@ export class Rico {
       if (sel?.rangeCount) {
         const range = sel.getRangeAt(0);
         range.deleteContents();
-        range.insertNode(tabela);
+        range.insertNode(table);
         // Um paragrafo depois da tabela: sem ele nao ha onde continuar
         // escrevendo quando ela e a ultima coisa do texto.
         const p = document.createElement('p');
         p.append(document.createElement('br'));
-        tabela.after(p);
-        const primeira = tabela.querySelector('th');
+        table.after(p);
+        const primeira = table.querySelector('th');
         if (primeira) {
           const r = document.createRange();
           r.selectNodeContents(primeira);
@@ -657,14 +657,14 @@ export class Rico {
       this._sincronizar();
       return this;
     }
-    if (nome === 'link') {
-      this._pedirLink();
+    if (name === 'link') {
+      this._askForLink();
       return this;
     }
-    COMANDOS[nome]?.();
+    COMANDOS[name]?.();
     this._sincronizar();
-    this._marcarAtivos();
-    this._pintar();
+    this._markActive();
+    this._paint();
     return this;
   }
 
@@ -676,19 +676,19 @@ export class Rico {
    * precisa ser guardada antes e devolvida depois — sem isso o createLink nao
    * teria em que trecho aplicar.
    */
-  _pedirLink() {
+  _askForLink() {
     const sel = window.getSelection();
     const marca = sel?.rangeCount ? sel.getRangeAt(0).cloneRange() : null;
-    const existente = this._noAtual()?.closest('a');
+    const existente = this._currentNode()?.closest('a');
 
-    const campo = el('input', {
+    const field = el('input', {
       type: 'url',
       class: 'tuc-input',
       placeholder: 'https://',
       value: existente?.getAttribute('href') ?? 'https://',
     });
 
-    const devolverSelecao = () => {
+    const restoreSelection = () => {
       this.area.focus({ preventScroll: true });
       if (!marca) return;
       const s = window.getSelection();
@@ -704,24 +704,24 @@ export class Rico {
      * trecho nenhum e o link simplesmente nao aparecia.
      */
     let decidido = null;
-    const acoes = [{ texto: 'Cancelar', variante: 'outline' }];
+    const actions = [{ text: 'Cancelar', variant: 'outline' }];
     if (existente) {
-      acoes.push({ texto: 'Remover', variante: 'ghost', onClick: () => { decidido = 'remover'; } });
+      actions.push({ text: 'Remover', variant: 'ghost', onClick: () => { decidido = 'remove'; } });
     }
-    acoes.push({
-      texto: existente ? 'Salvar' : 'Inserir',
-      variante: 'primary',
-      onClick: () => { decidido = campo.value.trim(); },
+    actions.push({
+      text: existente ? 'Salvar' : 'Inserir',
+      variant: 'primary',
+      onClick: () => { decidido = field.value.trim(); },
     });
 
-    const dialogo = new Modal({
+    const dialog = new Modal({
       title: existente ? 'Editar link' : 'Inserir link',
-      tamanho: 'sm',
-      acoes,
-      aoFechar: () => {
+      size: 'sm',
+      actions,
+      onClose: () => {
         if (!decidido) return;
         {
-          if (decidido === 'remover') {
+          if (decidido === 'remove') {
             /*
              * O unlink exige uma selecao que abranja o link inteiro: com o
              * cursor apenas dentro dele o comando nao faz nada. Por isso a
@@ -735,48 +735,48 @@ export class Rico {
             sel2.addRange(r);
             document.execCommand('unlink');
           } else {
-            devolverSelecao();
+            restoreSelection();
             if (decidido !== 'https://') document.execCommand('createLink', false, decidido);
           }
           this._sincronizar();
-          this._marcarAtivos();
+          this._markActive();
         }
       },
     });
-    dialogo.conteudo(campo);
-    dialogo.abrir();
+    dialog.content(field);
+    dialog.open();
     // Enter no campo confirma, que e o que se espera de uma caixa com um campo.
-    campo.addEventListener('keydown', (e) => {
+    field.addEventListener('keydown', (e) => {
       if (e.key !== 'Enter') return;
       e.preventDefault();
-      dialogo.caixa.querySelector('.tuc-btn.is-primary')?.click();
+      dialog.panel.querySelector('.tuc-btn.is-primary')?.click();
     });
-    campo.focus();
-    campo.select();
+    field.focus();
+    field.select();
     return this;
   }
 
-  getValue() { return sanitizar(this.area.innerHTML); }
+  getValue() { return sanitize(this.area.innerHTML); }
   setValue(html) {
-    this.area.innerHTML = sanitizar(html) || '<p><br></p>';
-    this._pintar();
+    this.area.innerHTML = sanitize(html) || '<p><br></p>';
+    this._paint();
     this._sincronizar();
     return this;
   }
 
   destroy() {
     this._cleanups.forEach((fn) => fn());
-    this.campo.hidden = false;
-    this.raiz.parentNode?.insertBefore(this.campo, this.raiz);
-    this.raiz.remove();
+    this.field.hidden = false;
+    this.root.parentNode?.insertBefore(this.field, this.root);
+    this.root.remove();
   }
 }
 
 export function autoInit(scope = document) {
   const out = [];
-  for (const node of scope.querySelectorAll('[data-tuc-rico]:not([data-tuc-ready])')) {
+  for (const node of scope.querySelectorAll('[data-tuc-editor]:not([data-tuc-ready])')) {
     node.setAttribute('data-tuc-ready', '');
-    out.push(new Rico(node, {
+    out.push(new Editor(node, {
       minHeight: node.dataset.minHeight || undefined,
       placeholder: node.dataset.placeholder || undefined,
     }));

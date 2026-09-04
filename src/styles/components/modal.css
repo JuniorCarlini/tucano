@@ -6,20 +6,20 @@
  */
 .tuc-modal { @apply place-items-center p-4; }
 
-.tuc-modal__caixa {
+.tuc-modal__panel {
   max-height: calc(100vh - 2rem);
   border: var(--tuc-border-width) solid var(--tuc-border);
   border-radius: var(--tuc-radius);
   scale: 0.95;
 }
-.tuc-modal.is-open .tuc-modal__caixa {
+.tuc-modal.is-open .tuc-modal__panel {
   opacity: 1;
   scale: 1;
   transition:
     opacity var(--tuc-duration-lg) var(--tuc-ease),
     scale var(--tuc-duration-lg) var(--tuc-ease);
 }
-.tuc-modal.is-closing .tuc-modal__caixa {
+.tuc-modal.is-closing .tuc-modal__panel {
   opacity: 0;
   scale: 0.95;
   transition:
@@ -27,19 +27,19 @@
     scale var(--tuc-duration-out) var(--tuc-ease-in);
 }
 
-.tuc-modal.is-sm  .tuc-modal__caixa { max-width: 22rem; }
-.tuc-modal.is-md  .tuc-modal__caixa { max-width: 30rem; }
-.tuc-modal.is-lg  .tuc-modal__caixa { max-width: 44rem; }
-.tuc-modal.is-full .tuc-modal__caixa { max-width: none; height: 100%; max-height: none; }
+.tuc-modal.is-sm  .tuc-modal__panel { max-width: 22rem; }
+.tuc-modal.is-md  .tuc-modal__panel { max-width: 30rem; }
+.tuc-modal.is-lg  .tuc-modal__panel { max-width: 44rem; }
+.tuc-modal.is-full .tuc-modal__panel { max-width: none; height: 100%; max-height: none; }
 
 /*
  * No celular a caixa sobe do rodape em vez de surgir no centro: o polegar
- * alcanca os botoes, e o movimento diz de onde a coisa veio. So com is-folha,
+ * alcanca os botoes, e o movimento diz de onde a coisa veio. So com is-sheet,
  * porque nem todo modal quer virar gaveta.
  */
 @media (max-width: 40rem) {
-  .tuc-modal.is-folha { @apply items-end p-0; }
-  .tuc-modal.is-folha .tuc-modal__caixa {
+  .tuc-modal.is-sheet { @apply items-end p-0; }
+  .tuc-modal.is-sheet .tuc-modal__panel {
     max-width: none;
     border-radius: var(--tuc-radius) var(--tuc-radius) 0 0;
     border-bottom: 0;
@@ -47,13 +47,13 @@
     scale: 1;
     translate: 0 100%;
   }
-  .tuc-modal.is-folha.is-open .tuc-modal__caixa {
+  .tuc-modal.is-sheet.is-open .tuc-modal__panel {
     translate: 0 0;
     transition:
       opacity var(--tuc-duration-lg) var(--tuc-ease),
       translate var(--tuc-duration-lg) var(--tuc-ease);
   }
-  .tuc-modal.is-folha.is-closing .tuc-modal__caixa {
+  .tuc-modal.is-sheet.is-closing .tuc-modal__panel {
     translate: 0 100%;
     transition:
       opacity var(--tuc-duration-out) var(--tuc-ease-in),
@@ -62,6 +62,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .tuc-modal .tuc-modal__caixa,
+  .tuc-modal .tuc-modal__panel,
   .tuc-modal::backdrop { transition-duration: 100ms; scale: none; translate: none; }
 }

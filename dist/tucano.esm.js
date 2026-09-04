@@ -317,13 +317,13 @@ function on(target, type, handler, options) {
   target.addEventListener(type, handler, options);
   return () => target.removeEventListener(type, handler, options);
 }
-function abrirComTransicao(node, classe = "is-open") {
+function openWithTransition(node, className = "is-open") {
   void node.offsetHeight;
-  node.classList.add(classe);
+  node.classList.add(className);
 }
 
 // src/js/core/popover.js
-var DURACAO_SAIDA = 170;
+var EXIT_MS = 170;
 var Popover = class {
   constructor(anchor, panel, options = {}) {
     this.anchor = anchor;
@@ -333,8 +333,8 @@ var Popover = class {
     this.padding = options.padding ?? 8;
     this.appendTo = options.appendTo || document.body;
     this.matchWidth = options.matchWidth || false;
-    this.fecharSeSolto = options.fecharSeSolto || false;
-    this.fecharAoSairFoco = options.fecharAoSairFoco || false;
+    this.closeIfDetached = options.closeIfDetached || false;
+    this.closeOnFocusOut = options.closeOnFocusOut || false;
     this.onDismiss = options.onDismiss || (() => {
     });
     this.open = false;
@@ -344,14 +344,14 @@ var Popover = class {
   show() {
     if (this.open) return;
     this.open = true;
-    clearTimeout(this._saida);
+    clearTimeout(this._exitTimer);
     this.panel.classList.remove("is-closing");
     this.panel.style.position = "absolute";
     this.panel.style.top = "0";
     this.panel.style.left = "0";
     this.panel.style.margin = "0";
     this.appendTo.append(this.panel);
-    this._seta = this.panel.querySelector("[data-tuc-seta]");
+    this._arrow = this.panel.querySelector("[data-tuc-arrow]");
     this._reposition();
     if (!this.open) return;
     this._cleanups.push(
@@ -367,7 +367,7 @@ var Popover = class {
         }
       }, true)
     );
-    if (this.fecharAoSairFoco) {
+    if (this.closeOnFocusOut) {
       this._cleanups.push(on(document, "focusin", (e) => {
         if (this.panel.contains(e.target) || this.anchor.contains(e.target)) return;
         this.onDismiss("foco");
@@ -391,17 +391,17 @@ var Popover = class {
     this._cleanups = [];
     this._ro?.disconnect();
     this._ro = null;
-    clearTimeout(this._saida);
+    clearTimeout(this._exitTimer);
     if (!animar) {
       this.panel.classList.remove("is-closing");
       this.panel.remove();
       return;
     }
     this.panel.classList.add("is-closing");
-    this._saida = setTimeout(() => {
+    this._exitTimer = setTimeout(() => {
       this.panel.classList.remove("is-closing");
       this.panel.remove();
-    }, DURACAO_SAIDA);
+    }, EXIT_MS);
   }
   destroy() {
     this.hide();
@@ -413,7 +413,7 @@ var Popover = class {
     const p = { width: this.panel.offsetWidth, height: this.panel.offsetHeight };
     const vw = document.documentElement.clientWidth;
     const vh = document.documentElement.clientHeight;
-    if (this.fecharSeSolto && (a.bottom < 0 || a.top > vh || a.right < 0 || a.left > vw)) {
+    if (this.closeIfDetached && (a.bottom < 0 || a.top > vh || a.right < 0 || a.left > vw)) {
       this.onDismiss("solto");
       return;
     }
@@ -456,16 +456,16 @@ var Popover = class {
     this.panel.style.left = `${Math.round(left + host.left)}px`;
     this.panel.style.top = `${Math.round(top + host.top)}px`;
     this.panel.dataset.side = placeSide;
-    if (this._seta) {
-      const meia = this._seta.offsetWidth / 2;
+    if (this._arrow) {
+      const meia = this._arrow.offsetWidth / 2;
       const limite = 12 + meia;
       const preso = (v, total) => total <= limite * 2 ? total / 2 : Math.min(Math.max(v, limite), total - limite);
       if (deitado) {
-        this._seta.style.top = `${preso(a.top + a.height / 2 - top, p.height)}px`;
-        this._seta.style.left = placeSide === "left" ? `${p.width}px` : "0px";
+        this._arrow.style.top = `${preso(a.top + a.height / 2 - top, p.height)}px`;
+        this._arrow.style.left = placeSide === "left" ? `${p.width}px` : "0px";
       } else {
-        this._seta.style.left = `${preso(a.left + a.width / 2 - left, p.width)}px`;
-        this._seta.style.top = placeSide === "top" ? `${p.height}px` : "0px";
+        this._arrow.style.left = `${preso(a.left + a.width / 2 - left, p.width)}px`;
+        this._arrow.style.top = placeSide === "top" ? `${p.height}px` : "0px";
       }
     }
   }
@@ -612,14 +612,14 @@ var DatePicker = class {
     this.popover = new Popover(this.input, this.panel, {
       placement: this.opts.placement,
       appendTo: this.opts.appendTo || document.body,
-      fecharAoSairFoco: true,
+      closeOnFocusOut: true,
       // Clique fora: nao devolvemos o foco, senao roubariamos de onde o usuario clicou.
       onDismiss: (reason) => this.close({ restoreFocus: reason === "escape" })
     });
     this.popover.show();
     this._revealed = null;
     this._revealTimes();
-    abrirComTransicao(this.panel);
+    openWithTransition(this.panel);
     this._releaseFocus = trapFocus(this.panel);
     this.input.setAttribute("aria-expanded", "true");
     this.opts.onOpen?.(this);
@@ -857,9 +857,9 @@ var DatePicker = class {
    */
   _maskTemplate() {
     const widths = { yyyy: 4, yy: 2, MM: 2, M: 2, dd: 2, d: 2, HH: 2, H: 2, hh: 2, h: 2, mm: 2, m: 2, ss: 2, s: 2 };
-    const naoNumerico = /MMMM|MMM|EEEE|EEE|(^|[^'])a([^']|$)/;
+    const nonNumeric = /MMMM|MMM|EEEE|EEE|(^|[^'])a([^']|$)/;
     const f = this._displayFormat();
-    if (naoNumerico.test(f)) return null;
+    if (nonNumeric.test(f)) return null;
     const one = f.replace(
       /'[^']*'|yyyy|yy|MM|M|dd|d|HH|H|hh|h|mm|m|ss|s/g,
       (t) => t.startsWith("'") ? t.slice(1, -1) : "#".repeat(widths[t])
@@ -870,9 +870,9 @@ var DatePicker = class {
     return this._mask ? (this._mask.match(/#/g) || []).length : 0;
   }
   /**
-   * Reescreve o campo a cada tecla mantendo o gabarito. Apagar em cima de um
-   * separador remove o digito anterior junto — senao a mascara o recolocaria
-   * na hora e o campo travaria.
+   * Reescreve o field a cada tecla mantendo o template. Apagar em cima de um
+   * separator remove o digito anterior junto — senao a mascara o recolocaria
+   * na hora e o field travaria.
    */
   _onMaskInput(e) {
     const input = this.input;
@@ -898,8 +898,8 @@ var DatePicker = class {
     if (digits.length === this._maskSlots()) this._previewTyped();
   }
   /**
-   * Com a mascara completa, move o calendario para a data digitada sem fechar
-   * nem reescrever o campo — commit de verdade so no Enter ou ao sair.
+   * Com a mascara completa, move o calendario para a data digitada sem close
+   * nem reescrever o field — commit de verdade so no Enter ou ao sair.
    */
   _previewTyped() {
     const raw = this.input.value;
@@ -971,9 +971,9 @@ var DatePicker = class {
     }
   }
   /**
-   * Normaliza o que foi digitado. Quando o texto nao traz hora (parseUserInput
+   * Normaliza o que foi digitado. Quando o text nao traz hora (parseUserInput
    * marca isso em `hasTime`), mantem a hora que ja estava selecionada em vez de
-   * jogar o valor para meia-noite.
+   * jogar o value para meia-noite.
    */
   _keepTime(parsed, previous) {
     if (!parsed) return null;
@@ -1087,7 +1087,7 @@ var DatePicker = class {
     this._revealTimes();
   }
   /**
-   * Rola cada coluna de hora ate o valor selecionado — mas so quando esse valor
+   * Rola cada coluna de hora ate o value selecionado — mas so quando esse value
    * mudou. Assim o scroll que o usuario deu na coluna nao e desfeito a cada
    * re-render (que acontece a todo hover no modo periodo).
    */
@@ -1189,7 +1189,7 @@ var DatePicker = class {
   /**
    * Repinta as celulas ja existentes. E o que roda a cada mouseenter: refazer a
    * grade ali trocaria o elemento entre o mousedown e o mouseup, e o browser
-   * engoliria o clique — era isso que impedia de fechar o periodo.
+   * engoliria o clique — era isso que impedia de close o periodo.
    */
   _paintDays() {
     this.panel.classList.toggle("is-picking", this.pendingRange && !!this.hover);
@@ -1573,10 +1573,10 @@ var Select = class {
     this.items = readOptions(node);
     this.remoto = !!(this.opts.url || this.opts.loadOptions);
     this.opts.search = this.remoto ? true : this.opts.search ?? this.items.length >= this.opts.searchMinItems;
-    this.estadoBusca = null;
+    this.searchState = null;
     this._cache = /* @__PURE__ */ new Map();
     this._vazios = /* @__PURE__ */ new Set();
-    this._pagina = 1;
+    this._page = 1;
     this._temMais = false;
     this._build();
     this._syncFromNative();
@@ -1590,8 +1590,8 @@ var Select = class {
     return this.multiple ? escolhidos : escolhidos[0] ?? null;
   }
   setValue(value, { silent = false } = {}) {
-    const alvo = new Set([].concat(value ?? []).map(String));
-    for (const item of this.items) item.selected = alvo.has(item.value);
+    const target = new Set([].concat(value ?? []).map(String));
+    for (const item of this.items) item.selected = target.has(item.value);
     this._pushToNative();
     this._renderControl();
     if (this.isOpen) this._renderMenu();
@@ -1615,7 +1615,7 @@ var Select = class {
     this.search.value = "";
     if (this.remoto) {
       this.items = this._escolhidos();
-      this.estadoBusca = null;
+      this.searchState = null;
     }
     this.activeIndex = this.items.findIndex((i) => i.selected && !i.disabled);
     this._renderMenu();
@@ -1623,11 +1623,11 @@ var Select = class {
       placement: this.opts.placement,
       appendTo: this.opts.appendTo || document.body,
       matchWidth: true,
-      fecharAoSairFoco: true,
+      closeOnFocusOut: true,
       onDismiss: () => this.close()
     });
     this.popover.show();
-    abrirComTransicao(this.menu);
+    openWithTransition(this.menu);
     this.control.classList.add("is-open");
     this.control.setAttribute("aria-expanded", "true");
     this.search.focus();
@@ -1649,7 +1649,7 @@ var Select = class {
     this.isOpen ? this.close() : this.open();
   }
   destroy() {
-    clearTimeout(this._timerBusca);
+    clearTimeout(this._searchTimer);
     this._abortar();
     this.close();
     this._cleanups.forEach((fn) => fn());
@@ -1713,7 +1713,7 @@ var Select = class {
         this.query = this.search.value;
         if (!this.isOpen) this.open();
         if (this.remoto) {
-          this._agendarBusca();
+          this._scheduleSearch();
           return;
         }
         this.activeIndex = this._filtered().findIndex((i) => !i.disabled);
@@ -1725,7 +1725,7 @@ var Select = class {
       on(this.native, "change", () => {
         if (!this._pushing) this._syncFromNative();
       }),
-      on(this.list, "scroll", () => this._aoRolarLista())
+      on(this.list, "scroll", () => this._onListScroll())
     );
   }
   _syncFromNative() {
@@ -1759,13 +1759,13 @@ var Select = class {
    * tamanho minimo, cache, termo sem chance e requisicao ja em voo. Debounce
    * so no fim, para o que sobrou.
    */
-  _agendarBusca() {
-    clearTimeout(this._timerBusca);
+  _scheduleSearch() {
+    clearTimeout(this._searchTimer);
     const termo = this.query.trim();
-    this._pagina = 1;
+    this._page = 1;
     if (termo.length < this.opts.minChars) {
       this._abortar();
-      this.estadoBusca = null;
+      this.searchState = null;
       this.items = this._escolhidos();
       this._temMais = false;
       this._renderMenu();
@@ -1774,20 +1774,20 @@ var Select = class {
     const guardado = this.opts.cache ? this._cache.get(termo) : null;
     if (guardado) {
       this._abortar();
-      this.estadoBusca = null;
-      this._aplicarResultado(guardado, { anexar: false });
+      this.searchState = null;
+      this._applyResult(guardado, { anexar: false });
       return;
     }
     if (this._semChance(termo)) {
       this._abortar();
-      this.estadoBusca = null;
-      this._aplicarResultado([], { anexar: false });
+      this.searchState = null;
+      this._applyResult([], { anexar: false });
       return;
     }
     if (this._termoEmVoo === termo) return;
-    this.estadoBusca = "carregando";
+    this.searchState = "loading";
     this._renderMenu();
-    this._timerBusca = setTimeout(() => this._buscar(termo), this.opts.debounce);
+    this._searchTimer = setTimeout(() => this._buscar(termo), this.opts.debounce);
   }
   /**
    * Se "lucas" nao trouxe nada, "lucass" tambem nao traz — desde que a busca
@@ -1799,19 +1799,19 @@ var Select = class {
    */
   _semChance(termo) {
     if (!this.opts.shortCircuit) return false;
-    for (const vazio of this._vazios) if (termo.startsWith(vazio)) return true;
+    for (const empty of this._vazios) if (termo.startsWith(empty)) return true;
     return false;
   }
-  _guardar(termo, itens) {
+  _guardar(termo, items) {
     if (!this.opts.cache) return;
     if (this._cache.size >= this.opts.cacheSize) {
       this._cache.delete(this._cache.keys().next().value);
     }
-    this._cache.set(termo, itens);
-    if (!itens.length) this._vazios.add(termo);
+    this._cache.set(termo, items);
+    if (!items.length) this._vazios.add(termo);
   }
   /** Junta o que veio com quem ja estava escolhido e desenha. */
-  _aplicarResultado(vindos, { anexar }) {
+  _applyResult(vindos, { anexar }) {
     const escolhidos = this._escolhidos();
     const base = anexar ? this.items : escolhidos;
     const novos = vindos.filter((i) => !base.some((e) => e.value === i.value));
@@ -1823,23 +1823,23 @@ var Select = class {
     this._controle?.abort();
     this._controle = null;
   }
-  async _buscar(termo, { pagina = 1 } = {}) {
+  async _buscar(termo, { page = 1 } = {}) {
     this._abortar();
     const controle = new AbortController();
     this._controle = controle;
     this._termoEmVoo = termo;
     try {
-      const brutos = this.opts.loadOptions ? await this.opts.loadOptions(termo, { signal: controle.signal, page: pagina }) : await this._buscarUrl(termo, controle.signal, pagina);
+      const brutos = this.opts.loadOptions ? await this.opts.loadOptions(termo, { signal: controle.signal, page }) : await this._buscarUrl(termo, controle.signal, page);
       if (controle.signal.aborted) return;
-      const vindos = normalizarOpcoes(brutos);
-      this._temMais = temProximaPagina(brutos, vindos, this.opts.pageParam);
-      this.estadoBusca = null;
-      if (pagina === 1) this._guardar(termo, vindos);
-      this._aplicarResultado(vindos, { anexar: pagina > 1 });
+      const vindos = normalizeOptions(brutos);
+      this._temMais = hasNextPage(brutos, vindos, this.opts.pageParam);
+      this.searchState = null;
+      if (page === 1) this._guardar(termo, vindos);
+      this._applyResult(vindos, { anexar: page > 1 });
       return;
     } catch (e) {
       if (e.name === "AbortError" || controle.signal.aborted) return;
-      this.estadoBusca = "erro";
+      this.searchState = "error";
       this._renderMenu();
     } finally {
       if (this._controle === controle) {
@@ -1848,10 +1848,10 @@ var Select = class {
       }
     }
   }
-  async _buscarUrl(termo, signal, pagina = 1) {
+  async _buscarUrl(termo, signal, page = 1) {
     const url = new URL(this.opts.url, location.href);
     url.searchParams.set(this.opts.queryParam, termo);
-    if (pagina > 1 && this.opts.pageParam) url.searchParams.set(this.opts.pageParam, String(pagina));
+    if (page > 1 && this.opts.pageParam) url.searchParams.set(this.opts.pageParam, String(page));
     const r = await fetch(url, { signal, headers: { Accept: "application/json" } });
     if (!r.ok) throw new Error(`O servidor respondeu ${r.status}`);
     return r.json();
@@ -1860,14 +1860,14 @@ var Select = class {
    * Proxima pagina ao chegar perto do fim da lista. Carregar de uma vez os
    * dez mil registros e o que trava a pagina; vinte por vez, nao.
    */
-  _aoRolarLista() {
-    if (!this.remoto || !this._temMais || this.estadoBusca === "carregando") return;
+  _onListScroll() {
+    if (!this.remoto || !this._temMais || this.searchState === "loading") return;
     const l = this.list;
     if (l.scrollTop + l.clientHeight < l.scrollHeight - 48) return;
-    this._pagina += 1;
-    this.estadoBusca = "carregando";
+    this._page += 1;
+    this.searchState = "loading";
     this._renderMenu();
-    this._buscar(this.query.trim(), { pagina: this._pagina });
+    this._buscar(this.query.trim(), { page: this._page });
   }
   _escolhidos() {
     return this.items.filter((i) => i.selected);
@@ -1900,9 +1900,9 @@ var Select = class {
         this.search
       );
     }
-    const vazio = !escolhidos.length && !this.query;
-    this.search.placeholder = vazio ? this.opts.placeholder : this.isOpen && this.opts.search ? this.opts.searchPlaceholder : "";
-    this.control.classList.toggle("is-empty", vazio);
+    const empty = !escolhidos.length && !this.query;
+    this.search.placeholder = empty ? this.opts.placeholder : this.isOpen && this.opts.search ? this.opts.searchPlaceholder : "";
+    this.control.classList.toggle("is-empty", empty);
     this.control.classList.toggle("has-value", escolhidos.length > 0);
     this.search.readOnly = !this.opts.search;
   }
@@ -1910,16 +1910,16 @@ var Select = class {
     if (this.remoto) return this.items;
     const q = this.query.trim().toLowerCase();
     if (!q) return this.items;
-    return this.items.filter((i) => i.busca.includes(q));
+    return this.items.filter((i) => i.search.includes(q));
   }
   _renderMenu() {
     const visiveis = this._filtered();
     this.list.replaceChildren();
-    if (this.estadoBusca === "carregando") {
+    if (this.searchState === "loading") {
       this.list.append(el("div", { class: "tuc-select__empty is-loading", text: this.opts.loadingText }));
       return;
     }
-    if (this.estadoBusca === "erro") {
+    if (this.searchState === "error") {
       this.list.append(el("div", { class: "tuc-select__empty is-error", text: this.opts.errorText }));
       return;
     }
@@ -1931,15 +1931,15 @@ var Select = class {
       }));
       return;
     }
-    let grupoAtual = null;
+    let currentGroup = null;
     visiveis.forEach((item, i) => {
-      if (item.group && item.group !== grupoAtual) {
-        grupoAtual = item.group;
+      if (item.group && item.group !== currentGroup) {
+        currentGroup = item.group;
         this.list.append(el("div", { class: "tuc-select__group", text: item.group, role: "presentation" }));
       }
-      const ativo = i === this.activeIndex;
+      const active = i === this.activeIndex;
       const node = el("div", {
-        class: `tuc-select__option${item.selected ? " is-selected" : ""}${ativo ? " is-active" : ""}${item.disabled ? " is-disabled" : ""}`,
+        class: `tuc-select__option${item.selected ? " is-selected" : ""}${active ? " is-active" : ""}${item.disabled ? " is-disabled" : ""}`,
         role: "option",
         id: `${this.id}-opt-${i}`,
         "aria-selected": item.selected ? "true" : "false",
@@ -1965,8 +1965,8 @@ var Select = class {
   }
   /** Move o destaque sem refazer a lista — mesma razao do calendario. */
   _paintActive() {
-    const opcoes = this.list.querySelectorAll(".tuc-select__option");
-    opcoes.forEach((n, i) => n.classList.toggle("is-active", i === this.activeIndex));
+    const options = this.list.querySelectorAll(".tuc-select__option");
+    options.forEach((n, i) => n.classList.toggle("is-active", i === this.activeIndex));
     this.search.setAttribute(
       "aria-activedescendant",
       this.activeIndex >= 0 ? `${this.id}-opt-${this.activeIndex}` : ""
@@ -2007,9 +2007,9 @@ var Select = class {
     if (e.key === "ArrowDown" || e.key === "ArrowUp") {
       e.preventDefault();
       if (!this.isOpen) return this.open();
-      const passo = e.key === "ArrowDown" ? 1 : -1;
+      const step = e.key === "ArrowDown" ? 1 : -1;
       for (let n = 1; n <= visiveis.length; n++) {
-        const i = (this.activeIndex + passo * n + visiveis.length * n) % visiveis.length;
+        const i = (this.activeIndex + step * n + visiveis.length * n) % visiveis.length;
         if (!visiveis[i].disabled) {
           this.activeIndex = i;
           break;
@@ -2052,23 +2052,23 @@ var Select = class {
     this.native.dispatchEvent(new CustomEvent("tucano:change", { detail, bubbles: true }));
   }
 };
-function normalizarOpcoes(dados) {
-  const lista = Array.isArray(dados) ? dados : dados?.results ?? dados?.items ?? dados?.data ?? [];
-  return lista.map((o) => {
+function normalizeOptions(data) {
+  const list = Array.isArray(data) ? data : data?.results ?? data?.items ?? data?.data ?? [];
+  return list.map((o) => {
     if (o == null) return null;
-    if (typeof o !== "object") return { value: String(o), label: String(o), disabled: false, group: null, selected: false, busca: normalize(String(o)) };
+    if (typeof o !== "object") return { value: String(o), label: String(o), disabled: false, group: null, selected: false, search: normalize(String(o)) };
     const value = String(o.value ?? o.id ?? o.pk ?? "");
-    const label = String(o.label ?? o.text ?? o.nome ?? o.name ?? value);
-    return { value, label, disabled: !!o.disabled, group: o.group ?? o.grupo ?? null, selected: false, busca: normalize(`${label} ${value}`) };
+    const label = String(o.label ?? o.text ?? o.name ?? o.name ?? value);
+    return { value, label, disabled: !!o.disabled, group: o.group ?? o.grupo ?? null, selected: false, search: normalize(`${label} ${value}`) };
   }).filter((o) => o && o.value !== "");
 }
-function temProximaPagina(brutos, itens, pageParam) {
+function hasNextPage(brutos, items, pageParam) {
   if (!pageParam) return false;
   if (brutos && typeof brutos === "object" && !Array.isArray(brutos)) {
     if ("next" in brutos) return !!brutos.next;
     if ("has_more" in brutos) return !!brutos.has_more;
   }
-  return itens.length > 0;
+  return items.length > 0;
 }
 function readOptions(select) {
   return [...select.options].filter((o) => o.value !== "").map((o) => ({
@@ -2078,7 +2078,7 @@ function readOptions(select) {
     group: o.parentElement.tagName === "OPTGROUP" ? o.parentElement.label : null,
     selected: o.selected,
     // Normaliza acentos: buscar "sao" acha "São Paulo".
-    busca: normalize(`${o.textContent} ${o.value}`)
+    search: normalize(`${o.textContent} ${o.value}`)
   }));
 }
 function normalize(s) {
@@ -2172,8 +2172,8 @@ function rgbToHex({ r, g, b }, a = 1) {
 }
 function parseColor(input) {
   if (!input) return null;
-  const texto = String(input).trim().toLowerCase();
-  const hex = /^#?([0-9a-f]{3,8})$/.exec(texto);
+  const text = String(input).trim().toLowerCase();
+  const hex = /^#?([0-9a-f]{3,8})$/.exec(text);
   if (hex) {
     const d = hex[1];
     let r, g, b, a = 1;
@@ -2186,7 +2186,7 @@ function parseColor(input) {
     } else return null;
     return { ...rgbToHsv({ r, g, b }), a };
   }
-  const rgb = /^rgba?\(([^)]+)\)$/.exec(texto);
+  const rgb = /^rgba?\(([^)]+)\)$/.exec(text);
   if (rgb) {
     const p = rgb[1].split(/[\s,/]+/).filter(Boolean).map(Number);
     if (p.length < 3 || p.slice(0, 3).some(Number.isNaN)) return null;
@@ -2195,7 +2195,7 @@ function parseColor(input) {
       a: p[3] === void 0 ? 1 : clamp(p[3], 0, 1)
     };
   }
-  const hsl = /^hsla?\(([^)]+)\)$/.exec(texto);
+  const hsl = /^hsla?\(([^)]+)\)$/.exec(text);
   if (hsl) {
     const p = hsl[1].replace(/%/g, "").split(/[\s,/]+/).filter(Boolean).map(Number);
     if (p.length < 3 || p.slice(0, 3).some(Number.isNaN)) return null;
@@ -2207,13 +2207,13 @@ function hslToHsv(h, s, l) {
   const v = l + s * Math.min(l, 1 - l);
   return { h: (h % 360 + 360) % 360, s: v === 0 ? 0 : 2 * (1 - l / v), v };
 }
-function formatColor(hsva, format2 = "hex") {
+function formatColor(hsva, format3 = "hex") {
   const { r, g, b } = hsvToRgb(hsva);
   const a = Math.round(hsva.a * 100) / 100;
-  if (format2 === "rgb") {
+  if (format3 === "rgb") {
     return a >= 1 ? `rgb(${r}, ${g}, ${b})` : `rgba(${r}, ${g}, ${b}, ${a})`;
   }
-  if (format2 === "hsl") {
+  if (format3 === "hsl") {
     const { h, s, l } = hsvToHsl(hsva);
     const hs = `${Math.round(h)}, ${Math.round(s * 100)}%, ${Math.round(l * 100)}%`;
     return a >= 1 ? `hsl(${hs})` : `hsla(${hs}, ${a})`;
@@ -2273,7 +2273,7 @@ var ColorPicker = class {
     this.id = nextId("cor");
     this.isOpen = false;
     this._cleanups = [];
-    this._arrastando = null;
+    this._dragging = null;
     this.hsva = parseColor(node.value) || parseColor(this.opts.value) || { h: 243, s: 0.7, v: 0.9, a: 1 };
     this._build();
     this._syncInput();
@@ -2289,9 +2289,9 @@ var ColorPicker = class {
     return { ...hsvToRgb(this.hsva), a: this.hsva.a };
   }
   setValue(value, { silent = false } = {}) {
-    const cor = parseColor(value);
-    if (!cor) return false;
-    this.hsva = this.opts.alpha ? cor : { ...cor, a: 1 };
+    const color = parseColor(value);
+    if (!color) return false;
+    this.hsva = this.opts.alpha ? color : { ...color, a: 1 };
     this._syncInput();
     if (this.isOpen) this._paint();
     if (!silent) this._emit();
@@ -2304,11 +2304,11 @@ var ColorPicker = class {
     this.popover = new Popover(this.field, this.panel, {
       placement: this.opts.placement,
       appendTo: this.opts.appendTo || document.body,
-      fecharAoSairFoco: true,
+      closeOnFocusOut: true,
       onDismiss: () => this.close()
     });
     this.popover.show();
-    abrirComTransicao(this.panel);
+    openWithTransition(this.panel);
     this.swatch.setAttribute("aria-expanded", "true");
   }
   close() {
@@ -2377,7 +2377,7 @@ var ColorPicker = class {
       autocomplete: "off",
       "aria-label": "Valor da cor"
     });
-    const conta = el("div", { class: "tuc-colorpicker__row" }, [
+    const fieldRow = el("div", { class: "tuc-colorpicker__row" }, [
       this.preview,
       this.hexField,
       supportsEyeDropper() ? el("button", {
@@ -2393,13 +2393,13 @@ var ColorPicker = class {
       role: "dialog",
       "aria-label": "Seletor de cor",
       id: this.id
-    }, [this.area, trilhas, conta, this.opts.swatches ? this._buildSwatches() : null]);
+    }, [this.area, trilhas, fieldRow, this.opts.swatches ? this._buildSwatches() : null]);
     this._cleanups.push(
       this._dragHandler(this.area, (x, y) => {
         this.hsva = { ...this.hsva, s: x, v: 1 - y };
         this._commit();
       }),
-      on(this.area, "keydown", (e) => this._teclasArea(e)),
+      on(this.area, "keydown", (e) => this._areaKeys(e)),
       on(this.input, "change", () => {
         if (this._emitting) return;
         if (!this.setValue(this.input.value)) this._syncInput();
@@ -2429,27 +2429,27 @@ var ColorPicker = class {
       })
     );
   }
-  _buildSlider(tipo, rotulo, max) {
+  _buildSlider(type, label, max) {
     const thumb = el("span", { class: "tuc-colorpicker__thumb" });
     const root = el("div", {
-      class: `tuc-colorpicker__slider is-${tipo}`,
+      class: `tuc-colorpicker__slider is-${type}`,
       tabindex: 0,
       role: "slider",
-      "aria-label": rotulo,
+      "aria-label": label,
       "aria-valuemin": "0",
       "aria-valuemax": String(max)
     }, [el("span", { class: "tuc-colorpicker__track" }), thumb]);
     this._cleanups.push(
       this._dragHandler(root, (x) => {
-        this.hsva = tipo === "hue" ? { ...this.hsva, h: x * 360 } : { ...this.hsva, a: x };
+        this.hsva = type === "hue" ? { ...this.hsva, h: x * 360 } : { ...this.hsva, a: x };
         this._commit();
       }),
       on(root, "keydown", (e) => {
-        const passo = e.shiftKey ? 10 : 1;
+        const step = e.shiftKey ? 10 : 1;
         const delta = { ArrowLeft: -1, ArrowDown: -1, ArrowRight: 1, ArrowUp: 1 }[e.key];
         if (!delta) return;
         e.preventDefault();
-        this.hsva = tipo === "hue" ? { ...this.hsva, h: (this.hsva.h + delta * passo + 360) % 360 } : { ...this.hsva, a: clamp(this.hsva.a + delta * passo / 100, 0, 1) };
+        this.hsva = type === "hue" ? { ...this.hsva, h: (this.hsva.h + delta * step + 360) % 360 } : { ...this.hsva, a: clamp(this.hsva.a + delta * step / 100, 0, 1) };
         this._commit();
       })
     );
@@ -2459,15 +2459,15 @@ var ColorPicker = class {
     return el(
       "div",
       { class: "tuc-colorpicker__swatches" },
-      this.opts.swatches.map((cor) => el("button", {
+      this.opts.swatches.map((color) => el("button", {
         type: "button",
         class: "tuc-colorpicker__swatchbtn",
-        style: `--cor: ${cor}`,
-        "aria-label": cor,
-        title: cor,
-        dataset: { cor: normalizar(cor) },
+        style: `--color: ${color}`,
+        "aria-label": color,
+        title: color,
+        dataset: { color: normalize2(color) },
         onclick: () => {
-          this.setValue(cor);
+          this.setValue(color);
         }
       }))
     );
@@ -2476,19 +2476,19 @@ var ColorPicker = class {
    * Arrasto normalizado em [0,1]. Usa pointer capture para o gesto continuar
    * valendo quando o cursor sai do elemento — sem isso o thumb "gruda" na borda.
    */
-  _dragHandler(node, aoMover) {
-    const mover = (e) => {
+  _dragHandler(node, onMove) {
+    const applyPointer = (e) => {
       const r = node.getBoundingClientRect();
-      aoMover(clamp((e.clientX - r.left) / r.width, 0, 1), clamp((e.clientY - r.top) / r.height, 0, 1));
+      onMove(clamp((e.clientX - r.left) / r.width, 0, 1), clamp((e.clientY - r.top) / r.height, 0, 1));
     };
     const down = (e) => {
       e.preventDefault();
       node.setPointerCapture(e.pointerId);
       node.focus();
-      mover(e);
+      applyPointer(e);
     };
     const move = (e) => {
-      if (node.hasPointerCapture(e.pointerId)) mover(e);
+      if (node.hasPointerCapture(e.pointerId)) applyPointer(e);
     };
     const up = (e) => {
       if (node.hasPointerCapture(e.pointerId)) node.releasePointerCapture(e.pointerId);
@@ -2496,13 +2496,13 @@ var ColorPicker = class {
     const offs = [on(node, "pointerdown", down), on(node, "pointermove", move), on(node, "pointerup", up)];
     return () => offs.forEach((f) => f());
   }
-  _teclasArea(e) {
-    const passo = (e.shiftKey ? 10 : 2) / 100;
+  _areaKeys(e) {
+    const step = (e.shiftKey ? 10 : 2) / 100;
     const mapa = {
-      ArrowLeft: { s: -passo },
-      ArrowRight: { s: passo },
-      ArrowUp: { v: passo },
-      ArrowDown: { v: -passo }
+      ArrowLeft: { s: -step },
+      ArrowRight: { s: step },
+      ArrowUp: { v: step },
+      ArrowDown: { v: -step }
     };
     const d = mapa[e.key];
     if (!d) return;
@@ -2530,33 +2530,33 @@ var ColorPicker = class {
     this._emit();
   }
   _syncInput() {
-    const valor = this.getValue();
-    this.input.value = valor;
-    this.swatch.style.setProperty("--cor", valor);
+    const value = this.getValue();
+    this.input.value = value;
+    this.swatch.style.setProperty("--color", value);
   }
   /** Repinta os controles a partir do HSVA atual. */
   _paint() {
     const { h, s, v, a } = this.hsva;
-    const puro = rgbToHex(hsvToRgb({ h, s: 1, v: 1 }));
-    const solido = rgbToHex(hsvToRgb(this.hsva));
-    this.area.style.setProperty("--matiz", puro);
+    const pure = rgbToHex(hsvToRgb({ h, s: 1, v: 1 }));
+    const solid = rgbToHex(hsvToRgb(this.hsva));
+    this.area.style.setProperty("--matiz", pure);
     this.area.firstElementChild.style.left = `${s * 100}%`;
     this.area.firstElementChild.style.top = `${(1 - v) * 100}%`;
-    this.area.firstElementChild.style.setProperty("--cor", solido);
+    this.area.firstElementChild.style.setProperty("--color", solid);
     this.area.firstElementChild.classList.toggle("is-dark", isDark(this.hsva));
     this.hue.thumb.style.left = `${h / 360 * 100}%`;
-    this.hue.thumb.style.setProperty("--cor", puro);
+    this.hue.thumb.style.setProperty("--color", pure);
     this.hue.root.setAttribute("aria-valuenow", String(Math.round(h)));
     if (this.alpha) {
-      this.alpha.root.style.setProperty("--cor", solido);
+      this.alpha.root.style.setProperty("--color", solid);
       this.alpha.thumb.style.left = `${a * 100}%`;
-      this.alpha.thumb.style.setProperty("--cor", solido);
+      this.alpha.thumb.style.setProperty("--color", solid);
       this.alpha.root.setAttribute("aria-valuenow", a.toFixed(2));
     }
-    this.preview.style.setProperty("--cor", formatColor(this.hsva, "rgb"));
+    this.preview.style.setProperty("--color", formatColor(this.hsva, "rgb"));
     const atual = rgbToHex(hsvToRgb(this.hsva));
     for (const btn of this.panel.querySelectorAll(".tuc-colorpicker__swatchbtn")) {
-      btn.classList.toggle("is-selected", btn.dataset.cor === atual);
+      btn.classList.toggle("is-selected", btn.dataset.color === atual);
     }
     if (document.activeElement !== this.hexField) this.hexField.value = this.getValue();
   }
@@ -2573,9 +2573,9 @@ var ColorPicker = class {
     }
   }
 };
-function normalizar(cor) {
-  const p = parseColor(cor);
-  return p ? rgbToHex(hsvToRgb(p)) : String(cor).toLowerCase();
+function normalize2(color) {
+  const p = parseColor(color);
+  return p ? rgbToHex(hsvToRgb(p)) : String(color).toLowerCase();
 }
 function supportsEyeDropper() {
   return typeof window !== "undefined" && "EyeDropper" in window;
@@ -2614,9 +2614,9 @@ function formatSize(bytes, locale = "pt-BR") {
   const casas = n < 10 ? 1 : 0;
   return `${n.toLocaleString(locale, { maximumFractionDigits: casas })} ${unidades[i]}`;
 }
-function parseSize(valor) {
-  if (typeof valor === "number") return valor;
-  const m = /^([\d.,]+)\s*(b|kb|mb|gb)?$/i.exec(String(valor || "").trim());
+function parseSize(value) {
+  if (typeof value === "number") return value;
+  const m = /^([\d.,]+)\s*(b|kb|mb|gb)?$/i.exec(String(value || "").trim());
   if (!m) return null;
   const n = parseFloat(m[1].replace(",", "."));
   const fator = { b: 1, kb: 1024, mb: 1024 ** 2, gb: 1024 ** 3 }[(m[2] || "b").toLowerCase()];
@@ -2624,27 +2624,27 @@ function parseSize(valor) {
 }
 function matchesAccept(file, accept) {
   if (!accept) return true;
-  const nome = file.name.toLowerCase();
-  const tipo = (file.type || "").toLowerCase();
+  const name = file.name.toLowerCase();
+  const type = (file.type || "").toLowerCase();
   return accept.split(",").map((s) => s.trim().toLowerCase()).filter(Boolean).some((regra) => {
-    if (regra.startsWith(".")) return nome.endsWith(regra);
-    if (regra.endsWith("/*")) return tipo.startsWith(regra.slice(0, -1));
-    return tipo === regra;
+    if (regra.startsWith(".")) return name.endsWith(regra);
+    if (regra.endsWith("/*")) return type.startsWith(regra.slice(0, -1));
+    return type === regra;
   });
 }
 function isImage(file) {
   return (file.type || "").startsWith("image/");
 }
-function csrfToken(nome = "csrftoken") {
-  const m = document.cookie.match(new RegExp(`(?:^|;\\s*)${nome}=([^;]*)`));
+function csrfToken(name = "csrftoken") {
+  const m = document.cookie.match(new RegExp(`(?:^|;\\s*)${name}=([^;]*)`));
   return m ? decodeURIComponent(m[1]) : null;
 }
-function uploadFile({ url, file, campo = "file", extras = {}, headers = {}, onProgress }) {
+function uploadFile({ url, file, field = "file", extras = {}, headers = {}, onProgress }) {
   const xhr = new XMLHttpRequest();
-  const promessa = new Promise((resolve, reject) => {
-    const dados = new FormData();
-    dados.append(campo, file);
-    for (const [k, v] of Object.entries(extras)) dados.append(k, v);
+  const promise = new Promise((resolve, reject) => {
+    const data = new FormData();
+    data.append(field, file);
+    for (const [k, v] of Object.entries(extras)) data.append(k, v);
     xhr.open("POST", url);
     xhr.responseType = "json";
     for (const [k, v] of Object.entries(headers)) if (v != null) xhr.setRequestHeader(k, v);
@@ -2660,9 +2660,9 @@ function uploadFile({ url, file, campo = "file", extras = {}, headers = {}, onPr
     });
     xhr.addEventListener("error", () => reject(new Error("Falha de rede")));
     xhr.addEventListener("abort", () => reject(Object.assign(new Error("Cancelado"), { cancelado: true })));
-    xhr.send(dados);
+    xhr.send(data);
   });
-  return { promessa, abortar: () => xhr.abort() };
+  return { promise, abortar: () => xhr.abort() };
 }
 var seq = 0;
 function fileId() {
@@ -2701,13 +2701,13 @@ var TEXTOS = {
   zona: "Arraste arquivos aqui ou clique para escolher",
   zonaUm: "Arraste um arquivo aqui ou clique para escolher",
   soltar: "Solte para enviar",
-  enviando: "Enviando...",
+  uploading: "Enviando...",
   pronto: "Enviado",
-  cancelar: "Cancelar",
-  remover: "Remover",
+  cancel: "Cancelar",
+  remove: "Remover",
   repetir: "Tentar de novo",
   grande: (max) => `Arquivo maior que ${max}`,
-  tipo: "Tipo de arquivo n\xE3o aceito",
+  type: "Tipo de arquivo n\xE3o aceito",
   demais: (n) => `No m\xE1ximo ${n} arquivo${n > 1 ? "s" : ""}`
 };
 var Upload = class {
@@ -2725,9 +2725,9 @@ var Upload = class {
     this.direto = !!this.opts.url;
     this.multiplo = node.multiple;
     this.id = nextId("up");
-    this.itens = [];
+    this.items = [];
     this._cleanups = [];
-    this._arrastando = 0;
+    this._dragging = 0;
     this._build();
     node._tucano = this;
   }
@@ -2736,7 +2736,7 @@ var Upload = class {
    * ---------------------------------------------------------------- */
   /** Arquivos aceitos, na ordem. No modo direto inclui a resposta do servidor. */
   getFiles() {
-    return this.itens.map((i) => ({
+    return this.items.map((i) => ({
       name: i.file.name,
       size: i.file.size,
       type: i.file.type,
@@ -2749,22 +2749,22 @@ var Upload = class {
   }
   /** Ids devolvidos pelo servidor (modo direto). E o que o formulario posta. */
   getValue() {
-    const prontos = this.itens.filter((i) => i.estado === "pronto" && i.idServidor != null);
-    return this.direto ? prontos.map((i) => i.idServidor) : this.itens.map((i) => i.file);
+    const prontos = this.items.filter((i) => i.estado === "pronto" && i.idServidor != null);
+    return this.direto ? prontos.map((i) => i.idServidor) : this.items.map((i) => i.file);
   }
   /** Sobe o que estiver pendente. Util com autoUpload: false. */
   uploadAll() {
-    for (const item of this.itens) if (item.estado === "pendente") this._enviar(item);
+    for (const item of this.items) if (item.estado === "pendente") this._enviar(item);
   }
   clear() {
-    for (const item of [...this.itens]) this._remover(item, { silencioso: true });
+    for (const item of [...this.items]) this._remove(item, { silencioso: true });
     this._emit();
   }
   destroy() {
     this._cleanups.forEach((fn) => fn());
     this._cleanups = [];
-    for (const i of this.itens) if (i.preview) URL.revokeObjectURL(i.preview);
-    this.raiz.replaceWith(this.input);
+    for (const i of this.items) if (i.preview) URL.revokeObjectURL(i.preview);
+    this.root.replaceWith(this.input);
     this.input.classList.remove("tuc-upload-native");
     this.hidden?.remove();
     delete this.input._tucano;
@@ -2776,7 +2776,7 @@ var Upload = class {
     const input = this.input;
     input.classList.add("tuc-upload-native");
     if (this.direto && input.name) {
-      this.nomeCampo = input.name;
+      this.fieldName = input.name;
       input.removeAttribute("name");
     }
     this.zona = el("div", {
@@ -2789,17 +2789,17 @@ var Upload = class {
       el("span", { class: "tuc-upload__label", text: this.multiplo ? this.t.zona : this.t.zonaUm }),
       el("span", { class: "tuc-upload__hint", id: `${this.id}-dica`, text: this._dica() })
     ]);
-    this.lista = el("ul", { class: "tuc-upload__list" });
-    this.raiz = el("div", { class: "tuc-upload", id: this.id }, [this.zona, this.lista]);
-    input.replaceWith(this.raiz);
-    this.raiz.append(input);
-    const abrir = () => input.click();
+    this.list = el("ul", { class: "tuc-upload__list" });
+    this.root = el("div", { class: "tuc-upload", id: this.id }, [this.zona, this.list]);
+    input.replaceWith(this.root);
+    this.root.append(input);
+    const open = () => input.click();
     this._cleanups.push(
-      on(this.zona, "click", abrir),
+      on(this.zona, "click", open),
       on(this.zona, "keydown", (e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
-          abrir();
+          open();
         }
       }),
       on(input, "change", () => {
@@ -2807,7 +2807,7 @@ var Upload = class {
       }),
       ...this._arrastarESoltar()
     );
-    this._renderLista();
+    this._renderList();
   }
   _dica() {
     const partes = [];
@@ -2827,67 +2827,67 @@ var Upload = class {
       e.stopPropagation();
     };
     return [
-      on(this.raiz, "dragenter", (e) => {
+      on(this.root, "dragenter", (e) => {
         parar(e);
-        this._arrastando++;
-        this.raiz.classList.add("is-dragging");
+        this._dragging++;
+        this.root.classList.add("is-dragging");
         this.zona.querySelector(".tuc-upload__label").textContent = this.t.soltar;
       }),
-      on(this.raiz, "dragover", parar),
-      on(this.raiz, "dragleave", (e) => {
+      on(this.root, "dragover", parar),
+      on(this.root, "dragleave", (e) => {
         parar(e);
-        if (--this._arrastando <= 0) this._pararArraste();
+        if (--this._dragging <= 0) this._pararArraste();
       }),
-      on(this.raiz, "drop", (e) => {
+      on(this.root, "drop", (e) => {
         parar(e);
-        this._arrastando = 0;
+        this._dragging = 0;
         this._pararArraste();
         this._adicionar([...e.dataTransfer?.files || []]);
       })
     ];
   }
   _pararArraste() {
-    this._arrastando = 0;
-    this.raiz.classList.remove("is-dragging");
+    this._dragging = 0;
+    this.root.classList.remove("is-dragging");
     this.zona.querySelector(".tuc-upload__label").textContent = this.multiplo ? this.t.zona : this.t.zonaUm;
   }
   /* ---------------------------------------------------------------- *
    * Arquivos                                                          *
    * ---------------------------------------------------------------- */
-  _adicionar(arquivos) {
-    if (!arquivos.length) return;
+  _adicionar(files) {
+    if (!files.length) return;
     if (!this.multiplo) {
-      for (const item of [...this.itens]) this._remover(item, { silencioso: true });
-      arquivos = arquivos.slice(0, 1);
+      for (const item of [...this.items]) this._remove(item, { silencioso: true });
+      files = files.slice(0, 1);
     }
-    for (const file of arquivos) {
-      const erro = this._validar(file);
-      if (erro) {
-        this._erro(erro, file);
+    for (const file of files) {
+      const error = this._validate(file);
+      if (error) {
+        this._fail(error, file);
         continue;
       }
       const item = {
-        chave: fileId(),
+        key: fileId(),
         file,
         estado: "pendente",
         progresso: 0,
         preview: isImage(file) ? URL.createObjectURL(file) : null
       };
-      this.itens.push(item);
+      this.items.push(item);
       if (this.direto && this.opts.autoUpload) this._enviar(item);
     }
     this._sincronizarNativo();
-    this._renderLista();
+    this._renderList();
     this._emit();
   }
-  _validar(file) {
-    if (this.opts.maxFiles && this.itens.length >= this.opts.maxFiles) {
+  _validate(file) {
+    if (this.opts.maxFiles && this.items.length >= this.opts.maxFiles) {
       return this.t.demais(this.opts.maxFiles);
     }
     if (this.opts.maxSize && file.size > this.opts.maxSize) {
       return this.t.grande(formatSize(this.opts.maxSize, this.opts.locale));
     }
-    if (!matchesAccept(file, this.input.accept)) return this.t.tipo;
+    if (!matchesAccept(file, this.input.accept)) return this.t.type;
     return null;
   }
   /**
@@ -2899,7 +2899,7 @@ var Upload = class {
     if (this.direto) return;
     try {
       const dt = new DataTransfer();
-      for (const item of this.itens) dt.items.add(item.file);
+      for (const item of this.items) dt.items.add(item.file);
       this.input.files = dt.files;
     } catch {
     }
@@ -2907,26 +2907,26 @@ var Upload = class {
   _enviar(item) {
     item.estado = "enviando";
     item.progresso = 0;
-    item.erro = null;
-    this._renderLista();
+    item.error = null;
+    this._renderList();
     const headers = { ...this.opts.headers };
     if (this.opts.csrf && !headers["X-CSRFToken"]) {
       const token = csrfToken();
       if (token) headers["X-CSRFToken"] = token;
     }
-    const { promessa, abortar } = uploadFile({
+    const { promise, abortar } = uploadFile({
       url: this.opts.url,
       file: item.file,
-      campo: this.opts.fieldName,
+      field: this.opts.fieldName,
       extras: this.opts.extraData,
       headers,
-      onProgress: (fracao) => {
-        item.progresso = fracao;
-        this._pintarProgresso(item);
+      onProgress: (fraction) => {
+        item.progresso = fraction;
+        this._paintProgress(item);
       }
     });
     item.abortar = abortar;
-    promessa.then((resposta) => {
+    promise.then((resposta) => {
       item.estado = "pronto";
       item.progresso = 1;
       item.resposta = resposta;
@@ -2934,24 +2934,24 @@ var Upload = class {
       item.url = resposta?.[this.opts.responseUrl] ?? null;
     }).catch((e) => {
       if (e.cancelado) {
-        const i = this.itens.indexOf(item);
-        if (i >= 0) this.itens.splice(i, 1);
+        const i = this.items.indexOf(item);
+        if (i >= 0) this.items.splice(i, 1);
         if (item.preview) URL.revokeObjectURL(item.preview);
       } else {
-        item.estado = "erro";
-        item.erro = e.message;
+        item.estado = "error";
+        item.error = e.message;
         this.opts.onError?.(e, item.file);
       }
     }).finally(() => {
       item.abortar = null;
-      this._renderLista();
+      this._renderList();
       this._emit();
     });
   }
-  _remover(item, { silencioso = false } = {}) {
+  _remove(item, { silencioso = false } = {}) {
     item.abortar?.();
-    const i = this.itens.indexOf(item);
-    if (i >= 0) this.itens.splice(i, 1);
+    const i = this.items.indexOf(item);
+    if (i >= 0) this.items.splice(i, 1);
     if (item.preview) URL.revokeObjectURL(item.preview);
     if (this.direto && this.opts.deleteUrl && item.idServidor != null) {
       const headers = { ...this.opts.headers };
@@ -2963,50 +2963,50 @@ var Upload = class {
       });
     }
     this._sincronizarNativo();
-    this._renderLista();
+    this._renderList();
     if (!silencioso) this._emit();
   }
-  _erro(mensagem, file) {
-    this.opts.onError?.(new Error(mensagem), file);
-    const aviso = el("li", { class: "tuc-upload__item is-rejected" }, [
+  _fail(message, file) {
+    this.opts.onError?.(new Error(message), file);
+    const warning = el("li", { class: "tuc-upload__item is-rejected" }, [
       el("span", { class: "tuc-upload__thumb" }, [icon(ICONS_EXTRA.alert, 16)]),
       el("div", { class: "tuc-upload__info" }, [
         el("span", { class: "tuc-upload__name", text: file.name }),
-        el("span", { class: "tuc-upload__meta", text: mensagem })
+        el("span", { class: "tuc-upload__meta", text: message })
       ])
     ]);
-    this.lista.append(aviso);
-    setTimeout(() => aviso.remove(), 5e3);
+    this.list.append(warning);
+    setTimeout(() => warning.remove(), 5e3);
   }
   /* ---------------------------------------------------------------- *
    * Render                                                            *
    * ---------------------------------------------------------------- */
   /** So a barra: chamado a cada evento de progresso, nao pode refazer a lista. */
-  _pintarProgresso(item) {
-    const li = this.lista.querySelector(`[data-chave="${item.chave}"]`);
+  _paintProgress(item) {
+    const li = this.list.querySelector(`[data-key="${item.key}"]`);
     if (!li) return;
-    const barra = li.querySelector(".tuc-upload__barfill");
-    if (barra) barra.style.width = `${Math.round(item.progresso * 100)}%`;
+    const toolbar = li.querySelector(".tuc-upload__barfill");
+    if (toolbar) toolbar.style.width = `${Math.round(item.progresso * 100)}%`;
     const meta = li.querySelector(".tuc-upload__meta");
     if (meta) meta.textContent = `${Math.round(item.progresso * 100)}% \xB7 ${formatSize(item.file.size, this.opts.locale)}`;
   }
-  _renderLista() {
-    for (const n of [...this.lista.children]) if (!n.classList.contains("is-rejected")) n.remove();
-    for (const item of this.itens) {
+  _renderList() {
+    for (const n of [...this.list.children]) if (!n.classList.contains("is-rejected")) n.remove();
+    for (const item of this.items) {
       const pct = Math.round(item.progresso * 100);
-      const meta = item.estado === "enviando" ? `${pct}% \xB7 ${formatSize(item.file.size, this.opts.locale)}` : item.estado === "erro" ? item.erro : formatSize(item.file.size, this.opts.locale);
-      const acoes = [];
+      const meta = item.estado === "enviando" ? `${pct}% \xB7 ${formatSize(item.file.size, this.opts.locale)}` : item.estado === "error" ? item.error : formatSize(item.file.size, this.opts.locale);
+      const actions = [];
       if (item.estado === "enviando") {
-        acoes.push(this._botao(ICONS.x, this.t.cancelar, () => item.abortar?.()));
-      } else if (item.estado === "erro") {
-        acoes.push(this._botao(ICONS_EXTRA.retry, this.t.repetir, () => this._enviar(item)));
-        acoes.push(this._botao(ICONS.x, this.t.remover, () => this._remover(item)));
+        actions.push(this._botao(ICONS.x, this.t.cancel, () => item.abortar?.()));
+      } else if (item.estado === "error") {
+        actions.push(this._botao(ICONS_EXTRA.retry, this.t.repetir, () => this._enviar(item)));
+        actions.push(this._botao(ICONS.x, this.t.remove, () => this._remove(item)));
       } else {
-        acoes.push(this._botao(ICONS.x, this.t.remover, () => this._remover(item)));
+        actions.push(this._botao(ICONS.x, this.t.remove, () => this._remove(item)));
       }
-      this.lista.append(el("li", {
+      this.list.append(el("li", {
         class: `tuc-upload__item is-${item.estado}`,
-        dataset: { chave: item.chave }
+        dataset: { key: item.key }
       }, [
         item.preview ? el("img", { class: "tuc-upload__thumb", src: item.preview, alt: "" }) : el("span", { class: "tuc-upload__thumb" }, [icon(ICONS_EXTRA.file, 16)]),
         el("div", { class: "tuc-upload__info" }, [
@@ -3017,18 +3017,18 @@ var Upload = class {
           ]) : null
         ]),
         item.estado === "pronto" ? el("span", { class: "tuc-upload__ok" }, [icon(ICONS_EXTRA.check, 15)]) : null,
-        el("div", { class: "tuc-upload__actions" }, acoes)
+        el("div", { class: "tuc-upload__actions" }, actions)
       ]));
     }
     this._sincronizarHidden();
-    this.raiz.classList.toggle("is-empty", !this.itens.length);
+    this.root.classList.toggle("is-empty", !this.items.length);
   }
-  _botao(caminho, rotulo, aoClicar) {
+  _botao(caminho, label, aoClicar) {
     return el("button", {
       type: "button",
       class: "tuc-btn is-ghost is-icon is-sm tuc-upload__action",
-      "aria-label": rotulo,
-      title: rotulo,
+      "aria-label": label,
+      title: label,
       onclick: (e) => {
         e.stopPropagation();
         aoClicar();
@@ -3037,14 +3037,14 @@ var Upload = class {
   }
   /** Modo direto: os ids prontos viram inputs hidden com o `name` original. */
   _sincronizarHidden() {
-    if (!this.direto || !this.nomeCampo) return;
+    if (!this.direto || !this.fieldName) return;
     this.hidden?.remove();
     this.hidden = el(
       "span",
       { class: "tuc-upload__hidden" },
-      this.itens.filter((i) => i.estado === "pronto" && i.idServidor != null).map((i) => el("input", { type: "hidden", name: this.nomeCampo, value: String(i.idServidor) }))
+      this.items.filter((i) => i.estado === "pronto" && i.idServidor != null).map((i) => el("input", { type: "hidden", name: this.fieldName, value: String(i.idServidor) }))
     );
-    this.raiz.append(this.hidden);
+    this.root.append(this.hidden);
   }
   _emit() {
     const detail = { value: this.getValue(), files: this.getFiles(), instance: this };
@@ -3080,42 +3080,42 @@ function autoInit4(scope = document) {
 // src/js/core/mask.js
 var mask_exports = {};
 __export(mask_exports, {
-  aplicar: () => aplicar,
-  aplicarMoeda: () => aplicarMoeda,
-  capacidade: () => capacidade,
-  cursorApos: () => cursorApos,
-  escolherGabarito: () => escolherGabarito,
-  formatar: () => formatar,
-  isMarcador: () => isMarcador,
-  limpar: () => limpar,
-  obscurecer: () => obscurecer,
-  obscurecerEmail: () => obscurecerEmail,
-  validarCNPJ: () => validarCNPJ,
-  validarCPF: () => validarCPF,
-  validarCpfCnpj: () => validarCpfCnpj
+  apply: () => apply,
+  applyCurrency: () => applyCurrency,
+  capacity: () => capacity,
+  clear: () => clear,
+  cursorAfter: () => cursorAfter,
+  format: () => format2,
+  isPlaceholder: () => isPlaceholder,
+  maskEmail: () => maskEmail,
+  maskMiddle: () => maskMiddle,
+  pickTemplate: () => pickTemplate,
+  validateCNPJ: () => validateCNPJ,
+  validateCPF: () => validateCPF,
+  validateCpfCnpj: () => validateCpfCnpj
 });
 var MARCADORES = {
   "#": (c) => c >= "0" && c <= "9",
   "A": (c) => /[a-zA-Z]/.test(c),
   "*": (c) => /[0-9a-zA-Z]/.test(c)
 };
-function isMarcador(c) {
+function isPlaceholder(c) {
   return Object.hasOwn(MARCADORES, c);
 }
-function limpar(valor, gabarito) {
-  const aceita = [...new Set([...gabarito].filter(isMarcador))].map((m) => MARCADORES[m]);
+function clear(value, template) {
+  const aceita = [...new Set([...template].filter(isPlaceholder))].map((m) => MARCADORES[m]);
   if (!aceita.length) return "";
-  return [...String(valor ?? "")].filter((c) => aceita.some((f) => f(c))).join("");
+  return [...String(value ?? "")].filter((c) => aceita.some((f) => f(c))).join("");
 }
-function capacidade(gabarito) {
-  return [...gabarito].filter(isMarcador).length;
+function capacity(template) {
+  return [...template].filter(isPlaceholder).length;
 }
-function aplicar(caracteres, gabarito) {
+function apply(caracteres, template) {
   if (!caracteres.length) return "";
   let saida = "";
   let i = 0;
-  for (const ch of gabarito) {
-    if (isMarcador(ch)) {
+  for (const ch of template) {
+    if (isPlaceholder(ch)) {
       let aceito = null;
       while (i < caracteres.length) {
         const candidato = caracteres[i++];
@@ -3132,28 +3132,28 @@ function aplicar(caracteres, gabarito) {
   }
   return saida;
 }
-function cursorApos(texto, n) {
+function cursorAfter(text, n) {
   if (n <= 0) return 0;
   let vistos = 0;
-  for (let i = 0; i < texto.length; i++) {
-    if (/[0-9A-Za-z]/.test(texto[i]) && ++vistos === n) return i + 1;
+  for (let i = 0; i < text.length; i++) {
+    if (/[0-9A-Za-z]/.test(text[i]) && ++vistos === n) return i + 1;
   }
-  return texto.length;
+  return text.length;
 }
-function escolherGabarito(caracteres, gabaritos) {
-  const lista = [].concat(gabaritos);
-  if (lista.length === 1) return lista[0];
+function pickTemplate(caracteres, templates) {
+  const list = [].concat(templates);
+  if (list.length === 1) return list[0];
   const n = caracteres.length;
-  return lista.find((g) => n <= capacidade(g)) || lista[lista.length - 1];
+  return list.find((g) => n <= capacity(g)) || list[list.length - 1];
 }
-function aplicarMoeda(digitos, { decimais = 2, locale = "pt-BR", moeda = null } = {}) {
-  const limpos = String(digitos).replace(/\D/g, "").replace(/^0+(?=\d)/, "");
+function applyCurrency(digits, { decimals = 2, locale = "pt-BR", currency = null } = {}) {
+  const limpos = String(digits).replace(/\D/g, "").replace(/^0+(?=\d)/, "");
   if (!limpos) return "";
-  const n = Number(limpos) / 10 ** decimais;
+  const n = Number(limpos) / 10 ** decimals;
   return n.toLocaleString(locale, {
-    minimumFractionDigits: decimais,
-    maximumFractionDigits: decimais,
-    ...moeda ? { style: "currency", currency: moeda } : {}
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+    ...currency ? { style: "currency", currency } : {}
   });
 }
 function digitoModulo11(valores, pesoInicial) {
@@ -3163,11 +3163,11 @@ function digitoModulo11(valores, pesoInicial) {
     soma += v * peso;
     peso = peso === 2 ? 9 : peso - 1;
   }
-  const resto = soma % 11;
-  return resto < 2 ? 0 : 11 - resto;
+  const rest = soma % 11;
+  return rest < 2 ? 0 : 11 - rest;
 }
-function validarCPF(valor) {
-  const d = String(valor ?? "").replace(/\D/g, "");
+function validateCPF(value) {
+  const d = String(value ?? "").replace(/\D/g, "");
   if (d.length !== 11) return false;
   if (/^(\d)\1{10}$/.test(d)) return false;
   const n = [...d].map(Number);
@@ -3175,8 +3175,8 @@ function validarCPF(valor) {
   const dv2 = digitoModulo11(n.slice(0, 10), 11);
   return dv1 === n[9] && dv2 === n[10];
 }
-function validarCNPJ(valor) {
-  const s = String(valor ?? "").toUpperCase().replace(/[^0-9A-Z]/g, "");
+function validateCNPJ(value) {
+  const s = String(value ?? "").toUpperCase().replace(/[^0-9A-Z]/g, "");
   if (s.length !== 14) return false;
   if (!/^[0-9A-Z]{12}\d{2}$/.test(s)) return false;
   if (/^(.)\1{13}$/.test(s)) return false;
@@ -3185,48 +3185,48 @@ function validarCNPJ(valor) {
   const dv2 = digitoModulo11(valores.slice(0, 13), 6);
   return dv1 === valores[12] && dv2 === valores[13];
 }
-function validarCpfCnpj(valor) {
-  const s = String(valor ?? "").replace(/[^0-9A-Za-z]/g, "");
-  if (s.length === 11) return validarCPF(s);
-  if (s.length === 14) return validarCNPJ(s);
+function validateCpfCnpj(value) {
+  const s = String(value ?? "").replace(/[^0-9A-Za-z]/g, "");
+  if (s.length === 11) return validateCPF(s);
+  if (s.length === 14) return validateCNPJ(s);
   return false;
 }
-function formatar(valor, formato, opcoes = {}) {
-  const bruto = String(valor ?? "").trim();
+function format2(value, format3, options = {}) {
+  const bruto = String(value ?? "").trim();
   if (!bruto) return "";
-  if (formato === "moeda" || formato === "real") {
-    const n = typeof valor === "number" ? valor : Number(bruto.replace(/\.(?=\d{3}\b)/g, "").replace(",", "."));
+  if (format3 === "currency" || format3 === "real") {
+    const n = typeof value === "number" ? value : Number(bruto.replace(/\.(?=\d{3}\b)/g, "").replace(",", "."));
     if (!Number.isFinite(n)) return bruto;
-    const { decimais = 2, locale = "pt-BR" } = opcoes;
-    const moeda = opcoes.moeda ?? (formato === "real" ? "BRL" : null);
+    const { decimals = 2, locale = "pt-BR" } = options;
+    const currency = options.currency ?? (format3 === "real" ? "BRL" : null);
     return n.toLocaleString(locale, {
-      minimumFractionDigits: decimais,
-      maximumFractionDigits: decimais,
-      ...moeda ? { style: "currency", currency: moeda } : {}
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
+      ...currency ? { style: "currency", currency } : {}
     });
   }
-  const gabaritos = GABARITOS_EXIBICAO[formato] ?? formato;
-  const todos = [].concat(gabaritos).join("");
-  const chars = limpar(bruto, todos);
+  const templates = DISPLAY_TEMPLATES[format3] ?? format3;
+  const todos = [].concat(templates).join("");
+  const chars = clear(bruto, todos);
   if (!chars) return bruto;
-  const gabarito = escolherGabarito(chars, gabaritos);
-  return chars.length === capacidade(gabarito) ? aplicar(chars, gabarito) : bruto;
+  const template = pickTemplate(chars, templates);
+  return chars.length === capacity(template) ? apply(chars, template) : bruto;
 }
-var GABARITOS_EXIBICAO = {
+var DISPLAY_TEMPLATES = {
   cpf: "###.###.###-##",
   cnpj: "**.***.***/****-##",
   "cpf-cnpj": ["###.###.###-##", "**.***.***/****-##"],
-  documento: ["###.###.###-##", "**.***.***/****-##"],
-  telefone: ["(##) ####-####", "(##) #####-####"],
+  document: ["###.###.###-##", "**.***.***/****-##"],
+  phone: ["(##) ####-####", "(##) #####-####"],
   celular: "(##) #####-####",
   cep: "#####-###",
-  cartao: "#### #### #### ####"
+  card: "#### #### #### ####"
 };
 var PONTO = "\u2022";
-function obscurecer(texto, visiveis = 2, modo = "fim") {
-  const s = String(texto ?? "");
+function maskMiddle(text, visiveis = 2, modo = "fim") {
+  const s = String(text ?? "");
   if (!s) return s;
-  if (modo === "email") return obscurecerEmail(s);
+  if (modo === "email") return maskEmail(s);
   const alfanumerico = (c) => /[0-9A-Za-z]/.test(c);
   const total = [...s].filter(alfanumerico).length;
   const mostrar = modo === "tudo" ? 0 : visiveis;
@@ -3237,34 +3237,34 @@ function obscurecer(texto, visiveis = 2, modo = "fim") {
     return vistos > total - mostrar ? c : PONTO;
   }).join("");
 }
-function obscurecerEmail(valor) {
-  const s = String(valor ?? "");
+function maskEmail(value) {
+  const s = String(value ?? "");
   const arroba = s.lastIndexOf("@");
-  if (arroba < 1) return obscurecer(s, 0, "tudo");
+  if (arroba < 1) return maskMiddle(s, 0, "tudo");
   const local = s.slice(0, arroba);
   const dominio = s.slice(arroba);
   return local[0] + PONTO.repeat(Math.max(local.length - 1, 1)) + dominio;
 }
 
 // src/js/components/mask.js
-var FORMATOS = {
-  cpf: { gabarito: "###.###.###-##", validar: validarCPF, erro: "CPF inv\xE1lido" },
-  cnpj: { gabarito: "**.***.***/****-##", validar: validarCNPJ, erro: "CNPJ inv\xE1lido", maiusculas: true },
-  "cnpj-numerico": { gabarito: "##.###.###/####-##", validar: validarCNPJ, erro: "CNPJ inv\xE1lido" },
+var FORMATS = {
+  cpf: { template: "###.###.###-##", validate: validateCPF, error: "CPF inv\xE1lido" },
+  cnpj: { template: "**.***.***/****-##", validate: validateCNPJ, error: "CNPJ inv\xE1lido", uppercase: true },
+  "cnpj-numerico": { template: "##.###.###/####-##", validate: validateCNPJ, error: "CNPJ inv\xE1lido" },
   "cpf-cnpj": {
-    gabarito: ["###.###.###-##", "**.***.***/****-##"],
-    validar: validarCpfCnpj,
-    erro: "Documento inv\xE1lido",
-    maiusculas: true
+    template: ["###.###.###-##", "**.***.***/****-##"],
+    validate: validateCpfCnpj,
+    error: "Documento inv\xE1lido",
+    uppercase: true
   },
-  telefone: { gabarito: ["(##) ####-####", "(##) #####-####"] },
-  celular: { gabarito: "(##) #####-####" },
-  cep: { gabarito: "#####-###" },
-  data: { gabarito: "##/##/####" },
-  hora: { gabarito: "##:##" },
-  cartao: { gabarito: "#### #### #### ####" },
-  moeda: { moeda: true },
-  real: { moeda: true, currency: "BRL" }
+  phone: { template: ["(##) ####-####", "(##) #####-####"] },
+  mobile: { template: "(##) #####-####" },
+  cep: { template: "#####-###" },
+  date: { template: "##/##/####" },
+  time: { template: "##:##" },
+  card: { template: "#### #### #### ####" },
+  currency: { isCurrency: true },
+  real: { isCurrency: true, currency: "BRL" }
 };
 var DEFAULTS5 = {
   format: null,
@@ -3292,20 +3292,20 @@ var Mask = class {
     this.opts.locale = this.opts.locale || document.documentElement.lang || "pt-BR";
     this.input = node;
     node.classList.add("tuc-input");
-    const preset = FORMATOS[this.opts.format];
+    const preset = FORMATS[this.opts.format];
     this.preset = preset || null;
-    this.moeda = !!preset?.moeda;
-    this.gabaritos = preset ? preset.gabarito : this.opts.format;
-    this.maiusculas = !!preset?.maiusculas;
+    this.isCurrency = !!preset?.isCurrency;
+    this.templates = preset ? preset.template : this.opts.format;
+    this.uppercase = !!preset?.uppercase;
     if (preset?.currency && !this.opts.currency) this.opts.currency = preset.currency;
-    if (!this.moeda && !this.gabaritos && !this.opts.reveal) {
+    if (!this.isCurrency && !this.templates && !this.opts.reveal) {
       throw new Error("[Mask] informe um formato ou gabarito");
     }
     this._cleanups = [];
-    this._ligar();
-    if (node.value && !this.moeda && this.gabaritos) this._formatar({ manterCursor: false });
-    else if (node.value && this.moeda) this._formatar({ manterCursor: false });
-    if (this.opts.reveal) this._montarOlho();
+    this._wire();
+    if (node.value && !this.isCurrency && this.templates) this._format({ keepCursor: false });
+    else if (node.value && this.isCurrency) this._format({ keepCursor: false });
+    if (this.opts.reveal) this._buildEye();
     node._tucano = this;
   }
   /* ---------------------------------------------------------------- *
@@ -3313,37 +3313,37 @@ var Mask = class {
    * ---------------------------------------------------------------- */
   /** Conteudo sem formatacao: so digitos, ou digitos e letras. */
   getRaw() {
-    const texto = this.valorReal ?? this.input.value;
-    if (this.moeda) return texto.replace(/\D/g, "");
-    if (!this.gabaritos) return texto;
-    return limpar(texto, [].concat(this.gabaritos).join(""));
+    const text = this.rawValue ?? this.input.value;
+    if (this.isCurrency) return text.replace(/\D/g, "");
+    if (!this.templates) return text;
+    return clear(text, [].concat(this.templates).join(""));
   }
   /** Numero, no formato moeda. */
   getNumber() {
-    if (!this.moeda) return null;
+    if (!this.isCurrency) return null;
     const d = this.getRaw();
     return d ? Number(d) / 10 ** this.opts.decimals : null;
   }
-  setValue(valor) {
-    this.input.value = String(valor ?? "");
-    this._formatar({ manterCursor: false });
+  setValue(value) {
+    this.input.value = String(value ?? "");
+    this._format({ keepCursor: false });
     this._emit();
   }
   isValid() {
-    const validar = this.preset?.validar;
-    if (!validar) return true;
+    const validate = this.preset?.validate;
+    if (!validate) return true;
     const bruto = this.getRaw();
-    return bruto ? validar(bruto) : true;
+    return bruto ? validate(bruto) : true;
   }
   destroy() {
     this._cleanups.forEach((fn) => fn());
     this._cleanups = [];
     if (this.envolucro) {
-      if (this.valorReal != null) this.input.value = this.valorReal;
-      if (this.nomeReal) this.input.name = this.nomeReal;
+      if (this.rawValue != null) this.input.value = this.rawValue;
+      if (this.realName) this.input.name = this.realName;
       this.input.readOnly = this.readOnlyOriginal ?? false;
       this.envolucro.replaceWith(this.input);
-      this.oculto?.remove();
+      this.hidden?.remove();
     }
     this.input.setCustomValidity?.("");
     this.input.classList.remove("tuc-invalid");
@@ -3363,150 +3363,150 @@ var Mask = class {
    * e o dado inteiro, mas o formulario posta o valor certo — nada muda no
    * servidor. Campo vazio comeca visivel: quem esta digitando precisa ver.
    */
-  _montarOlho() {
+  _buildEye() {
     const input = this.input;
-    this.senha = input.type === "password";
+    this.password = input.type === "password";
     this.envolucro = el("span", { class: "tuc-field" });
     input.replaceWith(this.envolucro);
     this.envolucro.append(input);
-    if (!this.senha && input.name) {
-      this.nomeReal = input.name;
+    if (!this.password && input.name) {
+      this.realName = input.name;
       input.removeAttribute("name");
-      this.oculto = el("input", { type: "hidden", name: this.nomeReal, value: this.getRaw() });
-      this.envolucro.append(this.oculto);
+      this.hidden = el("input", { type: "hidden", name: this.realName, value: this.getRaw() });
+      this.envolucro.append(this.hidden);
     }
     this.olho = el("button", {
       type: "button",
       class: "tuc-btn is-ghost is-icon is-sm tuc-field__eye",
       "aria-label": "Mostrar",
       "aria-pressed": "false",
-      onclick: () => this._alternar()
+      onclick: () => this._toggle()
     });
     this.envolucro.append(this.olho);
-    this.mostrando = !input.value;
-    this._pintarOlho();
+    this.showing = !input.value;
+    this._paintEye();
     this._cleanups.push(on(input, "input", () => {
-      if (this.oculto) this.oculto.value = this.getRaw();
+      if (this.hidden) this.hidden.value = this.getRaw();
     }));
   }
   /**
    * Modo de esconder. Escolhido pelo campo quando nao informado: `type=email`
    * guarda o dominio, o resto guarda o fim.
    */
-  _modoOculto() {
+  _hiddenMode() {
     if (this.opts.revealMode) return this.opts.revealMode;
     if (this.input.type === "email") return "email";
     return "fim";
   }
-  _alternar() {
-    this.mostrando = !this.mostrando;
-    this._pintarOlho();
-    if (this.mostrando) this.input.focus();
+  _toggle() {
+    this.showing = !this.showing;
+    this._paintEye();
+    if (this.showing) this.input.focus();
   }
-  _pintarOlho() {
+  _paintEye() {
     const input = this.input;
-    const mostrando = this.mostrando;
-    if (this.senha) {
-      input.type = mostrando ? "text" : "password";
+    const showing = this.showing;
+    if (this.password) {
+      input.type = showing ? "text" : "password";
     } else {
-      if (mostrando) {
-        if (this.valorReal != null) {
-          input.value = this.valorReal;
-          this.valorReal = null;
+      if (showing) {
+        if (this.rawValue != null) {
+          input.value = this.rawValue;
+          this.rawValue = null;
         }
         input.readOnly = this.readOnlyOriginal ?? false;
       } else {
         this.readOnlyOriginal = input.readOnly;
-        this.valorReal = input.value;
-        input.value = obscurecer(input.value, this.opts.revealVisible, this._modoOculto());
+        this.rawValue = input.value;
+        input.value = maskMiddle(input.value, this.opts.revealVisible, this._hiddenMode());
         input.readOnly = true;
       }
     }
-    this.olho.replaceChildren(icon(mostrando ? ICONS_EXTRA.eyeOff : ICONS_EXTRA.eye, 16));
-    this.olho.setAttribute("aria-label", mostrando ? "Ocultar" : "Mostrar");
-    this.olho.setAttribute("aria-pressed", String(mostrando));
-    this.envolucro.classList.toggle("is-hidden", !mostrando);
+    this.olho.replaceChildren(icon(showing ? ICONS_EXTRA.eyeOff : ICONS_EXTRA.eye, 16));
+    this.olho.setAttribute("aria-label", showing ? "Ocultar" : "Mostrar");
+    this.olho.setAttribute("aria-pressed", String(showing));
+    this.envolucro.classList.toggle("is-hidden", !showing);
   }
   /* ---------------------------------------------------------------- *
    * Interno                                                           *
    * ---------------------------------------------------------------- */
-  _gabarito(caracteres) {
-    if (this.moeda) return "";
-    const chars = caracteres ?? limpar(this.input.value, [].concat(this.gabaritos).join(""));
-    return escolherGabarito(chars, this.gabaritos);
+  _template(caracteres) {
+    if (this.isCurrency) return "";
+    const chars = caracteres ?? clear(this.input.value, [].concat(this.templates).join(""));
+    return pickTemplate(chars, this.templates);
   }
-  _ligar() {
+  _wire() {
     const input = this.input;
     if (!input.getAttribute("inputmode")) {
-      input.setAttribute("inputmode", this.moeda || !/[A*]/.test([].concat(this.gabaritos).join("")) ? "numeric" : "text");
+      input.setAttribute("inputmode", this.isCurrency || !/[A*]/.test([].concat(this.templates).join("")) ? "numeric" : "text");
     }
     input.setAttribute("autocomplete", input.getAttribute("autocomplete") || "off");
     this._cleanups.push(
       on(input, "input", (e) => this._aoDigitar(e)),
       on(input, "blur", () => {
-        if (this.opts.validate) this._validar();
+        if (this.opts.validate) this._validate();
       }),
-      on(input, "focus", () => this._marcar(true))
+      on(input, "focus", () => this._mark(true))
     );
   }
   _aoDigitar(e) {
     const input = this.input;
     const cursor = input.selectionStart ?? input.value.length;
-    const tipo = typeof e.inputType === "string" ? e.inputType : "";
-    this._formatar({
+    const type = typeof e.inputType === "string" ? e.inputType : "";
+    this._format({
       cursor,
-      apagando: tipo.startsWith("delete"),
-      paraFrente: tipo === "deleteContentForward"
+      deleting: type.startsWith("delete"),
+      paraFrente: type === "deleteContentForward"
     });
     this._emit();
-    if (this.opts.validate) this._marcar(true);
+    if (this.opts.validate) this._mark(true);
   }
-  _formatar({ cursor = null, apagando = false, paraFrente = false, manterCursor = true } = {}) {
+  _format({ cursor = null, deleting = false, paraFrente = false, keepCursor = true } = {}) {
     const input = this.input;
     const bruto = input.value;
-    if (this.moeda) {
-      const digitos = bruto.replace(/\D/g, "");
-      const texto2 = aplicarMoeda(digitos, {
-        decimais: this.opts.decimals,
+    if (this.isCurrency) {
+      const digits = bruto.replace(/\D/g, "");
+      const text2 = applyCurrency(digits, {
+        decimals: this.opts.decimals,
         locale: this.opts.locale,
-        moeda: this.opts.currency
+        currency: this.opts.currency
       });
-      input.value = texto2;
-      if (manterCursor) input.setSelectionRange(texto2.length, texto2.length);
+      input.value = text2;
+      if (keepCursor) input.setSelectionRange(text2.length, text2.length);
       return;
     }
-    const todos = [].concat(this.gabaritos).join("");
-    let chars = [...limpar(bruto, todos)];
-    if (this.maiusculas) chars = chars.map((c) => c.toUpperCase());
-    let antes = cursor === null ? chars.length : [...limpar(bruto.slice(0, cursor), todos)].length;
-    if (apagando && chars.length === this._ultimo?.length) {
-      const idx = paraFrente ? antes : antes - 1;
+    const todos = [].concat(this.templates).join("");
+    let chars = [...clear(bruto, todos)];
+    if (this.uppercase) chars = chars.map((c) => c.toUpperCase());
+    let before = cursor === null ? chars.length : [...clear(bruto.slice(0, cursor), todos)].length;
+    if (deleting && chars.length === this._last?.length) {
+      const idx = paraFrente ? before : before - 1;
       if (idx >= 0 && idx < chars.length) {
         chars.splice(idx, 1);
-        if (!paraFrente) antes -= 1;
+        if (!paraFrente) before -= 1;
       }
     }
-    const gabarito = escolherGabarito(chars, this.gabaritos);
-    chars = chars.slice(0, capacidade(gabarito));
-    const texto = aplicar(chars.join(""), gabarito);
-    this._ultimo = chars.join("");
-    input.value = texto;
-    if (manterCursor) {
-      const pos = cursorApos(texto, Math.min(antes, chars.length));
+    const template = pickTemplate(chars, this.templates);
+    chars = chars.slice(0, capacity(template));
+    const text = apply(chars.join(""), template);
+    this._last = chars.join("");
+    input.value = text;
+    if (keepCursor) {
+      const pos = cursorAfter(text, Math.min(before, chars.length));
       input.setSelectionRange(pos, pos);
     }
   }
-  _validar() {
+  _validate() {
     const ok = this.isValid();
-    this._marcar(ok);
+    this._mark(ok);
     return ok;
   }
   /**
    * Marca o campo. setCustomValidity faz o formulario do navegador barrar o
    * submit sozinho, sem o projeto escrever nada.
    */
-  _marcar(ok) {
-    const msg = ok ? "" : this.opts.errorText || this.preset?.erro || "Valor inv\xE1lido";
+  _mark(ok) {
+    const msg = ok ? "" : this.opts.errorText || this.preset?.error || "Valor inv\xE1lido";
     this.input.setCustomValidity?.(msg);
     this.input.classList.toggle("tuc-invalid", !ok);
     this.input.setAttribute("aria-invalid", ok ? "false" : "true");
@@ -3524,8 +3524,8 @@ function omitUndefined5(obj) {
 }
 function autoInit5(scope = document) {
   const out = [];
-  const alvos = scope.querySelectorAll("[data-tuc-mask]:not([data-tuc-ready]), [data-tuc-reveal]:not([data-tuc-ready])");
-  for (const node of alvos) {
+  const targets = scope.querySelectorAll("[data-tuc-mask]:not([data-tuc-ready]), [data-tuc-reveal]:not([data-tuc-ready])");
+  for (const node of targets) {
     const d = node.dataset;
     node.setAttribute("data-tuc-ready", "");
     out.push(new Mask(node, {
@@ -3547,9 +3547,9 @@ function autoFormat(scope = document) {
     const d = node.dataset;
     node.setAttribute("data-tuc-formatted", "");
     const bruto = (node.dataset.value ?? node.textContent).trim();
-    node.textContent = formatar(bruto, d.tucFormat, {
-      decimais: d.decimals ? +d.decimals : void 0,
-      moeda: d.currency || void 0
+    node.textContent = format2(bruto, d.tucFormat, {
+      decimals: d.decimals ? +d.decimals : void 0,
+      currency: d.currency || void 0
     });
     out.push(node);
   }
@@ -3559,7 +3559,7 @@ function autoFormat(scope = document) {
 // src/js/components/toast.js
 var DEFAULTS6 = {
   type: "info",
-  // 'info' | 'sucesso' | 'aviso' | 'erro' | 'carregando'
+  // 'info' | 'success' | 'warning' | 'error' | 'loading'
   title: null,
   text: "",
   duration: void 0,
@@ -3572,87 +3572,87 @@ var DEFAULTS6 = {
   max: 4
   // toasts simultaneos na mesma posicao
 };
-var ICONE = {
+var ICON = {
   info: ICONS_EXTRA.info,
-  sucesso: ICONS_EXTRA.check,
-  aviso: ICONS_EXTRA.alert,
-  erro: ICONS_EXTRA.alert,
-  carregando: ICONS_EXTRA.spinner
+  success: ICONS_EXTRA.check,
+  warning: ICONS_EXTRA.alert,
+  error: ICONS_EXTRA.alert,
+  loading: ICONS_EXTRA.spinner
 };
-var DURACAO = { info: 4e3, sucesso: 3500, aviso: 6e3, erro: 8e3, carregando: null };
+var DURATION = { info: 4e3, success: 3500, warning: 6e3, error: 8e3, loading: null };
 var containers = /* @__PURE__ */ new Map();
-function container(posicao) {
-  if (containers.has(posicao)) return containers.get(posicao);
+function container(position) {
+  if (containers.has(position)) return containers.get(position);
   const node = el("div", {
-    class: `tuc-toasts is-${posicao}`,
+    class: `tuc-toasts is-${position}`,
     role: "region",
     "aria-label": "Notifica\xE7\xF5es"
   }, [
-    el("div", { class: "tuc-toasts__palco" }, [
+    el("div", { class: "tuc-toasts__stage" }, [
       el("div", { class: "tuc-toasts__live", "aria-live": "polite", "aria-atomic": "false" }),
-      el("div", { class: "tuc-toasts__live is-urgente", "aria-live": "assertive", "aria-atomic": "false" })
+      el("div", { class: "tuc-toasts__live is-urgent", "aria-live": "assertive", "aria-atomic": "false" })
     ])
   ]);
-  node.style.setProperty("--tuc-toast-respiro", `${RESPIRO}px`);
+  node.style.setProperty("--tuc-toast-gap", `${GAP}px`);
   document.body.append(node);
-  containers.set(posicao, node);
-  const expandir = (sim) => {
-    node.classList.toggle("is-expandido", sim);
-    arranjar(node);
+  containers.set(position, node);
+  const expand = (yes) => {
+    node.classList.toggle("is-expanded", yes);
+    arrange(node);
   };
-  node.addEventListener("pointerenter", () => expandir(true));
-  node.addEventListener("pointerleave", () => expandir(false));
-  node.addEventListener("focusin", () => expandir(true));
+  node.addEventListener("pointerenter", () => expand(true));
+  node.addEventListener("pointerleave", () => expand(false));
+  node.addEventListener("focusin", () => expand(true));
   node.addEventListener("focusout", () => {
-    if (!node.contains(document.activeElement)) expandir(false);
+    if (!node.contains(document.activeElement)) expand(false);
   });
   return node;
 }
 var RECUO = 14;
 var VISIVEIS = 3;
-var RESPIRO = 12;
-var sequencia = 0;
-function arranjar(cont) {
+var GAP = 12;
+var seq2 = 0;
+function arrange(cont) {
   void cont.offsetHeight;
   if (!cont.offsetWidth) return;
   const debaixo = cont.className.includes("is-bottom");
   const sentido = debaixo ? -1 : 1;
-  const aberto2 = cont.classList.contains("is-expandido");
-  const palco = cont.querySelector(".tuc-toasts__palco");
-  const toasts = [...palco.querySelectorAll(".tuc-toast:not(.is-closing)")].sort((a, b) => +a.dataset.seq - +b.dataset.seq);
+  const isOpen2 = cont.classList.contains("is-expanded");
+  const stage = cont.querySelector(".tuc-toasts__stage");
+  const toasts = [...stage.querySelectorAll(".tuc-toast:not(.is-closing)")].sort((a, b) => +a.dataset.seq - +b.dataset.seq);
   const frente = toasts.length - 1;
   let acumulado = 0;
   for (let i = frente; i >= 0; i--) {
     const k = frente - i;
     const t = toasts[i];
-    const y = aberto2 ? acumulado : k * RECUO;
-    const escala = aberto2 ? 1 : 1 - k * 0.05;
+    const y = isOpen2 ? acumulado : k * RECUO;
+    const escala = isOpen2 ? 1 : 1 - k * 0.05;
     t.style.setProperty("--tuc-toast-y", `${sentido * y}px`);
     t.style.setProperty("--tuc-toast-escala", String(escala));
     t.style.zIndex = String(100 - k);
-    t.classList.toggle("is-oculto", !aberto2 && k >= VISIVEIS);
-    t.setAttribute("aria-hidden", !aberto2 && k >= VISIVEIS ? "true" : "false");
-    acumulado += t.offsetHeight + RESPIRO;
+    t.classList.toggle("is-hidden", !isOpen2 && k >= VISIVEIS);
+    t.setAttribute("aria-hidden", !isOpen2 && k >= VISIVEIS ? "true" : "false");
+    acumulado += t.offsetHeight + GAP;
   }
-  const alturaFrente = toasts[frente]?.offsetHeight ?? 0;
-  const total = aberto2 ? acumulado - RESPIRO : alturaFrente + Math.min(toasts.length - 1, VISIVEIS - 1) * RECUO;
-  palco.style.height = toasts.length ? `${total}px` : "0px";
+  const frontHeight = toasts[frente]?.offsetHeight ?? 0;
+  const total = isOpen2 ? acumulado - GAP : frontHeight + Math.min(toasts.length - 1, VISIVEIS - 1) * RECUO;
+  stage.style.height = toasts.length ? `${total}px` : "0px";
 }
 var Toast = class {
-  constructor(opcoes = {}) {
-    this.opts = { ...DEFAULTS6, ...omitUndefined6(opcoes) };
+  constructor(options = {}) {
+    this.opts = { ...DEFAULTS6, ...omitUndefined6(options) };
     if (this.opts.duration === void 0) {
-      this.opts.duration = this.opts.type in DURACAO ? DURACAO[this.opts.type] : 4e3;
+      this.opts.duration = this.opts.type in DURATION ? DURATION[this.opts.type] : 4e3;
     }
     this.id = nextId("toast");
     this._cleanups = [];
-    this._montar();
+    this._build();
   }
   /** Os filhos do toast. Sai do _montar para que atualizar() reaproveite. */
-  _conteudo() {
+  _content() {
     const { type, title, text, closable, action } = this.opts;
     return [
-      el("span", { class: "tuc-toast__icon" }, [icon(ICONE[type] ?? ICONE.info, 17)]),
+      el("span", { class: "tuc-toast__icon" }, [icon(ICON[type] ?? ICON.info, 17)]),
       el("div", { class: "tuc-toast__body" }, [
         title ? el("strong", { class: "tuc-toast__title", text: title }) : null,
         el("span", { class: "tuc-toast__text", text })
@@ -3679,20 +3679,20 @@ var Toast = class {
    * "salvo" no mesmo cartao, sem a pilha reorganizar e sem o olho perder de
    * vista o aviso que ja estava lendo.
    */
-  atualizar(opcoes = {}) {
+  update(options = {}) {
     if (!this.node) return this;
     const anterior = this.opts.type;
-    this.opts = { ...this.opts, ...omitUndefined6(opcoes) };
+    this.opts = { ...this.opts, ...omitUndefined6(options) };
     const { type } = this.opts;
-    if (opcoes.duration === void 0 && type !== anterior) {
-      this.opts.duration = type in DURACAO ? DURACAO[type] : 4e3;
+    if (options.duration === void 0 && type !== anterior) {
+      this.opts.duration = type in DURATION ? DURATION[type] : 4e3;
     }
     this.node.classList.replace(`is-${anterior}`, `is-${type}`);
-    this.node.replaceChildren(...this._conteudo().filter(Boolean));
-    const urgente = type === "erro";
-    this.node.setAttribute("role", urgente ? "alert" : "status");
+    this.node.replaceChildren(...this._content().filter(Boolean));
+    const urgent = type === "error";
+    this.node.setAttribute("role", urgent ? "alert" : "status");
     const destino = this.container.querySelector(
-      urgente ? ".is-urgente" : ".tuc-toasts__live:not(.is-urgente)"
+      urgent ? ".is-urgent" : ".tuc-toasts__live:not(.is-urgent)"
     );
     if (destino !== this.regiao) {
       destino.append(this.node);
@@ -3700,26 +3700,26 @@ var Toast = class {
     }
     clearTimeout(this.timer);
     if (this.opts.duration) this._iniciarRelogio();
-    arranjar(this.container);
+    arrange(this.container);
     return this;
   }
-  _montar() {
-    const urgente = this.opts.type === "erro";
+  _build() {
+    const urgent = this.opts.type === "error";
     this.node = el("div", {
       class: `tuc-toast is-${this.opts.type}`,
       // role no proprio toast ajuda quem chega nele navegando.
-      role: urgente ? "alert" : "status",
+      role: urgent ? "alert" : "status",
       id: this.id
-    }, this._conteudo());
+    }, this._content());
     this.node._tucano = this;
-    this.node.dataset.seq = String(++sequencia);
-    const alvo = container(this.opts.position);
-    this.container = alvo;
-    const regiao = alvo.querySelector(urgente ? ".is-urgente" : ".tuc-toasts__live:not(.is-urgente)");
+    this.node.dataset.seq = String(++seq2);
+    const target = container(this.opts.position);
+    this.container = target;
+    const regiao = target.querySelector(urgent ? ".is-urgent" : ".tuc-toasts__live:not(.is-urgent)");
     regiao.append(this.node);
     this.regiao = regiao;
-    this._limitar(alvo);
-    arranjar(alvo);
+    this._capStack(target);
+    arrange(target);
     if (this.opts.duration) {
       this._iniciarRelogio();
       this._cleanups.push(
@@ -3729,7 +3729,7 @@ var Toast = class {
         on(this.node, "focusout", () => this._retomar())
       );
     }
-    abrirComTransicao(this.node);
+    openWithTransition(this.node);
   }
   /**
    * Fecha os mais antigos que passarem do limite.
@@ -3737,7 +3737,7 @@ var Toast = class {
    * A instancia fica no proprio no: sem isso nao ha como chamar close() a
    * partir do elemento, e o limite nao acontece.
    */
-  _limitar(cont) {
+  _capStack(cont) {
     const abertos = [...cont.querySelectorAll(".tuc-toast:not(.is-closing)")].sort((a, b) => +a.dataset.seq - +b.dataset.seq);
     const excedente = abertos.length - this.opts.max;
     for (let i = 0; i < excedente; i++) abertos[i]._tucano?.close();
@@ -3759,52 +3759,52 @@ var Toast = class {
     this.timer = setTimeout(() => this.close(), Math.max(this.restante, 0));
   }
   close() {
-    if (this._fechando) return;
-    this._fechando = true;
+    if (this._closing) return;
+    this._closing = true;
     clearTimeout(this.timer);
     this._cleanups.forEach((fn) => fn());
     this.node.classList.remove("is-open");
     this.node.classList.add("is-closing");
-    arranjar(this.container);
-    const remover = () => {
+    arrange(this.container);
+    const remove = () => {
       if (this._removido) return;
       this._removido = true;
       this.node.remove();
-      arranjar(this.container);
+      arrange(this.container);
       this.node.dispatchEvent(new CustomEvent("tucano:toast-fechado"));
     };
     this.node.addEventListener("transitionend", (e) => {
-      if (e.propertyName === "opacity") remover();
+      if (e.propertyName === "opacity") remove();
     });
-    setTimeout(remover, 500);
+    setTimeout(remove, 500);
   }
 };
-function toast(opcoesOuTexto, extra = {}) {
-  const base = typeof opcoesOuTexto === "string" ? { text: opcoesOuTexto } : opcoesOuTexto;
+function toast(optionsOrText, extra = {}) {
+  const base = typeof optionsOrText === "string" ? { text: optionsOrText } : optionsOrText;
   return new Toast({ ...base, ...extra });
 }
-for (const tipo of ["info", "sucesso", "aviso", "erro", "carregando"]) {
-  toast[tipo] = (texto, extra = {}) => toast({ type: tipo, text: texto, ...extra });
+for (const type of ["info", "success", "warning", "error", "loading"]) {
+  toast[type] = (text, extra = {}) => toast({ type, text, ...extra });
 }
-toast.promessa = (promessa, msgs = {}) => {
-  const { carregando, sucesso, erro, ...resto } = msgs;
-  const t = toast.carregando(carregando ?? "Carregando...", resto);
+toast.promise = (promise, msgs = {}) => {
+  const { loading, success, error, ...rest } = msgs;
+  const t = toast.loading(loading ?? "Carregando...", rest);
   const render = (v, dado, padrao) => {
     const r = typeof v === "function" ? v(dado) : v;
     return r ?? padrao;
   };
-  Promise.resolve(promessa).then(
-    (dado) => t.atualizar({ type: "sucesso", text: render(sucesso, dado, "Pronto") }),
-    (falha) => t.atualizar({ type: "erro", text: render(erro, falha, "Algo deu errado") })
+  Promise.resolve(promise).then(
+    (dado) => t.update({ type: "success", text: render(success, dado, "Pronto") }),
+    (falha) => t.update({ type: "error", text: render(error, falha, "Algo deu errado") })
   );
-  return promessa;
+  return promise;
 };
 function omitUndefined6(obj) {
   const out = {};
   for (const [k, v] of Object.entries(obj || {})) if (v !== void 0) out[k] = v;
   return out;
 }
-var MAPA_DJANGO = { debug: "info", info: "info", success: "sucesso", warning: "aviso", error: "erro" };
+var MAPA_DJANGO = { debug: "info", info: "info", success: "success", warning: "warning", error: "error" };
 function autoInit6(scope = document) {
   const out = [];
   for (const node of scope.querySelectorAll("[data-tuc-toast]:not([data-tuc-ready])")) {
@@ -3822,7 +3822,7 @@ function autoInit6(scope = document) {
   }
   return out;
 }
-function ouvirEventos() {
+function listenForEvents() {
   if (typeof document === "undefined" || document.__tucToastOuvindo) return;
   document.__tucToastOuvindo = true;
   document.body?.addEventListener("tucano:toast", (e) => {
@@ -3840,10 +3840,10 @@ var DEFAULTS7 = {
   // atraso ao apontar: evita piscar ao passar o mouse de raspao
   delayOut: 120,
   maxWidth: "16rem",
-  classe: ""
+  className: ""
   // classe extra no balao, para variar a cor num caso so
 };
-var aberto = null;
+var isOpen = null;
 var Tooltip = class {
   constructor(target, options = {}) {
     const node = typeof target === "string" ? document.querySelector(target) : target;
@@ -3857,18 +3857,18 @@ var Tooltip = class {
       node.removeAttribute("title");
     }
     if (!this.opts.text) throw new Error("[Tooltip] informe o texto");
-    this.painel = el("div", {
-      class: `tuc-tip${this.opts.classe ? ` ${this.opts.classe}` : ""}`,
+    this.panel = el("div", {
+      class: `tuc-tip${this.opts.className ? ` ${this.opts.className}` : ""}`,
       role: "tooltip",
       id: this.id,
       style: `max-width:${this.opts.maxWidth}`
     }, [
-      el("span", { class: "tuc-tip__texto", text: this.opts.text }),
+      el("span", { class: "tuc-tip__text", text: this.opts.text }),
       // aria-hidden: a seta e desenho, e o leitor de tela ja recebe o texto.
-      el("span", { class: "tuc-tip__seta", "data-tuc-seta": "", "aria-hidden": "true" })
+      el("span", { class: "tuc-tip__arrow", "data-tuc-arrow": "", "aria-hidden": "true" })
     ]);
     node.setAttribute("aria-describedby", this.id);
-    if (!node.hasAttribute("tabindex") && !FOCAVEL.test(node.tagName)) node.tabIndex = 0;
+    if (!node.hasAttribute("tabindex") && !FOCUSABLE.test(node.tagName)) node.tabIndex = 0;
     const toque = () => window.matchMedia?.("(pointer: coarse)").matches;
     this._cleanups.push(
       on(node, "pointerenter", (e) => {
@@ -3877,13 +3877,13 @@ var Tooltip = class {
       on(node, "pointerleave", (e) => {
         if (e.pointerType !== "touch") this._agendar(false);
       }),
-      on(node, "focusin", () => this._mostrar()),
-      on(node, "focusout", () => this._esconder()),
+      on(node, "focusin", () => this._show()),
+      on(node, "focusout", () => this._hide()),
       on(node, "click", () => {
-        if (toque()) this.aberto ? this._esconder() : this._mostrar();
+        if (toque()) this.isOpen ? this._hide() : this._show();
       }),
       on(document, "keydown", (e) => {
-        if (e.key === "Escape" && this.aberto) this._esconder();
+        if (e.key === "Escape" && this.isOpen) this._hide();
       })
     );
     node._tucano = this;
@@ -3891,16 +3891,16 @@ var Tooltip = class {
   _agendar(mostrar) {
     clearTimeout(this._timer);
     this._timer = setTimeout(
-      () => mostrar ? this._mostrar() : this._esconder(),
+      () => mostrar ? this._show() : this._hide(),
       mostrar ? this.opts.delay : this.opts.delayOut
     );
   }
-  _mostrar() {
-    if (this.aberto) return;
-    if (aberto && aberto !== this) aberto._esconder();
-    this.aberto = true;
-    aberto = this;
-    this.popover = new Popover(this.anchor, this.painel, {
+  _show() {
+    if (this.isOpen) return;
+    if (isOpen && isOpen !== this) isOpen._hide();
+    this.isOpen = true;
+    isOpen = this;
+    this.popover = new Popover(this.anchor, this.panel, {
       placement: this.opts.placement,
       /*
        * 13 e nao 6 por causa da seta. Ela e um quadrado de 10px girado 45
@@ -3910,34 +3910,34 @@ var Tooltip = class {
        * uns 6px de respiro, que e o que o balao sozinho tinha antes.
        */
       offset: 13,
-      fecharSeSolto: true,
-      onDismiss: () => this._esconder()
+      closeIfDetached: true,
+      onDismiss: () => this._hide()
     });
     this.popover.show();
-    abrirComTransicao(this.painel);
+    openWithTransition(this.panel);
   }
-  _esconder() {
+  _hide() {
     clearTimeout(this._timer);
-    if (!this.aberto) return;
-    this.aberto = false;
-    if (aberto === this) aberto = null;
-    this.painel.classList.remove("is-open");
+    if (!this.isOpen) return;
+    this.isOpen = false;
+    if (isOpen === this) isOpen = null;
+    this.panel.classList.remove("is-open");
     this.popover?.destroy();
     this.popover = null;
   }
-  setText(texto) {
-    this.opts.text = texto;
-    this.painel.textContent = texto;
+  setText(text) {
+    this.opts.text = text;
+    this.panel.textContent = text;
   }
   destroy() {
-    this._esconder();
+    this._hide();
     this._cleanups.forEach((fn) => fn());
     this._cleanups = [];
     this.anchor.removeAttribute("aria-describedby");
     delete this.anchor._tucano;
   }
 };
-var FOCAVEL = /^(A|BUTTON|INPUT|SELECT|TEXTAREA)$/;
+var FOCUSABLE = /^(A|BUTTON|INPUT|SELECT|TEXTAREA)$/;
 function omitUndefined7(obj) {
   const out = {};
   for (const [k, v] of Object.entries(obj || {})) if (v !== void 0) out[k] = v;
@@ -3951,98 +3951,98 @@ function autoInit7(scope = document) {
       text: node.dataset.tucTip || void 0,
       placement: node.dataset.placement || void 0,
       delay: node.dataset.delay ? +node.dataset.delay : void 0,
-      classe: node.dataset.tipClass || void 0
+      className: node.dataset.tipClass || void 0
     }));
   }
   return out;
 }
 
-// src/js/core/dialogo.js
-var DURACAO_SAIDA2 = 160;
-var Dialogo = class {
+// src/js/core/dialog.js
+var EXIT_MS2 = 160;
+var Dialog = class {
   /**
    * Adota um <dialog> ja escrito no template. O no e de quem escreveu o HTML:
    * abrir nao o insere e fechar nao o remove.
    */
-  _adotar(node) {
+  _adopt(node) {
     this._adotado = true;
     this.node = node;
     node._tucano = this;
     return this;
   }
-  abrir() {
-    if (this.aberto) return this;
-    this.aberto = true;
+  open() {
+    if (this.isOpen) return this;
+    this.isOpen = true;
     if (!this._adotado) document.body.append(this.node);
     this.node.showModal();
-    this._ligar();
+    this._wire();
     void this.node.offsetHeight;
     this.node.classList.add("is-open");
     return this;
   }
-  fechar(motivo = "api") {
-    if (!this.aberto) return this;
-    this.aberto = false;
+  close(motivo = "api") {
+    if (!this.isOpen) return this;
+    this.isOpen = false;
     this._cleanups.forEach((fn) => fn());
     this._cleanups = [];
     this.node.classList.remove("is-open");
     this.node.classList.add("is-closing");
-    clearTimeout(this._saida);
-    this._saida = setTimeout(() => {
+    clearTimeout(this._exitTimer);
+    this._exitTimer = setTimeout(() => {
       this.node.classList.remove("is-closing");
       if (this.node.open) this.node.close();
       if (!this._adotado) this.node.remove();
-      this.opts.aoFechar?.(motivo, this);
-    }, DURACAO_SAIDA2);
+      this.opts.onClose?.(motivo, this);
+    }, EXIT_MS2);
     return this;
   }
   /** Conteudo livre no corpo: um form do Django, uma tabela, o que for. */
-  conteudo(no) {
-    this.corpo?.replaceChildren(...(Array.isArray(no) ? no : [no]).filter(Boolean));
+  content(no) {
+    this.body?.replaceChildren(...(Array.isArray(no) ? no : [no]).filter(Boolean));
     return this;
   }
-  _ligar() {
+  _wire() {
     this._cleanups.push(
       // O Escape do <dialog> fecha na hora, sem animacao: interceptamos para
       // fechar pelo nosso caminho, que anima e devolve o motivo.
       on(this.node, "cancel", (e) => {
         e.preventDefault();
-        if (this.opts.fechavel) this.fechar("escape");
+        if (this.opts.closable) this.close("escape");
       }),
       on(this.node, "click", (e) => {
-        if (this.opts.fecharNoFundo && e.target === this.node) this.fechar("fundo");
+        if (this.opts.closeOnBackdrop && e.target === this.node) this.close("fundo");
       })
     );
   }
 };
-function montarCaixa(prefixo, opts, dono, tituloId) {
-  const { title, text, acoes, fechavel } = opts;
-  return el("div", { class: `${prefixo}__caixa` }, [
-    el("div", { class: `${prefixo}__topo` }, [
-      el("div", { class: `${prefixo}__cabecalho` }, [
-        title ? el("h2", { class: `${prefixo}__titulo`, id: tituloId, text: title }) : null,
-        text ? el("p", { class: `${prefixo}__texto`, text }) : null
+function buildPanel(prefix, opts, dono, titleId) {
+  const { title, text, actions, closable } = opts;
+  return el("div", { class: `${prefix}__panel` }, [
+    el("div", { class: `${prefix}__top` }, [
+      el("div", { class: `${prefix}__header` }, [
+        title ? el("h2", { class: `${prefix}__title`, id: titleId, text: title }) : null,
+        text ? el("p", { class: `${prefix}__text`, text }) : null
       ]),
-      fechavel ? el("button", {
+      closable ? el("button", {
         type: "button",
-        class: `tuc-btn is-ghost is-icon is-sm ${prefixo}__fechar`,
+        class: `tuc-btn is-ghost is-icon is-sm ${prefix}__close`,
         "aria-label": "Fechar",
-        onclick: () => dono.fechar("botao")
+        onclick: () => dono.close("botao")
       }, [icon(ICONS.x, 15)]) : null
     ]),
-    el("div", { class: `${prefixo}__corpo` }),
-    acoes?.length ? el("div", { class: `${prefixo}__rodape` }, acoes.map((a) => el("button", {
+    el("div", { class: `${prefix}__body` }),
+    actions?.length ? el("div", { class: `${prefix}__footer` }, actions.map((a) => el("button", {
       type: "button",
-      class: `tuc-btn is-${a.variante || "outline"}`,
-      text: a.texto,
+      class: `tuc-btn is-${a.variant || "outline"}`,
+      text: a.text,
       onclick: () => {
         a.onClick?.(dono);
-        if (a.fecha !== false) dono.fechar("acao");
+        if (a.fecha !== false) dono.close("action");
       }
     }))) : null
   ]);
 }
-function semUndefined(obj) {
+function withoutUndefined(obj) {
   const out = {};
   for (const [k, v] of Object.entries(obj || {})) if (v !== void 0) out[k] = v;
   return out;
@@ -4052,54 +4052,54 @@ function semUndefined(obj) {
 var DEFAULTS8 = {
   title: null,
   text: "",
-  tamanho: "md",
+  size: "md",
   // sm | md | lg | full
-  tom: "padrao",
-  // padrao | perigo | sucesso | aviso
-  folha: false,
+  tone: "default",
+  // default | danger | success | warning
+  sheet: false,
   // no celular sobe do rodape em vez de surgir no centro
-  fechavel: true,
+  closable: true,
   // botao X e Escape
-  fecharNoFundo: true,
-  acoes: null,
+  closeOnBackdrop: true,
+  actions: null,
   // [{ texto, variante, onClick, fecha }]
-  aoFechar: null,
-  classe: ""
+  onClose: null,
+  className: ""
 };
-var Modal = class extends Dialogo {
-  constructor(opcoes = {}) {
+var Modal = class extends Dialog {
+  constructor(options = {}) {
     super();
-    this.opts = { ...DEFAULTS8, ...semUndefined(opcoes) };
+    this.opts = { ...DEFAULTS8, ...withoutUndefined(options) };
     this.id = nextId("modal");
     this._cleanups = [];
-    this._montar();
+    this._build();
   }
-  _montar() {
-    const tituloId = `${this.id}-titulo`;
-    this.caixa = montarCaixa("tuc-modal", this.opts, this, tituloId);
+  _build() {
+    const titleId = `${this.id}-title`;
+    this.panel = buildPanel("tuc-modal", this.opts, this, titleId);
     this.node = el("dialog", {
       class: [
         "tuc-modal",
-        `is-${this.opts.tamanho}`,
-        `is-${this.opts.tom}`,
-        this.opts.folha ? "is-folha" : "",
-        this.opts.classe
+        `is-${this.opts.size}`,
+        `is-${this.opts.tone}`,
+        this.opts.sheet ? "is-sheet" : "",
+        this.opts.className
       ].filter(Boolean).join(" "),
       id: this.id,
       // O titulo nomeia o dialogo; sem titulo o proprio texto serve.
-      ...this.opts.title ? { "aria-labelledby": tituloId } : {}
-    }, [this.caixa]);
-    this.corpo = this.caixa.querySelector(".tuc-modal__corpo");
+      ...this.opts.title ? { "aria-labelledby": titleId } : {}
+    }, [this.panel]);
+    this.body = this.panel.querySelector(".tuc-modal__body");
     this.node._tucano = this;
   }
 };
-function modal(opcoesOuTexto, extra = {}) {
-  const base = typeof opcoesOuTexto === "string" ? { text: opcoesOuTexto } : opcoesOuTexto;
-  return new Modal({ ...base, ...extra }).abrir();
+function modal(optionsOrText, extra = {}) {
+  const base = typeof optionsOrText === "string" ? { text: optionsOrText } : optionsOrText;
+  return new Modal({ ...base, ...extra }).open();
 }
-function confirmar(opcoes = {}) {
-  const { confirmar: rotuloOk = "Confirmar", cancelar = "Cancelar", ...resto } = opcoes;
-  const tom = resto.tom ?? "perigo";
+function confirm(options = {}) {
+  const { confirm: okLabel = "Confirmar", cancel = "Cancelar", ...rest } = options;
+  const tone = rest.tone ?? "danger";
   return new Promise((resolve) => {
     let decidido = false;
     const responder = (v) => {
@@ -4107,19 +4107,19 @@ function confirmar(opcoes = {}) {
       resolve(v);
     };
     new Modal({
-      ...resto,
-      tom,
-      acoes: [
-        { texto: cancelar, variante: "outline", onClick: () => responder(false) },
-        { texto: rotuloOk, variante: tom === "perigo" ? "danger" : "primary", onClick: () => responder(true) }
+      ...rest,
+      tone,
+      actions: [
+        { text: cancel, variant: "outline", onClick: () => responder(false) },
+        { text: okLabel, variant: tone === "danger" ? "danger" : "primary", onClick: () => responder(true) }
       ],
       // Fechar pelo X, pelo Escape ou pelo fundo e uma recusa, nao um limbo:
       // sem isto a promessa ficaria pendente para sempre.
-      aoFechar: (motivo, m) => {
+      onClose: (motivo, m) => {
         if (!decidido) resolve(false);
-        resto.aoFechar?.(motivo, m);
+        rest.onClose?.(motivo, m);
       }
-    }).abrir();
+    }).open();
   });
 }
 function autoInit8(scope = document) {
@@ -4128,140 +4128,140 @@ function autoInit8(scope = document) {
     node.setAttribute("data-tuc-ready", "");
     const d = node.dataset;
     const m = Object.create(Modal.prototype);
-    m.opts = { ...DEFAULTS8, fechavel: d.fechavel !== "false", fecharNoFundo: d.fundo !== "false" };
+    m.opts = { ...DEFAULTS8, closable: d.closable !== "false", closeOnBackdrop: d.fundo !== "false" };
     m.id = node.id || nextId("modal");
     m._cleanups = [];
-    m.caixa = node.querySelector(".tuc-modal__caixa");
-    m.corpo = node.querySelector(".tuc-modal__corpo");
-    m._adotar(node);
+    m.panel = node.querySelector(".tuc-modal__panel");
+    m.body = node.querySelector(".tuc-modal__body");
+    m._adopt(node);
     for (const b of node.querySelectorAll("[data-tuc-modal-close]")) {
-      b.addEventListener("click", () => m.fechar("botao"));
+      b.addEventListener("click", () => m.close("botao"));
     }
     out.push(m);
   }
-  for (const gatilho of scope.querySelectorAll("[data-tuc-modal]:not([data-tuc-ready])")) {
-    gatilho.setAttribute("data-tuc-ready", "");
-    gatilho.addEventListener("click", (e) => {
+  for (const trigger of scope.querySelectorAll("[data-tuc-modal]:not([data-tuc-ready])")) {
+    trigger.setAttribute("data-tuc-ready", "");
+    trigger.addEventListener("click", (e) => {
       e.preventDefault();
-      document.querySelector(gatilho.dataset.tucModal)?._tucano?.abrir();
+      document.querySelector(trigger.dataset.tucModal)?._tucano?.open();
     });
   }
   return out;
 }
 
-// src/js/components/offcanvas.js
+// src/js/components/drawer.js
 var DEFAULTS9 = {
   title: null,
   text: "",
-  lado: "direita",
-  // esquerda | direita | cima | baixo
-  tamanho: "md",
+  side: "right",
+  // left | right | top | bottom
+  size: "md",
   // sm | md | lg — nas laterais, largura da coluna
-  tom: "padrao",
-  // padrao | perigo | sucesso | aviso
-  fechavel: true,
-  fecharNoFundo: true,
-  acoes: null,
-  aoFechar: null,
-  classe: ""
+  tone: "default",
+  // default | danger | success | warning
+  closable: true,
+  closeOnBackdrop: true,
+  actions: null,
+  onClose: null,
+  className: ""
 };
-var Gaveta = class extends Dialogo {
-  constructor(opcoes = {}) {
+var Drawer = class extends Dialog {
+  constructor(options = {}) {
     super();
-    this.opts = { ...DEFAULTS9, ...semUndefined(opcoes) };
-    this.id = nextId("gaveta");
+    this.opts = { ...DEFAULTS9, ...withoutUndefined(options) };
+    this.id = nextId("drawer");
     this._cleanups = [];
-    this._montar();
+    this._build();
   }
-  _montar() {
-    const tituloId = `${this.id}-titulo`;
-    this.caixa = montarCaixa("tuc-gaveta", this.opts, this, tituloId);
+  _build() {
+    const titleId = `${this.id}-title`;
+    this.panel = buildPanel("tuc-drawer", this.opts, this, titleId);
     this.node = el("dialog", {
       class: [
-        "tuc-gaveta",
-        `is-${this.opts.lado}`,
-        `is-${this.opts.tamanho}`,
-        `is-${this.opts.tom}`,
-        this.opts.classe
+        "tuc-drawer",
+        `is-${this.opts.side}`,
+        `is-${this.opts.size}`,
+        `is-${this.opts.tone}`,
+        this.opts.className
       ].filter(Boolean).join(" "),
       id: this.id,
-      ...this.opts.title ? { "aria-labelledby": tituloId } : {}
-    }, [this.caixa]);
-    this.corpo = this.caixa.querySelector(".tuc-gaveta__corpo");
+      ...this.opts.title ? { "aria-labelledby": titleId } : {}
+    }, [this.panel]);
+    this.body = this.panel.querySelector(".tuc-drawer__body");
     this.node._tucano = this;
   }
 };
-function gaveta(opcoesOuTexto, extra = {}) {
-  const base = typeof opcoesOuTexto === "string" ? { text: opcoesOuTexto } : opcoesOuTexto;
-  return new Gaveta({ ...base, ...extra }).abrir();
+function drawer(optionsOrText, extra = {}) {
+  const base = typeof optionsOrText === "string" ? { text: optionsOrText } : optionsOrText;
+  return new Drawer({ ...base, ...extra }).open();
 }
 function autoInit9(scope = document) {
   const out = [];
-  for (const node of scope.querySelectorAll("dialog.tuc-gaveta:not([data-tuc-ready])")) {
+  for (const node of scope.querySelectorAll("dialog.tuc-drawer:not([data-tuc-ready])")) {
     node.setAttribute("data-tuc-ready", "");
     const d = node.dataset;
-    const g = Object.create(Gaveta.prototype);
-    g.opts = { ...DEFAULTS9, fechavel: d.fechavel !== "false", fecharNoFundo: d.fundo !== "false" };
-    g.id = node.id || nextId("gaveta");
+    const g = Object.create(Drawer.prototype);
+    g.opts = { ...DEFAULTS9, closable: d.closable !== "false", closeOnBackdrop: d.fundo !== "false" };
+    g.id = node.id || nextId("drawer");
     g._cleanups = [];
-    g.caixa = node.querySelector(".tuc-gaveta__caixa");
-    g.corpo = node.querySelector(".tuc-gaveta__corpo");
-    g._adotar(node);
-    for (const b of node.querySelectorAll("[data-tuc-gaveta-close]")) {
-      b.addEventListener("click", () => g.fechar("botao"));
+    g.panel = node.querySelector(".tuc-drawer__panel");
+    g.body = node.querySelector(".tuc-drawer__body");
+    g._adopt(node);
+    for (const b of node.querySelectorAll("[data-tuc-drawer-close]")) {
+      b.addEventListener("click", () => g.close("botao"));
     }
     out.push(g);
   }
-  for (const gatilho of scope.querySelectorAll("[data-tuc-gaveta]:not([data-tuc-ready])")) {
-    gatilho.setAttribute("data-tuc-ready", "");
-    gatilho.addEventListener("click", (e) => {
+  for (const trigger of scope.querySelectorAll("[data-tuc-drawer]:not([data-tuc-ready])")) {
+    trigger.setAttribute("data-tuc-ready", "");
+    trigger.addEventListener("click", (e) => {
       e.preventDefault();
-      document.querySelector(gatilho.dataset.tucGaveta)?._tucano?.abrir();
+      document.querySelector(trigger.dataset.tucDrawer)?._tucano?.open();
     });
   }
   return out;
 }
 
-// src/js/components/acordeon.js
+// src/js/components/accordion.js
 var DEFAULTS10 = {
-  unico: false
+  single: false
   // abrir um recolhe os outros
 };
-var SOCORRO = 500;
-var Acordeon = class {
-  constructor(alvo, opcoes = {}) {
-    this.node = typeof alvo === "string" ? document.querySelector(alvo) : alvo;
-    if (!this.node) throw new Error("[Acordeon] elemento n\xE3o encontrado");
-    this.opts = { ...DEFAULTS10, ...opcoes };
+var SAFETY_MS = 500;
+var Accordion = class {
+  constructor(target, options = {}) {
+    this.node = typeof target === "string" ? document.querySelector(target) : target;
+    if (!this.node) throw new Error("[Accordion] elemento n\xE3o encontrado");
+    this.opts = { ...DEFAULTS10, ...options };
     this._cleanups = [];
-    this._montar();
+    this._build();
   }
-  get itens() {
+  get items() {
     return [...this.node.querySelectorAll(":scope > details")];
   }
-  _montar() {
-    this.node.classList.add("tuc-acordeon");
-    for (const item of this.itens) {
-      item.classList.add("tuc-acordeon__item");
-      const gatilho = item.querySelector(":scope > summary");
-      if (!gatilho) continue;
-      gatilho.classList.add("tuc-acordeon__gatilho");
-      if (!gatilho.querySelector(".tuc-acordeon__seta")) {
-        gatilho.append(el(
+  _build() {
+    this.node.classList.add("tuc-accordion");
+    for (const item of this.items) {
+      item.classList.add("tuc-accordion__item");
+      const trigger = item.querySelector(":scope > summary");
+      if (!trigger) continue;
+      trigger.classList.add("tuc-accordion__trigger");
+      if (!trigger.querySelector(".tuc-accordion__arrow")) {
+        trigger.append(el(
           "span",
-          { class: "tuc-acordeon__seta", "aria-hidden": "true" },
+          { class: "tuc-accordion__arrow", "aria-hidden": "true" },
           [icon(ICONS_EXTRA.chevronDown, 16)]
         ));
       }
-      if (!item.querySelector(":scope > .tuc-acordeon__corpo")) {
-        const resto = [...item.childNodes].filter((n) => n !== gatilho);
-        const conteudo = el("div", { class: "tuc-acordeon__conteudo" });
-        conteudo.append(...resto);
-        item.append(el("div", { class: "tuc-acordeon__corpo" }, [conteudo]));
+      if (!item.querySelector(":scope > .tuc-accordion__body")) {
+        const rest = [...item.childNodes].filter((n) => n !== trigger);
+        const content = el("div", { class: "tuc-accordion__content" });
+        content.append(...rest);
+        item.append(el("div", { class: "tuc-accordion__body" }, [content]));
       }
-      this._cleanups.push(on(gatilho, "click", (e) => this._alternar(e, item)));
+      this._cleanups.push(on(trigger, "click", (e) => this._toggle(e, item)));
     }
-    this._aquecer();
+    this._warmUp();
   }
   /*
    * Adianta o primeiro layout do conteudo.
@@ -4273,48 +4273,48 @@ var Acordeon = class {
    * porque o quadro so e desenhado quando a pilha termina, mas o navegador e
    * obrigado a medir pelo offsetHeight no meio.
    */
-  _aquecer() {
-    for (const item of this.itens) {
+  _warmUp() {
+    for (const item of this.items) {
       if (item.open) continue;
       item.open = true;
-      void item.querySelector(":scope > .tuc-acordeon__corpo")?.offsetHeight;
+      void item.querySelector(":scope > .tuc-accordion__body")?.offsetHeight;
       item.open = false;
     }
   }
-  _alternar(e, item) {
+  _toggle(e, item) {
     e.preventDefault();
-    if (item.open) this.fechar(item);
-    else this.abrir(item);
+    if (item.open) this.close(item);
+    else this.open(item);
   }
-  abrir(item) {
+  open(item) {
     item._tucEncerrar?.();
     if (item.open) return this;
-    if (this.opts.unico) {
-      for (const outro of this.itens) if (outro !== item && outro.open) this.fechar(outro);
+    if (this.opts.single) {
+      for (const outro of this.items) if (outro !== item && outro.open) this.close(outro);
     }
     item.open = true;
     return this;
   }
-  fechar(item) {
-    if (!item.open || item.classList.contains("is-fechando")) return this;
-    const corpo = item.querySelector(":scope > .tuc-acordeon__corpo");
-    item.classList.add("is-fechando");
+  close(item) {
+    if (!item.open || item.classList.contains("is-closing")) return this;
+    const body = item.querySelector(":scope > .tuc-accordion__body");
+    item.classList.add("is-closing");
     const encerrar = () => {
-      clearTimeout(item._tucSaida);
-      corpo?.removeEventListener("transitionend", aoFim);
+      clearTimeout(item._tucExit);
+      body?.removeEventListener("transitionend", aoFim);
       item._tucEncerrar = null;
-      item.classList.remove("is-fechando");
+      item.classList.remove("is-closing");
       item.open = false;
     };
     const aoFim = (e) => {
-      if (e.target === corpo && e.propertyName === "grid-template-rows") encerrar();
+      if (e.target === body && e.propertyName === "grid-template-rows") encerrar();
     };
     item._tucEncerrar = () => {
       encerrar();
-      item.classList.remove("is-fechando");
+      item.classList.remove("is-closing");
     };
-    corpo?.addEventListener("transitionend", aoFim);
-    item._tucSaida = setTimeout(encerrar, SOCORRO);
+    body?.addEventListener("transitionend", aoFim);
+    item._tucExit = setTimeout(encerrar, SAFETY_MS);
     return this;
   }
   destroy() {
@@ -4324,9 +4324,9 @@ var Acordeon = class {
 };
 function autoInit10(scope = document) {
   const out = [];
-  for (const node of scope.querySelectorAll("[data-tuc-acordeon]:not([data-tuc-ready])")) {
+  for (const node of scope.querySelectorAll("[data-tuc-accordion]:not([data-tuc-ready])")) {
     node.setAttribute("data-tuc-ready", "");
-    out.push(new Acordeon(node, { unico: node.dataset.unico === "true" }));
+    out.push(new Accordion(node, { single: node.dataset.single === "true" }));
   }
   return out;
 }
@@ -4334,160 +4334,160 @@ function autoInit10(scope = document) {
 // src/js/components/dropdown.js
 var DEFAULTS11 = {
   placement: "bottom-start",
-  itens: null,
+  items: null,
   // [{ texto, icone, atalho, onClick, href, variante, desabilitado }]
   // ou { separador: true } / { rotulo: 'Seção' }
-  fecharAoEscolher: true
+  closeOnPick: true
 };
 var FOCAVEIS = '.tuc-dropdown__item:not([disabled]):not([aria-disabled="true"])';
-function semUndefined2(obj) {
+function withoutUndefined2(obj) {
   const out = {};
   for (const [k, v] of Object.entries(obj || {})) if (v !== void 0) out[k] = v;
   return out;
 }
 var Dropdown = class {
-  constructor(gatilho, opcoes = {}) {
-    this.gatilho = typeof gatilho === "string" ? document.querySelector(gatilho) : gatilho;
-    if (!this.gatilho) throw new Error("[Dropdown] gatilho n\xE3o encontrado");
-    this.opts = { ...DEFAULTS11, ...semUndefined2(opcoes) };
+  constructor(trigger, options = {}) {
+    this.trigger = typeof trigger === "string" ? document.querySelector(trigger) : trigger;
+    if (!this.trigger) throw new Error("[Dropdown] gatilho n\xE3o encontrado");
+    this.opts = { ...DEFAULTS11, ...withoutUndefined2(options) };
     this._cleanups = [];
-    this._montar();
+    this._build();
   }
-  _montar() {
-    this.painel = this.opts.painel ?? el(
+  _build() {
+    this.panel = this.opts.panel ?? el(
       "div",
       { class: "tuc-dropdown", role: "menu" },
-      (this.opts.itens ?? []).map((i) => this._item(i))
+      (this.opts.items ?? []).map((i) => this._item(i))
     );
-    this.painel.classList.add("tuc-dropdown");
-    this.painel.setAttribute("role", "menu");
-    this.gatilho.setAttribute("aria-haspopup", "menu");
-    this.gatilho.setAttribute("aria-expanded", "false");
+    this.panel.classList.add("tuc-dropdown");
+    this.panel.setAttribute("role", "menu");
+    this.trigger.setAttribute("aria-haspopup", "menu");
+    this.trigger.setAttribute("aria-expanded", "false");
     this._cleanups.push(
-      on(this.gatilho, "click", (e) => {
+      on(this.trigger, "click", (e) => {
         e.preventDefault();
-        this.alternar();
+        this.toggle();
       }),
-      on(this.gatilho, "keydown", (e) => {
+      on(this.trigger, "keydown", (e) => {
         if (e.key === "ArrowDown" || e.key === "ArrowUp") {
           e.preventDefault();
-          this.abrir();
-          this._mover(e.key === "ArrowUp" ? -1 : 0, true);
+          this.open();
+          this._move(e.key === "ArrowUp" ? -1 : 0, true);
         }
       }),
-      on(this.painel, "keydown", (e) => this._teclado(e)),
-      on(this.painel, "click", (e) => {
+      on(this.panel, "keydown", (e) => this._onKey(e)),
+      on(this.panel, "click", (e) => {
         const item = e.target.closest(".tuc-dropdown__item");
         if (!item || item.hasAttribute("aria-disabled")) return;
-        if (this.opts.fecharAoEscolher) this.fechar();
+        if (this.opts.closeOnPick) this.close();
       })
     );
-    this.gatilho._tucano = this;
-    this.painel._tucano = this;
+    this.trigger._tucano = this;
+    this.panel._tucano = this;
   }
-  _item(dados) {
-    if (dados.separador) return el("hr", { class: "tuc-dropdown__separador", role: "separator" });
-    if (dados.rotulo) return el("div", { class: "tuc-dropdown__rotulo", text: dados.rotulo });
-    const tag = dados.href ? "a" : "button";
-    const filhos = [];
-    if (dados.icone) filhos.push(el("span", { class: "tuc-dropdown__icone", "aria-hidden": "true" }, [icon(dados.icone, 15)]));
-    filhos.push(el("span", { class: "tuc-dropdown__texto", text: dados.texto ?? "" }));
-    if (dados.atalho) filhos.push(el("span", { class: "tuc-dropdown__atalho", text: dados.atalho }));
+  _item(data) {
+    if (data.separator) return el("hr", { class: "tuc-dropdown__separator", role: "separator" });
+    if (data.label) return el("div", { class: "tuc-dropdown__label", text: data.label });
+    const tag = data.href ? "a" : "button";
+    const children = [];
+    if (data.icon) children.push(el("span", { class: "tuc-dropdown__icon", "aria-hidden": "true" }, [icon(data.icon, 15)]));
+    children.push(el("span", { class: "tuc-dropdown__text", text: data.text ?? "" }));
+    if (data.shortcut) children.push(el("span", { class: "tuc-dropdown__shortcut", text: data.shortcut }));
     return el(tag, {
-      class: `tuc-dropdown__item${dados.variante ? ` is-${dados.variante}` : ""}`,
+      class: `tuc-dropdown__item${data.variant ? ` is-${data.variant}` : ""}`,
       role: "menuitem",
       // tabindex -1 de proposito: quem navega e a seta, nao o Tab. Deixar os
       // itens tabulaveis faria o Tab sair do menu item a item.
       tabindex: "-1",
-      ...dados.href ? { href: dados.href } : { type: "button" },
-      ...dados.desabilitado ? { "aria-disabled": "true" } : {},
-      ...dados.desabilitado ? {} : { onclick: () => dados.onClick?.(this) }
-    }, filhos);
+      ...data.href ? { href: data.href } : { type: "button" },
+      ...data.disabled ? { "aria-disabled": "true" } : {},
+      ...data.disabled ? {} : { onclick: () => data.onClick?.(this) }
+    }, children);
   }
-  get itens() {
-    return [...this.painel.querySelectorAll(FOCAVEIS)];
+  get items() {
+    return [...this.panel.querySelectorAll(FOCAVEIS)];
   }
-  _mover(passo, absoluto = false) {
-    const itens = this.itens;
-    if (!itens.length) return;
-    const atual = itens.indexOf(document.activeElement);
+  _move(step, absoluto = false) {
+    const items = this.items;
+    if (!items.length) return;
+    const atual = items.indexOf(document.activeElement);
     let i;
-    if (absoluto) i = passo < 0 ? itens.length - 1 : 0;
-    else i = (atual + passo + itens.length) % itens.length;
-    itens[i]?.focus();
+    if (absoluto) i = step < 0 ? items.length - 1 : 0;
+    else i = (atual + step + items.length) % items.length;
+    items[i]?.focus();
   }
-  _teclado(e) {
-    const teclas = {
-      ArrowDown: () => this._mover(1),
-      ArrowUp: () => this._mover(-1),
-      Home: () => this._mover(0, true),
-      End: () => this._mover(-1, true),
-      Escape: () => this.fechar(),
-      Tab: () => this.fechar()
+  _onKey(e) {
+    const keys = {
+      ArrowDown: () => this._move(1),
+      ArrowUp: () => this._move(-1),
+      Home: () => this._move(0, true),
+      End: () => this._move(-1, true),
+      Escape: () => this.close(),
+      Tab: () => this.close()
     };
-    const acao = teclas[e.key];
-    if (!acao) return;
+    const action = keys[e.key];
+    if (!action) return;
     if (e.key !== "Tab") e.preventDefault();
-    acao();
+    action();
   }
-  abrir() {
-    if (this.aberto) return this;
-    this.aberto = true;
-    this.gatilho.setAttribute("aria-expanded", "true");
-    this.popover = new Popover(this.gatilho, this.painel, {
+  open() {
+    if (this.isOpen) return this;
+    this.isOpen = true;
+    this.trigger.setAttribute("aria-expanded", "true");
+    this.popover = new Popover(this.trigger, this.panel, {
       placement: this.opts.placement,
       offset: 6,
-      fecharSeSolto: true,
-      fecharAoSairFoco: true,
-      onDismiss: () => this.fechar()
+      closeIfDetached: true,
+      closeOnFocusOut: true,
+      onDismiss: () => this.close()
     });
     this.popover.show();
-    abrirComTransicao(this.painel);
-    this._mover(0, true);
+    openWithTransition(this.panel);
+    this._move(0, true);
     return this;
   }
-  fechar() {
-    if (!this.aberto) return this;
-    this.aberto = false;
-    this.gatilho.setAttribute("aria-expanded", "false");
-    this.painel.classList.remove("is-open");
+  close() {
+    if (!this.isOpen) return this;
+    this.isOpen = false;
+    this.trigger.setAttribute("aria-expanded", "false");
+    this.panel.classList.remove("is-open");
     this.popover?.destroy();
     this.popover = null;
-    if (this.painel.contains(document.activeElement)) {
-      this.gatilho.focus({ preventScroll: true });
+    if (this.panel.contains(document.activeElement)) {
+      this.trigger.focus({ preventScroll: true });
     }
     return this;
   }
-  alternar() {
-    return this.aberto ? this.fechar() : this.abrir();
+  toggle() {
+    return this.isOpen ? this.close() : this.open();
   }
   destroy() {
-    this.fechar();
+    this.close();
     this._cleanups.forEach((fn) => fn());
     this._cleanups = [];
   }
 };
 function autoInit11(scope = document) {
   const out = [];
-  for (const gatilho of scope.querySelectorAll("[data-tuc-dropdown]:not([data-tuc-ready])")) {
-    gatilho.setAttribute("data-tuc-ready", "");
-    const painel = document.querySelector(gatilho.dataset.tucDropdown);
-    if (!painel) continue;
-    painel.hidden = false;
-    painel.remove();
-    for (const item of painel.querySelectorAll(".tuc-dropdown__item")) {
+  for (const trigger of scope.querySelectorAll("[data-tuc-dropdown]:not([data-tuc-ready])")) {
+    trigger.setAttribute("data-tuc-ready", "");
+    const panel = document.querySelector(trigger.dataset.tucDropdown);
+    if (!panel) continue;
+    panel.hidden = false;
+    panel.remove();
+    for (const item of panel.querySelectorAll(".tuc-dropdown__item")) {
       item.setAttribute("role", "menuitem");
       item.setAttribute("tabindex", "-1");
     }
-    out.push(new Dropdown(gatilho, {
-      painel,
-      placement: gatilho.dataset.placement || void 0
+    out.push(new Dropdown(trigger, {
+      panel,
+      placement: trigger.dataset.placement || void 0
     }));
   }
   return out;
 }
 
-// src/js/core/sanitizar.js
+// src/js/core/sanitize.js
 var PERMITIDAS = /* @__PURE__ */ new Set([
   "P",
   "BR",
@@ -4517,60 +4517,60 @@ var TRANSPARENTES = /* @__PURE__ */ new Set(["DIV", "SPAN", "FONT", "SECTION", "
 var EQUIVALENTES = { B: "STRONG", I: "EM" };
 var ALINHAMENTOS = /* @__PURE__ */ new Set(["left", "center", "right", "justify"]);
 var ALINHAVEIS = /* @__PURE__ */ new Set(["P", "H2", "H3", "LI", "BLOCKQUOTE", "TD", "TH"]);
-function copiarAlinhamento(de, para) {
+function copyAlignment(de, para) {
   if (!ALINHAVEIS.has(para.tagName)) return;
-  const valor = (de.style?.textAlign || "").toLowerCase();
-  if (ALINHAMENTOS.has(valor)) para.setAttribute("style", `text-align: ${valor}`);
+  const value = (de.style?.textAlign || "").toLowerCase();
+  if (ALINHAMENTOS.has(value)) para.setAttribute("style", `text-align: ${value}`);
 }
 function urlSegura(url) {
-  const limpo = (url || "").trim();
-  return /^(https?:|mailto:|tel:|#|\/)/i.test(limpo) ? limpo : "";
+  const plain = (url || "").trim();
+  return /^(https?:|mailto:|tel:|#|\/)/i.test(plain) ? plain : "";
 }
-function limparNo(no, destino, doc) {
-  for (const filho of [...no.childNodes]) {
-    if (filho.nodeType === Node.TEXT_NODE) {
-      destino.append(doc.createTextNode(filho.nodeValue));
+function clearNode(no, destino, doc) {
+  for (const child of [...no.childNodes]) {
+    if (child.nodeType === Node.TEXT_NODE) {
+      destino.append(doc.createTextNode(child.nodeValue));
       continue;
     }
-    if (filho.nodeType !== Node.ELEMENT_NODE) continue;
-    const tag = filho.tagName;
+    if (child.nodeType !== Node.ELEMENT_NODE) continue;
+    const tag = child.tagName;
     if (tag === "SCRIPT" || tag === "STYLE" || tag === "IFRAME" || tag === "OBJECT") continue;
     if (TRANSPARENTES.has(tag) || !PERMITIDAS.has(tag)) {
-      limparNo(filho, destino, doc);
+      clearNode(child, destino, doc);
       continue;
     }
     const novo = doc.createElement(EQUIVALENTES[tag] || tag);
-    copiarAlinhamento(filho, novo);
+    copyAlignment(child, novo);
     if (novo.tagName === "A") {
-      const href = urlSegura(filho.getAttribute("href"));
+      const href = urlSegura(child.getAttribute("href"));
       if (!href) {
-        limparNo(filho, destino, doc);
+        clearNode(child, destino, doc);
         continue;
       }
       novo.setAttribute("href", href);
       novo.setAttribute("target", "_blank");
       novo.setAttribute("rel", "noopener noreferrer");
     }
-    limparNo(filho, novo, doc);
+    clearNode(child, novo, doc);
     destino.append(novo);
   }
 }
-function sanitizar(html) {
+function sanitize(html) {
   const doc = document.implementation.createHTMLDocument("");
   const entrada = doc.createElement("div");
   entrada.innerHTML = String(html ?? "");
   const saida = doc.createElement("div");
-  limparNo(entrada, saida, doc);
+  clearNode(entrada, saida, doc);
   return saida.innerHTML;
 }
-function soTexto(html) {
+function textOnly(html) {
   const doc = document.implementation.createHTMLDocument("");
   const d = doc.createElement("div");
   d.innerHTML = String(html ?? "");
   return d.textContent || "";
 }
 
-// src/js/core/destacar.js
+// src/js/core/highlight.js
 var ESCAPES = { "&": "&amp;", "<": "&lt;", ">": "&gt;" };
 var escapar = (t) => String(t).replace(/[&<>]/g, (c) => ESCAPES[c]);
 var PALAVRAS = [
@@ -4679,7 +4679,7 @@ var PALAVRAS = [
 ].join("|");
 var REGRAS = [
   ["coment", /(&lt;!--[\s\S]*?--&gt;|\/\*[\s\S]*?\*\/|\/\/[^\n]*|#[^\n]*)/],
-  ["texto", /("(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*'|`(?:[^`\\]|\\.)*`)/],
+  ["text", /("(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*'|`(?:[^`\\]|\\.)*`)/],
   ["tmpl", /(\{%[\s\S]*?%\}|\{\{[\s\S]*?\}\})/],
   ["tag", /(&lt;\/?[a-zA-Z][\w-]*)/],
   ["attr", /([a-zA-Z-][\w-]*)(?==)/],
@@ -4688,151 +4688,151 @@ var REGRAS = [
    * As palavras entram na mesma expressao, e nao numa segunda passada.
    *
    * Separadas, elas eram procuradas de novo no HTML que a primeira passada
-   * acabara de gerar — e `class` esta na lista, entao a palavra era encontrada
+   * acabara de gerar — e `class` esta na list, entao a palavra era encontrada
    * dentro do atributo `class="tuc-tok-attr"` e envolvida outra vez. O
    * resultado era marcacao aninhada quebrada, que o navegador mostrava como
-   * texto solto no meio do codigo.
+   * text solto no meio do codigo.
    */
-  ["chave", new RegExp(`\\b(${PALAVRAS})\\b`)]
+  ["key", new RegExp(`\\b(${PALAVRAS})\\b`)]
 ];
 var COMBINADA = new RegExp(REGRAS.map(([, re]) => re.source).join("|"), "g");
-function destacar(codigo) {
-  const texto = escapar(codigo ?? "");
-  return texto.replace(COMBINADA, (todo, ...grupos) => {
+function highlight(codigo) {
+  const text = escapar(codigo ?? "");
+  return text.replace(COMBINADA, (todo, ...grupos) => {
     const i = grupos.findIndex((g) => g !== void 0);
-    const classe = REGRAS[i]?.[0];
-    return classe ? `<span class="tuc-tok-${classe}">${todo}</span>` : todo;
+    const className = REGRAS[i]?.[0];
+    return className ? `<span class="tuc-tok-${className}tuc-tok-${className}tuc-tok-${className}tuc-tok-${className}">${todo}</span>` : todo;
   });
 }
 function autoInit12(scope = document) {
-  const blocos = [...scope.querySelectorAll(".tuc-prosa pre > code:not([data-tuc-pintado])")];
+  const blocos = [...scope.querySelectorAll(".tuc-prose pre > code:not([data-tuc-painted])")];
   for (const code of blocos) {
-    code.setAttribute("data-tuc-pintado", "");
-    code.innerHTML = destacar(code.textContent);
+    code.setAttribute("data-tuc-painted", "");
+    code.innerHTML = highlight(code.textContent);
   }
   return blocos;
 }
 
-// src/js/components/rico.js
+// src/js/components/editor.js
 var DEFAULTS12 = {
   toolbar: [
-    "negrito",
-    "italico",
-    "sublinhado",
-    "titulo",
-    "subtitulo",
-    "lista",
-    "numerada",
-    "esquerda",
-    "centro",
-    "direita",
-    "justificar",
-    "citacao",
-    "codigo",
+    "bold",
+    "italic",
+    "underline",
+    "title",
+    "subheading",
+    "list",
+    "numbered",
+    "left",
+    "center",
+    "right",
+    "justify",
+    "quote",
+    "code",
     "link",
-    "tabela",
-    "limpar"
+    "table",
+    "clear"
   ],
-  tabela: { linhas: 3, colunas: 3 },
+  table: { rows: 3, cols: 3 },
   minHeight: "9rem",
   placeholder: ""
 };
 var ICONES = {
-  negrito: "M6 4h6a4 4 0 010 8H6zM6 12h7a4 4 0 010 8H6z",
-  italico: "M19 4h-9M14 20H5M15 4L9 20",
-  sublinhado: "M6 4v6a6 6 0 0012 0V4M4 21h16",
-  titulo: "M6 4v16M18 4v16M6 12h12",
-  subtitulo: "M6 6v12M16 6v12M6 12h10",
-  lista: "M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01",
-  numerada: "M10 6h11M10 12h11M10 18h11M4 6h1v4M4 10h2M6 15a1.5 1.5 0 10-2 1.4L6 19H4",
-  citacao: "M6 17h3l2-4V7H5v6h3zM14 17h3l2-4V7h-6v6h3z",
+  bold: "M6 4h6a4 4 0 010 8H6zM6 12h7a4 4 0 010 8H6z",
+  italic: "M19 4h-9M14 20H5M15 4L9 20",
+  underline: "M6 4v6a6 6 0 0012 0V4M4 21h16",
+  title: "M6 4v16M18 4v16M6 12h12",
+  subheading: "M6 6v12M16 6v12M6 12h10",
+  list: "M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01",
+  numbered: "M10 6h11M10 12h11M10 18h11M4 6h1v4M4 10h2M6 15a1.5 1.5 0 10-2 1.4L6 19H4",
+  quote: "M6 17h3l2-4V7H5v6h3zM14 17h3l2-4V7h-6v6h3z",
   link: "M10 13a5 5 0 007 0l3-3a5 5 0 00-7-7l-1 1M14 11a5 5 0 00-7 0l-3 3a5 5 0 007 7l1-1",
-  limpar: "M4 7h16M10 11v6M14 11v6M5 7l1 13a2 2 0 002 2h8a2 2 0 002-2l1-13",
-  tabela: "M3 5h18v14H3zM3 10h18M3 15h18M9 5v14M15 5v14",
-  esquerda: "M3 6h18M3 12h11M3 18h15",
-  centro: "M3 6h18M6 12h12M4 18h16",
-  direita: "M3 6h18M10 12h11M6 18h15",
-  justificar: "M3 6h18M3 12h18M3 18h18",
-  codigo: "M16 18l6-6-6-6M8 6l-6 6 6 6"
+  clear: "M4 7h16M10 11v6M14 11v6M5 7l1 13a2 2 0 002 2h8a2 2 0 002-2l1-13",
+  table: "M3 5h18v14H3zM3 10h18M3 15h18M9 5v14M15 5v14",
+  left: "M3 6h18M3 12h11M3 18h15",
+  center: "M3 6h18M6 12h12M4 18h16",
+  right: "M3 6h18M10 12h11M6 18h15",
+  justify: "M3 6h18M3 12h18M3 18h18",
+  code: "M16 18l6-6-6-6M8 6l-6 6 6 6"
 };
-var ROTULOS = {
-  negrito: "Negrito",
-  italico: "It\xE1lico",
-  sublinhado: "Sublinhado",
-  titulo: "T\xEDtulo",
-  subtitulo: "Subt\xEDtulo",
-  lista: "Lista",
-  numerada: "Lista numerada",
-  citacao: "Cita\xE7\xE3o",
+var LABELS = {
+  bold: "Negrito",
+  italic: "It\xE1lico",
+  underline: "Sublinhado",
+  title: "T\xEDtulo",
+  subheading: "Subt\xEDtulo",
+  list: "Lista",
+  numbered: "Lista numbered",
+  quote: "Cita\xE7\xE3o",
   link: "Link",
-  limpar: "Limpar formata\xE7\xE3o",
-  tabela: "Inserir tabela",
-  esquerda: "Alinhar \xE0 esquerda",
-  centro: "Centralizar",
-  direita: "Alinhar \xE0 direita",
-  justificar: "Justificar",
-  codigo: "C\xF3digo"
+  clear: "Limpar formata\xE7\xE3o",
+  table: "Inserir tabela",
+  left: "Alinhar \xE0 esquerda",
+  center: "Centralizar",
+  right: "Alinhar \xE0 direita",
+  justify: "Justificar",
+  code: "C\xF3digo"
 };
 var COMANDOS = {
-  negrito: () => document.execCommand("bold"),
-  italico: () => document.execCommand("italic"),
-  sublinhado: () => document.execCommand("underline"),
-  titulo: () => alternarBloco("H2"),
-  subtitulo: () => alternarBloco("H3"),
-  lista: () => document.execCommand("insertUnorderedList"),
-  numerada: () => document.execCommand("insertOrderedList"),
-  citacao: () => alternarBloco("BLOCKQUOTE"),
-  limpar: () => document.execCommand("removeFormat"),
-  esquerda: () => document.execCommand("justifyLeft"),
-  centro: () => document.execCommand("justifyCenter"),
-  direita: () => document.execCommand("justifyRight"),
-  justificar: () => document.execCommand("justifyFull"),
-  codigo: () => alternarCodigo()
+  bold: () => document.execCommand("bold"),
+  italic: () => document.execCommand("italic"),
+  underline: () => document.execCommand("underline"),
+  title: () => toggleBlock("H2"),
+  subheading: () => toggleBlock("H3"),
+  list: () => document.execCommand("insertUnorderedList"),
+  numbered: () => document.execCommand("insertOrderedList"),
+  quote: () => toggleBlock("BLOCKQUOTE"),
+  clear: () => document.execCommand("removeFormat"),
+  left: () => document.execCommand("justifyLeft"),
+  center: () => document.execCommand("justifyCenter"),
+  right: () => document.execCommand("justifyRight"),
+  justify: () => document.execCommand("justifyFull"),
+  code: () => toggleCode()
 };
-var ESTADOS = {
-  negrito: "bold",
-  italico: "italic",
-  sublinhado: "underline",
-  lista: "insertUnorderedList",
-  numerada: "insertOrderedList",
-  esquerda: "justifyLeft",
-  centro: "justifyCenter",
-  direita: "justifyRight",
-  justificar: "justifyFull"
+var STATES = {
+  bold: "bold",
+  italic: "italic",
+  underline: "underline",
+  list: "insertUnorderedList",
+  numbered: "insertOrderedList",
+  left: "justifyLeft",
+  center: "justifyCenter",
+  right: "justifyRight",
+  justify: "justifyFull"
 };
 var ANCESTRAIS = {
-  titulo: "h2",
-  subtitulo: "h3",
-  citacao: "blockquote",
-  codigo: "pre, code",
+  title: "h2",
+  subheading: "h3",
+  quote: "blockquote",
+  code: "pre, code",
   link: "a",
-  tabela: "table"
+  table: "table"
 };
-var ATALHOS = { b: "negrito", i: "italico", u: "sublinhado", k: "link" };
+var ATALHOS = { b: "bold", i: "italic", u: "underline", k: "link" };
 var ESCAPES2 = { "&": "&amp;", "<": "&lt;", ">": "&gt;" };
-function alternarCodigo() {
+function toggleCode() {
   const sel = window.getSelection();
   if (!sel?.rangeCount) return;
   const inicio = sel.anchorNode?.nodeType === Node.ELEMENT_NODE ? sel.anchorNode : sel.anchorNode?.parentElement;
-  const dentro = inicio?.closest?.("pre, code");
-  if (dentro) {
-    const alvo = dentro.closest("pre") || dentro;
-    const texto2 = alvo.textContent;
+  const inside = inicio?.closest?.("pre, code");
+  if (inside) {
+    const target = inside.closest("pre") || inside;
+    const text2 = target.textContent;
     const r = document.createRange();
-    r.setStartBefore(alvo);
-    r.setEndAfter(alvo);
+    r.setStartBefore(target);
+    r.setEndAfter(target);
     sel.removeAllRanges();
     sel.addRange(r);
-    if (alvo.tagName === "PRE") {
+    if (target.tagName === "PRE") {
       const bloco = document.createDocumentFragment();
-      for (const linha of texto2.split("\n")) {
+      for (const row of text2.split("\n")) {
         const par = document.createElement("p");
-        if (linha) par.textContent = linha;
+        if (row) par.textContent = row;
         else par.append(document.createElement("br"));
         bloco.append(par);
       }
       const primeiro = bloco.firstChild;
-      alvo.replaceWith(bloco);
+      target.replaceWith(bloco);
       if (primeiro) {
         const pos = document.createRange();
         pos.selectNodeContents(primeiro);
@@ -4842,132 +4842,132 @@ function alternarCodigo() {
       }
       return;
     }
-    document.execCommand("insertText", false, texto2);
+    document.execCommand("insertText", false, text2);
     return;
   }
-  const texto = sel.toString();
-  if (!texto) return;
-  const escapado = texto.replace(/\n{2,}/g, "\n").replace(/[&<>]/g, (c) => ESCAPES2[c]);
-  if (/\n/.test(texto)) {
+  const text = sel.toString();
+  if (!text) return;
+  const escapado = text.replace(/\n{2,}/g, "\n").replace(/[&<>]/g, (c) => ESCAPES2[c]);
+  if (/\n/.test(text)) {
     document.execCommand("insertHTML", false, `<pre><code>${escapado}</code></pre><p><br></p>`);
     return;
   }
   document.execCommand("insertHTML", false, `<code>${escapado}</code>`);
 }
-function alternarBloco(tag) {
+function toggleBlock(tag) {
   const atual = document.queryCommandValue("formatBlock")?.toUpperCase();
   document.execCommand("formatBlock", false, atual === tag ? "P" : tag);
 }
-function montarTabela(doc, linhas, colunas) {
+function buildTable(doc, rows, cols) {
   const cel = (tag) => {
     const c = doc.createElement(tag);
     c.append(doc.createElement("br"));
     return c;
   };
-  const tabela = doc.createElement("table");
+  const table = doc.createElement("table");
   const thead = doc.createElement("thead");
   const trCab = doc.createElement("tr");
   for (let c = 0; c < colunas; c++) trCab.append(cel("th"));
   thead.append(trCab);
   const tbody = doc.createElement("tbody");
-  for (let l = 0; l < linhas - 1; l++) {
+  for (let l = 0; l < rows - 1; l++) {
     const tr = doc.createElement("tr");
     for (let c = 0; c < colunas; c++) tr.append(cel("td"));
     tbody.append(tr);
   }
-  tabela.append(thead, tbody);
-  return tabela;
+  table.append(thead, tbody);
+  return table;
 }
-function proximaCelula(celula, tras) {
-  const tabela = celula.closest("table");
-  const celulas = [...tabela.querySelectorAll("th, td")];
-  return celulas[celulas.indexOf(celula) + (tras ? -1 : 1)] || null;
+function nextCell(cell, tras) {
+  const table = cell.closest("table");
+  const celulas = [...table.querySelectorAll("th, td")];
+  return celulas[celulas.indexOf(cell) + (tras ? -1 : 1)] || null;
 }
-var TABELA = {
-  linhaAcima: (c) => inserirLinha(c, 0),
-  linhaAbaixo: (c) => inserirLinha(c, 1),
-  colunaAntes: (c) => inserirColuna(c, 0),
-  colunaDepois: (c) => inserirColuna(c, 1),
-  removerLinha: (c) => removerLinha(c),
-  removerColuna: (c) => removerColuna(c),
-  removerTabela: (c) => c.closest("table")?.remove()
+var TABLE = {
+  rowAbove: (c) => insertRow(c, 0),
+  rowBelow: (c) => insertRow(c, 1),
+  colBefore: (c) => insertColumn(c, 0),
+  colAfter: (c) => insertColumn(c, 1),
+  deleteRow: (c) => deleteRow(c),
+  deleteColumn: (c) => deleteColumn(c),
+  deleteTable: (c) => c.closest("table")?.remove()
 };
-var ROTULOS_TABELA = {
-  linhaAcima: "Inserir linha acima",
-  linhaAbaixo: "Inserir linha abaixo",
-  colunaAntes: "Inserir coluna \xE0 esquerda",
-  colunaDepois: "Inserir coluna \xE0 direita",
-  removerLinha: "Excluir linha",
-  removerColuna: "Excluir coluna",
-  removerTabela: "Excluir tabela"
+var TABLE_LABELS = {
+  rowAbove: "Inserir linha acima",
+  rowBelow: "Inserir linha abaixo",
+  colBefore: "Inserir coluna \xE0 esquerda",
+  colAfter: "Inserir coluna \xE0 direita",
+  deleteRow: "Excluir linha",
+  deleteColumn: "Excluir coluna",
+  deleteTable: "Excluir tabela"
 };
-var ICONES_TABELA = {
-  linhaAcima: "M12 3v8M8 7h8M3 15h18M3 20h18",
-  linhaAbaixo: "M3 4h18M3 9h18M12 21v-8M8 17h8",
-  colunaAntes: "M3 12h8M7 8v8M15 3v18M20 3v18",
-  colunaDepois: "M4 3v18M9 3v18M21 12h-8M17 8v8",
-  removerLinha: "M3 6h18M3 18h18M9 12h6",
-  removerColuna: "M6 3v18M18 3v18M12 9v6",
-  removerTabela: "M4 7h16M10 11v6M14 11v6M5 7l1 13a2 2 0 002 2h8a2 2 0 002-2l1-13M9 7V4h6v3"
+var TABLE_ICONS = {
+  rowAbove: "M12 3v8M8 7h8M3 15h18M3 20h18",
+  rowBelow: "M3 4h18M3 9h18M12 21v-8M8 17h8",
+  colBefore: "M3 12h8M7 8v8M15 3v18M20 3v18",
+  colAfter: "M4 3v18M9 3v18M21 12h-8M17 8v8",
+  deleteRow: "M3 6h18M3 18h18M9 12h6",
+  deleteColumn: "M6 3v18M18 3v18M12 9v6",
+  deleteTable: "M4 7h16M10 11v6M14 11v6M5 7l1 13a2 2 0 002 2h8a2 2 0 002-2l1-13M9 7V4h6v3"
 };
-var celulaVazia = (tag) => {
+var emptyCell = (tag) => {
   const c = document.createElement(tag);
   c.append(document.createElement("br"));
   return c;
 };
-function inserirLinha(celula, depois) {
-  const linha = celula.parentElement;
+function insertRow(cell, after) {
+  const row = cell.parentElement;
   const nova = document.createElement("tr");
-  for (let i = 0; i < linha.children.length; i++) nova.append(celulaVazia("td"));
-  const corpo = celula.closest("table").querySelector("tbody");
-  if (linha.parentElement.tagName === "THEAD" && corpo) {
-    depois ? corpo.prepend(nova) : corpo.prepend(nova);
+  for (let i = 0; i < row.children.length; i++) nova.append(emptyCell("td"));
+  const body = cell.closest("table").querySelector("tbody");
+  if (row.parentElement.tagName === "THEAD" && body) {
+    after ? body.prepend(nova) : body.prepend(nova);
   } else {
-    linha.parentElement.insertBefore(nova, depois ? linha.nextSibling : linha);
+    row.parentElement.insertBefore(nova, after ? row.nextSibling : row);
   }
   return nova.firstElementChild;
 }
-function inserirColuna(celula, depois) {
-  const i = [...celula.parentElement.children].indexOf(celula);
-  for (const linha of celula.closest("table").querySelectorAll("tr")) {
-    const modelo = linha.children[i];
-    const nova = celulaVazia(modelo?.tagName === "TH" ? "th" : "td");
-    linha.insertBefore(nova, depois ? modelo?.nextSibling : modelo);
+function insertColumn(cell, after) {
+  const i = [...cell.parentElement.children].indexOf(cell);
+  for (const row of cell.closest("table").querySelectorAll("tr")) {
+    const modelo = row.children[i];
+    const nova = emptyCell(modelo?.tagName === "TH" ? "th" : "td");
+    row.insertBefore(nova, after ? modelo?.nextSibling : modelo);
   }
-  return celula.parentElement.children[depois ? i + 1 : i];
+  return cell.parentElement.children[after ? i + 1 : i];
 }
-function removerLinha(celula) {
-  const linha = celula.parentElement;
-  const tabela = celula.closest("table");
-  if (tabela.querySelectorAll("tr").length <= 1) {
-    tabela.remove();
+function deleteRow(cell) {
+  const row = cell.parentElement;
+  const table = cell.closest("table");
+  if (table.querySelectorAll("tr").length <= 1) {
+    table.remove();
     return null;
   }
-  const vizinha = linha.nextElementSibling || linha.previousElementSibling;
-  linha.remove();
+  const vizinha = row.nextElementSibling || row.previousElementSibling;
+  row.remove();
   return vizinha?.firstElementChild ?? null;
 }
-function removerColuna(celula) {
-  const linha = celula.parentElement;
-  const i = [...linha.children].indexOf(celula);
-  const tabela = celula.closest("table");
-  if (linha.children.length <= 1) {
-    tabela.remove();
+function deleteColumn(cell) {
+  const row = cell.parentElement;
+  const i = [...row.children].indexOf(cell);
+  const table = cell.closest("table");
+  if (row.children.length <= 1) {
+    table.remove();
     return null;
   }
-  for (const l of tabela.querySelectorAll("tr")) l.children[i]?.remove();
-  return linha.children[Math.max(0, i - 1)] ?? null;
+  for (const l of table.querySelectorAll("tr")) l.children[i]?.remove();
+  return row.children[Math.max(0, i - 1)] ?? null;
 }
-function focarCelula(celula) {
-  if (!celula) return;
+function focusCell(cell) {
+  if (!cell) return;
   const r = document.createRange();
-  r.selectNodeContents(celula);
+  r.selectNodeContents(cell);
   r.collapse(true);
   const s = window.getSelection();
   s.removeAllRanges();
   s.addRange(r);
 }
-function posicaoNoBloco(bloco) {
+function offsetInBlock(bloco) {
   const sel = window.getSelection();
   if (!sel?.rangeCount || !bloco.contains(sel.anchorNode)) return null;
   const r = sel.getRangeAt(0).cloneRange();
@@ -4975,90 +4975,90 @@ function posicaoNoBloco(bloco) {
   r.setEnd(sel.getRangeAt(0).endContainer, sel.getRangeAt(0).endOffset);
   return r.toString().length;
 }
-function devolverPosicao(bloco, quantos) {
+function restoreOffset(bloco, quantos) {
   if (quantos == null) return;
-  const passo = document.createTreeWalker(bloco, NodeFilter.SHOW_TEXT);
-  let contados = 0;
+  const step = document.createTreeWalker(bloco, NodeFilter.SHOW_TEXT);
+  let counted = 0;
   let no;
-  while (no = passo.nextNode()) {
-    if (contados + no.length >= quantos) {
+  while (no = step.nextNode()) {
+    if (counted + no.length >= quantos) {
       const r = document.createRange();
-      r.setStart(no, quantos - contados);
+      r.setStart(no, quantos - counted);
       r.collapse(true);
       const sel = window.getSelection();
       sel.removeAllRanges();
       sel.addRange(r);
       return;
     }
-    contados += no.length;
+    counted += no.length;
   }
 }
-function semUndefined3(obj) {
+function withoutUndefined3(obj) {
   const out = {};
   for (const [k, v] of Object.entries(obj || {})) if (v !== void 0) out[k] = v;
   return out;
 }
-var Rico = class {
-  constructor(alvo, opcoes = {}) {
-    this.campo = typeof alvo === "string" ? document.querySelector(alvo) : alvo;
-    if (!this.campo) throw new Error("[Rico] elemento n\xE3o encontrado");
-    this.opts = { ...DEFAULTS12, ...semUndefined3(opcoes) };
+var Editor = class {
+  constructor(target, options = {}) {
+    this.field = typeof target === "string" ? document.querySelector(target) : target;
+    if (!this.field) throw new Error("[Editor] elemento n\xE3o encontrado");
+    this.opts = { ...DEFAULTS12, ...withoutUndefined3(options) };
     this._cleanups = [];
-    this._montar();
+    this._build();
   }
-  _montar() {
-    const campo = this.campo;
+  _build() {
+    const field = this.field;
     this.area = el("div", {
-      class: "tuc-rico__area",
+      class: "tuc-editor__area",
       contenteditable: "true",
       role: "textbox",
       "aria-multiline": "true",
-      "data-placeholder": this.opts.placeholder || campo.placeholder || ""
+      "data-placeholder": this.opts.placeholder || field.placeholder || ""
     });
     this.area.style.minHeight = this.opts.minHeight;
-    this.area.innerHTML = sanitizar(campo.value) || "<p><br></p>";
-    const GRUPOS = /* @__PURE__ */ new Set(["esquerda", "citacao"]);
-    this.barra = el(
+    this.area.innerHTML = sanitize(field.value) || "<p><br></p>";
+    const GRUPOS = /* @__PURE__ */ new Set(["left", "quote"]);
+    this.toolbar = el(
       "div",
-      { class: "tuc-rico__barra", role: "toolbar", "aria-label": "Formata\xE7\xE3o" },
-      this.opts.toolbar.flatMap((nome) => {
+      { class: "tuc-editor__toolbar", role: "toolbar", "aria-label": "Formata\xE7\xE3o" },
+      this.opts.toolbar.flatMap((name) => {
         const b = el("button", {
           type: "button",
           class: "tuc-btn is-ghost is-icon is-sm",
-          "aria-label": ROTULOS[nome] ?? nome,
-          "data-tuc-tip": ROTULOS[nome] ?? nome,
+          "aria-label": LABELS[name] ?? name,
+          "data-tuc-tip": LABELS[name] ?? name,
           "aria-pressed": "false",
           // mousedown e nao click: click viria depois do blur, e a selecao
           // dentro da area ja teria sido perdida.
           onmousedown: (e) => {
             e.preventDefault();
-            this.aplicar(nome);
+            this.apply(name);
           }
-        }, [icon(ICONES[nome] ?? ICONES.limpar, 15)]);
-        b.dataset.acao = nome;
-        return GRUPOS.has(nome) ? [el("span", { class: "tuc-rico__sep", "aria-hidden": "true" }), b] : [b];
+        }, [icon(ICONES[name] ?? ICONES.clear, 15)]);
+        b.dataset.action = name;
+        return GRUPOS.has(name) ? [el("span", { class: "tuc-editor__sep", "aria-hidden": "true" }), b] : [b];
       })
     );
-    this.barraTabela = el("div", {
-      class: "tuc-rico__barra is-tabela",
+    this.tableBar = el("div", {
+      class: "tuc-editor__toolbar is-table",
       role: "toolbar",
       "aria-label": "Tabela",
       hidden: true
-    }, Object.keys(TABELA).map((nome) => el("button", {
+    }, Object.keys(TABLE).map((name) => el("button", {
       type: "button",
-      class: `tuc-btn is-ghost is-icon is-sm${nome.startsWith("remover") ? " is-remover" : ""}`,
-      "aria-label": ROTULOS_TABELA[nome],
-      "data-tuc-tip": ROTULOS_TABELA[nome],
+      class: `tuc-btn is-ghost is-icon is-sm${name.startsWith("remove") ? " is-remove" : ""}`,
+      "aria-label": TABLE_LABELS[name],
+      "data-tuc-tip": TABLE_LABELS[name],
       onmousedown: (e) => {
         e.preventDefault();
-        this.naTabela(nome);
+        this.inTable(name);
       }
-    }, [icon(ICONES_TABELA[nome], 15)])));
-    this.raiz = el("div", { class: "tuc-rico" }, [this.barra, this.barraTabela, this.area]);
-    campo.parentNode.insertBefore(this.raiz, campo);
-    this.raiz.append(campo);
-    campo.hidden = true;
-    campo.classList.add("tuc-rico__valor");
+    }, [icon(TABLE_ICONS[name], 15)])));
+    this.root = el("div", { class: "tuc-editor" }, [this.toolbar, this.tableBar, this.area]);
+    field.parentNode.insertBefore(this.root, field);
+    this.root.append(field);
+    field.hidden = true;
+    field.classList.add("tuc-editor__value");
     this._cleanups.push(
       on(this.area, "input", () => {
         this._sincronizar();
@@ -5066,18 +5066,18 @@ var Rico = class {
       }),
       on(this.area, "blur", () => this._sincronizar()),
       on(this.area, "paste", (e) => this._colar(e)),
-      on(this.area, "keydown", (e) => this._teclado(e)),
-      on(this.area, "keyup", () => this._marcarAtivos()),
-      on(this.area, "mouseup", () => this._marcarAtivos()),
+      on(this.area, "keydown", (e) => this._onKey(e)),
+      on(this.area, "keyup", () => this._markActive()),
+      on(this.area, "mouseup", () => this._markActive()),
       // selectionchange e global: e o unico evento que pega o cursor mudando
       // de lugar por qualquer caminho, inclusive clique fora e volta.
       on(document, "selectionchange", () => {
-        this._verTabela();
-        this._marcarAtivos();
+        this._syncTableBar();
+        this._markActive();
       })
     );
-    this._pintar();
-    campo._tucano = this;
+    this._paint();
+    field._tucano = this;
     this.area._tucano = this;
   }
   /*
@@ -5085,56 +5085,56 @@ var Rico = class {
    * <span>, entao nada disso chega ao valor salvo — e nem deveria, porque cor
    * e decisao de quem exibe, nao conteudo.
    */
-  _pintar() {
+  _paint() {
     for (const code of this.area.querySelectorAll("pre > code")) {
       const cru = code.textContent;
-      const pintado = destacar(cru);
-      if (code.innerHTML === pintado) continue;
-      const onde = posicaoNoBloco(code);
-      code.innerHTML = pintado;
-      devolverPosicao(code, onde);
+      const painted = highlight(cru);
+      if (code.innerHTML === painted) continue;
+      const onde = offsetInBlock(code);
+      code.innerHTML = painted;
+      restoreOffset(code, onde);
     }
   }
   /* O textarea escondido e a fonte da verdade para o formulario. */
   _sincronizar() {
-    const limpo = sanitizar(this.area.innerHTML);
-    if (this.campo.value === limpo) return;
-    this.campo.value = limpo;
-    this.campo.dispatchEvent(new Event("input", { bubbles: true }));
-    this.campo.dispatchEvent(new Event("change", { bubbles: true }));
+    const plain = sanitize(this.area.innerHTML);
+    if (this.field.value === plain) return;
+    this.field.value = plain;
+    this.field.dispatchEvent(new Event("input", { bubbles: true }));
+    this.field.dispatchEvent(new Event("change", { bubbles: true }));
   }
   /* Adiado: repintar a cada tecla brigaria com a digitacao. */
   _agendarPintura() {
     clearTimeout(this._pincel);
-    this._pincel = setTimeout(() => this._pintar(), 180);
+    this._pincel = setTimeout(() => this._paint(), 180);
   }
   _colar(e) {
     e.preventDefault();
-    const texto = e.clipboardData?.getData("text/plain") ?? soTexto(e.clipboardData?.getData("text/html"));
-    document.execCommand("insertText", false, texto);
+    const text = e.clipboardData?.getData("text/plain") ?? textOnly(e.clipboardData?.getData("text/html"));
+    document.execCommand("insertText", false, text);
   }
-  _teclado(e) {
+  _onKey(e) {
     if (e.key === "Tab") {
-      const celula = window.getSelection()?.anchorNode?.parentElement?.closest?.("th, td");
-      if (celula) {
+      const cell = window.getSelection()?.anchorNode?.parentElement?.closest?.("th, td");
+      if (cell) {
         e.preventDefault();
-        let alvo = proximaCelula(celula, e.shiftKey);
-        if (!alvo && !e.shiftKey) {
-          const corpo = celula.closest("table").querySelector("tbody") || celula.closest("table");
-          const modelo = corpo.querySelector("tr") || celula.parentElement;
+        let target = nextCell(cell, e.shiftKey);
+        if (!target && !e.shiftKey) {
+          const body = cell.closest("table").querySelector("tbody") || cell.closest("table");
+          const modelo = body.querySelector("tr") || cell.parentElement;
           const nova = document.createElement("tr");
           for (let i = 0; i < modelo.children.length; i++) {
             const td = document.createElement("td");
             td.append(document.createElement("br"));
             nova.append(td);
           }
-          corpo.append(nova);
-          alvo = nova.firstElementChild;
+          body.append(nova);
+          target = nova.firstElementChild;
           this._sincronizar();
         }
-        if (alvo) {
+        if (target) {
           const r = document.createRange();
-          r.selectNodeContents(alvo);
+          r.selectNodeContents(target);
           r.collapse(true);
           const s = window.getSelection();
           s.removeAllRanges();
@@ -5146,7 +5146,7 @@ var Rico = class {
     const t = e.key.toLowerCase();
     if ((e.metaKey || e.ctrlKey) && ATALHOS[t]) {
       e.preventDefault();
-      this.aplicar(ATALHOS[t]);
+      this.apply(ATALHOS[t]);
     }
   }
   /* Botao aceso quando o cursor esta dentro daquela formatacao. */
@@ -5162,82 +5162,82 @@ var Rico = class {
    * acima cresce, quem mantem a viewport parada e o scroll anchoring, e ele so
    * funciona se ninguem mexer na rolagem por fora.
    */
-  _focar() {
+  _focus() {
     this.area.focus({ preventScroll: true });
   }
   /* Elemento em volta do cursor, dentro da area. */
-  _noAtual() {
+  _currentNode() {
     const sel = window.getSelection();
     if (!sel?.anchorNode || !this.area.contains(sel.anchorNode)) return null;
     return sel.anchorNode.nodeType === Node.ELEMENT_NODE ? sel.anchorNode : sel.anchorNode.parentElement;
   }
-  _marcarAtivos() {
-    const no = this._noAtual();
-    for (const b of this.barra.querySelectorAll("[data-acao]")) {
-      const acao = b.dataset.acao;
-      const cmd = ESTADOS[acao];
-      const seletor = ANCESTRAIS[acao];
+  _markActive() {
+    const no = this._currentNode();
+    for (const b of this.toolbar.querySelectorAll("[data-action]")) {
+      const action = b.dataset.action;
+      const cmd = STATES[action];
+      const seletor = ANCESTRAIS[action];
       if (!cmd && !seletor) continue;
-      let ativo = false;
+      let active = false;
       if (cmd) {
         try {
-          ativo = document.queryCommandState(cmd);
+          active = document.queryCommandState(cmd);
         } catch {
         }
       } else if (no) {
-        ativo = !!no.closest?.(seletor);
+        active = !!no.closest?.(seletor);
       }
-      b.setAttribute("aria-pressed", String(ativo));
-      b.classList.toggle("is-ativo", ativo);
+      b.setAttribute("aria-pressed", String(active));
+      b.classList.toggle("is-active", active);
     }
   }
   /** Celula onde o cursor esta, ou nada. */
-  _celulaAtual() {
+  _currentCell() {
     const sel = window.getSelection();
     if (!sel?.anchorNode || !this.area.contains(sel.anchorNode)) return null;
     const no = sel.anchorNode.nodeType === Node.ELEMENT_NODE ? sel.anchorNode : sel.anchorNode.parentElement;
-    const celula = no?.closest?.("th, td") ?? null;
-    return celula && this.area.contains(celula) ? celula : null;
+    const cell = no?.closest?.("th, td") ?? null;
+    return cell && this.area.contains(cell) ? cell : null;
   }
-  _verTabela() {
-    const dentro = !!this._celulaAtual();
-    if (this.barraTabela.hidden !== !dentro) this.barraTabela.hidden = !dentro;
+  _syncTableBar() {
+    const inside = !!this._currentCell();
+    if (this.tableBar.hidden !== !inside) this.tableBar.hidden = !inside;
   }
   /** Operacao de tabela na celula onde o cursor esta. */
-  naTabela(nome) {
-    const celula = this._celulaAtual();
-    if (!celula) return this;
-    const destino = TABELA[nome]?.(celula);
-    this._focar();
-    focarCelula(destino);
+  inTable(name) {
+    const cell = this._currentCell();
+    if (!cell) return this;
+    const destino = TABLE[name]?.(cell);
+    this._focus();
+    focusCell(destino);
     this._sincronizar();
-    this._verTabela();
+    this._syncTableBar();
     return this;
   }
-  aplicar(nome) {
-    this._focar();
-    if (nome === "tabela") {
-      const { linhas, colunas } = this.opts.tabela;
-      const tabela = montarTabela(document, linhas, colunas);
+  apply(name) {
+    this._focus();
+    if (name === "table") {
+      const { rows, cols } = this.opts.table;
+      const table = buildTable(document, rows, cols);
       const sel = window.getSelection();
-      const dentro = this._celulaAtual()?.closest("table");
-      if (dentro) {
-        dentro.after(tabela);
+      const inside = this._currentCell()?.closest("table");
+      if (inside) {
+        inside.after(table);
         const p = document.createElement("p");
         p.append(document.createElement("br"));
-        tabela.after(p);
-        focarCelula(tabela.querySelector("th"));
+        table.after(p);
+        focusCell(table.querySelector("th"));
         this._sincronizar();
         return this;
       }
       if (sel?.rangeCount) {
         const range = sel.getRangeAt(0);
         range.deleteContents();
-        range.insertNode(tabela);
+        range.insertNode(table);
         const p = document.createElement("p");
         p.append(document.createElement("br"));
-        tabela.after(p);
-        const primeira = tabela.querySelector("th");
+        table.after(p);
+        const primeira = table.querySelector("th");
         if (primeira) {
           const r = document.createRange();
           r.selectNodeContents(primeira);
@@ -5249,14 +5249,14 @@ var Rico = class {
       this._sincronizar();
       return this;
     }
-    if (nome === "link") {
-      this._pedirLink();
+    if (name === "link") {
+      this._askForLink();
       return this;
     }
-    COMANDOS[nome]?.();
+    COMANDOS[name]?.();
     this._sincronizar();
-    this._marcarAtivos();
-    this._pintar();
+    this._markActive();
+    this._paint();
     return this;
   }
   /*
@@ -5267,17 +5267,17 @@ var Rico = class {
    * precisa ser guardada antes e devolvida depois — sem isso o createLink nao
    * teria em que trecho aplicar.
    */
-  _pedirLink() {
+  _askForLink() {
     const sel = window.getSelection();
     const marca = sel?.rangeCount ? sel.getRangeAt(0).cloneRange() : null;
-    const existente = this._noAtual()?.closest("a");
-    const campo = el("input", {
+    const existente = this._currentNode()?.closest("a");
+    const field = el("input", {
       type: "url",
       class: "tuc-input",
       placeholder: "https://",
       value: existente?.getAttribute("href") ?? "https://"
     });
-    const devolverSelecao = () => {
+    const restoreSelection = () => {
       this.area.focus({ preventScroll: true });
       if (!marca) return;
       const s = window.getSelection();
@@ -5285,27 +5285,27 @@ var Rico = class {
       s.addRange(marca);
     };
     let decidido = null;
-    const acoes = [{ texto: "Cancelar", variante: "outline" }];
+    const actions = [{ text: "Cancelar", variant: "outline" }];
     if (existente) {
-      acoes.push({ texto: "Remover", variante: "ghost", onClick: () => {
-        decidido = "remover";
+      actions.push({ text: "Remover", variant: "ghost", onClick: () => {
+        decidido = "remove";
       } });
     }
-    acoes.push({
-      texto: existente ? "Salvar" : "Inserir",
-      variante: "primary",
+    actions.push({
+      text: existente ? "Salvar" : "Inserir",
+      variant: "primary",
       onClick: () => {
-        decidido = campo.value.trim();
+        decidido = field.value.trim();
       }
     });
-    const dialogo = new Modal({
+    const dialog = new Modal({
       title: existente ? "Editar link" : "Inserir link",
-      tamanho: "sm",
-      acoes,
-      aoFechar: () => {
+      size: "sm",
+      actions,
+      onClose: () => {
         if (!decidido) return;
         {
-          if (decidido === "remover") {
+          if (decidido === "remove") {
             this.area.focus({ preventScroll: true });
             const r = document.createRange();
             r.selectNodeContents(existente);
@@ -5314,46 +5314,46 @@ var Rico = class {
             sel2.addRange(r);
             document.execCommand("unlink");
           } else {
-            devolverSelecao();
+            restoreSelection();
             if (decidido !== "https://") document.execCommand("createLink", false, decidido);
           }
           this._sincronizar();
-          this._marcarAtivos();
+          this._markActive();
         }
       }
     });
-    dialogo.conteudo(campo);
-    dialogo.abrir();
-    campo.addEventListener("keydown", (e) => {
+    dialog.content(field);
+    dialog.open();
+    field.addEventListener("keydown", (e) => {
       if (e.key !== "Enter") return;
       e.preventDefault();
-      dialogo.caixa.querySelector(".tuc-btn.is-primary")?.click();
+      dialog.panel.querySelector(".tuc-btn.is-primary")?.click();
     });
-    campo.focus();
-    campo.select();
+    field.focus();
+    field.select();
     return this;
   }
   getValue() {
-    return sanitizar(this.area.innerHTML);
+    return sanitize(this.area.innerHTML);
   }
   setValue(html) {
-    this.area.innerHTML = sanitizar(html) || "<p><br></p>";
-    this._pintar();
+    this.area.innerHTML = sanitize(html) || "<p><br></p>";
+    this._paint();
     this._sincronizar();
     return this;
   }
   destroy() {
     this._cleanups.forEach((fn) => fn());
-    this.campo.hidden = false;
-    this.raiz.parentNode?.insertBefore(this.campo, this.raiz);
-    this.raiz.remove();
+    this.field.hidden = false;
+    this.root.parentNode?.insertBefore(this.field, this.root);
+    this.root.remove();
   }
 };
 function autoInit13(scope = document) {
   const out = [];
-  for (const node of scope.querySelectorAll("[data-tuc-rico]:not([data-tuc-ready])")) {
+  for (const node of scope.querySelectorAll("[data-tuc-editor]:not([data-tuc-ready])")) {
     node.setAttribute("data-tuc-ready", "");
-    out.push(new Rico(node, {
+    out.push(new Editor(node, {
       minHeight: node.dataset.minHeight || void 0,
       placeholder: node.dataset.placeholder || void 0
     }));
@@ -5373,10 +5373,10 @@ function init(scope = document) {
     toasts: autoInit6(scope),
     modals: autoInit8(scope),
     gavetas: autoInit9(scope),
-    acordeoes: autoInit10(scope),
+    accordions: autoInit10(scope),
     dropdowns: autoInit11(scope),
     ricos: autoInit13(scope),
-    prosa: autoInit12(scope),
+    prose: autoInit12(scope),
     // Por último de propósito: componentes que criam a própria barra de botões
     // marcam neles `data-tuc-tip`, e esses elementos só existem depois que eles
     // se montam. Antes, os botões do editor nasciam sem dica.
@@ -5384,43 +5384,43 @@ function init(scope = document) {
   };
 }
 export {
-  Acordeon,
+  Accordion,
   ColorPicker,
   DatePicker,
+  Drawer,
   Dropdown,
-  FORMATOS,
-  Gaveta,
+  Editor,
+  FORMATS,
   Mask,
   Modal,
   Popover,
-  Rico,
   Select,
   Toast,
   Tooltip,
   Upload,
   autoFormat,
-  autoInit10 as autoInitAcordeoes,
+  autoInit10 as autoInitAccordions,
   autoInit3 as autoInitColorPickers,
   autoInit as autoInitDatePickers,
+  autoInit9 as autoInitDrawers,
   autoInit11 as autoInitDropdowns,
-  autoInit9 as autoInitGavetas,
+  autoInit13 as autoInitEditors,
   autoInit5 as autoInitMasks,
   autoInit8 as autoInitModals,
-  autoInit12 as autoInitProsa,
-  autoInit13 as autoInitRicos,
+  autoInit12 as autoInitProse,
   autoInit2 as autoInitSelects,
   autoInit6 as autoInitToasts,
   autoInit7 as autoInitTooltips,
   autoInit4 as autoInitUploads,
   color_exports as color,
-  confirmar,
+  confirm,
   dates_exports as dates,
-  destacar,
-  gaveta,
+  drawer,
+  highlight,
   init,
+  listenForEvents,
   mask_exports as mask,
   modal,
-  ouvirEventos,
-  sanitizar,
+  sanitize,
   toast
 };

@@ -1,5 +1,5 @@
-import { aplicar, aplicarMoeda, capacidade, cursorApos, escolherGabarito, formatar, limpar, validarCpfCnpj, validarCNPJ, validarCPF } from '../core/mask.js';
-import { obscurecer } from '../core/mask.js';
+import { apply, applyCurrency, capacity, cursorAfter, pickTemplate, format, clear, validateCpfCnpj, validateCNPJ, validateCPF } from '../core/mask.js';
+import { maskMiddle } from '../core/mask.js';
 import { el, icon, on } from '../core/dom.js';
 import { ICONS_EXTRA } from '../core/dom-extra.js';
 
@@ -13,22 +13,22 @@ import { ICONS_EXTRA } from '../core/dom-extra.js';
  * novo permite; as duas ultimas seguem numericas. Quem precisa recusar letras
  * durante a transicao usa `cnpj-numerico`.
  */
-export const FORMATOS = {
-  cpf: { gabarito: '###.###.###-##', validar: validarCPF, erro: 'CPF inválido' },
-  cnpj: { gabarito: '**.***.***/****-##', validar: validarCNPJ, erro: 'CNPJ inválido', maiusculas: true },
-  'cnpj-numerico': { gabarito: '##.###.###/####-##', validar: validarCNPJ, erro: 'CNPJ inválido' },
+export const FORMATS = {
+  cpf: { template: '###.###.###-##', validate: validateCPF, error: 'CPF inválido' },
+  cnpj: { template: '**.***.***/****-##', validate: validateCNPJ, error: 'CNPJ inválido', uppercase: true },
+  'cnpj-numerico': { template: '##.###.###/####-##', validate: validateCNPJ, error: 'CNPJ inválido' },
   'cpf-cnpj': {
-    gabarito: ['###.###.###-##', '**.***.***/****-##'],
-    validar: validarCpfCnpj, erro: 'Documento inválido', maiusculas: true,
+    template: ['###.###.###-##', '**.***.***/****-##'],
+    validate: validateCpfCnpj, error: 'Documento inválido', uppercase: true,
   },
-  telefone: { gabarito: ['(##) ####-####', '(##) #####-####'] },
-  celular: { gabarito: '(##) #####-####' },
-  cep: { gabarito: '#####-###' },
-  data: { gabarito: '##/##/####' },
-  hora: { gabarito: '##:##' },
-  cartao: { gabarito: '#### #### #### ####' },
-  moeda: { moeda: true },
-  real: { moeda: true, currency: 'BRL' },
+  phone: { template: ['(##) ####-####', '(##) #####-####'] },
+  mobile: { template: '(##) #####-####' },
+  cep: { template: '#####-###' },
+  date: { template: '##/##/####' },
+  time: { template: '##:##' },
+  card: { template: '#### #### #### ####' },
+  currency: { isCurrency: true },
+  real: { isCurrency: true, currency: 'BRL' },
 };
 
 const DEFAULTS = {
@@ -61,21 +61,21 @@ export class Mask {
     // aparece com a caixa nativa do navegador ao lado dos nossos controles.
     node.classList.add('tuc-input');
 
-    const preset = FORMATOS[this.opts.format];
+    const preset = FORMATS[this.opts.format];
     this.preset = preset || null;
-    this.moeda = !!preset?.moeda;
-    this.gabaritos = preset ? preset.gabarito : this.opts.format;
-    this.maiusculas = !!preset?.maiusculas;
+    this.isCurrency = !!preset?.isCurrency;
+    this.templates = preset ? preset.template : this.opts.format;
+    this.uppercase = !!preset?.uppercase;
     if (preset?.currency && !this.opts.currency) this.opts.currency = preset.currency;
-    if (!this.moeda && !this.gabaritos && !this.opts.reveal) {
+    if (!this.isCurrency && !this.templates && !this.opts.reveal) {
       throw new Error('[Mask] informe um formato ou gabarito');
     }
 
     this._cleanups = [];
-    this._ligar();
-    if (node.value && !this.moeda && this.gabaritos) this._formatar({ manterCursor: false });
-    else if (node.value && this.moeda) this._formatar({ manterCursor: false });
-    if (this.opts.reveal) this._montarOlho();
+    this._wire();
+    if (node.value && !this.isCurrency && this.templates) this._format({ keepCursor: false });
+    else if (node.value && this.isCurrency) this._format({ keepCursor: false });
+    if (this.opts.reveal) this._buildEye();
     node._tucano = this;
   }
 
@@ -85,41 +85,41 @@ export class Mask {
 
   /** Conteudo sem formatacao: so digitos, ou digitos e letras. */
   getRaw() {
-    const texto = this.valorReal ?? this.input.value;
-    if (this.moeda) return texto.replace(/\D/g, '');
-    if (!this.gabaritos) return texto;
-    return limpar(texto, [].concat(this.gabaritos).join(''));
+    const text = this.rawValue ?? this.input.value;
+    if (this.isCurrency) return text.replace(/\D/g, '');
+    if (!this.templates) return text;
+    return clear(text, [].concat(this.templates).join(''));
   }
 
   /** Numero, no formato moeda. */
   getNumber() {
-    if (!this.moeda) return null;
+    if (!this.isCurrency) return null;
     const d = this.getRaw();
     return d ? Number(d) / 10 ** this.opts.decimals : null;
   }
 
-  setValue(valor) {
-    this.input.value = String(valor ?? '');
-    this._formatar({ manterCursor: false });
+  setValue(value) {
+    this.input.value = String(value ?? '');
+    this._format({ keepCursor: false });
     this._emit();
   }
 
   isValid() {
-    const validar = this.preset?.validar;
-    if (!validar) return true;
+    const validate = this.preset?.validate;
+    if (!validate) return true;
     const bruto = this.getRaw();
-    return bruto ? validar(bruto) : true;   // vazio e problema do `required`
+    return bruto ? validate(bruto) : true;   // vazio e problema do `required`
   }
 
   destroy() {
     this._cleanups.forEach((fn) => fn());
     this._cleanups = [];
     if (this.envolucro) {
-      if (this.valorReal != null) this.input.value = this.valorReal;
-      if (this.nomeReal) this.input.name = this.nomeReal;
+      if (this.rawValue != null) this.input.value = this.rawValue;
+      if (this.realName) this.input.name = this.realName;
       this.input.readOnly = this.readOnlyOriginal ?? false;
       this.envolucro.replaceWith(this.input);
-      this.oculto?.remove();
+      this.hidden?.remove();
     }
     this.input.setCustomValidity?.('');
     this.input.classList.remove('tuc-invalid');
@@ -142,19 +142,19 @@ export class Mask {
    * e o dado inteiro, mas o formulario posta o valor certo — nada muda no
    * servidor. Campo vazio comeca visivel: quem esta digitando precisa ver.
    */
-  _montarOlho() {
+  _buildEye() {
     const input = this.input;
-    this.senha = input.type === 'password';
+    this.password = input.type === 'password';
 
     this.envolucro = el('span', { class: 'tuc-field' });
     input.replaceWith(this.envolucro);
     this.envolucro.append(input);
 
-    if (!this.senha && input.name) {
-      this.nomeReal = input.name;
+    if (!this.password && input.name) {
+      this.realName = input.name;
       input.removeAttribute('name');
-      this.oculto = el('input', { type: 'hidden', name: this.nomeReal, value: this.getRaw() });
-      this.envolucro.append(this.oculto);
+      this.hidden = el('input', { type: 'hidden', name: this.realName, value: this.getRaw() });
+      this.envolucro.append(this.hidden);
     }
 
     this.olho = el('button', {
@@ -162,16 +162,16 @@ export class Mask {
       class: 'tuc-btn is-ghost is-icon is-sm tuc-field__eye',
       'aria-label': 'Mostrar',
       'aria-pressed': 'false',
-      onclick: () => this._alternar(),
+      onclick: () => this._toggle(),
     });
     this.envolucro.append(this.olho);
 
     // Vazio comeca a mostra; com conteudo, comeca escondido.
-    this.mostrando = !input.value;
-    this._pintarOlho();
+    this.showing = !input.value;
+    this._paintEye();
 
     this._cleanups.push(on(input, 'input', () => {
-      if (this.oculto) this.oculto.value = this.getRaw();
+      if (this.hidden) this.hidden.value = this.getRaw();
     }));
   }
 
@@ -179,127 +179,127 @@ export class Mask {
    * Modo de esconder. Escolhido pelo campo quando nao informado: `type=email`
    * guarda o dominio, o resto guarda o fim.
    */
-  _modoOculto() {
+  _hiddenMode() {
     if (this.opts.revealMode) return this.opts.revealMode;
     if (this.input.type === 'email') return 'email';
     return 'fim';
   }
 
-  _alternar() {
-    this.mostrando = !this.mostrando;
-    this._pintarOlho();
-    if (this.mostrando) this.input.focus();
+  _toggle() {
+    this.showing = !this.showing;
+    this._paintEye();
+    if (this.showing) this.input.focus();
   }
 
-  _pintarOlho() {
+  _paintEye() {
     const input = this.input;
-    const mostrando = this.mostrando;
+    const showing = this.showing;
 
-    if (this.senha) {
-      input.type = mostrando ? 'text' : 'password';
+    if (this.password) {
+      input.type = showing ? 'text' : 'password';
     } else {
-      if (mostrando) {
-        if (this.valorReal != null) { input.value = this.valorReal; this.valorReal = null; }
+      if (showing) {
+        if (this.rawValue != null) { input.value = this.rawValue; this.rawValue = null; }
         input.readOnly = this.readOnlyOriginal ?? false;
       } else {
         this.readOnlyOriginal = input.readOnly;
-        this.valorReal = input.value;
-        input.value = obscurecer(input.value, this.opts.revealVisible, this._modoOculto());
+        this.rawValue = input.value;
+        input.value = maskMiddle(input.value, this.opts.revealVisible, this._hiddenMode());
         // So leitura enquanto oculto: digitar em cima dos pontos escreveria
         // por cima do valor real sem a pessoa perceber.
         input.readOnly = true;
       }
     }
 
-    this.olho.replaceChildren(icon(mostrando ? ICONS_EXTRA.eyeOff : ICONS_EXTRA.eye, 16));
-    this.olho.setAttribute('aria-label', mostrando ? 'Ocultar' : 'Mostrar');
-    this.olho.setAttribute('aria-pressed', String(mostrando));
-    this.envolucro.classList.toggle('is-hidden', !mostrando);
+    this.olho.replaceChildren(icon(showing ? ICONS_EXTRA.eyeOff : ICONS_EXTRA.eye, 16));
+    this.olho.setAttribute('aria-label', showing ? 'Ocultar' : 'Mostrar');
+    this.olho.setAttribute('aria-pressed', String(showing));
+    this.envolucro.classList.toggle('is-hidden', !showing);
   }
 
   /* ---------------------------------------------------------------- *
    * Interno                                                           *
    * ---------------------------------------------------------------- */
 
-  _gabarito(caracteres) {
-    if (this.moeda) return '';
-    const chars = caracteres ?? limpar(this.input.value, [].concat(this.gabaritos).join(''));
-    return escolherGabarito(chars, this.gabaritos);
+  _template(caracteres) {
+    if (this.isCurrency) return '';
+    const chars = caracteres ?? clear(this.input.value, [].concat(this.templates).join(''));
+    return pickTemplate(chars, this.templates);
   }
 
-  _ligar() {
+  _wire() {
     const input = this.input;
     if (!input.getAttribute('inputmode')) {
-      input.setAttribute('inputmode', this.moeda || !/[A*]/.test([].concat(this.gabaritos).join('')) ? 'numeric' : 'text');
+      input.setAttribute('inputmode', this.isCurrency || !/[A*]/.test([].concat(this.templates).join('')) ? 'numeric' : 'text');
     }
     input.setAttribute('autocomplete', input.getAttribute('autocomplete') || 'off');
 
     this._cleanups.push(
       on(input, 'input', (e) => this._aoDigitar(e)),
-      on(input, 'blur', () => { if (this.opts.validate) this._validar(); }),
-      on(input, 'focus', () => this._marcar(true)),
+      on(input, 'blur', () => { if (this.opts.validate) this._validate(); }),
+      on(input, 'focus', () => this._mark(true)),
     );
   }
 
   _aoDigitar(e) {
     const input = this.input;
     const cursor = input.selectionStart ?? input.value.length;
-    const tipo = typeof e.inputType === 'string' ? e.inputType : '';
-    this._formatar({
+    const type = typeof e.inputType === 'string' ? e.inputType : '';
+    this._format({
       cursor,
-      apagando: tipo.startsWith('delete'),
-      paraFrente: tipo === 'deleteContentForward',
+      deleting: type.startsWith('delete'),
+      paraFrente: type === 'deleteContentForward',
     });
     this._emit();
-    if (this.opts.validate) this._marcar(true);   // some o erro enquanto digita
+    if (this.opts.validate) this._mark(true);   // some o erro enquanto digita
   }
 
-  _formatar({ cursor = null, apagando = false, paraFrente = false, manterCursor = true } = {}) {
+  _format({ cursor = null, deleting = false, paraFrente = false, keepCursor = true } = {}) {
     const input = this.input;
     const bruto = input.value;
 
-    if (this.moeda) {
-      const digitos = bruto.replace(/\D/g, '');
-      const texto = aplicarMoeda(digitos, {
-        decimais: this.opts.decimals, locale: this.opts.locale, moeda: this.opts.currency,
+    if (this.isCurrency) {
+      const digits = bruto.replace(/\D/g, '');
+      const text = applyCurrency(digits, {
+        decimals: this.opts.decimals, locale: this.opts.locale, currency: this.opts.currency,
       });
-      input.value = texto;
+      input.value = text;
       // Moeda enche da direita: o cursor fica sempre no fim.
-      if (manterCursor) input.setSelectionRange(texto.length, texto.length);
+      if (keepCursor) input.setSelectionRange(text.length, text.length);
       return;
     }
 
-    const todos = [].concat(this.gabaritos).join('');
-    let chars = [...limpar(bruto, todos)];
-    if (this.maiusculas) chars = chars.map((c) => c.toUpperCase());
+    const todos = [].concat(this.templates).join('');
+    let chars = [...clear(bruto, todos)];
+    if (this.uppercase) chars = chars.map((c) => c.toUpperCase());
 
-    let antes = cursor === null ? chars.length : [...limpar(bruto.slice(0, cursor), todos)].length;
+    let before = cursor === null ? chars.length : [...clear(bruto.slice(0, cursor), todos)].length;
 
     // Apagar em cima de um separador remove o caractere vizinho: senao a
     // mascara o recolocaria na hora e a tecla nao faria nada.
-    if (apagando && chars.length === this._ultimo?.length) {
-      const idx = paraFrente ? antes : antes - 1;
+    if (deleting && chars.length === this._last?.length) {
+      const idx = paraFrente ? before : before - 1;
       if (idx >= 0 && idx < chars.length) {
         chars.splice(idx, 1);
-        if (!paraFrente) antes -= 1;
+        if (!paraFrente) before -= 1;
       }
     }
 
-    const gabarito = escolherGabarito(chars, this.gabaritos);
-    chars = chars.slice(0, capacidade(gabarito));
-    const texto = aplicar(chars.join(''), gabarito);
+    const template = pickTemplate(chars, this.templates);
+    chars = chars.slice(0, capacity(template));
+    const text = apply(chars.join(''), template);
 
-    this._ultimo = chars.join('');
-    input.value = texto;
-    if (manterCursor) {
-      const pos = cursorApos(texto, Math.min(antes, chars.length));
+    this._last = chars.join('');
+    input.value = text;
+    if (keepCursor) {
+      const pos = cursorAfter(text, Math.min(before, chars.length));
       input.setSelectionRange(pos, pos);
     }
   }
 
-  _validar() {
+  _validate() {
     const ok = this.isValid();
-    this._marcar(ok);
+    this._mark(ok);
     return ok;
   }
 
@@ -307,8 +307,8 @@ export class Mask {
    * Marca o campo. setCustomValidity faz o formulario do navegador barrar o
    * submit sozinho, sem o projeto escrever nada.
    */
-  _marcar(ok) {
-    const msg = ok ? '' : (this.opts.errorText || this.preset?.erro || 'Valor inválido');
+  _mark(ok) {
+    const msg = ok ? '' : (this.opts.errorText || this.preset?.error || 'Valor inválido');
     this.input.setCustomValidity?.(msg);
     this.input.classList.toggle('tuc-invalid', !ok);
     this.input.setAttribute('aria-invalid', ok ? 'false' : 'true');
@@ -331,8 +331,8 @@ function omitUndefined(obj) {
 
 export function autoInit(scope = document) {
   const out = [];
-  const alvos = scope.querySelectorAll('[data-tuc-mask]:not([data-tuc-ready]), [data-tuc-reveal]:not([data-tuc-ready])');
-  for (const node of alvos) {
+  const targets = scope.querySelectorAll('[data-tuc-mask]:not([data-tuc-ready]), [data-tuc-reveal]:not([data-tuc-ready])');
+  for (const node of targets) {
     const d = node.dataset;
     node.setAttribute('data-tuc-ready', '');
     out.push(new Mask(node, {
@@ -359,9 +359,9 @@ export function autoFormat(scope = document) {
     const d = node.dataset;
     node.setAttribute('data-tuc-formatted', '');
     const bruto = (node.dataset.value ?? node.textContent).trim();
-    node.textContent = formatar(bruto, d.tucFormat, {
-      decimais: d.decimals ? +d.decimals : undefined,
-      moeda: d.currency || undefined,
+    node.textContent = format(bruto, d.tucFormat, {
+      decimals: d.decimals ? +d.decimals : undefined,
+      currency: d.currency || undefined,
     });
     out.push(node);
   }

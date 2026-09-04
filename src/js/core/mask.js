@@ -14,32 +14,32 @@ const MARCADORES = {
   '*': (c) => /[0-9a-zA-Z]/.test(c),
 };
 
-export function isMarcador(c) {
+export function isPlaceholder(c) {
   return Object.hasOwn(MARCADORES, c);
 }
 
 /** So os caracteres que podem ocupar um marcador do gabarito. */
-export function limpar(valor, gabarito) {
-  const aceita = [...new Set([...gabarito].filter(isMarcador))]
+export function clear(value, template) {
+  const aceita = [...new Set([...template].filter(isPlaceholder))]
     .map((m) => MARCADORES[m]);
   if (!aceita.length) return '';
-  return [...String(valor ?? '')].filter((c) => aceita.some((f) => f(c))).join('');
+  return [...String(value ?? '')].filter((c) => aceita.some((f) => f(c))).join('');
 }
 
-export function capacidade(gabarito) {
-  return [...gabarito].filter(isMarcador).length;
+export function capacity(template) {
+  return [...template].filter(isPlaceholder).length;
 }
 
 /**
  * Distribui os caracteres pelo gabarito. O literal seguinte entra assim que o
  * grupo anterior fecha, para o usuario nao precisar digita-lo.
  */
-export function aplicar(caracteres, gabarito) {
+export function apply(caracteres, template) {
   if (!caracteres.length) return '';
   let saida = '';
   let i = 0;
-  for (const ch of gabarito) {
-    if (isMarcador(ch)) {
+  for (const ch of template) {
+    if (isPlaceholder(ch)) {
       // Descarta o que nao serve para esta posicao sem gastar a vaga: uma letra
       // digitada onde so cabe digito nao pode empurrar o resto do gabarito.
       let aceito = null;
@@ -60,24 +60,24 @@ export function aplicar(caracteres, gabarito) {
 }
 
 /** Posicao do cursor logo apos o n-esimo caractere preenchido. */
-export function cursorApos(texto, n) {
+export function cursorAfter(text, n) {
   if (n <= 0) return 0;
   let vistos = 0;
-  for (let i = 0; i < texto.length; i++) {
-    if (/[0-9A-Za-z]/.test(texto[i]) && ++vistos === n) return i + 1;
+  for (let i = 0; i < text.length; i++) {
+    if (/[0-9A-Za-z]/.test(text[i]) && ++vistos === n) return i + 1;
   }
-  return texto.length;
+  return text.length;
 }
 
 /**
  * Escolhe o gabarito pelo tamanho do conteudo — telefone com 8 ou 9 digitos,
  * documento que pode ser CPF ou CNPJ.
  */
-export function escolherGabarito(caracteres, gabaritos) {
-  const lista = [].concat(gabaritos);
-  if (lista.length === 1) return lista[0];
+export function pickTemplate(caracteres, templates) {
+  const list = [].concat(templates);
+  if (list.length === 1) return list[0];
   const n = caracteres.length;
-  return lista.find((g) => n <= capacidade(g)) || lista[lista.length - 1];
+  return list.find((g) => n <= capacity(g)) || list[list.length - 1];
 }
 
 /* ------------------------------------------------------------------ *
@@ -88,14 +88,14 @@ export function escolherGabarito(caracteres, gabaritos) {
  * Moeda enche da direita para a esquerda: digitar 1 2 3 vira 1,23 e depois
  * 12,34. E como todo campo de valor se comporta, e o contrario do resto.
  */
-export function aplicarMoeda(digitos, { decimais = 2, locale = 'pt-BR', moeda = null } = {}) {
-  const limpos = String(digitos).replace(/\D/g, '').replace(/^0+(?=\d)/, '');
+export function applyCurrency(digits, { decimals = 2, locale = 'pt-BR', currency = null } = {}) {
+  const limpos = String(digits).replace(/\D/g, '').replace(/^0+(?=\d)/, '');
   if (!limpos) return '';
-  const n = Number(limpos) / 10 ** decimais;
+  const n = Number(limpos) / 10 ** decimals;
   return n.toLocaleString(locale, {
-    minimumFractionDigits: decimais,
-    maximumFractionDigits: decimais,
-    ...(moeda ? { style: 'currency', currency: moeda } : {}),
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+    ...(currency ? { style: 'currency', currency: currency } : {}),
   });
 }
 
@@ -111,12 +111,12 @@ function digitoModulo11(valores, pesoInicial) {
     soma += v * peso;
     peso = peso === 2 ? 9 : peso - 1;
   }
-  const resto = soma % 11;
-  return resto < 2 ? 0 : 11 - resto;
+  const rest = soma % 11;
+  return rest < 2 ? 0 : 11 - rest;
 }
 
-export function validarCPF(valor) {
-  const d = String(valor ?? '').replace(/\D/g, '');
+export function validateCPF(value) {
+  const d = String(value ?? '').replace(/\D/g, '');
   if (d.length !== 11) return false;
   if (/^(\d)\1{10}$/.test(d)) return false;   // 111.111.111-11 e afins
 
@@ -134,8 +134,8 @@ export function validarCPF(valor) {
  * caractere vale o codigo ASCII menos 48 — assim '0' segue valendo 0 e o
  * algoritmo antigo continua valendo para CNPJ so de numeros.
  */
-export function validarCNPJ(valor) {
-  const s = String(valor ?? '').toUpperCase().replace(/[^0-9A-Z]/g, '');
+export function validateCNPJ(value) {
+  const s = String(value ?? '').toUpperCase().replace(/[^0-9A-Z]/g, '');
   if (s.length !== 14) return false;
   if (!/^[0-9A-Z]{12}\d{2}$/.test(s)) return false;
   if (/^(.)\1{13}$/.test(s)) return false;
@@ -147,10 +147,10 @@ export function validarCNPJ(valor) {
 }
 
 /** Aceita os dois, decidindo pelo tamanho. */
-export function validarCpfCnpj(valor) {
-  const s = String(valor ?? '').replace(/[^0-9A-Za-z]/g, '');
-  if (s.length === 11) return validarCPF(s);
-  if (s.length === 14) return validarCNPJ(s);
+export function validateCpfCnpj(value) {
+  const s = String(value ?? '').replace(/[^0-9A-Za-z]/g, '');
+  if (s.length === 11) return validateCPF(s);
+  if (s.length === 14) return validateCNPJ(s);
   return false;
 }
 
@@ -164,41 +164,41 @@ export function validarCpfCnpj(valor) {
  * Serve para o que ja vem do banco: um CPF em `12345678901` vira
  * `123.456.789-01` sem precisar de input nenhum.
  */
-export function formatar(valor, formato, opcoes = {}) {
-  const bruto = String(valor ?? '').trim();
+export function format(value, format, options = {}) {
+  const bruto = String(value ?? '').trim();
   if (!bruto) return '';
 
-  if (formato === 'moeda' || formato === 'real') {
-    const n = typeof valor === 'number' ? valor : Number(bruto.replace(/\.(?=\d{3}\b)/g, '').replace(',', '.'));
+  if (format === 'currency' || format === 'real') {
+    const n = typeof value === 'number' ? value : Number(bruto.replace(/\.(?=\d{3}\b)/g, '').replace(',', '.'));
     if (!Number.isFinite(n)) return bruto;
-    const { decimais = 2, locale = 'pt-BR' } = opcoes;
-    const moeda = opcoes.moeda ?? (formato === 'real' ? 'BRL' : null);
+    const { decimals = 2, locale = 'pt-BR' } = options;
+    const currency = options.currency ?? (format === 'real' ? 'BRL' : null);
     return n.toLocaleString(locale, {
-      minimumFractionDigits: decimais,
-      maximumFractionDigits: decimais,
-      ...(moeda ? { style: 'currency', currency: moeda } : {}),
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
+      ...(currency ? { style: 'currency', currency: currency } : {}),
     });
   }
 
-  const gabaritos = GABARITOS_EXIBICAO[formato] ?? formato;
-  const todos = [].concat(gabaritos).join('');
-  const chars = limpar(bruto, todos);
+  const templates = DISPLAY_TEMPLATES[format] ?? format;
+  const todos = [].concat(templates).join('');
+  const chars = clear(bruto, todos);
   if (!chars) return bruto;
-  const gabarito = escolherGabarito(chars, gabaritos);
+  const template = pickTemplate(chars, templates);
   // Conteudo que nao preenche o gabarito volta como veio, em vez de sair
   // pela metade e parecer corrompido.
-  return chars.length === capacidade(gabarito) ? aplicar(chars, gabarito) : bruto;
+  return chars.length === capacity(template) ? apply(chars, template) : bruto;
 }
 
-const GABARITOS_EXIBICAO = {
+const DISPLAY_TEMPLATES = {
   cpf: '###.###.###-##',
   cnpj: '**.***.***/****-##',
   'cpf-cnpj': ['###.###.###-##', '**.***.***/****-##'],
-  documento: ['###.###.###-##', '**.***.***/****-##'],
-  telefone: ['(##) ####-####', '(##) #####-####'],
+  document: ['###.###.###-##', '**.***.***/****-##'],
+  phone: ['(##) ####-####', '(##) #####-####'],
   celular: '(##) #####-####',
   cep: '#####-###',
-  cartao: '#### #### #### ####',
+  card: '#### #### #### ####',
 };
 
 const PONTO = '\u2022';
@@ -212,11 +212,11 @@ const PONTO = '\u2022';
  *   'email' deixa a primeira letra e o dominio: `j•••@empresa.com.br`
  *   'tudo'  esconde tudo — para senha, token e chave
  */
-export function obscurecer(texto, visiveis = 2, modo = 'fim') {
-  const s = String(texto ?? '');
+export function maskMiddle(text, visiveis = 2, modo = 'fim') {
+  const s = String(text ?? '');
   if (!s) return s;
 
-  if (modo === 'email') return obscurecerEmail(s);
+  if (modo === 'email') return maskEmail(s);
 
   const alfanumerico = (c) => /[0-9A-Za-z]/.test(c);
   const total = [...s].filter(alfanumerico).length;
@@ -234,10 +234,10 @@ export function obscurecer(texto, visiveis = 2, modo = 'fim') {
  * conta, e a parte local e o que identifica a pessoa. Guardar o fim, como no
  * padrao, revelaria `om.br` e esconderia justamente o util.
  */
-export function obscurecerEmail(valor) {
-  const s = String(valor ?? '');
+export function maskEmail(value) {
+  const s = String(value ?? '');
   const arroba = s.lastIndexOf('@');
-  if (arroba < 1) return obscurecer(s, 0, 'tudo');
+  if (arroba < 1) return maskMiddle(s, 0, 'tudo');
   const local = s.slice(0, arroba);
   const dominio = s.slice(arroba);
   return local[0] + PONTO.repeat(Math.max(local.length - 1, 1)) + dominio;

@@ -17,7 +17,7 @@ import { ICONS_EXTRA } from '../core/dom-extra.js';
  */
 
 const DEFAULTS = {
-  unico: false,   // abrir um recolhe os outros
+  single: false,   // abrir um recolhe os outros
 };
 
 /*
@@ -29,50 +29,50 @@ const DEFAULTS = {
  * O timeout so cobre o caso em que o evento nunca chega — aba oculta, ou
  * prefers-reduced-motion deixando a transicao curta demais para disparar.
  */
-const SOCORRO = 500;
+const SAFETY_MS = 500;
 
-export class Acordeon {
-  constructor(alvo, opcoes = {}) {
-    this.node = typeof alvo === 'string' ? document.querySelector(alvo) : alvo;
-    if (!this.node) throw new Error('[Acordeon] elemento não encontrado');
-    this.opts = { ...DEFAULTS, ...opcoes };
+export class Accordion {
+  constructor(target, options = {}) {
+    this.node = typeof target === 'string' ? document.querySelector(target) : target;
+    if (!this.node) throw new Error('[Accordion] elemento não encontrado');
+    this.opts = { ...DEFAULTS, ...options };
     this._cleanups = [];
-    this._montar();
+    this._build();
   }
 
-  get itens() {
+  get items() {
     return [...this.node.querySelectorAll(':scope > details')];
   }
 
-  _montar() {
-    this.node.classList.add('tuc-acordeon');
+  _build() {
+    this.node.classList.add('tuc-accordion');
 
-    for (const item of this.itens) {
-      item.classList.add('tuc-acordeon__item');
-      const gatilho = item.querySelector(':scope > summary');
-      if (!gatilho) continue;
-      gatilho.classList.add('tuc-acordeon__gatilho');
+    for (const item of this.items) {
+      item.classList.add('tuc-accordion__item');
+      const trigger = item.querySelector(':scope > summary');
+      if (!trigger) continue;
+      trigger.classList.add('tuc-accordion__trigger');
 
       // A seta e desenho: aria-hidden para o leitor de tela nao a anunciar
       // junto do titulo, ja que <details> ja informa o estado.
-      if (!gatilho.querySelector('.tuc-acordeon__seta')) {
-        gatilho.append(el('span', { class: 'tuc-acordeon__seta', 'aria-hidden': 'true' },
+      if (!trigger.querySelector('.tuc-accordion__arrow')) {
+        trigger.append(el('span', { class: 'tuc-accordion__arrow', 'aria-hidden': 'true' },
           [icon(ICONS_EXTRA.chevronDown, 16)]));
       }
 
       // O corpo precisa de dois elementos: o de fora anima a altura pelo grid,
       // o de dentro esconde o excesso enquanto ela cresce.
-      if (!item.querySelector(':scope > .tuc-acordeon__corpo')) {
-        const resto = [...item.childNodes].filter((n) => n !== gatilho);
-        const conteudo = el('div', { class: 'tuc-acordeon__conteudo' });
-        conteudo.append(...resto);
-        item.append(el('div', { class: 'tuc-acordeon__corpo' }, [conteudo]));
+      if (!item.querySelector(':scope > .tuc-accordion__body')) {
+        const rest = [...item.childNodes].filter((n) => n !== trigger);
+        const content = el('div', { class: 'tuc-accordion__content' });
+        content.append(...rest);
+        item.append(el('div', { class: 'tuc-accordion__body' }, [content]));
       }
 
-      this._cleanups.push(on(gatilho, 'click', (e) => this._alternar(e, item)));
+      this._cleanups.push(on(trigger, 'click', (e) => this._toggle(e, item)));
     }
 
-    this._aquecer();
+    this._warmUp();
   }
 
   /*
@@ -85,57 +85,57 @@ export class Acordeon {
    * porque o quadro so e desenhado quando a pilha termina, mas o navegador e
    * obrigado a medir pelo offsetHeight no meio.
    */
-  _aquecer() {
-    for (const item of this.itens) {
+  _warmUp() {
+    for (const item of this.items) {
       if (item.open) continue;
       item.open = true;
-      void item.querySelector(':scope > .tuc-acordeon__corpo')?.offsetHeight;
+      void item.querySelector(':scope > .tuc-accordion__body')?.offsetHeight;
       item.open = false;
     }
   }
 
-  _alternar(e, item) {
+  _toggle(e, item) {
     e.preventDefault();
-    if (item.open) this.fechar(item);
-    else this.abrir(item);
+    if (item.open) this.close(item);
+    else this.open(item);
   }
 
-  abrir(item) {
+  open(item) {
     // Reabrir no meio do fechamento e comum: cancela a saida e segue do ponto
     // em que a altura estava, sem esperar o fim da animacao anterior.
     item._tucEncerrar?.();
     if (item.open) return this;
-    if (this.opts.unico) {
-      for (const outro of this.itens) if (outro !== item && outro.open) this.fechar(outro);
+    if (this.opts.single) {
+      for (const outro of this.items) if (outro !== item && outro.open) this.close(outro);
     }
     item.open = true;
     return this;
   }
 
-  fechar(item) {
-    if (!item.open || item.classList.contains('is-fechando')) return this;
-    const corpo = item.querySelector(':scope > .tuc-acordeon__corpo');
+  close(item) {
+    if (!item.open || item.classList.contains('is-closing')) return this;
+    const body = item.querySelector(':scope > .tuc-accordion__body');
 
     // `open` so cai no fim: enquanto ele vale, o conteudo continua no fluxo e
     // pode encolher animado. Removido agora, sumiria de uma vez.
-    item.classList.add('is-fechando');
+    item.classList.add('is-closing');
 
     const encerrar = () => {
-      clearTimeout(item._tucSaida);
-      corpo?.removeEventListener('transitionend', aoFim);
+      clearTimeout(item._tucExit);
+      body?.removeEventListener('transitionend', aoFim);
       item._tucEncerrar = null;
-      item.classList.remove('is-fechando');
+      item.classList.remove('is-closing');
       item.open = false;
     };
     const aoFim = (e) => {
       // So a linha do grid encerra: o corpo tem outras propriedades animando,
       // e qualquer uma delas fecharia o item cedo demais.
-      if (e.target === corpo && e.propertyName === 'grid-template-rows') encerrar();
+      if (e.target === body && e.propertyName === 'grid-template-rows') encerrar();
     };
 
-    item._tucEncerrar = () => { encerrar(); item.classList.remove('is-fechando'); };
-    corpo?.addEventListener('transitionend', aoFim);
-    item._tucSaida = setTimeout(encerrar, SOCORRO);
+    item._tucEncerrar = () => { encerrar(); item.classList.remove('is-closing'); };
+    body?.addEventListener('transitionend', aoFim);
+    item._tucExit = setTimeout(encerrar, SAFETY_MS);
     return this;
   }
 
@@ -147,9 +147,9 @@ export class Acordeon {
 
 export function autoInit(scope = document) {
   const out = [];
-  for (const node of scope.querySelectorAll('[data-tuc-acordeon]:not([data-tuc-ready])')) {
+  for (const node of scope.querySelectorAll('[data-tuc-accordion]:not([data-tuc-ready])')) {
     node.setAttribute('data-tuc-ready', '');
-    out.push(new Acordeon(node, { unico: node.dataset.unico === 'true' }));
+    out.push(new Accordion(node, { single: node.dataset.single === 'true' }));
   }
   return out;
 }

@@ -42,7 +42,7 @@ const PALAVRAS = [
  */
 const REGRAS = [
   ['coment', /(&lt;!--[\s\S]*?--&gt;|\/\*[\s\S]*?\*\/|\/\/[^\n]*|#[^\n]*)/],
-  ['texto',  /("(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*'|`(?:[^`\\]|\\.)*`)/],
+  ['text',  /("(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*'|`(?:[^`\\]|\\.)*`)/],
   ['tmpl',   /(\{%[\s\S]*?%\}|\{\{[\s\S]*?\}\})/],
   ['tag',    /(&lt;\/?[a-zA-Z][\w-]*)/],
   ['attr',   /([a-zA-Z-][\w-]*)(?==)/],
@@ -51,38 +51,38 @@ const REGRAS = [
    * As palavras entram na mesma expressao, e nao numa segunda passada.
    *
    * Separadas, elas eram procuradas de novo no HTML que a primeira passada
-   * acabara de gerar — e `class` esta na lista, entao a palavra era encontrada
+   * acabara de gerar — e `class` esta na list, entao a palavra era encontrada
    * dentro do atributo `class="tuc-tok-attr"` e envolvida outra vez. O
    * resultado era marcacao aninhada quebrada, que o navegador mostrava como
-   * texto solto no meio do codigo.
+   * text solto no meio do codigo.
    */
-  ['chave',  new RegExp(`\\b(${PALAVRAS})\\b`)],
+  ['key',  new RegExp(`\\b(${PALAVRAS})\\b`)],
 ];
 
 const COMBINADA = new RegExp(REGRAS.map(([, re]) => re.source).join('|'), 'g');
 
 /** Recebe codigo cru e devolve HTML com as marcacoes de cor. */
-export function destacar(codigo) {
-  const texto = escapar(codigo ?? '');
-  return texto.replace(COMBINADA, (todo, ...grupos) => {
+export function highlight(codigo) {
+  const text = escapar(codigo ?? '');
+  return text.replace(COMBINADA, (todo, ...grupos) => {
     const i = grupos.findIndex((g) => g !== undefined);
-    const classe = REGRAS[i]?.[0];
-    return classe ? `<span class="tuc-tok-${classe}">${todo}</span>` : todo;
+    const className = REGRAS[i]?.[0];
+    return className ? `<span class="tuc-tok-${className}tuc-tok-${className}tuc-tok-${className}tuc-tok-${className}">${todo}</span>` : todo;
   });
 }
 
 /**
- * Pinta os blocos de codigo do conteudo ja publicado.
+ * Pinta os blocos de code do content ja publicado.
  *
- * O que foi salvo e texto puro dentro de <pre><code>, porque cor nao e
- * conteudo. Aqui ela e reposta na hora de mostrar — e so aqui, do lado de quem
- * le. Roda sozinho pelo init(), inclusive no que chegar depois por HTMX.
+ * O que foi salvo e text pure inside de <pre><code>, porque color nao e
+ * content. Aqui ela e reposta na time de mostrar — e so aqui, do side de quem
+ * le. Roda sozinho pelo init(), inclusive no que chegar after por HTMX.
  */
 export function autoInit(scope = document) {
-  const blocos = [...scope.querySelectorAll('.tuc-prosa pre > code:not([data-tuc-pintado])')];
+  const blocos = [...scope.querySelectorAll('.tuc-prose pre > code:not([data-tuc-painted])')];
   for (const code of blocos) {
-    code.setAttribute('data-tuc-pintado', '');
-    code.innerHTML = destacar(code.textContent);
+    code.setAttribute('data-tuc-painted', '');
+    code.innerHTML = highlight(code.textContent);
   }
   return blocos;
 }

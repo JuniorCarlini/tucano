@@ -17,12 +17,12 @@ Sem React, sem Vue, sem dependência em runtime.
 | `Toast` — avisos, com integração Django e HTMX | pronto |
 | `Tooltip` — dica ancorada, teclado e toque | pronto |
 | `Modal` — diálogo sobre `<dialog>` nativo, fundo com brilho | pronto |
-| `Gaveta` — off-canvas nas quatro bordas, mesmo motor do modal | pronto |
+| `Drawer` — off-canvas nas quatro bordas, mesmo motor do modal | pronto |
 | `Acordeão` — sobre `<details>`, funciona sem JavaScript | pronto |
 | `Dropdown` — menu de ações ancorado, navegação por setas | pronto |
 | `.tuc-menu` — lista de navegação, só classe | pronto |
-| `Rico` — editor de texto com tabela e bloco de código | pronto |
-| `.tuc-prosa` — exibição do que o editor salvou | pronto |
+| `Editor` — editor de texto com tabela e bloco de código | pronto |
+| `.tuc-prose` — exibição do que o editor salvou | pronto |
 | `.tuc-btn` — estilo de botão, só classe | pronto |
 
 ---
@@ -39,7 +39,7 @@ Dois arquivos e nada mais — sem npm, sem build, sem escrever JavaScript:
 
 <input type="text" name="data" data-tuc-datepicker>
 <select name="uf" data-tuc-select><option>...</option></select>
-<input type="text" name="cor" value="#4f46e5" data-tuc-color>
+<input type="text" name="color" value="#4f46e5" data-tuc-color>
 ```
 
 Funciona junto com o CDN do Tailwind sem conflito: o pacote **não** envia o
@@ -173,7 +173,7 @@ exatamente o que receberia sem o componente — inclusive `getlist()` no múltip
 const s = new Tucano.Select('#uf', { search: true, maxItems: 3 });
 s.getValue();          // 'SP'  (array no modo multiplo)
 s.setValue(['a','b']);
-s.refresh();           // releia as <option> depois de um swap do HTMX
+s.refresh();           // releia as <option> after de um swap do HTMX
 ```
 
 | Opção | Padrão | O que faz |
@@ -201,13 +201,13 @@ vazia remove a última tag, `Home`/`End` vão às pontas.
 ## Color picker
 
 ```html
-<input type="text" name="cor" value="#4f46e5" data-tuc-color>
+<input type="text" name="color" value="#4f46e5" data-tuc-color>
 <input type="text" name="marca" value="#0d9488" data-tuc-color data-alpha="false"
        data-swatches="#0a0a0a,#ea580c,#16a34a">
 ```
 
 ```js
-const c = new Tucano.ColorPicker('#cor', { format: 'rgb', alpha: false });
+const c = new Tucano.ColorPicker('#color', { format: 'rgb', alpha: false });
 c.getValue();   // 'rgb(79, 70, 229)'
 c.getRgb();     // { r, g, b, a }
 ```
@@ -319,34 +319,34 @@ navegador já impede o clique.
 
 ```js
 Tucano.toast('Salvo');
-Tucano.toast.erro('Não foi possível salvar');
+Tucano.toast.error('Não foi possível salvar');
 Tucano.toast({
-  type: 'sucesso', title: 'Contrato excluído', text: 'Ainda dá para voltar atrás.',
+  type: 'success', title: 'Contrato excluído', text: 'Ainda dá para voltar atrás.',
   action: { text: 'Desfazer', onClick: () => restaurar() },
   position: 'bottom-end', duration: null,
 });
 ```
 
-Tipos: `info`, `sucesso`, `aviso`, `erro`, `carregando`. Posições: `top-start`,
+Tipos: `info`, `success`, `warning`, `error`, `loading`. Posições: `top-start`,
 `top-center`, `top-end`, `bottom-start`, `bottom-center`, `bottom-end` — o
 padrão é `bottom-end`. No celular o toast ocupa a largura da tela e entra pelo
 eixo vertical, seja qual for a posição escolhida.
 
 ### Operação assíncrona
 
-O tipo `carregando` não fecha sozinho: quem o encerra é o fim da operação. E ele
+O tipo `loading` não fecha sozinho: quem o encerra é o fim da operação. E ele
 vira o resultado **no mesmo cartão**, em vez de fechar um e abrir outro:
 
 ```js
-const t = Tucano.toast.carregando('Enviando arquivo...');
+const t = Tucano.toast.loading('Enviando arquivo...');
 await enviar();
-t.atualizar({ type: 'sucesso', text: 'Arquivo enviado' });
+t.update({ type: 'success', text: 'Arquivo enviado' });
 
-// ou entregue a promessa e deixe os três estados por conta dela
-Tucano.toast.promessa(fetch(url), {
-  carregando: 'Enviando arquivo...',
-  sucesso: (r) => `Enviado (${r.status})`,
-  erro: 'Não deu para enviar',
+// ou entregue a promise e deixe os três estados por fieldRow dela
+Tucano.toast.promise(fetch(url), {
+  loading: 'Enviando arquivo...',
+  success: (r) => `Enviado (${r.status})`,
+  error: 'Não deu para enviar',
 });
 ```
 
@@ -364,7 +364,7 @@ Tucano.toast.promessa(fetch(url), {
 
 ```python
 return HttpResponse(headers={"HX-Trigger": json.dumps(
-    {"tucano:toast": {"type": "sucesso", "text": "Contrato salvo"}})})
+    {"tucano:toast": {"type": "success", "text": "Contrato salvo"}})})
 ```
 
 Os toasts **empilham sobrepostos** e abrem em leque quando o ponteiro entra ou
@@ -388,17 +388,17 @@ Armadilha de foco, devolução do foco e `Escape` vêm junto.
 Tucano.modal({
   title: 'Excluir contrato',
   text: 'Esta ação não pode ser desfeita.',
-  tom: 'perigo',      // padrao | perigo | sucesso | aviso — muda o brilho do fundo
-  tamanho: 'md',      // sm | md | lg | full
-  folha: true,        // no celular sobe do rodapé
-  acoes: [
-    { texto: 'Cancelar', variante: 'outline' },
-    { texto: 'Excluir', variante: 'danger', onClick: () => excluir() },
+  tone: 'perigo',      // padrao | perigo | success | warning — muda o brilho do fundo
+  size: 'md',      // sm | md | lg | full
+  sheet: true,        // no celular sobe do rodapé
+  actions: [
+    { text: 'Cancelar', variant: 'outline' },
+    { text: 'Excluir', variant: 'danger', onClick: () => excluir() },
   ],
 });
 
-// confirmação como promessa; fechar por fora resolve false
-if (await Tucano.confirmar({ title: 'Excluir contrato?' })) excluir();
+// confirmação como promise; close por fora resolve false
+if (await Tucano.confirm({ title: 'Excluir contrato?' })) excluir();
 ```
 
 ## Baixar só o que se usa
@@ -435,8 +435,8 @@ import 'tucano/auto';   // comporta-se como o script do CDN
 ## Utilitários
 
 ```js
-Tucano.sanitizar(html)  // aplica a peneira de tags do editor
-Tucano.destacar(codigo) // devolve o código com marcação de cor
+Tucano.sanitize(html)  // aplica a peneira de tags do editor
+Tucano.highlight(code) // devolve o código com marcação de color
 Tucano.init(elemento)   // inicializa data-tuc-* num trecho novo de HTML
 ```
 
@@ -447,7 +447,7 @@ elemento, e ele abre e fecha antes de o JavaScript carregar. O componente entra
 só onde o nativo não vai — animar.
 
 ```html
-<div data-tuc-acordeon data-unico="true">
+<div data-tuc-accordion data-single="true">
   <details open>
     <summary>Projetos</summary>
     <p>Listar, criar e acompanhar vistorias.</p>
@@ -455,8 +455,8 @@ só onde o nativo não vai — animar.
 </div>
 ```
 
-`data-unico="true"` recolhe os outros ao abrir um. Para menu lateral,
-`.tuc-acordeon.is-limpo` tira as divisórias e deixa o título com cara de rótulo
+`data-single="true"` recolhe os outros ao abrir um. Para menu lateral,
+`.tuc-accordion.is-plain` tira as divisórias e deixa o título com cara de rótulo
 de grupo.
 
 ## Editor de texto
@@ -466,7 +466,7 @@ Mostra o resultado enquanto se escreve, com tabela e bloco de código. O
 funcionam sem nada especial:
 
 ```html
-<textarea name="descricao" data-tuc-rico>{{ form.descricao.value|default:"" }}</textarea>
+<textarea name="descricao" data-tuc-editor>{{ form.descricao.value|default:"" }}</textarea>
 ```
 
 Colar entra sempre como texto puro — é o que evita o HTML do Word. E a saída
@@ -480,11 +480,11 @@ garante que veio deste editor.
 ### Na exibição
 
 O que é salvo é HTML sem classe, para servir a qualquer servidor. Envolver a
-saída em `.tuc-prosa` devolve a aparência que a pessoa viu ao escrever — são as
+saída em `.tuc-prose` devolve a aparência que a pessoa viu ao escrever — são as
 mesmas regras de CSS da área de edição:
 
 ```html
-<div class="tuc-prosa">{{ projeto.descricao|safe }}</div>
+<div class="tuc-prose">{{ projeto.descricao|safe }}</div>
 ```
 
 O código publicado é colorido pelo `init()`. O destacador não conhece linguagem
@@ -515,17 +515,17 @@ Para voltar ao comportamento antigo no date picker, `openOnFocus: true`.
 ## Menu suspenso
 
 ```html
-<button data-tuc-dropdown="#acoes">Ações</button>
+<button data-tuc-dropdown="#actions">Ações</button>
 
-<div class="tuc-dropdown" id="acoes" hidden>
-  <div class="tuc-dropdown__rotulo">Contrato</div>
+<div class="tuc-dropdown" id="actions" hidden>
+  <div class="tuc-dropdown__label">Contrato</div>
   <button class="tuc-dropdown__item">
-    <span class="tuc-dropdown__texto">Editar</span>
-    <span class="tuc-dropdown__atalho">⌘E</span>
+    <span class="tuc-dropdown__text">Editar</span>
+    <span class="tuc-dropdown__shortcut">⌘E</span>
   </button>
-  <hr class="tuc-dropdown__separador">
-  <button class="tuc-dropdown__item is-perigo">
-    <span class="tuc-dropdown__texto">Excluir</span>
+  <hr class="tuc-dropdown__separator">
+  <button class="tuc-dropdown__item is-danger">
+    <span class="tuc-dropdown__text">Excluir</span>
   </button>
 </div>
 ```
@@ -535,14 +535,14 @@ O `hidden` importa: sem ele o menu aparece no meio da página até o script roda
 Em JavaScript, quando os itens são calculados na hora:
 
 ```js
-new Tucano.Dropdown('#acoes', {
+new Tucano.Dropdown('#actions', {
   placement: 'bottom-start',    // as mesmas posições do tooltip
-  itens: [
-    { rotulo: 'Contrato' },
-    { texto: 'Editar', atalho: '⌘E', onClick: () => abrirEdicao() },
-    { texto: 'Abrir', href: '/contratos/12/' },
-    { separador: true },
-    { texto: 'Excluir', variante: 'perigo', onClick: () => excluir() },
+  items: [
+    { label: 'Contrato' },
+    { text: 'Editar', shortcut: '⌘E', onClick: () => abrirEdicao() },
+    { text: 'Abrir', href: '/contratos/12/' },
+    { separator: true },
+    { text: 'Excluir', variant: 'perigo', onClick: () => excluir() },
   ],
 });
 ```
@@ -559,20 +559,20 @@ mecânica do `<dialog>` — *top layer*, foco preso, `Esc`, foco devolvido — e
 uma correção num deles vale para o outro:
 
 ```js
-Tucano.gaveta({ title: 'Filtros', lado: 'direita' })  // esquerda | direita | cima | baixo
-  .conteudo(formulario);
+Tucano.drawer({ title: 'Filtros', side: 'right' })  // left | right | cima | baixo
+  .content(formulario);
 ```
 
-Nas laterais o `tamanho` é largura de coluna (18, 24 ou 34rem) e no celular ela
-para em 85% da tela. Do servidor, `<dialog class="tuc-gaveta is-direita">` no
-template com `data-tuc-gaveta="#id"` no gatilho.
+Nas laterais o `size` é largura de coluna (18, 24 ou 34rem) e no celular ela
+para em 85% da tela. Do servidor, `<dialog class="tuc-drawer is-right">` no
+template com `data-tuc-drawer="#id"` no gatilho.
 
 Com conteúdo do servidor, o `<dialog>` mora no template e o Tucano só abre,
 fecha e anima:
 
 ```html
 <dialog class="tuc-modal is-md" id="excluir">
-  <div class="tuc-modal__caixa">
+  <div class="tuc-modal__panel">
     <form method="post">{% csrf_token %} ... </form>
     <button data-tuc-modal-close>Cancelar</button>
   </div>
@@ -616,15 +616,15 @@ envolve nem substitui o input — é comportamento puro.
 ```html
 <input name="cpf"       data-tuc-mask="cpf" data-validate="true">
 <input name="cnpj"      data-tuc-mask="cnpj">
-<input name="documento" data-tuc-mask="cpf-cnpj">
-<input name="telefone"  data-tuc-mask="telefone">
-<input name="valor"     data-tuc-mask="real">
+<input name="document" data-tuc-mask="cpf-cnpj">
+<input name="phone"  data-tuc-mask="phone">
+<input name="value"     data-tuc-mask="real">
 <input name="cep"       data-tuc-mask="cep">
-<input                  data-tuc-mask="##/##">   <!-- gabarito livre -->
+<input                  data-tuc-mask="##/##">   <!-- template livre -->
 ```
 
-Formatos: `cpf`, `cnpj`, `cnpj-numerico`, `cpf-cnpj`, `telefone`, `celular`,
-`cep`, `real`, `moeda`, `data`, `hora`, `cartao`. No gabarito livre, `#` é
+Formatos: `cpf`, `cnpj`, `cnpj-numerico`, `cpf-cnpj`, `phone`, `mobile`,
+`cep`, `real`, `currency`, `data`, `time`, `card`. No gabarito livre, `#` é
 dígito, `A` é letra e `*` aceita os dois.
 
 **CNPJ alfanumérico.** O formato novo mantém as 14 posições e a mesma máscara:
@@ -642,7 +642,7 @@ navegador barra o submit sozinho via `setCustomValidity` — sem escrever nada.
 
 ```html
 <input name="cpf" value="111.444.777-35" data-tuc-mask="cpf" data-tuc-reveal>
-<input type="password" name="senha" data-tuc-reveal>
+<input type="password" name="password" data-tuc-reveal>
 ```
 
 Nasce oculto quando já tem conteúdo, mostrando `•••.•••.•••-35`. O valor real
@@ -678,7 +678,7 @@ esconderia o útil.
 <span data-tuc-format="real">1234.5</span>          <!-- R$ 1.234,50 -->
 ```
 
-Pela API: `Tucano.mask.validarCPF()`, `validarCNPJ()`, `formatar(v, 'cpf')`.
+Pela API: `Tucano.mask.validateCPF()`, `validateCNPJ()`, `format(v, 'cpf')`.
 
 ## Máscara do campo
 
@@ -717,7 +717,7 @@ qualquer campo com menos de 16px**, e a página inteira salta.
 O seletor do sistema (a roda do iOS, o diálogo do Android) é opt-in:
 
 ```js
-native: false     // padrão: o painel em todo lugar
+native: false     // padrão: o panel em todo lugar
 native: 'auto'    // seletor do sistema onde o ponteiro é de toque
 native: true      // sempre o seletor do sistema
 ```
@@ -767,7 +767,7 @@ não precisa recompilar:
   --tuc-accent: #0d9488;
   --tuc-accent-hover: #0f766e;
   --tuc-radius: 1rem;
-  --tuc-cell: 2.5rem;      /* tamanho do dia */
+  --tuc-cell: 2.5rem;      /* size do dia */
 }
 ```
 

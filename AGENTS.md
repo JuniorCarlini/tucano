@@ -39,6 +39,25 @@ duplique essa mecânica ao criar um diálogo novo.
 
 ## Decisões que não devem ser revertidas sem motivo
 
+**Código em inglês, comentário em português.** Vale para tudo que alguém digita:
+nome de classe e de método, chave de opção, valor de opção, classe CSS, token e
+atributo `data-*`. Os comentários e os textos de interface continuam em
+português — `'Alinhar à esquerda'` é o que o usuário lê, não é código.
+
+A biblioteca esteve metade em cada idioma, que é pior que qualquer uma das duas
+escolhas: conviviam `Modal.abrir()` e `DatePicker.open()`, `fechavel` e
+`closable`, `.tuc-gaveta__corpo` e `.tuc-select__menu`. Sem regra, quem usa
+precisa decorar caso a caso.
+
+Ao renomear em massa, três armadilhas apareceram e todas passam pelo build:
+string literal tratada como código traduz frase da interface pela metade
+("Excluir tabela" virou "Excluir table"); `${...}` dentro de template literal é
+código e fica para trás, apontando para variável que já mudou de nome — foi
+assim que `.tuc-modal__panel` ficou sem o JS que a monta; e prefixo de nome
+antigo dentro de nome novo duplica letra (`is-erro` dentro de `is-error` virou
+`is-errorr`). Nenhuma das três quebra o build: só um teste que instancia os
+componentes no navegador pega.
+
 Cada uma custou um bug real.
 
 **O preflight do Tailwind não é enviado.** Só as classes dos componentes vão no
@@ -130,7 +149,7 @@ deixa de pé, então o elemento é trocado direto no DOM — perde-se o desfazer
 nessa ação só, o que é melhor que entregar um bloco com parágrafos dentro.
 
 **O que o editor salva não leva classe nenhuma.** É o que o faz servir a
-qualquer servidor. Para exibir com a mesma aparência, envolva em `.tuc-prosa` —
+qualquer servidor. Para exibir com a mesma aparência, envolva em `.tuc-prose` —
 as regras são compartilhadas com a área de edição no CSS, então as duas não têm
 como divergir.
 

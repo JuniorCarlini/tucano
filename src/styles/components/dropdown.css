@@ -60,27 +60,27 @@
   @apply cursor-not-allowed opacity-50;
   background: transparent;
 }
-.tuc-dropdown__item.is-perigo { color: #dc2626; }
-.tuc-dropdown__item.is-perigo:hover,
-.tuc-dropdown__item.is-perigo:focus { background: color-mix(in oklab, #dc2626 12%, transparent); }
+.tuc-dropdown__item.is-danger { color: #dc2626; }
+.tuc-dropdown__item.is-danger:hover,
+.tuc-dropdown__item.is-danger:focus { background: color-mix(in oklab, #dc2626 12%, transparent); }
 
-.tuc-dropdown__icone {
+.tuc-dropdown__icon {
   @apply grid size-4 shrink-0 place-items-center;
   color: var(--tuc-muted);
 }
-.tuc-dropdown__item.is-perigo .tuc-dropdown__icone { color: inherit; }
-.tuc-dropdown__texto { @apply min-w-0 flex-1 truncate; }
+.tuc-dropdown__item.is-danger .tuc-dropdown__icon { color: inherit; }
+.tuc-dropdown__text { @apply min-w-0 flex-1 truncate; }
 /* Atalho a direita, em numeros de largura fixa para as teclas alinharem. */
-.tuc-dropdown__atalho {
+.tuc-dropdown__shortcut {
   @apply ml-auto shrink-0 pl-3 text-xs tabular-nums;
   color: var(--tuc-subtle);
 }
 
-.tuc-dropdown__rotulo {
+.tuc-dropdown__label {
   @apply px-2.5 pb-1 pt-2 text-xs font-semibold uppercase tracking-wide;
   color: var(--tuc-subtle);
 }
-.tuc-dropdown__separador {
+.tuc-dropdown__separator {
   @apply my-1;
   border: 0;
   border-top: var(--tuc-border-width) solid var(--tuc-border);

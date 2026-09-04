@@ -1,0 +1,94 @@
+@reference "tailwindcss";
+
+/*
+ * Gaveta (off-canvas): a caixa encostada numa borda.
+ *
+ * O grid do <dialog> deixa de centralizar nos dois eixos e passa a esticar no
+ * eixo da borda, o que faz a caixa ocupar a altura ou a largura inteira dali.
+ * E a entrada muda de natureza: o modal cresce no lugar, a gaveta desliza de
+ * fora, porque e assim que ela conta de onde veio.
+ */
+.tuc-drawer__panel {
+  max-height: none;
+  border: 0;
+}
+
+/*
+ * O brilho nasce da borda em que a gaveta encosta, nao do centro da tela.
+ * Centrado, ele apontava para o lugar errado: a luz vinha do meio da pagina
+ * enquanto o painel entrava pela lateral.
+ */
+.tuc-drawer.is-right::backdrop  { --tuc-glow-x: 100%; --tuc-glow-y: 50%; }
+.tuc-drawer.is-left::backdrop { --tuc-glow-x: 0%;   --tuc-glow-y: 50%; }
+.tuc-drawer.is-top::backdrop     { --tuc-glow-x: 50%;  --tuc-glow-y: 0%; }
+.tuc-drawer.is-bottom::backdrop    { --tuc-glow-x: 50%;  --tuc-glow-y: 100%; }
+
+/*
+ * Nascendo numa borda, so metade da elipse fica na tela — entao ela precisa ser
+ * maior que a do modal para a luz atravessar a pagina em vez de morrer perto do
+ * painel. Nas laterais, alta o bastante para cobrir a altura toda; em cima e
+ * embaixo, larga o bastante para cobrir a largura.
+ */
+.tuc-drawer.is-right::backdrop,
+.tuc-drawer.is-left::backdrop { --tuc-glow-w: 90rem; --tuc-glow-h: 100rem; }
+.tuc-drawer.is-top::backdrop,
+.tuc-drawer.is-bottom::backdrop    { --tuc-glow-w: 140rem; --tuc-glow-h: 70rem; }
+
+.tuc-drawer.is-right,
+.tuc-drawer.is-left { @apply items-stretch; }
+.tuc-drawer.is-right  { @apply justify-items-end; }
+.tuc-drawer.is-left { @apply justify-items-start; }
+
+.tuc-drawer.is-top,
+.tuc-drawer.is-bottom { @apply justify-items-stretch; }
+.tuc-drawer.is-top  { @apply items-start; }
+.tuc-drawer.is-bottom { @apply items-end; }
+
+.tuc-drawer.is-right  .tuc-drawer__panel,
+.tuc-drawer.is-left .tuc-drawer__panel { height: 100%; }
+.tuc-drawer.is-top  .tuc-drawer__panel,
+.tuc-drawer.is-bottom .tuc-drawer__panel { max-width: none; width: 100%; }
+
+/* A borda fica so do lado que encosta no conteudo da pagina. */
+.tuc-drawer.is-right  .tuc-drawer__panel { border-left:   var(--tuc-border-width) solid var(--tuc-border); }
+.tuc-drawer.is-left .tuc-drawer__panel { border-right:  var(--tuc-border-width) solid var(--tuc-border); }
+.tuc-drawer.is-top     .tuc-drawer__panel { border-bottom: var(--tuc-border-width) solid var(--tuc-border); }
+.tuc-drawer.is-bottom    .tuc-drawer__panel { border-top:    var(--tuc-border-width) solid var(--tuc-border); }
+
+/* Gaveta lateral e uma coluna, nao um cartao: a escala e outra. */
+.tuc-drawer.is-right.is-sm  .tuc-drawer__panel,
+.tuc-drawer.is-left.is-sm .tuc-drawer__panel { max-width: 18rem; }
+.tuc-drawer.is-right.is-md  .tuc-drawer__panel,
+.tuc-drawer.is-left.is-md .tuc-drawer__panel { max-width: 24rem; }
+.tuc-drawer.is-right.is-lg  .tuc-drawer__panel,
+.tuc-drawer.is-left.is-lg .tuc-drawer__panel { max-width: 34rem; }
+
+.tuc-drawer.is-right  .tuc-drawer__panel { translate: 100% 0; }
+.tuc-drawer.is-left .tuc-drawer__panel { translate: -100% 0; }
+.tuc-drawer.is-top     .tuc-drawer__panel { translate: 0 -100%; }
+.tuc-drawer.is-bottom    .tuc-drawer__panel { translate: 0 100%; }
+
+.tuc-drawer.is-open .tuc-drawer__panel {
+  opacity: 1;
+  translate: 0 0;
+  transition:
+    opacity var(--tuc-duration-lg) var(--tuc-ease),
+    translate var(--tuc-duration-lg) var(--tuc-ease);
+}
+.tuc-drawer.is-closing .tuc-drawer__panel {
+  opacity: 0;
+  transition:
+    opacity var(--tuc-duration-out) var(--tuc-ease-in),
+    translate var(--tuc-duration-out) var(--tuc-ease-in);
+}
+
+/* No celular a gaveta lateral quase toma a tela: coluna estreita ali nao le. */
+@media (max-width: 40rem) {
+  .tuc-drawer.is-right  .tuc-drawer__panel,
+  .tuc-drawer.is-left .tuc-drawer__panel { max-width: min(20rem, 85vw); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tuc-drawer .tuc-drawer__panel,
+  .tuc-drawer::backdrop { transition-duration: 100ms; translate: none; }
+}

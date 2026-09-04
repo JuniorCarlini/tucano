@@ -1,4 +1,4 @@
-import { abrirComTransicao, el, icon, ICONS, nextId, on } from '../core/dom.js';
+import { openWithTransition, el, icon, ICONS, nextId, on } from '../core/dom.js';
 import { ICONS_EXTRA } from '../core/dom-extra.js';
 import { Popover } from '../core/popover.js';
 
@@ -59,10 +59,10 @@ export class Select {
     // Com busca no servidor o campo de busca e obrigatorio: e o unico jeito de
     // pedir algo.
     this.opts.search = this.remoto ? true : (this.opts.search ?? this.items.length >= this.opts.searchMinItems);
-    this.estadoBusca = null;   // null | 'carregando' | 'erro'
+    this.searchState = null;   // null | 'loading' | 'error'
     this._cache = new Map();   // termo -> itens
     this._vazios = new Set();  // termos que nao trouxeram nada
-    this._pagina = 1;
+    this._page = 1;
     this._temMais = false;
 
     this._build();
@@ -80,8 +80,8 @@ export class Select {
   }
 
   setValue(value, { silent = false } = {}) {
-    const alvo = new Set([].concat(value ?? []).map(String));
-    for (const item of this.items) item.selected = alvo.has(item.value);
+    const target = new Set([].concat(value ?? []).map(String));
+    for (const item of this.items) item.selected = target.has(item.value);
     this._pushToNative();
     this._renderControl();
     if (this.isOpen) this._renderMenu();
@@ -106,7 +106,7 @@ export class Select {
     this.isOpen = true;
     this.query = '';
     this.search.value = '';
-    if (this.remoto) { this.items = this._escolhidos(); this.estadoBusca = null; }
+    if (this.remoto) { this.items = this._escolhidos(); this.searchState = null; }
     this.activeIndex = this.items.findIndex((i) => i.selected && !i.disabled);
     this._renderMenu();
 
@@ -114,11 +114,11 @@ export class Select {
       placement: this.opts.placement,
       appendTo: this.opts.appendTo || document.body,
       matchWidth: true,
-      fecharAoSairFoco: true,
+      closeOnFocusOut: true,
       onDismiss: () => this.close(),
     });
     this.popover.show();
-    abrirComTransicao(this.menu);
+    openWithTransition(this.menu);
     this.control.classList.add('is-open');
     this.control.setAttribute('aria-expanded', 'true');
     this.search.focus();
@@ -143,7 +143,7 @@ export class Select {
   }
 
   destroy() {
-    clearTimeout(this._timerBusca);
+    clearTimeout(this._searchTimer);
     this._abortar();
     this.close();
     this._cleanups.forEach((fn) => fn());
@@ -211,7 +211,7 @@ export class Select {
       on(this.search, 'input', () => {
         this.query = this.search.value;
         if (!this.isOpen) this.open();
-        if (this.remoto) { this._agendarBusca(); return; }
+        if (this.remoto) { this._scheduleSearch(); return; }
         this.activeIndex = this._filtered().findIndex((i) => !i.disabled);
         this._renderMenu();
         this._renderControl();
@@ -219,7 +219,7 @@ export class Select {
       on(this.search, 'keydown', (e) => this._onKeydown(e)),
       // Se o valor mudar por fora (reset de formulario, JS de terceiros).
       on(this.native, 'change', () => { if (!this._pushing) this._syncFromNative(); }),
-      on(this.list, 'scroll', () => this._aoRolarLista()),
+      on(this.list, 'scroll', () => this._onListScroll()),
     );
   }
 
@@ -262,14 +262,14 @@ export class Select {
    * tamanho minimo, cache, termo sem chance e requisicao ja em voo. Debounce
    * so no fim, para o que sobrou.
    */
-  _agendarBusca() {
-    clearTimeout(this._timerBusca);
+  _scheduleSearch() {
+    clearTimeout(this._searchTimer);
     const termo = this.query.trim();
-    this._pagina = 1;
+    this._page = 1;
 
     if (termo.length < this.opts.minChars) {
       this._abortar();
-      this.estadoBusca = null;
+      this.searchState = null;
       this.items = this._escolhidos();
       this._temMais = false;
       this._renderMenu();
@@ -279,23 +279,23 @@ export class Select {
     const guardado = this.opts.cache ? this._cache.get(termo) : null;
     if (guardado) {
       this._abortar();
-      this.estadoBusca = null;
-      this._aplicarResultado(guardado, { anexar: false });
+      this.searchState = null;
+      this._applyResult(guardado, { anexar: false });
       return;
     }
 
     if (this._semChance(termo)) {
       this._abortar();
-      this.estadoBusca = null;
-      this._aplicarResultado([], { anexar: false });
+      this.searchState = null;
+      this._applyResult([], { anexar: false });
       return;
     }
 
     if (this._termoEmVoo === termo) return;
 
-    this.estadoBusca = 'carregando';
+    this.searchState = 'loading';
     this._renderMenu();
-    this._timerBusca = setTimeout(() => this._buscar(termo), this.opts.debounce);
+    this._searchTimer = setTimeout(() => this._buscar(termo), this.opts.debounce);
   }
 
   /**
@@ -308,22 +308,22 @@ export class Select {
    */
   _semChance(termo) {
     if (!this.opts.shortCircuit) return false;
-    for (const vazio of this._vazios) if (termo.startsWith(vazio)) return true;
+    for (const empty of this._vazios) if (termo.startsWith(empty)) return true;
     return false;
   }
 
-  _guardar(termo, itens) {
+  _guardar(termo, items) {
     if (!this.opts.cache) return;
     // Map preserva ordem de insercao: o mais antigo sai primeiro.
     if (this._cache.size >= this.opts.cacheSize) {
       this._cache.delete(this._cache.keys().next().value);
     }
-    this._cache.set(termo, itens);
-    if (!itens.length) this._vazios.add(termo);
+    this._cache.set(termo, items);
+    if (!items.length) this._vazios.add(termo);
   }
 
   /** Junta o que veio com quem ja estava escolhido e desenha. */
-  _aplicarResultado(vindos, { anexar }) {
+  _applyResult(vindos, { anexar }) {
     const escolhidos = this._escolhidos();
     const base = anexar ? this.items : escolhidos;
     const novos = vindos.filter((i) => !base.some((e) => e.value === i.value));
@@ -337,7 +337,7 @@ export class Select {
     this._controle = null;
   }
 
-  async _buscar(termo, { pagina = 1 } = {}) {
+  async _buscar(termo, { page = 1 } = {}) {
     // Cancela a anterior: sem isso, uma resposta lenta chega depois de uma
     // rapida e sobrescreve a lista com resultado de um termo ja abandonado.
     this._abortar();
@@ -347,29 +347,29 @@ export class Select {
 
     try {
       const brutos = this.opts.loadOptions
-        ? await this.opts.loadOptions(termo, { signal: controle.signal, page: pagina })
-        : await this._buscarUrl(termo, controle.signal, pagina);
+        ? await this.opts.loadOptions(termo, { signal: controle.signal, page: page })
+        : await this._buscarUrl(termo, controle.signal, page);
       if (controle.signal.aborted) return;
 
-      const vindos = normalizarOpcoes(brutos);
-      this._temMais = temProximaPagina(brutos, vindos, this.opts.pageParam);
-      this.estadoBusca = null;
-      if (pagina === 1) this._guardar(termo, vindos);
-      this._aplicarResultado(vindos, { anexar: pagina > 1 });
+      const vindos = normalizeOptions(brutos);
+      this._temMais = hasNextPage(brutos, vindos, this.opts.pageParam);
+      this.searchState = null;
+      if (page === 1) this._guardar(termo, vindos);
+      this._applyResult(vindos, { anexar: page > 1 });
       return;
     } catch (e) {
       if (e.name === 'AbortError' || controle.signal.aborted) return;
-      this.estadoBusca = 'erro';
+      this.searchState = 'error';
       this._renderMenu();
     } finally {
       if (this._controle === controle) { this._controle = null; this._termoEmVoo = null; }
     }
   }
 
-  async _buscarUrl(termo, signal, pagina = 1) {
+  async _buscarUrl(termo, signal, page = 1) {
     const url = new URL(this.opts.url, location.href);
     url.searchParams.set(this.opts.queryParam, termo);
-    if (pagina > 1 && this.opts.pageParam) url.searchParams.set(this.opts.pageParam, String(pagina));
+    if (page > 1 && this.opts.pageParam) url.searchParams.set(this.opts.pageParam, String(page));
     const r = await fetch(url, { signal, headers: { Accept: 'application/json' } });
     if (!r.ok) throw new Error(`O servidor respondeu ${r.status}`);
     return r.json();
@@ -379,14 +379,14 @@ export class Select {
    * Proxima pagina ao chegar perto do fim da lista. Carregar de uma vez os
    * dez mil registros e o que trava a pagina; vinte por vez, nao.
    */
-  _aoRolarLista() {
-    if (!this.remoto || !this._temMais || this.estadoBusca === 'carregando') return;
+  _onListScroll() {
+    if (!this.remoto || !this._temMais || this.searchState === 'loading') return;
     const l = this.list;
     if (l.scrollTop + l.clientHeight < l.scrollHeight - 48) return;
-    this._pagina += 1;
-    this.estadoBusca = 'carregando';
+    this._page += 1;
+    this.searchState = 'loading';
     this._renderMenu();
-    this._buscar(this.query.trim(), { pagina: this._pagina });
+    this._buscar(this.query.trim(), { page: this._page });
   }
 
   _escolhidos() {
@@ -417,12 +417,12 @@ export class Select {
         el('span', { class: 'tuc-select__single', text: escolhidos[0].label }), this.search);
     }
 
-    const vazio = !escolhidos.length && !this.query;
+    const empty = !escolhidos.length && !this.query;
     // Placeholder no input: some assim que existe tag ou rotulo ao lado.
-    this.search.placeholder = vazio
+    this.search.placeholder = empty
       ? this.opts.placeholder
       : (this.isOpen && this.opts.search ? this.opts.searchPlaceholder : '');
-    this.control.classList.toggle('is-empty', vazio);
+    this.control.classList.toggle('is-empty', empty);
     this.control.classList.toggle('has-value', escolhidos.length > 0);
     this.search.readOnly = !this.opts.search;
   }
@@ -433,18 +433,18 @@ export class Select {
     if (this.remoto) return this.items;
     const q = this.query.trim().toLowerCase();
     if (!q) return this.items;
-    return this.items.filter((i) => i.busca.includes(q));
+    return this.items.filter((i) => i.search.includes(q));
   }
 
   _renderMenu() {
     const visiveis = this._filtered();
     this.list.replaceChildren();
 
-    if (this.estadoBusca === 'carregando') {
+    if (this.searchState === 'loading') {
       this.list.append(el('div', { class: 'tuc-select__empty is-loading', text: this.opts.loadingText }));
       return;
     }
-    if (this.estadoBusca === 'erro') {
+    if (this.searchState === 'error') {
       this.list.append(el('div', { class: 'tuc-select__empty is-error', text: this.opts.errorText }));
       return;
     }
@@ -459,15 +459,15 @@ export class Select {
       return;
     }
 
-    let grupoAtual = null;
+    let currentGroup = null;
     visiveis.forEach((item, i) => {
-      if (item.group && item.group !== grupoAtual) {
-        grupoAtual = item.group;
+      if (item.group && item.group !== currentGroup) {
+        currentGroup = item.group;
         this.list.append(el('div', { class: 'tuc-select__group', text: item.group, role: 'presentation' }));
       }
-      const ativo = i === this.activeIndex;
+      const active = i === this.activeIndex;
       const node = el('div', {
-        class: `tuc-select__option${item.selected ? ' is-selected' : ''}${ativo ? ' is-active' : ''}${item.disabled ? ' is-disabled' : ''}`,
+        class: `tuc-select__option${item.selected ? ' is-selected' : ''}${active ? ' is-active' : ''}${item.disabled ? ' is-disabled' : ''}`,
         role: 'option',
         id: `${this.id}-opt-${i}`,
         'aria-selected': item.selected ? 'true' : 'false',
@@ -487,8 +487,8 @@ export class Select {
 
   /** Move o destaque sem refazer a lista — mesma razao do calendario. */
   _paintActive() {
-    const opcoes = this.list.querySelectorAll('.tuc-select__option');
-    opcoes.forEach((n, i) => n.classList.toggle('is-active', i === this.activeIndex));
+    const options = this.list.querySelectorAll('.tuc-select__option');
+    options.forEach((n, i) => n.classList.toggle('is-active', i === this.activeIndex));
     this.search.setAttribute('aria-activedescendant',
       this.activeIndex >= 0 ? `${this.id}-opt-${this.activeIndex}` : '');
   }
@@ -529,9 +529,9 @@ export class Select {
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
       e.preventDefault();
       if (!this.isOpen) return this.open();
-      const passo = e.key === 'ArrowDown' ? 1 : -1;
+      const step = e.key === 'ArrowDown' ? 1 : -1;
       for (let n = 1; n <= visiveis.length; n++) {
-        const i = (this.activeIndex + passo * n + visiveis.length * n) % visiveis.length;
+        const i = (this.activeIndex + step * n + visiveis.length * n) % visiveis.length;
         if (!visiveis[i].disabled) { this.activeIndex = i; break; }
       }
       this._paintActive();
@@ -584,14 +584,14 @@ export class Select {
  * {results:[...]} do DRF, ou {id,text} do Select2 — para nao obrigar o
  * servidor a mudar so por causa daqui.
  */
-function normalizarOpcoes(dados) {
-  const lista = Array.isArray(dados) ? dados : (dados?.results ?? dados?.items ?? dados?.data ?? []);
-  return lista.map((o) => {
+function normalizeOptions(data) {
+  const list = Array.isArray(data) ? data : (data?.results ?? data?.items ?? data?.data ?? []);
+  return list.map((o) => {
     if (o == null) return null;
-    if (typeof o !== 'object') return { value: String(o), label: String(o), disabled: false, group: null, selected: false, busca: normalize(String(o)) };
+    if (typeof o !== 'object') return { value: String(o), label: String(o), disabled: false, group: null, selected: false, search: normalize(String(o)) };
     const value = String(o.value ?? o.id ?? o.pk ?? '');
-    const label = String(o.label ?? o.text ?? o.nome ?? o.name ?? value);
-    return { value, label, disabled: !!o.disabled, group: o.group ?? o.grupo ?? null, selected: false, busca: normalize(`${label} ${value}`) };
+    const label = String(o.label ?? o.text ?? o.name ?? o.name ?? value);
+    return { value, label, disabled: !!o.disabled, group: o.group ?? o.grupo ?? null, selected: false, search: normalize(`${label} ${value}`) };
   }).filter((o) => o && o.value !== '');
 }
 
@@ -599,13 +599,13 @@ function normalizarOpcoes(dados) {
  * Ha mais paginas? O DRF diz em `next`. Sem essa pista, so da para supor: uma
  * pagina que veio vazia acabou; uma que veio cheia pode ter mais.
  */
-function temProximaPagina(brutos, itens, pageParam) {
+function hasNextPage(brutos, items, pageParam) {
   if (!pageParam) return false;
   if (brutos && typeof brutos === 'object' && !Array.isArray(brutos)) {
     if ('next' in brutos) return !!brutos.next;
     if ('has_more' in brutos) return !!brutos.has_more;
   }
-  return itens.length > 0;
+  return items.length > 0;
 }
 
 function readOptions(select) {
@@ -619,7 +619,7 @@ function readOptions(select) {
       group: o.parentElement.tagName === 'OPTGROUP' ? o.parentElement.label : null,
       selected: o.selected,
       // Normaliza acentos: buscar "sao" acha "São Paulo".
-      busca: normalize(`${o.textContent} ${o.value}`),
+      search: normalize(`${o.textContent} ${o.value}`),
     }));
 }
 

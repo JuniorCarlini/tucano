@@ -31,26 +31,26 @@
  * O item atual leva cor e um traco na borda de dentro. So o fundo nao bastaria:
  * quem nao distingue bem as cores precisa de uma segunda pista, e a barra e ela.
  */
-.tuc-menu__item.is-ativo {
+.tuc-menu__item.is-active {
   color: var(--tuc-accent);
   background: var(--tuc-hover);
   box-shadow: inset 2px 0 0 0 var(--tuc-accent);
   font-weight: 550;
 }
 
-.tuc-menu__icone {
+.tuc-menu__icon {
   @apply grid size-4 shrink-0 place-items-center;
   color: var(--tuc-muted);
 }
-.tuc-menu__item.is-ativo .tuc-menu__icone { color: var(--tuc-accent); }
+.tuc-menu__item.is-active .tuc-menu__icon { color: var(--tuc-accent); }
 
 /* Contador a direita: quantos itens ha naquela tela. */
-.tuc-menu__contagem {
+.tuc-menu__count {
   @apply ml-auto shrink-0 px-1.5 text-xs tabular-nums;
   color: var(--tuc-subtle);
 }
 
-.tuc-menu__separador {
+.tuc-menu__separator {
   @apply my-1.5;
   border: 0;
   border-top: var(--tuc-border-width) solid var(--tuc-border);
@@ -68,7 +68,7 @@
 
 /* No menu, o gatilho e um item de menu. Estas regras vem depois das do
    acordeao de proposito, para vencer por ordem no que as duas dizem. */
-.tuc-menu .tuc-acordeon__gatilho {
+.tuc-menu .tuc-accordion__trigger {
   @apply justify-start px-2.5 py-2;
   font-weight: inherit;
   border-bottom: 0;
@@ -78,16 +78,16 @@
  * acordeao, o texto ficava no meio do item enquanto os vizinhos sem submenu
  * alinhavam a esquerda — a coluna de rotulos saia torta.
  */
-.tuc-menu .tuc-acordeon__seta { @apply ml-auto; }
-.tuc-menu .tuc-acordeon__item { border-bottom: 0; }
+.tuc-menu .tuc-accordion__arrow { @apply ml-auto; }
+.tuc-menu .tuc-accordion__item { border-bottom: 0; }
 
 /*
  * A seta aponta para a direita quando fechado e para baixo quando aberto, que
  * e como arvore de navegacao se le: "ha algo aqui dentro" contra "esta e a
  * ramificacao aberta". Girar so 180 graus diria menos.
  */
-.tuc-menu .tuc-acordeon__seta { rotate: -90deg; }
-.tuc-menu .tuc-acordeon__item[open]:not(.is-fechando) .tuc-acordeon__seta { rotate: 0deg; }
+.tuc-menu .tuc-accordion__arrow { rotate: -90deg; }
+.tuc-menu .tuc-accordion__item[open]:not(.is-closing) .tuc-accordion__arrow { rotate: 0deg; }
 
 /*
  * O trilho a esquerda amarra os filhos ao pai. Sem ele, a indentacao sozinha se
@@ -119,13 +119,13 @@
  * No submenu o atual e uma pilula, e nao o traco da borda: o traco brigaria
  * com o trilho, que ocupa exatamente aquele lugar.
  */
-.tuc-menu__sub .tuc-menu__item.is-ativo {
+.tuc-menu__sub .tuc-menu__item.is-active {
   box-shadow: none;
   color: var(--tuc-fg);
   background: var(--tuc-hover);
   font-weight: 500;
 }
-.tuc-menu__sub .tuc-menu__item.is-ativo::before { opacity: 1; }
+.tuc-menu__sub .tuc-menu__item.is-active::before { opacity: 1; }
 
 /* Rotulo de secao, entre blocos do menu. */
 .tuc-menu__secao {

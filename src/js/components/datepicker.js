@@ -3,7 +3,7 @@ import {
   format, getLocaleData, isSameDay, isSameMonth, isValid, localeDatePattern,
   parseISO, parseUserInput, startOfDay, toISODate, toISODateTime, withTime,
 } from '../core/dates.js';
-import { abrirComTransicao, el, icon, ICONS, nextId, on } from '../core/dom.js';
+import { openWithTransition, el, icon, ICONS, nextId, on } from '../core/dom.js';
 import { Popover, trapFocus } from '../core/popover.js';
 
 const DEFAULTS = {
@@ -132,7 +132,7 @@ export class DatePicker {
     this.popover = new Popover(this.input, this.panel, {
       placement: this.opts.placement,
       appendTo: this.opts.appendTo || document.body,
-      fecharAoSairFoco: true,
+      closeOnFocusOut: true,
       // Clique fora: nao devolvemos o foco, senao roubariamos de onde o usuario clicou.
       onDismiss: (reason) => this.close({ restoreFocus: reason === 'escape' }),
     });
@@ -140,7 +140,7 @@ export class DatePicker {
     // Agora que o painel esta no DOM as medidas valem — so aqui da para rolar.
     this._revealed = null;
     this._revealTimes();
-    abrirComTransicao(this.panel);
+    openWithTransition(this.panel);
     this._releaseFocus = trapFocus(this.panel);
     this.input.setAttribute('aria-expanded', 'true');
     this.opts.onOpen?.(this);
@@ -401,9 +401,9 @@ export class DatePicker {
    */
   _maskTemplate() {
     const widths = { yyyy: 4, yy: 2, MM: 2, M: 2, dd: 2, d: 2, HH: 2, H: 2, hh: 2, h: 2, mm: 2, m: 2, ss: 2, s: 2 };
-    const naoNumerico = /MMMM|MMM|EEEE|EEE|(^|[^'])a([^']|$)/;
+    const nonNumeric = /MMMM|MMM|EEEE|EEE|(^|[^'])a([^']|$)/;
     const f = this._displayFormat();
-    if (naoNumerico.test(f)) return null;
+    if (nonNumeric.test(f)) return null;
     const one = f.replace(/'[^']*'|yyyy|yy|MM|M|dd|d|HH|H|hh|h|mm|m|ss|s/g,
       (t) => (t.startsWith("'") ? t.slice(1, -1) : '#'.repeat(widths[t])));
     return this.isRange ? `${one} — ${one}` : one;
@@ -414,9 +414,9 @@ export class DatePicker {
   }
 
   /**
-   * Reescreve o campo a cada tecla mantendo o gabarito. Apagar em cima de um
-   * separador remove o digito anterior junto — senao a mascara o recolocaria
-   * na hora e o campo travaria.
+   * Reescreve o field a cada tecla mantendo o template. Apagar em cima de um
+   * separator remove o digito anterior junto — senao a mascara o recolocaria
+   * na hora e o field travaria.
    */
   _onMaskInput(e) {
     const input = this.input;
@@ -427,9 +427,9 @@ export class DatePicker {
     let digits = raw.replace(/\D/g, '');
     let antes = raw.slice(0, caret).replace(/\D/g, '').length;
 
-    // Digitos iguais aos de antes = so um separador foi apagado. Nesse caso
+    // Digitos iguais aos de antes = so um separator foi apagado. Nesse caso
     // removemos o digito vizinho ao cursor — senao a mascara recolocaria o
-    // separador na hora e a tecla nao faria nada.
+    // separator na hora e a tecla nao faria nada.
     if (apagando && digits === this._maskDigits) {
       const paraFrente = e.inputType === 'deleteContentForward';
       const idx = paraFrente ? antes : antes - 1;
@@ -450,8 +450,8 @@ export class DatePicker {
   }
 
   /**
-   * Com a mascara completa, move o calendario para a data digitada sem fechar
-   * nem reescrever o campo — commit de verdade so no Enter ou ao sair.
+   * Com a mascara completa, move o calendario para a data digitada sem close
+   * nem reescrever o field — commit de verdade so no Enter ou ao sair.
    */
   _previewTyped() {
     const raw = this.input.value;
@@ -507,14 +507,14 @@ export class DatePicker {
     // O overlay guarda o ISO: e dele que o seletor do sistema parte.
     if (this.overlay) this.overlay.value = this._nativeValue();
     if (this.isoInput) this.isoInput.value = this._isoValue();
-    // Mantem o contador da mascara alinhado com o texto escrito por codigo.
+    // Mantem o contador da mascara alinhado com o text escrito por codigo.
     if (this.input && this._mask) this._maskDigits = this.input.value.replace(/\D/g, '');
   }
 
   _commitTyped() {
     if (!this.input) return;
     const raw = this.input.value.trim();
-    // Texto identico ao valor atual: nada a reinterpretar — e evita emitir de novo.
+    // Texto identico ao value atual: nada a reinterpretar — e evita emitir de novo.
     if (raw === this._displayValue()) return;
     if (!raw) { this.clear(); return; }
     if (this.isRange) {
@@ -531,9 +531,9 @@ export class DatePicker {
   }
 
   /**
-   * Normaliza o que foi digitado. Quando o texto nao traz hora (parseUserInput
+   * Normaliza o que foi digitado. Quando o text nao traz hora (parseUserInput
    * marca isso em `hasTime`), mantem a hora que ja estava selecionada em vez de
-   * jogar o valor para meia-noite.
+   * jogar o value para meia-noite.
    */
   _keepTime(parsed, previous) {
     if (!parsed) return null;
@@ -548,7 +548,7 @@ export class DatePicker {
     try {
       this.opts.onChange?.(value, detail);
       this.input.dispatchEvent(new CustomEvent('tucano:change', { detail, bubbles: true }));
-      // 'change' nativo para que validacao de form e HTMX enxerguem o valor.
+      // 'change' nativo para que validacao de form e HTMX enxerguem o value.
       this.input?.dispatchEvent(new Event('change', { bubbles: true }));
     } finally {
       this._emitting = false;
@@ -633,7 +633,7 @@ export class DatePicker {
    * ---------------------------------------------------------------- */
 
   _render() {
-    // Guarda o scroll por coluna (chave estavel), nao por posicao no DOM.
+    // Guarda o scroll por coluna (key estavel), nao por posicao no DOM.
     const scrollState = new Map();
     for (const n of this.panel.querySelectorAll('.tuc-dp__timelist')) {
       scrollState.set(`${n.dataset.which}|${n.dataset.unit}`, n.scrollTop);
@@ -664,7 +664,7 @@ export class DatePicker {
   }
 
   /**
-   * Rola cada coluna de hora ate o valor selecionado — mas so quando esse valor
+   * Rola cada coluna de hora ate o value selecionado — mas so quando esse value
    * mudou. Assim o scroll que o usuario deu na coluna nao e desfeito a cada
    * re-render (que acontece a todo hover no modo periodo).
    */
@@ -709,7 +709,7 @@ export class DatePicker {
         : el('span', { class: 'tuc-dp__nav is-ghost' }),
     ]);
 
-    // Mesma classe da grade: com numero de semana sao 8 colunas, nao 7. Sem isso
+    // Mesma className da grade: com numero de semana sao 8 colunas, nao 7. Sem isso
     // o sabado quebrava para a linha de baixo e desalinhava o cabecalho inteiro.
     const weekdays = el('div', { class: `tuc-dp__weekdays${this.opts.weekNumbers ? ' has-weeknums' : ''}` });
     if (this.opts.weekNumbers) weekdays.append(el('span', { class: 'tuc-dp__weeknum-head' }));
@@ -762,7 +762,7 @@ export class DatePicker {
     if (isStart && distintas) classes.push('is-start');
     if (isEnd && distintas) classes.push('is-end');
     if (inRange) classes.push('is-in-range');
-    // So a ponta sob o cursor e "preview"; o tom da faixa vem de .is-picking.
+    // So a ponta sob o cursor e "preview"; o tone da faixa vem de .is-picking.
     if (this.pendingRange && isEnd) classes.push('is-preview');
     return classes;
   }
@@ -770,7 +770,7 @@ export class DatePicker {
   /**
    * Repinta as celulas ja existentes. E o que roda a cada mouseenter: refazer a
    * grade ali trocaria o elemento entre o mousedown e o mouseup, e o browser
-   * engoliria o clique — era isso que impedia de fechar o periodo.
+   * engoliria o clique — era isso que impedia de close o periodo.
    */
   _paintDays() {
     this.panel.classList.toggle('is-picking', this.pendingRange && !!this.hover);
@@ -1003,7 +1003,7 @@ function buildPresets(option) {
   ];
 }
 
-/** Remove chaves com valor undefined para que o spread nao apague defaults. */
+/** Remove chaves com value undefined para que o spread nao apague defaults. */
 function omitUndefined(obj) {
   const out = {};
   for (const [k, v] of Object.entries(obj || {})) if (v !== undefined) out[k] = v;
@@ -1012,14 +1012,14 @@ function omitUndefined(obj) {
 
 /**
  * Centraliza o item selecionado da coluna quando ele esta fora de vista.
- * Mexe so no scroll da lista — scrollIntoView arrastaria a pagina inteira junto.
+ * Mexe so no scroll da list — scrollIntoView arrastaria a pagina inteira junto.
  */
 function revealSelected(list) {
   const item = list.querySelector('.is-selected');
   if (!item) return;
   const lr = list.getBoundingClientRect();
   const ir = item.getBoundingClientRect();
-  // offsetTop seria relativo ao ancestral posicionado (o painel), nao a lista.
+  // offsetTop seria relativo ao ancestral posicionado (o panel), nao a list.
   const top = ir.top - lr.top + list.scrollTop;
   if (top < list.scrollTop || top + ir.height > list.scrollTop + list.clientHeight) {
     list.scrollTop = top - (list.clientHeight - ir.height) / 2;
@@ -1027,8 +1027,8 @@ function revealSelected(list) {
 }
 
 /**
- * Distribui os digitos pelo gabarito ("##/##/####"), inserindo os separadores.
- * O separador entra assim que o grupo anterior fecha, para o usuario nao
+ * Distribui os digitos pelo template ("##/##/######/##/####"), inserindo os separadores.
+ * O separator entra assim que o grupo anterior fecha, para o user nao
  * precisar digita-lo.
  */
 function maskFormat(digits, template) {
@@ -1046,7 +1046,7 @@ function maskFormat(digits, template) {
   return out;
 }
 
-/** Posicao do cursor logo apos o n-esimo digito do texto ja mascarado. */
+/** Position do cursor logo after o n-esimo digito do text ja mascarado. */
 function caretAfterDigits(masked, n) {
   if (n <= 0) return 0;
   let seen = 0;
@@ -1069,7 +1069,7 @@ function isoWeek(date) {
 }
 
 /**
- * Inicializa todo [data-tuc-datepicker] do escopo. Opcoes vem de data-attributes:
+ * Inicializa todo [data-tuc-datepicker] do escopo. Options vem de data-attributes:
  * data-mode, data-time, data-min, data-max, data-months, data-locale, data-format...
  */
 export function autoInit(scope = document) {

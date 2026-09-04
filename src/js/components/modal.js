@@ -1,5 +1,5 @@
 import { el, nextId } from '../core/dom.js';
-import { Dialogo, montarCaixa, semUndefined } from '../core/dialogo.js';
+import { Dialog, buildPanel, withoutUndefined } from '../core/dialog.js';
 
 /*
  * Modal: dialogo centrado na tela.
@@ -13,51 +13,51 @@ import { Dialogo, montarCaixa, semUndefined } from '../core/dialogo.js';
 const DEFAULTS = {
   title: null,
   text: '',
-  tamanho: 'md',       // sm | md | lg | full
-  tom: 'padrao',       // padrao | perigo | sucesso | aviso
-  folha: false,        // no celular sobe do rodape em vez de surgir no centro
-  fechavel: true,      // botao X e Escape
-  fecharNoFundo: true,
-  acoes: null,         // [{ texto, variante, onClick, fecha }]
-  aoFechar: null,
-  classe: '',
+  size: 'md',       // sm | md | lg | full
+  tone: 'default',       // default | danger | success | warning
+  sheet: false,        // no celular sobe do rodape em vez de surgir no centro
+  closable: true,      // botao X e Escape
+  closeOnBackdrop: true,
+  actions: null,         // [{ texto, variante, onClick, fecha }]
+  onClose: null,
+  className: '',
 };
 
-export class Modal extends Dialogo {
-  constructor(opcoes = {}) {
+export class Modal extends Dialog {
+  constructor(options = {}) {
     super();
-    this.opts = { ...DEFAULTS, ...semUndefined(opcoes) };
+    this.opts = { ...DEFAULTS, ...withoutUndefined(options) };
     this.id = nextId('modal');
     this._cleanups = [];
-    this._montar();
+    this._build();
   }
 
-  _montar() {
-    const tituloId = `${this.id}-titulo`;
-    this.caixa = montarCaixa('tuc-modal', this.opts, this, tituloId);
+  _build() {
+    const titleId = `${this.id}-title`;
+    this.panel = buildPanel('tuc-modal', this.opts, this, titleId);
 
     this.node = el('dialog', {
       class: [
         'tuc-modal',
-        `is-${this.opts.tamanho}`,
-        `is-${this.opts.tom}`,
-        this.opts.folha ? 'is-folha' : '',
-        this.opts.classe,
+        `is-${this.opts.size}`,
+        `is-${this.opts.tone}`,
+        this.opts.sheet ? 'is-sheet' : '',
+        this.opts.className,
       ].filter(Boolean).join(' '),
       id: this.id,
       // O titulo nomeia o dialogo; sem titulo o proprio texto serve.
-      ...(this.opts.title ? { 'aria-labelledby': tituloId } : {}),
-    }, [this.caixa]);
+      ...(this.opts.title ? { 'aria-labelledby': titleId } : {}),
+    }, [this.panel]);
 
-    this.corpo = this.caixa.querySelector('.tuc-modal__corpo');
+    this.body = this.panel.querySelector('.tuc-modal__body');
     this.node._tucano = this;
   }
 }
 
 /** Atalho: cria e abre num passo. */
-export function modal(opcoesOuTexto, extra = {}) {
-  const base = typeof opcoesOuTexto === 'string' ? { text: opcoesOuTexto } : opcoesOuTexto;
-  return new Modal({ ...base, ...extra }).abrir();
+export function modal(optionsOrText, extra = {}) {
+  const base = typeof optionsOrText === 'string' ? { text: optionsOrText } : optionsOrText;
+  return new Modal({ ...base, ...extra }).open();
 }
 
 /**
@@ -65,25 +65,25 @@ export function modal(opcoesOuTexto, extra = {}) {
  *
  *   if (await Tucano.confirmar({ title: 'Excluir contrato?' })) excluir();
  */
-export function confirmar(opcoes = {}) {
-  const { confirmar: rotuloOk = 'Confirmar', cancelar = 'Cancelar', ...resto } = opcoes;
+export function confirm(options = {}) {
+  const { confirm: okLabel = 'Confirmar', cancel = 'Cancelar', ...rest } = options;
   // O tom sai daqui, e nao de resto.tom, porque o padrao e perigo: lendo so o
   // que veio de fora, um dialogo vermelho ganhava botao azul de confirmar.
-  const tom = resto.tom ?? 'perigo';
+  const tone = rest.tone ?? 'danger';
   return new Promise((resolve) => {
     let decidido = false;
     const responder = (v) => { decidido = true; resolve(v); };
     new Modal({
-      ...resto,
-      tom,
-      acoes: [
-        { texto: cancelar, variante: 'outline', onClick: () => responder(false) },
-        { texto: rotuloOk, variante: tom === 'perigo' ? 'danger' : 'primary', onClick: () => responder(true) },
+      ...rest,
+      tone,
+      actions: [
+        { text: cancel, variant: 'outline', onClick: () => responder(false) },
+        { text: okLabel, variant: tone === 'danger' ? 'danger' : 'primary', onClick: () => responder(true) },
       ],
       // Fechar pelo X, pelo Escape ou pelo fundo e uma recusa, nao um limbo:
       // sem isto a promessa ficaria pendente para sempre.
-      aoFechar: (motivo, m) => { if (!decidido) resolve(false); resto.aoFechar?.(motivo, m); },
-    }).abrir();
+      onClose: (motivo, m) => { if (!decidido) resolve(false); rest.onClose?.(motivo, m); },
+    }).open();
   });
 }
 
@@ -101,24 +101,24 @@ export function autoInit(scope = document) {
     node.setAttribute('data-tuc-ready', '');
     const d = node.dataset;
     const m = Object.create(Modal.prototype);
-    m.opts = { ...DEFAULTS, fechavel: d.fechavel !== 'false', fecharNoFundo: d.fundo !== 'false' };
+    m.opts = { ...DEFAULTS, closable: d.closable !== 'false', closeOnBackdrop: d.fundo !== 'false' };
     m.id = node.id || nextId('modal');
     m._cleanups = [];
-    m.caixa = node.querySelector('.tuc-modal__caixa');
-    m.corpo = node.querySelector('.tuc-modal__corpo');
-    m._adotar(node);
+    m.panel = node.querySelector('.tuc-modal__panel');
+    m.body = node.querySelector('.tuc-modal__body');
+    m._adopt(node);
 
     for (const b of node.querySelectorAll('[data-tuc-modal-close]')) {
-      b.addEventListener('click', () => m.fechar('botao'));
+      b.addEventListener('click', () => m.close('botao'));
     }
     out.push(m);
   }
 
-  for (const gatilho of scope.querySelectorAll('[data-tuc-modal]:not([data-tuc-ready])')) {
-    gatilho.setAttribute('data-tuc-ready', '');
-    gatilho.addEventListener('click', (e) => {
+  for (const trigger of scope.querySelectorAll('[data-tuc-modal]:not([data-tuc-ready])')) {
+    trigger.setAttribute('data-tuc-ready', '');
+    trigger.addEventListener('click', (e) => {
       e.preventDefault();
-      document.querySelector(gatilho.dataset.tucModal)?._tucano?.abrir();
+      document.querySelector(trigger.dataset.tucModal)?._tucano?.open();
     });
   }
 

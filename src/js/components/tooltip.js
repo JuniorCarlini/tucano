@@ -1,4 +1,4 @@
-import { abrirComTransicao, el, nextId, on } from '../core/dom.js';
+import { openWithTransition, el, nextId, on } from '../core/dom.js';
 import { Popover } from '../core/popover.js';
 
 const DEFAULTS = {
@@ -7,10 +7,10 @@ const DEFAULTS = {
   delay: 350,        // atraso ao apontar: evita piscar ao passar o mouse de raspao
   delayOut: 120,
   maxWidth: '16rem',
-  classe: '',        // classe extra no balao, para variar a cor num caso so
+  className: '',        // classe extra no balao, para variar a cor num caso so
 };
 
-let aberto = null;   // so um por vez
+let isOpen = null;   // so um por vez
 
 /**
  * Dica de texto ancorada a um elemento.
@@ -40,31 +40,31 @@ export class Tooltip {
     }
     if (!this.opts.text) throw new Error('[Tooltip] informe o texto');
 
-    this.painel = el('div', {
-      class: `tuc-tip${this.opts.classe ? ` ${this.opts.classe}` : ''}`,
+    this.panel = el('div', {
+      class: `tuc-tip${this.opts.className ? ` ${this.opts.className}` : ''}`,
       role: 'tooltip',
       id: this.id,
       style: `max-width:${this.opts.maxWidth}`,
     }, [
-      el('span', { class: 'tuc-tip__texto', text: this.opts.text }),
+      el('span', { class: 'tuc-tip__text', text: this.opts.text }),
       // aria-hidden: a seta e desenho, e o leitor de tela ja recebe o texto.
-      el('span', { class: 'tuc-tip__seta', 'data-tuc-seta': '', 'aria-hidden': 'true' }),
+      el('span', { class: 'tuc-tip__arrow', 'data-tuc-arrow': '', 'aria-hidden': 'true' }),
     ]);
 
     // Anunciado como descricao do proprio elemento: e o que faz o leitor de
     // tela ler a dica junto com o botao, sem virar um elemento perdido.
     node.setAttribute('aria-describedby', this.id);
-    if (!node.hasAttribute('tabindex') && !FOCAVEL.test(node.tagName)) node.tabIndex = 0;
+    if (!node.hasAttribute('tabindex') && !FOCUSABLE.test(node.tagName)) node.tabIndex = 0;
 
     const toque = () => window.matchMedia?.('(pointer: coarse)').matches;
 
     this._cleanups.push(
       on(node, 'pointerenter', (e) => { if (e.pointerType !== 'touch') this._agendar(true); }),
       on(node, 'pointerleave', (e) => { if (e.pointerType !== 'touch') this._agendar(false); }),
-      on(node, 'focusin', () => this._mostrar()),
-      on(node, 'focusout', () => this._esconder()),
-      on(node, 'click', () => { if (toque()) this.aberto ? this._esconder() : this._mostrar(); }),
-      on(document, 'keydown', (e) => { if (e.key === 'Escape' && this.aberto) this._esconder(); }),
+      on(node, 'focusin', () => this._show()),
+      on(node, 'focusout', () => this._hide()),
+      on(node, 'click', () => { if (toque()) this.isOpen ? this._hide() : this._show(); }),
+      on(document, 'keydown', (e) => { if (e.key === 'Escape' && this.isOpen) this._hide(); }),
     );
 
     node._tucano = this;
@@ -73,17 +73,17 @@ export class Tooltip {
   _agendar(mostrar) {
     clearTimeout(this._timer);
     this._timer = setTimeout(
-      () => (mostrar ? this._mostrar() : this._esconder()),
+      () => (mostrar ? this._show() : this._hide()),
       mostrar ? this.opts.delay : this.opts.delayOut,
     );
   }
 
-  _mostrar() {
-    if (this.aberto) return;
-    if (aberto && aberto !== this) aberto._esconder();
-    this.aberto = true;
-    aberto = this;
-    this.popover = new Popover(this.anchor, this.painel, {
+  _show() {
+    if (this.isOpen) return;
+    if (isOpen && isOpen !== this) isOpen._hide();
+    this.isOpen = true;
+    isOpen = this;
+    this.popover = new Popover(this.anchor, this.panel, {
       placement: this.opts.placement,
       /*
        * 13 e nao 6 por causa da seta. Ela e um quadrado de 10px girado 45
@@ -93,30 +93,30 @@ export class Tooltip {
        * uns 6px de respiro, que e o que o balao sozinho tinha antes.
        */
       offset: 13,
-      fecharSeSolto: true,
-      onDismiss: () => this._esconder(),
+      closeIfDetached: true,
+      onDismiss: () => this._hide(),
     });
     this.popover.show();
-    abrirComTransicao(this.painel);
+    openWithTransition(this.panel);
   }
 
-  _esconder() {
+  _hide() {
     clearTimeout(this._timer);
-    if (!this.aberto) return;
-    this.aberto = false;
-    if (aberto === this) aberto = null;
-    this.painel.classList.remove('is-open');
+    if (!this.isOpen) return;
+    this.isOpen = false;
+    if (isOpen === this) isOpen = null;
+    this.panel.classList.remove('is-open');
     this.popover?.destroy();
     this.popover = null;
   }
 
-  setText(texto) {
-    this.opts.text = texto;
-    this.painel.textContent = texto;
+  setText(text) {
+    this.opts.text = text;
+    this.panel.textContent = text;
   }
 
   destroy() {
-    this._esconder();
+    this._hide();
     this._cleanups.forEach((fn) => fn());
     this._cleanups = [];
     this.anchor.removeAttribute('aria-describedby');
@@ -124,7 +124,7 @@ export class Tooltip {
   }
 }
 
-const FOCAVEL = /^(A|BUTTON|INPUT|SELECT|TEXTAREA)$/;
+const FOCUSABLE = /^(A|BUTTON|INPUT|SELECT|TEXTAREA)$/;
 
 function omitUndefined(obj) {
   const out = {};
@@ -140,7 +140,7 @@ export function autoInit(scope = document) {
       text: node.dataset.tucTip || undefined,
       placement: node.dataset.placement || undefined,
       delay: node.dataset.delay ? +node.dataset.delay : undefined,
-      classe: node.dataset.tipClass || undefined,
+      className: node.dataset.tipClass || undefined,
     }));
   }
   return out;

@@ -1,5 +1,5 @@
 import { clamp, formatColor, hsvToRgb, isDark, parseColor, rgbToHex } from '../core/color.js';
-import { abrirComTransicao, el, icon, ICONS, nextId, on } from '../core/dom.js';
+import { openWithTransition, el, icon, ICONS, nextId, on } from '../core/dom.js';
 import { ICONS_EXTRA } from '../core/dom-extra.js';
 import { Popover } from '../core/popover.js';
 
@@ -35,7 +35,7 @@ export class ColorPicker {
     this.id = nextId('cor');
     this.isOpen = false;
     this._cleanups = [];
-    this._arrastando = null;
+    this._dragging = null;
 
     this.hsva = parseColor(node.value) || parseColor(this.opts.value) || { h: 243, s: 0.7, v: 0.9, a: 1 };
 
@@ -57,9 +57,9 @@ export class ColorPicker {
   }
 
   setValue(value, { silent = false } = {}) {
-    const cor = parseColor(value);
-    if (!cor) return false;
-    this.hsva = this.opts.alpha ? cor : { ...cor, a: 1 };
+    const color = parseColor(value);
+    if (!color) return false;
+    this.hsva = this.opts.alpha ? color : { ...color, a: 1 };
     this._syncInput();
     if (this.isOpen) this._paint();
     if (!silent) this._emit();
@@ -73,11 +73,11 @@ export class ColorPicker {
     this.popover = new Popover(this.field, this.panel, {
       placement: this.opts.placement,
       appendTo: this.opts.appendTo || document.body,
-      fecharAoSairFoco: true,
+      closeOnFocusOut: true,
       onDismiss: () => this.close(),
     });
     this.popover.show();
-    abrirComTransicao(this.panel);
+    openWithTransition(this.panel);
     this.swatch.setAttribute('aria-expanded', 'true');
   }
 
@@ -147,7 +147,7 @@ export class ColorPicker {
       autocomplete: 'off', 'aria-label': 'Valor da cor',
     });
 
-    const conta = el('div', { class: 'tuc-colorpicker__row' }, [
+    const fieldRow = el('div', { class: 'tuc-colorpicker__row' }, [
       this.preview,
       this.hexField,
       supportsEyeDropper() ? el('button', {
@@ -160,14 +160,14 @@ export class ColorPicker {
 
     this.panel = el('div', {
       class: 'tuc-colorpicker', role: 'dialog', 'aria-label': 'Seletor de cor', id: this.id,
-    }, [this.area, trilhas, conta, this.opts.swatches ? this._buildSwatches() : null]);
+    }, [this.area, trilhas, fieldRow, this.opts.swatches ? this._buildSwatches() : null]);
 
     this._cleanups.push(
       this._dragHandler(this.area, (x, y) => {
         this.hsva = { ...this.hsva, s: x, v: 1 - y };
         this._commit();
       }),
-      on(this.area, 'keydown', (e) => this._teclasArea(e)),
+      on(this.area, 'keydown', (e) => this._areaKeys(e)),
       on(this.input, 'change', () => {
         // Ignora o `change` que nos mesmos disparamos em _emit(): sem isso,
         // setValue -> _emit -> change -> setValue vira recursao infinita.
@@ -194,26 +194,26 @@ export class ColorPicker {
     );
   }
 
-  _buildSlider(tipo, rotulo, max) {
+  _buildSlider(type, label, max) {
     const thumb = el('span', { class: 'tuc-colorpicker__thumb' });
     const root = el('div', {
-      class: `tuc-colorpicker__slider is-${tipo}`, tabindex: 0, role: 'slider',
-      'aria-label': rotulo, 'aria-valuemin': '0', 'aria-valuemax': String(max),
+      class: `tuc-colorpicker__slider is-${type}`, tabindex: 0, role: 'slider',
+      'aria-label': label, 'aria-valuemin': '0', 'aria-valuemax': String(max),
     }, [el('span', { class: 'tuc-colorpicker__track' }), thumb]);
 
     this._cleanups.push(
       this._dragHandler(root, (x) => {
-        this.hsva = tipo === 'hue' ? { ...this.hsva, h: x * 360 } : { ...this.hsva, a: x };
+        this.hsva = type === 'hue' ? { ...this.hsva, h: x * 360 } : { ...this.hsva, a: x };
         this._commit();
       }),
       on(root, 'keydown', (e) => {
-        const passo = e.shiftKey ? 10 : 1;
+        const step = e.shiftKey ? 10 : 1;
         const delta = { ArrowLeft: -1, ArrowDown: -1, ArrowRight: 1, ArrowUp: 1 }[e.key];
         if (!delta) return;
         e.preventDefault();
-        this.hsva = tipo === 'hue'
-          ? { ...this.hsva, h: (this.hsva.h + delta * passo + 360) % 360 }
-          : { ...this.hsva, a: clamp(this.hsva.a + delta * passo / 100, 0, 1) };
+        this.hsva = type === 'hue'
+          ? { ...this.hsva, h: (this.hsva.h + delta * step + 360) % 360 }
+          : { ...this.hsva, a: clamp(this.hsva.a + delta * step / 100, 0, 1) };
         this._commit();
       }),
     );
@@ -222,14 +222,14 @@ export class ColorPicker {
 
   _buildSwatches() {
     return el('div', { class: 'tuc-colorpicker__swatches' },
-      this.opts.swatches.map((cor) => el('button', {
+      this.opts.swatches.map((color) => el('button', {
         type: 'button',
         class: 'tuc-colorpicker__swatchbtn',
-        style: `--cor: ${cor}`,
-        'aria-label': cor,
-        title: cor,
-        dataset: { cor: normalizar(cor) },
-        onclick: () => { this.setValue(cor); },
+        style: `--color: ${color}`,
+        'aria-label': color,
+        title: color,
+        dataset: { color: normalize(color) },
+        onclick: () => { this.setValue(color); },
       })));
   }
 
@@ -237,29 +237,29 @@ export class ColorPicker {
    * Arrasto normalizado em [0,1]. Usa pointer capture para o gesto continuar
    * valendo quando o cursor sai do elemento — sem isso o thumb "gruda" na borda.
    */
-  _dragHandler(node, aoMover) {
-    const mover = (e) => {
+  _dragHandler(node, onMove) {
+    const applyPointer = (e) => {
       const r = node.getBoundingClientRect();
-      aoMover(clamp((e.clientX - r.left) / r.width, 0, 1), clamp((e.clientY - r.top) / r.height, 0, 1));
+      onMove(clamp((e.clientX - r.left) / r.width, 0, 1), clamp((e.clientY - r.top) / r.height, 0, 1));
     };
     const down = (e) => {
       e.preventDefault();
       node.setPointerCapture(e.pointerId);
       node.focus();
-      mover(e);
+      applyPointer(e);
     };
-    const move = (e) => { if (node.hasPointerCapture(e.pointerId)) mover(e); };
+    const move = (e) => { if (node.hasPointerCapture(e.pointerId)) applyPointer(e); };
     const up = (e) => { if (node.hasPointerCapture(e.pointerId)) node.releasePointerCapture(e.pointerId); };
 
     const offs = [on(node, 'pointerdown', down), on(node, 'pointermove', move), on(node, 'pointerup', up)];
     return () => offs.forEach((f) => f());
   }
 
-  _teclasArea(e) {
-    const passo = (e.shiftKey ? 10 : 2) / 100;
+  _areaKeys(e) {
+    const step = (e.shiftKey ? 10 : 2) / 100;
     const mapa = {
-      ArrowLeft: { s: -passo }, ArrowRight: { s: passo },
-      ArrowUp: { v: passo }, ArrowDown: { v: -passo },
+      ArrowLeft: { s: -step }, ArrowRight: { s: step },
+      ArrowUp: { v: step }, ArrowDown: { v: -step },
     };
     const d = mapa[e.key];
     if (!d) return;
@@ -290,40 +290,40 @@ export class ColorPicker {
   }
 
   _syncInput() {
-    const valor = this.getValue();
-    this.input.value = valor;
-    this.swatch.style.setProperty('--cor', valor);
+    const value = this.getValue();
+    this.input.value = value;
+    this.swatch.style.setProperty('--color', value);
   }
 
   /** Repinta os controles a partir do HSVA atual. */
   _paint() {
     const { h, s, v, a } = this.hsva;
-    const puro = rgbToHex(hsvToRgb({ h, s: 1, v: 1 }));
-    const solido = rgbToHex(hsvToRgb(this.hsva));
+    const pure = rgbToHex(hsvToRgb({ h, s: 1, v: 1 }));
+    const solid = rgbToHex(hsvToRgb(this.hsva));
 
-    this.area.style.setProperty('--matiz', puro);
+    this.area.style.setProperty('--matiz', pure);
     this.area.firstElementChild.style.left = `${s * 100}%`;
     this.area.firstElementChild.style.top = `${(1 - v) * 100}%`;
-    this.area.firstElementChild.style.setProperty('--cor', solido);
+    this.area.firstElementChild.style.setProperty('--color', solid);
     this.area.firstElementChild.classList.toggle('is-dark', isDark(this.hsva));
 
     this.hue.thumb.style.left = `${(h / 360) * 100}%`;
-    this.hue.thumb.style.setProperty('--cor', puro);
+    this.hue.thumb.style.setProperty('--color', pure);
     this.hue.root.setAttribute('aria-valuenow', String(Math.round(h)));
 
     if (this.alpha) {
-      this.alpha.root.style.setProperty('--cor', solido);
+      this.alpha.root.style.setProperty('--color', solid);
       this.alpha.thumb.style.left = `${a * 100}%`;
-      this.alpha.thumb.style.setProperty('--cor', solido);
+      this.alpha.thumb.style.setProperty('--color', solid);
       this.alpha.root.setAttribute('aria-valuenow', a.toFixed(2));
     }
 
-    this.preview.style.setProperty('--cor', formatColor(this.hsva, 'rgb'));
+    this.preview.style.setProperty('--color', formatColor(this.hsva, 'rgb'));
 
     // Marca a amostra da paleta que corresponde a cor atual.
     const atual = rgbToHex(hsvToRgb(this.hsva));
     for (const btn of this.panel.querySelectorAll('.tuc-colorpicker__swatchbtn')) {
-      btn.classList.toggle('is-selected', btn.dataset.cor === atual);
+      btn.classList.toggle('is-selected', btn.dataset.color === atual);
     }
     if (document.activeElement !== this.hexField) this.hexField.value = this.getValue();
   }
@@ -346,9 +346,9 @@ export class ColorPicker {
 /* ------------------------------------------------------------------ */
 
 /** Reduz qualquer notacao a hex de 6 digitos, para comparar amostras. */
-function normalizar(cor) {
-  const p = parseColor(cor);
-  return p ? rgbToHex(hsvToRgb(p)) : String(cor).toLowerCase();
+function normalize(color) {
+  const p = parseColor(color);
+  return p ? rgbToHex(hsvToRgb(p)) : String(color).toLowerCase();
 }
 
 function supportsEyeDropper() {

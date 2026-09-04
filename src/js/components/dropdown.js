@@ -1,4 +1,4 @@
-import { abrirComTransicao, el, icon, on } from '../core/dom.js';
+import { openWithTransition, el, icon, on } from '../core/dom.js';
 import { Popover } from '../core/popover.js';
 
 /*
@@ -16,147 +16,147 @@ import { Popover } from '../core/popover.js';
 
 const DEFAULTS = {
   placement: 'bottom-start',
-  itens: null,       // [{ texto, icone, atalho, onClick, href, variante, desabilitado }]
+  items: null,       // [{ texto, icone, atalho, onClick, href, variante, desabilitado }]
                      // ou { separador: true } / { rotulo: 'Seção' }
-  fecharAoEscolher: true,
+  closeOnPick: true,
 };
 
 const FOCAVEIS = '.tuc-dropdown__item:not([disabled]):not([aria-disabled="true"])';
 
-function semUndefined(obj) {
+function withoutUndefined(obj) {
   const out = {};
   for (const [k, v] of Object.entries(obj || {})) if (v !== undefined) out[k] = v;
   return out;
 }
 
 export class Dropdown {
-  constructor(gatilho, opcoes = {}) {
-    this.gatilho = typeof gatilho === 'string' ? document.querySelector(gatilho) : gatilho;
-    if (!this.gatilho) throw new Error('[Dropdown] gatilho não encontrado');
-    this.opts = { ...DEFAULTS, ...semUndefined(opcoes) };
+  constructor(trigger, options = {}) {
+    this.trigger = typeof trigger === 'string' ? document.querySelector(trigger) : trigger;
+    if (!this.trigger) throw new Error('[Dropdown] gatilho não encontrado');
+    this.opts = { ...DEFAULTS, ...withoutUndefined(options) };
     this._cleanups = [];
-    this._montar();
+    this._build();
   }
 
-  _montar() {
-    this.painel = this.opts.painel ?? el('div', { class: 'tuc-dropdown', role: 'menu' },
-      (this.opts.itens ?? []).map((i) => this._item(i)));
-    this.painel.classList.add('tuc-dropdown');
-    this.painel.setAttribute('role', 'menu');
+  _build() {
+    this.panel = this.opts.panel ?? el('div', { class: 'tuc-dropdown', role: 'menu' },
+      (this.opts.items ?? []).map((i) => this._item(i)));
+    this.panel.classList.add('tuc-dropdown');
+    this.panel.setAttribute('role', 'menu');
 
-    this.gatilho.setAttribute('aria-haspopup', 'menu');
-    this.gatilho.setAttribute('aria-expanded', 'false');
+    this.trigger.setAttribute('aria-haspopup', 'menu');
+    this.trigger.setAttribute('aria-expanded', 'false');
 
     this._cleanups.push(
-      on(this.gatilho, 'click', (e) => { e.preventDefault(); this.alternar(); }),
-      on(this.gatilho, 'keydown', (e) => {
+      on(this.trigger, 'click', (e) => { e.preventDefault(); this.toggle(); }),
+      on(this.trigger, 'keydown', (e) => {
         // Seta para baixo abre e ja entra no primeiro item, como manda o padrao
         // de menu — quem chega por teclado nao deveria precisar de Enter antes.
         if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
           e.preventDefault();
-          this.abrir();
-          this._mover(e.key === 'ArrowUp' ? -1 : 0, true);
+          this.open();
+          this._move(e.key === 'ArrowUp' ? -1 : 0, true);
         }
       }),
-      on(this.painel, 'keydown', (e) => this._teclado(e)),
-      on(this.painel, 'click', (e) => {
+      on(this.panel, 'keydown', (e) => this._onKey(e)),
+      on(this.panel, 'click', (e) => {
         const item = e.target.closest('.tuc-dropdown__item');
         if (!item || item.hasAttribute('aria-disabled')) return;
-        if (this.opts.fecharAoEscolher) this.fechar();
+        if (this.opts.closeOnPick) this.close();
       }),
     );
 
-    this.gatilho._tucano = this;
-    this.painel._tucano = this;
+    this.trigger._tucano = this;
+    this.panel._tucano = this;
   }
 
-  _item(dados) {
-    if (dados.separador) return el('hr', { class: 'tuc-dropdown__separador', role: 'separator' });
-    if (dados.rotulo) return el('div', { class: 'tuc-dropdown__rotulo', text: dados.rotulo });
+  _item(data) {
+    if (data.separator) return el('hr', { class: 'tuc-dropdown__separator', role: 'separator' });
+    if (data.label) return el('div', { class: 'tuc-dropdown__label', text: data.label });
 
-    const tag = dados.href ? 'a' : 'button';
-    const filhos = [];
-    if (dados.icone) filhos.push(el('span', { class: 'tuc-dropdown__icone', 'aria-hidden': 'true' }, [icon(dados.icone, 15)]));
-    filhos.push(el('span', { class: 'tuc-dropdown__texto', text: dados.texto ?? '' }));
-    if (dados.atalho) filhos.push(el('span', { class: 'tuc-dropdown__atalho', text: dados.atalho }));
+    const tag = data.href ? 'a' : 'button';
+    const children = [];
+    if (data.icon) children.push(el('span', { class: 'tuc-dropdown__icon', 'aria-hidden': 'true' }, [icon(data.icon, 15)]));
+    children.push(el('span', { class: 'tuc-dropdown__text', text: data.text ?? '' }));
+    if (data.shortcut) children.push(el('span', { class: 'tuc-dropdown__shortcut', text: data.shortcut }));
 
     return el(tag, {
-      class: `tuc-dropdown__item${dados.variante ? ` is-${dados.variante}` : ''}`,
+      class: `tuc-dropdown__item${data.variant ? ` is-${data.variant}` : ''}`,
       role: 'menuitem',
       // tabindex -1 de proposito: quem navega e a seta, nao o Tab. Deixar os
       // itens tabulaveis faria o Tab sair do menu item a item.
       tabindex: '-1',
-      ...(dados.href ? { href: dados.href } : { type: 'button' }),
-      ...(dados.desabilitado ? { 'aria-disabled': 'true' } : {}),
-      ...(dados.desabilitado ? {} : { onclick: () => dados.onClick?.(this) }),
-    }, filhos);
+      ...(data.href ? { href: data.href } : { type: 'button' }),
+      ...(data.disabled ? { 'aria-disabled': 'true' } : {}),
+      ...(data.disabled ? {} : { onclick: () => data.onClick?.(this) }),
+    }, children);
   }
 
-  get itens() {
-    return [...this.painel.querySelectorAll(FOCAVEIS)];
+  get items() {
+    return [...this.panel.querySelectorAll(FOCAVEIS)];
   }
 
-  _mover(passo, absoluto = false) {
-    const itens = this.itens;
-    if (!itens.length) return;
-    const atual = itens.indexOf(document.activeElement);
+  _move(step, absoluto = false) {
+    const items = this.items;
+    if (!items.length) return;
+    const atual = items.indexOf(document.activeElement);
     let i;
-    if (absoluto) i = passo < 0 ? itens.length - 1 : 0;
-    else i = (atual + passo + itens.length) % itens.length;
-    itens[i]?.focus();
+    if (absoluto) i = step < 0 ? items.length - 1 : 0;
+    else i = (atual + step + items.length) % items.length;
+    items[i]?.focus();
   }
 
-  _teclado(e) {
-    const teclas = {
-      ArrowDown: () => this._mover(1),
-      ArrowUp: () => this._mover(-1),
-      Home: () => this._mover(0, true),
-      End: () => this._mover(-1, true),
-      Escape: () => this.fechar(),
-      Tab: () => this.fechar(),
+  _onKey(e) {
+    const keys = {
+      ArrowDown: () => this._move(1),
+      ArrowUp: () => this._move(-1),
+      Home: () => this._move(0, true),
+      End: () => this._move(-1, true),
+      Escape: () => this.close(),
+      Tab: () => this.close(),
     };
-    const acao = teclas[e.key];
-    if (!acao) return;
+    const action = keys[e.key];
+    if (!action) return;
     if (e.key !== 'Tab') e.preventDefault();
-    acao();
+    action();
   }
 
-  abrir() {
-    if (this.aberto) return this;
-    this.aberto = true;
-    this.gatilho.setAttribute('aria-expanded', 'true');
-    this.popover = new Popover(this.gatilho, this.painel, {
+  open() {
+    if (this.isOpen) return this;
+    this.isOpen = true;
+    this.trigger.setAttribute('aria-expanded', 'true');
+    this.popover = new Popover(this.trigger, this.panel, {
       placement: this.opts.placement,
       offset: 6,
-      fecharSeSolto: true,
-      fecharAoSairFoco: true,
-      onDismiss: () => this.fechar(),
+      closeIfDetached: true,
+      closeOnFocusOut: true,
+      onDismiss: () => this.close(),
     });
     this.popover.show();
-    abrirComTransicao(this.painel);
-    this._mover(0, true);
+    openWithTransition(this.panel);
+    this._move(0, true);
     return this;
   }
 
-  fechar() {
-    if (!this.aberto) return this;
-    this.aberto = false;
-    this.gatilho.setAttribute('aria-expanded', 'false');
-    this.painel.classList.remove('is-open');
+  close() {
+    if (!this.isOpen) return this;
+    this.isOpen = false;
+    this.trigger.setAttribute('aria-expanded', 'false');
+    this.panel.classList.remove('is-open');
     this.popover?.destroy();
     this.popover = null;
     // O foco volta para o gatilho: fechar um menu nao deveria largar quem
     // navega por teclado no comeco da pagina.
-    if (this.painel.contains(document.activeElement)) {
-      this.gatilho.focus({ preventScroll: true });
+    if (this.panel.contains(document.activeElement)) {
+      this.trigger.focus({ preventScroll: true });
     }
     return this;
   }
 
-  alternar() { return this.aberto ? this.fechar() : this.abrir(); }
+  toggle() { return this.isOpen ? this.close() : this.open(); }
 
   destroy() {
-    this.fechar();
+    this.close();
     this._cleanups.forEach((fn) => fn());
     this._cleanups = [];
   }
@@ -172,19 +172,19 @@ export class Dropdown {
  */
 export function autoInit(scope = document) {
   const out = [];
-  for (const gatilho of scope.querySelectorAll('[data-tuc-dropdown]:not([data-tuc-ready])')) {
-    gatilho.setAttribute('data-tuc-ready', '');
-    const painel = document.querySelector(gatilho.dataset.tucDropdown);
-    if (!painel) continue;
-    painel.hidden = false;   // quem esconde agora e o popover, tirando do fluxo
-    painel.remove();
-    for (const item of painel.querySelectorAll('.tuc-dropdown__item')) {
+  for (const trigger of scope.querySelectorAll('[data-tuc-dropdown]:not([data-tuc-ready])')) {
+    trigger.setAttribute('data-tuc-ready', '');
+    const panel = document.querySelector(trigger.dataset.tucDropdown);
+    if (!panel) continue;
+    panel.hidden = false;   // quem esconde agora e o popover, tirando do fluxo
+    panel.remove();
+    for (const item of panel.querySelectorAll('.tuc-dropdown__item')) {
       item.setAttribute('role', 'menuitem');
       item.setAttribute('tabindex', '-1');
     }
-    out.push(new Dropdown(gatilho, {
-      painel,
-      placement: gatilho.dataset.placement || undefined,
+    out.push(new Dropdown(trigger, {
+      panel,
+      placement: trigger.dataset.placement || undefined,
     }));
   }
   return out;

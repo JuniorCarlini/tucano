@@ -67,7 +67,7 @@ export function on(target, type, handler, options) {
  * de segundo plano — e ai o elemento fica preso no estado inicial, fora da
  * tela ou invisivel, sem nunca animar.
  */
-export function abrirComTransicao(node, classe = 'is-open') {
+export function openWithTransition(node, className = 'is-open') {
   void node.offsetHeight;
-  node.classList.add(classe);
+  node.classList.add(className);
 }

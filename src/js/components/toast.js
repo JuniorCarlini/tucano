@@ -1,8 +1,8 @@
-import { abrirComTransicao, el, icon, ICONS, nextId, on } from '../core/dom.js';
+import { openWithTransition, el, icon, ICONS, nextId, on } from '../core/dom.js';
 import { ICONS_EXTRA } from '../core/dom-extra.js';
 
 const DEFAULTS = {
-  type: 'info',        // 'info' | 'sucesso' | 'aviso' | 'erro' | 'carregando'
+  type: 'info',        // 'info' | 'success' | 'warning' | 'error' | 'loading'
   title: null,
   text: '',
   duration: undefined, // ms. null nao fecha sozinho. Padrao depende do tipo
@@ -12,19 +12,19 @@ const DEFAULTS = {
   max: 4,              // toasts simultaneos na mesma posicao
 };
 
-const ICONE = {
+const ICON = {
   info: ICONS_EXTRA.info,
-  sucesso: ICONS_EXTRA.check,
-  aviso: ICONS_EXTRA.alert,
-  erro: ICONS_EXTRA.alert,
-  carregando: ICONS_EXTRA.spinner,
+  success: ICONS_EXTRA.check,
+  warning: ICONS_EXTRA.alert,
+  error: ICONS_EXTRA.alert,
+  loading: ICONS_EXTRA.spinner,
 };
 
 /**
  * Erro fica mais tempo: a pessoa precisa ler e, muitas vezes, agir.
  * Carregando nao fecha sozinho — quem fecha e o fim da operacao.
  */
-const DURACAO = { info: 4000, sucesso: 3500, aviso: 6000, erro: 8000, carregando: null };
+const DURATION = { info: 4000, success: 3500, warning: 6000, error: 8000, loading: null };
 
 const containers = new Map();
 
@@ -35,50 +35,50 @@ const containers = new Map();
  * existir no DOM *antes* do conteudo chegar, senao o leitor de tela nao
  * anuncia. Criar a regiao junto com a mensagem e o erro classico.
  */
-function container(posicao) {
-  if (containers.has(posicao)) return containers.get(posicao);
+function container(position) {
+  if (containers.has(position)) return containers.get(position);
   // As duas regioes existem para o leitor de tela, nao para o layout. Elas
   // ficam dentro de um palco unico e sem altura propria, para que um erro
   // (assertivo) e um sucesso (polido) dividam o mesmo sistema de coordenadas
   // e formem uma pilha so — antes cada regiao se posicionava por conta e as
   // duas viravam pilhas paralelas na tela.
   const node = el('div', {
-    class: `tuc-toasts is-${posicao}`,
+    class: `tuc-toasts is-${position}`,
     role: 'region',
     'aria-label': 'Notificações',
   }, [
-    el('div', { class: 'tuc-toasts__palco' }, [
+    el('div', { class: 'tuc-toasts__stage' }, [
       el('div', { class: 'tuc-toasts__live', 'aria-live': 'polite', 'aria-atomic': 'false' }),
-      el('div', { class: 'tuc-toasts__live is-urgente', 'aria-live': 'assertive', 'aria-atomic': 'false' }),
+      el('div', { class: 'tuc-toasts__live is-urgent', 'aria-live': 'assertive', 'aria-atomic': 'false' }),
     ]),
   ]);
   // O respiro sai daqui para o CSS porque a ponte de hover precisa cobrir
   // exatamente o mesmo vao que arranjar() distribui — dois valores soltos
   // divergiriam na primeira vez que alguem mexesse em um deles.
-  node.style.setProperty('--tuc-toast-respiro', `${RESPIRO}px`);
+  node.style.setProperty('--tuc-toast-gap', `${GAP}px`);
   document.body.append(node);
-  containers.set(posicao, node);
+  containers.set(position, node);
 
   // Empilhado por padrao, em leque quando o ponteiro entra ou algo dentro
   // recebe foco — quem navega por teclado tambem precisa ver a pilha inteira.
-  const expandir = (sim) => {
-    node.classList.toggle('is-expandido', sim);
-    arranjar(node);
+  const expand = (yes) => {
+    node.classList.toggle('is-expanded', yes);
+    arrange(node);
   };
-  node.addEventListener('pointerenter', () => expandir(true));
-  node.addEventListener('pointerleave', () => expandir(false));
-  node.addEventListener('focusin', () => expandir(true));
-  node.addEventListener('focusout', () => { if (!node.contains(document.activeElement)) expandir(false); });
+  node.addEventListener('pointerenter', () => expand(true));
+  node.addEventListener('pointerleave', () => expand(false));
+  node.addEventListener('focusin', () => expand(true));
+  node.addEventListener('focusout', () => { if (!node.contains(document.activeElement)) expand(false); });
   return node;
 }
 
 const RECUO = 14;      // quanto de cada toast de tras fica a mostra
 const VISIVEIS = 3;    // alem disso some: uma pilha de dez nao ajuda ninguem
-const RESPIRO = 12;    // espaco entre toasts quando aberto em leque
+const GAP = 12;    // espaco entre toasts quando aberto em leque
 
 // A ordem do DOM percorre uma regiao inteira antes da outra, entao ela nao
 // diz mais quem chegou primeiro. Este contador diz.
-let sequencia = 0;
+let seq = 0;
 
 /**
  * Coloca cada toast no lugar.
@@ -88,7 +88,7 @@ let sequencia = 0;
  * medida vem do DOM e nao de um valor fixo: toast com titulo e mais alto que
  * um sem, e chutar a altura desalinha a pilha.
  */
-function arranjar(cont) {
+function arrange(cont) {
   // Uma leitura de layout antes de medir: recem-inserido, o toast ainda nao
   // teve o CSS aplicado, e offsetHeight devolveria a altura sem estilo.
   void cont.offsetHeight;
@@ -100,10 +100,10 @@ function arranjar(cont) {
 
   const debaixo = cont.className.includes('is-bottom');
   const sentido = debaixo ? -1 : 1;
-  const aberto = cont.classList.contains('is-expandido');
+  const isOpen = cont.classList.contains('is-expanded');
 
-  const palco = cont.querySelector('.tuc-toasts__palco');
-  const toasts = [...palco.querySelectorAll('.tuc-toast:not(.is-closing)')]
+  const stage = cont.querySelector('.tuc-toasts__stage');
+  const toasts = [...stage.querySelectorAll('.tuc-toast:not(.is-closing)')]
     .sort((a, b) => +a.dataset.seq - +b.dataset.seq);
   const frente = toasts.length - 1;   // o mais novo fica na frente
   let acumulado = 0;
@@ -111,43 +111,43 @@ function arranjar(cont) {
   for (let i = frente; i >= 0; i--) {
     const k = frente - i;             // 0 = frente
     const t = toasts[i];
-    const y = aberto ? acumulado : k * RECUO;
-    const escala = aberto ? 1 : 1 - k * 0.05;
+    const y = isOpen ? acumulado : k * RECUO;
+    const escala = isOpen ? 1 : 1 - k * 0.05;
 
     t.style.setProperty('--tuc-toast-y', `${sentido * y}px`);
     t.style.setProperty('--tuc-toast-escala', String(escala));
     t.style.zIndex = String(100 - k);
-    t.classList.toggle('is-oculto', !aberto && k >= VISIVEIS);
-    t.setAttribute('aria-hidden', !aberto && k >= VISIVEIS ? 'true' : 'false');
+    t.classList.toggle('is-hidden', !isOpen && k >= VISIVEIS);
+    t.setAttribute('aria-hidden', !isOpen && k >= VISIVEIS ? 'true' : 'false');
 
-    acumulado += t.offsetHeight + RESPIRO;
+    acumulado += t.offsetHeight + GAP;
   }
 
   // A altura do palco acompanha o conteudo: sem isso o ponteiro nao alcanca
   // os de tras, e o leque abriria para fora da area sensivel.
-  const alturaFrente = toasts[frente]?.offsetHeight ?? 0;
-  const total = aberto ? acumulado - RESPIRO : alturaFrente + Math.min(toasts.length - 1, VISIVEIS - 1) * RECUO;
-  palco.style.height = toasts.length ? `${total}px` : '0px';
+  const frontHeight = toasts[frente]?.offsetHeight ?? 0;
+  const total = isOpen ? acumulado - GAP : frontHeight + Math.min(toasts.length - 1, VISIVEIS - 1) * RECUO;
+  stage.style.height = toasts.length ? `${total}px` : '0px';
 }
 
 export class Toast {
-  constructor(opcoes = {}) {
-    this.opts = { ...DEFAULTS, ...omitUndefined(opcoes) };
+  constructor(options = {}) {
+    this.opts = { ...DEFAULTS, ...omitUndefined(options) };
     // `in` e nao `??`: o null de carregando quer dizer "nao fecha sozinho", e
     // com ?? ele cairia no padrao de 4s e o toast sumiria no meio da operacao.
     if (this.opts.duration === undefined) {
-      this.opts.duration = this.opts.type in DURACAO ? DURACAO[this.opts.type] : 4000;
+      this.opts.duration = this.opts.type in DURATION ? DURATION[this.opts.type] : 4000;
     }
     this.id = nextId('toast');
     this._cleanups = [];
-    this._montar();
+    this._build();
   }
 
   /** Os filhos do toast. Sai do _montar para que atualizar() reaproveite. */
-  _conteudo() {
+  _content() {
     const { type, title, text, closable, action } = this.opts;
     return [
-      el('span', { class: 'tuc-toast__icon' }, [icon(ICONE[type] ?? ICONE.info, 17)]),
+      el('span', { class: 'tuc-toast__icon' }, [icon(ICON[type] ?? ICON.info, 17)]),
       el('div', { class: 'tuc-toast__body' }, [
         title ? el('strong', { class: 'tuc-toast__title', text: title }) : null,
         el('span', { class: 'tuc-toast__text', text }),
@@ -168,29 +168,29 @@ export class Toast {
    * "salvo" no mesmo cartao, sem a pilha reorganizar e sem o olho perder de
    * vista o aviso que ja estava lendo.
    */
-  atualizar(opcoes = {}) {
+  update(options = {}) {
     if (!this.node) return this;
 
     const anterior = this.opts.type;
-    this.opts = { ...this.opts, ...omitUndefined(opcoes) };
+    this.opts = { ...this.opts, ...omitUndefined(options) };
     const { type } = this.opts;
 
     // Mudou de tipo sem duracao explicita: vale a do tipo novo. Sem isto o
     // carregando, que nao fecha sozinho, viraria um "salvo" eterno na tela.
-    if (opcoes.duration === undefined && type !== anterior) {
-      this.opts.duration = type in DURACAO ? DURACAO[type] : 4000;
+    if (options.duration === undefined && type !== anterior) {
+      this.opts.duration = type in DURATION ? DURATION[type] : 4000;
     }
 
     this.node.classList.replace(`is-${anterior}`, `is-${type}`);
-    this.node.replaceChildren(...this._conteudo().filter(Boolean));
+    this.node.replaceChildren(...this._content().filter(Boolean));
 
     // Erro fala numa live region assertiva e o resto numa polida; mudar de
     // regiao e o que faz o leitor de tela anunciar a virada. So nao desloca
     // nada na tela porque a posicao vem do palco, e nao da regiao.
-    const urgente = type === 'erro';
-    this.node.setAttribute('role', urgente ? 'alert' : 'status');
+    const urgent = type === 'error';
+    this.node.setAttribute('role', urgent ? 'alert' : 'status');
     const destino = this.container.querySelector(
-      urgente ? '.is-urgente' : '.tuc-toasts__live:not(.is-urgente)');
+      urgent ? '.is-urgent' : '.tuc-toasts__live:not(.is-urgent)');
     if (destino !== this.regiao) {
       destino.append(this.node);
       this.regiao = destino;
@@ -198,30 +198,30 @@ export class Toast {
 
     clearTimeout(this.timer);
     if (this.opts.duration) this._iniciarRelogio();
-    arranjar(this.container);
+    arrange(this.container);
     return this;
   }
 
-  _montar() {
-    const urgente = this.opts.type === 'erro';
+  _build() {
+    const urgent = this.opts.type === 'error';
 
     this.node = el('div', {
       class: `tuc-toast is-${this.opts.type}`,
       // role no proprio toast ajuda quem chega nele navegando.
-      role: urgente ? 'alert' : 'status',
+      role: urgent ? 'alert' : 'status',
       id: this.id,
-    }, this._conteudo());
+    }, this._content());
 
     this.node._tucano = this;
-    this.node.dataset.seq = String(++sequencia);
-    const alvo = container(this.opts.position);
-    this.container = alvo;
-    const regiao = alvo.querySelector(urgente ? '.is-urgente' : '.tuc-toasts__live:not(.is-urgente)');
+    this.node.dataset.seq = String(++seq);
+    const target = container(this.opts.position);
+    this.container = target;
+    const regiao = target.querySelector(urgent ? '.is-urgent' : '.tuc-toasts__live:not(.is-urgent)');
     regiao.append(this.node);
     this.regiao = regiao;
 
-    this._limitar(alvo);
-    arranjar(alvo);
+    this._capStack(target);
+    arrange(target);
 
     if (this.opts.duration) {
       this._iniciarRelogio();
@@ -235,7 +235,7 @@ export class Toast {
       );
     }
 
-    abrirComTransicao(this.node);
+    openWithTransition(this.node);
   }
 
   /**
@@ -244,7 +244,7 @@ export class Toast {
    * A instancia fica no proprio no: sem isso nao ha como chamar close() a
    * partir do elemento, e o limite nao acontece.
    */
-  _limitar(cont) {
+  _capStack(cont) {
     // O limite vale para a pilha inteira, nao por regiao de acessibilidade:
     // contadas em separado, tres avisos e tres erros passariam seis na tela.
     const abertos = [...cont.querySelectorAll('.tuc-toast:not(.is-closing)')]
@@ -273,8 +273,8 @@ export class Toast {
   }
 
   close() {
-    if (this._fechando) return;
-    this._fechando = true;
+    if (this._closing) return;
+    this._closing = true;
     clearTimeout(this.timer);
     this._cleanups.forEach((fn) => fn());
 
@@ -282,37 +282,37 @@ export class Toast {
     this.node.classList.add('is-closing');
     // Os que ficam ja se acomodam enquanto este some: esperar o fim faria a
     // pilha dar um solavanco no final.
-    arranjar(this.container);
+    arrange(this.container);
 
-    const remover = () => {
+    const remove = () => {
       if (this._removido) return;
       this._removido = true;
       this.node.remove();
-      arranjar(this.container);
+      arrange(this.container);
       this.node.dispatchEvent(new CustomEvent('tucano:toast-fechado'));
     };
     this.node.addEventListener('transitionend', (e) => {
-      if (e.propertyName === 'opacity') remover();
+      if (e.propertyName === 'opacity') remove();
     });
-    setTimeout(remover, 500);
+    setTimeout(remove, 500);
   }
 }
 
-/** Atalho: Tucano.toast('Salvo') ou Tucano.toast({ type:'erro', text:'...' }). */
-export function toast(opcoesOuTexto, extra = {}) {
-  const base = typeof opcoesOuTexto === 'string' ? { text: opcoesOuTexto } : opcoesOuTexto;
+/** Atalho: Tucano.toast('Salvo') ou Tucano.toast({ type:'error', text:'...' }). */
+export function toast(optionsOrText, extra = {}) {
+  const base = typeof optionsOrText === 'string' ? { text: optionsOrText } : optionsOrText;
   return new Toast({ ...base, ...extra });
 }
 
-for (const tipo of ['info', 'sucesso', 'aviso', 'erro', 'carregando']) {
-  toast[tipo] = (texto, extra = {}) => toast({ type: tipo, text: texto, ...extra });
+for (const type of ['info', 'success', 'warning', 'error', 'loading']) {
+  toast[type] = (text, extra = {}) => toast({ type: type, text: text, ...extra });
 }
 
 /**
  * Acompanha uma promessa num toast so: abre em carregando e vira sucesso ou
  * erro no mesmo cartao, em vez de fechar um e abrir outro.
  *
- *   Tucano.toast.promessa(fetch(url), {
+ *   Tucano.toast.promise(fetch(url), {
  *     carregando: 'Enviando...',
  *     sucesso: (r) => `Enviado (${r.status})`,
  *     erro: 'Nao deu para enviar',
@@ -320,18 +320,18 @@ for (const tipo of ['info', 'sucesso', 'aviso', 'erro', 'carregando']) {
  *
  * Devolve a promessa recebida, para nao atrapalhar quem ja encadeava nela.
  */
-toast.promessa = (promessa, msgs = {}) => {
-  const { carregando, sucesso, erro, ...resto } = msgs;
-  const t = toast.carregando(carregando ?? 'Carregando...', resto);
+toast.promise = (promise, msgs = {}) => {
+  const { loading, success, error, ...rest } = msgs;
+  const t = toast.loading(loading ?? 'Carregando...', rest);
   const render = (v, dado, padrao) => {
     const r = typeof v === 'function' ? v(dado) : v;
     return r ?? padrao;
   };
-  Promise.resolve(promessa).then(
-    (dado) => t.atualizar({ type: 'sucesso', text: render(sucesso, dado, 'Pronto') }),
-    (falha) => t.atualizar({ type: 'erro', text: render(erro, falha, 'Algo deu errado') }),
+  Promise.resolve(promise).then(
+    (dado) => t.update({ type: 'success', text: render(success, dado, 'Pronto') }),
+    (falha) => t.update({ type: 'error', text: render(error, falha, 'Algo deu errado') }),
   );
-  return promessa;
+  return promise;
 };
 
 function omitUndefined(obj) {
@@ -340,7 +340,7 @@ function omitUndefined(obj) {
   return out;
 }
 
-const MAPA_DJANGO = { debug: 'info', info: 'info', success: 'sucesso', warning: 'aviso', error: 'erro' };
+const MAPA_DJANGO = { debug: 'info', info: 'info', success: 'success', warning: 'warning', error: 'error' };
 
 /**
  * Converte mensagens ja renderizadas em toast — a saida do framework de
@@ -372,9 +372,9 @@ export function autoInit(scope = document) {
  * Deixa o servidor disparar um toast pelo cabecalho HX-Trigger do HTMX:
  *
  *   return HttpResponse(headers={"HX-Trigger": json.dumps(
- *       {"tucano:toast": {"type": "sucesso", "text": "Salvo"}})})
+ *       {"tucano:toast": {"type": "success", "text": "Salvo"}})})
  */
-export function ouvirEventos() {
+export function listenForEvents() {
   if (typeof document === 'undefined' || document.__tucToastOuvindo) return;
   document.__tucToastOuvindo = true;
   document.body?.addEventListener('tucano:toast', (e) => {

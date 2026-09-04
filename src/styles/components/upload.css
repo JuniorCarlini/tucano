@@ -95,8 +95,8 @@
 .tuc-upload__action { color: var(--tuc-subtle); }
 
 /* Estados */
-.tuc-upload__item.is-erro { border-color: #dc2626; }
-.tuc-upload__item.is-erro .tuc-upload__meta { color: #dc2626; }
+.tuc-upload__item.is-error { border-color: #dc2626; }
+.tuc-upload__item.is-error .tuc-upload__meta { color: #dc2626; }
 
 .tuc-upload__item.is-rejected {
   border-style: dashed;
