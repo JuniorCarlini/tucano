@@ -17,6 +17,7 @@ import { Popover } from '../core/popover.js';
 const DEFAULTS = {
   placement: 'bottom-start',
   items: null,       // [{ text, icon, shortcut, onClick, href, variant, disabled }]
+                     // ou { separator: true }, ou { label } para um titulo de grupo
                      // ou { separator: true } / { label: 'Seção' }
   closeOnPick: true,
 };

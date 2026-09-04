@@ -3327,7 +3327,7 @@ var Tucano = (() => {
   };
   var DEFAULTS5 = {
     format: null,
-    // nome de FORMATOS ou gabarito livre
+    // nome de FORMATS ou gabarito livre
     validate: false,
     // valida no blur e bloqueia o submit
     decimals: 2,
@@ -4104,7 +4104,7 @@ var Tucano = (() => {
     // botao X e Escape
     closeOnBackdrop: true,
     actions: null,
-    // [{ texto, variante, onClick, fecha }]
+    // [{ text, variant, onClick, closes }] — closes:false mantem aberto
     onClose: null,
     className: ""
   };
@@ -4204,6 +4204,7 @@ var Tucano = (() => {
     closable: true,
     closeOnBackdrop: true,
     actions: null,
+    // [{ text, variant, onClick, closes }] — closes:false mantem aberto
     onClose: null,
     className: ""
   };
@@ -4283,6 +4284,7 @@ var Tucano = (() => {
     }
     _build() {
       this.node.classList.add("tuc-accordion");
+      this.node._tucano = this;
       for (const item of this.items) {
         item.classList.add("tuc-accordion__item");
         const trigger = item.querySelector(":scope > summary");
@@ -4378,6 +4380,7 @@ var Tucano = (() => {
     placement: "bottom-start",
     items: null,
     // [{ text, icon, shortcut, onClick, href, variant, disabled }]
+    // ou { separator: true }, ou { label } para um titulo de grupo
     // ou { separator: true } / { label: 'Seção' }
     closeOnPick: true
   };

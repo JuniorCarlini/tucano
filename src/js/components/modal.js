@@ -18,7 +18,7 @@ const DEFAULTS = {
   sheet: false,        // no celular sobe do rodape em vez de surgir no centro
   closable: true,      // botao X e Escape
   closeOnBackdrop: true,
-  actions: null,         // [{ texto, variante, onClick, fecha }]
+  actions: null,         // [{ text, variant, onClick, closes }] — closes:false mantem aberto
   onClose: null,
   className: '',
 };

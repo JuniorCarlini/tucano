@@ -19,7 +19,7 @@ const DEFAULTS = {
   tone: 'default',       // default | danger | success | warning
   closable: true,
   closeOnBackdrop: true,
-  actions: null,
+  actions: null,         // [{ text, variant, onClick, closes }] — closes:false mantem aberto
   onClose: null,
   className: '',
 };

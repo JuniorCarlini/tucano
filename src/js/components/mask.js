@@ -31,7 +31,7 @@ export const FORMATS = {
 };
 
 const DEFAULTS = {
-  format: null,        // nome de FORMATOS ou gabarito livre
+  format: null,        // nome de FORMATS ou gabarito livre
   validate: false,     // valida no blur e bloqueia o submit
   decimals: 2,
   currency: null,      // 'BRL' formata com R$

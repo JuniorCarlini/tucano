@@ -43,7 +43,7 @@ Dois arquivos e nada mais — sem npm, sem build, sem escrever JavaScript:
 
 <input type="text" name="data" data-tuc-datepicker>
 <select name="uf" data-tuc-select><option>...</option></select>
-<input type="text" name="color" value="#4f46e5" data-tuc-color>
+<input type="text" name="cor" value="#4f46e5" data-tuc-color>
 ```
 
 Funciona junto com o CDN do Tailwind sem conflito: o pacote **não** envia o
@@ -183,7 +183,7 @@ exatamente o que receberia sem o componente — inclusive `getlist()` no múltip
 const s = new Tucano.Select('#uf', { search: true, maxItems: 3 });
 s.getValue();          // 'SP'  (array no mode multiple)
 s.setValue(['a','b']);
-s.refresh();           // releia as <option> after de um swap do HTMX
+s.refresh();           // releia as <option> depois de um swap do HTMX
 ```
 
 | Opção | Padrão | O que faz |
@@ -211,13 +211,13 @@ vazia remove a última tag, `Home`/`End` vão às pontas.
 ## Color picker
 
 ```html
-<input type="text" name="color" value="#4f46e5" data-tuc-color>
-<input type="text" name="mark" value="#0d9488" data-tuc-color data-alpha="false"
+<input type="text" name="cor" value="#4f46e5" data-tuc-color>
+<input type="text" name="marca" value="#0d9488" data-tuc-color data-alpha="false"
        data-swatches="#0a0a0a,#ea580c,#16a34a">
 ```
 
 ```js
-const c = new Tucano.ColorPicker('#color', { format: 'rgb', alpha: false });
+const c = new Tucano.ColorPicker('#cor', { format: 'rgb', alpha: false });
 c.getValue();   // 'rgb(79, 70, 229)'
 c.getRgb();     // { r, g, b, a }
 ```
@@ -262,9 +262,9 @@ repetir. O formulário posta só os ids devolvidos. Funciona também sem `<form>
 
 ```python
 def upload_temp(request):
-    file = request.FILES["file"]
-    temp = TempUpload.objects.create(file=file)
-    return JsonResponse({"id": str(temp.id), "url": temp.file.url})
+    arquivo = request.FILES["file"]
+    temp = TempUpload.objects.create(arquivo=arquivo)
+    return JsonResponse({"id": str(temp.id), "url": temp.arquivo.url})
 ```
 
 | Atributo | Padrão | O que faz |
@@ -354,7 +354,7 @@ t.update({ type: 'success', text: 'Arquivo enviado' });
 
 // ou entregue a promessa e deixe os três estados por conta dela
 Tucano.toast.promise(fetch(url), {
-  loading: 'Enviando file...',
+  loading: 'Enviando arquivo...',
   success: (r) => `Enviado (${r.status})`,
   error: 'Não deu para enviar',
 });
@@ -407,7 +407,7 @@ Tucano.modal({
   ],
 });
 
-// confirmação como promise; close por fora resolve false
+// confirmação como promessa; fechar por fora resolve false
 if (await Tucano.confirm({ title: 'Excluir contrato?' })) excluir();
 ```
 
@@ -735,7 +735,7 @@ A cor sai por duas variáveis, e a seta lê as mesmas:
 ```
 
 ```html
-<button data-tuc-tip="Gera o PDF com o layout current">Exportar</button>
+<button data-tuc-tip="Gera o PDF com o layout atual">Exportar</button>
 <button data-tuc-tip title="Vem do title">Do title</button>
 <button data-tuc-tip="..." data-placement="right-center" data-delay="600">
 <button data-tuc-tip="..." data-tip-class="tip-roxo">
@@ -757,9 +757,9 @@ envolve nem substitui o input — é comportamento puro.
 ```html
 <input name="cpf"       data-tuc-mask="cpf" data-validate="true">
 <input name="cnpj"      data-tuc-mask="cnpj">
-<input name="document" data-tuc-mask="cpf-cnpj">
-<input name="phone"  data-tuc-mask="phone">
-<input name="value"     data-tuc-mask="real">
+<input name="documento"  data-tuc-mask="cpf-cnpj">
+<input name="telefone"   data-tuc-mask="phone">
+<input name="valor"      data-tuc-mask="real">
 <input name="cep"       data-tuc-mask="cep">
 <input                  data-tuc-mask="##/##">   <!-- template livre -->
 ```
@@ -783,7 +783,7 @@ navegador barra o submit sozinho via `setCustomValidity` — sem escrever nada.
 
 ```html
 <input name="cpf" value="111.444.777-35" data-tuc-mask="cpf" data-tuc-reveal>
-<input type="password" name="password" data-tuc-reveal>
+<input type="password" name="senha" data-tuc-reveal>
 ```
 
 Nasce oculto quando já tem conteúdo, mostrando `•••.•••.•••-35`. O valor real
@@ -892,8 +892,8 @@ class ReservaForm(forms.Form):
     periodo = forms.CharField()
 
     def clean_periodo(self):
-        start, _, fim = self.cleaned_data['periodo'].partition(',')
-        return date.fromisoformat(start), date.fromisoformat(fim)
+        inicio, _, fim = self.cleaned_data['periodo'].partition(',')
+        return date.fromisoformat(inicio), date.fromisoformat(fim)
 ```
 
 ---

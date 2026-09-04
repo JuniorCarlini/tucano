@@ -127,7 +127,14 @@
 }
 .tuc-menu__sub .tuc-menu__item.is-active::before { opacity: 1; }
 
-/* Rotulo de secao, entre blocos do menu. */
+/*
+ * Rotulo de secao, entre blocos do menu.
+ *
+ * `__secao` e o nome antigo, de antes da API virar inglesa. Fica como apelido
+ * porque esta classe se escreve no template: tirar o nome quebraria o menu de
+ * quem ja atualizou a biblioteca sem reescrever o HTML.
+ */
+.tuc-menu__section,
 .tuc-menu__secao {
   @apply px-2.5 pb-1 pt-3 text-xs font-semibold uppercase tracking-wide;
   color: var(--tuc-subtle);

@@ -45,6 +45,7 @@ export class Accordion {
 
   _build() {
     this.node.classList.add('tuc-accordion');
+    this.node._tucano = this;
 
     for (const item of this.items) {
       item.classList.add('tuc-accordion__item');

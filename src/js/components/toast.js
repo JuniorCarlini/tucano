@@ -312,9 +312,9 @@ for (const type of ['info', 'success', 'warning', 'error', 'loading']) {
  * erro no mesmo cartao, em vez de fechar um e abrir outro.
  *
  *   Tucano.toast.promise(fetch(url), {
- *     carregando: 'Enviando...',
- *     sucesso: (r) => `Enviado (${r.status})`,
- *     erro: 'Nao deu para enviar',
+ *     loading: 'Enviando...',
+ *     success: (r) => `Enviado (${r.status})`,
+ *     error: 'Nao deu para enviar',
  *   });
  *
  * Devolve a promessa recebida, para nao atrapalhar quem ja encadeava nela.

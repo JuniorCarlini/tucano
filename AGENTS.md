@@ -481,46 +481,50 @@ para o componente vizinho, e o atributo errado (`data-tuc-date` em vez de
 Cuidado com cache do navegador ao testar `dist/`: já aconteceu de "corrigir" um
 bug contra build antigo. Confirme o código carregado, não só o arquivo em disco.
 
+## Testes
+
+`npm test` compila e roda quatro coisas, nesta ordem. Cada uma existe por causa
+de um defeito que passou batido.
+
+**`test/*.test.mjs` — 49 testes das funções puras** (`node --test`, sem
+dependência). `dates`, `mask`, `color` e `pageWindow` são entrada e saída sem
+DOM. Inclui `sanitize`, que é peça de segurança.
+
+**`tools/testar.mjs` — 30 comportamentos no Chrome sem cabeça.** Abrir, fechar,
+ordenar, marcar, emitir evento. Armadilha registrada no cabeçalho do arquivo:
+transição não avança ali, então nunca leia opacidade ou posição logo depois de
+abrir algo — a página injeta `transition: none` onde o estado final importa.
+
+**`tools/exemplos.mjs` — os 32 exemplos da documentação.** Os de HTML são
+colados no documento e têm que montar; os de JS não são executados (citam
+`#entrega` e `formulario`, que não existem) e sim conferidos nome por nome
+contra o código: `Tucano.x` existe? o método existe no protótipo? cada chave de
+opção é lida por alguém, inclusive dentro de `actions` e `items`?
+
+**`tools/coerencia.mjs` — nome que existe em dois lugares e mudou só num.** As
+sete checagens saíram de defeitos reais, e cada uma foi testada reintroduzindo
+o defeito que a motivou.
+
+`npm run conferir` continua à parte: mede geometria dos campos nos dois temas.
+
+Duas armadilhas ao escrever essas ferramentas, ambas custaram tempo nesta
+sessão: um comentário com `</script>` fecha o bloco que ele descreve, e código
+de navegador escrito dentro de template literal perde toda barra de regex
+(`\\d` vira `d`, calado). Por isso `exemplos.mjs` injeta a função por
+`toString()` — assim o Node valida a sintaxe antes de o Chrome ver.
+
 ## Ainda em aberto
 
 Em ordem do que mais dói.
 
-**Não há suite de testes automatizados.** É a lacuna que explica a maior parte
-dos defeitos desta lista. Toda verificação feita até hoje foi sonda
-descartável: escrita, rodada uma vez e apagada. As funções puras são as que
-mais pedem, porque são entrada e saída sem DOM e rodariam em segundos —
-`dates` (formatar, interpretar, grade do mês), `mask` (CPF, CNPJ, moeda,
-gabarito), `color` (conversões), `pageWindow`, e principalmente `sanitize`, que
-é peça de segurança e hoje não tem um único teste.
-
-**Nada roda sozinho.** Não há CI: `npm run conferir` e o resto só rodam se
-alguém lembrar. Um push com regressão passa sem ninguém notar.
-
-**O `conferir` mede geometria, não comportamento.** Ele cobre altura, fonte e o
-estado de espera nos dois temas — nada de clique, foco ou evento. O teste que
-instancia os componentes e clica neles existe, mas vive fora do repositório, e
-por isso foi reescrito umas dez vezes nesta sessão. Devia virar
-`npm run testar`.
-
-**Ninguém verifica que os exemplos da documentação rodam.** Escrever o exemplo
-e executá-lo achou três defeitos reais só nesta sessão: `Tucano.color.isDark`
-quebrava com string, o exemplo do `maskEmail` estava errado, e o trecho que uma
-IA copia ensinava um preset de máscara que não existe. Isso podia ser um teste.
-
-**As checagens cruzadas viraram script de rascunho.** Três defeitos vieram de
-nome que existe em dois lugares e mudou só num: `.block` no CSS e `'bloco'` no
-JS, chave de opção nos `onclick=` que nenhum componente lê, classe do
-destacador multiplicada por oito. Cada um foi achado por um script que não
-ficou no repositório.
-
-**O `tools/conferir.mjs` depende do Chrome instalado em
-`/Applications/Google Chrome.app`.** Não roda em outra máquina nem em CI sem
-mudar o caminho à mão.
-
-**A referência do `llms.txt` é gerada, mas a do `README.md` não.** As opções
-listadas lá são escritas à mão e podem envelhecer sem aviso — foi o que
-aconteceu antes com a seção de Tema.
-
 **O Backspace da máscara foi validado por `InputEvent` simulado, não por teclado
 real.** Evento sintético não dispara ação padrão, então o caminho real do
 cursor continua sem prova.
+
+**`tuc-menu__secao` continua aceito como apelido.** A API virou inglesa em
+0.30, essa classe escapou, e tirá-la agora quebraria o menu de quem atualizou a
+biblioteca sem reescrever o template. Sai numa versão que possa quebrar.
+
+**As formas aninhadas em `tools/exemplos.mjs` são uma lista à mão.** `actions`,
+`action` e `items` têm as chaves escritas no próprio script, copiadas de quem as
+lê. Se um desses componentes ganhar uma chave, a lista envelhece calada.

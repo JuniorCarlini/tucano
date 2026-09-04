@@ -2375,7 +2375,7 @@ textarea.tuc-editor__value[hidden] {
 .tuc-menu__sub .tuc-menu__item.is-active::before {
   opacity: 1;
 }
-.tuc-menu__secao {
+.tuc-menu__section, .tuc-menu__secao {
   padding-inline: calc(var(--spacing, 0.25rem) * 2.5);
   padding-top: calc(var(--spacing, 0.25rem) * 3);
   padding-bottom: var(--spacing, 0.25rem);

@@ -253,7 +253,7 @@
   <span class="ver">v0.30.2</span>
   <div class="topbar__acoes">
     <button class="iconbtn" data-tema aria-label="Alternar tema"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
-    <button class="iconbtn" id="menu" aria-label="Abrir menu" aria-expanded="false" aria-controls="side"><svg class="i-menu" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+    <button class="iconbtn" id="menu" aria-label="Abrir menu" aria-expanded="false" aria-controls="side"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
   </div>
 </header>
 
@@ -378,7 +378,7 @@
   </div>
 
   <h3>Como usar</h3>
-  <pre>&lt;<span class="t">input</span> <span class="a">type</span>=<span class="s">"text"</span> <span class="a">name</span>=<span class="s">"date"</span> <span class="a">data-tuc-datepicker</span>&gt;
+  <pre>&lt;<span class="t">input</span> <span class="a">type</span>=<span class="s">"text"</span> <span class="a">name</span>=<span class="s">"data"</span> <span class="a">data-tuc-datepicker</span>&gt;
 &lt;<span class="t">input</span> <span class="a">type</span>=<span class="s">"text"</span> <span class="a">name</span>=<span class="s">"quando"</span> <span class="a">data-tuc-datepicker</span> <span class="a">data-time</span>=<span class="s">"true"</span>&gt;
 &lt;<span class="t">input</span> <span class="a">type</span>=<span class="s">"text"</span> <span class="a">name</span>=<span class="s">"exato"</span> <span class="a">data-tuc-datepicker</span> <span class="a">data-time</span>=<span class="s">"true"</span> <span class="a">data-minute-step</span>=<span class="s">"1"</span>&gt;  <span class="c">&lt;!-- minutos 00–59 --&gt;</span>
 &lt;<span class="t">input</span> <span class="a">type</span>=<span class="s">"text"</span> <span class="a">name</span>=<span class="s">"periodo"</span> <span class="a">data-tuc-datepicker</span> <span class="a">data-mode</span>=<span class="s">"range"</span>&gt;</pre>
@@ -508,7 +508,7 @@
   <pre><span class="t">def</span> clientes(request):
     q = request.GET.get(<span class="s">"q"</span>, <span class="s">""</span>)
     qs = Cliente.objects.filter(nome__icontains=q)[:<span class="s">20</span>]
-    <span class="t">return</span> JsonResponse([{<span class="s">"value"</span>: c.pk, <span class="s">"label"</span>: c.name} <span class="t">for</span> c <span class="t">in</span> qs], safe=<span class="t">False</span>)</pre>
+    <span class="t">return</span> JsonResponse([{<span class="s">"value"</span>: c.pk, <span class="s">"label"</span>: c.nome} <span class="t">for</span> c <span class="t">in</span> qs], safe=<span class="t">False</span>)</pre>
 
   <table>
     <tr><th>Atributo</th><th>Padrão</th><th>O que faz</th></tr>
@@ -566,7 +566,7 @@
 
   <h3>Como usar</h3>
   <pre>&lt;<span class="t">input</span> <span class="a">type</span>=<span class="s">"text"</span> <span class="a">name</span>=<span class="s">"color"</span> <span class="a">value</span>=<span class="s">"#4f46e5"</span> <span class="a">data-tuc-color</span>&gt;
-&lt;<span class="t">input</span> <span class="a">type</span>=<span class="s">"text"</span> <span class="a">name</span>=<span class="s">"mark"</span> <span class="a">data-tuc-color</span> <span class="a">data-alpha</span>=<span class="s">"false"</span>
+&lt;<span class="t">input</span> <span class="a">type</span>=<span class="s">"text"</span> <span class="a">name</span>=<span class="s">"marca"</span> <span class="a">data-tuc-color</span> <span class="a">data-alpha</span>=<span class="s">"false"</span>
        <span class="a">data-swatches</span>=<span class="s">"#0a0a0a,#ea580c,#16a34a"</span>&gt;</pre>
 
   <div class="note">
@@ -627,16 +627,16 @@
   <pre><span class="c">&lt;!-- No formulário: nada muda na sua view --&gt;</span>
 &lt;<span class="t">input</span> <span class="a">type</span>=<span class="s">"file"</span> <span class="a">name</span>=<span class="s">"anexos"</span> <span class="a">multiple</span> <span class="a">data-tuc-upload</span> <span class="a">data-max-size</span>=<span class="s">"5mb"</span>&gt;
 
-<span class="c">&lt;!-- Direto: sobe na time, o form posta os ids --&gt;</span>
+<span class="c">&lt;!-- Direto: sobe na hora, o form posta os ids --&gt;</span>
 &lt;<span class="t">input</span> <span class="a">type</span>=<span class="s">"file"</span> <span class="a">name</span>=<span class="s">"fotos"</span> <span class="a">multiple</span> <span class="a">accept</span>=<span class="s">"image/*"</span>
        <span class="a">data-tuc-upload</span> <span class="a">data-url</span>=<span class="s">"{% url 'upload-temp' %}"</span>&gt;</pre>
 
   <h3>No Django</h3>
-  <pre><span class="c"># O mode direct precisa de um endpoint que devolva JSON com um id.</span>
+  <pre><span class="c"># O modo direto precisa de um endpoint que devolva JSON com um id.</span>
 <span class="t">def</span> upload_temp(request):
-    file = request.FILES[<span class="s">"file"</span>]
-    temp = TempUpload.objects.create(file=file)
-    <span class="t">return</span> JsonResponse({<span class="s">"id"</span>: <span class="t">str</span>(temp.id), <span class="s">"url"</span>: temp.file.url})</pre>
+    arquivo = request.FILES[<span class="s">"file"</span>]
+    temp = TempUpload.objects.create(arquivo=arquivo)
+    <span class="t">return</span> JsonResponse({<span class="s">"id"</span>: <span class="t">str</span>(temp.id), <span class="s">"url"</span>: temp.arquivo.url})</pre>
 
   <div class="note">
     O token CSRF é lido do cookie e enviado em <code>X-CSRFToken</code> sozinho.
@@ -766,8 +766,8 @@
     <tr><td><code>tudo</code></td><td>Senha, token, chave de API</td><td><code>••••••••••••••••</code></td></tr>
   </table>
 
-  <pre>&lt;<span class="t">input</span> <span class="a">data-tuc-reveal</span>&gt;                        <span class="c">&lt;!-- fim, 2 chars --&gt;</span>
-&lt;<span class="t">input</span> <span class="a">data-tuc-reveal</span> <span class="a">data-reveal-visible</span>=<span class="s">"4"</span>&gt;  <span class="c">&lt;!-- fim, 4 chars --&gt;</span>
+  <pre>&lt;<span class="t">input</span> <span class="a">data-tuc-reveal</span>&gt;                        <span class="c">&lt;!-- fim, 2 caracteres --&gt;</span>
+&lt;<span class="t">input</span> <span class="a">data-tuc-reveal</span> <span class="a">data-reveal-visible</span>=<span class="s">"4"</span>&gt;  <span class="c">&lt;!-- fim, 4 caracteres --&gt;</span>
 &lt;<span class="t">input</span> <span class="a">data-tuc-reveal</span>=<span class="s">"tudo"</span>&gt;                 <span class="c">&lt;!-- esconde tudo --&gt;</span>
 &lt;<span class="t">input</span> <span class="a">type</span>=<span class="s">"email"</span> <span class="a">data-tuc-reveal</span>&gt;          <span class="c">&lt;!-- guarda o domínio --&gt;</span></pre>
 
@@ -835,7 +835,7 @@
 
   <pre>&lt;<span class="t">input</span> <span class="a">name</span>=<span class="s">"cpf"</span> <span class="a">data-tuc-mask</span>=<span class="s">"cpf"</span> <span class="a">data-validate</span>=<span class="s">"true"</span>&gt;
 &lt;<span class="t">input</span> <span class="a">name</span>=<span class="s">"cpf_cadastro"</span> <span class="a">data-tuc-mask</span>=<span class="s">"cpf"</span> <span class="a">data-tuc-reveal</span>&gt;
-&lt;<span class="t">input</span> <span class="a">name</span>=<span class="s">"value"</span> <span class="a">data-tuc-mask</span>=<span class="s">"real"</span>&gt;</pre>
+&lt;<span class="t">input</span> <span class="a">name</span>=<span class="s">"valor"</span> <span class="a">data-tuc-mask</span>=<span class="s">"real"</span>&gt;</pre>
 
   <p class="lead" style="margin-top:14px">Pela API: <code>Tucano.mask.validateCPF()</code>,
      <code>validateCNPJ()</code>, <code>format(value, 'cpf')</code>. E a instância expõe
@@ -948,14 +948,14 @@ Tucano.toast({
      operação. Com <code>promise()</code> ele vira sucesso ou erro <strong>no mesmo cartão</strong>,
      em vez de fechar um e abrir outro no lugar.</p>
 
-  <pre><span class="c">// control manual: guarda a instância e vira o que precisar</span>
+  <pre><span class="c">// controle manual: guarda a instância e vira o que precisar</span>
 <span class="t">const</span> t = Tucano.toast.loading(<span class="s">'Enviando arquivo...'</span>);
 <span class="t">await</span> enviar();
 t.update({ type: <span class="s">'success'</span>, text: <span class="s">'Arquivo enviado'</span> });
 
-<span class="c">// ou entrega a promise e deixa ela cuidar dos três estados</span>
+<span class="c">// ou entrega a promessa e deixa ela cuidar dos três estados</span>
 Tucano.toast.promise(fetch(url), {
-  loading: <span class="s">'Enviando file...'</span>,
+  loading: <span class="s">'Enviando arquivo...'</span>,
   success: (r) =&gt; <span class="s">`Enviado (${r.status})`</span>,
   error: <span class="s">'Não deu para enviar'</span>,
 });</pre>
@@ -1031,7 +1031,7 @@ Tucano.toast.promise(fetch(url), {
     </div>
   </div>
 
-  <pre>&lt;<span class="t">button</span> <span class="a">data-tuc-tip</span>=<span class="s">"Gera o PDF com o layout current"</span>&gt;Exportar&lt;/<span class="t">button</span>&gt;
+  <pre>&lt;<span class="t">button</span> <span class="a">data-tuc-tip</span>=<span class="s">"Gera o PDF com o layout atual"</span>&gt;Exportar&lt;/<span class="t">button</span>&gt;
 &lt;<span class="t">button</span> <span class="a">data-tuc-tip</span>=<span class="s">"..."</span> <span class="a">data-placement</span>=<span class="s">"right-center"</span> <span class="a">data-delay</span>=<span class="s">"600"</span>&gt;
 &lt;<span class="t">button</span> <span class="a">data-tuc-tip</span>=<span class="s">"..."</span> <span class="a">data-tip-class</span>=<span class="s">"tip-roxo"</span>&gt;</pre>
 
@@ -1234,7 +1234,7 @@ Tucano.toast.promise(fetch(url), {
           </details>
 
           <hr class="tuc-menu__separator">
-          <div class="tuc-menu__secao">Cadastros</div>
+          <div class="tuc-menu__section">Cadastros</div>
           <a class="tuc-menu__item" href="#drawer"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/></svg></span>Clientes</a>
           <a class="tuc-menu__item" href="#drawer"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 19a8 8 0 100-16 8 8 0 000 16zM21 21l-4.35-4.35"/></svg></span>Produtos<span class="tuc-menu__count">12</span></a>
         </nav>
@@ -1264,7 +1264,7 @@ Tucano.toast.promise(fetch(url), {
     &lt;/<span class="t">div</span>&gt;
   &lt;/<span class="t">details</span>&gt;
 
-  &lt;<span class="t">div</span> <span class="a">class</span>=<span class="s">"tuc-menu__secao"</span>&gt;Cadastros&lt;/<span class="t">div</span>&gt;
+  &lt;<span class="t">div</span> <span class="a">class</span>=<span class="s">"tuc-menu__section"</span>&gt;Cadastros&lt;/<span class="t">div</span>&gt;
 &lt;/<span class="t">nav</span>&gt;</pre>
 
   <div class="note">
@@ -1765,15 +1765,15 @@ npm run build  # gera o dist</code></pre>
             <span class="s">"data_evento"</span>: forms.TextInput(attrs={<span class="s">"data-tuc-datepicker"</span>: <span class="s">""</span>, <span class="s">"data-time"</span>: <span class="s">"true"</span>}),
             <span class="s">"uf"</span>: forms.Select(attrs={<span class="s">"data-tuc-select"</span>: <span class="s">""</span>}),
             <span class="s">"tags"</span>: forms.SelectMultiple(attrs={<span class="s">"data-tuc-select"</span>: <span class="s">""</span>}),
-            <span class="s">"color"</span>: forms.TextInput(attrs={<span class="s">"data-tuc-color"</span>: <span class="s">""</span>}),
+            <span class="s">"cor"</span>: forms.TextInput(attrs={<span class="s">"data-tuc-color"</span>: <span class="s">""</span>}),
         }</pre>
 
   <h3>O que chega no servidor</h3>
-  <pre>data_evento = 2026-12-25T09:30     <span class="c"># DateTimeField faz o parse direct</span>
+  <pre>data_evento = 2026-12-25T09:30     <span class="c"># DateTimeField faz o parse direto</span>
 periodo     = 2026-03-01,2026-03-15
 tags        = django                <span class="c"># request.POST.getlist("tags")</span>
 tags        = htmx
-color         = #4f46e5</pre>
+cor           = #4f46e5</pre>
 
   <div class="note">
     <b>HTMX já está coberto.</b> A lib re-inicializa sozinha no <code>htmx:afterSwap</code>,
@@ -1926,13 +1926,13 @@ color         = #4f46e5</pre>
 });
 
 <span class="t">const</span> s = <span class="t">new</span> Tucano.Select(<span class="s">'#uf'</span>, { maxItems: <span class="s">3</span> });
-s.refresh();  <span class="c">// after de trocar as &lt;option&gt; por HTMX</span>
+s.refresh();  <span class="c">// depois de trocar as &lt;option&gt; por HTMX</span>
 
-<span class="t">const</span> c = <span class="t">new</span> Tucano.ColorPicker(<span class="s">'#color'</span>, { format: <span class="s">'rgb'</span> });
+<span class="t">const</span> c = <span class="t">new</span> Tucano.ColorPicker(<span class="s">'#cor'</span>, { format: <span class="s">'rgb'</span> });
 c.getRgb();   <span class="c">// { r, g, b, a }</span>
 
 <span class="t">new</span> Tucano.Upload(<span class="s">'#anexos'</span>, { accept: <span class="s">'.pdf,image/*'</span>, maxSize: <span class="s">10 * 1024 * 1024</span> });
-<span class="t">new</span> Tucano.Mask(<span class="s">'#doc'</span>, { format: <span class="s">'cpfcnpj'</span>, sensivel: <span class="t">true</span> });
+<span class="t">new</span> Tucano.Mask(<span class="s">'#doc'</span>, { format: <span class="s">'cpf-cnpj'</span>, reveal: <span class="t">true</span> });
 <span class="t">new</span> Tucano.Tooltip(botao, { text: <span class="s">'Gera o PDF'</span>, placement: <span class="s">'right-center'</span> });</pre>
 
   <h3>Atalhos globais</h3>
@@ -2014,8 +2014,8 @@ seguem funcionando. Não substitua por estado só em JS.</pre>
 
 <script src="dist/tucano.js?v=0.30.2"></script>
 <script>
-  const MENU_ICON = '<svg class="i-menu" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>';
-  const X_ICON = '<svg class="i-x" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>';
+  const MENU_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>';
+  const X_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>';
 
   // --- saída dos valores -------------------------------------------------
   document.addEventListener('tucano:change', (e) => {
