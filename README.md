@@ -514,6 +514,35 @@ vazio, porque em modo com hora se digita `07/09/2026 14:30`.
 
 Para voltar ao comportamento antigo no date picker, `openOnFocus: true`.
 
+## Utilitários
+
+Os três módulos que os componentes usam por dentro também saem prontos, porque
+num CRUD eles resolvem o que sempre falta — validar um CPF na tela antes de
+mandar pro servidor, formatar uma data, decidir se um texto fica legível sobre
+uma cor escolhida pelo usuário.
+
+```js
+Tucano.mask.validateCpfCnpj('123.456.789-01')   // false
+Tucano.mask.applyCurrency('12345', { currency: 'BRL' })  // 'R$ 123,45'
+Tucano.mask.maskEmail('contato@empresa.com.br')  // 'c••••••@empresa.com.br'
+
+Tucano.dates.format(new Date(), 'dd/MM/yyyy')
+Tucano.dates.parseUserInput('7/9/26')            // Date
+Tucano.dates.addMonths(new Date(), -1)
+
+Tucano.color.parseColor('#4f46e5')               // { h, s, v, a }
+Tucano.color.isDark('#4f46e5')                   // true — escolhe texto claro
+```
+
+| módulo | serve para |
+|---|---|
+| `Tucano.mask` | CPF, CNPJ, moeda, telefone; aplicar e tirar máscara; ocultar dado sensível |
+| `Tucano.dates` | ler, formatar, comparar e caminhar por datas, respeitando o locale |
+| `Tucano.color` | converter entre hex/rgb/hsv, e medir luminância |
+
+Quem instala pelo npm e não usa nada disso não paga nada por eles — importar só
+o `Toast` custa 3 KB, com os três módulos fora do pacote.
+
 ## Tabela
 
 O `<table>` do template continua sendo a fonte da verdade, e a célula é livre.

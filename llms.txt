@@ -247,6 +247,24 @@ fonte em campo digitavel, senao o iOS da zoom ao focar. Componente novo com
 campo ou botao precisa entrar em tools/conferir.mjs e na lista do
 @media (max-width: 40rem) em src/styles/core/tokens.css.
 
+## Utilitarios (Tucano.mask, Tucano.dates, Tucano.color)
+
+Os modulos internos saem prontos como API publica. Nao sao sobra de codigo: sao
+o que resolve o que sempre falta num CRUD.
+
+    Tucano.mask.validateCpfCnpj('123.456.789-01')
+    Tucano.mask.applyCurrency('12345', { currency:'BRL' })   // 'R$ 123,45'
+    Tucano.mask.maskEmail('contato@empresa.com.br')
+    Tucano.dates.format(new Date(), 'dd/MM/yyyy')
+    Tucano.dates.parseUserInput('7/9/26')
+    Tucano.color.isDark('#4f46e5')   // true — escolhe texto claro sobre a cor
+
+mask: CPF, CNPJ, moeda, telefone, aplicar/tirar mascara, ocultar dado sensivel.
+dates: ler, formatar, comparar e caminhar por datas respeitando o locale.
+color: converter hex/rgb/hsv e medir luminancia.
+
+Quem importa so o Toast pelo npm nao leva nenhum dos tres (3 KB no total).
+
 ## Tabela
 
     <table data-tuc-table data-selectable class="is-striped">

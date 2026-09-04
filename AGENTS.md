@@ -303,6 +303,23 @@ tudo numa só, e `hide()` cancela o frame pendente.
 transição de 160ms nunca avança aqui. Para medir cor ou posição final, injete
 `* { transition: none !important }` na sonda.
 
+**"Definido num arquivo, usado em nenhum outro" não é código morto.** Um
+detector que só olha uso entre arquivos marcou onze funções como mortas; sete
+eram helpers usados dentro do próprio módulo, e apagá-las teria quebrado o
+color picker, a máscara e o date picker. Antes de remover, procure a referência
+no arquivo onde ela mora.
+
+**`Tucano.mask`, `Tucano.dates` e `Tucano.color` são API pública documentada.**
+Estavam expostas por `export * as` sem uma linha de documentação, e por isso
+liam como sobra. As quatro funções de fato sem referência custam 81 bytes no
+bundle — não vale trocar API por isso. Tree-shaking já as descarta para quem
+importa pelo npm.
+
+**Testar o exemplo da documentação é teste de verdade.** Ao escrever
+`Tucano.color.isDark('#4f46e5')` no README e rodar, ela quebrou: aceitava só o
+objeto hsva. Ninguém tinha percebido porque por dentro sempre chega hsva. O
+exemplo do `maskEmail` também estava errado. Escreveu exemplo, roda o exemplo.
+
 ## Antes de dizer que está pronto
 
 ```bash

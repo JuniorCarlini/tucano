@@ -125,6 +125,14 @@ export function luminance({ r, g, b }) {
   return 0.2126 * canal(r) + 0.7152 * canal(g) + 0.0722 * canal(b);
 }
 
-export function isDark(hsva) {
+/**
+ * Aceita string ou o objeto hsva. Por dentro sempre chega hsva, mas quem usa
+ * `Tucano.color.isDark('#4f46e5')` para escolher texto claro ou escuro sobre
+ * uma cor tem a string na mao — e exigir a conversao antes so passava o
+ * trabalho adiante.
+ */
+export function isDark(color) {
+  const hsva = typeof color === 'string' ? parseColor(color) : color;
+  if (!hsva) return false;
   return luminance(hsvToRgb(hsva)) < 0.4;
 }

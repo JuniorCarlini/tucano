@@ -2292,7 +2292,9 @@ var Tucano = (() => {
     };
     return 0.2126 * canal(r) + 0.7152 * canal(g) + 0.0722 * canal(b);
   }
-  function isDark(hsva) {
+  function isDark(color) {
+    const hsva = typeof color === "string" ? parseColor(color) : color;
+    if (!hsva) return false;
     return luminance(hsvToRgb(hsva)) < 0.4;
   }
 
