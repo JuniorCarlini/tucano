@@ -565,7 +565,7 @@ O `<table>` do template continua sendo a fonte da verdade, e a célula é livre.
       </td>
       <td class="is-number" data-sort-value="{{ obj.valor }}">{{ obj.valor|floatformat:2 }}</td>
       <td class="tuc-table__actions">
-        <button class="tuc-btn is-ghost is-icon is-sm">...</button>
+        <button class="tuc-btn is-outline is-icon is-sm">...</button>
       </td>
     </tr>
   </tbody>
@@ -574,7 +574,7 @@ O `<table>` do template continua sendo a fonte da verdade, e a célula é livre.
 
 Para a célula: `.tuc-table__user` + `__avatar` + `__sub` (foto ou iniciais, nome e
 uma segunda linha), `.tuc-badge` com `is-success`/`is-warning`/`is-danger`/`is-info`,
-`.tuc-table__actions` (encosta à direita; os botões acendem no hover da linha) e
+`.tuc-table__actions` (encosta à direita, com os botões do sistema) e
 `.is-number` (alinha à direita com dígitos de largura fixa). Para a segunda linha
 cortar com reticência, dê largura à coluna. Variantes: `is-striped`,
 `is-bordered`, `is-compact`.

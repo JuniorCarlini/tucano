@@ -1654,7 +1654,7 @@ npm run build  # gera o dist</code></pre>
       &lt;<span class="t">td</span>&gt;&lt;<span class="t">span</span> <span class="a">class</span>=<span class="s">"tuc-badge is-success"</span>&gt;{{ obj.get_status_display }}&lt;/<span class="t">span</span>&gt;&lt;/<span class="t">td</span>&gt;
       &lt;<span class="t">td</span> <span class="a">class</span>=<span class="s">"is-number"</span> <span class="a">data-sort-value</span>=<span class="s">"{{ obj.valor }}"</span>&gt;{{ obj.valor|floatformat:2 }}&lt;/<span class="t">td</span>&gt;
       &lt;<span class="t">td</span> <span class="a">class</span>=<span class="s">"tuc-table__actions"</span>&gt;
-        &lt;<span class="t">button</span> <span class="a">class</span>=<span class="s">"tuc-btn is-ghost is-icon is-sm"</span>&gt;...&lt;/<span class="t">button</span>&gt;
+        &lt;<span class="t">button</span> <span class="a">class</span>=<span class="s">"tuc-btn is-outline is-icon is-sm"</span>&gt;...&lt;/<span class="t">button</span>&gt;
       &lt;/<span class="t">td</span>&gt;
     &lt;/<span class="t">tr</span>&gt;
     <span class="c">{% endfor %}</span>
@@ -1670,7 +1670,7 @@ npm run build  # gera o dist</code></pre>
     <tr><th>Classe</th><th>O que faz</th></tr>
     <tr><td><code>.tuc-table__user</code> + <code>__avatar</code> + <code>__sub</code></td><td>Foto (ou iniciais), nome e uma segunda linha discreta. Para a segunda linha cortar com reticência em vez de esticar a tabela, dê largura à coluna: <code>&lt;th style="width:38%"&gt;</code></td></tr>
     <tr><td><code>.tuc-badge</code></td><td>Etiqueta de estado — <code>is-success</code>, <code>is-warning</code>, <code>is-danger</code>, <code>is-info</code></td></tr>
-    <tr><td><code>.tuc-table__actions</code></td><td>Coluna encostada à direita; os botões acendem no hover da linha</td></tr>
+    <tr><td><code>.tuc-table__actions</code></td><td>Coluna encostada à direita. Dentro dela vão os botões do sistema — <code>tuc-btn is-outline is-icon is-sm</code></td></tr>
     <tr><td><code>.is-number</code></td><td>Alinha à direita com dígitos de largura fixa, para comparar valores com a vista</td></tr>
     <tr><td><code>is-striped</code> <code>is-bordered</code> <code>is-compact</code></td><td>Variantes da tabela inteira</td></tr>
   </table>
@@ -2085,7 +2085,7 @@ seguem funcionando. Não substitua por estado só em JS.</pre>
   const botao = (d, rotulo, dica) => {
     const b = document.createElement('button');
     b.type = 'button';
-    b.className = 'tuc-btn is-ghost is-icon is-sm';
+    b.className = 'tuc-btn is-outline is-icon is-sm';
     b.setAttribute('aria-label', rotulo);
     if (dica) b.setAttribute('data-tuc-tip', dica);
     b.innerHTML = svg(d);

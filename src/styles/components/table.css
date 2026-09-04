@@ -182,9 +182,12 @@ table[data-tuc-table]:not([data-tuc-ready]) tbody tr:last-child > * { border-bot
 }
 
 /*
- * Coluna de acoes. Encosta a direita e os botoes so ganham cor no hover da
- * linha: numa lista de vinte itens, quarenta icones acesos disputam a atencao
- * com o conteudo que a pessoa veio ler.
+ * Coluna de acoes.
+ *
+ * Os botoes sao os do sistema, com contorno — nao icones soltos. A primeira
+ * versao usava `is-ghost` esmaecido a 55%: sem borda e sem fundo, o icone nao
+ * lia como botao, parecia decoracao desativada. Se e clicavel, tem que ter
+ * cara de botao.
  */
 /*
  * A coluna encosta a direita por alinhamento de texto, e nao por flex: um
@@ -195,19 +198,3 @@ table[data-tuc-table]:not([data-tuc-ready]) tbody tr:last-child > * { border-bot
 .tuc-table td.tuc-table__actions { @apply pl-2 text-right whitespace-nowrap; }
 .tuc-table__actions .tuc-btn { @apply align-middle; }
 .tuc-table__actions .tuc-btn + .tuc-btn { @apply ml-1; }
-.tuc-table__actions .tuc-btn {
-  opacity: 0.55;
-  transition: opacity var(--tuc-duration) var(--tuc-ease);
-}
-.tuc-table tbody tr:hover .tuc-table__actions .tuc-btn,
-.tuc-table__actions .tuc-btn:focus-visible,
-.tuc-table__actions .tuc-btn[aria-expanded='true'] { opacity: 1; }
-
-/* No toque nao existe hover: ali os botoes ficam sempre visiveis. */
-@media (hover: none) {
-  .tuc-table__actions .tuc-btn { opacity: 1; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .tuc-table__actions .tuc-btn { transition: none; }
-}

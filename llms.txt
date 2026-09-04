@@ -282,7 +282,8 @@ Quem importa so o Toast pelo npm nao leva nenhum dos tres (3 KB no total).
 
 Celula livre. Classes de apoio: .tuc-table__user + __avatar + __sub (foto ou
 iniciais, nome, segunda linha), .tuc-badge (is-success | is-warning | is-danger |
-is-info), .tuc-table__actions (encosta a direita, botoes acendem no hover),
+is-info), .tuc-table__actions (encosta a direita; use os botoes do sistema,
+.tuc-btn is-outline is-icon is-sm),
 .is-number (direita, digitos de largura fixa). Truncar a segunda linha exige
 largura na coluna. Variantes: is-striped, is-bordered, is-compact.
 

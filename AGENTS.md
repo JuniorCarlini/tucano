@@ -335,6 +335,12 @@ tradução acidental da prosa reverteu junto o texto do selo, e os bumps seguint
 procuravam a versão anterior e não achavam. Depois de qualquer restauração em
 massa, rode o build e confira se o selo bate com o `package.json`.
 
+**Se é clicável, tem cara de botão.** A coluna de ações da tabela nasceu com
+`is-ghost` esmaecido a 55%, com a justificativa de que vinte linhas de ícones
+acesos competiriam com o conteúdo. Na tela o efeito foi outro: sem borda e sem
+fundo, o ícone lia como decoração desativada. Ali vão os botões do sistema —
+`tuc-btn is-outline is-icon is-sm` — sem opacidade nenhuma.
+
 ## Antes de dizer que está pronto
 
 ```bash

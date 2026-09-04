@@ -2718,23 +2718,6 @@ textarea.tuc-editor__value[hidden] {
 .tuc-table__actions .tuc-btn + .tuc-btn {
   margin-left: var(--spacing, 0.25rem);
 }
-.tuc-table__actions .tuc-btn {
-  opacity: 0.55;
-  transition: opacity var(--tuc-duration) var(--tuc-ease);
-}
-.tuc-table tbody tr:hover .tuc-table__actions .tuc-btn, .tuc-table__actions .tuc-btn:focus-visible, .tuc-table__actions .tuc-btn[aria-expanded='true'] {
-  opacity: 1;
-}
-@media (hover: none) {
-  .tuc-table__actions .tuc-btn {
-    opacity: 1;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .tuc-table__actions .tuc-btn {
-    transition: none;
-  }
-}
 .tuc-pagination {
   display: flex;
   flex-wrap: wrap;
