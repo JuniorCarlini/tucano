@@ -282,7 +282,11 @@ tabindex="-1" de proposito — dentro de um menu quem navega e a seta, nao o Tab
 
 Chegar de Tab nao abre painel nenhum: quem tabula por um formulario ate o botao
 de salvar nao deve levar um calendario na cara a cada campo. Abrir e sempre
-explicito — seta para baixo, clique, e no select tambem Enter e Espaco. No campo
+explicito — seta para baixo, clique, Espaco, e no select tambem Enter.
+
+No campo de data o Enter fica de fora: e campo de texto dentro de <form>, e
+Enter ali envia o formulario. O Espaco abre, e so com o campo vazio, porque em
+modo com hora se digita "07/09/2026 14:30". No campo
 de cor o gatilho e a amostra ao lado, que e um <button> de verdade. Para voltar
 ao comportamento antigo no date picker: openOnFocus: true.
 

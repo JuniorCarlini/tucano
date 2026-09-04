@@ -113,6 +113,17 @@ textarea[data-tuc-rico]:not([data-tuc-ready]) {
 }
 
 /*
+ * Um <select multiple> nao desenha como campo: e uma caixa de lista, e as
+ * opcoes selecionadas saem numa faixa cinza do sistema que atravessa o raio e o
+ * fundo que acabamos de desenhar — era o texto das opcoes que aparecia por um
+ * instante no recarregamento forcado. Enquanto espera, o campo fica vazio; o
+ * valor volta como tags assim que o script roda.
+ */
+select[data-tuc-select][multiple]:not([data-tuc-ready]) > option {
+  display: none;
+}
+
+/*
  * O editor e a area de upload viram blocos altos: reservar a altura evita que o
  * resto da pagina pule para baixo quando eles montam, que e o incomodo maior.
  */

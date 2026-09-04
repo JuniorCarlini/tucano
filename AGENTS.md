@@ -203,6 +203,13 @@ amostra ao lado, que é um `<button>` de verdade e por isso já responde a
 `Enter`/`Espaço` sem código nosso. `openOnFocus` continua existindo no date
 picker para quem quiser o comportamento antigo, agora com padrão `false`.
 
+No campo de data o `Enter` fica de fora de propósito: é um campo de texto dentro
+de um `<form>`, e `Enter` num campo de texto envia o formulário. Sequestrar a
+tecla quebraria o envio em silêncio em todo form que já existe. Ali quem abre é
+o `Espaço`, e só com o campo vazio, porque em modo com hora se digita
+`07/09/2026 14:30` — mesma ressalva do `Espaço` no select, onde o foco está num
+campo de busca.
+
 ## Antes de dizer que está pronto
 
 ```bash

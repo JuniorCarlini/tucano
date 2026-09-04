@@ -501,9 +501,14 @@ Abrir é sempre explícito:
 
 | | abre com |
 |---|---|
-| Date picker | `↓`, clique |
+| Date picker | `↓`, `Espaço`, clique |
 | Select | `↓`, `Enter`, `Espaço`, clique |
 | Color picker | `↓`, clique — ou `Enter`/`Espaço` na amostra, que é um `<button>` |
+
+No campo de data o `Enter` fica de fora de propósito: ele é um campo de texto
+dentro de um `<form>`, e `Enter` num campo de texto envia o formulário — é o que
+se espera depois de digitar a data. Ali quem abre é o `Espaço`, e só com o campo
+vazio, porque em modo com hora se digita `07/09/2026 14:30`.
 
 Para voltar ao comportamento antigo no date picker, `openOnFocus: true`.
 

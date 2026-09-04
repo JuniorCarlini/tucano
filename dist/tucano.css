@@ -216,6 +216,9 @@ input[data-tuc-color]:not([data-tuc-ready]), [data-tuc-datepicker]:not([data-tuc
   appearance: none;
   -webkit-appearance: none;
 }
+select[data-tuc-select][multiple]:not([data-tuc-ready]) > option {
+  display: none;
+}
 textarea[data-tuc-rico]:not([data-tuc-ready]) {
   height: auto;
   min-height: 12rem;

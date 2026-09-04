@@ -795,6 +795,9 @@ var Tucano = (() => {
           if (e.key === "ArrowDown" && !this.isOpen) {
             e.preventDefault();
             this.open();
+          } else if (e.key === " " && !this.isOpen && !input.value) {
+            e.preventDefault();
+            this.open();
           } else if (e.key === "Enter" && this.isOpen) {
             e.preventDefault();
             this._commitTyped();

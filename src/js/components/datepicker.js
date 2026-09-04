@@ -269,6 +269,17 @@ export class DatePicker {
       on(input, 'click', () => { if (!this._suppressOpen && !this._compacto) this.open(); }),
       on(input, 'keydown', (e) => {
         if (e.key === 'ArrowDown' && !this.isOpen) { e.preventDefault(); this.open(); }
+        /*
+         * Espaco tambem abre, com a ressalva de o campo estar vazio: em modo
+         * com hora se digita "07/09/2026 14:30", e ali o espaco e digitacao.
+         *
+         * Enter de proposito nao abre. Este e um campo de texto dentro de um
+         * <form>, e Enter num campo de texto envia o formulario — e o que
+         * qualquer pessoa espera depois de digitar a data. Sequestrar a tecla
+         * para abrir o calendario quebraria o envio em silencio, em todo form
+         * que ja existe.
+         */
+        else if (e.key === ' ' && !this.isOpen && !input.value) { e.preventDefault(); this.open(); }
         else if (e.key === 'Enter' && this.isOpen) { e.preventDefault(); this._commitTyped(); }
         else if (e.key === 'Escape' && this.isOpen) { e.preventDefault(); this.close(); }
       }),
