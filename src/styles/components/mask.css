@@ -44,5 +44,5 @@
 
 /* Campo reprovado na validacao de documento. */
 .tuc-invalid {
-  border-color: #dc2626 !important;
+  border-color: var(--tuc-danger) !important;
 }

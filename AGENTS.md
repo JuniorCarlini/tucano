@@ -15,8 +15,9 @@ npm run serve        # build + servidor local na porta 4322
 npm run build:og     # regera og.png a partir de tools/og.html
 ```
 
-O `build` termina em `tools/tamanhos.mjs`, que escreve o peso real do `dist` na
-página, no README e no llms.txt. Nunca edite esses números à mão: eles já
+O `build` termina em `tools/reference.mjs`, que regera a referência do llms.txt, e
+em `tools/stamp.mjs`, que escreve a versão e o peso real do `dist` na página, no
+README e no llms.txt. Nunca edite esses números à mão: eles já
 envelheceram uma vez, e a página chegou a anunciar 15 KB com o arquivo em 27.
 
 `index.html` na raiz é a documentação e também a página do GitHub Pages.
@@ -26,14 +27,19 @@ estático funcionar sem build.
 ## Estrutura
 
 ```
-src/js/core/          datas, cores, DOM, popover, base do diálogo
-src/js/components/    datepicker, select, colorpicker, upload, mask,
-                      toast, tooltip, modal, offcanvas, acordeon
-src/styles/core/      reset e tokens
-src/styles/components/
+src/js/core/          dates, color, mask, dom, popover, dialog, sanitize, highlight
+src/js/components/    datepicker, select, colorpicker, upload, mask, toast,
+                      tooltip, modal, drawer, accordion, dropdown, table,
+                      pagination, editor
+src/styles/core/      base (reset) e tokens
+src/styles/components/  um arquivo por componente; os que são só classe
+                      (botão, etiqueta, campo) também moram aqui
+tools/                build (reference, stamp, og) e verificação (behavior,
+                      keyboard, examples, consistency, audit)
+test/                 funções puras, com node --test
 ```
 
-Modal e gaveta compartilham `core/dialogo.js`: top layer, foco preso, Escape e
+Modal e gaveta compartilham `core/dialog.js`: top layer, foco preso, Escape e
 devolução do foco moram lá. Cada um só define geometria e movimento. Não
 duplique essa mecânica ao criar um diálogo novo.
 
@@ -132,7 +138,7 @@ dobro.
 **O tamanho do ícone sai do botão, por variável.** Decidido em cada chamada, ele
 divergia: 14px no X do toast e 15px no do modal, mesmo papel.
 
-**O editor de texto escapa antes de marcar, nunca o contrário.** `core/sanitizar.js`
+**O editor de texto escapa antes de marcar, nunca o contrário.** `core/sanitize.js`
 tem uma lista fechada de tags e derruba todo atributo, exceto `href` com destino
 aceitável e `text-align` reescrito por nós. Marcar primeiro e escapar depois é
 como se escreve um XSS. A peneira roda a cada leitura do valor, e não só no que
@@ -211,7 +217,7 @@ template precisa declarar `.tuc-x[hidden] { display: none; }` junto.
 **Painel que abre no foco tem de fechar quando o foco sai.** Sem isso, andar de
 Tab pela página ia abrindo painel atrás de painel e nenhum fechava: o único
 jeito era clicar fora ou apertar Escape. Está no Popover, atrás de
-`fecharAoSairFoco`, e é opcional de propósito — o tooltip aparece no hover com o
+`closeOnFocusOut`, e é opcional de propósito — o tooltip aparece no hover com o
 foco em outro lugar e fecharia no primeiro Tab mesmo com o ponteiro em cima. Use
 `focusin` no documento, nunca `focusout` na âncora: o `relatedTarget` do
 focusout vem `null` no Safari e no Firefox quando o clique cai num botão do
@@ -510,7 +516,7 @@ o defeito que a motivou.
 Duas armadilhas ao escrever essas ferramentas, ambas custaram tempo nesta
 sessão: um comentário com `</script>` fecha o bloco que ele descreve, e código
 de navegador escrito dentro de template literal perde toda barra de regex
-(`\\d` vira `d`, calado). Por isso `exemplos.mjs` injeta a função por
+(`\\d` vira `d`, calado). Por isso `examples.mjs` injeta a função por
 `toString()` — assim o Node valida a sintaxe antes de o Chrome ver.
 
 ## Ainda em aberto

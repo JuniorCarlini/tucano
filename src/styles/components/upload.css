@@ -89,21 +89,21 @@
   transition: width 120ms linear;
 }
 
-.tuc-upload__ok { color: #16a34a; }
+.tuc-upload__ok { color: var(--tuc-success); }
 
 .tuc-upload__actions { @apply flex shrink-0 items-center gap-1; }
 .tuc-upload__action { color: var(--tuc-subtle); }
 
 /* Estados */
-.tuc-upload__item.is-error { border-color: #dc2626; }
-.tuc-upload__item.is-error .tuc-upload__meta { color: #dc2626; }
+.tuc-upload__item.is-error { border-color: var(--tuc-danger); }
+.tuc-upload__item.is-error .tuc-upload__meta { color: var(--tuc-danger); }
 
 .tuc-upload__item.is-rejected {
   border-style: dashed;
-  border-color: #dc2626;
-  color: #dc2626;
+  border-color: var(--tuc-danger);
+  color: var(--tuc-danger);
 }
-.tuc-upload__item.is-rejected .tuc-upload__meta { color: #dc2626; }
-.tuc-upload__item.is-rejected .tuc-upload__thumb { background: transparent; color: #dc2626; }
+.tuc-upload__item.is-rejected .tuc-upload__meta { color: var(--tuc-danger); }
+.tuc-upload__item.is-rejected .tuc-upload__thumb { background: transparent; color: var(--tuc-danger); }
 
 .tuc-upload__hidden { @apply hidden; }

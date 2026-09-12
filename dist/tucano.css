@@ -1707,7 +1707,7 @@ textarea.tuc-editor__value[hidden] {
   transition: width 120ms linear;
 }
 .tuc-upload__ok {
-  color: #16a34a;
+  color: var(--tuc-success);
 }
 .tuc-upload__actions {
   display: flex;
@@ -1719,22 +1719,22 @@ textarea.tuc-editor__value[hidden] {
   color: var(--tuc-subtle);
 }
 .tuc-upload__item.is-error {
-  border-color: #dc2626;
+  border-color: var(--tuc-danger);
 }
 .tuc-upload__item.is-error .tuc-upload__meta {
-  color: #dc2626;
+  color: var(--tuc-danger);
 }
 .tuc-upload__item.is-rejected {
   border-style: dashed;
-  border-color: #dc2626;
-  color: #dc2626;
+  border-color: var(--tuc-danger);
+  color: var(--tuc-danger);
 }
 .tuc-upload__item.is-rejected .tuc-upload__meta {
-  color: #dc2626;
+  color: var(--tuc-danger);
 }
 .tuc-upload__item.is-rejected .tuc-upload__thumb {
   background: transparent;
-  color: #dc2626;
+  color: var(--tuc-danger);
 }
 .tuc-upload__hidden {
   display: none;
@@ -1767,7 +1767,7 @@ textarea.tuc-editor__value[hidden] {
   font-variant-numeric: tabular-nums;
 }
 .tuc-invalid {
-  border-color: #dc2626 !important;
+  border-color: var(--tuc-danger) !important;
 }
 .tuc-btn {
   display: inline-flex;
@@ -2452,10 +2452,10 @@ textarea.tuc-editor__value[hidden] {
   background: transparent;
 }
 .tuc-dropdown__item.is-danger {
-  color: #dc2626;
+  color: var(--tuc-danger);
 }
 .tuc-dropdown__item.is-danger:hover, .tuc-dropdown__item.is-danger:focus {
-  background: color-mix(in oklab, #dc2626 12%, transparent);
+  background: var(--tuc-danger-soft);
 }
 .tuc-dropdown__icon {
   display: grid;

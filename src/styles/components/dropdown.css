@@ -60,9 +60,9 @@
   @apply cursor-not-allowed opacity-50;
   background: transparent;
 }
-.tuc-dropdown__item.is-danger { color: #dc2626; }
+.tuc-dropdown__item.is-danger { color: var(--tuc-danger); }
 .tuc-dropdown__item.is-danger:hover,
-.tuc-dropdown__item.is-danger:focus { background: color-mix(in oklab, #dc2626 12%, transparent); }
+.tuc-dropdown__item.is-danger:focus { background: var(--tuc-danger-soft); }
 
 .tuc-dropdown__icon {
   @apply grid size-4 shrink-0 place-items-center;

@@ -981,8 +981,8 @@ npm run dev         # build + servidor da demo
 ```
 
 ```
-src/js/core/         datas, cores, DOM, posicionamento do popover
-src/js/components/   datepicker, select, colorpicker
+src/js/core/         datas, cores, máscara, DOM, popover, diálogo, sanitize
+src/js/components/   um arquivo por componente com JavaScript
 src/styles/core/     reset e tokens
 src/styles/components/
 dist/                versionado, para o uso estático e o CDN funcionarem sem build
