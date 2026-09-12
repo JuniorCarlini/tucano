@@ -1,0 +1,249 @@
+@reference "tailwindcss";
+
+/*
+ * Controles de escolha: caixa de selecao, opcao e chave.
+ *
+ * Os tres sao o <input> nativo com o desenho trocado, e nada mais. `name`,
+ * `value`, `checked`, `required`, o estado misto e o anuncio do leitor de tela
+ * continuam sendo os do navegador, e o formulario posta como sempre postou.
+ * Por isso nao ha JavaScript aqui.
+ *
+ * `accent-color` resolveria em uma linha, mas entrega o desenho do sistema: no
+ * macOS um azul que nao e o nosso, no Windows outro canto, e nenhum dos dois
+ * com o raio do resto dos campos. E, pior, so pinta a caixa marcada — a opcao
+ * ao lado continuaria com o circulo do sistema. Desenhados, os tres combinam
+ * entre si e com o input ao lado, em qualquer sistema.
+ *
+ * O seletor repete a classe para pesar 0,2,1, pelo mesmo motivo do .tuc-input:
+ * `input[type=checkbox] { ... }` do projeto venceria uma classe sozinha.
+ */
+
+/* ------------------------------------------------------------------ *
+ * Caixa de selecao                                                    *
+ * ------------------------------------------------------------------ */
+
+input.tuc-check.tuc-check,
+input.tuc-radio.tuc-radio {
+  @apply inline-grid size-4 shrink-0 cursor-pointer place-content-center p-0;
+  margin: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--tuc-bg);
+  border: var(--tuc-border-width) solid var(--tuc-border);
+  border-radius: var(--tuc-radius-xs);
+  transition:
+    background var(--tuc-duration) var(--tuc-ease),
+    border-color var(--tuc-duration) var(--tuc-ease),
+    box-shadow var(--tuc-duration) var(--tuc-ease);
+}
+
+/*
+ * O sinal e um canto de borda girado: duas linhas de CSS no lugar de um SVG,
+ * e ele acompanha a cor de texto do destaque sem precisar de segunda regra.
+ */
+input.tuc-check.tuc-check::after {
+  content: '';
+  width: 0.3125rem;
+  height: 0.5625rem;
+  border: solid var(--tuc-accent-fg);
+  border-width: 0 2px 2px 0;
+  rotate: 45deg;
+  translate: 0 -1px;
+  scale: 0;
+  transition: scale var(--tuc-duration) var(--tuc-ease);
+}
+
+input.tuc-check.tuc-check:checked,
+input.tuc-check.tuc-check:indeterminate,
+input.tuc-radio.tuc-radio:checked {
+  background: var(--tuc-accent);
+  border-color: var(--tuc-accent);
+}
+input.tuc-check.tuc-check:checked::after { scale: 1; }
+
+/* Estado misto: um traco, nao um sinal pela metade. */
+input.tuc-check.tuc-check:indeterminate::after {
+  width: 0.5rem;
+  height: 0;
+  border-width: 0 0 2px 0;
+  rotate: 0deg;
+  translate: 0;
+  scale: 1;
+}
+
+/* ------------------------------------------------------------------ *
+ * Opcao (radio)                                                       *
+ * ------------------------------------------------------------------ */
+
+/*
+ * Mesma caixa, outro canto: a opcao e redonda porque e assim que se le "so uma
+ * destas" desde sempre, e trocar essa convencao para combinar com a caixa
+ * custaria a leitura. O ponto e o fundo claro sobre o destaque, como o sinal da
+ * caixa, e nao um anel — o anel some em 16px.
+ */
+input.tuc-radio.tuc-radio { border-radius: 999px; }
+input.tuc-radio.tuc-radio::after {
+  content: '';
+  @apply size-1.5 rounded-full;
+  background: var(--tuc-accent-fg);
+  scale: 0;
+  transition: scale var(--tuc-duration) var(--tuc-ease);
+}
+input.tuc-radio.tuc-radio:checked::after { scale: 1; }
+
+/* ------------------------------------------------------------------ *
+ * Chave (switch)                                                      *
+ * ------------------------------------------------------------------ */
+
+/*
+ * Um checkbox com role="switch". O papel e o que muda a leitura: o leitor de
+ * tela passa a anunciar "chave, ligada" em vez de "caixa de selecao, marcada".
+ * O CSS nao consegue pôr o role, entao ele fica no template — e quem esquecer
+ * continua com um checkbox que funciona, so anunciado pelo nome antigo.
+ *
+ * Quando usar qual: a chave e para o que tem efeito na hora (ligar avisos); a
+ * caixa, para o que so vale ao salvar o formulario. Chave num formulario que
+ * ainda precisa de "Salvar" promete um efeito que nao aconteceu.
+ */
+input.tuc-switch.tuc-switch {
+  @apply relative inline-block shrink-0 cursor-pointer p-0;
+  width: 2rem;
+  height: 1.125rem;
+  margin: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  /* A trilha desligada e a cor de borda, um pouco mais escura: com a borda pura
+     ela quase some sobre um card branco. */
+  background: color-mix(in oklab, var(--tuc-border) 80%, var(--tuc-fg));
+  border: 0;
+  border-radius: 999px;
+  transition:
+    background var(--tuc-duration) var(--tuc-ease),
+    box-shadow var(--tuc-duration) var(--tuc-ease);
+}
+
+/* O botao e sempre claro — nos dois temas, como a trilha acesa pede. */
+input.tuc-switch.tuc-switch::after {
+  content: '';
+  @apply absolute rounded-full;
+  top: 0.125rem;
+  left: 0.125rem;
+  width: 0.875rem;
+  height: 0.875rem;
+  background: var(--tuc-accent-fg);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.2);
+  transition: translate var(--tuc-duration) var(--tuc-ease);
+}
+
+input.tuc-switch.tuc-switch:checked { background: var(--tuc-accent); }
+input.tuc-switch.tuc-switch:checked::after { translate: 0.875rem 0; }
+
+/* ------------------------------------------------------------------ *
+ * Estados comuns                                                      *
+ * ------------------------------------------------------------------ */
+
+input.tuc-check.tuc-check:hover:not(:checked):not(:indeterminate):not(:disabled),
+input.tuc-radio.tuc-radio:hover:not(:checked):not(:disabled) { border-color: var(--tuc-subtle); }
+input.tuc-switch.tuc-switch:hover:not(:checked):not(:disabled) {
+  background: color-mix(in oklab, var(--tuc-border) 60%, var(--tuc-fg));
+}
+
+/* O mesmo anel dos campos, e nao um outline: a linha de controles fica igual. */
+input.tuc-check.tuc-check:focus-visible,
+input.tuc-radio.tuc-radio:focus-visible,
+input.tuc-switch.tuc-switch:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 3px var(--tuc-accent-ring);
+}
+input.tuc-check.tuc-check:checked:focus-visible,
+input.tuc-radio.tuc-radio:checked:focus-visible {
+  border-color: var(--tuc-accent);
+}
+
+input.tuc-check.tuc-check:disabled,
+input.tuc-radio.tuc-radio:disabled,
+input.tuc-switch.tuc-switch:disabled { @apply cursor-not-allowed opacity-50; }
+
+/* ------------------------------------------------------------------ *
+ * Rotulo                                                              *
+ * ------------------------------------------------------------------ */
+
+/*
+ * Controle e texto na mesma linha, com descricao opcional embaixo.
+ *
+ * Existe porque alinhar isso a mao e onde mais aparece desalinhamento: com
+ * `align-items: center` a caixa desce para o meio de uma descricao de duas
+ * linhas; com `baseline`, sobe um pixel conforme a fonte. Aqui o controle e
+ * alinhado ao topo e descido ate o centro da primeira linha — que tem altura
+ * fixa justamente para essa conta nao depender da fonte do projeto.
+ *
+ * E um <label>: clicar no texto marca, e o leitor de tela le o texto como nome
+ * do controle, sem `for` nem `id`.
+ *
+ * A classe repetida e a margem e o peso declarados sao defesa: `label` e das
+ * tags que todo projeto estiliza (`.card label { display: block; margin-bottom:
+ * 8px }`, e a propria pagina de docs faz isso), e com peso 0,1,1 essa regra
+ * venceria uma classe sozinha e desmontaria a linha.
+ */
+.tuc-choice.tuc-choice {
+  --tuc-choice-line: 1.25rem;
+  @apply inline-flex cursor-pointer items-start gap-2 text-left;
+  margin: 0;
+  font-weight: 400;
+  font-family: var(--tuc-font);
+  font-size: var(--tuc-text);
+  line-height: var(--tuc-choice-line);
+  color: var(--tuc-fg);
+}
+.tuc-choice.tuc-choice > input.tuc-check,
+.tuc-choice.tuc-choice > input.tuc-radio { margin-top: calc((var(--tuc-choice-line) - 1rem) / 2); }
+.tuc-choice.tuc-choice > input.tuc-switch { margin-top: calc((var(--tuc-choice-line) - 1.125rem) / 2); }
+
+.tuc-choice__hint {
+  display: block;
+  margin-top: 0.125rem;
+  font-size: 0.75rem;
+  line-height: 1.125rem;
+  color: var(--tuc-muted);
+}
+
+.tuc-choice.tuc-choice:has(> input:disabled) {
+  cursor: not-allowed;
+  color: var(--tuc-muted);
+}
+
+/*
+ * Controle a direita, texto a esquerda e a linha inteira clicavel: a lista de
+ * preferencias, onde as chaves ficam alinhadas numa coluna so.
+ */
+.tuc-choice.tuc-choice.is-end {
+  @apply flex w-full flex-row-reverse justify-between gap-4;
+}
+
+/*
+ * Grupo. Pensado para <fieldset>, que e o que da ao leitor de tela o nome do
+ * grupo de opcoes — e que traz borda, padding e um min-width que estoura o
+ * layout, desfeitos aqui.
+ */
+.tuc-choices.tuc-choices {
+  @apply m-0 flex min-w-0 flex-col gap-2.5 border-0 p-0;
+}
+.tuc-choices.tuc-choices.is-inline { @apply flex-row flex-wrap gap-x-5; }
+.tuc-choices.tuc-choices > legend {
+  @apply mb-2 p-0 font-medium;
+  display: block;
+  font-family: var(--tuc-font);
+  font-size: var(--tuc-text);
+  color: var(--tuc-fg);
+}
+/* A legenda de um fieldset nao entra no flex; o respiro precisa ser dela. */
+.tuc-choices.tuc-choices.is-inline > legend { @apply w-full; }
+
+@media (prefers-reduced-motion: reduce) {
+  input.tuc-check.tuc-check,
+  input.tuc-check.tuc-check::after,
+  input.tuc-radio.tuc-radio,
+  input.tuc-radio.tuc-radio::after,
+  input.tuc-switch.tuc-switch,
+  input.tuc-switch.tuc-switch::after { transition: none; }
+}

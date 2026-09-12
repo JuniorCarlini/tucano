@@ -449,6 +449,17 @@ já ter fixado aquela versão. A saída é subir a próxima. A ordem é sempre b
 conferir → commit → tag → push → publish, e nada entra entre a tag e o publish.
 Antes de publicar, compare o que a tag contém com o que o `HEAD` contém.
 
+**Caixa, opção e chave são o `<input>` nativo com o desenho trocado — e o
+rótulo se defende do CSS de `label`.** Nada de JavaScript nem de elemento
+substituto: `name`, `required`, estado misto e o anúncio do leitor de tela têm
+de continuar sendo os do navegador. O `.tuc-choice` repete a classe e declara
+margem e peso porque `label` é das tags que todo projeto estiliza — a própria
+página de docs tem `.card label { display: block; margin-bottom: 8px }`, e com
+peso 0,1,1 isso desmontava a linha dentro de qualquer card. O controle é
+alinhado ao topo e descido até o centro de uma primeira linha de altura fixa;
+`npm run audit` mede esse centro, com e sem descrição. A chave precisa de
+`role="switch"` no template, porque CSS não põe papel.
+
 ## Antes de dizer que está pronto
 
 ```bash

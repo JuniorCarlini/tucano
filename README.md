@@ -3,7 +3,7 @@
 Componentes de formulário e interface para a web, para quem escreve HTML.
 Sem React, sem Vue, sem dependência em runtime.
 
-**36 KB de JS + 11 KB de CSS** (minificado + gzip).
+**36 KB de JS + 12 KB de CSS** (minificado + gzip).
 
 **[Documentação e exemplos ao vivo →](https://juniorcarlini.github.io/tucano/)**
 
@@ -24,7 +24,7 @@ Sem React, sem Vue, sem dependência em runtime.
 | `Pagination` — links de página, feita para o Paginator | pronto |
 | `.tuc-menu` — lista de navegação, só classe | pronto |
 | `.tuc-badge` — etiqueta de estado, quatro tons, só classe | pronto |
-| `.tuc-check` — caixa de seleção desenhada, sem `accent-color` | pronto |
+| `.tuc-check` `.tuc-radio` `.tuc-switch` — caixa, opção e chave, só classe | pronto |
 | `Editor` — editor de texto com tabela e bloco de código | pronto |
 | `.tuc-prose` — exibição do que o editor salvou, com destaque e copiar | pronto |
 | `.tuc-btn` — estilo de botão, só classe | pronto |
@@ -640,17 +640,40 @@ card, em lista, ao lado de um título. Tons: `is-success`, `is-warning`,
 O fundo é suave com texto forte, e não preenchido: numa lista de vinte linhas,
 vinte etiquetas sólidas competem com o conteúdo e a tabela vira um semáforo.
 
-## Caixa de seleção
+## Caixa, opção e chave
 
 ```html
-<input type="checkbox" class="tuc-check">
+<label class="tuc-choice">
+  <input type="checkbox" class="tuc-check" name="nf"> Nota fiscal por e-mail
+</label>
+
+<fieldset class="tuc-choices">
+  <legend>Entrega</legend>
+  <label class="tuc-choice">
+    <input type="radio" class="tuc-radio" name="frete" value="normal" checked>
+    <span>Normal <span class="tuc-choice__hint">Até 7 dias úteis</span></span>
+  </label>
+</fieldset>
+
+<label class="tuc-choice is-end">
+  <input type="checkbox" role="switch" class="tuc-switch"> Avisos por e-mail
+</label>
 ```
 
-Desenhada, e não `accent-color` — essa entrega o azul do sistema, que muda entre
-macOS e Windows e nunca tem o raio do resto dos campos. Continua sendo um
-`<input>` de verdade: valor, `name` e estado misto são os nativos, e o leitor de
-tela ouve "caixa de seleção" como sempre. É a que a tabela usa na seleção em
-massa.
+Desenhados, e não `accent-color` — essa entrega o azul do sistema, que muda entre
+macOS e Windows, nunca tem o raio do resto dos campos e só pinta a caixa: a opção
+ao lado continuaria com o círculo do sistema. Continuam sendo `<input>` de
+verdade: valor, `name`, `required` e estado misto são os nativos. A caixa é a que
+a tabela usa na seleção em massa.
+
+`.tuc-choice` é o `<label>` que alinha o controle à primeira linha do texto, com
+`.tuc-choice__hint` para a descrição e `is-end` para o controle à direita.
+`.tuc-choices` empilha um grupo — feito para `<fieldset>`, que dá o nome do grupo
+ao leitor de tela — e `is-inline` põe lado a lado.
+
+A chave precisa de `role="switch"` no template, porque CSS não põe papel: é ele
+que faz o leitor de tela anunciar "chave, ligada". Use chave para o que tem
+efeito na hora e caixa para o que só vale ao salvar.
 
 
 ## Menu suspenso

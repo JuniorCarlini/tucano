@@ -80,6 +80,10 @@ body{margin:0;padding:16px;font-family:system-ui,sans-serif}</style></head><body
 <button class="tuc-btn is-outline is-lg" id="c-btn-lg">Grande</button>
 <button class="tuc-btn is-ghost is-icon" id="c-icone">×</button>
 <div data-tuc-pagination data-page="2" data-pages="9"></div>
+<label class="tuc-choice" data-align="caixa"><input type="checkbox" class="tuc-check"> Caixa</label>
+<label class="tuc-choice" data-align="opção"><input type="radio" class="tuc-radio"> Opção</label>
+<label class="tuc-choice" data-align="chave"><input type="checkbox" role="switch" class="tuc-switch"> Chave</label>
+<label class="tuc-choice" data-align="caixa com descrição"><input type="checkbox" class="tuc-check"><span>Caixa<span class="tuc-choice__hint">Uma descrição longa o bastante para quebrar em duas linhas numa tela estreita de celular</span></span></label>
 <pre id="resultado"></pre>
 <script>${readFileSync('dist/tucano.js', 'utf8')}</script>
 <script>
@@ -105,6 +109,15 @@ body{margin:0;padding:16px;font-family:system-ui,sans-serif}</style></head><body
       };
     }
     out.__inner = within;
+    // Controle de escolha: o centro dele contra o centro da primeira linha do
+    // rotulo. Com align-items: center ele descia para o meio da descricao.
+    var align = {};
+    document.querySelectorAll('[data-align]').forEach(function (l) {
+      var r = l.querySelector('input').getBoundingClientRect();
+      var top = l.getBoundingClientRect().top, line = parseFloat(getComputedStyle(l).lineHeight);
+      align[l.dataset.align] = Math.round(((r.top + r.height / 2) - (top + line / 2)) * 10) / 10;
+    });
+    out.__align = align;
     out.__width = innerWidth;
     document.getElementById('resultado').textContent = JSON.stringify(out);
   } catch (e) {
@@ -157,6 +170,14 @@ try {
       console.log(`  ${errors.length ? 'FALHA ' : 'ok    '} ${name.padEnd(20)} ${String(v.height).padStart(3)}px / ${v.fontSize.padStart(5)}${errors.length ? '   ' + errors.join('; ') : ''}`);
       failures += errors.length ? 1 : 0;
     }
+
+    console.log('  — controle de escolha, centrado na primeira linha do rótulo —');
+    for (const [name, delta] of Object.entries(measures.__align ?? {})) {
+      const bad = Math.abs(delta) > 0.5;
+      console.log(`  ${bad ? 'FALHA ' : 'ok    '} ${name.padEnd(20)} ${delta >= 0 ? '+' : ''}${delta}px${bad ? '   fora do centro da linha' : ''}`);
+      failures += bad ? 1 : 0;
+    }
+    if (!measures.__align || Object.keys(measures.__align).length < 4) { console.log('  ausente  alinhamento dos controles de escolha'); failures++; }
   }
 } finally {
   unlinkSync(file);

@@ -50,6 +50,10 @@ body{margin:0;padding:16px;font-family:system-ui}
 <div data-tuc-pagination data-page="2" data-pages="9" id="pg"></div>
 <span class="tuc-badge is-success" id="bg">ok</span>
 <input type="checkbox" class="tuc-check" id="ck">
+<label class="tuc-choice" id="chl"><input type="radio" class="tuc-radio" name="r" id="rd"> Um</label>
+<input type="checkbox" role="switch" class="tuc-switch" id="sw">
+<style>.hostil label{display:block;margin-bottom:8px;font-weight:600}</style>
+<div class="hostil"><label class="tuc-choice" id="chh"><input type="checkbox" class="tuc-check"> Dentro de um card</label></div>
 <div class="tuc-prose" id="pr"><pre><code>npm run build // teste</code></pre></div>
 <pre id="resultado"></pre>
 <script>${readFileSync('dist/tucano.js', 'utf8')}</script>
@@ -191,6 +195,31 @@ body{margin:0;padding:16px;font-family:system-ui}
   });
   t('caixa de seleção é desenhada, não a do sistema', function () {
     if (getComputedStyle(document.getElementById('ck')).appearance !== 'none') throw new Error('nativa');
+  });
+  t('opção e chave também são desenhadas', function () {
+    ['rd', 'sw'].forEach(function (id) {
+      if (getComputedStyle(document.getElementById(id)).appearance !== 'none') throw new Error(id + ' nativa');
+    });
+  });
+  t('clicar no texto do rótulo marca a opção', function () {
+    document.getElementById('chl').click();
+    if (!document.getElementById('rd').checked) throw new Error('não marcou');
+  });
+  t('chave desliza o botão ao ligar', function () {
+    var sw = document.getElementById('sw');
+    var antes = getComputedStyle(sw, '::after').translate;
+    sw.click();
+    var depois = getComputedStyle(sw, '::after').translate;
+    if (antes === depois) throw new Error('translate ficou ' + depois);
+    sw.click();
+  });
+  t('rótulo resiste ao CSS de label do projeto', function () {
+    // .hostil label pesa 0,1,1 e declara display, margem e peso: é o que a
+    // própria página de docs faz com .card label.
+    var c = getComputedStyle(document.getElementById('chh'));
+    if (c.display.indexOf('flex') < 0) throw new Error('display ' + c.display);
+    if (c.marginBottom !== '0px') throw new Error('margem ' + c.marginBottom);
+    if (c.fontWeight !== '400') throw new Error('peso ' + c.fontWeight);
   });
   t('prosa pinta o código e ganha copiar', function () {
     if (!document.querySelector('#pr code span[class^="tuc-tok-"]')) throw new Error('sem cor');
