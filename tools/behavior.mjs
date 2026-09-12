@@ -39,6 +39,12 @@ body{margin:0;padding:16px;font-family:system-ui}
 <input type="file" data-tuc-upload id="u">
 <textarea data-tuc-editor id="ed"><pre><code>const x = 1;</code></pre></textarea>
 <div data-tuc-accordion id="ac"><details><summary>Um</summary><p>a</p></details><details><summary>Dois</summary><p>b</p></details></div>
+<div class="tuc-tabs" data-tuc-tabs id="tb"><div class="tuc-tabs__list">
+  <button class="tuc-tabs__tab" aria-selected="true">A</button><button class="tuc-tabs__tab">B</button><button class="tuc-tabs__tab" disabled>C</button></div>
+  <div class="tuc-tabs__panel"><input id="tbin"></div><div class="tuc-tabs__panel" hidden>b</div><div class="tuc-tabs__panel" hidden>c</div></div>
+<form id="tbform" onsubmit="window.__enviou = true; return false"><div class="tuc-tabs" data-tuc-tabs><div class="tuc-tabs__list">
+  <button class="tuc-tabs__tab" aria-selected="true">X</button><button class="tuc-tabs__tab">Y</button></div>
+  <div class="tuc-tabs__panel">x</div><div class="tuc-tabs__panel" hidden>y</div></div></form>
 <nav class="tuc-menu" id="mn"><a class="tuc-menu__item" href="#">Item</a></nav>
 <button class="tuc-btn" data-tuc-dropdown="#dd" id="bd">Ações</button>
 <div class="tuc-dropdown" id="dd" hidden><button class="tuc-dropdown__item"><span class="tuc-dropdown__text">Editar</span></button></div>
@@ -132,8 +138,46 @@ body{margin:0;padding:16px;font-family:system-ui}
     i.open(item); if (!item.open) throw new Error('não abriu');
     i.close(item);
   });
+  t('abas ligam aba e painel pelos papéis', function () {
+    var abas = document.querySelectorAll('#tb .tuc-tabs__tab'), paineis = document.querySelectorAll('#tb .tuc-tabs__panel');
+    if (document.querySelector('#tb .tuc-tabs__list').getAttribute('role') !== 'tablist') throw new Error('sem tablist');
+    [].forEach.call(abas, function (a, i) {
+      if (a.getAttribute('role') !== 'tab') throw new Error('aba ' + i + ' sem role');
+      if (a.getAttribute('aria-controls') !== paineis[i].id) throw new Error('aba ' + i + ' não aponta o painel');
+      if (paineis[i].getAttribute('aria-labelledby') !== a.id) throw new Error('painel ' + i + ' sem nome');
+    });
+    if (abas[0].tabIndex !== 0 || abas[1].tabIndex !== -1) throw new Error('Tab devia parar só na aba aberta');
+    // Painel com campo dentro não vira parada extra do Tab; sem nada, vira.
+    if (paineis[0].hasAttribute('tabindex')) throw new Error('painel com campo ganhou tabindex');
+    if (paineis[1].tabIndex !== 0) throw new Error('painel sem foco possível ficou fora do Tab');
+  });
+  t('clicar numa aba troca o painel e emite change', function () {
+    var no = document.getElementById('tb'), visto = null;
+    var ouvir = function (e) { visto = e.detail; };
+    no.addEventListener('tucano:change', ouvir);
+    no.querySelectorAll('.tuc-tabs__tab')[1].click();
+    no.removeEventListener('tucano:change', ouvir);
+    var paineis = no.querySelectorAll('.tuc-tabs__panel');
+    if (!paineis[0].hidden || paineis[1].hidden) throw new Error('painel não trocou');
+    if (!visto || visto.value !== 1 || visto.panel !== paineis[1]) throw new Error('evento: ' + JSON.stringify(visto && visto.value));
+  });
+  t('aba desativada não abre', function () {
+    var i = document.getElementById('tb')._tucano;
+    i.select(2);
+    if (i.index !== 1) throw new Error('abriu a desativada');
+    i.select(0);
+  });
+  t('aba dentro de formulário não envia o formulário', function () {
+    document.querySelectorAll('#tbform .tuc-tabs__tab')[1].click();
+    if (window.__enviou) throw new Error('enviou');
+  });
   t('dropdown abre, foca o item e devolve o foco', function () {
     var g = document.getElementById('bd')._tucano;
+    // O gatilho precisa estar na tela, como quando alguém clica nele. Fora dela o
+    // Popover fecha o menu no primeiro reposicionamento (closeIfDetached), e foi
+    // isso que as abas acrescentadas acima fizeram: empurraram #bd para 838px
+    // numa janela de 813, e o teste passou a acusar "foco não voltou".
+    document.getElementById('bd').scrollIntoView({ block: 'center' });
     g.open();
     if (!document.querySelector('.tuc-dropdown__item')) throw new Error('sem item');
     if (!document.activeElement.classList.contains('tuc-dropdown__item')) throw new Error('foco não entrou');

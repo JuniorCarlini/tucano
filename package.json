@@ -28,6 +28,8 @@
     "cnpj",
     "toast",
     "tooltip",
+    "tabs",
+    "switch",
     "modal",
     "dialog",
     "django",

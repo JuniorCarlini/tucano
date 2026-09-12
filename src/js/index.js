@@ -8,6 +8,7 @@ export { Tooltip, autoInit as autoInitTooltips } from './components/tooltip.js';
 export { Modal, modal, confirm, autoInit as autoInitModals } from './components/modal.js';
 export { Drawer, drawer, autoInit as autoInitDrawers } from './components/drawer.js';
 export { Accordion, autoInit as autoInitAccordions } from './components/accordion.js';
+export { Tabs, autoInit as autoInitTabs } from './components/tabs.js';
 export { Dropdown, autoInit as autoInitDropdowns } from './components/dropdown.js';
 export { Table, autoInit as autoInitTables } from './components/table.js';
 export { Pagination, pagination, pageWindow, autoInit as autoInitPagination } from './components/pagination.js';
@@ -29,6 +30,7 @@ import { autoInit as autoInitTip } from './components/tooltip.js';
 import { autoInit as autoInitModal } from './components/modal.js';
 import { autoInit as autoInitDrawer } from './components/drawer.js';
 import { autoInit as autoInitAccordion } from './components/accordion.js';
+import { autoInit as autoInitTab } from './components/tabs.js';
 import { autoInit as autoInitDropdown } from './components/dropdown.js';
 import { autoInit as autoInitTable } from './components/table.js';
 import { autoInit as autoInitPag } from './components/pagination.js';
@@ -48,6 +50,7 @@ export function init(scope = document) {
     modals: autoInitModal(scope),
     drawers: autoInitDrawer(scope),
     accordions: autoInitAccordion(scope),
+    tabs: autoInitTab(scope),
     dropdowns: autoInitDropdown(scope),
     tables: autoInitTable(scope),
     pagination: autoInitPag(scope),

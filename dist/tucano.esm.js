@@ -4312,8 +4312,123 @@ function autoInit10(scope = document) {
   return out;
 }
 
-// src/js/components/dropdown.js
+// src/js/components/tabs.js
 var DEFAULTS11 = {
+  selected: null,
+  // indice da aba inicial; sem ele vale a marcada com aria-selected="true", ou a primeira
+  manual: false,
+  // setas so movem o foco, e Enter ou Espaco trocam o painel — para painel que carrega por HTMX
+  onChange: null
+  // (index, detail) a cada troca feita pela pessoa ou por select()
+};
+var FOCUSABLE2 = 'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"]), [contenteditable]';
+var Tabs = class {
+  constructor(target, options = {}) {
+    this.node = typeof target === "string" ? document.querySelector(target) : target;
+    if (!this.node) throw new Error("[Tabs] elemento n\xE3o encontrado");
+    this.list = this.node.querySelector(":scope > .tuc-tabs__list");
+    if (!this.list) throw new Error("[Tabs] faltou o .tuc-tabs__list");
+    this.opts = { ...DEFAULTS11, ...omitUndefined(options) };
+    this._cleanups = [];
+    this._build();
+  }
+  /* `:scope >` porque aba dentro de painel e de outro conjunto de abas. */
+  get tabs() {
+    return [...this.list.querySelectorAll(":scope > .tuc-tabs__tab")];
+  }
+  get panels() {
+    return [...this.node.querySelectorAll(":scope > .tuc-tabs__panel")];
+  }
+  /** Indice da aba aberta, ou -1. */
+  get index() {
+    return this.tabs.findIndex((t) => t.getAttribute("aria-selected") === "true");
+  }
+  _build() {
+    this.node.classList.add("tuc-tabs");
+    this.node._tucano = this;
+    this.list.setAttribute("role", "tablist");
+    const base = this.node.id || nextId("tuc-tabs");
+    const panels = this.panels;
+    this.tabs.forEach((tab, i) => {
+      if (tab.tagName === "BUTTON" && !tab.hasAttribute("type")) tab.type = "button";
+      tab.id ||= `${base}-tab-${i}`;
+      tab.setAttribute("role", "tab");
+      const panel = panels[i];
+      if (!panel) return;
+      panel.id ||= `${base}-panel-${i}`;
+      panel.setAttribute("role", "tabpanel");
+      panel.setAttribute("aria-labelledby", tab.id);
+      tab.setAttribute("aria-controls", panel.id);
+      if (!panel.hasAttribute("tabindex") && !panel.querySelector(FOCUSABLE2)) panel.tabIndex = 0;
+    });
+    this._cleanups.push(
+      on(this.list, "click", (e) => {
+        const tab = e.target.closest(".tuc-tabs__tab");
+        if (tab && this._enabled(tab)) this.select(this.tabs.indexOf(tab));
+      }),
+      on(this.list, "keydown", (e) => this._onKey(e))
+    );
+    const marked = this.index;
+    const first = this.tabs.findIndex((t) => this._enabled(t));
+    this.select(this.opts.selected ?? (marked >= 0 ? marked : Math.max(first, 0)), { silent: true });
+  }
+  _enabled(tab) {
+    return !tab.disabled && tab.getAttribute("aria-disabled") !== "true";
+  }
+  select(index, { silent = false } = {}) {
+    const tabs = this.tabs;
+    const tab = tabs[index];
+    if (!tab || !this._enabled(tab)) return this;
+    const before = this.index;
+    tabs.forEach((t, i) => {
+      t.setAttribute("aria-selected", String(i === index));
+      t.tabIndex = i === index ? 0 : -1;
+    });
+    this.panels.forEach((p, i) => {
+      p.hidden = i !== index;
+    });
+    if (!silent && before !== index) this._emit();
+    return this;
+  }
+  _onKey(e) {
+    const usable = this.tabs.filter((t) => this._enabled(t));
+    const current = usable.indexOf(document.activeElement);
+    if (current < 0) return;
+    let next = null;
+    if (e.key === "ArrowRight") next = (current + 1) % usable.length;
+    else if (e.key === "ArrowLeft") next = (current - 1 + usable.length) % usable.length;
+    else if (e.key === "Home") next = 0;
+    else if (e.key === "End") next = usable.length - 1;
+    if (next === null) return;
+    e.preventDefault();
+    const target = usable[next];
+    target.focus();
+    target.scrollIntoView?.({ block: "nearest", inline: "nearest" });
+    if (!this.opts.manual) this.select(this.tabs.indexOf(target));
+  }
+  _emit() {
+    const value = this.index;
+    const detail = { value, tab: this.tabs[value], panel: this.panels[value], instance: this };
+    this.opts.onChange?.(value, detail);
+    this.node.dispatchEvent(new CustomEvent("tucano:change", { detail, bubbles: true }));
+  }
+  destroy() {
+    this._cleanups.forEach((fn) => fn());
+    this._cleanups = [];
+    delete this.node._tucano;
+  }
+};
+function autoInit11(scope = document) {
+  const out = [];
+  for (const node of scope.querySelectorAll("[data-tuc-tabs]:not([data-tuc-ready])")) {
+    node.setAttribute("data-tuc-ready", "");
+    out.push(new Tabs(node, { manual: node.dataset.manual === "true" }));
+  }
+  return out;
+}
+
+// src/js/components/dropdown.js
+var DEFAULTS12 = {
   placement: "bottom-start",
   items: null,
   // [{ text, icon, shortcut, onClick, href, variant, disabled, separator, label }]
@@ -4321,12 +4436,12 @@ var DEFAULTS11 = {
   // ou { separator: true } / { label: 'Seção' }
   closeOnPick: true
 };
-var FOCUSABLE2 = '.tuc-dropdown__item:not([disabled]):not([aria-disabled="true"])';
+var FOCUSABLE3 = '.tuc-dropdown__item:not([disabled]):not([aria-disabled="true"])';
 var Dropdown = class {
   constructor(trigger, options = {}) {
     this.trigger = typeof trigger === "string" ? document.querySelector(trigger) : trigger;
     if (!this.trigger) throw new Error("[Dropdown] gatilho n\xE3o encontrado");
-    this.opts = { ...DEFAULTS11, ...omitUndefined(options) };
+    this.opts = { ...DEFAULTS12, ...omitUndefined(options) };
     this._cleanups = [];
     this._build();
   }
@@ -4382,7 +4497,7 @@ var Dropdown = class {
     }, children);
   }
   get items() {
-    return [...this.panel.querySelectorAll(FOCUSABLE2)];
+    return [...this.panel.querySelectorAll(FOCUSABLE3)];
   }
   _move(step, absolute = false) {
     const items = this.items;
@@ -4444,7 +4559,7 @@ var Dropdown = class {
     this._cleanups = [];
   }
 };
-function autoInit11(scope = document) {
+function autoInit12(scope = document) {
   const out = [];
   for (const trigger of scope.querySelectorAll("[data-tuc-dropdown]:not([data-tuc-ready])")) {
     trigger.setAttribute("data-tuc-ready", "");
@@ -4465,7 +4580,7 @@ function autoInit11(scope = document) {
 }
 
 // src/js/components/table.js
-var DEFAULTS12 = {
+var DEFAULTS13 = {
   sortable: true,
   sortMode: "server",
   // server | client
@@ -4489,7 +4604,7 @@ var Table = class {
     this.node = typeof node === "string" ? document.querySelector(node) : node;
     if (!this.node) throw new Error("[Table] elemento alvo nao encontrado");
     if (this.node.tagName !== "TABLE") throw new Error("[Table] o alvo precisa ser uma <table>");
-    this.opts = { ...DEFAULTS12, ...omitUndefined(options) };
+    this.opts = { ...DEFAULTS13, ...omitUndefined(options) };
     this.id = this.node.id || nextId("table");
     this._cleanups = [];
     this._build();
@@ -4649,7 +4764,7 @@ var Table = class {
     this._cleanups = [];
   }
 };
-function autoInit12(scope = document) {
+function autoInit13(scope = document) {
   const out = [];
   for (const node of scope.querySelectorAll("table[data-tuc-table]:not([data-tuc-ready])")) {
     node.setAttribute("data-tuc-ready", "");
@@ -4667,7 +4782,7 @@ function autoInit12(scope = document) {
 }
 
 // src/js/components/pagination.js
-var DEFAULTS13 = {
+var DEFAULTS14 = {
   page: 1,
   pages: 1,
   param: "page",
@@ -4700,7 +4815,7 @@ function pageWindow(page, pages, { around = 1, edges = 1 } = {}) {
 }
 var Pagination = class {
   constructor(options = {}) {
-    this.opts = { ...DEFAULTS13, ...omitUndefined(options) };
+    this.opts = { ...DEFAULTS14, ...omitUndefined(options) };
     this._cleanups = [];
     this.node = el("nav", { class: "tuc-pagination", role: "navigation", "aria-label": this.opts.label });
     this.node._tucano = this;
@@ -4778,7 +4893,7 @@ var Pagination = class {
 function pagination(options = {}) {
   return new Pagination(options).node;
 }
-function autoInit13(scope = document) {
+function autoInit14(scope = document) {
   const out = [];
   for (const node of scope.querySelectorAll("[data-tuc-pagination]:not([data-tuc-ready])")) {
     node.setAttribute("data-tuc-ready", "");
@@ -5015,7 +5130,7 @@ function highlight(code) {
     return className ? `<span class="tuc-tok-${className}">${whole}</span>` : whole;
   });
 }
-function autoInit14(scope = document) {
+function autoInit15(scope = document) {
   const blocks = [...scope.querySelectorAll(".tuc-prose pre > code:not([data-tuc-painted])")];
   for (const code of blocks) {
     code.setAttribute("data-tuc-painted", "");
@@ -5058,7 +5173,7 @@ function addCopy(pre) {
 }
 
 // src/js/components/editor.js
-var DEFAULTS14 = {
+var DEFAULTS15 = {
   toolbar: [
     "bold",
     "italic",
@@ -5340,7 +5455,7 @@ var Editor = class {
   constructor(target, options = {}) {
     this.field = typeof target === "string" ? document.querySelector(target) : target;
     if (!this.field) throw new Error("[Editor] elemento n\xE3o encontrado");
-    this.opts = { ...DEFAULTS14, ...omitUndefined(options) };
+    this.opts = { ...DEFAULTS15, ...omitUndefined(options) };
     this._cleanups = [];
     this._build();
   }
@@ -5687,7 +5802,7 @@ var Editor = class {
     this.root.remove();
   }
 };
-function autoInit15(scope = document) {
+function autoInit16(scope = document) {
   const out = [];
   for (const node of scope.querySelectorAll("[data-tuc-editor]:not([data-tuc-ready])")) {
     node.setAttribute("data-tuc-ready", "");
@@ -5712,11 +5827,12 @@ function init(scope = document) {
     modals: autoInit8(scope),
     drawers: autoInit9(scope),
     accordions: autoInit10(scope),
-    dropdowns: autoInit11(scope),
-    tables: autoInit12(scope),
-    pagination: autoInit13(scope),
-    editors: autoInit15(scope),
-    prose: autoInit14(scope),
+    tabs: autoInit11(scope),
+    dropdowns: autoInit12(scope),
+    tables: autoInit13(scope),
+    pagination: autoInit14(scope),
+    editors: autoInit16(scope),
+    prose: autoInit15(scope),
     // Por último de propósito: componentes que criam a própria barra de botões
     // marcam neles `data-tuc-tip`, e esses elementos só existem depois que eles
     // se montam. Antes, os botões do editor nasciam sem dica.
@@ -5737,6 +5853,7 @@ export {
   Popover,
   Select,
   Table,
+  Tabs,
   Toast,
   Tooltip,
   Upload,
@@ -5745,14 +5862,15 @@ export {
   autoInit3 as autoInitColorPickers,
   autoInit as autoInitDatePickers,
   autoInit9 as autoInitDrawers,
-  autoInit11 as autoInitDropdowns,
-  autoInit15 as autoInitEditors,
+  autoInit12 as autoInitDropdowns,
+  autoInit16 as autoInitEditors,
   autoInit5 as autoInitMasks,
   autoInit8 as autoInitModals,
-  autoInit13 as autoInitPagination,
-  autoInit14 as autoInitProse,
+  autoInit14 as autoInitPagination,
+  autoInit15 as autoInitProse,
   autoInit2 as autoInitSelects,
-  autoInit12 as autoInitTables,
+  autoInit13 as autoInitTables,
+  autoInit11 as autoInitTabs,
   autoInit6 as autoInitToasts,
   autoInit7 as autoInitTooltips,
   autoInit4 as autoInitUploads,

@@ -3,7 +3,7 @@
 Componentes de formulário e interface para a web, para quem escreve HTML.
 Sem React, sem Vue, sem dependência em runtime.
 
-**36 KB de JS + 12 KB de CSS** (minificado + gzip).
+**37 KB de JS + 13 KB de CSS** (minificado + gzip).
 
 **[Documentação e exemplos ao vivo →](https://juniorcarlini.github.io/tucano/)**
 
@@ -22,6 +22,9 @@ Sem React, sem Vue, sem dependência em runtime.
 | `Dropdown` — menu de ações ancorado, navegação por setas | pronto |
 | `Table` — ordenação por coluna e seleção em massa | pronto |
 | `Pagination` — links de página, feita para o Paginator | pronto |
+| `Tabs` — abas com teclado do ARIA APG, e segmentadas | pronto |
+| `.tuc-alert` — aviso fixo na página, quatro tons, só classe | pronto |
+| `.tuc-spinner` `.tuc-skeleton` — carregando, só classe | pronto |
 | `.tuc-menu` — lista de navegação, só classe | pronto |
 | `.tuc-badge` — etiqueta de estado, quatro tons, só classe | pronto |
 | `.tuc-check` `.tuc-radio` `.tuc-switch` — caixa, opção e chave, só classe | pronto |
@@ -747,6 +750,75 @@ O item vira `<a>` quando tem `href`, e `<button>` no resto. Abrir leva o foco ao
 primeiro item, as setas andam entre eles e fechar devolve o foco ao gatilho; os
 itens ficam com `tabindex="-1"` porque dentro de um menu quem navega é a seta, e
 não o `Tab`.
+
+## Abas
+
+```html
+<div class="tuc-tabs" data-tuc-tabs>
+  <div class="tuc-tabs__list">
+    <button class="tuc-tabs__tab" aria-selected="true">Dados</button>
+    <button class="tuc-tabs__tab">Endereço</button>
+  </div>
+  <div class="tuc-tabs__panel">Conteúdo</div>
+  <div class="tuc-tabs__panel" hidden>Conteúdo</div>
+</div>
+```
+
+O template traz as classes, a aba inicial com `aria-selected="true"` e os outros
+painéis com `hidden`, então a página nasce desenhada antes do script. O JavaScript
+põe `role="tab"`, `aria-controls` e o teclado do ARIA APG: a lista é uma parada só
+do `Tab`, e dentro dela andam `←` `→` `Home` `End`, pulando aba desativada.
+`is-segmented` tem a altura de um campo, para ficar ao lado de um filtro.
+
+| Opção | Padrão | Para quê |
+| --- | --- | --- |
+| `selected` | `null` | Índice da aba inicial; sem ele, a marcada ou a primeira |
+| `manual` | `false` | Setas só movem o foco; `Enter`/`Espaço` abrem — para painel que carrega por HTMX |
+| `onChange` | `null` | `(index, detail)` a cada troca |
+
+```js
+const abas = new Tucano.Tabs('#cliente', { manual: true });
+abas.select(2);
+```
+
+Cada troca dispara `tucano:change` no elemento, com `{ value, tab, panel, instance }`.
+
+## Aviso
+
+```html
+<div class="tuc-alert is-warning">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg>
+  <div class="tuc-alert__body">
+    <p class="tuc-alert__title">Assinatura vence em 3 dias</p>
+    <p>Renove para não perder o acesso.</p>
+  </div>
+  <div class="tuc-alert__actions"><a class="tuc-btn is-outline is-sm" href="/assinatura/">Renovar</a></div>
+</div>
+```
+
+Para o que continua valendo enquanto a pessoa está na tela — o toast é para o que
+acabou de acontecer, e some. Tons: `is-info`, `is-success`, `is-warning`,
+`is-danger`; sem tom, neutro. As ações são os botões do sistema. Use
+`role="alert"` só no aviso que aparece depois do carregamento; o que já vem no
+HTML é lido com a página.
+
+## Carregando
+
+```html
+<button class="tuc-btn is-primary" aria-busy="true" disabled>
+  <span class="tuc-spinner"></span> Salvando
+</button>
+
+<span class="tuc-spinner htmx-indicator"></span>
+
+<div class="tuc-skeleton" style="width:60%"></div>
+```
+
+Spinner para a ação que a pessoa espera; esqueleto para o conteúdo que vai
+chegar, com o espaço já reservado. O spinner mede em `em` e pinta com
+`currentColor`, então dentro de um botão sai do tamanho do ícone e da cor do texto.
+`is-lg` aumenta; `.tuc-skeleton.is-circle` faz o avatar. Com o HTMX,
+`htmx-indicator` junto do spinner já o mostra só durante a requisição.
 
 ## Gaveta (off-canvas)
 

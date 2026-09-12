@@ -174,7 +174,7 @@ function conferir({ OPCOES, ANINHADOS, BLOCOS }) {
 
   const ATRIBUTOS = '[data-tuc-datepicker],[data-tuc-select],[data-tuc-color],[data-tuc-mask],'
     + '[data-tuc-upload],[data-tuc-editor],[data-tuc-accordion],[data-tuc-table],[data-tuc-tip],'
-    + '[data-tuc-reveal],[data-tuc-dropdown]';
+    + '[data-tuc-reveal],[data-tuc-dropdown],[data-tuc-tabs]';
   // data-tuc-format nao monta componente: so reescreve o texto, e marca isso
   // com data-tuc-formatted. Sentinela diferente porque o estado e outro.
   const FORMATADOS = '[data-tuc-format]:not([data-tuc-formatted])';

@@ -54,6 +54,7 @@ const TARGETS = {
   'botão pequeno': { sel: '#c-btn-sm' },
   'botão grande': { sel: '#c-btn-lg' },
   'botão de ícone': { sel: '#c-icone' },
+  'abas segmentadas': { sel: '#c-seg .tuc-tabs__list' },
   'página da paginação': { sel: '.tuc-pagination .tuc-btn:not(.tuc-pagination__edge)' },
 };
 
@@ -82,6 +83,7 @@ body{margin:0;padding:16px;font-family:system-ui,sans-serif}</style></head><body
 <button class="tuc-btn is-outline is-lg" id="c-btn-lg">Grande</button>
 <button class="tuc-btn is-ghost is-icon" id="c-icone">×</button>
 <div data-tuc-pagination data-page="2" data-pages="9"></div>
+<div class="tuc-tabs is-segmented" data-tuc-tabs id="c-seg"><div class="tuc-tabs__list"><button class="tuc-tabs__tab" aria-selected="true">Todos</button><button class="tuc-tabs__tab">Pagos</button></div><div class="tuc-tabs__panel"></div><div class="tuc-tabs__panel" hidden></div></div>
 <label class="tuc-choice" data-align="caixa"><input type="checkbox" class="tuc-check"> Caixa</label>
 <label class="tuc-choice" data-align="opção"><input type="radio" class="tuc-radio"> Opção</label>
 <label class="tuc-choice" data-align="chave"><input type="checkbox" role="switch" class="tuc-switch"> Chave</label>

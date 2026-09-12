@@ -1,0 +1,89 @@
+@reference "tailwindcss";
+
+/*
+ * Carregando: spinner e esqueleto.
+ *
+ * O spinner e para uma acao que a pessoa disparou e espera (o botao de salvar);
+ * o esqueleto, para conteudo que ainda vai chegar e ja tem forma conhecida (a
+ * linha da tabela, o card). Esqueleto no lugar de spinner evita o salto: o
+ * espaco ja esta reservado com o tamanho do que vem.
+ *
+ * So classe, e sem JavaScript. Com o HTMX, `class="tuc-spinner htmx-indicator"`
+ * ja aparece e some sozinho durante a requisicao.
+ */
+
+/*
+ * O tamanho e em `em`: o spinner acompanha a fonte de onde esta, entao dentro de
+ * um botao is-sm ele ja sai pequeno sem variante nenhuma. A cor e currentColor
+ * pelo mesmo motivo — num botao primario ele fica branco sozinho.
+ */
+.tuc-spinner {
+  @apply inline-block shrink-0 rounded-full;
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.125em;
+  border: 2px solid color-mix(in oklab, currentColor 22%, transparent);
+  border-top-color: currentColor;
+  animation: tuc-spin 700ms linear infinite;
+}
+.tuc-spinner.is-lg { width: 1.5em; height: 1.5em; }
+
+/* Dentro do botao, ocupa o lugar e o tamanho do icone. */
+.tuc-btn > .tuc-spinner {
+  width: var(--tuc-btn-icon);
+  height: var(--tuc-btn-icon);
+}
+/*
+ * Ocupado nao e desativado. O `disabled` junto impede o segundo clique, mas o
+ * esmaecido de 50% dizia "nao disponivel" — e o botao esta trabalhando. Fica
+ * com a cor cheia e o cursor de espera.
+ */
+.tuc-btn[aria-busy='true'],
+.tuc-btn[aria-busy='true']:disabled {
+  cursor: progress;
+  opacity: 1;
+}
+
+@keyframes tuc-spin {
+  to { rotate: 360deg; }
+}
+
+/*
+ * O brilho corre por um gradiente de fundo, e nao por um pseudo-elemento com
+ * translate: assim o esqueleto pode ser qualquer elemento, inclusive um <td> ou
+ * um <img> sem src, que nao tem ::after.
+ */
+.tuc-skeleton {
+  @apply block;
+  height: 1em;
+  color: transparent;
+  background-color: var(--tuc-hover);
+  background-image: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in oklab, var(--tuc-bg) 65%, transparent),
+    transparent
+  );
+  background-repeat: no-repeat;
+  background-size: 50% 100%;
+  border-radius: var(--tuc-radius-xs);
+  animation: tuc-shimmer 1.4s ease-in-out infinite;
+  user-select: none;
+  pointer-events: none;
+}
+.tuc-skeleton.is-circle { aspect-ratio: 1; height: auto; border-radius: 999px; }
+
+@keyframes tuc-shimmer {
+  from { background-position: -100% 0; }
+  to { background-position: 200% 0; }
+}
+
+/*
+ * Sem movimento: o spinner continua girando, mais devagar, porque parado ele
+ * deixa de dizer "esperando" e vira um circulo qualquer. O brilho do esqueleto
+ * e so enfeite e para de vez.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .tuc-spinner { animation-duration: 1.6s; }
+  .tuc-skeleton { animation: none; background-image: none; }
+}

@@ -208,6 +208,7 @@
   .tuc-choices,
   .tuc-editor,
   .tuc-pagination,
+  .tuc-tabs,
   .tuc-btn {
     --tuc-text: 1rem;
   }

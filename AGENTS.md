@@ -469,6 +469,26 @@ componente copia atributo, e por isso nenhum fica dessincronizado quando o HTMX
 troca o campo. `:user-invalid` vai dentro de `:is()`, que perdoa seletor
 desconhecido — fora dele, navegador sem suporte descartaria a lista inteira.
 
+**As abas vêm desenhadas do template; o script só põe papéis e teclado.** As
+classes `.tuc-tabs__*`, o `aria-selected="true"` da inicial e o `hidden` dos
+outros painéis são escritos à mão, e por isso a página nasce certa no primeiro
+quadro, sem bloco de espera. O teclado é o do ARIA APG: a lista é uma parada só do
+`Tab`, e as setas andam dentro dela pulando aba desativada. `data-manual` existe
+para painel que carrega por HTMX — com ativação automática, atravessar quatro
+abas com a seta dispararia quatro requisições.
+
+**Na página de teste, gatilho de popover precisa estar na tela.** O Popover fecha
+o painel no primeiro reposicionamento quando a âncora está fora da viewport
+(`closeIfDetached`). Ao acrescentar as abas no `behavior.mjs`, o botão do dropdown
+desceu para 838px numa janela de 813, o menu fechou no `show()`, e o teste acusou
+"foco não voltou" — que parecia defeito de foco e era de posição. Conteúdo novo
+na página de teste empurra o que vem depois; o teste rola o gatilho para a tela
+antes de abrir, como faria quem clica.
+
+**Aspas cruas em `class="…"` dentro de `<code>` na página viram classe para o
+`consistency.mjs`.** Numa nota em prosa, escreva `&quot;`; nos `<pre>` o valor já
+sai partido em `<span>` e não casa.
+
 ## Antes de dizer que está pronto
 
 ```bash
@@ -509,23 +529,27 @@ bug contra build antigo. Confirme o código carregado, não só o arquivo em dis
 
 ## Testes
 
-`npm test` compila e roda quatro coisas, nesta ordem. Cada uma existe por causa
+`npm test` compila e roda cinco coisas, nesta ordem. Cada uma existe por causa
 de um defeito que passou batido.
 
 **`test/*.test.mjs` — 49 testes das funções puras** (`node --test`, sem
 dependência). `dates`, `mask`, `color` e `pageWindow` são entrada e saída sem
 DOM. Inclui `sanitize`, que é peça de segurança.
 
-**`tools/behavior.mjs` — 30 comportamentos no Chrome sem cabeça.** Abrir, fechar,
+**`tools/behavior.mjs` — 40 comportamentos no Chrome sem cabeça.** Abrir, fechar,
 ordenar, marcar, emitir evento. Armadilha registrada no cabeçalho do arquivo:
 transição não avança ali, então nunca leia opacidade ou posição logo depois de
 abrir algo — a página injeta `transition: none` onde o estado final importa.
 
-**`tools/examples.mjs` — os 32 exemplos da documentação.** Os de HTML são
+**`tools/examples.mjs` — os 37 exemplos da documentação.** Os de HTML são
 colados no documento e têm que montar; os de JS não são executados (citam
 `#entrega` e `formulario`, que não existem) e sim conferidos nome por nome
 contra o código: `Tucano.x` existe? o método existe no protótipo? cada chave de
 opção é lida por alguém, inclusive dentro de `actions` e `items`?
+
+**`tools/keyboard.mjs` — 11 caminhos de teclado real**, pelo protocolo de
+depuração do Chrome: `Backspace` e `Delete` na máscara, e as setas nas abas.
+Evento sintético não dispara a ação padrão, então só assim o caminho é o real.
 
 **`tools/consistency.mjs` — nome que existe em dois lugares e mudou só num.** As
 sete checagens saíram de defeitos reais, e cada uma foi testada reintroduzindo

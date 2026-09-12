@@ -1,7 +1,7 @@
 # Tucano
 
 > Componentes de formulário e interface para a web, feitos para Django e HTMX.
-> JavaScript puro, sem dependências em runtime. 36 KB JS + 12 KB CSS (gzip).
+> JavaScript puro, sem dependências em runtime. 37 KB JS + 13 KB CSS (gzip).
 > Os estilos são escritos em Tailwind mas distribuídos já compilados: o projeto
 > que consome não precisa de build e não recebe o preflight do Tailwind.
 >
@@ -420,6 +420,47 @@ modo com hora se digita "07/09/2026 14:30". No campo
 de cor o gatilho e a amostra ao lado, que e um <button> de verdade. Para voltar
 ao comportamento antigo no date picker: openOnFocus: true.
 
+## Abas
+
+    <div class="tuc-tabs" data-tuc-tabs>
+      <div class="tuc-tabs__list">
+        <button class="tuc-tabs__tab" aria-selected="true">Dados</button>
+        <button class="tuc-tabs__tab">Endereco</button>
+      </div>
+      <div class="tuc-tabs__panel">...</div>
+      <div class="tuc-tabs__panel" hidden>...</div>
+    </div>
+
+Escreva as classes, aria-selected="true" na inicial e hidden nos outros paineis:
+a pagina nasce certa antes do script. O JS poe os roles e o teclado (setas, Home,
+End; Tab para so na aba aberta). data-manual="true" quando o painel carrega por
+HTMX: setas so movem o foco. is-segmented = altura de campo, para barra de filtro.
+Evento tucano:change com detail { value, tab, panel, instance }.
+
+## Aviso
+
+    <div class="tuc-alert is-warning">
+      <svg>...</svg>
+      <div class="tuc-alert__body">
+        <p class="tuc-alert__title">Assinatura vence em 3 dias</p>
+        <p>Renove para nao perder o acesso.</p>
+      </div>
+      <div class="tuc-alert__actions"><a class="tuc-btn is-outline is-sm" href="...">Renovar</a></div>
+    </div>
+
+So classe. Para o que continua valendo na tela (o toast e para o que acabou de
+acontecer). Tons: is-info, is-success, is-warning, is-danger. role="alert" so no
+que aparece depois do load.
+
+## Carregando
+
+    <button class="tuc-btn is-primary" aria-busy="true" disabled><span class="tuc-spinner"></span> Salvando</button>
+    <span class="tuc-spinner htmx-indicator"></span>
+    <div class="tuc-skeleton" style="width:60%"></div>
+
+So classe. Spinner mede em em e usa currentColor; is-lg aumenta. Esqueleto
+reserva o espaco do conteudo; is-circle para avatar. Nao escreva spinner a mao.
+
 ## Gaveta (off-canvas)
 
 Componente proprio, mas divide com o modal a mecanica do <dialog>: top layer,
@@ -770,6 +811,17 @@ Inventario extraido do codigo a cada build. Se algo nao esta aqui, nao existe.
   metodos    sort getSelected clearSelection destroy
   eventos    tuc:sort tuc:select
 
+### Tabs
+  marcacao   [data-tuc-tabs]
+  em JS      new Tucano.Tabs(alvo, opcoes)
+  atributos  data-manual
+  opcoes
+    selected           = null  — indice da aba inicial; sem ele vale a marcada com aria-selected="true", ou a primeira…
+    manual             = false  — setas so movem o foco, e Enter ou Espaco trocam o painel — para painel que carrega por HTMX…
+    onChange           = null  — (index, detail) a cada troca feita pela pessoa ou por select()
+  metodos    select destroy
+  eventos    tucano:change
+
 ### Toast
   marcacao   [data-tuc-toast]
   em JS      new Tucano.Toast(alvo, opcoes)   atalhos: Tucano.toast(), Tucano.listenForEvents()
@@ -826,9 +878,9 @@ Inventario extraido do codigo a cada build. Se algo nao esta aqui, nao existe.
 ### Entradas do pacote
 
   Tucano.init(no)           inicializa todo data-tuc-* dentro de `no`
-  autoInitAccordions autoInitColorPickers autoInitDatePickers autoInitDrawers autoInitDropdowns autoInitEditors autoInitMasks autoInitModals autoInitPagination autoInitProse autoInitSelects autoInitTables autoInitToasts autoInitTooltips autoInitUploads
+  autoInitAccordions autoInitColorPickers autoInitDatePickers autoInitDrawers autoInitDropdowns autoInitEditors autoInitMasks autoInitModals autoInitPagination autoInitProse autoInitSelects autoInitTables autoInitTabs autoInitToasts autoInitTooltips autoInitUploads
     → um por componente, quando voce quer inicializar so um tipo
-  Accordion ColorPicker DatePicker Drawer Dropdown Editor FORMATS Mask Modal Pagination Popover Select Table Toast Tooltip Upload autoFormat confirm drawer highlight listenForEvents modal pageWindow pagination sanitize toast
+  Accordion ColorPicker DatePicker Drawer Dropdown Editor FORMATS Mask Modal Pagination Popover Select Table Tabs Toast Tooltip Upload autoFormat confirm drawer highlight listenForEvents modal pageWindow pagination sanitize toast
   Tucano.mask / .dates / .color   modulos utilitarios (ver secao Utilitarios)
 
   FORMATS (mascaras prontas): cpf cnpj cnpj-numerico cpf-cnpj phone mobile cep date time card currency real
@@ -836,11 +888,11 @@ Inventario extraido do codigo a cada build. Se algo nao esta aqui, nao existe.
 ### Classes CSS
 
 Escritas por voce no template (as com __ sao internas, montadas pelo JS):
-  tuc-accordion tuc-badge tuc-btn tuc-check tuc-choice tuc-choices tuc-color-field tuc-colorpicker tuc-copy tuc-dp tuc-drawer tuc-dropdown tuc-editor tuc-error tuc-field tuc-hint tuc-input tuc-input-group tuc-invalid tuc-label tuc-menu tuc-modal tuc-native tuc-native-wrap tuc-pagination tuc-prose tuc-radio tuc-select tuc-select-native tuc-switch tuc-table tuc-table-wrap tuc-tip tuc-toast tuc-toasts tuc-tok-attr tuc-tok-comment tuc-tok-key tuc-tok-num tuc-tok-tag tuc-tok-text tuc-tok-tmpl tuc-upload tuc-upload-native
+  tuc-accordion tuc-alert tuc-badge tuc-btn tuc-check tuc-choice tuc-choices tuc-color-field tuc-colorpicker tuc-copy tuc-dp tuc-drawer tuc-dropdown tuc-editor tuc-error tuc-field tuc-hint tuc-input tuc-input-group tuc-invalid tuc-label tuc-menu tuc-modal tuc-native tuc-native-wrap tuc-pagination tuc-prose tuc-radio tuc-select tuc-select-native tuc-skeleton tuc-spinner tuc-switch tuc-table tuc-table-wrap tuc-tabs tuc-tip tuc-toast tuc-toasts tuc-tok-attr tuc-tok-comment tuc-tok-key tuc-tok-num tuc-tok-tag tuc-tok-text tuc-tok-tmpl tuc-upload tuc-upload-native
 
 Montadas pelo JS dentro do componente — nao escreva no template, mas
 sao nomes estaveis para o seu proprio CSS:
-  tuc-accordion__arrow tuc-accordion__body tuc-accordion__content tuc-accordion__item tuc-accordion__trigger tuc-choice__hint tuc-color-field__swatch tuc-color-field__value tuc-colorpicker__area tuc-colorpicker__field tuc-colorpicker__pick tuc-colorpicker__preview tuc-colorpicker__row tuc-colorpicker__slider tuc-colorpicker__swatchbtn tuc-colorpicker__swatches tuc-colorpicker__thumb tuc-colorpicker__track tuc-colorpicker__tracks tuc-copy__ok tuc-dp__day tuc-dp__daynum tuc-dp__footer tuc-dp__grid tuc-dp__header tuc-dp__label tuc-dp__main tuc-dp__month tuc-dp__months tuc-dp__nav tuc-dp__period tuc-dp__periodcell tuc-dp__periodgrid tuc-dp__preset tuc-dp__presets tuc-dp__spacer tuc-dp__time tuc-dp__timecols tuc-dp__timegroup tuc-dp__timehead tuc-dp__timeitem tuc-dp__timelabel tuc-dp__timelist tuc-dp__timevalue tuc-dp__weekday tuc-dp__weekdays tuc-dp__weeknum tuc-dp__weeknum-head tuc-drawer__body tuc-drawer__close tuc-drawer__footer tuc-drawer__header tuc-drawer__panel tuc-drawer__text tuc-drawer__title tuc-drawer__top tuc-dropdown__icon tuc-dropdown__item tuc-dropdown__label tuc-dropdown__separator tuc-dropdown__shortcut tuc-dropdown__text tuc-editor__area tuc-editor__sep tuc-editor__toolbar tuc-editor__value tuc-field__eye tuc-menu__count tuc-menu__icon tuc-menu__item tuc-menu__section tuc-menu__separator tuc-menu__sub tuc-modal__body tuc-modal__close tuc-modal__footer tuc-modal__header tuc-modal__panel tuc-modal__text tuc-modal__title tuc-modal__top tuc-pagination__edge tuc-pagination__gap tuc-pagination__ico tuc-pagination__word tuc-prose__block tuc-select__arrow tuc-select__check tuc-select__clear tuc-select__empty tuc-select__group tuc-select__label tuc-select__list tuc-select__menu tuc-select__option tuc-select__search tuc-select__single tuc-select__tag tuc-select__tagtext tuc-select__tagx tuc-select__values tuc-table__actions tuc-table__avatar tuc-table__check tuc-table__empty tuc-table__pick tuc-table__sortable tuc-table__sortbtn tuc-table__sorticon tuc-table__sub tuc-table__user tuc-tip__arrow tuc-tip__text tuc-toast__action tuc-toast__body tuc-toast__close tuc-toast__icon tuc-toast__text tuc-toast__title tuc-toasts__live tuc-toasts__stage tuc-upload__action tuc-upload__actions tuc-upload__bar tuc-upload__barfill tuc-upload__hidden tuc-upload__hint tuc-upload__icon tuc-upload__info tuc-upload__item tuc-upload__label tuc-upload__list tuc-upload__meta tuc-upload__name tuc-upload__ok tuc-upload__thumb tuc-upload__zone
+  tuc-accordion__arrow tuc-accordion__body tuc-accordion__content tuc-accordion__item tuc-accordion__trigger tuc-alert__actions tuc-alert__body tuc-alert__title tuc-choice__hint tuc-color-field__swatch tuc-color-field__value tuc-colorpicker__area tuc-colorpicker__field tuc-colorpicker__pick tuc-colorpicker__preview tuc-colorpicker__row tuc-colorpicker__slider tuc-colorpicker__swatchbtn tuc-colorpicker__swatches tuc-colorpicker__thumb tuc-colorpicker__track tuc-colorpicker__tracks tuc-copy__ok tuc-dp__day tuc-dp__daynum tuc-dp__footer tuc-dp__grid tuc-dp__header tuc-dp__label tuc-dp__main tuc-dp__month tuc-dp__months tuc-dp__nav tuc-dp__period tuc-dp__periodcell tuc-dp__periodgrid tuc-dp__preset tuc-dp__presets tuc-dp__spacer tuc-dp__time tuc-dp__timecols tuc-dp__timegroup tuc-dp__timehead tuc-dp__timeitem tuc-dp__timelabel tuc-dp__timelist tuc-dp__timevalue tuc-dp__weekday tuc-dp__weekdays tuc-dp__weeknum tuc-dp__weeknum-head tuc-drawer__body tuc-drawer__close tuc-drawer__footer tuc-drawer__header tuc-drawer__panel tuc-drawer__text tuc-drawer__title tuc-drawer__top tuc-dropdown__icon tuc-dropdown__item tuc-dropdown__label tuc-dropdown__separator tuc-dropdown__shortcut tuc-dropdown__text tuc-editor__area tuc-editor__sep tuc-editor__toolbar tuc-editor__value tuc-field__eye tuc-menu__count tuc-menu__icon tuc-menu__item tuc-menu__section tuc-menu__separator tuc-menu__sub tuc-modal__body tuc-modal__close tuc-modal__footer tuc-modal__header tuc-modal__panel tuc-modal__text tuc-modal__title tuc-modal__top tuc-pagination__edge tuc-pagination__gap tuc-pagination__ico tuc-pagination__word tuc-prose__block tuc-select__arrow tuc-select__check tuc-select__clear tuc-select__empty tuc-select__group tuc-select__label tuc-select__list tuc-select__menu tuc-select__option tuc-select__search tuc-select__single tuc-select__tag tuc-select__tagtext tuc-select__tagx tuc-select__values tuc-table__actions tuc-table__avatar tuc-table__check tuc-table__empty tuc-table__pick tuc-table__sortable tuc-table__sortbtn tuc-table__sorticon tuc-table__sub tuc-table__user tuc-tabs__list tuc-tabs__panel tuc-tabs__tab tuc-tip__arrow tuc-tip__text tuc-toast__action tuc-toast__body tuc-toast__close tuc-toast__icon tuc-toast__text tuc-toast__title tuc-toasts__live tuc-toasts__stage tuc-upload__action tuc-upload__actions tuc-upload__bar tuc-upload__barfill tuc-upload__hidden tuc-upload__hint tuc-upload__icon tuc-upload__info tuc-upload__item tuc-upload__label tuc-upload__list tuc-upload__meta tuc-upload__name tuc-upload__ok tuc-upload__thumb tuc-upload__zone
 
 ### Tokens
 

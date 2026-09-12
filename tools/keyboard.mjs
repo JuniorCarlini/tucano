@@ -29,6 +29,11 @@ const pagina = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
 <input id="doc" data-tuc-mask="cpf-cnpj">
 <input id="valor" data-tuc-mask="real">
 <input id="data" data-tuc-mask="date">
+<div class="tuc-tabs" data-tuc-tabs id="abas"><div class="tuc-tabs__list">
+  <button class="tuc-tabs__tab" aria-selected="true">A</button><button class="tuc-tabs__tab">B</button>
+  <button class="tuc-tabs__tab" disabled>C</button><button class="tuc-tabs__tab">D</button></div>
+  <div class="tuc-tabs__panel">a</div><div class="tuc-tabs__panel" hidden>b</div>
+  <div class="tuc-tabs__panel" hidden>c</div><div class="tuc-tabs__panel" hidden>d</div></div>
 <script>${readFileSync('dist/tucano.js', 'utf8')}</script>
 </body></html>`;
 
@@ -80,6 +85,10 @@ async function avaliar(expressao) {
 const TECLAS = {
   Backspace: { code: 'Backspace', key: 'Backspace', vk: 8 },
   Delete: { code: 'Delete', key: 'Delete', vk: 46 },
+  ArrowRight: { code: 'ArrowRight', key: 'ArrowRight', vk: 39 },
+  ArrowLeft: { code: 'ArrowLeft', key: 'ArrowLeft', vk: 37 },
+  Home: { code: 'Home', key: 'Home', vk: 36 },
+  End: { code: 'End', key: 'End', vk: 35 },
 };
 async function tecla(nome, vezes = 1) {
   const t = TECLAS[nome];
@@ -207,8 +216,29 @@ await caso('data recusa dia impossível enquanto se digita', async () => {
   return /^\d{2}\/\d{2}\/\d{4}$/.test(r.valor) ? null : `veio "${r.valor}"`;
 });
 
+await caso('setas andam entre as abas, pulam a desativada e trocam o painel', async () => {
+  const onde = () => avaliar(`(() => { const a = document.getElementById('abas');
+    return document.activeElement.textContent + a._tucano.index + a.querySelectorAll('.tuc-tabs__panel:not([hidden])').length; })()`);
+  await avaliar(`document.querySelector('#abas .tuc-tabs__tab').focus()`);
+  await tecla('ArrowRight');
+  let r = await onde();
+  if (r !== 'B11') return `depois de → esperado B, índice 1 e um painel; veio ${r}`;
+  await tecla('ArrowRight');           // C está desativada: vai direto para D
+  r = await onde();
+  if (r !== 'D31') return `a seta não pulou a aba desativada: ${r}`;
+  await tecla('ArrowRight');           // do fim volta ao começo
+  r = await onde();
+  if (r !== 'A01') return `a seta não deu a volta: ${r}`;
+  await tecla('End');
+  r = await onde();
+  if (r !== 'D31') return `End não foi para a última: ${r}`;
+  await tecla('Home');
+  r = await onde();
+  return r === 'A01' ? null : `Home não voltou para a primeira: ${r}`;
+});
+
 ws.close();
 chrome.kill();
 unlinkSync(arq);
-console.log(falhas ? `\n${falhas} falha(s) no teclado` : '\n10 caminhos de teclado verificados');
+console.log(falhas ? `\n${falhas} falha(s) no teclado` : '\n11 caminhos de teclado verificados');
 process.exit(falhas ? 1 : 0);
