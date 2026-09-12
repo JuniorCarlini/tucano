@@ -460,6 +460,15 @@ alinhado ao topo e descido até o centro de uma primeira linha de altura fixa;
 `npm run audit` mede esse centro, com e sem descrição. A chave precisa de
 `role="switch"` no template, porque CSS não põe papel.
 
+**Campo com erro é `aria-invalid="true"`, não classe.** É o atributo que o
+leitor de tela anuncia, e o Django 5 o escreve sozinho em todo campo que voltou
+com erro — então `{{ field }}` pinta sem ninguém escrever nada. Nos componentes
+que trocam o campo por um controle próprio, o atributo continua no nativo e o CSS
+chega ao controle por `select[aria-invalid] + .tuc-select` e `:has(> …)`: nenhum
+componente copia atributo, e por isso nenhum fica dessincronizado quando o HTMX
+troca o campo. `:user-invalid` vai dentro de `:is()`, que perdoa seletor
+desconhecido — fora dele, navegador sem suporte descartaria a lista inteira.
+
 ## Antes de dizer que está pronto
 
 ```bash

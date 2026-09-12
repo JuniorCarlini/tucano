@@ -93,7 +93,7 @@ const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m
   const semEstilo = [...usadas].filter((c) => !definidas.has(c) && !GANCHOS.has(c)
     && !c.startsWith('tuc-tok') && !/^tuc-(dp|select|colorpicker|upload|toast|tip|modal|drawer|accordion|menu|dropdown|table|pagination|badge|check|input|editor|prose|btn|field|color-field|input-group|copy|native|invalid|select-native|upload-native|native-wrap|table-wrap|toasts)$/.test(c));
   const orfas = [...definidas].filter((c) => !usadas.has(c) && !c.includes('is-')
-    && ![...sufixos].some((s) => c.endsWith(s)) && !/^tuc-(tok|prose|input|btn|menu|badge|check|radio|switch|choice|field|input-group|table|dp|copy)/.test(c));
+    && ![...sufixos].some((s) => c.endsWith(s)) && !/^tuc-(tok|prose|input|btn|menu|badge|check|radio|switch|choice|label|hint|error|field|input-group|table|dp|copy)/.test(c));
 
   if (semEstilo.length) falhar(`classe montada pelo JS sem regra no CSS: ${semEstilo.join(' ')}`);
   else if (orfas.length) falhar(`classe no CSS que ninguém monta: ${orfas.join(' ')}`);

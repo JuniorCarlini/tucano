@@ -17,7 +17,8 @@
  * `all: unset` na busca do select.
  */
 input.tuc-input.tuc-input,
-textarea.tuc-input.tuc-input {
+textarea.tuc-input.tuc-input,
+select.tuc-input.tuc-input {
   @apply block w-full appearance-none;
   height: var(--tuc-control-height);
   padding: 0 0.75rem;
@@ -46,14 +47,16 @@ input.tuc-input.tuc-input::placeholder,
 textarea.tuc-input.tuc-input::placeholder { color: var(--tuc-subtle); }
 
 input.tuc-input.tuc-input:focus,
-textarea.tuc-input.tuc-input:focus {
+textarea.tuc-input.tuc-input:focus,
+select.tuc-input.tuc-input:focus {
   outline: 0;
   border-color: var(--tuc-accent);
   box-shadow: 0 0 0 3px color-mix(in oklab, var(--tuc-accent) 22%, transparent);
 }
 
 input.tuc-input.tuc-input:disabled,
-textarea.tuc-input.tuc-input:disabled {
+textarea.tuc-input.tuc-input:disabled,
+select.tuc-input.tuc-input:disabled {
   @apply cursor-not-allowed opacity-60;
   background: var(--tuc-elevated);
 }

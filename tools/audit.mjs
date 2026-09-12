@@ -49,6 +49,7 @@ const TARGETS = {
   'campo com máscara': { sel: '#c-mask', typable: true },
   'campo de cor': { sel: '.tuc-color-field', typable: true },
   'campo de texto': { sel: '#c-input', typable: true },
+  'select nativo': { sel: '#c-native', typable: true },
   'botão padrão': { sel: '#c-btn' },
   'botão pequeno': { sel: '#c-btn-sm' },
   'botão grande': { sel: '#c-btn-lg' },
@@ -75,6 +76,7 @@ body{margin:0;padding:16px;font-family:system-ui,sans-serif}</style></head><body
 <input data-tuc-mask="cpf-cnpj" id="c-mask">
 <input data-tuc-color id="c-cor">
 <input type="text" class="tuc-input" id="c-input">
+<select class="tuc-input" id="c-native"><option>Um</option></select>
 <button class="tuc-btn is-primary" id="c-btn">Botão</button>
 <button class="tuc-btn is-outline is-sm" id="c-btn-sm">Pequeno</button>
 <button class="tuc-btn is-outline is-lg" id="c-btn-lg">Grande</button>

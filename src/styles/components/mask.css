@@ -42,7 +42,5 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Campo reprovado na validacao de documento. */
-.tuc-invalid {
-  border-color: var(--tuc-danger) !important;
-}
+/* O campo reprovado na validacao de documento e desenhado em form.css, junto
+   com todo campo que reprovou. */

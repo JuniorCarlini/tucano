@@ -1,0 +1,137 @@
+@reference "tailwindcss";
+
+/*
+ * Rotulo, ajuda, erro e o campo que reprovou.
+ *
+ * O campo com erro e marcado por `aria-invalid="true"`, e nao por uma classe
+ * nossa. E o atributo que o leitor de tela ja entende — ele anuncia "invalido"
+ * ao focar —, e desde o Django 5.0 o proprio formulario o escreve em todo campo
+ * que voltou com erro. Quem renderiza `{{ field }}` recebe a borda vermelha sem
+ * escrever nada: a mesma informacao serve a tela e ao leitor, e nao ha como as
+ * duas divergirem.
+ *
+ * `:user-invalid` entra junto para a validacao do proprio navegador
+ * (`required`, `type=email`): ele so casa depois que a pessoa mexeu no campo,
+ * entao o formulario nao nasce vermelho. Navegador que nao o conhece ignora
+ * so aquele item, porque vai dentro de `:is()`, que perdoa seletor invalido.
+ *
+ * Os componentes que trocam o campo por um controle proprio (select, cor,
+ * editor, upload) nao recebem o atributo no controle: ele fica no elemento
+ * nativo, que continua no DOM. O CSS alcanca o controle a partir dele, entao
+ * nenhum componente precisou copiar atributo.
+ */
+
+/* ------------------------------------------------------------------ *
+ * Rotulo, ajuda e erro                                                *
+ * ------------------------------------------------------------------ */
+
+/* Classe repetida pelo mesmo motivo do .tuc-choice: `label` e das tags que o
+   projeto estiliza, e `.card label` venceria uma classe sozinha. */
+.tuc-label.tuc-label {
+  display: block;
+  margin: 0 0 0.375rem;
+  padding: 0;
+  font-family: var(--tuc-font);
+  font-size: var(--tuc-text);
+  font-weight: 500;
+  line-height: 1.25rem;
+  color: var(--tuc-fg);
+}
+
+/* O asterisco e desenho: o `required` do campo ja diz ao leitor de tela que ele
+   e obrigatorio, e ouvir "asterisco" depois do nome so atrapalha. */
+.tuc-label.tuc-label.is-required::after {
+  content: '*';
+  content: '*' / '';
+  margin-left: 0.125rem;
+  color: var(--tuc-danger);
+}
+
+.tuc-hint.tuc-hint,
+.tuc-error.tuc-error {
+  display: block;
+  margin: 0.375rem 0 0;
+  padding: 0;
+  font-family: var(--tuc-font);
+  font-size: 0.75rem;
+  line-height: 1.125rem;
+  color: var(--tuc-muted);
+}
+.tuc-error.tuc-error { color: var(--tuc-danger); }
+
+/* ------------------------------------------------------------------ *
+ * Select nativo                                                       *
+ * ------------------------------------------------------------------ */
+
+/*
+ * Para a lista curta, sem busca, onde o componente Select seria exagero — e no
+ * celular o nativo abre a roleta do sistema, que e o melhor que ha ali.
+ *
+ * A seta e desenhada com dois gradientes, e nao com um SVG em data URI: dentro
+ * da URI a cor seria fixa, e aqui ela le --tuc-muted e muda com o tema.
+ */
+select.tuc-input.tuc-input {
+  --tuc-chevron:
+    linear-gradient(45deg, transparent 50%, var(--tuc-muted) 50%),
+    linear-gradient(135deg, var(--tuc-muted) 50%, transparent 50%);
+  padding-right: 2.25rem;
+  cursor: pointer;
+  background-image: var(--tuc-chevron);
+  background-repeat: no-repeat;
+  background-size: 0.3125rem 0.3125rem;
+  background-position:
+    calc(100% - 1rem) calc(50% + 1px),
+    calc(100% - 0.6875rem) calc(50% + 1px);
+}
+select.tuc-input.tuc-input:disabled {
+  cursor: not-allowed;
+  background-image: var(--tuc-chevron);
+}
+
+/* Com `multiple` ou `size` o nativo e uma caixa de lista, nao um campo. */
+select.tuc-input.tuc-input:is([multiple], [size]) {
+  height: auto;
+  padding: 0.375rem;
+  background-image: none;
+}
+
+/* ------------------------------------------------------------------ *
+ * Campo que reprovou                                                  *
+ * ------------------------------------------------------------------ */
+
+input.tuc-input.tuc-input:is([aria-invalid='true'], .tuc-invalid, :user-invalid),
+textarea.tuc-input.tuc-input:is([aria-invalid='true'], :user-invalid),
+select.tuc-input.tuc-input:is([aria-invalid='true'], :user-invalid),
+select[aria-invalid='true'] + .tuc-select,
+.tuc-color-field:has(> input[aria-invalid='true']),
+.tuc-editor:has(> textarea[aria-invalid='true']),
+.tuc-upload:has(> input[aria-invalid='true']) > .tuc-upload__zone,
+/* Antes do script: sem isto a borda vermelha so aparecia depois do load. */
+input[data-tuc-datepicker][aria-invalid='true']:not([data-tuc-ready]),
+input[data-tuc-mask][aria-invalid='true']:not([data-tuc-ready]),
+input[data-tuc-color][aria-invalid='true']:not([data-tuc-ready]),
+select[data-tuc-select][aria-invalid='true']:not([data-tuc-ready]) {
+  border-color: var(--tuc-danger);
+}
+
+/* Em foco continua vermelho: o anel acompanha o erro, e nao volta ao destaque. */
+input.tuc-input.tuc-input:is([aria-invalid='true'], .tuc-invalid, :user-invalid):focus,
+textarea.tuc-input.tuc-input:is([aria-invalid='true'], :user-invalid):focus,
+select.tuc-input.tuc-input:is([aria-invalid='true'], :user-invalid):focus,
+select[aria-invalid='true'] + .tuc-select:is(:focus-within, .is-open),
+.tuc-color-field:has(> input[aria-invalid='true']):focus-within,
+.tuc-editor:has(> textarea[aria-invalid='true']):focus-within,
+.tuc-upload:has(> input[aria-invalid='true']) > .tuc-upload__zone:focus-visible {
+  border-color: var(--tuc-danger);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--tuc-danger) 22%, transparent);
+}
+
+/* Caixa e opcao: so a borda, e so enquanto desmarcadas — marcada, a cor de
+   destaque diz mais que o erro, que deixou de valer. */
+input.tuc-check.tuc-check:is([aria-invalid='true'], :user-invalid):not(:checked),
+input.tuc-radio.tuc-radio:is([aria-invalid='true'], :user-invalid):not(:checked) {
+  border-color: var(--tuc-danger);
+}
+input.tuc-switch.tuc-switch:is([aria-invalid='true'], :user-invalid):not(:checked) {
+  box-shadow: 0 0 0 1px var(--tuc-danger);
+}

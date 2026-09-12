@@ -213,6 +213,39 @@ body{margin:0;padding:16px;font-family:system-ui}
     if (antes === depois) throw new Error('translate ficou ' + depois);
     sw.click();
   });
+  t('aria-invalid pinta a borda de erro, inclusive nos controles montados', function () {
+    // O atributo fica no nativo; a borda tem de aparecer no que a pessoa vê.
+    var perigo = document.createElement('span');
+    perigo.style.color = 'var(--tuc-danger)';
+    document.body.append(perigo);
+    var cor = getComputedStyle(perigo).color;
+    perigo.remove();
+    var alvos = {
+      'campo de texto': [document.getElementById('m'), document.getElementById('m')],
+      'select': [document.getElementById('s'), document.getElementById('s').nextElementSibling],
+      'campo de cor': [document.getElementById('c'), document.getElementById('c').closest('.tuc-color-field')],
+      'editor': [document.getElementById('ed'), document.getElementById('ed').closest('.tuc-editor')],
+    };
+    Object.keys(alvos).forEach(function (nome) {
+      var nativo = alvos[nome][0], visto = alvos[nome][1];
+      if (getComputedStyle(visto).borderTopColor === cor) throw new Error(nome + ' já nasceu vermelho');
+      nativo.setAttribute('aria-invalid', 'true');
+      var borda = getComputedStyle(visto).borderTopColor;
+      nativo.removeAttribute('aria-invalid');
+      if (borda !== cor) throw new Error(nome + ': borda ' + borda + ', esperado ' + cor);
+    });
+  });
+  t('select nativo com tuc-input tem a altura e a cara do campo', function () {
+    var s = document.createElement('select');
+    s.className = 'tuc-input';
+    s.innerHTML = '<option>Um</option>';
+    document.body.append(s);
+    var c = getComputedStyle(s), ref = getComputedStyle(document.getElementById('m'));
+    var ok = c.appearance === 'none' && c.height === ref.height && c.borderTopLeftRadius === ref.borderTopLeftRadius;
+    var msg = c.appearance + ' ' + c.height + ' ' + c.borderTopLeftRadius;
+    s.remove();
+    if (!ok) throw new Error(msg);
+  });
   t('rótulo resiste ao CSS de label do projeto', function () {
     // .hostil label pesa 0,1,1 e declara display, margem e peso: é o que a
     // própria página de docs faz com .card label.

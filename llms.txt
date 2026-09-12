@@ -336,6 +336,21 @@ href real, preservando o resto da query string: filtro, busca e ordem sobrevivem
 a troca de pagina. Quem intercepta passa onChange. Ponta inativa e <span>, nao
 <a> sem href, para sair do caminho do Tab. Com uma pagina so, nada e renderizado.
 
+## Formulario
+
+    <label class="tuc-label is-required" for="doc">CNPJ</label>
+    <input id="doc" name="doc" data-tuc-mask="cnpj" aria-invalid="true" aria-describedby="doc-e">
+    <p class="tuc-error" id="doc-e">CNPJ invalido.</p>
+
+    <select class="tuc-input" name="plano">...</select>
+    <p class="tuc-hint">Texto de ajuda.</p>
+
+Campo com erro = aria-invalid="true" no elemento nativo (o Django 5 ja escreve).
+Pinta borda e anel vermelhos em todo campo da biblioteca, inclusive select, cor,
+editor e upload montados pelo script. Nao existe classe de erro para o campo.
+:user-invalid (required, type=email) pinta so depois de a pessoa mexer.
+.tuc-input vale em input, textarea e select nativo.
+
 ## Caixa, opcao e chave
 
     <label class="tuc-choice">
@@ -821,7 +836,7 @@ Inventario extraido do codigo a cada build. Se algo nao esta aqui, nao existe.
 ### Classes CSS
 
 Escritas por voce no template (as com __ sao internas, montadas pelo JS):
-  tuc-accordion tuc-badge tuc-btn tuc-check tuc-choice tuc-choices tuc-color-field tuc-colorpicker tuc-copy tuc-dp tuc-drawer tuc-dropdown tuc-editor tuc-field tuc-input tuc-input-group tuc-invalid tuc-menu tuc-modal tuc-native tuc-native-wrap tuc-pagination tuc-prose tuc-radio tuc-select tuc-select-native tuc-switch tuc-table tuc-table-wrap tuc-tip tuc-toast tuc-toasts tuc-tok-attr tuc-tok-comment tuc-tok-key tuc-tok-num tuc-tok-tag tuc-tok-text tuc-tok-tmpl tuc-upload tuc-upload-native
+  tuc-accordion tuc-badge tuc-btn tuc-check tuc-choice tuc-choices tuc-color-field tuc-colorpicker tuc-copy tuc-dp tuc-drawer tuc-dropdown tuc-editor tuc-error tuc-field tuc-hint tuc-input tuc-input-group tuc-invalid tuc-label tuc-menu tuc-modal tuc-native tuc-native-wrap tuc-pagination tuc-prose tuc-radio tuc-select tuc-select-native tuc-switch tuc-table tuc-table-wrap tuc-tip tuc-toast tuc-toasts tuc-tok-attr tuc-tok-comment tuc-tok-key tuc-tok-num tuc-tok-tag tuc-tok-text tuc-tok-tmpl tuc-upload tuc-upload-native
 
 Montadas pelo JS dentro do componente — nao escreva no template, mas
 sao nomes estaveis para o seu proprio CSS:
@@ -845,6 +860,8 @@ sao nomes estaveis para o seu proprio CSS:
 - Numa lista paginada, não ordene no cliente: o cabeçalho da tabela já é um <a>
   para ?sort= e ?dir=, e a ordenação tem de entrar no order_by() antes do
   Paginator. data-sort-mode="client" só para tabela pequena e sem paginação.
+- Campo com erro: aria-invalid="true" no input e a mensagem em .tuc-error.
+  Não invente classe vermelha; o Django 5 já escreve o atributo.
 - Chegar de Tab não abre painel — é a regra do <select> nativo e do ARIA APG.
   Abrir é explícito: seta para baixo, Espaço, clique; Enter também no select.
 - No painel escrito no template (dropdown), o hidden é obrigatório: sem ele o

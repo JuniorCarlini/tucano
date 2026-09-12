@@ -177,7 +177,7 @@
     --tuc-text: 1rem;
   }
 }
-input.tuc-input.tuc-input, textarea.tuc-input.tuc-input {
+input.tuc-input.tuc-input, textarea.tuc-input.tuc-input, select.tuc-input.tuc-input {
   display: block;
   width: 100%;
   appearance: none;
@@ -202,7 +202,7 @@ textarea.tuc-input.tuc-input {
 input.tuc-input.tuc-input::placeholder, textarea.tuc-input.tuc-input::placeholder {
   color: var(--tuc-subtle);
 }
-input.tuc-input.tuc-input:focus, textarea.tuc-input.tuc-input:focus {
+input.tuc-input.tuc-input:focus, textarea.tuc-input.tuc-input:focus, select.tuc-input.tuc-input:focus {
   outline: 0;
   border-color: var(--tuc-accent);
   box-shadow: 0 0 0 3px var(--tuc-accent);
@@ -210,7 +210,7 @@ input.tuc-input.tuc-input:focus, textarea.tuc-input.tuc-input:focus {
     box-shadow: 0 0 0 3px color-mix(in oklab, var(--tuc-accent) 22%, transparent);
   }
 }
-input.tuc-input.tuc-input:disabled, textarea.tuc-input.tuc-input:disabled {
+input.tuc-input.tuc-input:disabled, textarea.tuc-input.tuc-input:disabled, select.tuc-input.tuc-input:disabled {
   cursor: not-allowed;
   opacity: 60%;
   background: var(--tuc-elevated);
@@ -482,6 +482,69 @@ input.tuc-check.tuc-check:disabled, input.tuc-radio.tuc-radio:disabled, input.tu
   input.tuc-check.tuc-check, input.tuc-check.tuc-check::after, input.tuc-radio.tuc-radio, input.tuc-radio.tuc-radio::after, input.tuc-switch.tuc-switch, input.tuc-switch.tuc-switch::after {
     transition: none;
   }
+}
+.tuc-label.tuc-label {
+  display: block;
+  margin: 0 0 0.375rem;
+  padding: 0;
+  font-family: var(--tuc-font);
+  font-size: var(--tuc-text);
+  font-weight: 500;
+  line-height: 1.25rem;
+  color: var(--tuc-fg);
+}
+.tuc-label.tuc-label.is-required::after {
+  content: '*';
+  content: '*' / '';
+  margin-left: 0.125rem;
+  color: var(--tuc-danger);
+}
+.tuc-hint.tuc-hint, .tuc-error.tuc-error {
+  display: block;
+  margin: 0.375rem 0 0;
+  padding: 0;
+  font-family: var(--tuc-font);
+  font-size: 0.75rem;
+  line-height: 1.125rem;
+  color: var(--tuc-muted);
+}
+.tuc-error.tuc-error {
+  color: var(--tuc-danger);
+}
+select.tuc-input.tuc-input {
+  --tuc-chevron: linear-gradient(45deg, transparent 50%, var(--tuc-muted) 50%),
+    linear-gradient(135deg, var(--tuc-muted) 50%, transparent 50%);
+  padding-right: 2.25rem;
+  cursor: pointer;
+  background-image: var(--tuc-chevron);
+  background-repeat: no-repeat;
+  background-size: 0.3125rem 0.3125rem;
+  background-position: calc(100% - 1rem) calc(50% + 1px), calc(100% - 0.6875rem) calc(50% + 1px);
+}
+select.tuc-input.tuc-input:disabled {
+  cursor: not-allowed;
+  background-image: var(--tuc-chevron);
+}
+select.tuc-input.tuc-input:is([multiple], [size]) {
+  height: auto;
+  padding: 0.375rem;
+  background-image: none;
+}
+input.tuc-input.tuc-input:is([aria-invalid='true'], .tuc-invalid, :user-invalid), textarea.tuc-input.tuc-input:is([aria-invalid='true'], :user-invalid), select.tuc-input.tuc-input:is([aria-invalid='true'], :user-invalid), select[aria-invalid='true'] + .tuc-select, .tuc-color-field:has(> input[aria-invalid='true']), .tuc-editor:has(> textarea[aria-invalid='true']), .tuc-upload:has(> input[aria-invalid='true']) > .tuc-upload__zone, input[data-tuc-datepicker][aria-invalid='true']:not([data-tuc-ready]), input[data-tuc-mask][aria-invalid='true']:not([data-tuc-ready]), input[data-tuc-color][aria-invalid='true']:not([data-tuc-ready]), select[data-tuc-select][aria-invalid='true']:not([data-tuc-ready]) {
+  border-color: var(--tuc-danger);
+}
+input.tuc-input.tuc-input:is([aria-invalid='true'], .tuc-invalid, :user-invalid):focus, textarea.tuc-input.tuc-input:is([aria-invalid='true'], :user-invalid):focus, select.tuc-input.tuc-input:is([aria-invalid='true'], :user-invalid):focus, select[aria-invalid='true'] + .tuc-select:is(:focus-within, .is-open), .tuc-color-field:has(> input[aria-invalid='true']):focus-within, .tuc-editor:has(> textarea[aria-invalid='true']):focus-within, .tuc-upload:has(> input[aria-invalid='true']) > .tuc-upload__zone:focus-visible {
+  border-color: var(--tuc-danger);
+  box-shadow: 0 0 0 3px var(--tuc-danger);
+  @supports (color: color-mix(in lab, red, red)) {
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--tuc-danger) 22%, transparent);
+  }
+}
+input.tuc-check.tuc-check:is([aria-invalid='true'], :user-invalid):not(:checked), input.tuc-radio.tuc-radio:is([aria-invalid='true'], :user-invalid):not(:checked) {
+  border-color: var(--tuc-danger);
+}
+input.tuc-switch.tuc-switch:is([aria-invalid='true'], :user-invalid):not(:checked) {
+  box-shadow: 0 0 0 1px var(--tuc-danger);
 }
 .tuc-editor {
   display: flex;
@@ -1893,9 +1956,6 @@ textarea.tuc-editor__value[hidden] {
 .tuc-field.is-hidden > input {
   cursor: default;
   font-variant-numeric: tabular-nums;
-}
-.tuc-invalid {
-  border-color: var(--tuc-danger) !important;
 }
 .tuc-btn {
   display: inline-flex;

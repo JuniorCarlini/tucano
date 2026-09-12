@@ -25,6 +25,7 @@ Sem React, sem Vue, sem dependência em runtime.
 | `.tuc-menu` — lista de navegação, só classe | pronto |
 | `.tuc-badge` — etiqueta de estado, quatro tons, só classe | pronto |
 | `.tuc-check` `.tuc-radio` `.tuc-switch` — caixa, opção e chave, só classe | pronto |
+| `.tuc-label` `.tuc-hint` `.tuc-error` — rótulo, ajuda e erro; campo inválido por `aria-invalid` | pronto |
 | `Editor` — editor de texto com tabela e bloco de código | pronto |
 | `.tuc-prose` — exibição do que o editor salvou, com destaque e copiar | pronto |
 | `.tuc-btn` — estilo de botão, só classe | pronto |
@@ -639,6 +640,37 @@ card, em lista, ao lado de um título. Tons: `is-success`, `is-warning`,
 
 O fundo é suave com texto forte, e não preenchido: numa lista de vinte linhas,
 vinte etiquetas sólidas competem com o conteúdo e a tabela vira um semáforo.
+
+## Formulário
+
+```html
+<label class="tuc-label is-required" for="doc">CNPJ</label>
+<input id="doc" name="doc" data-tuc-mask="cnpj" aria-invalid="true" aria-describedby="doc-e">
+<p class="tuc-error" id="doc-e">CNPJ inválido.</p>
+
+<label class="tuc-label" for="plano">Plano</label>
+<select class="tuc-input" id="plano" name="plano"><option>Mensal</option><option>Anual</option></select>
+<p class="tuc-hint">Dá para trocar depois.</p>
+```
+
+O campo com erro é marcado por `aria-invalid="true"`, e não por uma classe: é o
+atributo que o leitor de tela anuncia, e **o Django 5 já o escreve** em todo campo
+que voltou com erro. A borda e o anel vermelhos valem para todos os campos da
+biblioteca — select, cor, data, máscara, editor, upload, caixa e opção —, mesmo os
+que o script troca por um controle próprio, porque o atributo fica no elemento
+nativo e o CSS alcança o controle a partir dele.
+
+```django
+<label class="tuc-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+{{ field }}
+{% if field.help_text %}<p class="tuc-hint" id="{{ field.auto_id }}_helptext">{{ field.help_text }}</p>{% endif %}
+{% for error in field.errors %}<p class="tuc-error">{{ error }}</p>{% endfor %}
+```
+
+A validação do navegador (`required`, `type="email"`) pinta também, por
+`:user-invalid` — só depois que a pessoa mexeu no campo, para o formulário não
+nascer vermelho. `.tuc-input` vale em `<input>`, `<textarea>` e `<select>` nativo,
+este para a lista curta em que o Select com busca seria exagero.
 
 ## Caixa, opção e chave
 

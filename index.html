@@ -273,6 +273,7 @@
     <a href="#cor">Color picker</a>
     <a href="#upload">Upload</a>
     <a href="#mascaras">Máscaras</a>
+    <a href="#formulario">Formulário</a>
     <a href="#botao">Botão</a>
     <a href="#escolha">Caixa, opção e chave</a>
     <a href="#etiqueta">Etiqueta</a>
@@ -842,6 +843,78 @@
   <p class="lead" style="margin-top:14px">Pela API: <code>Tucano.mask.validateCPF()</code>,
      <code>validateCNPJ()</code>, <code>format(value, 'cpf')</code>. E a instância expõe
      <code>getRaw()</code> e <code>getNumber()</code>.</p>
+</section>
+
+<section id="formulario">
+  <h2>Formulário</h2>
+  <p class="lead">Rótulo, texto de ajuda e mensagem de erro, e o campo que reprovou. O erro é
+     marcado por <code>aria-invalid="true"</code> — o atributo que o leitor de tela já anuncia,
+     e que o Django 5 escreve sozinho em todo campo que voltou com erro. Vale para todos os
+     campos da biblioteca, inclusive os que o script troca por um controle próprio.</p>
+
+  <div class="grid">
+    <div class="card">
+      <label class="tuc-label is-required" for="f-nome">Razão social</label>
+      <input type="text" class="tuc-input" id="f-nome" value="Tucano Comércio Ltda" aria-describedby="f-nome-h">
+      <p class="tuc-hint" id="f-nome-h">Como está no cartão CNPJ.</p>
+    </div>
+    <div class="card">
+      <label class="tuc-label is-required" for="f-doc">CNPJ</label>
+      <input type="text" id="f-doc" data-tuc-mask="cnpj" value="11.222.333/0001-00" aria-invalid="true" aria-describedby="f-doc-e">
+      <p class="tuc-error" id="f-doc-e">CNPJ inválido.</p>
+    </div>
+    <div class="card">
+      <label class="tuc-label is-required" for="f-uf">Estado</label>
+      <select id="f-uf" data-tuc-select aria-invalid="true" aria-describedby="f-uf-e"><option value="">Selecione</option><option>São Paulo</option><option>Minas Gerais</option><option>Paraná</option></select>
+      <p class="tuc-error" id="f-uf-e">Escolha um estado.</p>
+    </div>
+    <div class="card">
+      <label class="tuc-label is-required" for="f-venc">Vencimento</label>
+      <input type="text" id="f-venc" data-tuc-datepicker aria-invalid="true" aria-describedby="f-venc-e">
+      <p class="tuc-error" id="f-venc-e">A data precisa ser depois de hoje.</p>
+    </div>
+    <div class="card">
+      <label class="tuc-label" for="f-plano">Plano</label>
+      <select class="tuc-input" id="f-plano" aria-describedby="f-plano-h"><option>Mensal</option><option>Trimestral</option><option>Anual</option></select>
+      <p class="tuc-hint" id="f-plano-h"><code>&lt;select&gt;</code> nativo: lista curta, sem busca.</p>
+    </div>
+    <div class="card">
+      <label class="tuc-label" for="f-obs">Observações</label>
+      <textarea class="tuc-input" id="f-obs" rows="3" placeholder="Visível só para a equipe"></textarea>
+    </div>
+    <div class="card">
+      <label class="tuc-choice"><input type="checkbox" class="tuc-check" required aria-invalid="true" aria-describedby="f-termos-e"> Li e aceito os termos de uso</label>
+      <p class="tuc-error" id="f-termos-e">Obrigatório para continuar.</p>
+    </div>
+  </div>
+
+  <pre>&lt;<span class="t">label</span> <span class="a">class</span>=<span class="s">"tuc-label is-required"</span> <span class="a">for</span>=<span class="s">"doc"</span>&gt;CNPJ&lt;/<span class="t">label</span>&gt;
+&lt;<span class="t">input</span> <span class="a">id</span>=<span class="s">"doc"</span> <span class="a">name</span>=<span class="s">"doc"</span> <span class="a">data-tuc-mask</span>=<span class="s">"cnpj"</span> <span class="a">aria-invalid</span>=<span class="s">"true"</span> <span class="a">aria-describedby</span>=<span class="s">"doc-e"</span>&gt;
+&lt;<span class="t">p</span> <span class="a">class</span>=<span class="s">"tuc-error"</span> <span class="a">id</span>=<span class="s">"doc-e"</span>&gt;CNPJ inválido.&lt;/<span class="t">p</span>&gt;
+
+&lt;<span class="t">select</span> <span class="a">class</span>=<span class="s">"tuc-input"</span> <span class="a">name</span>=<span class="s">"plano"</span>&gt;…&lt;/<span class="t">select</span>&gt;</pre>
+
+  <h3>Com o Django</h3>
+  <pre><span class="c">{# o Django 5 já põe aria-invalid e aria-describedby no campo #}</span>
+&lt;<span class="t">label</span> <span class="a">class</span>=<span class="s">"tuc-label{% if field.field.required %} is-required{% endif %}"</span> <span class="a">for</span>=<span class="s">"{{ field.id_for_label }}"</span>&gt;{{ field.label }}&lt;/<span class="t">label</span>&gt;
+{{ field }}
+{% if field.help_text %}&lt;<span class="t">p</span> <span class="a">class</span>=<span class="s">"tuc-hint"</span> <span class="a">id</span>=<span class="s">"{{ field.auto_id }}_helptext"</span>&gt;{{ field.help_text }}&lt;/<span class="t">p</span>&gt;{% endif %}
+{% for error in field.errors %}&lt;<span class="t">p</span> <span class="a">class</span>=<span class="s">"tuc-error"</span>&gt;{{ error }}&lt;/<span class="t">p</span>&gt;{% endfor %}</pre>
+
+  <table>
+    <tr><th>Classe ou atributo</th><th>Para quê</th></tr>
+    <tr><td><code>tuc-label</code></td><td>Rótulo acima do campo; <code>is-required</code> põe o asterisco</td></tr>
+    <tr><td><code>tuc-hint</code></td><td>Texto de ajuda embaixo do campo</td></tr>
+    <tr><td><code>tuc-error</code></td><td>Mensagem de erro embaixo do campo</td></tr>
+    <tr><td><code>aria-invalid="true"</code></td><td>Borda e anel de erro — em qualquer campo da biblioteca</td></tr>
+    <tr><td><code>tuc-input</code></td><td>Em <code>&lt;input&gt;</code>, <code>&lt;textarea&gt;</code> e <code>&lt;select&gt;</code> nativo</td></tr>
+  </table>
+
+  <div class="note">
+    <b>Validação do navegador também pinta, mas só depois de mexer.</b> Um campo
+    <code>required</code> vazio fica vermelho por <code>:user-invalid</code> quando a pessoa
+    sai dele ou tenta enviar — não ao carregar a página, que nasceria toda em vermelho.
+  </div>
 </section>
 
 <section id="botao">
