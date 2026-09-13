@@ -1053,7 +1053,7 @@ Variáveis, agrupadas:
 `--tuc-accent-soft`, `--tuc-accent-ring`, `--tuc-bg`, `--tuc-fg`,
 `--tuc-muted`, `--tuc-subtle`, `--tuc-border`, `--tuc-hover`, `--tuc-elevated`
 
-**Tons** — `--tuc-success`, `--tuc-warning`, `--tuc-danger` e seus `-soft`,
+**Tons** — `--tuc-success`, `--tuc-warning`, `--tuc-danger`, `--tuc-info` e seus `-soft`,
 usados pelo toast e pela etiqueta de estado. `--tuc-danger-fill` é separado de
 propósito: no tema escuro o vermelho de texto é mais claro para ter contraste, e
 um botão pintado com ele ficaria pastel — o preenchimento é o mesmo nos dois

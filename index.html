@@ -62,11 +62,11 @@
 <style>
   :root{
     --bg:#fbfbfa; --panel:#fff; --fg:#111110; --muted:#6f6f6b; --subtle:#a1a19c;
-    --line:#e8e8e5; --code:#f4f4f2; --accent:#4f46e5; --side:260px;
+    --line:#e8e8e5; --code:#f4f4f2; --accent:#B84300; --side:260px;
   }
   html.dark{
     --bg:#0b0b0c; --panel:#141416; --fg:#f5f5f4; --muted:#a0a09b; --subtle:#6f6f6b;
-    --line:#262629; --code:#1a1a1d; --accent:#818cf8;
+    --line:#262629; --code:#1a1a1d; --accent:#FF7501;
   }
   *{box-sizing:border-box}
   html{scroll-behavior:smooth}
@@ -123,7 +123,7 @@
      todo <label> de componente dentro de um card: CSS hostil da propria vitrine. */
   /* exemplos de tooltip colorido, usados na seção Tooltip */
   .tip-accent{ --tuc-tip-bg:var(--tuc-accent); --tuc-tip-fg:var(--tuc-accent-fg); }
-  .tip-danger{ --tuc-tip-bg:var(--tuc-danger-fill); --tuc-tip-fg:var(--tuc-accent-fg); }
+  .tip-danger{ --tuc-tip-bg:var(--tuc-danger-fill); --tuc-tip-fg:#fff; }
   .tip-light{ --tuc-tip-bg:var(--tuc-bg); --tuc-tip-fg:var(--tuc-fg); box-shadow:var(--tuc-shadow); }
   .bar{
     display:flex;flex-wrap:wrap;gap:8px;align-items:center;
@@ -1990,7 +1990,8 @@ cor           = #4f46e5</pre>
   <div class="card" style="margin-bottom:20px">
     <span class="tuc-label">Experimente trocar a cor de destaque desta página</span>
     <div class="swatches" id="accents">
-      <button class="sw on" aria-label="Accent Índigo" aria-pressed="true" data-c="#4f46e5" data-h="#4338ca" style="background:#4f46e5"></button>
+      <button class="sw on" aria-label="Accent Laranja tucano" aria-pressed="true" data-c="#B84300" data-h="#9A3A00" style="background:#B84300"></button>
+      <button class="sw" aria-label="Accent Índigo" aria-pressed="false" data-c="#4f46e5" data-h="#4338ca" style="background:#4f46e5"></button>
       <button class="sw" aria-label="Accent Verde-azulado" aria-pressed="false" data-c="#0d9488" data-h="#0f766e" style="background:#0d9488"></button>
       <button class="sw" aria-label="Accent Rosa" aria-pressed="false" data-c="#e11d48" data-h="#be123c" style="background:#e11d48"></button>
       <button class="sw" aria-label="Accent Laranja" aria-pressed="false" data-c="#ea580c" data-h="#c2410c" style="background:#ea580c"></button>
@@ -2012,8 +2013,8 @@ cor           = #4f46e5</pre>
   <div class="tuc-table-wrap"><table class="tuc-table">
     <thead><tr><th>Variável</th><th>Padrão</th><th>Controla</th></tr></thead>
     <tr><td colspan="3" style="padding-top:14px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--subtle);border:0">Cor</td></tr>
-    <tr><td><code>--tuc-accent</code></td><td><code>#4f46e5</code></td><td>Dia selecionado, tags, check, foco</td></tr>
-    <tr><td><code>--tuc-accent-hover</code></td><td><code>#4338ca</code></td><td>Botão primário sob o cursor</td></tr>
+    <tr><td><code>--tuc-accent</code></td><td><code>#B84300</code> · escuro <code>#FF7501</code></td><td>Dia selecionado, tags, check, foco</td></tr>
+    <tr><td><code>--tuc-accent-hover</code></td><td><code>#9A3A00</code> · escuro <code>#FF8A2A</code></td><td>Botão primário sob o cursor</td></tr>
     <tr><td><code>--tuc-accent-fg</code></td><td><code>#fff</code></td><td>Texto sobre a cor de destaque</td></tr>
     <tr><td><code>--tuc-accent-soft</code></td><td>12% do accent</td><td>Faixa do intervalo, fundo das tags</td></tr>
     <tr><td><code>--tuc-accent-ring</code></td><td>35% do accent</td><td>Anel de foco</td></tr>
@@ -2029,6 +2030,7 @@ cor           = #4f46e5</pre>
     <tr><td><code>--tuc-success</code></td><td><code>#16a34a</code></td><td>Toast de sucesso, etiqueta aprovada</td></tr>
     <tr><td><code>--tuc-warning</code></td><td><code>#d97706</code></td><td>Toast de aviso, etiqueta em análise</td></tr>
     <tr><td><code>--tuc-danger</code></td><td><code>#dc2626</code></td><td>Toast de erro, etiqueta e texto de perigo</td></tr>
+    <tr><td><code>--tuc-info</code></td><td><code>#1d4ed8</code> · escuro <code>#60a5fa</code></td><td>Aviso, etiqueta e toast de informação</td></tr>
     <tr><td><code>--tuc-danger-fill</code></td><td><code>#dc2626</code></td><td>Botão de perigo — igual nos dois temas, para não ficar pastel no escuro</td></tr>
     <tr><td><code>--tuc-success-soft</code></td><td>12% do tom</td><td>Fundo da etiqueta; existe também para aviso e perigo</td></tr>
 
@@ -2356,7 +2358,9 @@ seguem funcionando. Não substitua por estado só em JS.</pre>
     });
     // Os tokens vivem em :root, entao trocar o accent e uma linha — e vale
     // para todo componente, nao so para uma lista de cinco.
-    scope.textContent = `:root{--accent:${sw.dataset.c};--tuc-accent:${sw.dataset.c};--tuc-accent-hover:${sw.dataset.h}}`;
+    // Todas as amostras sao escuras o bastante para texto branco — inclusive no
+    // tema escuro, onde o laranja padrao troca o texto para escuro.
+    scope.textContent = `:root{--accent:${sw.dataset.c};--tuc-accent:${sw.dataset.c};--tuc-accent-hover:${sw.dataset.h};--tuc-accent-fg:#ffffff}`;
   };
 
 

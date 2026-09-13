@@ -520,6 +520,29 @@ documentar algo novo, use a peça; se ela não servir, o problema é da peça. O
 da versão é procurado pelo `stamp.mjs` com a classe exata
 `tuc-badge is-plain ver`: mudou a marcação, muda a expressão junto.
 
+**Toda mudança que quem usa percebe entra no `CHANGELOG.md`, em "Ainda não
+publicado".** Novo, mudou, corrigido — e, em "Atenção ao atualizar", o que obriga
+alguém a mexer no próprio projeto: classe renomeada ou removida, padrão que
+mudou. Na hora da tag, a seção ganha o número e a data. O arquivo é a fonte da
+página de Novidades do site e vai no pacote do npm; ele não é montado a partir
+das tags no build porque o CI baixa o repositório sem histórico.
+
+**O destaque padrão é o laranja do tucano, e o tom de cada tema saiu de medida.**
+O `#FF7501` da ave dá 2,7 de contraste com texto branco e como texto sobre fundo
+claro — abaixo dos 4,5 de leitura. No claro vale `#B84300`, que passa onde o
+destaque aparece de verdade: 5,5 com texto branco, 5,0 no item de menu ativo
+(sobre `--tuc-hover`) e 4,6 na tag do select sobre o fundo suave. `#C74B00`, mais
+próximo do vivo, falhava nos dois últimos. No escuro volta o `#FF7501`, e
+`--tuc-accent-fg` vira `#0a0a0a` (7,4). Por isso a bolinha da chave tem token
+próprio, `--tuc-thumb`: pintada com `--tuc-accent-fg`, ela ficaria preta no
+escuro. Ao trocar o destaque, confira texto branco em cima, texto sobre
+`--tuc-hover` e texto sobre `--tuc-accent-soft`.
+
+Informação ganhou tom próprio, `--tuc-info`, pelo mesmo motivo: com o destaque
+laranja, o aviso de informação ficava igual ao de alerta. Tom semântico (sucesso,
+alerta, perigo, informação) nunca lê `--tuc-accent` — a marca pode ser de qualquer
+cor, e o significado não pode mudar junto.
+
 ## Antes de dizer que está pronto
 
 ```bash

@@ -896,7 +896,7 @@ sao nomes estaveis para o seu proprio CSS:
 
 ### Tokens
 
-  --tuc-accent --tuc-accent-fg --tuc-accent-hover --tuc-accent-ring --tuc-accent-soft --tuc-bg --tuc-border --tuc-border-width --tuc-cell --tuc-control-height --tuc-danger --tuc-danger-fill --tuc-danger-soft --tuc-duration --tuc-duration-lg --tuc-duration-out --tuc-ease --tuc-ease-in --tuc-elevated --tuc-fg --tuc-font --tuc-hover --tuc-muted --tuc-radius --tuc-radius-md --tuc-radius-sm --tuc-radius-xs --tuc-ring --tuc-shadow --tuc-subtle --tuc-success --tuc-success-soft --tuc-swatch --tuc-text --tuc-warning --tuc-warning-soft
+  --tuc-accent --tuc-accent-fg --tuc-accent-hover --tuc-accent-ring --tuc-accent-soft --tuc-bg --tuc-border --tuc-border-width --tuc-cell --tuc-control-height --tuc-danger --tuc-danger-fill --tuc-danger-soft --tuc-duration --tuc-duration-lg --tuc-duration-out --tuc-ease --tuc-ease-in --tuc-elevated --tuc-fg --tuc-font --tuc-hover --tuc-info --tuc-info-soft --tuc-muted --tuc-radius --tuc-radius-md --tuc-radius-sm --tuc-radius-xs --tuc-ring --tuc-shadow --tuc-subtle --tuc-success --tuc-success-soft --tuc-swatch --tuc-text --tuc-thumb --tuc-warning --tuc-warning-soft
 
 ## Ao gerar código que usa Tucano
 

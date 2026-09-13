@@ -130,7 +130,7 @@ input.tuc-switch.tuc-switch::after {
   left: 0.125rem;
   width: 0.875rem;
   height: 0.875rem;
-  background: var(--tuc-accent-fg);
+  background: var(--tuc-thumb);
   box-shadow: 0 1px 2px rgb(0 0 0 / 0.2);
   transition: translate var(--tuc-duration) var(--tuc-ease);
 }

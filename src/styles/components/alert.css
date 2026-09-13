@@ -30,7 +30,7 @@
   border-radius: var(--tuc-radius-md);
 }
 
-.tuc-alert.is-info    { --tuc-alert-tone: var(--tuc-accent); }
+.tuc-alert.is-info    { --tuc-alert-tone: var(--tuc-info); }
 .tuc-alert.is-success { --tuc-alert-tone: var(--tuc-success); }
 .tuc-alert.is-warning { --tuc-alert-tone: var(--tuc-warning); }
 .tuc-alert.is-danger  { --tuc-alert-tone: var(--tuc-danger); }

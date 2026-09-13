@@ -15,9 +15,19 @@
  */
 
 :root {
-  --tuc-accent: #4f46e5;
-  --tuc-accent-hover: #4338ca;
+  /*
+   * O laranja do tucano. No claro ele e mais fechado que o da ave (#FF7501):
+   * o vivo da 2,7 de contraste com texto branco e como texto sobre fundo claro,
+   * abaixo dos 4,5 de leitura. #B84300 passa em todo lugar em que o destaque
+   * aparece — 5,5 com texto branco, 5,0 no item de menu ativo, 4,6 na tag sobre
+   * o fundo suave. No escuro o vivo volta, com texto escuro em cima.
+   */
+  --tuc-accent: #B84300;
+  --tuc-accent-hover: #9A3A00;
   --tuc-accent-fg: #ffffff;
+  /* Botao da chave: claro nos dois temas. Nao e --tuc-accent-fg, que no escuro
+     vira texto escuro — a bolinha ficaria preta. */
+  --tuc-thumb: #ffffff;
   --tuc-accent-soft: color-mix(in oklab, var(--tuc-accent) 12%, transparent);
   --tuc-accent-ring: color-mix(in oklab, var(--tuc-accent) 35%, transparent);
 
@@ -30,6 +40,12 @@
   --tuc-warning: #d97706;
   --tuc-danger: #dc2626;
   /*
+   * Informacao tem tom proprio, e nao o destaque. Com o destaque laranja, o aviso
+   * de informacao ficava igual ao de alerta, e a etiqueta "Novo" colava em "Em
+   * analise". #1d4ed8 da 6,7 sobre branco e 5,6 sobre o proprio fundo suave.
+   */
+  --tuc-info: #1d4ed8;
+  /*
    * Preenchimento solido e outro papel: o vermelho de texto no tema escuro e
    * mais claro para ter contraste sobre fundo escuro, mas um botao pintado com
    * ele fica pastel com texto branco em cima. O fill e o mesmo nos dois temas.
@@ -38,6 +54,7 @@
   --tuc-success-soft: color-mix(in oklab, var(--tuc-success) 12%, transparent);
   --tuc-warning-soft: color-mix(in oklab, var(--tuc-warning) 14%, transparent);
   --tuc-danger-soft: color-mix(in oklab, var(--tuc-danger) 12%, transparent);
+  --tuc-info-soft: color-mix(in oklab, var(--tuc-info) 12%, transparent);
 
   --tuc-bg: #ffffff;
   --tuc-fg: #0a0a0a;
@@ -89,14 +106,15 @@
 /* Dark por classe (.dark no html) — o padrao de Tailwind e do Django admin moderno. */
 .dark,
 [data-theme='dark'] {
-  --tuc-accent: #6366f1;
-  --tuc-accent-hover: #818cf8;
+  --tuc-accent: #FF7501;
+  --tuc-accent-hover: #FF8A2A;
 
   --tuc-success: #4ade80;
   --tuc-warning: #fbbf24;
   --tuc-danger: #f87171;
+  --tuc-info: #60a5fa;
   --tuc-danger-fill: #dc2626;
-  --tuc-accent-fg: #ffffff;
+  --tuc-accent-fg: #0a0a0a;   /* 7,4 sobre o laranja vivo; o branco dava 2,7 */
 
   --tuc-bg: #171717;
   --tuc-fg: #fafafa;
@@ -128,14 +146,15 @@
  */
 @media (prefers-color-scheme: dark) {
   :root[data-tuc-theme='auto'] {
-  --tuc-accent: #6366f1;
-  --tuc-accent-hover: #818cf8;
+  --tuc-accent: #FF7501;
+  --tuc-accent-hover: #FF8A2A;
 
   --tuc-success: #4ade80;
   --tuc-warning: #fbbf24;
   --tuc-danger: #f87171;
+  --tuc-info: #60a5fa;
   --tuc-danger-fill: #dc2626;
-  --tuc-accent-fg: #ffffff;
+  --tuc-accent-fg: #0a0a0a;   /* 7,4 sobre o laranja vivo; o branco dava 2,7 */
 
   --tuc-bg: #171717;
   --tuc-fg: #fafafa;

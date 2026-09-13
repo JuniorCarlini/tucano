@@ -155,7 +155,7 @@
 
 .tuc-toast__close { @apply -mr-1; }
 
-.tuc-toast.is-info    { --tuc-toast-color: var(--tuc-accent); }
+.tuc-toast.is-info    { --tuc-toast-color: var(--tuc-info); }
 .tuc-toast.is-success { --tuc-toast-color: var(--tuc-success); }
 .tuc-toast.is-warning   { --tuc-toast-color: var(--tuc-warning); }
 .tuc-toast.is-error    { --tuc-toast-color: var(--tuc-danger); }

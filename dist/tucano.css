@@ -65,9 +65,10 @@
   background: var(--tuc-muted);
 }
 :root {
-  --tuc-accent: #4f46e5;
-  --tuc-accent-hover: #4338ca;
+  --tuc-accent: #B84300;
+  --tuc-accent-hover: #9A3A00;
   --tuc-accent-fg: #ffffff;
+  --tuc-thumb: #ffffff;
   --tuc-accent-soft: var(--tuc-accent);
   @supports (color: color-mix(in lab, red, red)) {
     --tuc-accent-soft: color-mix(in oklab, var(--tuc-accent) 12%, transparent);
@@ -79,6 +80,7 @@
   --tuc-success: #16a34a;
   --tuc-warning: #d97706;
   --tuc-danger: #dc2626;
+  --tuc-info: #1d4ed8;
   --tuc-danger-fill: #dc2626;
   --tuc-success-soft: var(--tuc-success);
   @supports (color: color-mix(in lab, red, red)) {
@@ -91,6 +93,10 @@
   --tuc-danger-soft: var(--tuc-danger);
   @supports (color: color-mix(in lab, red, red)) {
     --tuc-danger-soft: color-mix(in oklab, var(--tuc-danger) 12%, transparent);
+  }
+  --tuc-info-soft: var(--tuc-info);
+  @supports (color: color-mix(in lab, red, red)) {
+    --tuc-info-soft: color-mix(in oklab, var(--tuc-info) 12%, transparent);
   }
   --tuc-bg: #ffffff;
   --tuc-fg: #0a0a0a;
@@ -121,13 +127,14 @@
   --tuc-cell: 2.25rem;
 }
 .dark, [data-theme='dark'] {
-  --tuc-accent: #6366f1;
-  --tuc-accent-hover: #818cf8;
+  --tuc-accent: #FF7501;
+  --tuc-accent-hover: #FF8A2A;
   --tuc-success: #4ade80;
   --tuc-warning: #fbbf24;
   --tuc-danger: #f87171;
+  --tuc-info: #60a5fa;
   --tuc-danger-fill: #dc2626;
-  --tuc-accent-fg: #ffffff;
+  --tuc-accent-fg: #0a0a0a;
   --tuc-bg: #171717;
   --tuc-fg: #fafafa;
   --tuc-muted: #a3a3a3;
@@ -145,13 +152,14 @@
 }
 @media (prefers-color-scheme: dark) {
   :root[data-tuc-theme='auto'] {
-    --tuc-accent: #6366f1;
-    --tuc-accent-hover: #818cf8;
+    --tuc-accent: #FF7501;
+    --tuc-accent-hover: #FF8A2A;
     --tuc-success: #4ade80;
     --tuc-warning: #fbbf24;
     --tuc-danger: #f87171;
+    --tuc-info: #60a5fa;
     --tuc-danger-fill: #dc2626;
-    --tuc-accent-fg: #ffffff;
+    --tuc-accent-fg: #0a0a0a;
     --tuc-bg: #171717;
     --tuc-fg: #fafafa;
     --tuc-muted: #a3a3a3;
@@ -379,7 +387,7 @@ input.tuc-switch.tuc-switch::after {
   left: 0.125rem;
   width: 0.875rem;
   height: 0.875rem;
-  background: var(--tuc-accent-fg);
+  background: var(--tuc-thumb);
   box-shadow: 0 1px 2px rgb(0 0 0 / 0.2);
   transition: translate var(--tuc-duration) var(--tuc-ease);
 }
@@ -727,8 +735,8 @@ input.tuc-switch.tuc-switch:is([aria-invalid='true'], :user-invalid):not(:checke
   border-color: transparent;
 }
 .tuc-badge.is-info {
-  color: var(--tuc-accent);
-  background: var(--tuc-accent-soft);
+  color: var(--tuc-info);
+  background: var(--tuc-info-soft);
   border-color: transparent;
 }
 .tuc-spinner {
@@ -821,7 +829,7 @@ input.tuc-switch.tuc-switch:is([aria-invalid='true'], :user-invalid):not(:checke
   border-radius: var(--tuc-radius-md);
 }
 .tuc-alert.is-info {
-  --tuc-alert-tone: var(--tuc-accent);
+  --tuc-alert-tone: var(--tuc-info);
 }
 .tuc-alert.is-success {
   --tuc-alert-tone: var(--tuc-success);
@@ -2398,7 +2406,7 @@ textarea.tuc-editor__value[hidden] {
   margin-right: calc(var(--spacing, 0.25rem) * -1);
 }
 .tuc-toast.is-info {
-  --tuc-toast-color: var(--tuc-accent);
+  --tuc-toast-color: var(--tuc-info);
 }
 .tuc-toast.is-success {
   --tuc-toast-color: var(--tuc-success);

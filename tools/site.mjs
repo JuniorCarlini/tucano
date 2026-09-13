@@ -18,6 +18,8 @@
  *   - a grade de componentes do inicio (<!-- componentes -->), do nav.json
  *   - os blocos de codigo: <pre data-code> vira .tuc-prose, e quem pinta e poe o
  *     copiar e o proprio destacador da biblioteca, em vez de <span> a mao
+ *   - a pagina de novidades (<!-- changelog -->), do CHANGELOG.md: a mesma nota
+ *     serve a quem le no GitHub, no npm e no site
  *
  * Uso: node tools/site.mjs [pasta de saida]   (padrao: a raiz do repositorio)
  */
@@ -105,6 +107,42 @@ function api(nome) {
   return partes.join('\n');
 }
 
+/*
+ * O pedaco de Markdown que o CHANGELOG usa, e nada alem: titulos de nivel 2 e 3,
+ * lista (com continuacao recuada), paragrafo, `codigo` e **negrito**. O titulo de
+ * nivel 1 e a introducao ficam de fora — a pagina tem os seus.
+ */
+function markdown(md) {
+  const inline = (t) => esc(t).replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
+  const slug = (t) => t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const out = [];
+  let lista = false, paragrafo = [], comecou = false;
+  const fecharParagrafo = () => { if (paragrafo.length) out.push(`<p>${inline(paragrafo.join(' '))}</p>`); paragrafo = []; };
+  const fecharLista = () => { if (lista) out.push('</ul>'); lista = false; };
+  for (const linha of md.split('\n')) {
+    const titulo = linha.match(/^(#{2,3}) (.+)/);
+    if (titulo) comecou = true;
+    if (!comecou) continue;
+    if (titulo) {
+      fecharParagrafo(); fecharLista();
+      out.push(titulo[1] === '##' ? `<h2 id="${slug(titulo[2])}">${inline(titulo[2])}</h2>` : `<h3>${inline(titulo[2])}</h3>`);
+    } else if (/^- /.test(linha)) {
+      fecharParagrafo();
+      if (!lista) { out.push('<ul class="changes">'); lista = true; }
+      out.push(`<li>${inline(linha.slice(2))}</li>`);
+    } else if (lista && /^\s+\S/.test(linha)) {
+      out[out.length - 1] = out[out.length - 1].replace(/<\/li>$/, () => ` ${inline(linha.trim())}</li>`);
+    } else if (!linha.trim()) {
+      fecharParagrafo(); fecharLista();
+    } else {
+      fecharLista(); paragrafo.push(linha.trim());
+    }
+  }
+  fecharParagrafo(); fecharLista();
+  return out.join('\n');
+}
+
 function grade(de) {
   return nav.filter((g) => g.group !== 'Começar').map((g) => `
   <h3>${esc(g.group)}</h3>
@@ -160,6 +198,7 @@ for (const [slug, p] of paginas) {
   corpo = codigos(corpo);
   corpo = corpo.replace(/<!-- api -->/g, () => api(p.meta.component));
   corpo = corpo.replace(/<!-- componentes -->/g, () => grade(slug));
+  corpo = corpo.replace(/<!-- changelog -->/g, () => markdown(readFileSync('CHANGELOG.md', 'utf8')));
 
   const titulo = slug === 'index' ? 'Tucano — componentes de interface, sem dependências' : `${p.meta.title} — Tucano`;
   const html = layout

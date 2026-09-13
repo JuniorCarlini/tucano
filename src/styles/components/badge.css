@@ -35,4 +35,4 @@
 .tuc-badge.is-success { color: var(--tuc-success); background: var(--tuc-success-soft); border-color: transparent; }
 .tuc-badge.is-warning { color: var(--tuc-warning); background: var(--tuc-warning-soft); border-color: transparent; }
 .tuc-badge.is-danger  { color: var(--tuc-danger);  background: var(--tuc-danger-soft);  border-color: transparent; }
-.tuc-badge.is-info    { color: var(--tuc-accent);  background: var(--tuc-accent-soft);  border-color: transparent; }
+.tuc-badge.is-info    { color: var(--tuc-info);    background: var(--tuc-info-soft);    border-color: transparent; }

@@ -1,45 +1,180 @@
 [
-  { "group": "Começar", "items": [
-    { "slug": "index", "title": "Início e instalação" }
-  ]},
-  { "group": "Campos", "items": [
-    { "slug": "form", "title": "Formulário", "desc": "Rótulo, ajuda, erro e o campo que reprovou." },
-    { "slug": "select", "title": "Select", "desc": "Busca, múltiplo com tags, grupos e busca no servidor." },
-    { "slug": "datepicker", "title": "Date picker", "desc": "Data, período, hora e atalhos, com o valor em ISO." },
-    { "slug": "mask", "title": "Máscaras", "desc": "CPF, CNPJ, telefone, moeda e campo sensível." },
-    { "slug": "color", "title": "Color picker", "desc": "HSV, hex, rgb e hsl, opacidade e paleta." },
-    { "slug": "choice", "title": "Caixa, opção e chave", "desc": "Checkbox, radio e switch desenhados, ainda nativos." },
-    { "slug": "upload", "title": "Upload", "desc": "Arrastar e soltar, progresso e validação." },
-    { "slug": "editor", "title": "Editor de texto", "desc": "Texto rico com tabela e bloco de código." }
-  ]},
-  { "group": "Ações", "items": [
-    { "slug": "button", "title": "Botão", "desc": "Variantes e tamanhos, só classe." },
-    { "slug": "dropdown", "title": "Menu suspenso", "desc": "Menu de ações ancorado, com setas." }
-  ]},
-  { "group": "Avisos", "items": [
-    { "slug": "toast", "title": "Toast", "desc": "Avisos passageiros, com Django e HTMX." },
-    { "slug": "alert", "title": "Aviso", "desc": "O que continua valendo na tela." },
-    { "slug": "tooltip", "title": "Tooltip", "desc": "Dica ancorada, no ponteiro, no foco e no toque." },
-    { "slug": "loading", "title": "Carregando", "desc": "Spinner e esqueleto." },
-    { "slug": "badge", "title": "Etiqueta", "desc": "Estado de um registro, em quatro tons." }
-  ]},
-  { "group": "Diálogos", "items": [
-    { "slug": "modal", "title": "Modal", "desc": "Diálogo sobre <dialog>, com confirmar." },
-    { "slug": "drawer", "title": "Gaveta", "desc": "Painel que entra pelas quatro bordas." }
-  ]},
-  { "group": "Navegação", "items": [
-    { "slug": "tabs", "title": "Abas", "desc": "Com teclado do ARIA APG, e segmentadas." },
-    { "slug": "accordion", "title": "Acordeão", "desc": "Sobre <details>, funciona sem JavaScript." },
-    { "slug": "menu", "title": "Menu lateral", "desc": "Lista de navegação com submenu." },
-    { "slug": "pagination", "title": "Paginação", "desc": "Links de página, feita para o Paginator." }
-  ]},
-  { "group": "Dados", "items": [
-    { "slug": "table", "title": "Tabela", "desc": "Ordenação no servidor e seleção em massa." }
-  ]},
-  { "group": "Guias", "items": [
-    { "slug": "django", "title": "Django", "desc": "Widgets, o que chega no POST e HTMX." },
-    { "slug": "theme", "title": "Tema", "desc": "Tokens, tema escuro e cor de destaque." },
-    { "slug": "keyboard", "title": "Teclado e acessibilidade", "desc": "O que cada tecla faz, em todo componente." },
-    { "slug": "ai", "title": "Para agentes de IA", "desc": "llms.txt e o AGENTS.md para o seu projeto." }
-  ]}
+  {
+    "group": "Começar",
+    "items": [
+      {
+        "slug": "index",
+        "title": "Início e instalação"
+      },
+      {
+        "slug": "changelog",
+        "title": "Novidades"
+      }
+    ]
+  },
+  {
+    "group": "Campos",
+    "items": [
+      {
+        "slug": "form",
+        "title": "Formulário",
+        "desc": "Rótulo, ajuda, erro e o campo que reprovou."
+      },
+      {
+        "slug": "select",
+        "title": "Select",
+        "desc": "Busca, múltiplo com tags, grupos e busca no servidor."
+      },
+      {
+        "slug": "datepicker",
+        "title": "Date picker",
+        "desc": "Data, período, hora e atalhos, com o valor em ISO."
+      },
+      {
+        "slug": "mask",
+        "title": "Máscaras",
+        "desc": "CPF, CNPJ, telefone, moeda e campo sensível."
+      },
+      {
+        "slug": "color",
+        "title": "Color picker",
+        "desc": "HSV, hex, rgb e hsl, opacidade e paleta."
+      },
+      {
+        "slug": "choice",
+        "title": "Caixa, opção e chave",
+        "desc": "Checkbox, radio e switch desenhados, ainda nativos."
+      },
+      {
+        "slug": "upload",
+        "title": "Upload",
+        "desc": "Arrastar e soltar, progresso e validação."
+      },
+      {
+        "slug": "editor",
+        "title": "Editor de texto",
+        "desc": "Texto rico com tabela e bloco de código."
+      }
+    ]
+  },
+  {
+    "group": "Ações",
+    "items": [
+      {
+        "slug": "button",
+        "title": "Botão",
+        "desc": "Variantes e tamanhos, só classe."
+      },
+      {
+        "slug": "dropdown",
+        "title": "Menu suspenso",
+        "desc": "Menu de ações ancorado, com setas."
+      }
+    ]
+  },
+  {
+    "group": "Avisos",
+    "items": [
+      {
+        "slug": "toast",
+        "title": "Toast",
+        "desc": "Avisos passageiros, com Django e HTMX."
+      },
+      {
+        "slug": "alert",
+        "title": "Aviso",
+        "desc": "O que continua valendo na tela."
+      },
+      {
+        "slug": "tooltip",
+        "title": "Tooltip",
+        "desc": "Dica ancorada, no ponteiro, no foco e no toque."
+      },
+      {
+        "slug": "loading",
+        "title": "Carregando",
+        "desc": "Spinner e esqueleto."
+      },
+      {
+        "slug": "badge",
+        "title": "Etiqueta",
+        "desc": "Estado de um registro, em quatro tons."
+      }
+    ]
+  },
+  {
+    "group": "Diálogos",
+    "items": [
+      {
+        "slug": "modal",
+        "title": "Modal",
+        "desc": "Diálogo sobre <dialog>, com confirmar."
+      },
+      {
+        "slug": "drawer",
+        "title": "Gaveta",
+        "desc": "Painel que entra pelas quatro bordas."
+      }
+    ]
+  },
+  {
+    "group": "Navegação",
+    "items": [
+      {
+        "slug": "tabs",
+        "title": "Abas",
+        "desc": "Com teclado do ARIA APG, e segmentadas."
+      },
+      {
+        "slug": "accordion",
+        "title": "Acordeão",
+        "desc": "Sobre <details>, funciona sem JavaScript."
+      },
+      {
+        "slug": "menu",
+        "title": "Menu lateral",
+        "desc": "Lista de navegação com submenu."
+      },
+      {
+        "slug": "pagination",
+        "title": "Paginação",
+        "desc": "Links de página, feita para o Paginator."
+      }
+    ]
+  },
+  {
+    "group": "Dados",
+    "items": [
+      {
+        "slug": "table",
+        "title": "Tabela",
+        "desc": "Ordenação no servidor e seleção em massa."
+      }
+    ]
+  },
+  {
+    "group": "Guias",
+    "items": [
+      {
+        "slug": "django",
+        "title": "Django",
+        "desc": "Widgets, o que chega no POST e HTMX."
+      },
+      {
+        "slug": "theme",
+        "title": "Tema",
+        "desc": "Tokens, tema escuro e cor de destaque."
+      },
+      {
+        "slug": "keyboard",
+        "title": "Teclado e acessibilidade",
+        "desc": "O que cada tecla faz, em todo componente."
+      },
+      {
+        "slug": "ai",
+        "title": "Para agentes de IA",
+        "desc": "llms.txt e o AGENTS.md para o seu projeto."
+      }
+    ]
+  }
 ]
