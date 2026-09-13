@@ -143,6 +143,9 @@ export class DatePicker {
     openWithTransition(this.panel);
     this._releaseFocus = trapFocus(this.panel);
     this.input.setAttribute('aria-expanded', 'true');
+    // So agora: o painel entra no DOM ao abrir, e um aria-controls apontando
+    // para um id que nao existe e valor invalido.
+    this.input.setAttribute('aria-controls', this.id);
     this.opts.onOpen?.(this);
   }
 
@@ -157,6 +160,7 @@ export class DatePicker {
     this._releaseFocus?.();
     this._releaseFocus = null;
     this.input.setAttribute('aria-expanded', 'false');
+    this.input.removeAttribute('aria-controls');
 
     if (restoreFocus && !this._compact) {
       // Devolver o foco ao input dispararia 'focus' e reabriria o painel na hora
@@ -251,9 +255,14 @@ export class DatePicker {
       input.setAttribute('inputmode', 'numeric');
       this._cleanups.push(on(input, 'input', (e) => this._onMaskInput(e)));
     }
+    /*
+     * combobox, e nao o textbox implicito do <input>: aria-expanded nao e
+     * permitido num campo de texto comum, e o leitor de tela ignora o atributo
+     * invalido. O combobox e o papel do ARIA para campo que abre um painel.
+     */
+    input.setAttribute('role', 'combobox');
     input.setAttribute('aria-haspopup', 'dialog');
     input.setAttribute('aria-expanded', 'false');
-    input.setAttribute('aria-controls', this.id);
     if (!input.placeholder) input.placeholder = this._placeholder();
 
     // Input hidden com ISO: o visivel mostra o formato do locale, o Django recebe ISO.

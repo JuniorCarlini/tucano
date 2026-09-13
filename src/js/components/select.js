@@ -120,6 +120,10 @@ export class Select {
     openWithTransition(this.menu);
     this.control.classList.add('is-open');
     this.control.setAttribute('aria-expanded', 'true');
+    // A lista so existe no DOM com o painel aberto: fechado, o aria-controls
+    // apontaria para um id inexistente, que e valor invalido.
+    this.control.setAttribute('aria-controls', `${this.id}-list`);
+    this.search.setAttribute('aria-controls', `${this.id}-list`);
     this.search.focus();
     this._scrollToActive();
   }
@@ -130,6 +134,8 @@ export class Select {
     this.menu.classList.remove('is-open');
     this.control.classList.remove('is-open');
     this.control.setAttribute('aria-expanded', 'false');
+    this.control.removeAttribute('aria-controls');
+    this.search.removeAttribute('aria-controls');
     this.popover?.destroy();
     this.popover = null;
     this.query = '';
@@ -172,7 +178,6 @@ export class Select {
       autocomplete: 'off',
       spellcheck: 'false',
       'aria-autocomplete': 'list',
-      'aria-controls': `${this.id}-list`,
     });
 
     this.clearBtn = el('button', {
@@ -186,7 +191,6 @@ export class Select {
       role: 'combobox',
       'aria-haspopup': 'listbox',
       'aria-expanded': 'false',
-      'aria-controls': `${this.id}-list`,
       id: this.id,
     }, [
       this.values,

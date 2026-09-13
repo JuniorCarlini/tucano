@@ -144,7 +144,8 @@
     <tr><td><code>Esc</code></td><td>Painel</td><td>Fecha e devolve o foco ao campo</td></tr>
   </tbody>
 </table></div>
-<p>O campo anuncia <code>aria-haspopup="dialog"</code> e <code>aria-expanded</code>. O painel é <code>role="dialog"</code>
+<p>O campo é um <code>combobox</code> com <code>aria-haspopup="dialog"</code> e <code>aria-expanded</code>, e ganha
+   <code>aria-controls</code> apontando para o painel enquanto ele está aberto. O painel é <code>role="dialog"</code>
    com o rótulo "Selecionar data" ou "Selecionar período"; cada mês é um <code>role="grid"</code> com o nome do mês, e
    cada dia um <code>gridcell</code> com <code>aria-selected</code> e o rótulo por extenso — "sexta-feira, 12 de
    setembro de 2026". O título do mês é <code>aria-live="polite"</code>, então trocar de mês é anunciado. As listas de
@@ -165,7 +166,8 @@
   </tbody>
 </table></div>
 <p>O controle é um <code>combobox</code> com <code>aria-haspopup="listbox"</code>, <code>aria-expanded</code> e
-   <code>aria-controls</code> apontando para a lista. A lista é <code>listbox</code>, com
+   <code>aria-controls</code> apontando para a lista enquanto ela está aberta — fechada, a lista sai do DOM e o atributo
+   sai junto. A lista é <code>listbox</code>, com
    <code>aria-multiselectable</code> no múltiplo; cada opção é <code>option</code> com <code>aria-selected</code> e
    <code>aria-disabled</code>. A opção ativa chega ao leitor de tela por <code>aria-activedescendant</code>, sem tirar
    o foco do campo de busca. O X de cada tag se chama "Remover" seguido do nome da opção. O

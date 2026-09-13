@@ -4,6 +4,17 @@ O que mudou em cada versão da Tucano, da mais nova para a mais antiga. Antes de
 atualizar, leia "Atenção ao atualizar": ali está o que pede mudança no seu
 projeto.
 
+## Ainda não publicado
+
+### Corrigido
+
+- O campo do date picker declarava `aria-expanded` sem papel que o aceite, e o
+  leitor de tela ignorava o atributo. Agora é `role="combobox"`, o papel do ARIA
+  para campo que abre um painel.
+- Date picker e select mantinham `aria-controls` apontando para o painel mesmo
+  fechado, quando ele não está no DOM — valor inválido para o leitor de tela e
+  para o Lighthouse. O atributo agora só existe com o painel aberto.
+
 ## 0.32.0 — 2026-09-13
 
 ### Atenção ao atualizar

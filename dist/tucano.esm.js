@@ -647,6 +647,7 @@ var DatePicker = class {
     openWithTransition(this.panel);
     this._releaseFocus = trapFocus(this.panel);
     this.input.setAttribute("aria-expanded", "true");
+    this.input.setAttribute("aria-controls", this.id);
     this.opts.onOpen?.(this);
   }
   close({ restoreFocus = true } = {}) {
@@ -663,6 +664,7 @@ var DatePicker = class {
     this._releaseFocus?.();
     this._releaseFocus = null;
     this.input.setAttribute("aria-expanded", "false");
+    this.input.removeAttribute("aria-controls");
     if (restoreFocus && !this._compact) {
       this._suppressOpen = true;
       this.input.focus();
@@ -742,9 +744,9 @@ var DatePicker = class {
       input.setAttribute("inputmode", "numeric");
       this._cleanups.push(on(input, "input", (e) => this._onMaskInput(e)));
     }
+    input.setAttribute("role", "combobox");
     input.setAttribute("aria-haspopup", "dialog");
     input.setAttribute("aria-expanded", "false");
-    input.setAttribute("aria-controls", this.id);
     if (!input.placeholder) input.placeholder = this._placeholder();
     if (this.opts.isoName || input.name) {
       const name = this.opts.isoName || input.name;
@@ -1651,6 +1653,8 @@ var Select = class {
     openWithTransition(this.menu);
     this.control.classList.add("is-open");
     this.control.setAttribute("aria-expanded", "true");
+    this.control.setAttribute("aria-controls", `${this.id}-list`);
+    this.search.setAttribute("aria-controls", `${this.id}-list`);
     this.search.focus();
     this._scrollToActive();
   }
@@ -1660,6 +1664,8 @@ var Select = class {
     this.menu.classList.remove("is-open");
     this.control.classList.remove("is-open");
     this.control.setAttribute("aria-expanded", "false");
+    this.control.removeAttribute("aria-controls");
+    this.search.removeAttribute("aria-controls");
     this.popover?.destroy();
     this.popover = null;
     this.query = "";
@@ -1695,8 +1701,7 @@ var Select = class {
       type: "text",
       autocomplete: "off",
       spellcheck: "false",
-      "aria-autocomplete": "list",
-      "aria-controls": `${this.id}-list`
+      "aria-autocomplete": "list"
     });
     this.clearBtn = el("button", {
       type: "button",
@@ -1713,7 +1718,6 @@ var Select = class {
       role: "combobox",
       "aria-haspopup": "listbox",
       "aria-expanded": "false",
-      "aria-controls": `${this.id}-list`,
       id: this.id
     }, [
       this.values,
