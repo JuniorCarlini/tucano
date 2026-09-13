@@ -16,8 +16,11 @@
 
 :root {
   /*
-   * O laranja do tucano, o mesmo nos dois temas. Sobre ele o texto e escuro: o
-   * branco dava 2,7 de contraste, e o #0a0a0a da 7,4.
+   * O laranja do tucano, o mesmo nos dois temas, com texto branco em cima.
+   * Decisao de marca, tomada sabendo o numero: branco sobre #FF7501 da 2,7, e
+   * o #0a0a0a daria 7,4. Os tons fechados que passam de 4,5 (#CC4A00 em diante)
+   * foram comparados lado a lado e perderam para o laranja do bico. Projeto que
+   * precise de AA no botao primario troca --tuc-accent-fg por #0a0a0a.
    *
    * Como cor de texto (link, menu ativo, tag, "hoje" no calendario) o vivo
    * nao se le sobre fundo claro — 2,7 de novo. Para isso existe
@@ -28,10 +31,10 @@
    */
   --tuc-accent: #FF7501;
   --tuc-accent-hover: #FF8A2A;
-  --tuc-accent-fg: #0a0a0a;
+  --tuc-accent-fg: #ffffff;
   --tuc-accent-text: #B84300;
-  /* Botao da chave: claro nos dois temas. Nao e --tuc-accent-fg, que e o texto
-     escuro sobre o laranja — a bolinha ficaria preta. */
+  /* Botao da chave: claro nos dois temas. Token proprio, e nao --tuc-accent-fg:
+     quem troca o texto do destaque para escuro nao pode ganhar bolinha preta. */
   --tuc-thumb: #ffffff;
 
   /*

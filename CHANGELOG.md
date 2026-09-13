@@ -9,7 +9,9 @@ projeto.
 ### Atenção ao atualizar
 
 - A cor de destaque padrão agora é o laranja do tucano, `#FF7501`, nos dois
-  temas, e o texto sobre ela passa a ser escuro (`--tuc-accent-fg`). Onde o
+  temas, com texto branco em cima (`--tuc-accent-fg`). O contraste do branco
+  sobre esse laranja é 2,7; quem precisa de 4,5 no botão primário define
+  `--tuc-accent-fg: #0a0a0a` no próprio projeto. Onde o
   destaque é a cor do próprio texto — link, menu ativo, tag — entra o novo
   `--tuc-accent-text`, mais fechado no tema claro para continuar legível. Quem já
   define `--tuc-accent` no próprio projeto confira também esses dois.
