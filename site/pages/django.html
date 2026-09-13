@@ -176,14 +176,14 @@ class BaseForm(forms.Form):
 
 <pre data-code="django">
 {% for m in messages %}
-  <div data-tuc-toast data-type="{{ m.level_tag }}">{{ m }}</div>
+  <div data-tuc-toast data-type="{{ m.tags }}">{{ m }}</div>
 {% endfor %}
 </pre>
 
 <p>Os níveis <code>debug</code>, <code>info</code>, <code>success</code>, <code>warning</code> e <code>error</code> são
-   traduzidos sozinhos — <code>debug</code> vira <code>info</code>. Use <code>m.level_tag</code> e não
-   <code>m.tags</code>: com <code>extra_tags</code>, o <code>tags</code> começa pela tag extra, e o componente lê só a
-   primeira palavra.</p>
+   traduzidos sozinhos — <code>debug</code> vira <code>info</code>. As <code>extra_tags</code> não atrapalham: o Django
+   as escreve antes do nível (<code>"destaque success"</code>), e o componente usa a primeira palavra que for um tipo
+   conhecido.</p>
 
 <div class="tuc-table-wrap"><table class="tuc-table">
   <thead><tr><th>Atributo</th><th>Para quê</th></tr></thead>
