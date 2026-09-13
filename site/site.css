@@ -170,10 +170,10 @@ a.link-card:hover { border-color: var(--accent); }
 @view-transition { navigation: auto; }
 .side { view-transition-name: side; }
 .topbar { view-transition-name: topbar; }
-::view-transition-old(root) { animation: 120ms ease-in both site-sai; }
-::view-transition-new(root) { animation: 200ms cubic-bezier(0.16, 1, 0.3, 1) both site-entra; }
-@keyframes site-sai { to { opacity: 0; } }
-@keyframes site-entra { from { opacity: 0; transform: translateY(6px); } }
+::view-transition-old(root) { animation: 120ms ease-in both site-fade-out; }
+::view-transition-new(root) { animation: 200ms cubic-bezier(0.16, 1, 0.3, 1) both site-fade-in; }
+@keyframes site-fade-out { to { opacity: 0; } }
+@keyframes site-fade-in { from { opacity: 0; transform: translateY(6px); } }
 @media (prefers-reduced-motion: reduce) {
   @view-transition { navigation: none; }
 }
