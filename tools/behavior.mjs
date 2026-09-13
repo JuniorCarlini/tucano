@@ -138,6 +138,52 @@ body{margin:0;padding:16px;font-family:system-ui}
     i.open(item); if (!item.open) throw new Error('não abriu');
     i.close(item);
   });
+  t('datepicker mostra as setas e troca de mês por elas', function () {
+    // As setas eram .tuc-btn is-ghost, e a regra do espaço reservado usava o
+    // mesmo nome: ficavam invisíveis e sem clique, e nenhum teste as tocava.
+    var i = document.getElementById('d')._tucano;
+    i.open();
+    // Tudo lido dentro do painel desta instância: a página tem outro calendário,
+    // e ler o rótulo de um e clicar a seta do outro acusava "o mês não mudou".
+    var setas = i.panel.querySelectorAll('.tuc-dp__nav:not(.is-placeholder)');
+    if (!setas.length) throw new Error('sem setas');
+    var proxima = setas[setas.length - 1], c = getComputedStyle(proxima);
+    if (c.visibility !== 'visible' || c.pointerEvents === 'none') throw new Error('seta ' + c.visibility + ' / ' + c.pointerEvents);
+    var antes = i.panel.querySelector('.tuc-dp__label').textContent;
+    proxima.click();
+    var depois = i.panel.querySelector('.tuc-dp__label').textContent;
+    i.close();
+    if (antes === depois) throw new Error('o mês não mudou: ' + depois);
+  });
+  t('arquivo recusado vira o aviso do sistema, anunciado', function () {
+    document.getElementById('u')._tucano._fail('Maior que 5 MB', { name: 'contrato.pdf' });
+    var aviso = document.querySelector('.tuc-upload .tuc-alert.is-danger[role="alert"]');
+    if (!aviso) throw new Error('sem .tuc-alert is-danger com role=alert');
+    if (aviso.querySelector('.tuc-alert__title').textContent !== 'contrato.pdf') throw new Error('título errado');
+    aviso.remove();
+  });
+  t('toast de carregando usa o spinner do sistema', function () {
+    var x = Tucano.toast({ type: 'loading', text: 'Enviando' });
+    var ok = !!document.querySelector('.tuc-toast.is-loading .tuc-toast__icon > .tuc-spinner');
+    x.close();
+    if (!ok) throw new Error('sem .tuc-spinner');
+  });
+  t('limpar do select é o botão do sistema e some sem valor', function () {
+    var nativo = document.createElement('select');
+    nativo.innerHTML = '<option value="">—</option><option value="a">A</option>';
+    document.body.append(nativo);
+    var inst = new Tucano.Select(nativo, { clearable: true });
+    var limpar = inst.control.querySelector('.tuc-select__clear');
+    var erro = null;
+    if (!limpar || !limpar.classList.contains('tuc-btn')) erro = 'não é .tuc-btn';
+    else if (getComputedStyle(limpar).display !== 'none') erro = 'aparece sem valor';
+    else {
+      inst.setValue('a');
+      if (getComputedStyle(limpar).display === 'none') erro = 'não aparece com valor';
+    }
+    inst.control.remove(); nativo.remove();
+    if (erro) throw new Error(erro);
+  });
   t('abas ligam aba e painel pelos papéis', function () {
     var abas = document.querySelectorAll('#tb .tuc-tabs__tab'), paineis = document.querySelectorAll('#tb .tuc-tabs__panel');
     if (document.querySelector('#tb .tuc-tabs__list').getAttribute('role') !== 'tablist') throw new Error('sem tablist');

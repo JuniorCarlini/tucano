@@ -95,7 +95,8 @@ table[data-tuc-table]:not([data-tuc-ready]) tbody tr:last-child > * { border-bot
 }
 .tuc-table__sortbtn:hover { color: var(--tuc-fg); }
 .tuc-table__sortbtn:focus-visible {
-  outline: 2px solid var(--tuc-ring);
+  /* --tuc-ring e o contorno de sombra, preto a 12%: como anel de foco sumia. */
+  outline: 2px solid var(--tuc-accent);
   outline-offset: 2px;
 }
 .tuc-table__sorticon {

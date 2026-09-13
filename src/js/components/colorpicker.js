@@ -142,7 +142,7 @@ export class ColorPicker {
 
     this.preview = el('span', { class: 'tuc-colorpicker__preview' });
     this.hexField = el('input', {
-      class: 'tuc-colorpicker__field', type: 'text', spellcheck: 'false',
+      class: 'tuc-input tuc-colorpicker__field', type: 'text', spellcheck: 'false',
       autocomplete: 'off', 'aria-label': 'Valor da cor',
     });
 
@@ -150,7 +150,7 @@ export class ColorPicker {
       this.preview,
       this.hexField,
       supportsEyeDropper() ? el('button', {
-        type: 'button', class: 'tuc-btn is-ghost is-icon tuc-colorpicker__pick', 'aria-label': 'Capturar cor da tela',
+        type: 'button', class: 'tuc-btn is-outline is-icon is-sm tuc-colorpicker__pick', 'aria-label': 'Capturar cor da tela',
         onclick: () => this._pickFromScreen(),
       }, [icon(ICON_PIPETTE, 15)]) : null,
     ]);

@@ -11,7 +11,7 @@
 /* A moldura de foco e do conjunto: quem tem borda aqui e a caixa, nao a area. */
 .tuc-editor:focus-within {
   border-color: var(--tuc-accent);
-  box-shadow: 0 0 0 3px color-mix(in oklab, var(--tuc-accent) 22%, transparent);
+  box-shadow: 0 0 0 3px var(--tuc-accent-ring);
 }
 
 /*
@@ -98,7 +98,8 @@ textarea.tuc-editor__value[hidden] { display: none; }
  */
 .tuc-editor__area pre,
 .tuc-prose pre {
-  @apply my-3 overflow-x-auto rounded p-3;
+  @apply my-3 overflow-x-auto p-3;
+  border-radius: var(--tuc-radius-sm);
   background: var(--tuc-elevated);
   white-space: pre-wrap;
   word-break: break-word;
@@ -113,7 +114,8 @@ textarea.tuc-editor__value[hidden] { display: none; }
 
 .tuc-editor__area code,
 .tuc-prose code {
-  @apply rounded px-1 py-0.5;
+  @apply px-1 py-0.5;
+  border-radius: var(--tuc-radius-xs);
   font-size: 0.8125rem;
   background: var(--tuc-elevated);
 }

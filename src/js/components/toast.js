@@ -1,4 +1,4 @@
-import { el, icon, ICON_ALERT, ICON_CHECK, ICON_INFO, ICON_SPINNER, ICON_X, nextId, omitUndefined, on, openWithTransition } from '../core/dom.js';
+import { el, icon, ICON_ALERT, ICON_CHECK, ICON_INFO, ICON_X, nextId, omitUndefined, on, openWithTransition } from '../core/dom.js';
 
 const DEFAULTS = {
   type: 'info',        // 'info' | 'success' | 'warning' | 'error' | 'loading'
@@ -16,7 +16,6 @@ const ICON = {
   success: ICON_CHECK,
   warning: ICON_ALERT,
   error: ICON_ALERT,
-  loading: ICON_SPINNER,
 };
 
 /**
@@ -146,7 +145,10 @@ export class Toast {
   _content() {
     const { type, title, text, closable, action } = this.opts;
     return [
-      el('span', { class: 'tuc-toast__icon' }, [icon(ICON[type] ?? ICON.info, 17)]),
+      // Carregando e o spinner do sistema; os outros tipos, o icone do tom.
+      el('span', { class: 'tuc-toast__icon' }, [type === 'loading'
+        ? el('span', { class: 'tuc-spinner' })
+        : icon(ICON[type] ?? ICON.info, 17)]),
       el('div', { class: 'tuc-toast__body' }, [
         title ? el('strong', { class: 'tuc-toast__title', text: title }) : null,
         el('span', { class: 'tuc-toast__text', text }),

@@ -44,11 +44,9 @@
 }
 .tuc-menu__item.is-active .tuc-menu__icon { color: var(--tuc-accent); }
 
-/* Contador a direita: quantos itens ha naquela tela. */
-.tuc-menu__count {
-  @apply ml-auto shrink-0 px-1.5 text-xs tabular-nums;
-  color: var(--tuc-subtle);
-}
+/* Contador a direita: e a .tuc-badge is-plain, a mesma das abas. Daqui so o
+   empurrao para a borda. */
+.tuc-menu__count { @apply ml-auto shrink-0 tabular-nums; }
 
 .tuc-menu__separator {
   @apply my-1.5;

@@ -57,7 +57,8 @@
   --tuc-glow-y: 42%;
   --tuc-glow-w: 80rem;
   --tuc-glow-h: 58rem;
-  --tuc-glow-color: rgb(99 102 241 / 0.24);
+  /* Do accent, e nao um roxo escrito a mao: trocar o accent troca o brilho. */
+  --tuc-glow-color: color-mix(in oklab, var(--tuc-accent) 24%, transparent);
 
   opacity: 0;
   /*
@@ -81,15 +82,15 @@
 .tuc-drawer.is-closing::backdrop { opacity: 0; }
 
 .tuc-modal.is-danger::backdrop,
-.tuc-drawer.is-danger::backdrop  { --tuc-glow-color: rgb(220 38 38 / 0.22); }
+.tuc-drawer.is-danger::backdrop  { --tuc-glow-color: color-mix(in oklab, var(--tuc-danger-fill) 22%, transparent); }
 .tuc-modal.is-success::backdrop,
-.tuc-drawer.is-success::backdrop { --tuc-glow-color: rgb(22 163 74 / 0.22); }
+.tuc-drawer.is-success::backdrop { --tuc-glow-color: color-mix(in oklab, var(--tuc-success) 22%, transparent); }
 .tuc-modal.is-warning::backdrop,
-.tuc-drawer.is-warning::backdrop   { --tuc-glow-color: rgb(217 119 6 / 0.22); }
+.tuc-drawer.is-warning::backdrop   { --tuc-glow-color: color-mix(in oklab, var(--tuc-warning) 22%, transparent); }
 
-.tuc-modal.is-danger,  .tuc-drawer.is-danger  { --tuc-modal-glow: rgb(220 38 38 / 0.45); }
-.tuc-modal.is-success, .tuc-drawer.is-success { --tuc-modal-glow: rgb(22 163 74 / 0.45); }
-.tuc-modal.is-warning,   .tuc-drawer.is-warning   { --tuc-modal-glow: rgb(217 119 6 / 0.45); }
+.tuc-modal.is-danger,  .tuc-drawer.is-danger  { --tuc-modal-glow: color-mix(in oklab, var(--tuc-danger-fill) 45%, transparent); }
+.tuc-modal.is-success, .tuc-drawer.is-success { --tuc-modal-glow: color-mix(in oklab, var(--tuc-success) 45%, transparent); }
+.tuc-modal.is-warning,   .tuc-drawer.is-warning   { --tuc-modal-glow: color-mix(in oklab, var(--tuc-warning) 45%, transparent); }
 
 /* ------------------------------------------------------------------ */
 

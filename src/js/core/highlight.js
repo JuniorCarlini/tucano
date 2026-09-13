@@ -1,4 +1,4 @@
-import { el, escapeHtml, icon, on } from './dom.js';
+import { el, escapeHtml, icon, ICON_CHECK, ICON_COPY, on } from './dom.js';
 /*
  * Destaque de codigo, generico.
  *
@@ -87,8 +87,6 @@ export function autoInit(scope = document) {
   return blocks;
 }
 
-const ICON_COPY = 'M20 9h-9a2 2 0 00-2 2v9a2 2 0 002 2h9a2 2 0 002-2v-9a2 2 0 00-2-2zM5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1';
-const ICON_OK = 'M20 6L9 17l-5-5';
 
 /*
  * Botao de copiar no bloco de codigo.
@@ -111,7 +109,7 @@ function addCopy(pre) {
   const btn = el('button', {
     type: 'button', class: 'tuc-btn is-outline is-icon is-sm tuc-copy',
     'aria-label': 'Copiar código',
-  }, [icon(ICON_COPY, 14), icon(ICON_OK, 14)]);
+  }, [icon(ICON_COPY, 14), icon(ICON_CHECK, 14)]);
   btn.children[1].classList.add('tuc-copy__ok');
 
   on(btn, 'click', async () => {

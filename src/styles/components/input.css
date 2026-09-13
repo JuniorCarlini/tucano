@@ -51,7 +51,7 @@ textarea.tuc-input.tuc-input:focus,
 select.tuc-input.tuc-input:focus {
   outline: 0;
   border-color: var(--tuc-accent);
-  box-shadow: 0 0 0 3px color-mix(in oklab, var(--tuc-accent) 22%, transparent);
+  box-shadow: 0 0 0 3px var(--tuc-accent-ring);
 }
 
 input.tuc-input.tuc-input:disabled,

@@ -33,19 +33,10 @@
   font-size: var(--tuc-text);
 }
 
-.tuc-pagination__ico { @apply inline-flex shrink-0; }
-
 /*
- * Ponta desativada: o <span> nao herda o estado de botao, entao o apagamento
- * vem daqui. `pointer-events: none` evita o cursor de clique num alvo morto.
+ * Ponta desativada: o <span> leva aria-disabled, e o .tuc-btn desenha o estado —
+ * esmaecido, cursor de bloqueio, sem hover. Antes o apagamento era refeito aqui.
  */
-.tuc-pagination__edge.is-disabled {
-  color: var(--tuc-subtle);
-  opacity: 0.5;
-  pointer-events: none;
-  background: transparent;
-  border-color: transparent;
-}
 
 .tuc-pagination.is-center { @apply justify-center; }
 .tuc-pagination.is-end { @apply justify-end; }

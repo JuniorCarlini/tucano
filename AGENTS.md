@@ -489,6 +489,25 @@ antes de abrir, como faria quem clica.
 `consistency.mjs`.** Numa nota em prosa, escreva `&quot;`; nos `<pre>` o valor já
 sai partido em `<span>` e não casa.
 
+**Peça básica é importada antes do componente que a usa.** Em
+`src/styles/index.css`, botão, etiqueta, carregando e aviso vêm logo depois do
+formulário. Com o mesmo peso de seletor ganha a regra que vem depois, e o
+`button.css` estava depois de datepicker, colorpicker, upload e máscara: todo
+ajuste que esses componentes declaravam sobre o `.tuc-btn` morria calado. Pior,
+`.tuc-dp__nav.is-ghost { visibility: hidden }` — feita para o espaço reservado —
+casava com as setas de verdade, que usam a variante `is-ghost`, e o calendário
+ficou sem trocar de mês pelo mouse sem teste nenhum acusar. Modificador próprio
+de componente não pode ter nome de variante do sistema (`is-ghost`, `is-sm`,
+`is-outline`…).
+
+**Componente usa as peças da biblioteca por dentro.** Botão é `.tuc-btn`,
+campo é `.tuc-input`, carregando é `.tuc-spinner`, aviso é `.tuc-alert`,
+contador é `.tuc-badge`, ícone é `ICON_*` de `dom.js`. O componente declara só
+posição e, quando não cabe, tamanho — nunca cor, borda, hover ou foco de novo.
+As exceções são deliberadas: célula de dia e amostra de cor (o conteúdo é o
+próprio valor), opção de lista e de menu (papel e teclado próprios), campo sem
+caixa dentro de um controle, e o X da tag do select, que não cabe num botão.
+
 ## Antes de dizer que está pronto
 
 ```bash

@@ -176,7 +176,7 @@ export class Select {
     });
 
     this.clearBtn = el('button', {
-      type: 'button', class: 'tuc-select__clear', 'aria-label': 'Limpar selecao',
+      type: 'button', class: 'tuc-btn is-ghost is-icon tuc-select__clear', 'aria-label': 'Limpar selecao',
       tabindex: -1,
       onclick: (e) => { e.stopPropagation(); this.clear(); },
     }, [icon(ICON_X, 14)]);
@@ -440,7 +440,8 @@ export class Select {
     this.list.replaceChildren();
 
     if (this.searchState === 'loading') {
-      this.list.append(el('div', { class: 'tuc-select__empty is-loading', text: this.opts.loadingText }));
+      this.list.append(el('div', { class: 'tuc-select__empty is-loading' }, [
+        el('span', { class: 'tuc-spinner', 'aria-hidden': 'true' }), this.opts.loadingText]));
       return;
     }
     if (this.searchState === 'error') {

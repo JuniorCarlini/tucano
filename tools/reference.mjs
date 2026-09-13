@@ -69,7 +69,7 @@ const css = readdirSync('src/styles/components')
 const classes = [...new Set([...css.matchAll(/\.(tuc-[\w-]+)/g)].map((m) => m[1]))].sort();
 /* Ganchos que o JS monta e o CSS nao estiliza — invisiveis para quem so le o
    CSS, e por isso listados a mao. A mesma lista guarda tools/consistency.mjs. */
-const GANCHOS = ['tuc-table__sortable', 'tuc-table__check', 'tuc-toast__action', 'tuc-tip__text'];
+const GANCHOS = ['tuc-table__sortable', 'tuc-table__check', 'tuc-toast__action', 'tuc-tip__text', 'tuc-pagination__edge'];
 const tokens = [...new Set([...readFileSync('src/styles/core/tokens.css', 'utf8')
   .matchAll(/(--tuc-[\w-]+):/g)].map((m) => m[1]))].sort();
 

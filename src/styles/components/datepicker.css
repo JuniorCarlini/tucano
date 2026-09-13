@@ -26,7 +26,8 @@
   @apply flex min-w-0 flex-col;
 }
 
-.tuc-dp *:focus-visible {
+/* Os .tuc-btn de dentro ja tem o anel do sistema; um outline por cima dobrava. */
+.tuc-dp :not(.tuc-btn):focus-visible {
   outline: 2px solid var(--tuc-accent);
   outline-offset: 1px;
 }
@@ -39,18 +40,25 @@
   @apply flex items-center justify-between gap-1 px-1 pb-2 pt-1;
 }
 
-/* Tamanho, raio, hover, foco e desabilitado vem de .tuc-btn is-ghost is-icon. */
-.tuc-dp__nav { color: var(--tuc-muted); }
-.tuc-dp__nav.is-ghost { @apply pointer-events-none invisible; }
+/*
+ * Setas e rotulo sao o .tuc-btn do sistema. O espaco reservado — onde o mes do
+ * meio nao tem seta — e um botao invisivel do mesmo tamanho, para os rotulos de
+ * dois meses lado a lado ficarem centrados igual.
+ *
+ * O modificador era `is-ghost`, o mesmo nome da variante do botao: as setas de
+ * verdade casavam e ficavam invisiveis e sem clique. Dai `is-placeholder`.
+ */
+.tuc-dp__nav.is-placeholder { visibility: hidden; pointer-events: none; }
 
-.tuc-dp__label {
-  @apply flex items-center gap-1  px-2 py-1 font-semibold capitalize transition-colors;
-  border-radius: var(--tuc-radius-sm);
+/* O rotulo e um botao que se le como titulo: texto forte e capitalizado.
+   `.tuc-dp` na frente para vencer a cor e a fonte do is-ghost e do is-sm. */
+.tuc-dp .tuc-btn.tuc-dp__label {
+  @apply gap-1 px-2 font-semibold capitalize;
   font-size: 0.875rem;
   letter-spacing: -0.01em;
+  color: var(--tuc-fg);
 }
-.tuc-dp__label:hover { background: var(--tuc-hover); }
-.tuc-dp__label svg { color: var(--tuc-subtle); }
+.tuc-dp .tuc-dp__label svg { color: var(--tuc-subtle); }
 
 /* ------------------------------------------------------------------ *
  * Grade de dias                                                       *
@@ -267,16 +275,15 @@
   border-right: var(--tuc-border-width) solid var(--tuc-border);
 }
 
-.tuc-dp__preset {
-  @apply truncate  px-2.5 py-1.5 text-left font-medium transition-colors;
-  border-radius: var(--tuc-radius-sm);
-  color: var(--tuc-muted);
-}
-.tuc-dp__preset:hover { background: var(--tuc-hover); color: var(--tuc-fg); }
-.tuc-dp__preset.is-selected {
+/* Atalho e .tuc-btn is-ghost is-sm; daqui, o alinhamento de lista e o estado. */
+.tuc-dp .tuc-btn.tuc-dp__preset { @apply justify-start font-medium; }
+/* O texto vai num span: com texto solto no inline-flex a reticencia nao aparece. */
+.tuc-dp__preset > span { @apply min-w-0 truncate; }
+.tuc-dp .tuc-btn.tuc-dp__preset.is-selected,
+.tuc-dp .tuc-btn.tuc-dp__preset.is-selected:hover {
+  @apply font-semibold;
   background: var(--tuc-accent-soft);
   color: var(--tuc-accent);
-  @apply font-semibold;
 }
 
 /* ------------------------------------------------------------------ *

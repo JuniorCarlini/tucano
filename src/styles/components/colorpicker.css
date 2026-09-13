@@ -174,34 +174,21 @@
   background: var(--color, transparent);
 }
 
-.tuc-colorpicker input.tuc-colorpicker__field {
-  /* Altura explicita: com padding vertical o campo ficava 4px mais alto
-     que a amostra e o conta-gotas, e a linha saia desalinhada. */
-  @apply min-w-0 flex-1  px-2.5 font-medium;
+/*
+ * Campo hex e conta-gotas sao o .tuc-input e o .tuc-btn do sistema — foco,
+ * desativado e invalido vem de la. Daqui so a altura, que alinha com a amostra
+ * ao lado por --tuc-swatch e cresce junto no toque. O campo leva `input` e a
+ * classe repetida para pesar 0,3,1 e vencer a altura do .tuc-input.
+ */
+.tuc-colorpicker input.tuc-input.tuc-colorpicker__field {
+  @apply min-w-0 flex-1 px-2.5 font-medium;
   height: var(--tuc-swatch);
   border-radius: var(--tuc-radius-sm);
-  font-variant-numeric: tabular-nums;
-  background: var(--tuc-elevated);
-  border: var(--tuc-border-width) solid var(--tuc-border);
 }
-.tuc-colorpicker input.tuc-colorpicker__field:focus {
-  border-color: var(--tuc-accent);
-  outline: none;
-  box-shadow: 0 0 0 3px var(--tuc-accent-ring);
-}
-
-/*
- * O tamanho fica sobrescrito de proposito: este botao alinha com a fileira de
- * amostras, e nao com a altura padrao de controle. O resto vem do .tuc-btn.
- */
-.tuc-colorpicker__pick {
+.tuc-colorpicker .tuc-btn.tuc-colorpicker__pick {
   width: var(--tuc-swatch);
   height: var(--tuc-swatch);
-  background: var(--tuc-elevated);
-  color: var(--tuc-muted);
-  border: var(--tuc-border-width) solid var(--tuc-border);
 }
-.tuc-colorpicker__pick:hover { background: var(--tuc-hover); color: var(--tuc-fg); }
 
 /* ------------------------------------------------------------------ *
  * Paleta                                                              *

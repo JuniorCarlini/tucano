@@ -7,21 +7,25 @@
 @import './components/input.css';
 @import './components/choice.css';
 @import './components/form.css';
+/* Pecas que os componentes usam por dentro vem antes deles: com o mesmo peso de
+   seletor ganha quem vem depois, e o ajuste de posicao ou tamanho que um
+   componente declara sobre o .tuc-btn precisa vencer. Com o botao depois, esses
+   ajustes morriam calados — e uma regra do datepicker escondia as setas. */
+@import './components/button.css';
+@import './components/badge.css';
+@import './components/loading.css';
+@import './components/alert.css';
 @import './components/editor.css';
 @import './components/datepicker.css';
 @import './components/select.css';
 @import './components/colorpicker.css';
 @import './components/upload.css';
 @import './components/mask.css';
-@import './components/button.css';
 @import './components/toast.css';
 @import './components/accordion.css';
 @import './components/tabs.css';
-@import './components/alert.css';
-@import './components/loading.css';
 @import './components/menu.css';
 @import './components/dropdown.css';
-@import './components/badge.css';
 @import './components/table.css';
 @import './components/pagination.css';
 @import './components/dialog.css';

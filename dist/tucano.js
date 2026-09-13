@@ -371,12 +371,12 @@ var Tucano = (() => {
   var ICON_CHEVRON_DOWN = "M6 9l6 6 6-6";
   var ICON_X = "M18 6L6 18M6 6l12 12";
   var ICON_CHECK = "M20 6L9 17l-5-5";
+  var ICON_COPY = "M20 9h-9a2 2 0 00-2 2v9a2 2 0 002 2h9a2 2 0 002-2v-9a2 2 0 00-2-2zM5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1";
   var ICON_CHEVRONS_UP_DOWN = "M7 15l5 5 5-5M7 9l5-5 5 5";
   var ICON_PIPETTE = "M2 22l1-4 10-10 3 3L6 21l-4 1zM15 5l4-4 4 4-4 4-4-4z";
   var ICON_UPLOAD = "M12 16V4M7 9l5-5 5 5M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2";
   var ICON_FILE = "M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6";
   var ICON_RETRY = "M21 12a9 9 0 11-9-9c2.5 0 4.9 1 6.7 2.7L21 8M21 3v5h-5";
-  var ICON_SPINNER = "M21 12a9 9 0 11-9-9";
   var ICON_ALERT = "M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z";
   var ICON_INFO = "M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z";
   var ICON_EYE = "M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z M12 15a3 3 0 100-6 3 3 0 000 6z";
@@ -1207,10 +1207,10 @@ var Tucano = (() => {
           "aria-label": "Mes anterior",
           disabled: this._navBlocked(-1),
           onclick: () => this._shiftView(-1)
-        }, [icon(ICON_CHEVRON_LEFT)]) : el("span", { class: "tuc-dp__nav is-ghost" }),
+        }, [icon(ICON_CHEVRON_LEFT)]) : el("span", { class: "tuc-btn is-icon is-sm tuc-dp__nav is-placeholder", "aria-hidden": "true" }),
         el("button", {
           type: "button",
-          class: "tuc-dp__label",
+          class: "tuc-btn is-ghost is-sm tuc-dp__label",
           "aria-live": "polite",
           onclick: () => {
             this.view = "months";
@@ -1224,7 +1224,7 @@ var Tucano = (() => {
           "aria-label": "Proximo mes",
           disabled: this._navBlocked(1),
           onclick: () => this._shiftView(1)
-        }, [icon(ICON_CHEVRON_RIGHT)]) : el("span", { class: "tuc-dp__nav is-ghost" })
+        }, [icon(ICON_CHEVRON_RIGHT)]) : el("span", { class: "tuc-btn is-icon is-sm tuc-dp__nav is-placeholder", "aria-hidden": "true" })
       ]);
       const weekdays = el("div", { class: `tuc-dp__weekdays${this.opts.weekNumbers ? " has-weeknums" : ""}` });
       if (this.opts.weekNumbers) weekdays.append(el("span", { class: "tuc-dp__weeknum-head" }));
@@ -1332,7 +1332,7 @@ var Tucano = (() => {
         }, [icon(ICON_CHEVRON_LEFT)]),
         el("button", {
           type: "button",
-          class: "tuc-dp__label",
+          class: "tuc-btn is-ghost is-sm tuc-dp__label",
           onclick: () => {
             this.view = isMonths ? "years" : "days";
             this._render();
@@ -1419,10 +1419,10 @@ var Tucano = (() => {
         const active = this.start && this.end && isSameDay(this.start, r.start) && isSameDay(this.end, r.end);
         wrap.append(el("button", {
           type: "button",
-          class: `tuc-dp__preset${active ? " is-selected" : ""}`,
-          text: preset.label,
+          class: `tuc-btn is-ghost is-sm tuc-dp__preset${active ? " is-selected" : ""}`,
+          title: preset.label,
           onclick: () => this._applyPreset(preset)
-        }));
+        }, [el("span", { text: preset.label })]));
       }
       return wrap;
     }
@@ -1747,7 +1747,7 @@ var Tucano = (() => {
       });
       this.clearBtn = el("button", {
         type: "button",
-        class: "tuc-select__clear",
+        class: "tuc-btn is-ghost is-icon tuc-select__clear",
         "aria-label": "Limpar selecao",
         tabindex: -1,
         onclick: (e) => {
@@ -1984,7 +1984,10 @@ var Tucano = (() => {
       const visible = this._filtered();
       this.list.replaceChildren();
       if (this.searchState === "loading") {
-        this.list.append(el("div", { class: "tuc-select__empty is-loading", text: this.opts.loadingText }));
+        this.list.append(el("div", { class: "tuc-select__empty is-loading" }, [
+          el("span", { class: "tuc-spinner", "aria-hidden": "true" }),
+          this.opts.loadingText
+        ]));
         return;
       }
       if (this.searchState === "error") {
@@ -2436,7 +2439,7 @@ var Tucano = (() => {
       this.alpha = this.opts.alpha ? this._buildSlider("alpha", "Opacidade", 1) : null;
       this.preview = el("span", { class: "tuc-colorpicker__preview" });
       this.hexField = el("input", {
-        class: "tuc-colorpicker__field",
+        class: "tuc-input tuc-colorpicker__field",
         type: "text",
         spellcheck: "false",
         autocomplete: "off",
@@ -2447,7 +2450,7 @@ var Tucano = (() => {
         this.hexField,
         supportsEyeDropper() ? el("button", {
           type: "button",
-          class: "tuc-btn is-ghost is-icon tuc-colorpicker__pick",
+          class: "tuc-btn is-outline is-icon is-sm tuc-colorpicker__pick",
           "aria-label": "Capturar cor da tela",
           onclick: () => this._pickFromScreen()
         }, [icon(ICON_PIPETTE, 15)]) : null
@@ -3028,11 +3031,11 @@ var Tucano = (() => {
     }
     _fail(message, file) {
       this.opts.onError?.(new Error(message), file);
-      const warning = el("li", { class: "tuc-upload__item is-rejected" }, [
-        el("span", { class: "tuc-upload__thumb" }, [icon(ICON_ALERT, 16)]),
-        el("div", { class: "tuc-upload__info" }, [
-          el("span", { class: "tuc-upload__name", text: file.name }),
-          el("span", { class: "tuc-upload__meta", text: message })
+      const warning = el("li", { class: "tuc-alert is-danger tuc-upload__rejected", role: "alert" }, [
+        icon(ICON_ALERT, 16),
+        el("div", { class: "tuc-alert__body" }, [
+          el("p", { class: "tuc-alert__title", text: file.name }),
+          el("p", { text: message })
         ])
       ]);
       this.list.append(warning);
@@ -3051,7 +3054,7 @@ var Tucano = (() => {
       if (meta) meta.textContent = `${Math.round(item.progress * 100)}% \xB7 ${formatSize(item.file.size, this.opts.locale)}`;
     }
     _renderList() {
-      for (const n of [...this.list.children]) if (!n.classList.contains("is-rejected")) n.remove();
+      for (const n of [...this.list.children]) if (!n.classList.contains("tuc-upload__rejected")) n.remove();
       for (const item of this.items) {
         const pct = Math.round(item.progress * 100);
         const meta = item.state === "uploading" ? `${pct}% \xB7 ${formatSize(item.file.size, this.opts.locale)}` : item.state === "error" ? item.error : formatSize(item.file.size, this.opts.locale);
@@ -3086,7 +3089,7 @@ var Tucano = (() => {
     _button(path, label, onClick) {
       return el("button", {
         type: "button",
-        class: "tuc-btn is-ghost is-icon is-sm tuc-upload__action",
+        class: "tuc-btn is-ghost is-icon is-sm",
         "aria-label": label,
         title: label,
         onclick: (e) => {
@@ -3635,8 +3638,7 @@ var Tucano = (() => {
     info: ICON_INFO,
     success: ICON_CHECK,
     warning: ICON_ALERT,
-    error: ICON_ALERT,
-    loading: ICON_SPINNER
+    error: ICON_ALERT
   };
   var DURATION = { info: 4e3, success: 3500, warning: 6e3, error: 8e3, loading: null };
   var containers = /* @__PURE__ */ new Map();
@@ -3711,7 +3713,8 @@ var Tucano = (() => {
     _content() {
       const { type, title, text, closable, action } = this.opts;
       return [
-        el("span", { class: "tuc-toast__icon" }, [icon(ICON[type] ?? ICON.info, 17)]),
+        // Carregando e o spinner do sistema; os outros tipos, o icone do tom.
+        el("span", { class: "tuc-toast__icon" }, [type === "loading" ? el("span", { class: "tuc-spinner" }) : icon(ICON[type] ?? ICON.info, 17)]),
         el("div", { class: "tuc-toast__body" }, [
           title ? el("strong", { class: "tuc-toast__title", text: title }) : null,
           el("span", { class: "tuc-toast__text", text })
@@ -4658,7 +4661,6 @@ var Tucano = (() => {
     // definido, intercepta o clique e cancela a navegacao
     onSelect: null
   };
-  var SETAS = "M7 15l5 5 5-5M7 9l5-5 5 5";
   var COMPARE = {
     number: (a, b) => parseFloat(a.replace(/[^\d,.-]/g, "").replace(/\./g, "").replace(",", ".") || 0) - parseFloat(b.replace(/[^\d,.-]/g, "").replace(/\./g, "").replace(",", ".") || 0),
     date: (a, b) => new Date(a).getTime() - new Date(b).getTime(),
@@ -4710,7 +4712,7 @@ var Tucano = (() => {
         const next = marked && currentDir === "ascending" ? "desc" : "asc";
         const children = [
           el("span", { text: th.textContent.trim() }),
-          el("span", { class: "tuc-table__sorticon", "aria-hidden": "true" }, [icon(SETAS, 13)])
+          el("span", { class: "tuc-table__sorticon", "aria-hidden": "true" }, [icon(ICON_CHEVRONS_UP_DOWN, 13)])
         ];
         const trigger = onServer ? el("a", { class: "tuc-table__sortbtn", href: this._sortHref(field, next) }, children) : el("button", { type: "button", class: "tuc-table__sortbtn" }, children);
         th.textContent = "";
@@ -4860,8 +4862,6 @@ var Tucano = (() => {
     label: "Pagina\xE7\xE3o",
     onChange: null
   };
-  var SETA_ESQ = "M15 18l-6-6 6-6";
-  var SETA_DIR = "M9 18l6-6-6-6";
   function pageWindow(page, pages, { around = 1, edges = 1 } = {}) {
     const visible = /* @__PURE__ */ new Set();
     for (let i = 1; i <= Math.min(edges, pages); i++) visible.add(i);
@@ -4900,7 +4900,7 @@ var Tucano = (() => {
         disabled ? "is-disabled" : ""
       ].filter(Boolean).join(" ");
       const children = typeof text === "string" ? [text] : text;
-      if (disabled) return el("span", { class: className, "aria-hidden": "true" }, children);
+      if (disabled) return el("span", { class: className, "aria-hidden": "true", "aria-disabled": "true" }, children);
       const a = el("a", {
         class: className,
         href: this.href(page),
@@ -4920,8 +4920,9 @@ var Tucano = (() => {
       const { page, pages } = this.opts;
       if (pages <= 1) return this;
       this.node.append(this._item(page - 1, {
+        // O svg direto no botao, sem span em volta: e assim que o .tuc-btn o dimensiona.
         text: [
-          el("span", { class: "tuc-pagination__ico", "aria-hidden": "true" }, [icon(SETA_ESQ, 15)]),
+          icon(ICON_CHEVRON_LEFT, 15),
           el("span", { class: "tuc-pagination__word", text: this.opts.prevText })
         ],
         disabled: page <= 1,
@@ -4937,7 +4938,7 @@ var Tucano = (() => {
       this.node.append(this._item(page + 1, {
         text: [
           el("span", { class: "tuc-pagination__word", text: this.opts.nextText }),
-          el("span", { class: "tuc-pagination__ico", "aria-hidden": "true" }, [icon(SETA_DIR, 15)])
+          icon(ICON_CHEVRON_RIGHT, 15)
         ],
         disabled: page >= pages,
         edge: true
@@ -5204,8 +5205,6 @@ var Tucano = (() => {
     }
     return blocks;
   }
-  var ICON_COPY = "M20 9h-9a2 2 0 00-2 2v9a2 2 0 002 2h9a2 2 0 002-2v-9a2 2 0 00-2-2zM5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1";
-  var ICON_OK = "M20 6L9 17l-5-5";
   function addCopy(pre) {
     if (!pre || pre.querySelector(".tuc-copy")) return;
     pre.classList.add("tuc-prose__block");
@@ -5213,7 +5212,7 @@ var Tucano = (() => {
       type: "button",
       class: "tuc-btn is-outline is-icon is-sm tuc-copy",
       "aria-label": "Copiar c\xF3digo"
-    }, [icon(ICON_COPY, 14), icon(ICON_OK, 14)]);
+    }, [icon(ICON_COPY, 14), icon(ICON_CHECK, 14)]);
     btn.children[1].classList.add("tuc-copy__ok");
     on(btn, "click", async () => {
       const text = pre.querySelector("code")?.textContent ?? pre.textContent;

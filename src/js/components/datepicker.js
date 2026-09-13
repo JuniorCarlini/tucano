@@ -696,9 +696,9 @@ export class DatePicker {
             type: 'button', class: 'tuc-btn is-ghost is-icon is-sm tuc-dp__nav', 'aria-label': 'Mes anterior',
             disabled: this._navBlocked(-1), onclick: () => this._shiftView(-1),
           }, [icon(ICON_CHEVRON_LEFT)])
-        : el('span', { class: 'tuc-dp__nav is-ghost' }),
+        : el('span', { class: 'tuc-btn is-icon is-sm tuc-dp__nav is-placeholder', 'aria-hidden': 'true' }),
       el('button', {
-        type: 'button', class: 'tuc-dp__label', 'aria-live': 'polite',
+        type: 'button', class: 'tuc-btn is-ghost is-sm tuc-dp__label', 'aria-live': 'polite',
         onclick: () => { this.view = 'months'; this.viewDate = clone(monthDate); this._render(); },
       }, [`${this.L.monthsLong[month]} ${year}`, icon(ICON_CHEVRON_DOWN, 14)]),
       showNext
@@ -706,7 +706,7 @@ export class DatePicker {
             type: 'button', class: 'tuc-btn is-ghost is-icon is-sm tuc-dp__nav', 'aria-label': 'Proximo mes',
             disabled: this._navBlocked(1), onclick: () => this._shiftView(1),
           }, [icon(ICON_CHEVRON_RIGHT)])
-        : el('span', { class: 'tuc-dp__nav is-ghost' }),
+        : el('span', { class: 'tuc-btn is-icon is-sm tuc-dp__nav is-placeholder', 'aria-hidden': 'true' }),
     ]);
 
     // Mesma classe da grade: com numero de semana sao 8 colunas, nao 7. Sem isso
@@ -818,7 +818,7 @@ export class DatePicker {
         onclick: () => { this.viewDate = addYears(this.viewDate, -step); this._render(); },
       }, [icon(ICON_CHEVRON_LEFT)]),
       el('button', {
-        type: 'button', class: 'tuc-dp__label',
+        type: 'button', class: 'tuc-btn is-ghost is-sm tuc-dp__label',
         onclick: () => { this.view = isMonths ? 'years' : 'days'; this._render(); },
       }, [isMonths ? String(year) : `${floorTo(year, 12)} – ${floorTo(year, 12) + 11}`]),
       el('button', {
@@ -914,10 +914,10 @@ export class DatePicker {
       const active = this.start && this.end && isSameDay(this.start, r.start) && isSameDay(this.end, r.end);
       wrap.append(el('button', {
         type: 'button',
-        class: `tuc-dp__preset${active ? ' is-selected' : ''}`,
-        text: preset.label,
+        class: `tuc-btn is-ghost is-sm tuc-dp__preset${active ? ' is-selected' : ''}`,
+        title: preset.label,
         onclick: () => this._applyPreset(preset),
-      }));
+      }, [el('span', { text: preset.label })]));
     }
     return wrap;
   }

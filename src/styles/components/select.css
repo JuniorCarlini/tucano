@@ -85,18 +85,18 @@
 }
 
 /*
- * Escondido por display, nao pelo atributo `hidden`: um `display: grid` na
- * propria regra venceria o `display: none` do user-agent e o botao aparecia
- * mesmo sem valor.
+ * Limpar e o .tuc-btn is-ghost is-icon, em 20px: por dentro o campo tem 28px, e
+ * nem o is-sm (30px) cabe. Escondido por display, e nao por `hidden`, porque o
+ * `inline-flex` do .tuc-btn venceria o `display: none` do user-agent e o botao
+ * apareceria sem valor — a regra de esconder pesa mais que a do botao.
  */
-.tuc-select__clear { display: none; }
-
-.tuc-select.has-value .tuc-select__clear {
-  @apply grid size-5 shrink-0 place-items-center  transition-colors;
+.tuc-select .tuc-btn.tuc-select__clear {
+  --tuc-btn-icon: 0.875rem;
+  width: 1.25rem;
+  height: 1.25rem;
   border-radius: var(--tuc-radius-xs);
-  color: var(--tuc-subtle);
 }
-.tuc-select.has-value .tuc-select__clear:hover { background: var(--tuc-hover); color: var(--tuc-fg); }
+.tuc-select:not(.has-value) .tuc-btn.tuc-select__clear { display: none; }
 
 /* ------------------------------------------------------------------ *
  * Tags (multiplo)                                                     *
@@ -113,7 +113,8 @@
 .tuc-select__tagtext { @apply truncate; }
 
 .tuc-select__tagx {
-  @apply grid size-4 shrink-0 place-items-center rounded transition-colors;
+  @apply grid size-4 shrink-0 place-items-center transition-colors;
+  border-radius: var(--tuc-radius-xs);
   opacity: 0.6;
 }
 .tuc-select__tagx:hover {
@@ -154,7 +155,6 @@
 
 .tuc-select__option {
   @apply flex cursor-pointer items-center gap-2  px-2.5 py-1.5;
-  border-radius: var(--tuc-radius-sm);
   border-radius: var(--tuc-radius-sm);
 }
 
@@ -213,3 +213,8 @@
   .tuc-select__menu.is-open,
   .tuc-select__menu.is-closing { transition: opacity 90ms linear; scale: none; translate: none; }
 }
+
+/* Buscando: o spinner do sistema ao lado do texto. Erro: o tom de perigo — sem
+   ele a falha do servidor era igual a "nenhum resultado". */
+.tuc-select__empty.is-loading { @apply flex items-center justify-center gap-2; }
+.tuc-select__empty.is-error { color: var(--tuc-danger); }

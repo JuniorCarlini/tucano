@@ -878,8 +878,8 @@
     </div>
     <div class="card">
       <label class="tuc-label" for="f-plano">Plano</label>
-      <select class="tuc-input" id="f-plano" aria-describedby="f-plano-h"><option>Mensal</option><option>Trimestral</option><option>Anual</option></select>
-      <p class="tuc-hint" id="f-plano-h"><code>&lt;select&gt;</code> nativo: lista curta, sem busca.</p>
+      <select id="f-plano" data-tuc-select aria-describedby="f-plano-h"><option>Mensal</option><option>Trimestral</option><option>Anual</option></select>
+      <p class="tuc-hint" id="f-plano-h">Dá para trocar depois, sem multa.</p>
     </div>
     <div class="card">
       <label class="tuc-label" for="f-obs">Observações</label>
@@ -1410,7 +1410,7 @@ Tucano.toast.promise(fetch(url), {
           <hr class="tuc-menu__separator">
           <div class="tuc-menu__section">Cadastros</div>
           <a class="tuc-menu__item" href="#drawer"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/></svg></span>Clientes</a>
-          <a class="tuc-menu__item" href="#drawer"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 19a8 8 0 100-16 8 8 0 000 16zM21 21l-4.35-4.35"/></svg></span>Produtos<span class="tuc-menu__count">12</span></a>
+          <a class="tuc-menu__item" href="#drawer"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 19a8 8 0 100-16 8 8 0 000 16zM21 21l-4.35-4.35"/></svg></span>Produtos<span class="tuc-badge is-plain tuc-menu__count">12</span></a>
         </nav>
       </div>
 
@@ -1938,7 +1938,7 @@ npm run build  # gera o dist</code></pre>
       <div class="tuc-tabs__panel" hidden>
         <div class="grid">
           <div><label class="tuc-label" for="tb-cep">CEP</label><input type="text" id="tb-cep" data-tuc-mask="cep" value="01310100"></div>
-          <div><label class="tuc-label" for="tb-uf">Estado</label><select class="tuc-input" id="tb-uf"><option>São Paulo</option><option>Paraná</option></select></div>
+          <div><label class="tuc-label" for="tb-uf">Estado</label><select id="tb-uf" data-tuc-select><option>São Paulo</option><option>Paraná</option></select></div>
         </div>
       </div>
       <div class="tuc-tabs__panel" hidden>

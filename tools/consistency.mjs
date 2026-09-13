@@ -106,7 +106,7 @@ const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m
     .flatMap((m) => m[1].split(/\s+/)).map((c) => c.split('${')[0])
     .filter((c) => /^tuc-[\w-]+$/.test(c)));
 
-  const GANCHOS = new Set(['tuc-table__sortable', 'tuc-table__check', 'tuc-toast__action', 'tuc-tip__text']);
+  const GANCHOS = new Set(['tuc-table__sortable', 'tuc-table__check', 'tuc-toast__action', 'tuc-tip__text', 'tuc-pagination__edge']);
   const semEstilo = [...usadas].filter((c) => !definidas.has(c) && !GANCHOS.has(c)
     && !c.startsWith('tuc-tok') && !/^tuc-(dp|select|colorpicker|upload|toast|tip|modal|drawer|accordion|menu|dropdown|table|pagination|badge|check|input|editor|prose|btn|field|color-field|input-group|copy|native|invalid|select-native|upload-native|native-wrap|table-wrap|toasts)$/.test(c));
   const orfas = [...definidas].filter((c) => !usadas.has(c) && !c.includes('is-')

@@ -1,4 +1,4 @@
-import { el, icon, omitUndefined, on } from '../core/dom.js';
+import { el, icon, ICON_CHEVRON_LEFT, ICON_CHEVRON_RIGHT, omitUndefined, on } from '../core/dom.js';
 
 /*
  * Paginacao.
@@ -25,8 +25,6 @@ const DEFAULTS = {
   onChange: null,
 };
 
-const SETA_ESQ = 'M15 18l-6-6 6-6';
-const SETA_DIR = 'M9 18l6-6-6-6';
 
 
 /*
@@ -89,7 +87,8 @@ export class Pagination {
      * nenhum continua no caminho do Tab e e anunciado como link pelo leitor de
      * tela. Assim ele simplesmente sai do caminho.
      */
-    if (disabled) return el('span', { class: className, 'aria-hidden': 'true' }, children);
+    // aria-disabled faz o .tuc-btn desenhar o desativado, sem um segundo desenho aqui.
+    if (disabled) return el('span', { class: className, 'aria-hidden': 'true', 'aria-disabled': 'true' }, children);
 
     const a = el('a', {
       class: className, href: this.href(page),
@@ -111,7 +110,8 @@ export class Pagination {
     if (pages <= 1) return this;   // uma pagina so nao precisa de navegacao
 
     this.node.append(this._item(page - 1, {
-      text: [el('span', { class: 'tuc-pagination__ico', 'aria-hidden': 'true' }, [icon(SETA_ESQ, 15)]),
+      // O svg direto no botao, sem span em volta: e assim que o .tuc-btn o dimensiona.
+      text: [icon(ICON_CHEVRON_LEFT, 15),
              el('span', { class: 'tuc-pagination__word', text: this.opts.prevText })],
       disabled: page <= 1, edge: true,
     }));
@@ -126,7 +126,7 @@ export class Pagination {
 
     this.node.append(this._item(page + 1, {
       text: [el('span', { class: 'tuc-pagination__word', text: this.opts.nextText }),
-             el('span', { class: 'tuc-pagination__ico', 'aria-hidden': 'true' }, [icon(SETA_DIR, 15)])],
+             icon(ICON_CHEVRON_RIGHT, 15)],
       disabled: page >= pages, edge: true,
     }));
     return this;

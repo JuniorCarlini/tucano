@@ -161,23 +161,9 @@
 .tuc-toast.is-error    { --tuc-toast-color: var(--tuc-danger); }
 .tuc-toast.is-loading { --tuc-toast-color: var(--tuc-muted); }
 
-/*
- * O icone de carregando e um arco de 3/4: parado ele nao diz nada, girando
- * vira spinner. O transform-origin vai explicito porque um dia isto pode ser
- * um <svg> aninhado, onde o padrao nao e o centro e o icone descreveria uma
- * orbita em vez de girar no lugar.
- */
-@keyframes tuc-girar {
-  to { rotate: 360deg; }
-}
-.tuc-toast.is-loading .tuc-toast__icon svg {
-  transform-origin: center;
-  animation: tuc-girar 800ms linear infinite;
-}
-/* Spinner parado nao informa nada: em vez de remover o giro, so desacelera. */
-@media (prefers-reduced-motion: reduce) {
-  .tuc-toast.is-loading .tuc-toast__icon svg { animation-duration: 2.4s; }
-}
+/* Carregando usa o .tuc-spinner do sistema, no tamanho dos outros icones. O
+   giro e o movimento reduzido vem de loading.css. */
+.tuc-toast__icon > .tuc-spinner { width: 1.0625rem; height: 1.0625rem; }
 .tuc-toast .tuc-toast__icon { color: var(--tuc-toast-color); }
 
 /* ------------------------------------------------------------------ *
@@ -242,24 +228,24 @@
 
 .tuc-tip.is-open {
   opacity: 1;
-  animation: tuc-tip-entra 150ms ease;
+  animation: tuc-tip-in 150ms ease;
 }
 /* Depois de .is-open por seguranca: hoje _esconder() troca uma classe pela
    outra, mas se algum dia as duas coexistirem a saida vence por ordem, ja que
    a especificidade empata. */
 .tuc-tip.is-closing {
   opacity: 0;
-  animation: tuc-tip-sai 150ms ease;
+  animation: tuc-tip-out 150ms ease;
 }
 
-@keyframes tuc-tip-entra {
+@keyframes tuc-tip-in {
   from {
     opacity: 0;
     scale: 0.95;
     translate: var(--tuc-tip-x, 0) var(--tuc-tip-y, 0);
   }
 }
-@keyframes tuc-tip-sai {
+@keyframes tuc-tip-out {
   to {
     opacity: 0;
     scale: 0.95;

@@ -319,11 +319,13 @@ export class Upload {
 
   _fail(message, file) {
     this.opts.onError?.(new Error(message), file);
-    const warning = el('li', { class: 'tuc-upload__item is-rejected' }, [
-      el('span', { class: 'tuc-upload__thumb' }, [icon(ICON_ALERT, 16)]),
-      el('div', { class: 'tuc-upload__info' }, [
-        el('span', { class: 'tuc-upload__name', text: file.name }),
-        el('span', { class: 'tuc-upload__meta', text: message }),
+    // O aviso do sistema, e com role="alert": a recusa aparece depois da acao
+    // e some sozinha, entao quem usa leitor de tela precisa ouvi-la na hora.
+    const warning = el('li', { class: 'tuc-alert is-danger tuc-upload__rejected', role: 'alert' }, [
+      icon(ICON_ALERT, 16),
+      el('div', { class: 'tuc-alert__body' }, [
+        el('p', { class: 'tuc-alert__title', text: file.name }),
+        el('p', { text: message }),
       ]),
     ]);
     this.list.append(warning);
@@ -345,7 +347,7 @@ export class Upload {
   }
 
   _renderList() {
-    for (const n of [...this.list.children]) if (!n.classList.contains('is-rejected')) n.remove();
+    for (const n of [...this.list.children]) if (!n.classList.contains('tuc-upload__rejected')) n.remove();
 
     for (const item of this.items) {
       const pct = Math.round(item.progress * 100);
@@ -392,7 +394,7 @@ export class Upload {
 
   _button(path, label, onClick) {
     return el('button', {
-      type: 'button', class: 'tuc-btn is-ghost is-icon is-sm tuc-upload__action', 'aria-label': label, title: label,
+      type: 'button', class: 'tuc-btn is-ghost is-icon is-sm', 'aria-label': label, title: label,
       onclick: (e) => { e.stopPropagation(); onClick(); },
     }, [icon(path, 14)]);
   }

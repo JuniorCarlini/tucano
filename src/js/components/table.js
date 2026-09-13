@@ -1,4 +1,4 @@
-import { el, icon, nextId, omitUndefined, on } from '../core/dom.js';
+import { ICON_CHEVRONS_UP_DOWN, el, icon, nextId, omitUndefined, on } from '../core/dom.js';
 
 /*
  * Tabela.
@@ -35,8 +35,6 @@ const DEFAULTS = {
   onSort: null,        // definido, intercepta o clique e cancela a navegacao
   onSelect: null,
 };
-
-const SETAS = 'M7 15l5 5 5-5M7 9l5-5 5 5';
 
 /* Comparadores por tipo declarado no cabecalho. */
 const COMPARE = {
@@ -109,7 +107,7 @@ export class Table {
 
       const children = [
         el('span', { text: th.textContent.trim() }),
-        el('span', { class: 'tuc-table__sorticon', 'aria-hidden': 'true' }, [icon(SETAS, 13)]),
+        el('span', { class: 'tuc-table__sorticon', 'aria-hidden': 'true' }, [icon(ICON_CHEVRONS_UP_DOWN, 13)]),
       ];
 
       /*

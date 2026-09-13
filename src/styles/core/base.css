@@ -66,8 +66,7 @@
  * uma classe simples (0,1,0) e desenhariam uma caixa dentro do controle.
  * Escopar por elemento + classe (0,2,1) vence esse caso sem !important.
  */
-.tuc-select input.tuc-select__search,
-.tuc-colorpicker input.tuc-colorpicker__field {
+.tuc-select input.tuc-select__search {
   all: unset;
   box-sizing: border-box;
   display: block;
