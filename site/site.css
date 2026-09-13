@@ -73,7 +73,10 @@ html.dark .i-moon { display: none; }
 .doc .tuc-alert { margin: 24px 0; }
 .doc .tuc-alert b { color: var(--fg); }
 .doc .tuc-table-wrap { margin: 16px 0 8px; }
-.doc .tuc-table td { vertical-align: top; }
+/* Topo so nas tabelas de referencia, de texto longo. Nas de demonstracao vale o
+   meio da biblioteca: com topo, etiqueta, data e botoes subiam e deixavam de
+   alinhar com o avatar da mesma linha. */
+.doc > .tuc-table-wrap .tuc-table td { vertical-align: top; }
 
 /* Bloco de codigo: o .tuc-prose da biblioteca pinta e poe o copiar. */
 .doc-code { margin: 16px 0; }
