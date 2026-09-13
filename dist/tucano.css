@@ -2718,7 +2718,6 @@ textarea.tuc-editor__value[hidden] {
 .tuc-menu__item.is-active {
   color: var(--tuc-accent);
   background: var(--tuc-hover);
-  box-shadow: inset 2px 0 0 0 var(--tuc-accent);
   font-weight: 550;
 }
 .tuc-menu__icon {
@@ -2784,7 +2783,6 @@ textarea.tuc-editor__value[hidden] {
   opacity: 0.4;
 }
 .tuc-menu__sub .tuc-menu__item.is-active {
-  box-shadow: none;
   color: var(--tuc-fg);
   background: var(--tuc-hover);
   font-weight: 500;

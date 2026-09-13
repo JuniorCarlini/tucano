@@ -28,13 +28,12 @@
 }
 
 /*
- * O item atual leva cor e um traco na borda de dentro. So o fundo nao bastaria:
- * quem nao distingue bem as cores precisa de uma segunda pista, e a barra e ela.
+ * O item atual leva cor, fundo e peso — tres pistas, e nenhuma depende so da
+ * cor. Sem traco na borda de dentro: ele foi tirado a pedido.
  */
 .tuc-menu__item.is-active {
   color: var(--tuc-accent);
   background: var(--tuc-hover);
-  box-shadow: inset 2px 0 0 0 var(--tuc-accent);
   font-weight: 550;
 }
 
@@ -113,12 +112,8 @@
   opacity: 0.4;
 }
 
-/*
- * No submenu o atual e uma pilula, e nao o traco da borda: o traco brigaria
- * com o trilho, que ocupa exatamente aquele lugar.
- */
+/* No submenu o atual e uma pilula neutra: a cor de destaque fica com o pai. */
 .tuc-menu__sub .tuc-menu__item.is-active {
-  box-shadow: none;
   color: var(--tuc-fg);
   background: var(--tuc-hover);
   font-weight: 500;

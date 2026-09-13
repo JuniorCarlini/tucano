@@ -208,9 +208,9 @@ submenu e um <details>, entao a animacao vem do acordeao.
       <hr class="tuc-menu__separator">
     </nav>
 
-is-active marca o item atual. No primeiro nivel ele leva cor e um traco na borda
-de dentro; no submenu, uma pilula — o traco brigaria com o trilho. Filho de
-submenu nao leva icone: o ponto ja marca a linha.
+is-active marca o item atual. No primeiro nivel ele leva cor de destaque, fundo e
+peso; no submenu, uma pilula neutra. Filho de submenu nao leva icone: o ponto ja
+marca a linha.
 
 tuc-menu__count poe um numero a direita do item.
 
