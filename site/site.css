@@ -36,7 +36,10 @@ html.dark .i-moon { display: none; }
 
 .brand { display: flex; align-items: center; gap: 9px; text-decoration: none; }
 .brand b { font-size: 18px; font-weight: 650; letter-spacing: -.02em; }
-.brand .bird { font-size: 20px; line-height: 1; }
+/* Logo da marca: os dois arquivos, e o tema escolhe (.logo-light/.logo-dark,
+   mais abaixo). Declarado antes delas para o display:none da versao escondida
+   vencer este display:block, que tem o mesmo peso. */
+.brand__logo { display: block; width: 26px; height: auto; }
 
 .side {
   position: fixed; inset: 0 auto 0 0; width: var(--side); padding: 26px 18px 40px;
@@ -135,6 +138,12 @@ html.dark .i-moon { display: none; }
 /* ---------- inicio ---------- */
 
 .hero { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 48px; align-items: center; }
+/* Logo do tucano: um arquivo por tema, porque o circulo de fundo muda de claro
+   para escuro. Os dois ficam no HTML; a classe .dark do <html> escolhe. */
+.hero__logo { display: block; width: 96px; height: auto; margin-bottom: 20px; }
+.logo-dark { display: none; }
+html.dark .logo-light { display: none; }
+html.dark .logo-dark { display: block; }
 .hero h1 { font-size: 44px; line-height: 1.1; }
 .hero .intro { font-size: 19px; }
 .hero__actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
