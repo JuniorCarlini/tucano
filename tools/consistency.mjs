@@ -46,6 +46,23 @@ const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m
   else ok('classes da página: CSS, HTML e JS concordam');
 }
 
+/*
+ * 1b. Bloco de codigo da pagina com destaque embrulhado duas vezes.
+ *
+ * Os <pre> sao coloridos a mao com <span class="t|a|s">. Um gerador que marcava
+ * as tags antes dos atributos embrulhou o `class="t"` que ele mesmo tinha
+ * acabado de inserir: saiu `<span <span class="a">class</span>=...>`, e a
+ * pagina mostrava `<class="t">div` no lugar do exemplo. Nao quebra o build nem
+ * aparece no console — e tag aberta dentro de outra tag.
+ */
+{
+  const quebrados = [...html.matchAll(/<pre>([\s\S]*?)<\/pre>/g)]
+    .filter((m) => /<[a-zA-Z][^<>]*</.test(m[1]))
+    .map((m) => `index.html:${html.slice(0, m.index).split('\n').length}`);
+  if (quebrados.length) falhar(`bloco de código com tag dentro de tag: ${quebrados.join(' ')}`);
+  else ok('blocos de código da página: marcação de destaque íntegra');
+}
+
 /* 2. Opcao passada nos handlers inline que nenhum componente le. */
 {
   const lidas = new Set(['confirm', 'cancel']);

@@ -2526,11 +2526,11 @@ textarea.tuc-editor__value[hidden] {
   height: calc(var(--spacing, 0.25rem) * 4);
 }
 .tuc-tabs__panel {
-  padding-top: 1rem;
+  margin-top: 1rem;
 }
 .tuc-tabs__panel:focus-visible {
   outline: 2px solid var(--tuc-accent);
-  outline-offset: 2px;
+  outline-offset: 0.25rem;
   border-radius: var(--tuc-radius-sm);
 }
 .tuc-tabs__panel[hidden] {

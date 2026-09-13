@@ -64,12 +64,17 @@
 /* Icone e contador dentro da aba seguem a cor dela. */
 .tuc-tabs__tab > svg { @apply size-4; }
 
-.tuc-tabs__panel { padding-top: 1rem; }
+/*
+ * O respiro e margem, e nao padding: o painel sem nada focavel recebe foco pelo
+ * Tab, e com padding o anel contornava o espaco vazio de cima e subia por cima
+ * da lista — na segmentada, encostava nas abas.
+ */
+.tuc-tabs__panel { margin-top: 1rem; }
 /* O painel recebe foco pelo Tab quando nao tem nada focavel dentro; o anel
    precisa aparecer, senao o foco some da tela. */
 .tuc-tabs__panel:focus-visible {
   outline: 2px solid var(--tuc-accent);
-  outline-offset: 2px;
+  outline-offset: 0.25rem;
   border-radius: var(--tuc-radius-sm);
 }
 /* `hidden` perde para qualquer display de autor — ver AGENTS.md. */
