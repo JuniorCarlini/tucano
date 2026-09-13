@@ -36,6 +36,10 @@ Este projeto usa a Tucano. Não escreva do zero date picker, select com busca, c
 Referência completa: https://juniorcarlini.github.io/tucano/llms.txt
 </pre>
 
+<p>A lista nomeia os componentes com JavaScript, que são os que uma IA mais reescreve. As peças que são só classe —
+   botão, aviso, etiqueta, carregando, linha do tempo, caixa, opção e chave, menu lateral, rótulo e campo de formulário —
+   estão no mesmo <code>llms.txt</code>, e a regra "não desenhe um segundo botão" cobre o resto.</p>
+
 <p>Três linhas bastam porque o trabalho está no link. Se quiser que a IA acerte já na primeira resposta, sem abrir a
    referência, acrescente os exemplos que o seu projeto mais usa:</p>
 
@@ -80,7 +84,12 @@ O elemento nativo continua dono do valor: name, required e getlist() do Django s
     <tr><td>Abrir painel quando o campo recebe foco</td><td>Deixar abrir por <code>↓</code>, <code>Espaço</code>, clique; <code>Enter</code> também no select</td><td>É a regra do <code>&lt;select&gt;</code> nativo e do ARIA APG</td></tr>
     <tr><td>Esquecer o <code>hidden</code> no painel do dropdown escrito no template</td><td><code>&lt;div class="tuc-dropdown" id="..." hidden&gt;</code></td><td>Sem ele o menu aparece no meio da página até o script rodar. O <code>&lt;dialog&gt;</code> do modal e da gaveta não precisa</td></tr>
     <tr><td>Desenhar um segundo botão</td><td><code>.tuc-btn</code> com <code>is-outline</code>, <code>is-ghost</code>, <code>is-icon</code>, <code>is-sm</code> — inclusive dentro de tabela</td><td>Classe própria só para posicionar</td></tr>
-    <tr><td>Escrever o placeholder de campo com máscara</td><td>Deixar vazio</td><td>Ele sai do gabarito: <code>data-tuc-mask="cpf"</code> já nasce com <code>000.000.000-00</code></td></tr>
+    <tr><td>Escrever o placeholder de campo com máscara</td><td>Deixar vazio</td><td>Ele sai do formato: <code>data-tuc-mask="cpf"</code> já nasce com <code>000.000.000-00</code>, e <code>data-tuc-mask="real"</code> com <code>R$ 0,00</code></td></tr>
+    <tr><td>Carregar do CDN com <code>@latest</code></td><td>Prender a versão: <code>tucano@v{{version}}</code></td><td>O jsDelivr guarda <code>@latest</code> em cache por muito tempo e serve build antigo sem avisar</td></tr>
+    <tr><td>Importar de <code>tucano</code> pelo npm e esperar que os campos se montem</td><td><code>Tucano.init(document)</code>, ou importar <code>tucano/auto</code></td><td>Pelo npm o auto-init não vem junto, para o empacotador levar só o que foi importado; o <code>tucano/auto</code> inicializa e escuta o HTMX como o script do CDN</td></tr>
+    <tr><td>Ler <code>e.target.name</code> no <code>tucano:change</code> do date picker</td><td><code>e.detail.iso</code>, ou o <code>&lt;input type="hidden"&gt;</code> ao lado</td><td>O date picker move o <code>name</code> para o hidden com o valor ISO; o campo visível fica sem nome. No select, na máscara e no upload o <code>name</code> continua no alvo</td></tr>
+    <tr><td>Escrever validação de CPF, formatação de moeda ou de data à mão</td><td><code>Tucano.mask</code>, <code>Tucano.dates</code> e <code>Tucano.color</code></td><td>São os mesmos módulos que os componentes usam, expostos como API: <code>validateCpfCnpj</code>, <code>applyCurrency</code>, <code>format</code>, <code>parseUserInput</code>, <code>isDark</code></td></tr>
+    <tr><td>Montar um aviso flutuante próprio para o retorno do servidor</td><td>As <code>messages</code> do Django em <code>&lt;div data-tuc-toast&gt;</code>, ou o cabeçalho <code>HX-Trigger</code> com <code>tucano:toast</code></td><td>O toast já cuida de pilha, pausa no foco e das regiões que o leitor de tela anuncia; o evento do HTMX é escutado sozinho</td></tr>
     <tr><td>Publicar o que veio do editor com <code>|safe</code> direto</td><td>Sanitizar no servidor antes</td><td>A peneira do editor protege o editor, não a publicação</td></tr>
     <tr><td>Esperar que HTML inserido por <code>fetch</code> ou <code>innerHTML</code> se inicialize sozinho</td><td>Chamar <code>Tucano.init(no)</code> no trecho novo</td><td>O automático cobre o load e cada <code>htmx:afterSwap</code>; outro caminho de inserção a biblioteca não vê</td></tr>
     <tr><td>Remover <code>data-tuc-ready</code></td><td>Deixar o atributo</td><td>É ele que impede o autoInit de montar o mesmo campo duas vezes</td></tr>
