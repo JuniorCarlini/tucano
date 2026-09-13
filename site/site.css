@@ -159,6 +159,22 @@ a.link-card:hover { border-color: var(--accent); }
 .link-card.is-soon { opacity: .6; }
 .link-card .tuc-badge { align-self: flex-start; margin-top: 6px; }
 
+/* ---------- transicao entre paginas ---------- */
+
+/* So do site: cada assunto e uma pagina, e o recarregamento seco piscava a tela
+   inteira. A barra lateral fica parada; so o conteudo troca. Navegador sem
+   suporte troca de pagina como antes, sem quebrar nada. */
+@view-transition { navigation: auto; }
+.side { view-transition-name: side; }
+.topbar { view-transition-name: topbar; }
+::view-transition-old(root) { animation: 120ms ease-in both site-sai; }
+::view-transition-new(root) { animation: 200ms cubic-bezier(0.16, 1, 0.3, 1) both site-entra; }
+@keyframes site-sai { to { opacity: 0; } }
+@keyframes site-entra { from { opacity: 0; transform: translateY(6px); } }
+@media (prefers-reduced-motion: reduce) {
+  @view-transition { navigation: none; }
+}
+
 /* ---------- telas menores ---------- */
 
 @media (max-width: 1240px) {
