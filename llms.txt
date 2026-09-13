@@ -148,7 +148,7 @@ CNPJ alfanumerico: 14 posicoes, mesma mascara, 12 primeiras aceitam letras, 2
 ultimas numericas, digito verificador pelo codigo ASCII menos 48. O formato
 `cnpj` aceita os dois; `cnpj-numerico` recusa letras.
 
-## Botao
+## Botão
 
 Só classe, sem JavaScript:
 
@@ -174,7 +174,7 @@ Tamanhos: sm, md, lg, full. Fechar por fora, pelo X ou por Escape resolve false.
 Conteudo do servidor: o <dialog class="tuc-modal"> fica no template, com
 data-tuc-modal="#id" no gatilho e data-tuc-modal-close nos botoes de fechar.
 
-## Acordeao
+## Acordeão
 
 Sobre <details>/<summary> nativos: teclado, semantica e estado vem do elemento,
 e funciona antes de o JS carregar. O componente so acrescenta a animacao, que o
@@ -234,7 +234,7 @@ Exibicao: envolva a saida em .tuc-prose para ela ficar igual ao editor.
 O codigo publicado e colorido pelo init(). Tucano.highlight(texto) faz isso a
 mao; Tucano.sanitize(html) aplica a peneira.
 
-## Levar so o que se usa
+## Levar só o que se usa
 
 Pelo CDN vem tudo (33 KB gzip) e o navegador guarda em cache por um ano.
 
@@ -246,7 +246,7 @@ Importando de 'tucano' os campos NAO se inicializam sozinhos: chame
 Tucano.init(document), ou importe 'tucano/auto', que inicializa e escuta os
 swaps do HTMX como o script do CDN.
 
-## Conferencia de tamanhos
+## Conferência de tamanhos
 
     npm run audit
 
@@ -265,7 +265,7 @@ botao aparece no hover e no foco, e copia o texto cru, sem as marcacoes de cor.
 Sanitize no servidor antes do |safe: a peneira do editor protege o editor, nao
 a publicacao.
 
-## Utilitarios (Tucano.mask, Tucano.dates, Tucano.color)
+## Utilitários (Tucano.mask, Tucano.dates, Tucano.color)
 
 Os modulos internos saem prontos como API publica. Nao sao sobra de codigo: sao
 o que resolve o que sempre falta num CRUD.
@@ -322,7 +322,7 @@ chega em request.POST.getlist('selected').
 Tons: is-success, is-warning, is-danger, is-info; sem tom fica neutra.
 is-plain tira o ponto. Vale fora da tabela tambem.
 
-## Paginacao
+## Paginação
 
     <div data-tuc-pagination
          data-page="{{ page_obj.number }}"
@@ -336,7 +336,7 @@ href real, preservando o resto da query string: filtro, busca e ordem sobrevivem
 a troca de pagina. Quem intercepta passa onChange. Ponta inativa e <span>, nao
 <a> sem href, para sair do caminho do Tab. Com uma pagina so, nada e renderizado.
 
-## Formulario
+## Formulário
 
     <label class="tuc-label is-required" for="doc">CNPJ</label>
     <input id="doc" name="doc" data-tuc-mask="cnpj" aria-invalid="true" aria-describedby="doc-e">
@@ -352,7 +352,7 @@ valida (data-validate).
 :user-invalid (required, type=email) pinta so depois de a pessoa mexer.
 .tuc-input vale em input, textarea e select nativo.
 
-## Caixa, opcao e chave
+## Caixa, opção e chave
 
     <label class="tuc-choice">
       <input type="checkbox" class="tuc-check" name="nf"> Nota fiscal por e-mail
@@ -580,18 +580,19 @@ Todas as cores e medidas são variáveis CSS com prefixo --tuc-. Nada de cor,
 raio, espessura de borda ou altura está fixo no CSS dos componentes.
 
 Cor: --tuc-accent (#FF7501 nos dois temas), --tuc-accent-hover, --tuc-accent-fg
-(texto sobre o destaque, escuro), --tuc-accent-text (destaque usado como cor de
-texto: link, menu ativo, tag), --tuc-thumb (botao da chave), --tuc-accent-soft,
+(texto sobre o destaque, branco — contraste 2,7 por escolha de marca; defina
+#0a0a0a se o projeto precisa de 4,5), --tuc-accent-text (destaque usado como cor
+de texto: link, menu ativo, tag), --tuc-thumb (botão da chave), --tuc-accent-soft,
 --tuc-accent-ring, --tuc-bg, --tuc-fg, --tuc-muted, --tuc-subtle,
 --tuc-border, --tuc-hover, --tuc-elevated
 Forma: --tuc-radius, --tuc-radius-md, --tuc-radius-sm, --tuc-radius-xs,
 --tuc-border-width, --tuc-control-height, --tuc-cell, --tuc-swatch, --tuc-text,
 --tuc-font
 Tons: --tuc-success, --tuc-warning, --tuc-danger, --tuc-info e os -soft, usados
-pelo toast, pelo aviso e pela etiqueta de estado. Tom semantico nunca le o
-destaque. --tuc-danger-fill e separado: no escuro o vermelho de
-texto e mais claro para ter contraste, e um botao pintado com ele ficaria
-pastel — o preenchimento e o mesmo nos dois temas.
+pelo toast, pelo aviso e pela etiqueta de estado. Tom semântico nunca lê o
+destaque. --tuc-danger-fill é separado: no escuro o vermelho de
+texto é mais claro para ter contraste, e um botão pintado com ele ficaria
+pastel — o preenchimento é o mesmo nos dois temas.
 Profundidade: --tuc-shadow, --tuc-ring, --tuc-duration, --tuc-duration-lg,
 --tuc-duration-out, --tuc-ease, --tuc-ease-in
 
@@ -602,8 +603,8 @@ Os tokens vivem em :root. Sobrescreva sem recompilar:
       --tuc-radius: 1rem;
     }
 
-Como sao variaveis, o escopo e seu: em :root valem para a pagina inteira,
-declaradas num container valem so ali dentro.
+Como são variáveis, o escopo é seu: em :root valem para a página inteira,
+declaradas num container valem só ali dentro.
 
 Escuro segue a classe .dark no <html>. Para seguir o sistema operacional, use
 <html data-tuc-theme="auto"> — é opt-in, para o componente não escurecer sozinho
@@ -639,7 +640,7 @@ O `onChange` de cada componente recebe os mesmos dados: (value, detail).
 Para disparar um toast do servidor, o Django manda o cabecalho e o listenForEvents
 (ligado pelo init) cuida do resto — veja a secao Django.
 
-## Referencia completa (gerada pelo build)
+## Referência completa (gerada pelo build)
 
 Inventario extraido do codigo a cada build. Se algo nao esta aqui, nao existe.
 
@@ -902,7 +903,7 @@ Inventario extraido do codigo a cada build. Se algo nao esta aqui, nao existe.
   autoInitAccordions autoInitColorPickers autoInitDatePickers autoInitDrawers autoInitDropdowns autoInitEditors autoInitMasks autoInitModals autoInitPagination autoInitProse autoInitSelects autoInitTables autoInitTabs autoInitToasts autoInitTooltips autoInitUploads
     → um por componente, quando voce quer inicializar so um tipo
   Accordion ColorPicker DatePicker Drawer Dropdown Editor FORMATS ICON_CHECK ICON_COPY ICON_X Mask Modal Pagination Popover Select Table Tabs Toast Tooltip Upload autoFormat confirm drawer highlight icon listenForEvents modal pageWindow pagination sanitize toast
-  Tucano.mask / .dates / .color   modulos utilitarios (ver secao Utilitarios)
+  Tucano.mask / .dates / .color   modulos utilitarios (ver seção Utilitários)
 
   FORMATS (mascaras prontas): cpf cnpj cnpj-numerico cpf-cnpj phone mobile cep date time card currency real
 

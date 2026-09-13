@@ -14,7 +14,7 @@
  */
 import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
 
-const INICIO = '## Referencia completa (gerada pelo build)';
+const INICIO = '## Referência completa (gerada pelo build)';
 const FIM = '## Ao gerar código que usa Tucano';
 
 import { componentes } from './api.mjs';
@@ -71,7 +71,7 @@ linhas.push('  Tucano.init(no)           inicializa todo data-tuc-* dentro de `n
 linhas.push('  ' + autos.join(' '));
 linhas.push('    → um por componente, quando voce quer inicializar so um tipo');
 linhas.push('  ' + outros.join(' '));
-linhas.push('  Tucano.mask / .dates / .color   modulos utilitarios (ver secao Utilitarios)');
+linhas.push('  Tucano.mask / .dates / .color   modulos utilitarios (ver seção Utilitários)');
 linhas.push('');
 linhas.push(`  FORMATS (mascaras prontas): ${formatos.join(' ')}`);
 linhas.push('');
