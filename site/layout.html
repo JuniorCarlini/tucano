@@ -12,7 +12,7 @@
 <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)">
 <link rel="alternate" type="text/plain" href="{{root}}llms.txt" title="Referência da API para agentes de IA">
 
-<meta property="og:type" content="website">
+<meta property="og:type" content="{{og-type}}">
 <meta property="og:site_name" content="Tucano">
 <meta property="og:title" content="{{title}}">
 <meta property="og:description" content="{{description}}">
@@ -20,9 +20,14 @@
 <meta property="og:image" content="https://juniorcarlini.github.io/tucano/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Tucano — componentes de formulário para Django e HTMX">
 <meta property="og:locale" content="pt_BR">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{title}}">
+<meta name="twitter:description" content="{{description}}">
 <meta name="twitter:image" content="https://juniorcarlini.github.io/tucano/og.png">
+<link rel="sitemap" type="application/xml" href="{{root}}sitemap.xml">
+{{jsonld}}
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦜</text></svg>">
 
 <link rel="stylesheet" href="{{root}}dist/tucano.css?v={{version}}">

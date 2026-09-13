@@ -198,6 +198,76 @@ function paginador(de) {
   return `<nav class="pager" aria-label="Paginação da documentação">${botao(ant, 'prev')}${botao(prox, 'next')}</nav>`;
 }
 
+/* ---- busca: titulo, dados estruturados e sitemap ---- */
+
+/*
+ * O titulo e o que aparece no resultado da busca. "Tabela — Tucano" nao dizia
+ * o que a pagina e para quem procura "tabela django htmx": o nome da biblioteca
+ * ninguem digita antes de conhece-la. O <h1> continua curto; so o <title> leva
+ * o contexto.
+ */
+function tituloDaPagina(slug, p) {
+  if (slug === 'index') return 'Tucano — componentes de formulário para Django e HTMX';
+  if (slug === 'changelog') return 'Changelog da Tucano — o que mudou em cada versão';
+  // Guia tem titulo proprio: o padrao dos componentes repetiria "Django" no guia
+  // de Django e nao diria do que e o de tema.
+  const guias = {
+    django: 'Tucano com Django e HTMX — widgets, POST, erros e CSRF',
+    theme: 'Tema da Tucano — tokens CSS, tema escuro e cor de destaque',
+    keyboard: 'Teclado e acessibilidade nos componentes da Tucano',
+    ai: 'Tucano para agentes de IA — llms.txt e AGENTS.md',
+  };
+  if (guias[slug]) return guias[slug];
+  if (p.group === 'Guias') return `${p.meta.title} — guia da Tucano`;
+  return `${p.meta.title} — componente para Django e HTMX | Tucano`;
+}
+
+const pacote = JSON.parse(readFileSync('package.json', 'utf8'));
+
+/*
+ * JSON-LD: e dele que buscador e assistente de IA tiram o que a pagina e, sem
+ * adivinhar pelo layout. O inicio descreve o site e o codigo; cada pagina e um
+ * artigo tecnico dentro dele, com a trilha de volta ao inicio. Nada de data: o
+ * CI regera o site e exige a arvore limpa, e uma data mudaria a cada build.
+ */
+function jsonld(slug, p, titulo, canonical) {
+  const site = { '@id': `${BASE_URL}#website` };
+  const software = { '@id': `${BASE_URL}#software` };
+  const autor = { '@type': 'Person', name: pacote.author, url: 'https://github.com/JuniorCarlini' };
+  const grafo = slug === 'index'
+    ? [
+      { '@type': 'WebSite', ...site, name: 'Tucano', url: BASE_URL, inLanguage: 'pt-BR', description: p.meta.description, publisher: autor },
+      {
+        '@type': 'SoftwareSourceCode', ...software, name: 'Tucano', url: BASE_URL,
+        description: p.meta.description, codeRepository: 'https://github.com/JuniorCarlini/tucano',
+        programmingLanguage: ['JavaScript', 'CSS'], runtimePlatform: 'Navegador', version: versao,
+        license: 'https://opensource.org/licenses/MIT', keywords: pacote.keywords.join(', '), author: autor,
+      },
+    ]
+    : [
+      {
+        '@type': 'TechArticle', headline: titulo, name: p.meta.title, description: p.meta.description,
+        url: canonical, inLanguage: 'pt-BR', image: `${BASE_URL}og.png`, author: autor,
+        isPartOf: site, about: software,
+      },
+      {
+        '@type': 'BreadcrumbList', itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Tucano', item: BASE_URL },
+          { '@type': 'ListItem', position: 2, name: p.meta.title, item: canonical },
+        ],
+      },
+    ];
+  // `<` escapado: um texto com </script> fecharia o bloco no meio.
+  const json = JSON.stringify({ '@context': 'https://schema.org', '@graph': grafo }).replace(/</g, '\\u003c');
+  return `<script type="application/ld+json">${json}</script>`;
+}
+
+/* Sitemap: sem ele o buscador so acha as paginas seguindo links. */
+function sitemap() {
+  const urls = ordem.map((slug) => `  <url><loc>${BASE_URL}${slug === 'index' ? '' : `${slug}/`}</loc></url>`);
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>\n`;
+}
+
 /* ---- escrita ---- */
 
 let escritas = 0;
@@ -216,11 +286,14 @@ for (const [slug, p] of paginas) {
   corpo = corpo.replace(/<!-- componentes -->/g, () => grade(slug));
   corpo = corpo.replace(/<!-- changelog -->/g, () => changelog(readFileSync('CHANGELOG.md', 'utf8')));
 
-  const titulo = slug === 'index' ? 'Tucano — componentes de interface, sem dependências' : `${p.meta.title} — Tucano`;
+  const titulo = tituloDaPagina(slug, p);
+  const canonical = BASE_URL + (slug === 'index' ? '' : `${slug}/`);
   const html = layout
     .replaceAll('{{title}}', esc(titulo))
     .replaceAll('{{description}}', esc(p.meta.description || ''))
-    .replaceAll('{{canonical}}', BASE_URL + (slug === 'index' ? '' : `${slug}/`))
+    .replaceAll('{{canonical}}', canonical)
+    .replaceAll('{{og-type}}', slug === 'index' ? 'website' : 'article')
+    .replace('{{jsonld}}', () => jsonld(slug, p, titulo, canonical))
     .replaceAll('{{root}}', raiz)
     .replaceAll('{{home}}', link(slug, 'index'))
     .replaceAll('{{version}}', versao)
@@ -236,4 +309,7 @@ for (const [slug, p] of paginas) {
   escritas++;
 }
 
-console.log(`site: ${escritas} página(s) em ${OUT}/ · ${itens.length - escritas} ainda sem conteúdo`);
+mkdirSync(OUT, { recursive: true });
+writeFileSync(`${OUT}/sitemap.xml`, sitemap());
+
+console.log(`site: ${escritas} página(s) e sitemap.xml em ${OUT}/ · ${itens.length - escritas} ainda sem conteúdo`);
