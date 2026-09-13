@@ -105,16 +105,9 @@ html.dark .i-moon { display: none; }
 
 /* ---------- anterior e proxima ---------- */
 
-.pager { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 96px; }
-.pager__link {
-  display: flex; flex-direction: column; gap: 2px; padding: 16px 20px; text-decoration: none;
-  border: 1px solid var(--line); border-radius: 12px; background: var(--panel);
-  transition: border-color .15s;
-}
-.pager__link:hover { border-color: var(--accent); }
-.pager__link span { font-size: 12px; color: var(--muted); }
-.pager__link b { font-weight: 600; }
-.pager__link.is-next { text-align: right; grid-column: 2; }
+/* Os botoes sao o .tuc-btn; daqui so o lugar: anterior a esquerda, proxima a direita. */
+.pager { display: flex; justify-content: space-between; gap: 12px; margin-top: 96px; padding-top: 28px; border-top: 1px solid var(--line); }
+.pager__next { margin-left: auto; }
 
 /* ---------- inicio ---------- */
 
@@ -173,6 +166,4 @@ a.link-card:hover { border-color: var(--accent); }
   .doc h2 { margin-top: 56px; }
   .demo, .demo.is-hero { padding: 20px; }
   .demo-grid, .demo-grid.is-3, .steps, .preview .row { grid-template-columns: minmax(0, 1fr); }
-  .pager { grid-template-columns: minmax(0, 1fr); }
-  .pager__link.is-next { grid-column: 1; }
 }

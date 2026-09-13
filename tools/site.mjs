@@ -24,6 +24,8 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { gzipSync } from 'node:zlib';
 import { componentes } from './api.mjs';
+// As setas do anterior/proxima sao as mesmas da biblioteca, e nao um SVG a mais.
+import { ICON_CHEVRON_LEFT, ICON_CHEVRON_RIGHT } from '../src/js/core/dom.js';
 
 const OUT = (process.argv[2] || '.').replace(/\/+$/, '');
 const BASE_URL = 'https://juniorcarlini.github.io/tucano/';
@@ -123,13 +125,21 @@ function menu(de) {
   }).join('\n')}`).join('\n');
 }
 
+/*
+ * Anterior e proxima sao o .tuc-btn da biblioteca com a seta. Um cartao proprio
+ * aqui ocupava a largura toda com o nome encostado num canto — era o segundo
+ * desenho de botao que a pagina de vitrine nao pode ter.
+ */
 function paginador(de) {
   const i = ordem.indexOf(de);
   const ant = ordem[i - 1], prox = ordem[i + 1];
+  const seta = (d) => `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"/></svg>`;
   const botao = (slug, lado) => {
-    if (!slug) return '<span></span>';
-    const p = paginas.get(slug);
-    return `<a class="pager__link is-${lado}" href="${link(de, slug)}"><span>${lado === 'prev' ? 'Anterior' : 'Próxima'}</span><b>${esc(p.title)}</b></a>`;
+    if (!slug) return '';
+    const titulo = esc(paginas.get(slug).title);
+    const rotulo = `${lado === 'prev' ? 'Página anterior' : 'Próxima página'}: ${titulo}`;
+    const miolo = lado === 'prev' ? `${seta(ICON_CHEVRON_LEFT)}${titulo}` : `${titulo}${seta(ICON_CHEVRON_RIGHT)}`;
+    return `<a class="tuc-btn is-outline is-lg pager__${lado}" href="${link(de, slug)}" aria-label="${rotulo}">${miolo}</a>`;
   };
   return `<nav class="pager" aria-label="Paginação da documentação">${botao(ant, 'prev')}${botao(prox, 'next')}</nav>`;
 }
