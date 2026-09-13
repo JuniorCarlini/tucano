@@ -21,7 +21,7 @@ description: Rótulo, texto de ajuda, mensagem de erro e o campo que reprovou, m
     </div>
     <div class="demo-cell">
       <label class="tuc-label" for="fm-plano">Plano</label>
-      <select class="tuc-input" id="fm-plano" name="plano" aria-describedby="fm-plano-ajuda">
+      <select id="fm-plano" name="plano" data-tuc-select data-search="false" aria-describedby="fm-plano-ajuda">
         <option>Mensal</option><option>Trimestral</option><option>Anual</option>
       </select>
       <p class="tuc-hint" id="fm-plano-ajuda">Dá para trocar depois, sem multa.</p>
@@ -63,19 +63,19 @@ description: Rótulo, texto de ajuda, mensagem de erro e o campo que reprovou, m
       <input type="text" class="tuc-input" id="fm-codigo" name="codigo" value="CLI-00042" disabled>
     </div>
     <div class="demo-cell">
-      <h4>Select nativo</h4>
-      <p>Para a lista curta, sem busca. No celular abre a roleta do sistema.</p>
+      <h4>Lista curta</h4>
+      <p><code>data-tuc-select</code> com <code>data-search="false"</code>: sem campo de busca, e com o erro do <code>aria-invalid</code>.</p>
       <label class="tuc-label" for="fm-uf">Estado</label>
-      <select class="tuc-input" id="fm-uf" name="uf" required aria-invalid="true" aria-describedby="fm-uf-erro">
+      <select id="fm-uf" name="uf" data-tuc-select data-search="false" required aria-invalid="true" aria-describedby="fm-uf-erro">
         <option value="">Selecione</option><option>Paraná</option><option>São Paulo</option>
       </select>
       <p class="tuc-error" id="fm-uf-erro">Escolha um estado.</p>
     </div>
     <div class="demo-cell">
-      <h4>Select nativo em lista</h4>
-      <p>Com <code>multiple</code> ou <code>size</code> vira caixa de lista, sem a seta.</p>
+      <h4>Várias escolhas</h4>
+      <p>Com <code>multiple</code> as escolhas viram tags, e o <code>getlist()</code> continua recebendo uma por opção.</p>
       <label class="tuc-label" for="fm-dias">Dias de entrega</label>
-      <select class="tuc-input" id="fm-dias" name="dias" multiple size="4">
+      <select id="fm-dias" name="dias" data-tuc-select multiple>
         <option selected>Segunda</option><option>Terça</option><option selected>Quarta</option><option>Quinta</option><option>Sexta</option>
       </select>
     </div>
@@ -127,7 +127,7 @@ description: Rótulo, texto de ajuda, mensagem de erro e o campo que reprovou, m
 <p class="tuc-error" id="doc-e">CNPJ inválido.</p>
 
 <label class="tuc-label" for="plano">Plano</label>
-<select class="tuc-input" id="plano" name="plano" aria-describedby="plano-h">
+<select id="plano" name="plano" data-tuc-select aria-describedby="plano-h">
   <option>Mensal</option>
   <option>Anual</option>
 </select>
@@ -159,7 +159,7 @@ class ClienteForm(forms.ModelForm):
         widgets = {
             "razao": forms.TextInput(attrs={"class": "tuc-input"}),
             "email": forms.EmailInput(attrs={"class": "tuc-input"}),
-            "plano": forms.Select(attrs={"class": "tuc-input"}),
+            "plano": forms.Select(attrs={"data-tuc-select": ""}),
             "obs": forms.Textarea(attrs={"class": "tuc-input", "rows": 3}),
         }
 </pre>
