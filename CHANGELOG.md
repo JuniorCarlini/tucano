@@ -1,4 +1,4 @@
-# Novidades
+# Changelog
 
 O que mudou em cada versão da Tucano, da mais nova para a mais antiga. Antes de
 atualizar, leia "Atenção ao atualizar": ali está o que pede mudança no seu
@@ -8,9 +8,11 @@ projeto.
 
 ### Atenção ao atualizar
 
-- A cor de destaque padrão agora é o laranja do tucano: `#B84300` no tema claro e
-  `#FF7501` no escuro, onde o texto sobre o destaque passa a ser escuro. Quem já
-  define `--tuc-accent` no próprio projeto não percebe diferença.
+- A cor de destaque padrão agora é o laranja do tucano, `#FF7501`, nos dois
+  temas, e o texto sobre ela passa a ser escuro (`--tuc-accent-fg`). Onde o
+  destaque é a cor do próprio texto — link, menu ativo, tag — entra o novo
+  `--tuc-accent-text`, mais fechado no tema claro para continuar legível. Quem já
+  define `--tuc-accent` no próprio projeto confira também esses dois.
 - O arquivo recusado no upload é um `.tuc-alert is-danger`, com a classe
   `.tuc-upload__rejected`. A regra `.tuc-upload__item.is-rejected` não existe mais.
 - O campo hex do color picker é um `.tuc-input`, e o conta-gotas um
@@ -32,6 +34,8 @@ projeto.
   que carrega por HTMX e a variante segmentada.
 - Aviso fixo na página (`.tuc-alert`), em quatro tons.
 - Carregando: `.tuc-spinner` e `.tuc-skeleton`. Botão com `aria-busy` não esmaece.
+- Linha do tempo (`.tuc-timeline`), só classe: tons, ponto cheio ou vazado e
+  ícone opcional no lugar do ponto.
 - O pacote exporta `icon`, `ICON_CHECK`, `ICON_COPY` e `ICON_X`.
 - Documentação com uma página por componente, gerada no build.
 

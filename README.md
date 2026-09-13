@@ -25,6 +25,7 @@ Sem React, sem Vue, sem dependência em runtime.
 | `Tabs` — abas com teclado do ARIA APG, e segmentadas | pronto |
 | `.tuc-alert` — aviso fixo na página, quatro tons, só classe | pronto |
 | `.tuc-spinner` `.tuc-skeleton` — carregando, só classe | pronto |
+| `.tuc-timeline` — linha do tempo, só classe | pronto |
 | `.tuc-menu` — lista de navegação, só classe | pronto |
 | `.tuc-badge` — etiqueta de estado, quatro tons, só classe | pronto |
 | `.tuc-check` `.tuc-radio` `.tuc-switch` — caixa, opção e chave, só classe | pronto |
@@ -819,6 +820,33 @@ chegar, com o espaço já reservado. O spinner mede em `em` e pinta com
 `currentColor`, então dentro de um botão sai do tamanho do ícone e da cor do texto.
 `is-lg` aumenta; `.tuc-skeleton.is-circle` faz o avatar. Com o HTMX,
 `htmx-indicator` junto do spinner já o mostra só durante a requisição.
+
+## Linha do tempo
+
+```html
+<ol class="tuc-timeline">
+  <li class="tuc-timeline__item is-success is-filled">
+    <div class="tuc-timeline__head">
+      <p class="tuc-timeline__title">Contrato assinado</p>
+      <time class="tuc-timeline__time" datetime="2026-09-12">12/09/2026</time>
+    </div>
+    <div class="tuc-timeline__body">As duas partes assinaram.</div>
+  </li>
+  <li class="tuc-timeline__item">
+    <div class="tuc-timeline__head">
+      <p class="tuc-timeline__title">Enviado para assinatura</p>
+      <time class="tuc-timeline__time" datetime="2026-09-10">10/09/2026</time>
+    </div>
+  </li>
+</ol>
+```
+
+Histórico em ordem — andamento de um pedido, o que aconteceu com um contrato,
+versões de um changelog. É um `<ol>`, então o leitor de tela anuncia a posição de
+cada item. Ponto e trilho são desenhados pela classe; o template só traz o
+conteúdo. Tons no item: `is-accent`, `is-success`, `is-warning`, `is-danger`,
+`is-info`; `is-filled` enche o ponto. Para um ícone no lugar do ponto, ponha
+`<span class="tuc-timeline__icon"><svg>…</svg></span>` como primeiro filho do item.
 
 ## Gaveta (off-canvas)
 

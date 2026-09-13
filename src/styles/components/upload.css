@@ -38,7 +38,7 @@
   border-color: var(--tuc-accent);
   background: var(--tuc-accent-soft);
 }
-.tuc-upload.is-dragging .tuc-upload__icon { color: var(--tuc-accent); }
+.tuc-upload.is-dragging .tuc-upload__icon { color: var(--tuc-accent-text); }
 
 .tuc-upload__icon { color: var(--tuc-subtle); }
 .tuc-upload__label { @apply font-medium; }

@@ -18,7 +18,7 @@
  *   - a grade de componentes do inicio (<!-- componentes -->), do nav.json
  *   - os blocos de codigo: <pre data-code> vira .tuc-prose, e quem pinta e poe o
  *     copiar e o proprio destacador da biblioteca, em vez de <span> a mao
- *   - a pagina de novidades (<!-- changelog -->), do CHANGELOG.md: a mesma nota
+ *   - o changelog (<!-- changelog -->), do CHANGELOG.md, numa linha do tempo: a mesma nota
  *     serve a quem le no GitHub, no npm e no site
  *
  * Uso: node tools/site.mjs [pasta de saida]   (padrao: a raiz do repositorio)
@@ -108,39 +108,64 @@ function api(nome) {
 }
 
 /*
- * O pedaco de Markdown que o CHANGELOG usa, e nada alem: titulos de nivel 2 e 3,
- * lista (com continuacao recuada), paragrafo, `codigo` e **negrito**. O titulo de
- * nivel 1 e a introducao ficam de fora — a pagina tem os seus.
+ * O CHANGELOG.md vira uma linha do tempo (.tuc-timeline): uma versao por item.
+ *
+ * Le so o formato que o arquivo usa — `## versao — data`, `### grupo` e listas
+ * com continuacao recuada — e monta cada parte com as pecas da biblioteca:
+ * "Atencao ao atualizar" e um .tuc-alert is-warning, os outros grupos levam uma
+ * .tuc-badge no tom do que dizem. A secao "Ainda nao publicado" ganha ponto
+ * vazado; a versao mais nova, ponto cheio e a etiqueta "atual".
  */
-function markdown(md) {
+const ICON_ATENCAO = 'M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z';
+const TOM_GRUPO = { 'Novo': 'is-success', 'Mudou': 'is-info', 'Corrigido': '' };
+
+function changelog(md) {
   const inline = (t) => esc(t).replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
-  const slug = (t) => t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  const slug = (t) => t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
     .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-  const out = [];
-  let lista = false, paragrafo = [], comecou = false;
-  const fecharParagrafo = () => { if (paragrafo.length) out.push(`<p>${inline(paragrafo.join(' '))}</p>`); paragrafo = []; };
-  const fecharLista = () => { if (lista) out.push('</ul>'); lista = false; };
+
+  /* Arquivo -> [{ titulo, grupos: [{ nome, itens }] }]. Item sem grupo cai num grupo sem nome. */
+  const versoes = [];
+  let versao = null, grupo = null;
   for (const linha of md.split('\n')) {
-    const titulo = linha.match(/^(#{2,3}) (.+)/);
-    if (titulo) comecou = true;
-    if (!comecou) continue;
-    if (titulo) {
-      fecharParagrafo(); fecharLista();
-      out.push(titulo[1] === '##' ? `<h2 id="${slug(titulo[2])}">${inline(titulo[2])}</h2>` : `<h3>${inline(titulo[2])}</h3>`);
-    } else if (/^- /.test(linha)) {
-      fecharParagrafo();
-      if (!lista) { out.push('<ul class="changes">'); lista = true; }
-      out.push(`<li>${inline(linha.slice(2))}</li>`);
-    } else if (lista && /^\s+\S/.test(linha)) {
-      out[out.length - 1] = out[out.length - 1].replace(/<\/li>$/, () => ` ${inline(linha.trim())}</li>`);
-    } else if (!linha.trim()) {
-      fecharParagrafo(); fecharLista();
-    } else {
-      fecharLista(); paragrafo.push(linha.trim());
+    if (linha.startsWith('## ')) { versao = { titulo: linha.slice(3).trim(), grupos: [] }; versoes.push(versao); grupo = null; continue; }
+    if (!versao) continue;
+    if (linha.startsWith('### ')) { grupo = { nome: linha.slice(4).trim(), itens: [] }; versao.grupos.push(grupo); continue; }
+    if (linha.startsWith('- ')) {
+      if (!grupo) { grupo = { nome: '', itens: [] }; versao.grupos.push(grupo); }
+      grupo.itens.push(linha.slice(2).trim());
+    } else if (/^\s+\S/.test(linha) && grupo?.itens.length) {
+      grupo.itens[grupo.itens.length - 1] += ` ${linha.trim()}`;
     }
   }
-  fecharParagrafo(); fecharLista();
-  return out.join('\n');
+
+  const lista = (itens, classe) => `<ul class="${classe}">${itens.map((i) => `<li>${inline(i)}</li>`).join('')}</ul>`;
+  const primeiraPublicada = versoes.findIndex((v) => /^\d/.test(v.titulo));
+
+  const itens = versoes.map((v, i) => {
+    const [numero, data] = v.titulo.split(' — ');
+    const publicada = /^\d/.test(numero);
+    const atual = i === primeiraPublicada;
+    const tom = publicada ? (atual ? ' is-accent is-filled' : '') : ' is-accent';
+    const [ano, mes, dia] = (data || '').split('-');
+    const cabeca = [
+      // Id com "v" na frente: um id que comeca com numero vale como ancora, mas nao
+      // como seletor CSS — #0-31-0 quebra querySelector.
+      `<h2 class="tuc-timeline__title" id="${slug(publicada ? `v${numero}` : numero)}">${inline(numero)}</h2>`,
+      atual ? '<span class="tuc-badge is-success is-plain">atual</span>' : '',
+      publicada ? '' : '<span class="tuc-badge is-plain">em desenvolvimento</span>',
+      data ? `<time class="tuc-timeline__time" datetime="${data}">${dia}/${mes}/${ano}</time>` : '',
+    ].join('');
+    const corpo = v.grupos.map((g) => {
+      if (/^Aten/.test(g.nome)) {
+        return `<div class="tuc-alert is-warning"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${ICON_ATENCAO}"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">${inline(g.nome)}</p>${lista(g.itens, 'release__list')}</div></div>`;
+      }
+      const rotulo = g.nome ? `<span class="tuc-badge ${TOM_GRUPO[g.nome] ?? ''}">${inline(g.nome)}</span>` : '';
+      return `<div class="release__group">${rotulo}${lista(g.itens, 'release__list')}</div>`;
+    }).join('');
+    return `<li class="tuc-timeline__item${tom}"><div class="tuc-timeline__head">${cabeca}</div><div class="tuc-timeline__body">${corpo}</div></li>`;
+  });
+  return `<ol class="tuc-timeline changelog">\n${itens.join('\n')}\n</ol>`;
 }
 
 function grade(de) {
@@ -198,7 +223,7 @@ for (const [slug, p] of paginas) {
   corpo = codigos(corpo);
   corpo = corpo.replace(/<!-- api -->/g, () => api(p.meta.component));
   corpo = corpo.replace(/<!-- componentes -->/g, () => grade(slug));
-  corpo = corpo.replace(/<!-- changelog -->/g, () => markdown(readFileSync('CHANGELOG.md', 'utf8')));
+  corpo = corpo.replace(/<!-- changelog -->/g, () => changelog(readFileSync('CHANGELOG.md', 'utf8')));
 
   const titulo = slug === 'index' ? 'Tucano — componentes de interface, sem dependências' : `${p.meta.title} — Tucano`;
   const html = layout

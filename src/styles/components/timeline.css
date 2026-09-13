@@ -1,0 +1,101 @@
+@reference "tailwindcss";
+
+/*
+ * Linha do tempo.
+ *
+ * Historico em ordem: versoes de um changelog, andamento de um pedido, o que
+ * aconteceu com um contrato. So classe, sobre <ol> — a ordem e parte do
+ * significado, e o leitor de tela anuncia "item 2 de 7" sem ninguem escrever
+ * aria nenhum.
+ *
+ * O ponto e o trilho sao pseudo-elementos do item, e nao elementos no template:
+ * quem escreve so poe o conteudo. O ponto fica centrado na primeira linha do
+ * cabecalho, que tem altura fixa pelo mesmo motivo do .tuc-choice — a conta nao
+ * pode depender da fonte do projeto.
+ */
+
+.tuc-timeline {
+  --tuc-timeline-gutter: 1.5rem;   /* coluna do ponto; o icone ocupa ela toda */
+  --tuc-timeline-dot: 0.75rem;
+  --tuc-timeline-line: 1.5rem;     /* altura da primeira linha do cabecalho */
+  @apply m-0 list-none p-0;
+  font-family: var(--tuc-font);
+  font-size: var(--tuc-text);
+  color: var(--tuc-fg);
+}
+
+.tuc-timeline__item {
+  --tuc-timeline-tone: var(--tuc-subtle);
+  @apply relative;
+  padding: 0 0 1.75rem calc(var(--tuc-timeline-gutter) + 0.75rem);
+}
+.tuc-timeline__item:last-child { padding-bottom: 0; }
+
+/* Trilho: sai de baixo do ponto e vai ate o fim do item. O ultimo nao tem. */
+.tuc-timeline__item::before {
+  content: '';
+  @apply absolute;
+  left: calc(var(--tuc-timeline-gutter) / 2 - 1px);
+  top: calc(var(--tuc-timeline-line) / 2 + var(--tuc-timeline-dot) / 2 + 0.25rem);
+  bottom: 0.25rem;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--tuc-border);
+}
+.tuc-timeline__item:last-child::before { display: none; }
+
+/* Ponto: vazado por padrao, cheio com is-filled. */
+.tuc-timeline__item::after {
+  content: '';
+  @apply absolute rounded-full;
+  box-sizing: border-box;
+  left: calc((var(--tuc-timeline-gutter) - var(--tuc-timeline-dot)) / 2);
+  top: calc((var(--tuc-timeline-line) - var(--tuc-timeline-dot)) / 2);
+  width: var(--tuc-timeline-dot);
+  height: var(--tuc-timeline-dot);
+  background: var(--tuc-bg);
+  border: 2px solid var(--tuc-timeline-tone);
+}
+.tuc-timeline__item.is-filled::after { background: var(--tuc-timeline-tone); }
+
+/* Tons: os mesmos da etiqueta e do aviso, e a marca no is-accent. */
+.tuc-timeline__item.is-accent  { --tuc-timeline-tone: var(--tuc-accent); }
+.tuc-timeline__item.is-success { --tuc-timeline-tone: var(--tuc-success); }
+.tuc-timeline__item.is-warning { --tuc-timeline-tone: var(--tuc-warning); }
+.tuc-timeline__item.is-danger  { --tuc-timeline-tone: var(--tuc-danger); }
+.tuc-timeline__item.is-info    { --tuc-timeline-tone: var(--tuc-info); }
+
+/*
+ * Icone no lugar do ponto: um circulo com fundo suave do tom, do tamanho da
+ * coluna. Quando existe, o ponto sai.
+ */
+.tuc-timeline__icon {
+  @apply absolute left-0 grid place-items-center rounded-full;
+  top: calc((var(--tuc-timeline-line) - var(--tuc-timeline-gutter)) / 2);
+  width: var(--tuc-timeline-gutter);
+  height: var(--tuc-timeline-gutter);
+  color: var(--tuc-timeline-tone);
+  background: color-mix(in oklab, var(--tuc-timeline-tone) 14%, var(--tuc-bg));
+}
+.tuc-timeline__icon > svg { @apply size-3.5; }
+.tuc-timeline__item:has(> .tuc-timeline__icon)::after { display: none; }
+
+.tuc-timeline__head {
+  @apply flex flex-wrap items-baseline;
+  gap: 0.25rem 0.625rem;
+  min-height: var(--tuc-timeline-line);
+  line-height: var(--tuc-timeline-line);
+}
+/* Etiqueta no cabecalho alinha pelo centro: pela linha de base ela descia. */
+.tuc-timeline__head > .tuc-badge { @apply self-center; }
+
+.tuc-timeline__title { margin: 0; font-size: inherit; font-weight: 600; }
+.tuc-timeline__time {
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--tuc-muted);
+}
+
+.tuc-timeline__body { margin-top: 0.25rem; color: var(--tuc-muted); }
+.tuc-timeline__body > :first-child { margin-top: 0; }
+.tuc-timeline__body > :last-child { margin-bottom: 0; }

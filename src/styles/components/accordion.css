@@ -22,7 +22,7 @@
 .tuc-accordion__trigger::-webkit-details-marker { display: none; }
 .tuc-accordion__trigger::marker { content: ''; }
 
-.tuc-accordion__trigger:hover { color: var(--tuc-accent); }
+.tuc-accordion__trigger:hover { color: var(--tuc-accent-text); }
 .tuc-accordion__trigger:focus-visible {
   outline: 2px solid var(--tuc-accent);
   outline-offset: 2px;

@@ -128,7 +128,7 @@
 
 .tuc-btn.is-link {
   @apply h-auto px-0 underline-offset-4 hover:underline;
-  color: var(--tuc-accent);
+  color: var(--tuc-accent-text);
 }
 
 /* ------------------------------------------------------------------ *

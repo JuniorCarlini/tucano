@@ -32,7 +32,7 @@
  * cor. Sem traco na borda de dentro: ele foi tirado a pedido.
  */
 .tuc-menu__item.is-active {
-  color: var(--tuc-accent);
+  color: var(--tuc-accent-text);
   background: var(--tuc-hover);
   font-weight: 550;
 }
@@ -41,7 +41,7 @@
   @apply grid size-4 shrink-0 place-items-center;
   color: var(--tuc-muted);
 }
-.tuc-menu__item.is-active .tuc-menu__icon { color: var(--tuc-accent); }
+.tuc-menu__item.is-active .tuc-menu__icon { color: var(--tuc-accent-text); }
 
 /* Contador a direita: e a .tuc-badge is-plain, a mesma das abas. Daqui so o
    empurrao para a borda. */

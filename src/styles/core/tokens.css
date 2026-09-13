@@ -16,17 +16,22 @@
 
 :root {
   /*
-   * O laranja do tucano. No claro ele e mais fechado que o da ave (#FF7501):
-   * o vivo da 2,7 de contraste com texto branco e como texto sobre fundo claro,
-   * abaixo dos 4,5 de leitura. #B84300 passa em todo lugar em que o destaque
-   * aparece — 5,5 com texto branco, 5,0 no item de menu ativo, 4,6 na tag sobre
-   * o fundo suave. No escuro o vivo volta, com texto escuro em cima.
+   * O laranja do tucano, o mesmo nos dois temas. Sobre ele o texto e escuro: o
+   * branco dava 2,7 de contraste, e o #0a0a0a da 7,4.
+   *
+   * Como cor de texto (link, menu ativo, tag, "hoje" no calendario) o vivo
+   * nao se le sobre fundo claro — 2,7 de novo. Para isso existe
+   * --tuc-accent-text: um laranja mais fechado no claro (5,5 sobre branco, 5,0
+   * sobre --tuc-hover, 4,6 sobre o fundo suave) e o proprio vivo no escuro.
+   * Fundo, borda, marcacao e sublinhado usam --tuc-accent; so a propriedade
+   * `color` de um texto usa --tuc-accent-text.
    */
-  --tuc-accent: #B84300;
-  --tuc-accent-hover: #9A3A00;
-  --tuc-accent-fg: #ffffff;
-  /* Botao da chave: claro nos dois temas. Nao e --tuc-accent-fg, que no escuro
-     vira texto escuro — a bolinha ficaria preta. */
+  --tuc-accent: #FF7501;
+  --tuc-accent-hover: #FF8A2A;
+  --tuc-accent-fg: #0a0a0a;
+  --tuc-accent-text: #B84300;
+  /* Botao da chave: claro nos dois temas. Nao e --tuc-accent-fg, que e o texto
+     escuro sobre o laranja — a bolinha ficaria preta. */
   --tuc-thumb: #ffffff;
   --tuc-accent-soft: color-mix(in oklab, var(--tuc-accent) 12%, transparent);
   --tuc-accent-ring: color-mix(in oklab, var(--tuc-accent) 35%, transparent);
@@ -106,15 +111,13 @@
 /* Dark por classe (.dark no html) — o padrao de Tailwind e do Django admin moderno. */
 .dark,
 [data-theme='dark'] {
-  --tuc-accent: #FF7501;
-  --tuc-accent-hover: #FF8A2A;
+  --tuc-accent-text: #FF7501;   /* no escuro o vivo se le como texto: 6,7 */
 
   --tuc-success: #4ade80;
   --tuc-warning: #fbbf24;
   --tuc-danger: #f87171;
   --tuc-info: #60a5fa;
   --tuc-danger-fill: #dc2626;
-  --tuc-accent-fg: #0a0a0a;   /* 7,4 sobre o laranja vivo; o branco dava 2,7 */
 
   --tuc-bg: #171717;
   --tuc-fg: #fafafa;
@@ -146,15 +149,13 @@
  */
 @media (prefers-color-scheme: dark) {
   :root[data-tuc-theme='auto'] {
-  --tuc-accent: #FF7501;
-  --tuc-accent-hover: #FF8A2A;
+  --tuc-accent-text: #FF7501;   /* no escuro o vivo se le como texto: 6,7 */
 
   --tuc-success: #4ade80;
   --tuc-warning: #fbbf24;
   --tuc-danger: #f87171;
   --tuc-info: #60a5fa;
   --tuc-danger-fill: #dc2626;
-  --tuc-accent-fg: #0a0a0a;   /* 7,4 sobre o laranja vivo; o branco dava 2,7 */
 
   --tuc-bg: #171717;
   --tuc-fg: #fafafa;

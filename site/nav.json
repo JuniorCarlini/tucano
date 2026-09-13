@@ -8,7 +8,7 @@
       },
       {
         "slug": "changelog",
-        "title": "Novidades"
+        "title": "Changelog"
       }
     ]
   },
@@ -149,6 +149,11 @@
         "slug": "table",
         "title": "Tabela",
         "desc": "Ordenação no servidor e seleção em massa."
+      },
+      {
+        "slug": "timeline",
+        "title": "Linha do tempo",
+        "desc": "Histórico em ordem, com tons e ícone."
       }
     ]
   },

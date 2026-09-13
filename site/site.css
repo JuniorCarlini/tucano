@@ -9,7 +9,7 @@
 
 :root {
   --bg: #fbfbfa; --panel: #fff; --fg: #111110; --muted: #6f6f6b; --subtle: #a1a19c;
-  --line: #e8e8e5; --code: #f4f4f2; --accent: #B84300;
+  --line: #e8e8e5; --code: #f4f4f2; --accent: #FF7501;
   --side: 272px;
 }
 html.dark {
@@ -77,10 +77,21 @@ html.dark .i-moon { display: none; }
 .doc-code { margin: 16px 0; }
 .doc-code pre { margin: 0; border: 1px solid var(--line); font-size: 12.5px; }
 
-/* Novidades: lista de mudancas de cada versao, vinda do CHANGELOG.md. */
-.changes { margin: 8px 0 0; padding-left: 20px; }
-.changes li { margin: 8px 0; max-width: 72ch; }
-.changes li::marker { color: var(--subtle); }
+/* Changelog: a .tuc-timeline da biblioteca; daqui so o respiro entre versoes e
+   o titulo, que e h2 e nao pode herdar a borda dos h2 de secao. */
+.changelog { margin-top: 56px; }
+.changelog > .tuc-timeline__item { padding-bottom: 56px; }
+.changelog > .tuc-timeline__item:last-child { padding-bottom: 0; }
+.doc .changelog h2.tuc-timeline__title { margin: 0; padding: 0; border: 0; font-size: 20px; letter-spacing: -.015em; }
+.changelog .tuc-timeline__body { margin-top: 12px; color: var(--fg); }
+.release__group { margin-top: 20px; }
+/* disc declarado: dentro do <ol> da linha do tempo o navegador trocava para o
+   marcador de segundo nivel, o circulo vazado. */
+.release__list { margin: 8px 0 0; padding-left: 18px; list-style: disc; }
+.release__list li { margin: 6px 0; max-width: 72ch; }
+.release__list li::marker { color: var(--subtle); }
+.changelog .tuc-alert { margin: 0 0 4px; }
+.changelog .tuc-alert .release__list { margin-top: 4px; }
 
 /* ---------- demonstracao ---------- */
 

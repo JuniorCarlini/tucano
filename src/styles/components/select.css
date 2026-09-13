@@ -107,7 +107,7 @@
   border-radius: var(--tuc-radius-xs);
   font-size: 0.75rem;
   background: var(--tuc-accent-soft);
-  color: var(--tuc-accent);
+  color: var(--tuc-accent-text);
 }
 
 .tuc-select__tagtext { @apply truncate; }
@@ -164,7 +164,7 @@
 .tuc-select__option.is-active { background: var(--tuc-hover); }
 
 .tuc-select__option.is-selected { @apply font-semibold; }
-.tuc-select__check { color: var(--tuc-accent); }
+.tuc-select__check { color: var(--tuc-accent-text); }
 
 .tuc-select__option.is-disabled {
   @apply cursor-not-allowed;

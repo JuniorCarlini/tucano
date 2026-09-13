@@ -524,19 +524,20 @@ da versão é procurado pelo `stamp.mjs` com a classe exata
 publicado".** Novo, mudou, corrigido — e, em "Atenção ao atualizar", o que obriga
 alguém a mexer no próprio projeto: classe renomeada ou removida, padrão que
 mudou. Na hora da tag, a seção ganha o número e a data. O arquivo é a fonte da
-página de Novidades do site e vai no pacote do npm; ele não é montado a partir
+página Changelog do site e vai no pacote do npm; ele não é montado a partir
 das tags no build porque o CI baixa o repositório sem histórico.
 
-**O destaque padrão é o laranja do tucano, e o tom de cada tema saiu de medida.**
-O `#FF7501` da ave dá 2,7 de contraste com texto branco e como texto sobre fundo
-claro — abaixo dos 4,5 de leitura. No claro vale `#B84300`, que passa onde o
-destaque aparece de verdade: 5,5 com texto branco, 5,0 no item de menu ativo
-(sobre `--tuc-hover`) e 4,6 na tag do select sobre o fundo suave. `#C74B00`, mais
-próximo do vivo, falhava nos dois últimos. No escuro volta o `#FF7501`, e
-`--tuc-accent-fg` vira `#0a0a0a` (7,4). Por isso a bolinha da chave tem token
-próprio, `--tuc-thumb`: pintada com `--tuc-accent-fg`, ela ficaria preta no
-escuro. Ao trocar o destaque, confira texto branco em cima, texto sobre
-`--tuc-hover` e texto sobre `--tuc-accent-soft`.
+**O destaque padrão é o laranja do tucano, `#FF7501`, igual nos dois temas —
+e texto no destaque tem token próprio.** Sobre o laranja o texto é escuro:
+`--tuc-accent-fg` é `#0a0a0a` (7,4), porque o branco dava 2,7. E o vivo como cor
+de texto sobre fundo claro também dá 2,7, então link, item de menu ativo, tag do
+select, "hoje" do calendário e ícone ativo usam `--tuc-accent-text`: `#B84300` no
+claro (5,5 sobre branco, 5,0 sobre `--tuc-hover`, 4,6 sobre o fundo suave) e o
+próprio `#FF7501` no escuro (6,7). Regra: fundo, borda, marcação e sublinhado
+leem `--tuc-accent`; a propriedade `color` de um texto lê `--tuc-accent-text`.
+A bolinha da chave tem `--tuc-thumb`, porque pintada com `--tuc-accent-fg` ela
+ficaria preta. Ao trocar o destaque, confira texto em cima dele, e o texto de
+destaque sobre branco, sobre `--tuc-hover` e sobre `--tuc-accent-soft`.
 
 Informação ganhou tom próprio, `--tuc-info`, pelo mesmo motivo: com o destaque
 laranja, o aviso de informação ficava igual ao de alerta. Tom semântico (sucesso,

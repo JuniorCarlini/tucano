@@ -114,7 +114,7 @@ table[data-tuc-table]:not([data-tuc-ready]) tbody tr:last-child > * { border-bot
  */
 .tuc-table th[aria-sort='ascending'] .tuc-table__sorticon,
 .tuc-table th[aria-sort='descending'] .tuc-table__sorticon {
-  color: var(--tuc-accent);
+  color: var(--tuc-accent-text);
   opacity: 1;
 }
 .tuc-table th[aria-sort='ascending'] .tuc-table__sorticon svg { clip-path: inset(0 0 50% 0); }
@@ -168,7 +168,7 @@ table[data-tuc-table]:not([data-tuc-ready]) tbody tr:last-child > * { border-bot
   font-size: 0.6875rem;
   font-weight: 600;
   line-height: 1;
-  color: var(--tuc-accent);
+  color: var(--tuc-accent-text);
   background: var(--tuc-accent-soft);
   /* Iniciais quando nao ha foto; com <img> dentro, a imagem cobre o circulo. */
   text-transform: uppercase;

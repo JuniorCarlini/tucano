@@ -193,7 +193,7 @@
   border-radius: var(--tuc-radius-md);
 }
 .tuc-dp__periodcell:hover { background: var(--tuc-hover); }
-.tuc-dp__periodcell.is-today { color: var(--tuc-accent); @apply font-semibold; }
+.tuc-dp__periodcell.is-today { color: var(--tuc-accent-text); @apply font-semibold; }
 .tuc-dp__periodcell.is-selected {
   background: var(--tuc-accent);
   color: var(--tuc-accent-fg);
@@ -283,7 +283,7 @@
 .tuc-dp .tuc-btn.tuc-dp__preset.is-selected:hover {
   @apply font-semibold;
   background: var(--tuc-accent-soft);
-  color: var(--tuc-accent);
+  color: var(--tuc-accent-text);
 }
 
 /* ------------------------------------------------------------------ *

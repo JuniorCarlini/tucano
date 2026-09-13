@@ -60,6 +60,7 @@ body{margin:0;padding:16px;font-family:system-ui}
 <input type="checkbox" role="switch" class="tuc-switch" id="sw">
 <style>.hostil label{display:block;margin-bottom:8px;font-weight:600}</style>
 <div class="hostil"><label class="tuc-choice" id="chh"><input type="checkbox" class="tuc-check"> Dentro de um card</label></div>
+<ol class="tuc-timeline" id="tl"><li class="tuc-timeline__item is-success"><div class="tuc-timeline__head"><span class="tuc-timeline__title">A</span></div></li><li class="tuc-timeline__item"><div class="tuc-timeline__head"><span class="tuc-timeline__title">B</span></div></li></ol>
 <div class="tuc-prose" id="pr"><pre><code>npm run build // teste</code></pre></div>
 <pre id="resultado"></pre>
 <script>${readFileSync('dist/tucano.js', 'utf8')}</script>
@@ -183,6 +184,18 @@ body{margin:0;padding:16px;font-family:system-ui}
     }
     inst.control.remove(); nativo.remove();
     if (erro) throw new Error(erro);
+  });
+  t('linha do tempo desenha ponto no tom e tira o trilho do último', function () {
+    var itens = document.querySelectorAll('#tl .tuc-timeline__item');
+    var cor = document.createElement('span');
+    cor.style.color = 'var(--tuc-success)';
+    document.body.append(cor);
+    var sucesso = getComputedStyle(cor).color;
+    cor.remove();
+    if (getComputedStyle(document.getElementById('tl')).listStyleType !== 'none') throw new Error('lista com marcador');
+    if (getComputedStyle(itens[0], '::after').borderTopColor !== sucesso) throw new Error('ponto fora do tom');
+    if (getComputedStyle(itens[0], '::before').display === 'none') throw new Error('primeiro item sem trilho');
+    if (getComputedStyle(itens[1], '::before').display !== 'none') throw new Error('último item com trilho');
   });
   t('abas ligam aba e painel pelos papéis', function () {
     var abas = document.querySelectorAll('#tb .tuc-tabs__tab'), paineis = document.querySelectorAll('#tb .tuc-tabs__panel');
