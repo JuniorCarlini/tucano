@@ -943,7 +943,8 @@ sao nomes estaveis para o seu proprio CSS:
   tabela ou de bloco de código — use `.tuc-btn` com `is-outline`, `is-ghost`,
   `is-icon`, `is-sm`. Classe própria só para posicionar.
 - Não escreva o placeholder de um campo com máscara: ele sai do gabarito
-  sozinho. `data-tuc-mask="cpf"` já nasce com `000.000.000-00`.
+  sozinho. `data-tuc-mask="cpf"` já nasce com `000.000.000-00`, e
+  `data-tuc-mask="real"` com `R$ 0,00`.
 - Sanitize no servidor antes de publicar o que veio do editor com `|safe`. A
   peneira do editor protege o editor, não a publicação.
 - O `<dialog>` do modal e da gaveta precisa do atributo `hidden`? Não — mas o

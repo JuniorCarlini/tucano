@@ -3388,8 +3388,16 @@ var Tucano = (() => {
       if (!this.isCurrency && !this.templates && !this.opts.reveal) {
         throw new Error("[Mask] informe um formato ou gabarito");
       }
-      if (!node.getAttribute("placeholder") && this.templates && !this.isCurrency) {
-        node.placeholder = placeholderFromTemplate(this.templates);
+      if (!node.getAttribute("placeholder")) {
+        if (this.isCurrency) {
+          node.placeholder = applyCurrency("0", {
+            decimals: this.opts.decimals,
+            locale: this.opts.locale,
+            currency: this.opts.currency
+          });
+        } else if (this.templates) {
+          node.placeholder = placeholderFromTemplate(this.templates);
+        }
       }
       this._cleanups = [];
       this._wire();

@@ -386,6 +386,9 @@ dígitos da lista numerada saíam como rabiscos em 15px. Renderize o mapa de
 `000.000.000-00`, e com dois gabaritos vale o primeiro. Existe porque escrever
 à mão é trabalho que se esquece: a página tinha cinco campos com placeholder e
 um sem, justamente o de CPF/CNPJ. Só preenche o que o autor deixou vazio.
+Moeda não tem gabarito: o placeholder é o zero já formatado com as mesmas
+opções (`R$ 0,00`, `0,000` com `data-decimals="3"`, `US$ 0,00`). Sem ele o
+campo de valor nascia em branco e parecia campo comum.
 
 **Na página de docs, a instância só existe depois do `DOMContentLoaded`.** O
 script da própria página roda durante o parse; o boot do Tucano espera o

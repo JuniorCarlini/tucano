@@ -122,6 +122,12 @@ body{margin:0;padding:16px;font-family:system-ui}
   t('placeholder sai do gabarito', function () {
     if (document.getElementById('m').placeholder !== '000.000.000-00') throw new Error('sem placeholder');
   });
+  t('moeda nasce com o zero formatado de placeholder', function () {
+    // toLocaleString separa o simbolo com espaco inquebravel; compara normalizado.
+    // fromCharCode e nao \s: este codigo mora num template literal e perde a barra.
+    var p = document.getElementById('m2').placeholder.split(String.fromCharCode(160)).join(' ');
+    if (p !== 'R$ 0,00') throw new Error('placeholder: "' + p + '"');
+  });
   t('campo sensível ganha o olho', function () { svg('.tuc-field__eye'); });
   t('upload monta a zona', function () { svg('.tuc-upload'); });
   t('editor monta a barra e pinta o código', function () {

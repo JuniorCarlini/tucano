@@ -71,8 +71,16 @@ export class Mask {
     }
 
     // So preenche o que o autor deixou vazio: placeholder escrito a mao manda.
-    if (!node.getAttribute('placeholder') && this.templates && !this.isCurrency) {
-      node.placeholder = placeholderFromTemplate(this.templates);
+    // Moeda nao tem gabarito, entao o texto e o zero ja formatado — sem ele o
+    // campo nascia em branco e parecia campo comum ao lado do CPF.
+    if (!node.getAttribute('placeholder')) {
+      if (this.isCurrency) {
+        node.placeholder = applyCurrency('0', {
+          decimals: this.opts.decimals, locale: this.opts.locale, currency: this.opts.currency,
+        });
+      } else if (this.templates) {
+        node.placeholder = placeholderFromTemplate(this.templates);
+      }
     }
 
     this._cleanups = [];

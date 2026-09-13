@@ -48,6 +48,8 @@ projeto.
 
 ### Corrigido
 
+- Campo de moeda da máscara nascia sem placeholder e parecia campo comum.
+  Agora mostra o zero já formatado, como `R$ 0,00`.
 - As setas de trocar de mês do calendário estavam invisíveis e sem clique.
 - Botão feito com `<a>` saía sublinhado.
 - Upload, item perigoso do menu suspenso e campo inválido da máscara usavam
