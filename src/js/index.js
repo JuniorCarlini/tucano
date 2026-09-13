@@ -19,6 +19,9 @@ export * as mask from './core/mask.js';
 export * as color from './core/color.js';
 export * as dates from './core/dates.js';
 export { Popover } from './core/popover.js';
+// O helper e os ícones que os componentes usam por dentro — para quem monta um
+// botão ao lado deles não desenhar um segundo X ou um segundo copiar.
+export { icon, ICON_CHECK, ICON_COPY, ICON_X } from './core/dom.js';
 
 import { autoInit } from './components/datepicker.js';
 import { autoInit as autoInitSelect } from './components/select.js';

@@ -31,8 +31,8 @@ const files = {
   'index.html': [
     [/<b>\d+ KB<\/b> JS gzip/g, `<b>${js} KB</b> JS gzip`],
     [/<b>\d+ KB<\/b> CSS gzip/g, `<b>${css} KB</b> CSS gzip`],
-    [/<span class="ver">v[\d.]+<\/span>/g, `<span class="ver">v${v}</span>`],
-    [/<span class="ver">v[\d.]+ · \d+ KB<\/span>/g, `<span class="ver">v${v} · ${total} KB</span>`],
+    [/<span class="tuc-badge is-plain ver">v[\d.]+<\/span>/g, `<span class="tuc-badge is-plain ver">v${v}</span>`],
+    [/<span class="tuc-badge is-plain ver">v[\d.]+ · \d+ KB<\/span>/g, `<span class="tuc-badge is-plain ver">v${v} · ${total} KB</span>`],
     [/tucano@v[\d.]+/g, `tucano@v${v}`],
     [/(dist\/tucano(?:\.min)?\.(?:css|js))\?v=[\d.]+/g, `$1?v=${v}`],
   ],

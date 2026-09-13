@@ -508,6 +508,18 @@ As exceções são deliberadas: célula de dia e amostra de cor (o conteúdo é 
 próprio valor), opção de lista e de menu (papel e teclado próprios), campo sem
 caixa dentro de um controle, e o X da tag do select, que não cabe num botão.
 
+**A página de docs usa as peças da biblioteca, e o `<style>` dela é só layout.**
+Nota é `.tuc-alert is-info`, rótulo é `.tuc-label`, pílula e selo de versão são
+`.tuc-badge is-plain`, botão de tema e de menu é `.tuc-btn`, índice lateral é
+`.tuc-menu`, tabela de referência é `.tuc-table`, o copiar dos blocos é o
+`.tuc-copy` do `.tuc-prose`, e os ícones do script vêm de `Tucano.icon` e
+`Tucano.ICON_*`. Cada um deles tinha um segundo desenho no `<style>` — e dois
+viraram defeito: `.card label` desmontava todo `<label>` de componente dentro de
+um card, e o `th,td` global vazava para as tabelas de demonstração. Ao
+documentar algo novo, use a peça; se ela não servir, o problema é da peça. O selo
+da versão é procurado pelo `stamp.mjs` com a classe exata
+`tuc-badge is-plain ver`: mudou a marcação, muda a expressão junto.
+
 ## Antes de dizer que está pronto
 
 ```bash

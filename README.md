@@ -858,14 +858,14 @@ da viewport, a dica fecha em vez de ficar presa na tela.
 A cor sai por duas variáveis, e a seta lê as mesmas:
 
 ```css
-.tip-roxo { --tuc-tip-bg: #4f46e5; --tuc-tip-fg: #fff; }
+.tip-accent { --tuc-tip-bg: #4f46e5; --tuc-tip-fg: #fff; }
 ```
 
 ```html
 <button data-tuc-tip="Gera o PDF com o layout atual">Exportar</button>
 <button data-tuc-tip title="Vem do title">Do title</button>
 <button data-tuc-tip="..." data-placement="right-center" data-delay="600">
-<button data-tuc-tip="..." data-tip-class="tip-roxo">
+<button data-tuc-tip="..." data-tip-class="tip-accent">
 ```
 
 Aparece no ponteiro **e** no foco do teclado. No celular não existe hover, então

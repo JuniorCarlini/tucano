@@ -510,8 +510,8 @@ oposto e a seta acompanha. Se o gatilho sai da viewport, a dica fecha.
 
 Cor por variavel, e a seta acompanha:
 
-    .tip-roxo { --tuc-tip-bg: #4f46e5; --tuc-tip-fg: #fff; }
-    <button data-tuc-tip="..." data-tip-class="tip-roxo">
+    .tip-accent { --tuc-tip-bg: #4f46e5; --tuc-tip-fg: #fff; }
+    <button data-tuc-tip="..." data-tip-class="tip-accent">
 
 Aparece no ponteiro e no foco do teclado; no toque, tocar abre e tocar fora
 fecha. Escape sempre fecha.
@@ -880,7 +880,7 @@ Inventario extraido do codigo a cada build. Se algo nao esta aqui, nao existe.
   Tucano.init(no)           inicializa todo data-tuc-* dentro de `no`
   autoInitAccordions autoInitColorPickers autoInitDatePickers autoInitDrawers autoInitDropdowns autoInitEditors autoInitMasks autoInitModals autoInitPagination autoInitProse autoInitSelects autoInitTables autoInitTabs autoInitToasts autoInitTooltips autoInitUploads
     → um por componente, quando voce quer inicializar so um tipo
-  Accordion ColorPicker DatePicker Drawer Dropdown Editor FORMATS Mask Modal Pagination Popover Select Table Tabs Toast Tooltip Upload autoFormat confirm drawer highlight listenForEvents modal pageWindow pagination sanitize toast
+  Accordion ColorPicker DatePicker Drawer Dropdown Editor FORMATS ICON_CHECK ICON_COPY ICON_X Mask Modal Pagination Popover Select Table Tabs Toast Tooltip Upload autoFormat confirm drawer highlight icon listenForEvents modal pageWindow pagination sanitize toast
   Tucano.mask / .dates / .color   modulos utilitarios (ver secao Utilitarios)
 
   FORMATS (mascaras prontas): cpf cnpj cnpj-numerico cpf-cnpj phone mobile cep date time card currency real
