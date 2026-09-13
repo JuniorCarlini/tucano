@@ -1,0 +1,199 @@
+/*
+ * Layout do site de documentacao.
+ *
+ * So layout. Botao, menu, rotulo, nota, tabela, etiqueta e bloco de codigo sao
+ * as pecas da biblioteca — a pagina de docs e vitrine, e um segundo desenho aqui
+ * seria a contradicao mais visivel possivel. Cor de pagina (fundo, linha, texto
+ * de apoio) mora nas variaveis abaixo; cor de componente, nos tokens --tuc-*.
+ */
+
+:root {
+  --bg: #fbfbfa; --panel: #fff; --fg: #111110; --muted: #6f6f6b; --subtle: #a1a19c;
+  --line: #e8e8e5; --code: #f4f4f2; --accent: #4f46e5;
+  --side: 272px; --toc: 208px;
+}
+html.dark {
+  --bg: #0b0b0c; --panel: #141416; --fg: #f5f5f4; --muted: #a0a09b; --subtle: #6f6f6b;
+  --line: #262629; --code: #1a1a1d; --accent: #818cf8;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 32px; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 15px/1.7 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Inter, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; }
+code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .86em; }
+:not(pre) > code { background: var(--code); padding: 1px 5px; border-radius: 5px; }
+
+.i-sun { display: none; }
+html.dark .i-sun { display: block; }
+html.dark .i-moon { display: none; }
+
+/* ---------- marca e barra lateral ---------- */
+
+.brand { display: flex; align-items: center; gap: 9px; text-decoration: none; }
+.brand b { font-size: 18px; font-weight: 650; letter-spacing: -.02em; }
+.brand .bird { font-size: 20px; line-height: 1; }
+
+.side {
+  position: fixed; inset: 0 auto 0 0; width: var(--side); padding: 26px 18px 40px;
+  border-right: 1px solid var(--line); overflow-y: auto; background: var(--bg);
+  scrollbar-width: thin; scrollbar-color: var(--line) transparent;
+}
+.side__head { display: flex; align-items: center; justify-content: space-between; }
+.ver { margin: 10px 0 18px; font-family: ui-monospace, Menlo, monospace; }
+/* Pagina ainda nao escrita: fica no menu, apagada, para a estrutura ja aparecer. */
+.tuc-menu__item.is-soon { opacity: .42; cursor: default; }
+.tuc-menu__item.is-soon:hover { background: transparent; }
+
+.topbar { display: none; }
+
+/* ---------- conteudo ---------- */
+
+.main { margin-left: var(--side); padding: 72px 56px 160px; }
+.page {
+  display: grid; grid-template-columns: minmax(0, 1fr) var(--toc); gap: 64px;
+  max-width: 1160px; margin: 0 auto;
+}
+.doc { min-width: 0; max-width: 820px; }
+
+.eyebrow {
+  margin: 0 0 10px; font-size: 12px; font-weight: 650; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--accent);
+}
+.doc h1 { margin: 0; font-size: 40px; line-height: 1.12; font-weight: 680; letter-spacing: -.035em; }
+/* O paragrafo logo abaixo do titulo e a introducao da pagina. */
+.doc h1 + .lead, .intro { margin: 16px 0 0; font-size: 18px; color: var(--muted); max-width: 62ch; }
+.doc h2 {
+  margin: 80px 0 8px; padding-top: 28px; border-top: 1px solid var(--line);
+  font-size: 24px; font-weight: 660; letter-spacing: -.02em;
+}
+.doc h3 { margin: 40px 0 12px; font-size: 15px; font-weight: 650; letter-spacing: -.01em; }
+.lead { margin: 0 0 24px; color: var(--muted); max-width: 66ch; }
+.doc p { max-width: 70ch; }
+
+/* Nota e o .tuc-alert is-info; daqui so o respiro. */
+.doc .tuc-alert { margin: 24px 0; }
+.doc .tuc-alert b { color: var(--fg); }
+.doc .tuc-table-wrap { margin: 16px 0 8px; }
+.doc .tuc-table td { vertical-align: top; }
+
+/* Bloco de codigo: o .tuc-prose da biblioteca pinta e poe o copiar. */
+.doc-code { margin: 16px 0; }
+.doc-code pre { margin: 0; border: 1px solid var(--line); font-size: 12.5px; }
+
+/* ---------- demonstracao ---------- */
+
+.demo {
+  margin: 28px 0; padding: 36px; border: 1px solid var(--line); border-radius: 16px;
+  background: var(--panel);
+}
+.demo.is-hero { padding: 40px 48px; margin-top: 36px; background: radial-gradient(120% 100% at 0% 0%, color-mix(in oklab, var(--accent) 7%, var(--panel)), var(--panel) 60%); }
+.demo-grid { display: grid; gap: 28px 32px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.demo-grid.is-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.demo-cell { min-width: 0; }
+.demo-cell > h4 { margin: 0 0 4px; font-size: 13px; font-weight: 650; }
+.demo-cell > p { margin: 0 0 12px; font-size: 13px; color: var(--muted); }
+/* Saida so ocupa lugar quando tem valor: vazia, ela deixava um vao no exemplo. */
+.out:empty { display: none; }
+.out {
+  margin-top: 10px; min-height: 18px; font-family: ui-monospace, Menlo, monospace;
+  font-size: 11.5px; color: var(--subtle); word-break: break-all;
+}
+.bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+
+/* ---------- indice da pagina ---------- */
+
+.toc { position: sticky; top: 72px; align-self: start; max-height: calc(100vh - 96px); overflow-y: auto; }
+.toc__title {
+  margin: 0 0 8px; padding: 0 10px; font-size: 11px; font-weight: 650; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--subtle);
+}
+/* O indice e o .tuc-menu, mais compacto: sao ancoras, nao destinos. */
+.toc .tuc-menu__item { min-height: 30px; padding-block: 4px; font-size: 13px; color: var(--muted); }
+.toc .tuc-menu__item.is-active { color: var(--accent); }
+
+/* ---------- api ---------- */
+
+.api-line { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.api-line > span { color: var(--muted); font-size: 13px; }
+.api-line code { display: inline-block; margin: 0 4px 4px 0; }
+
+/* ---------- anterior e proxima ---------- */
+
+.pager { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 96px; }
+.pager__link {
+  display: flex; flex-direction: column; gap: 2px; padding: 16px 20px; text-decoration: none;
+  border: 1px solid var(--line); border-radius: 12px; background: var(--panel);
+  transition: border-color .15s;
+}
+.pager__link:hover { border-color: var(--accent); }
+.pager__link span { font-size: 12px; color: var(--muted); }
+.pager__link b { font-weight: 600; }
+.pager__link.is-next { text-align: right; grid-column: 2; }
+
+/* ---------- inicio ---------- */
+
+.hero { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 48px; align-items: center; }
+.hero h1 { font-size: 44px; line-height: 1.1; }
+.hero .intro { font-size: 19px; }
+.hero__actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+.pills { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 24px; }
+.pills .tuc-badge b { color: var(--fg); font-weight: 600; }
+.preview { padding: 28px; border: 1px solid var(--line); border-radius: 18px; background: var(--panel); box-shadow: 0 30px 60px -40px rgb(0 0 0 / .35); }
+.preview__title { margin: 0 0 18px; font-size: 15px; font-weight: 650; }
+.preview .field + .field { margin-top: 14px; }
+.preview .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
+.preview__foot { display: flex; justify-content: flex-end; gap: 8px; margin-top: 22px; }
+
+.steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 24px 0; }
+.step { padding: 20px; border: 1px solid var(--line); border-radius: 14px; background: var(--panel); }
+.step b { display: block; margin-bottom: 4px; }
+.step span { color: var(--muted); font-size: 14px; }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.link-card {
+  display: flex; flex-direction: column; gap: 4px; padding: 16px 18px; text-decoration: none;
+  border: 1px solid var(--line); border-radius: 12px; background: var(--panel); transition: border-color .15s;
+}
+a.link-card:hover { border-color: var(--accent); }
+.link-card b { font-weight: 600; }
+.link-card > span:not(.tuc-badge) { font-size: 13px; color: var(--muted); line-height: 1.5; }
+.link-card.is-soon { opacity: .6; }
+.link-card .tuc-badge { align-self: flex-start; margin-top: 6px; }
+
+/* ---------- telas menores ---------- */
+
+@media (max-width: 1240px) {
+  .page { grid-template-columns: minmax(0, 1fr); }
+  .toc { display: none; }
+  .hero { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 900px) {
+  :root { --side: 0px; }
+  .topbar {
+    position: sticky; top: 0; z-index: 60; display: flex; align-items: center; gap: 10px;
+    padding: 10px 16px; background: color-mix(in oklab, var(--bg) 88%, transparent);
+    backdrop-filter: saturate(180%) blur(12px); border-bottom: 1px solid var(--line);
+  }
+  .topbar .ver { margin: 0; }
+  .topbar__actions { display: flex; align-items: center; gap: 7px; margin-left: auto; }
+  .side {
+    inset: 53px 0 auto 0; width: auto; max-height: 75vh; border-right: 0;
+    border-bottom: 1px solid var(--line); padding: 12px 16px 20px; z-index: 55;
+    box-shadow: 0 12px 32px -16px rgb(0 0 0 / .35); display: none;
+  }
+  .side.is-open { display: block; }
+  .side .side__head, .side .ver { display: none; }
+  .main { margin-left: 0; padding: 36px 18px 100px; }
+  .doc h1, .hero h1 { font-size: 34px; }
+  .doc h2 { margin-top: 56px; }
+  .demo, .demo.is-hero { padding: 20px; }
+  .demo-grid, .demo-grid.is-3, .steps, .preview .row { grid-template-columns: minmax(0, 1fr); }
+  .pager { grid-template-columns: minmax(0, 1fr); }
+  .pager__link.is-next { grid-column: 1; }
+}
