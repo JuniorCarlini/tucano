@@ -20,6 +20,9 @@
   font-size: var(--tuc-text);
   line-height: 1;
   color: var(--tuc-fg);
+  /* Botao tambem e <a>: a paginacao, o "Ver componentes" da documentacao. Sem
+     isto o link herdava o sublinhado do navegador e virava texto com caixa. */
+  text-decoration: none;
   background: transparent;
   border: var(--tuc-border-width) solid transparent;
   border-radius: var(--tuc-radius-md);

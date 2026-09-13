@@ -562,6 +562,7 @@ input.tuc-switch.tuc-switch:is([aria-invalid='true'], :user-invalid):not(:checke
   font-size: var(--tuc-text);
   line-height: 1;
   color: var(--tuc-fg);
+  text-decoration: none;
   background: transparent;
   border: var(--tuc-border-width) solid transparent;
   border-radius: var(--tuc-radius-md);
