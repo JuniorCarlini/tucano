@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Modal — Tucano</title>
+<meta name="description" content="Modal sobre o &lt;dialog&gt; nativo, com top layer, foco preso e Esc, tons que mudam o brilho do fundo, confirmação que devolve promessa e modal escrito no template do Django.">
+<meta name="author" content="Junior Carlini">
+<link rel="canonical" href="https://juniorcarlini.github.io/tucano/modal/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)">
+<link rel="alternate" type="text/plain" href="../llms.txt" title="Referência da API para agentes de IA">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Tucano">
+<meta property="og:title" content="Modal — Tucano">
+<meta property="og:description" content="Modal sobre o &lt;dialog&gt; nativo, com top layer, foco preso e Esc, tons que mudam o brilho do fundo, confirmação que devolve promessa e modal escrito no template do Django.">
+<meta property="og:url" content="https://juniorcarlini.github.io/tucano/modal/">
+<meta property="og:image" content="https://juniorcarlini.github.io/tucano/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="pt_BR">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://juniorcarlini.github.io/tucano/og.png">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦜</text></svg>">
+
+<link rel="stylesheet" href="../dist/tucano.css?v=0.31.0">
+<link rel="stylesheet" href="../site/site.css?v=0.31.0">
+<!-- O tema e aplicado antes do primeiro quadro: sem isto a pagina piscava clara
+     para quem escolheu o escuro. -->
+<script>try{if(localStorage.getItem("tucano-tema")==="dark")document.documentElement.classList.add("dark")}catch{}</script>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="../"><span class="bird">🦜</span><b>Tucano</b></a>
+  <span class="tuc-badge is-plain ver">v0.31.0</span>
+  <div class="topbar__actions">
+    <button class="tuc-btn is-outline is-icon is-sm" data-tema aria-label="Alternar tema"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
+    <button class="tuc-btn is-outline is-icon is-sm" id="menu" aria-label="Abrir menu" aria-expanded="false" aria-controls="side"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  </div>
+</header>
+
+<aside class="side" id="side">
+  <div class="side__head">
+    <a class="brand" href="../"><span class="bird">🦜</span><b>Tucano</b></a>
+    <button class="tuc-btn is-outline is-icon is-sm" data-tema aria-label="Alternar tema"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
+  </div>
+  <span class="tuc-badge is-plain ver">v0.31.0 · 50 KB</span>
+  <nav class="tuc-menu" aria-label="Documentação">
+<div class="tuc-menu__section">Começar</div>
+    <a class="tuc-menu__item" href="../">Início e instalação</a>
+    <a class="tuc-menu__item" href="../changelog/">Changelog</a>
+<div class="tuc-menu__section">Campos</div>
+    <a class="tuc-menu__item" href="../form/">Formulário</a>
+    <a class="tuc-menu__item" href="../select/">Select</a>
+    <a class="tuc-menu__item" href="../datepicker/">Date picker</a>
+    <a class="tuc-menu__item" href="../mask/">Máscaras</a>
+    <a class="tuc-menu__item" href="../color/">Color picker</a>
+    <a class="tuc-menu__item" href="../choice/">Caixa, opção e chave</a>
+    <a class="tuc-menu__item" href="../upload/">Upload</a>
+    <a class="tuc-menu__item" href="../editor/">Editor de texto</a>
+<div class="tuc-menu__section">Ações</div>
+    <a class="tuc-menu__item" href="../button/">Botão</a>
+    <a class="tuc-menu__item" href="../dropdown/">Menu suspenso</a>
+<div class="tuc-menu__section">Avisos</div>
+    <a class="tuc-menu__item" href="../toast/">Toast</a>
+    <a class="tuc-menu__item" href="../alert/">Aviso</a>
+    <a class="tuc-menu__item" href="../tooltip/">Tooltip</a>
+    <a class="tuc-menu__item" href="../loading/">Carregando</a>
+    <a class="tuc-menu__item" href="../badge/">Etiqueta</a>
+<div class="tuc-menu__section">Diálogos</div>
+    <a class="tuc-menu__item is-active" href="../modal/" aria-current="page">Modal</a>
+    <a class="tuc-menu__item" href="../drawer/">Gaveta</a>
+<div class="tuc-menu__section">Navegação</div>
+    <a class="tuc-menu__item" href="../tabs/">Abas</a>
+    <a class="tuc-menu__item" href="../accordion/">Acordeão</a>
+    <a class="tuc-menu__item" href="../menu/">Menu lateral</a>
+    <a class="tuc-menu__item" href="../pagination/">Paginação</a>
+<div class="tuc-menu__section">Dados</div>
+    <a class="tuc-menu__item" href="../table/">Tabela</a>
+    <a class="tuc-menu__item" href="../timeline/">Linha do tempo</a>
+<div class="tuc-menu__section">Guias</div>
+    <a class="tuc-menu__item" href="../django/">Django</a>
+    <a class="tuc-menu__item" href="../theme/">Tema</a>
+    <a class="tuc-menu__item" href="../keyboard/">Teclado e acessibilidade</a>
+    <a class="tuc-menu__item" href="../ai/">Para agentes de IA</a>
+  </nav>
+</aside>
+
+<main class="main">
+  <article class="doc">
+<h1>Modal</h1>
+<p class="lead">Diálogo que se sobrepõe a tudo, com o fundo desfocado e um brilho da cor do tom. Feito sobre o
+   <code>&lt;dialog&gt;</code> nativo: é dele que vêm a camada acima de qualquer <code>z-index</code>, o foco
+   preso, o <code>Esc</code> e o foco devolvido a quem abriu — o componente só desenha a caixa e anima.</p>
+
+<div class="demo is-hero">
+  <div class="bar">
+    <button class="tuc-btn is-primary" onclick="Tucano.modal({title:'Publicar relatório?', text:'Quem tem acesso ao projeto passa a ver a versão nova.', actions:[{text:'Agora não'},{text:'Publicar', variant:'primary', onClick:()=>Tucano.toast.success('Relatório publicado')}]})">Abrir um modal</button>
+    <button class="tuc-btn is-outline" onclick="Tucano.confirm({title:'Excluir contrato?', text:'Esta ação não pode ser desfeita.', confirm:'Excluir'}).then(ok=>Tucano.toast[ok?'success':'info'](ok?'Contrato excluído':'Nada foi excluído'))">Confirmar exclusão</button>
+    <button class="tuc-btn is-outline" data-tuc-modal="#modal-template">Escrito no HTML</button>
+  </div>
+</div>
+
+<dialog class="tuc-modal is-md" id="modal-template" aria-labelledby="modal-template-title">
+  <div class="tuc-modal__panel">
+    <div class="tuc-modal__top">
+      <div class="tuc-modal__header">
+        <p class="tuc-modal__title" id="modal-template-title">Editar contato</p>
+        <p class="tuc-modal__text">Este <code>&lt;dialog&gt;</code> já estava na página. É o caminho para um formulário renderizado pelo servidor.</p>
+      </div>
+      <button type="button" class="tuc-btn is-ghost is-icon is-sm tuc-modal__close" aria-label="Fechar" data-tuc-modal-close><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="tuc-modal__body">
+      <label class="tuc-label" for="modal-template-nome">Nome</label>
+      <input type="text" class="tuc-input" id="modal-template-nome" value="Marina Duarte">
+    </div>
+    <div class="tuc-modal__footer">
+      <button type="button" class="tuc-btn is-outline" data-tuc-modal-close>Cancelar</button>
+      <button type="button" class="tuc-btn is-primary" data-tuc-modal-close>Salvar</button>
+    </div>
+  </div>
+</dialog>
+
+<h2 id="exemplos">Exemplos</h2>
+<p class="lead">Todos abaixo são o mesmo <code>Tucano.modal()</code> com opções diferentes.</p>
+
+<div class="demo">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <h4>Tamanhos</h4>
+      <p><code>size</code> define a largura máxima da caixa; <code>md</code> é o padrão.</p>
+      <div class="bar">
+        <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Pequeno', text:'22rem de largura máxima.', size:'sm'})">sm</button>
+        <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Médio', text:'30rem — o padrão.', size:'md'})">md</button>
+        <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Grande', text:'44rem, para tabela ou formulário largo.', size:'lg'})">lg</button>
+        <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Tela cheia', text:'Ocupa a tela toda, com uma folga de 1rem.', size:'full', actions:[{text:'Fechar'}]})">full</button>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Tons</h4>
+      <p><code>tone</code> muda o brilho do fundo e a aura da caixa.</p>
+      <div class="bar">
+        <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Padrão', text:'Brilho na cor de destaque.', tone:'default'})">default</button>
+        <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Excluir contrato', text:'Esta ação não pode ser desfeita.', tone:'danger'})">danger</button>
+        <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Tudo certo', text:'Importação concluída.', tone:'success'})">success</button>
+        <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Atenção', text:'Há pendências neste contrato.', tone:'warning'})">warning</button>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Confirmação com promessa</h4>
+      <p><code>Tucano.confirm()</code> resolve <code>true</code> ou <code>false</code>; fechar por fora é recusa.</p>
+      <div class="bar">
+        <button class="tuc-btn is-outline is-sm" onclick="Tucano.confirm({title:'Excluir contrato?', text:'Esta ação não pode ser desfeita.', confirm:'Excluir'}).then(ok=>Tucano.toast[ok?'success':'info'](ok?'Contrato excluído':'Nada foi excluído'))">Perigo, o padrão</button>
+        <button class="tuc-btn is-outline is-sm" onclick="Tucano.confirm({title:'Enviar cobrança?', text:'O cliente recebe o boleto por e-mail.', tone:'default', confirm:'Enviar', cancel:'Voltar'}).then(ok=>Tucano.toast[ok?'success':'info'](ok?'Cobrança enviada':'Envio cancelado'))">Tom neutro</button>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Folha no celular</h4>
+      <p><code>sheet: true</code> sobe do rodapé em telas estreitas. Estreite a janela para ver.</p>
+      <div class="bar">
+        <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Folha', text:'Abaixo de 40rem a caixa encosta no rodapé e desliza para cima.', sheet:true, actions:[{text:'Entendi', variant:'primary'}]})">Abrir como folha</button>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Sem fechar por fora</h4>
+      <p><code>closeOnBackdrop: false</code> ignora o clique no fundo; <code>closable: false</code> tira o X e o <code>Esc</code>.</p>
+      <div class="bar">
+        <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Fundo desligado', text:'Clicar fora não fecha. O X e o Esc continuam.', closeOnBackdrop:false})">Só o fundo</button>
+        <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Importando planilha', text:'Só o botão fecha — útil quando há algo em andamento.', closable:false, closeOnBackdrop:false, actions:[{text:'Fechar'}]})">Preso</button>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Motivo do fechamento</h4>
+      <p><code>onClose</code> recebe por onde a pessoa saiu. Feche de jeitos diferentes.</p>
+      <div class="bar">
+        <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Feche como quiser', text:'Pelo X, pelo Esc, pelo fundo ou pelo botão — o aviso diz qual foi.', actions:[{text:'Fechar'}], onClose:(reason)=>Tucano.toast.info('Motivo: ' + reason)})">Abrir</button>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Conteúdo livre</h4>
+      <p><code>content(nó)</code> põe qualquer elemento no corpo, que rola quando passa da altura.</p>
+      <div class="bar">
+        <button class="tuc-btn is-outline is-sm" onclick="modalFormulario()">Com formulário</button>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Ação que não fecha</h4>
+      <p><code>closes: false</code> numa ação mantém o modal aberto depois do clique.</p>
+      <div class="bar">
+        <button class="tuc-btn is-outline is-sm" onclick="modalEtapas()">Assistente em etapas</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h2 id="uso">Como usar</h2>
+<p class="lead">Há dois caminhos. Pelo JavaScript, o modal é montado na hora, entra no <code>&lt;body&gt;</code> ao abrir e sai
+   ao fechar. Pelo template, o <code>&lt;dialog&gt;</code> já está na página e o componente só abre, fecha e anima.</p>
+
+<h3>Em JavaScript</h3>
+<div class="tuc-prose doc-code"><pre><code>Tucano.modal({
+  title: 'Excluir contrato',
+  text: 'Esta ação não pode ser desfeita.',
+  tone: 'danger',     // default | danger | success | warning
+  size: 'md',         // sm | md | lg | full
+  sheet: true,        // no celular sobe do rodapé
+  actions: [
+    { text: 'Cancelar', variant: 'outline' },
+    { text: 'Excluir', variant: 'danger', onClick: () =&gt; excluir() },
+  ],
+  onClose: (reason, modal) =&gt; console.log(reason),
+});
+
+// Só com texto, o atalho aceita uma string
+Tucano.modal('Arquivo enviado.');</code></pre></div>
+
+<p>O atalho <code>Tucano.modal()</code> cria e abre num passo, e devolve a instância. Para montar antes e abrir depois,
+   use a classe:</p>
+<div class="tuc-prose doc-code"><pre><code>const m = new Tucano.Modal({ title: 'Novo contato', size: 'lg' });
+m.content(formulario);   // qualquer nó, ou um array de nós
+m.open();
+m.close();               // anima a saída e chama onClose(reason)</code></pre></div>
+
+<h3>Confirmação</h3>
+<p>O caso mais comum de modal num CRUD é perguntar antes de apagar. <code>Tucano.confirm()</code> devolve uma promessa, e o
+   código continua lendo de cima para baixo:</p>
+<div class="tuc-prose doc-code"><pre><code>if (await Tucano.confirm({ title: 'Excluir contrato?', text: 'Esta ação não pode ser desfeita.', confirm: 'Excluir' })) {
+  excluir();
+}</code></pre></div>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Opção</th><th>Padrão</th><th>Para quê</th></tr></thead>
+  <tbody>
+    <tr><td><code>confirm</code></td><td><code>'Confirmar'</code></td><td>Rótulo do botão que resolve <code>true</code></td></tr>
+    <tr><td><code>cancel</code></td><td><code>'Cancelar'</code></td><td>Rótulo do botão que resolve <code>false</code></td></tr>
+    <tr><td><code>tone</code></td><td><code>'danger'</code></td><td>Com <code>danger</code> o botão de confirmar é vermelho; com qualquer outro tom, primário</td></tr>
+  </tbody>
+</table></div>
+<p>As demais opções do modal valem aqui também, menos <code>actions</code>, que o <code>confirm()</code> monta sozinho. Um
+   <code>onClose</code> passado continua sendo chamado.</p>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Fechar por fora é recusa, não limbo</p><p>Pelo X, pelo <code>Esc</code> ou pelo fundo, a promessa resolve <code>false</code>. Sem isso ela ficaria pendente para sempre, e o <code>await</code> nunca voltaria.</p></div></div>
+
+<h3>Ações</h3>
+<p>Cada item de <code>actions</code> vira um <code>.tuc-btn</code> no rodapé, na ordem em que foi escrito.</p>
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Chave</th><th>Padrão</th><th>Para quê</th></tr></thead>
+  <tbody>
+    <tr><td><code>text</code></td><td>—</td><td>Rótulo do botão</td></tr>
+    <tr><td><code>variant</code></td><td><code>'outline'</code></td><td>Variante do botão: <code>primary</code>, <code>outline</code>, <code>ghost</code>, <code>danger</code>…</td></tr>
+    <tr><td><code>onClick</code></td><td>—</td><td>Recebe a instância do modal</td></tr>
+    <tr><td><code>closes</code></td><td><code>true</code></td><td><code>false</code> mantém o modal aberto depois do clique</td></tr>
+  </tbody>
+</table></div>
+
+<h2 id="template">Escrito no template</h2>
+<p class="lead">Quando o conteúdo vem renderizado pelo servidor — um formulário do Django, com erros e <code>csrf_token</code> —,
+   o <code>&lt;dialog&gt;</code> mora no template. Todo <code>dialog.tuc-modal</code> é adotado no carregamento e a cada
+   <code>htmx:afterSwap</code>; abrir não o insere e fechar não o remove, porque o nó é de quem escreveu o HTML.</p>
+
+<div class="tuc-prose doc-code"><pre><code>&lt;dialog class="tuc-modal is-md" id="excluir" aria-labelledby="excluir-titulo"&gt;
+  &lt;form class="tuc-modal__panel" method="post" action="{% url 'contrato-excluir' contrato.pk %}"&gt;
+    {% csrf_token %}
+    &lt;div class="tuc-modal__top"&gt;
+      &lt;div class="tuc-modal__header"&gt;
+        &lt;h2 class="tuc-modal__title" id="excluir-titulo"&gt;Excluir contrato?&lt;/h2&gt;
+        &lt;p class="tuc-modal__text"&gt;Esta ação não pode ser desfeita.&lt;/p&gt;
+      &lt;/div&gt;
+      &lt;button type="button" class="tuc-btn is-ghost is-icon is-sm tuc-modal__close" aria-label="Fechar" data-tuc-modal-close&gt;…&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class="tuc-modal__footer"&gt;
+      &lt;button type="button" class="tuc-btn is-outline" data-tuc-modal-close&gt;Cancelar&lt;/button&gt;
+      &lt;button class="tuc-btn is-danger"&gt;Excluir&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/form&gt;
+&lt;/dialog&gt;
+
+&lt;button class="tuc-btn is-outline" data-tuc-modal="#excluir"&gt;Excluir&lt;/button&gt;</code></pre></div>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Atributo</th><th>Onde</th><th>Para quê</th></tr></thead>
+  <tbody>
+    <tr><td><code>data-tuc-modal="#id"</code></td><td>Gatilho</td><td>Abre o <code>&lt;dialog&gt;</code> do seletor ao clicar</td></tr>
+    <tr><td><code>data-tuc-modal-close</code></td><td>Botão dentro do diálogo</td><td>Fecha, com o motivo <code>'botao'</code></td></tr>
+    <tr><td><code>data-closable="false"</code></td><td><code>&lt;dialog&gt;</code></td><td>O <code>Esc</code> deixa de fechar</td></tr>
+    <tr><td><code>data-backdrop="false"</code></td><td><code>&lt;dialog&gt;</code></td><td>O clique no fundo deixa de fechar</td></tr>
+  </tbody>
+</table></div>
+
+<p>As classes são as mesmas que o JavaScript monta: <code>__panel</code> é a caixa, <code>__top</code> guarda o
+   <code>__header</code> (com <code>__title</code> e <code>__text</code>) e o <code>__close</code>, <code>__body</code> é o
+   corpo que rola e <code>__footer</code> alinha as ações à direita. Tamanho e tom vão como classe no próprio
+   <code>&lt;dialog&gt;</code>: <code>is-lg</code>, <code>is-danger</code>, <code>is-sheet</code>.</p>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">No template, o X e o nome do diálogo são seus</p><p>Pelo JavaScript o botão de fechar e o <code>aria-labelledby</code> saem prontos. No <code>&lt;dialog&gt;</code> escrito à mão, escreva os dois: sem o X a pessoa depende do <code>Esc</code>, e sem o <code>aria-labelledby</code> o leitor de tela anuncia só "diálogo".</p></div></div>
+
+<h3>Confirmar antes de enviar um formulário</h3>
+<p>Para um formulário de exclusão que já existe na página, o <code>confirm()</code> intercepta o envio e deixa passar só com o sim:</p>
+<div class="tuc-prose doc-code"><pre><code>document.querySelector('#excluir-contrato').addEventListener('submit', async (e) =&gt; {
+  e.preventDefault();
+  const ok = await Tucano.confirm({ title: 'Excluir contrato?', confirm: 'Excluir' });
+  if (ok) e.target.submit();
+});</code></pre></div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">O &lt;dialog&gt; fechado precisa voltar a display: none — e a biblioteca já faz isso</p><p>A regra do modal declara <code>display: grid</code>, que vence a folha do navegador. Sem <code>.tuc-modal:not([open]) { display: none }</code>, um <code>&lt;dialog&gt;</code> parado no template ficaria renderizado, fixo e transparente sobre a página inteira: nada aparece, e nenhum clique funciona. Por isso ele não precisa de <code>hidden</code>.</p></div></div>
+
+<h2 id="tons">Tons e brilho</h2>
+<p class="lead">O fundo não é só escuro: um brilho radial atrás da caixa separa o diálogo do que ficou embaixo, e o desfoque tira a
+   página do foco. O tom troca a cor desse brilho e da aura em volta da caixa — não a cor dos botões, que continua sendo
+   escolha de cada ação.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th><code>tone</code></th><th>Classe</th><th>Cor do brilho</th></tr></thead>
+  <tbody>
+    <tr><td><code>default</code></td><td><code>is-default</code></td><td><code>--tuc-accent</code> — trocar o destaque troca o brilho</td></tr>
+    <tr><td><code>danger</code></td><td><code>is-danger</code></td><td><code>--tuc-danger-fill</code></td></tr>
+    <tr><td><code>success</code></td><td><code>is-success</code></td><td><code>--tuc-success</code></td></tr>
+    <tr><td><code>warning</code></td><td><code>is-warning</code></td><td><code>--tuc-warning</code></td></tr>
+  </tbody>
+</table></div>
+
+<h2 id="tamanhos">Tamanhos</h2>
+<p class="lead">A caixa ocupa a largura disponível até o limite do tamanho, e o corpo rola quando o conteúdo passa da altura da tela.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th><code>size</code></th><th>Largura máxima</th><th>Para quê</th></tr></thead>
+  <tbody>
+    <tr><td><code>sm</code></td><td><code>22rem</code></td><td>Confirmação curta</td></tr>
+    <tr><td><code>md</code></td><td><code>30rem</code></td><td>O padrão: aviso, formulário de poucos campos</td></tr>
+    <tr><td><code>lg</code></td><td><code>44rem</code></td><td>Tabela ou formulário largo</td></tr>
+    <tr><td><code>full</code></td><td>a tela, com folga de <code>1rem</code></td><td>Largura e altura inteiras: editor, visualização de documento</td></tr>
+  </tbody>
+</table></div>
+
+<p>Abaixo de <code>40rem</code> os botões do rodapé ocupam a linha, para o alvo de toque crescer. Com <code>sheet</code>, a caixa
+   perde as bordas de baixo, encosta no rodapé e respeita a área segura do iPhone. É opcional porque nem todo modal quer
+   virar gaveta no celular.</p>
+
+<h2 id="teclado">Teclado e acessibilidade</h2>
+<p class="lead">O <code>showModal()</code> põe o diálogo na <i>top layer</i> e deixa o resto da página inerte: o foco não escapa
+   para trás dele, e ao fechar volta para quem abriu. Nada disso é JavaScript nosso — é o elemento nativo.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Tecla</th><th>Ação</th></tr></thead>
+  <tbody>
+    <tr><td><code>Tab</code> <code>Shift</code>+<code>Tab</code></td><td>Anda entre os controles do diálogo, sem voltar para a página</td></tr>
+    <tr><td><code>Enter</code> <code>Espaço</code></td><td>Aciona o botão focado</td></tr>
+    <tr><td><code>Esc</code></td><td>Fecha com animação e devolve o foco; não faz nada com <code>closable: false</code></td></tr>
+  </tbody>
+</table></div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Por que &lt;dialog&gt;, e não uma div com z-index</p><p>A <i>top layer</i> fica acima de qualquer <code>z-index</code> e é imune a ancestral com <code>overflow: hidden</code> ou <code>transform</code> — os três motivos de um modal artesanal aparecer cortado ou por baixo. O <code>Esc</code> nativo fecha na hora, sem animação; o componente intercepta o <code>cancel</code> para fechar pelo mesmo caminho dos outros, que anima e informa o motivo.</p></div></div>
+
+<p>Com <code>title</code>, o diálogo ganha <code>aria-labelledby</code> apontando para ele, e o leitor de tela anuncia o título ao
+   abrir. O X é um <code>.tuc-btn</code> com <code>aria-label="Fechar"</code>. Com <code>prefers-reduced-motion</code>, a entrada
+   dura 100 ms e não cresce.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Motivo em <code>onClose</code></th><th>Quando</th></tr></thead>
+  <tbody>
+    <tr><td><code>'botao'</code></td><td>O X, ou um <code>data-tuc-modal-close</code> no template</td></tr>
+    <tr><td><code>'action'</code></td><td>Um botão de <code>actions</code></td></tr>
+    <tr><td><code>'escape'</code></td><td>A tecla <code>Esc</code></td></tr>
+    <tr><td><code>'fundo'</code></td><td>Clique fora da caixa</td></tr>
+    <tr><td><code>'api'</code></td><td><code>close()</code> chamado sem argumento</td></tr>
+  </tbody>
+</table></div>
+
+<p>O modal e a <a href="../drawer/">gaveta</a> dividem essa mecânica: uma correção feita num deles vale para o outro.</p>
+
+<h2 id="api">API</h2>
+<p class="lead">Gerada do código a cada build — se algo não está aqui, não existe.</p>
+<div class="api-line"><span>Marcação</span><div><code>dialog.tuc-modal</code> <code>[data-tuc-modal-close]</code> <code>[data-tuc-modal]</code></div></div>
+<div class="api-line"><span>Em JS</span><div><code>new Tucano.Modal(opcoes)</code> <code>Tucano.modal()</code> <code>Tucano.confirm()</code></div></div>
+<div class="api-line"><span>Atributos</span><div><code>data-backdrop</code> <code>data-closable</code> <code>data-tuc-modal</code></div></div>
+<div class="api-line"><span>Métodos</span><div><code>open</code> <code>close</code> <code>content</code></div></div>
+<h3>Opções</h3>
+<div class="tuc-table-wrap"><table class="tuc-table"><thead><tr><th>Opção</th><th>Padrão</th><th>Para quê</th></tr></thead><tbody>
+<tr><td><code>title</code></td><td><code>null</code></td><td></td></tr>
+<tr><td><code>text</code></td><td><code>''</code></td><td></td></tr>
+<tr><td><code>size</code></td><td><code>'md'</code></td><td>sm | md | lg | full</td></tr>
+<tr><td><code>tone</code></td><td><code>'default'</code></td><td>default | danger | success | warning</td></tr>
+<tr><td><code>sheet</code></td><td><code>false</code></td><td>no celular sobe do rodape em vez de surgir no centro</td></tr>
+<tr><td><code>closable</code></td><td><code>true</code></td><td>botao X e Escape</td></tr>
+<tr><td><code>closeOnBackdrop</code></td><td><code>true</code></td><td></td></tr>
+<tr><td><code>actions</code></td><td><code>null</code></td><td>[{ text, variant, onClick, closes }] — closes:false mantem aberto</td></tr>
+<tr><td><code>onClose</code></td><td><code>null</code></td><td></td></tr>
+<tr><td><code>className</code></td><td><code>''</code></td><td></td></tr>
+</tbody></table></div>
+
+
+<nav class="pager" aria-label="Paginação da documentação"><a class="tuc-btn is-outline is-lg pager__prev" href="../badge/" aria-label="Página anterior: Etiqueta"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Etiqueta</a><a class="tuc-btn is-outline is-lg pager__next" href="../drawer/" aria-label="Próxima página: Gaveta">Gaveta<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></a></nav>
+  </article>
+</main>
+
+<script src="../dist/tucano.js?v=0.31.0"></script>
+<script src="../site/site.js?v=0.31.0"></script>
+<script>
+  // Conteúdo livre: o corpo recebe um nó montado aqui.
+  function modalFormulario() {
+    const corpo = document.createElement('div');
+    corpo.innerHTML = '<label class="tuc-label" for="modal-form-nome">Nome</label>'
+      + '<input type="text" class="tuc-input" id="modal-form-nome" placeholder="Nome completo">'
+      + '<label class="tuc-label" for="modal-form-email" style="margin-top:12px">E-mail</label>'
+      + '<input type="email" class="tuc-input" id="modal-form-email" placeholder="nome@empresa.com.br">';
+    new Tucano.Modal({
+      title: 'Novo contato',
+      text: 'O corpo recebe qualquer nó — aqui, dois campos.',
+      actions: [
+        { text: 'Cancelar' },
+        { text: 'Salvar', variant: 'primary', onClick: () => Tucano.toast.success('Contato salvo') },
+      ],
+    }).content(corpo).open();
+  }
+
+  // closes: false mantém o modal aberto; o corpo é trocado a cada etapa.
+  function modalEtapas() {
+    const etapas = ['Escolha o plano.', 'Informe os dados de cobrança.', 'Revise e confirme.'];
+    let atual = 0;
+    const texto = () => {
+      const p = document.createElement('p');
+      p.textContent = `Etapa ${atual + 1} de ${etapas.length}: ${etapas[atual]}`;
+      return p;
+    };
+    const m = new Tucano.Modal({
+      title: 'Assinatura',
+      actions: [
+        { text: 'Cancelar' },
+        { text: 'Próxima etapa', variant: 'primary', closes: false, onClick: (modal) => {
+          if (atual < etapas.length - 1) { atual++; modal.content(texto()); }
+          else { modal.close('action'); Tucano.toast.success('Assinatura concluída'); }
+        } },
+      ],
+    });
+    m.content(texto()).open();
+  }
+</script>
+</body>
+</html>

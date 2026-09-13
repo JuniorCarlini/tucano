@@ -1,0 +1,230 @@
+<!--
+title: Abas
+component: tabs
+description: Abas desenhadas no template, com os papéis de tab e tabpanel e o teclado do ARIA APG, variante segmentada da altura de um campo e ativação manual para painel que carrega por HTMX.
+-->
+<h1>Abas</h1>
+<p class="lead">O template já traz a lista desenhada, a aba inicial marcada e os outros painéis com <code>hidden</code> — a página
+   nasce certa antes do script. O JavaScript põe o que o HTML não dá: os papéis que fazem o leitor de tela anunciar
+   "aba, 2 de 4", a ligação entre aba e painel e o teclado, em que a lista é uma parada só do <code>Tab</code>.</p>
+
+<div class="demo is-hero">
+  <div class="tuc-tabs" data-tuc-tabs id="tabs-cliente">
+    <div class="tuc-tabs__list">
+      <button class="tuc-tabs__tab" aria-selected="true">Dados</button>
+      <button class="tuc-tabs__tab">Endereço</button>
+      <button class="tuc-tabs__tab">Faturas <span class="tuc-badge is-plain">3</span></button>
+      <button class="tuc-tabs__tab" disabled>Histórico</button>
+    </div>
+    <div class="tuc-tabs__panel">
+      <div class="demo-grid">
+        <div class="demo-cell"><label class="tuc-label" for="tabs-cliente-nome">Razão social</label><input type="text" class="tuc-input" id="tabs-cliente-nome" value="Tucano Comércio Ltda"></div>
+        <div class="demo-cell"><label class="tuc-label" for="tabs-cliente-doc">CNPJ</label><input type="text" id="tabs-cliente-doc" data-tuc-mask="cnpj" value="11222333000181"></div>
+      </div>
+    </div>
+    <div class="tuc-tabs__panel" hidden>
+      <div class="demo-grid">
+        <div class="demo-cell"><label class="tuc-label" for="tabs-cliente-cep">CEP</label><input type="text" id="tabs-cliente-cep" data-tuc-mask="cep" value="01310100"></div>
+        <div class="demo-cell"><label class="tuc-label" for="tabs-cliente-cidade">Cidade</label><input type="text" class="tuc-input" id="tabs-cliente-cidade" value="São Paulo"></div>
+      </div>
+    </div>
+    <div class="tuc-tabs__panel" hidden>
+      <p>Três faturas em aberto. O painel é qualquer HTML, inclusive o que chega por HTMX.</p>
+    </div>
+    <div class="tuc-tabs__panel" hidden></div>
+  </div>
+</div>
+
+<h2 id="exemplos">Exemplos</h2>
+<p class="lead">A mesma marcação, com uma classe ou um atributo a mais.</p>
+
+<div class="demo">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <h4>Segmentadas</h4>
+      <p><code>is-segmented</code> tem a altura de um campo, para trocar a visão de uma lista ao lado de um filtro.</p>
+      <div class="tuc-tabs is-segmented" data-tuc-tabs id="tabs-segmentadas">
+        <div class="tuc-tabs__list">
+          <button class="tuc-tabs__tab" aria-selected="true">Todos</button>
+          <button class="tuc-tabs__tab">Pendentes</button>
+          <button class="tuc-tabs__tab">Pagos</button>
+        </div>
+        <div class="tuc-tabs__panel"><p>128 contratos.</p></div>
+        <div class="tuc-tabs__panel" hidden><p>12 aguardando pagamento.</p></div>
+        <div class="tuc-tabs__panel" hidden><p>116 quitados.</p></div>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Segmentadas ao lado de um campo</h4>
+      <p>Borda e respiro somam a altura do controle: a linha não desalinha.</p>
+      <div class="bar">
+        <div class="tuc-tabs is-segmented" data-tuc-tabs id="tabs-filtro">
+          <div class="tuc-tabs__list">
+            <button class="tuc-tabs__tab" aria-selected="true">Dia</button>
+            <button class="tuc-tabs__tab">Semana</button>
+            <button class="tuc-tabs__tab">Mês</button>
+          </div>
+        </div>
+        <input type="search" class="tuc-input" id="tabs-filtro-busca" placeholder="Buscar..." aria-label="Buscar" style="width:auto;flex:1">
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Ativação manual</h4>
+      <p><code>data-manual="true"</code>: as setas só movem o foco, e <code>Enter</code> ou <code>Espaço</code> abrem.</p>
+      <div class="tuc-tabs" data-tuc-tabs data-manual="true" id="tabs-manual">
+        <div class="tuc-tabs__list">
+          <button class="tuc-tabs__tab" aria-selected="true">Resumo</button>
+          <button class="tuc-tabs__tab">Cobranças</button>
+          <button class="tuc-tabs__tab">Anexos</button>
+        </div>
+        <div class="tuc-tabs__panel"><p>Aqui entraria o painel carregado por HTMX.</p></div>
+        <div class="tuc-tabs__panel" hidden><p>Uma requisição por aba aberta, não por aba atravessada.</p></div>
+        <div class="tuc-tabs__panel" hidden><p>Nenhum anexo.</p></div>
+      </div>
+      <div class="out" id="tabs-manual-log"></div>
+    </div>
+    <div class="demo-cell">
+      <h4>Com ícone e contador</h4>
+      <p>O <code>svg</code> e a <code>.tuc-badge is-plain</code> dentro da aba seguem a cor dela.</p>
+      <div class="tuc-tabs" data-tuc-tabs id="tabs-icones">
+        <div class="tuc-tabs__list">
+          <button class="tuc-tabs__tab" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/></svg>Painel</button>
+          <button class="tuc-tabs__tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v16H4zM4 9h16M9 20V9"/></svg>Tarefas <span class="tuc-badge is-plain">7</span></button>
+          <button class="tuc-tabs__tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15a3 3 0 100-6 3 3 0 000 6zM19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg>Ajustes</button>
+        </div>
+        <div class="tuc-tabs__panel"><p>Visão geral do projeto.</p></div>
+        <div class="tuc-tabs__panel" hidden><p>Sete tarefas abertas.</p></div>
+        <div class="tuc-tabs__panel" hidden><p>Preferências do projeto.</p></div>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Muitas abas</h4>
+      <p>A lista rola na horizontal em vez de quebrar em duas linhas; a aba focada pelas setas entra na tela.</p>
+      <div class="tuc-tabs" data-tuc-tabs id="tabs-meses">
+        <div class="tuc-tabs__list">
+          <button class="tuc-tabs__tab">Janeiro</button><button class="tuc-tabs__tab">Fevereiro</button>
+          <button class="tuc-tabs__tab">Março</button><button class="tuc-tabs__tab">Abril</button>
+          <button class="tuc-tabs__tab">Maio</button><button class="tuc-tabs__tab">Junho</button>
+          <button class="tuc-tabs__tab">Julho</button><button class="tuc-tabs__tab" aria-selected="true">Agosto</button>
+        </div>
+        <div class="tuc-tabs__panel" hidden><p>Janeiro.</p></div><div class="tuc-tabs__panel" hidden><p>Fevereiro.</p></div>
+        <div class="tuc-tabs__panel" hidden><p>Março.</p></div><div class="tuc-tabs__panel" hidden><p>Abril.</p></div>
+        <div class="tuc-tabs__panel" hidden><p>Maio.</p></div><div class="tuc-tabs__panel" hidden><p>Junho.</p></div>
+        <div class="tuc-tabs__panel" hidden><p>Julho.</p></div><div class="tuc-tabs__panel"><p>Agosto — a aba marcada no template.</p></div>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Aba desativada</h4>
+      <p><code>disabled</code> ou <code>aria-disabled="true"</code>: não abre, e as setas pulam por ela.</p>
+      <div class="tuc-tabs" data-tuc-tabs id="tabs-desativada">
+        <div class="tuc-tabs__list">
+          <button class="tuc-tabs__tab" aria-selected="true">Rascunho</button>
+          <button class="tuc-tabs__tab" aria-disabled="true">Revisão</button>
+          <button class="tuc-tabs__tab">Publicado</button>
+        </div>
+        <div class="tuc-tabs__panel"><p>Em edição.</p></div>
+        <div class="tuc-tabs__panel" hidden><p>Revisão.</p></div>
+        <div class="tuc-tabs__panel" hidden><p>No ar.</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h2 id="uso">Como usar</h2>
+<p class="lead">Escreva as classes, <code>aria-selected="true"</code> na aba inicial e <code>hidden</code> nos outros painéis. As
+   abas e os painéis casam pela ordem: a terceira aba abre o terceiro painel.</p>
+
+<pre data-code="html">
+<div class="tuc-tabs" data-tuc-tabs>
+  <div class="tuc-tabs__list">
+    <button class="tuc-tabs__tab" aria-selected="true">Dados</button>
+    <button class="tuc-tabs__tab">Endereço</button>
+  </div>
+  <div class="tuc-tabs__panel">…</div>
+  <div class="tuc-tabs__panel" hidden>…</div>
+</div>
+</pre>
+
+<p>Sem <code>aria-selected</code> em nenhuma, abre a primeira aba ativa. O script dá <code>type="button"</code> às abas que não têm
+   <code>type</code> — sem isso, trocar de aba dentro de um <code>&lt;form&gt;</code> enviaria o formulário —, cria os
+   <code>id</code> que faltam e liga aba e painel por <code>aria-controls</code> e <code>aria-labelledby</code>.</p>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Por que as classes vêm do template, e não do script</p><p>Assim a lista já nasce desenhada no primeiro quadro, sem bloco de espera e sem pulo quando o JavaScript chega. Pelo mesmo motivo o <code>hidden</code> dos painéis é obrigatório: sem ele, todos apareceriam empilhados até o script rodar.</p></div></div>
+
+<h3>Com HTMX, painel sob demanda</h3>
+<p>Para não carregar o conteúdo de todas as abas de uma vez, cada aba busca o próprio painel na primeira vez que é aberta.
+   Ligue <code>data-manual="true"</code>: no modo manual, abrir é sempre um clique — de mouse, de <code>Enter</code> ou de
+   <code>Espaço</code> —, então o <code>hx-trigger</code> na aba cobre todos os caminhos.</p>
+<pre data-code="django">
+<div class="tuc-tabs" data-tuc-tabs data-manual="true">
+  <div class="tuc-tabs__list">
+    <button class="tuc-tabs__tab" aria-selected="true">Resumo</button>
+    <button class="tuc-tabs__tab" hx-get="{% url 'cliente-faturas' cliente.pk %}"
+            hx-target="#faturas" hx-trigger="click once">Faturas</button>
+  </div>
+  <div class="tuc-tabs__panel">{% include "clientes/resumo.html" %}</div>
+  <div class="tuc-tabs__panel" id="faturas" hidden></div>
+</div>
+</pre>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Por que o manual existe</p><p>Na ativação automática, a seta troca o painel no mesmo instante. Com painel que carrega do servidor, atravessar quatro abas até a desejada seria disparar quatro requisições. No manual a seta só leva o foco, e quem decide abrir é a pessoa.</p></div></div>
+
+<h3>Em JavaScript</h3>
+<pre data-code="js">
+const abas = new Tucano.Tabs('#cliente', {
+  selected: 1,        // índice da aba inicial
+  manual: true,
+  onChange: (index, { tab, panel }) => console.log(index, tab.textContent),
+});
+
+abas.select(2);                     // abre a terceira; dispara onChange
+abas.select(0, { silent: true });   // abre sem disparar nada
+abas.index;                         // índice da aba aberta, ou -1
+abas.tabs;                          // as abas, na ordem
+abas.panels;                        // os painéis, na ordem
+</pre>
+
+<p>Cada troca — pela pessoa ou por <code>select()</code> — dispara <code>tucano:change</code> no elemento das abas, e o evento
+   borbulha. <code>select()</code> numa aba desativada não faz nada.</p>
+<pre data-code="js">
+document.addEventListener('tucano:change', (e) => {
+  if (!e.target.matches('.tuc-tabs')) return;
+  e.detail.value;      // índice da aba aberta
+  e.detail.tab;        // o botão da aba
+  e.detail.panel;      // o painel
+  e.detail.instance;   // as Tabs
+});
+</pre>
+
+<p>Abas dentro de um painel são outro conjunto: o componente só olha a lista e os painéis que são filhos diretos do seu
+   elemento.</p>
+
+<h2 id="teclado">Teclado e acessibilidade</h2>
+<p class="lead">O teclado segue o padrão de abas do ARIA APG. A lista inteira é uma parada só do <code>Tab</code> — senão quem
+   navega por teclado atravessaria todas as abas antes de chegar ao conteúdo da aberta.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Tecla</th><th>Ação</th></tr></thead>
+  <tbody>
+    <tr><td><code>Tab</code></td><td>Entra na aba aberta; o próximo <code>Tab</code> vai ao conteúdo do painel</td></tr>
+    <tr><td><code>←</code> <code>→</code></td><td>Aba anterior e próxima, pulando as desativadas e dando a volta nas pontas</td></tr>
+    <tr><td><code>Home</code> <code>End</code></td><td>Primeira e última aba ativas</td></tr>
+    <tr><td><code>Enter</code> <code>Espaço</code></td><td>No modo manual, abre a aba focada</td></tr>
+  </tbody>
+</table></div>
+
+<p>A lista recebe <code>role="tablist"</code>, cada aba <code>role="tab"</code> com <code>aria-selected</code>, e cada painel
+   <code>role="tabpanel"</code>. O painel sem nada focável dentro ganha <code>tabindex="0"</code>, para o <code>Tab</code> chegar
+   ao conteúdo; com um campo ou link dentro, não — seria uma parada inútil antes dele.</p>
+
+<h2 id="api">API</h2>
+<!-- api -->
+
+<script>
+  // Mostra o evento das abas manuais: só chega quando a aba abre de fato.
+  document.addEventListener('tucano:change', (e) => {
+    if (e.target.id !== 'tabs-manual') return;
+    document.getElementById('tabs-manual-log').textContent =
+      `tucano:change → value ${e.detail.value} (${e.detail.tab.textContent.trim()})`;
+  });
+</script>

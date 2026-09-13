@@ -13,6 +13,7 @@ npm install          # só para desenvolver; quem consome não precisa de build
 npm run build        # gera dist/ (JS via esbuild, CSS via Tailwind CLI)
 npm run serve        # build + servidor local na porta 4322
 npm run build:og     # regera og.png a partir de tools/og.html
+node tools/site.mjs preview   # gera o site numa pasta de prévia, fora do git
 ```
 
 O `build` termina em `tools/reference.mjs`, que regera a referência do llms.txt, e
@@ -20,7 +21,15 @@ em `tools/stamp.mjs`, que escreve a versão e o peso real do `dist` na página, 
 README e no llms.txt. Nunca edite esses números à mão: eles já
 envelheceram uma vez, e a página chegou a anunciar 15 KB com o arquivo em 27.
 
-`index.html` na raiz é a documentação e também a página do GitHub Pages.
+**A documentação é gerada, e não se edita o HTML publicado.** A fonte mora em
+`site/`: `layout.html` (cabeçalho, barra lateral e `<head>`, uma vez só),
+`nav.json` (ordem e grupos do menu, de onde saem anterior e próxima),
+`site.css` e `site.js` (só layout e comportamento da página) e `pages/<slug>.html`
+(o conteúdo de cada página). `tools/site.mjs` gera `index.html` e
+`<slug>/index.html` na raiz — que é de onde o GitHub Pages publica — e monta
+sozinho a tabela de API (do mesmo extrator do `llms.txt`), a grade de
+componentes do início, o changelog em linha do tempo e os blocos de código.
+Editar um `index.html` gerado é trabalho perdido no próximo build.
 `dist/` **é versionado** de propósito: é ele que o CDN serve e o que faz o uso
 estático funcionar sem build.
 
@@ -34,7 +43,8 @@ src/js/components/    datepicker, select, colorpicker, upload, mask, toast,
 src/styles/core/      base (reset) e tokens
 src/styles/components/  um arquivo por componente; os que são só classe
                       (botão, etiqueta, campo) também moram aqui
-tools/                build (reference, stamp, og) e verificação (behavior,
+site/                 fonte do site de documentação (layout, nav, css, js, pages/)
+tools/                build (reference, site, stamp, og) e verificação (behavior,
                       keyboard, examples, consistency, audit)
 test/                 funções puras, com node --test
 ```
@@ -544,6 +554,37 @@ laranja, o aviso de informação ficava igual ao de alerta. Tom semântico (suce
 alerta, perigo, informação) nunca lê `--tuc-accent` — a marca pode ser de qualquer
 cor, e o significado não pode mudar junto.
 
+**Painel dentro de `<dialog>` aberto nasce no próprio diálogo.** O `<dialog>`
+aberto está na top layer, acima de qualquer `z-index`. O Popover anexava todo
+painel ao `body`, então o select, o calendário e o color picker de um formulário
+em modal abriam atrás dele, invisíveis. O destino padrão agora é o `<dialog open>`
+que contém a âncora; componente nenhum força `document.body` — ele só repassa o
+`appendTo` que recebeu.
+
+**Atributo de erro é de quem renderizou o campo.** A máscara zerava
+`aria-invalid` em todo foco, e o erro que o Django escreveu sumia no primeiro
+clique. Um componente só mexe em `aria-invalid` quando ele próprio valida
+(`data-validate`); sem isso, o atributo pertence ao template.
+
+**Botão de barra responde ao teclado.** A barra do editor agia só no
+`mousedown`, para não perder a seleção — e com isso `Enter` e `Espaço` num botão
+focado não faziam nada. O `click` com `detail === 0` é o teclado (o mouse já agiu
+no `mousedown`), e a última seleção feita dentro da área fica guardada para ser
+devolvida quando o foco volta. Ação só no `mousedown` sempre precisa desse par.
+
+**Token derivado é declarado em cada elemento da biblioteca, não só na raiz.**
+Custom property que usa `var()` é resolvida onde é declarada. Com
+`--tuc-accent-soft` e `--tuc-accent-ring` só no `:root`, trocar `--tuc-accent`
+num contêiner mudava o botão e deixava o fundo da tag e o anel de foco na cor da
+raiz. Os derivados (`-soft`, `-ring`) moram em
+`:root, :where([class^='tuc-'], [class*=' tuc-'])`, e são recalculados com o valor
+herdado. Token novo que deriva de outro vai nesse bloco.
+
+**Tempo de segurança fica acima do token.** A saída do diálogo removia o elemento
+aos 160 ms com `--tuc-duration-out` em 170 ms, e o fim da animação saía cortado.
+Número em JavaScript que espera uma transição do CSS fica acima dela, nunca igual
+nem abaixo.
+
 ## Antes de dizer que está pronto
 
 ```bash
@@ -591,19 +632,20 @@ de um defeito que passou batido.
 dependência). `dates`, `mask`, `color` e `pageWindow` são entrada e saída sem
 DOM. Inclui `sanitize`, que é peça de segurança.
 
-**`tools/behavior.mjs` — 40 comportamentos no Chrome sem cabeça.** Abrir, fechar,
+**`tools/behavior.mjs` — 57 comportamentos no Chrome sem cabeça.** Abrir, fechar,
 ordenar, marcar, emitir evento. Armadilha registrada no cabeçalho do arquivo:
 transição não avança ali, então nunca leia opacidade ou posição logo depois de
 abrir algo — a página injeta `transition: none` onde o estado final importa.
 
-**`tools/examples.mjs` — os 37 exemplos da documentação.** Os de HTML são
+**`tools/examples.mjs` — os 126 exemplos da documentação, em todas as páginas do site.** Os de HTML são
 colados no documento e têm que montar; os de JS não são executados (citam
 `#entrega` e `formulario`, que não existem) e sim conferidos nome por nome
 contra o código: `Tucano.x` existe? o método existe no protótipo? cada chave de
 opção é lida por alguém, inclusive dentro de `actions` e `items`?
 
-**`tools/keyboard.mjs` — 11 caminhos de teclado real**, pelo protocolo de
-depuração do Chrome: `Backspace` e `Delete` na máscara, e as setas nas abas.
+**`tools/keyboard.mjs` — 13 caminhos de teclado real**, pelo protocolo de
+depuração do Chrome: `Backspace` e `Delete` na máscara, as setas nas abas, o
+`↓` que leva o foco ao dia no date picker e a barra do editor pelo teclado.
 Evento sintético não dispara a ação padrão, então só assim o caminho é o real.
 
 **`tools/consistency.mjs` — nome que existe em dois lugares e mudou só num.** As

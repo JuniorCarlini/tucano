@@ -1,0 +1,145 @@
+<!--
+title: Aviso
+description: Aviso fixo na página, em quatro tons, com título e ações: para o que continua valendo enquanto a pessoa está na tela. Só classe, sem JavaScript.
+-->
+<h1>Aviso</h1>
+<p class="lead">O que continua valendo enquanto a pessoa está na tela: "sua assinatura vence em 3 dias", "este contrato
+   está bloqueado para edição". O <a href="../toast/">toast</a> é para o que acabou de acontecer e some sozinho; aviso que
+   some antes de ser lido não avisou. Só classe, sem JavaScript.</p>
+
+<div class="demo is-hero">
+  <div class="tuc-alert is-info" style="margin-top:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p>Os valores desta tela são atualizados a cada 5 minutos.</p></div></div>
+  <div class="tuc-alert is-success"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.1V12a10 10 0 11-5.9-9.1M22 4L12 14l-3-3"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Contrato assinado</p><p>As duas partes assinaram em 12/09/2026.</p></div></div>
+  <div class="tuc-alert is-warning"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Assinatura vence em 3 dias</p><p>Renove para não perder o acesso aos relatórios.</p></div><div class="tuc-alert__actions"><button type="button" class="tuc-btn is-outline is-sm" onclick="Tucano.toast.success('Assinatura renovada')">Renovar</button></div></div>
+  <div class="tuc-alert is-danger" style="margin-bottom:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM15 9l-6 6M9 9l6 6"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Contrato bloqueado para edição</p><p>Há uma cobrança em disputa. Fale com o financeiro.</p></div></div>
+</div>
+
+<h2 id="exemplos">Exemplos</h2>
+<p class="lead">As peças são opcionais: título, ícone e ações entram só quando fazem falta.</p>
+
+<div class="demo">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <h4>Sem tom</h4>
+      <p>Sem <code>is-*</code> o aviso é neutro, para o que não é bom nem ruim.</p>
+      <div class="tuc-alert" style="margin:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM12 6v6l4 2"/></svg><div class="tuc-alert__body"><p>Rascunho salvo às 14:32.</p></div></div>
+    </div>
+    <div class="demo-cell">
+      <h4>Sem ícone</h4>
+      <p>O ícone é o primeiro filho, quando existe; sem ele o texto encosta na borda.</p>
+      <div class="tuc-alert is-info" style="margin:0"><div class="tuc-alert__body"><p class="tuc-alert__title">Manutenção programada</p><p>Sábado, das 22h às 23h.</p></div></div>
+    </div>
+    <div class="demo-cell">
+      <h4>Com duas ações</h4>
+      <p>As ações são os botões do sistema. Em tela estreita, descem para baixo do texto.</p>
+      <div class="tuc-alert is-warning" style="margin:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg><div class="tuc-alert__body"><p>Há alterações não publicadas.</p></div><div class="tuc-alert__actions"><button type="button" class="tuc-btn is-ghost is-sm" onclick="Tucano.toast('Descartado')">Descartar</button><button type="button" class="tuc-btn is-outline is-sm" onclick="Tucano.toast.success('Publicado')">Publicar</button></div></div>
+    </div>
+    <div class="demo-cell">
+      <h4>Aparece depois</h4>
+      <p>A resposta de um envio leva <code>role="alert"</code> e é anunciada na hora.</p>
+      <button type="button" class="tuc-btn is-outline is-sm" id="alert-enviar">Enviar formulário</button>
+      <div id="alert-resposta"></div>
+    </div>
+  </div>
+</div>
+
+<h2 id="uso">Como usar</h2>
+<p class="lead">Um <code>.tuc-alert</code> com o tom, o ícone como primeiro filho e o texto em <code>.tuc-alert__body</code>.</p>
+
+<pre data-code="html">
+<div class="tuc-alert is-warning">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg>
+  <div class="tuc-alert__body">
+    <p class="tuc-alert__title">Assinatura vence em 3 dias</p>
+    <p>Renove para não perder o acesso.</p>
+  </div>
+  <div class="tuc-alert__actions">
+    <a class="tuc-btn is-outline is-sm" href="/assinatura/">Renovar</a>
+  </div>
+</div>
+</pre>
+
+<p>O ícone não vem da biblioteca: é o SVG que você cola, e ele herda a cor do tom. Os desta página, para copiar:</p>
+
+<pre data-code="html">
+<!-- informação -->
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg>
+<!-- sucesso -->
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.1V12a10 10 0 11-5.9-9.1M22 4L12 14l-3-3"/></svg>
+<!-- alerta -->
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg>
+<!-- perigo -->
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM15 9l-6 6M9 9l6 6"/></svg>
+</pre>
+
+<h3>No template do Django</h3>
+<p>O erro que não pertence a um campo, <code>non_field_errors</code>, é o caso mais comum. E as mensagens do Django podem
+   virar aviso, em vez de toast, quando precisam ficar na tela. O tom de erro do Django chama <code>error</code>; o do aviso,
+   <code>is-danger</code>.</p>
+
+<pre data-code="django">
+{% if form.non_field_errors %}
+  <div class="tuc-alert is-danger">
+    <div class="tuc-alert__body">
+      <p class="tuc-alert__title">Não foi possível salvar</p>
+      {% for erro in form.non_field_errors %}<p>{{ erro }}</p>{% endfor %}
+    </div>
+  </div>
+{% endif %}
+
+{% for m in messages %}
+  <div class="tuc-alert {% if m.level_tag == 'error' %}is-danger{% else %}is-{{ m.level_tag }}{% endif %}">
+    <div class="tuc-alert__body"><p>{{ m }}</p></div>
+  </div>
+{% endfor %}
+</pre>
+
+<p>O nível <code>debug</code> vira <code>is-debug</code>, que não tem regra, e o aviso fica neutro.</p>
+
+<h2 id="acessibilidade">Acessibilidade</h2>
+<p class="lead"><code>role="alert"</code> só no aviso que aparece depois do carregamento: a resposta de um envio, um swap do HTMX.</p>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Por que não em todos</p><p>O aviso que já vem no HTML é lido junto com a página. Com <code>role="alert"</code> ele interromperia o leitor de tela à toa, e numa página com três avisos, três vezes. O que chega depois precisa do papel justamente para interromper: sem ele, a resposta do envio aparece na tela e ninguém que usa leitor de tela fica sabendo.</p></div></div>
+
+<pre data-code="django">
+{# resposta parcial do HTMX: aparece depois, então interrompe #}
+<div class="tuc-alert is-success" role="alert">
+  <div class="tuc-alert__body"><p>Proposta enviada para {{ cliente.email }}.</p></div>
+</div>
+</pre>
+
+<p>O ícone leva <code>aria-hidden="true"</code>: quem diz o que aconteceu é o texto, e o tom não pode ser a única pista.</p>
+
+<h2 id="cor">Cor</h2>
+<p class="lead">O fundo é uma tintura leve do tom sobre <code>--tuc-bg</code>, e não o <code>-soft</code> transparente dos
+   tokens: sobre um card colorido ou uma imagem, o transparente deixaria o texto sem contraste garantido.</p>
+
+<p>Os tons leem <code>--tuc-info</code>, <code>--tuc-success</code>, <code>--tuc-warning</code> e <code>--tuc-danger</code>, e
+   nunca <code>--tuc-accent</code>. A marca pode ser de qualquer cor, e o significado não pode mudar junto. Foi por isso que a
+   informação ganhou tom próprio: com o destaque laranja, o aviso de informação ficava igual ao de alerta.</p>
+
+<h2 id="api">Classes</h2>
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Classe ou atributo</th><th>Para quê</th></tr></thead>
+  <tbody>
+    <tr><td><code>.tuc-alert</code></td><td>O aviso. Sem tom, neutro</td></tr>
+    <tr><td><code>is-info</code> <code>is-success</code> <code>is-warning</code> <code>is-danger</code></td><td>O tom</td></tr>
+    <tr><td><code>&gt; svg</code></td><td>Ícone, como primeiro filho: 16px, centrado na primeira linha, na cor do tom</td></tr>
+    <tr><td><code>.tuc-alert__body</code></td><td>O texto; ocupa o espaço que sobra</td></tr>
+    <tr><td><code>.tuc-alert__title</code></td><td>Primeira linha em negrito. O resto do corpo fica na cor de apoio</td></tr>
+    <tr><td><code>.tuc-alert__actions</code></td><td>Botões à direita; abaixo de 40rem, descem para baixo do texto</td></tr>
+    <tr><td><code>role="alert"</code></td><td>Só no que aparece depois do carregamento</td></tr>
+    <tr><td><code>--tuc-alert-tone</code></td><td>A cor que o tom escolhe; fundo, borda e ícone saem dela</td></tr>
+  </tbody>
+</table></div>
+
+<script>
+  // Um aviso que chega depois, como a resposta de um envio: este leva role="alert".
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('#alert-enviar')) return;
+    document.getElementById('alert-resposta').innerHTML =
+      '<div class="tuc-alert is-success" role="alert" style="margin:12px 0 0">' +
+      '<div class="tuc-alert__body"><p>Proposta enviada às ' +
+      new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) + '.</p></div></div>';
+  });
+</script>

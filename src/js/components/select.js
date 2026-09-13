@@ -111,7 +111,7 @@ export class Select {
 
     this.popover = new Popover(this.control, this.menu, {
       placement: this.opts.placement,
-      appendTo: this.opts.appendTo || document.body,
+      appendTo: this.opts.appendTo,
       matchWidth: true,
       closeOnFocusOut: true,
       onDismiss: () => this.close(),

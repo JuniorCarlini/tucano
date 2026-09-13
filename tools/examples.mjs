@@ -28,6 +28,7 @@ import { writeFileSync, unlinkSync, existsSync, readFileSync, readdirSync } from
 import { tmpdir } from 'node:os';
 import { join, dirname, normalize } from 'node:path';
 import { exigirChrome } from './chrome.mjs';
+import { paginas } from './pages.mjs';
 
 const exec = promisify(execFile);
 const CHROME = exigirChrome('examples');
@@ -155,12 +156,14 @@ for (const arq of ['README.md', 'llms.txt']) {
     blocos.push({ arq, linha: texto.slice(0, m.index).split('\n').length, tipo: ehJs(codigo) ? 'js' : 'html', codigo });
   }
 }
-/* Na pagina os exemplos vivem em <code>, escapados. */
-const html = readFileSync('index.html', 'utf8');
-for (const m of html.matchAll(/<code[^>]*>([\s\S]*?)<\/code>/g)) {
-  const codigo = decode(m[1]).trim();
-  if (codigo.length <= 20 || !rodavel(codigo)) continue;
-  blocos.push({ arq: 'index.html', linha: html.slice(0, m.index).split('\n').length, tipo: ehJs(codigo) ? 'js' : 'html', codigo });
+/* No site os exemplos vivem em <code>, escapados — em todas as paginas geradas. */
+for (const arq of paginas) {
+  const html = readFileSync(arq, 'utf8');
+  for (const m of html.matchAll(/<code[^>]*>([\s\S]*?)<\/code>/g)) {
+    const codigo = decode(m[1]).trim();
+    if (codigo.length <= 20 || !rodavel(codigo)) continue;
+    blocos.push({ arq, linha: html.slice(0, m.index).split('\n').length, tipo: ehJs(codigo) ? 'js' : 'html', codigo });
+  }
 }
 
 /* ---- o que roda no navegador ---- */

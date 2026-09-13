@@ -14,7 +14,9 @@ import { el, icon, ICON_X, on } from './dom.js';
  */
 
 /** Espelha a duracao de saida do CSS; os dois precisam concordar. */
-export const EXIT_MS = 160;
+/* Acima do --tuc-duration-out (170ms): abaixo dele o dialogo saia do DOM antes de
+   a animacao de saida terminar, e o fim aparecia cortado. */
+export const EXIT_MS = 200;
 
 export class Dialog {
   /**

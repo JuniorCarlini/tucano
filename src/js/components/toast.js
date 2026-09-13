@@ -351,9 +351,15 @@ export function autoInit(scope = document) {
   for (const node of scope.querySelectorAll('[data-tuc-toast]:not([data-tuc-ready])')) {
     node.setAttribute('data-tuc-ready', '');
     const d = node.dataset;
-    const raw = (d.type || 'info').trim().split(/\s+/)[0];
+    /*
+     * O Django poe as extra_tags antes do nivel ("destaque success"). Ler so a
+     * primeira palavra dava tipo "destaque", e o toast saia sem cor nem icone.
+     * Vale a primeira palavra que for um tipo conhecido.
+     */
+    const palavras = (d.type || 'info').trim().split(/\s+/).map((w) => DJANGO_MAP[w] ?? w);
+    const tipo = palavras.find((w) => w in DURATION) ?? palavras[0];
     out.push(toast({
-      type: DJANGO_MAP[raw] ?? raw,
+      type: tipo,
       title: d.title || undefined,
       text: (d.text ?? node.textContent).trim(),
       duration: d.duration === 'false' ? null : (d.duration ? +d.duration : undefined),

@@ -1,0 +1,207 @@
+<!--
+title: Botão
+description: O botão da biblioteca em classe só — variantes, tamanhos, só ícone, ocupado com spinner e desativado — sobre o <button> nativo, com a altura dos campos.
+-->
+<h1>Botão</h1>
+<p class="lead">Nasceu do que os componentes precisavam por dentro — o "Desfazer" do toast, o "Aplicar" do
+   calendário. Em vez de cada um inventar o seu, sai tudo daqui, e fica disponível para o seu projeto. É só
+   classe: um <code>&lt;button&gt;</code> continua sendo um <code>&lt;button&gt;</code>.</p>
+
+<div class="demo is-hero">
+  <div class="bar">
+    <button type="button" class="tuc-btn is-primary">Salvar</button>
+    <button type="button" class="tuc-btn is-outline">Cancelar</button>
+    <button type="button" class="tuc-btn is-ghost">Voltar</button>
+    <button type="button" class="tuc-btn is-danger">Excluir</button>
+    <button type="button" class="tuc-btn is-link">Saiba mais</button>
+  </div>
+</div>
+
+<h2 id="exemplos">Exemplos</h2>
+<p class="lead">Variante, tamanho e estado são classes e atributos que se combinam.</p>
+
+<div class="demo">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <h4>Tamanhos</h4>
+      <p><code>is-sm</code> tem 30px, o padrão sai de <code>--tuc-control-height</code> e <code>is-lg</code> tem 44px.</p>
+      <div class="bar">
+        <button type="button" class="tuc-btn is-outline is-sm">Pequeno</button>
+        <button type="button" class="tuc-btn is-outline">Padrão</button>
+        <button type="button" class="tuc-btn is-outline is-lg">Grande</button>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Com ícone</h4>
+      <p>O <code>&lt;svg&gt;</code> ganha o tamanho do botão sozinho. <code>is-icon</code> deixa quadrado — e aí o <code>aria-label</code> é obrigatório.</p>
+      <div class="bar">
+        <button type="button" class="tuc-btn is-primary"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Novo cliente</button>
+        <button type="button" class="tuc-btn is-outline is-icon" aria-label="Excluir"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M5 7l1 13a2 2 0 002 2h8a2 2 0 002-2l1-13M9 7V4h6v3"/></svg></button>
+        <button type="button" class="tuc-btn is-ghost is-icon is-sm" aria-label="Fechar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Ocupado</h4>
+      <p><code>aria-busy="true"</code> com <code>.tuc-spinner</code>. Clique em "Salvar" para ver a troca.</p>
+      <div class="bar">
+        <button type="button" class="tuc-btn is-primary" id="bt-salvar">Salvar</button>
+        <button type="button" class="tuc-btn is-outline is-sm" aria-busy="true" disabled><span class="tuc-spinner"></span> Enviando</button>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Desativado</h4>
+      <p><code>disabled</code> não recebe clique nem foco; <code>aria-disabled="true"</code> segue focável e anunciado.</p>
+      <div class="bar">
+        <button type="button" class="tuc-btn is-primary" disabled>Aprovar</button>
+        <button type="button" class="tuc-btn is-outline" aria-disabled="true" id="bt-exportar">Exportar</button>
+      </div>
+      <div class="out" id="bt-exportar-msg"></div>
+    </div>
+    <div class="demo-cell">
+      <h4>Largura toda</h4>
+      <p><code>is-block</code> ocupa a linha — o botão de um formulário estreito ou de um celular.</p>
+      <button type="button" class="tuc-btn is-primary is-block">Entrar</button>
+    </div>
+    <div class="demo-cell">
+      <h4>Como link</h4>
+      <p>Num <code>&lt;a&gt;</code> a classe tira o sublinhado; é o certo quando o botão navega, e não age.</p>
+      <div class="bar">
+        <a class="tuc-btn is-outline" href="../select/">Ver o select</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h2 id="uso">Como usar</h2>
+<p class="lead"><code>tuc-btn</code> e uma variante. Sem variante o botão fica transparente, sem borda — a base de
+   que as variantes partem.</p>
+
+<pre data-code="html">
+<button type="submit" class="tuc-btn is-primary">Salvar</button>
+<button type="button" class="tuc-btn is-outline is-sm">Cancelar</button>
+<button type="button" class="tuc-btn is-ghost is-icon" aria-label="Fechar">
+  <svg>...</svg>
+</button>
+<a class="tuc-btn is-link" href="/ajuda/">Saiba mais</a>
+</pre>
+
+<h3>No formulário do Django</h3>
+<p>O botão é do template, não do form. Com <code>type="submit"</code> ele envia o formulário como sempre.</p>
+<pre data-code="django">
+<form method="post">
+  {% csrf_token %}
+  {{ form }}
+  <a class="tuc-btn is-outline" href="{% url 'clientes' %}">Cancelar</a>
+  <button type="submit" class="tuc-btn is-primary">Salvar</button>
+</form>
+</pre>
+
+<h3>Em JavaScript</h3>
+<p>Não há componente para instanciar. O que se faz em código é trocar o estado — por exemplo, ocupado durante um envio:</p>
+<pre data-code="js">
+const btn = document.querySelector('#salvar');
+btn.setAttribute('aria-busy', 'true');
+btn.disabled = true;               // impede o segundo clique
+btn.prepend(Object.assign(document.createElement('span'), { className: 'tuc-spinner' }));
+
+// ...quando terminar
+btn.removeAttribute('aria-busy');
+btn.disabled = false;
+btn.querySelector('.tuc-spinner').remove();
+</pre>
+
+<h2 id="variantes">Variantes e quando usar</h2>
+<p class="lead">Uma ação principal por área. As outras recuam em peso visual, e a destrutiva se distingue pela cor.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Classe</th><th>Para quê</th></tr></thead>
+  <tbody>
+    <tr><td><code>is-primary</code></td><td>Ação principal, na cor de destaque (<code>--tuc-accent</code>)</td></tr>
+    <tr><td><code>is-outline</code></td><td>Ação secundária, com borda</td></tr>
+    <tr><td><code>is-ghost</code></td><td>Terciária, sem peso visual — ações dentro de tabela, barra de ferramentas</td></tr>
+    <tr><td><code>is-danger</code></td><td>Destrutiva, pintada com <code>--tuc-danger-fill</code></td></tr>
+    <tr><td><code>is-link</code></td><td>Parece link, se comporta como botão</td></tr>
+  </tbody>
+</table></div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Por que o vermelho do botão é outro token</p><p><code>--tuc-danger</code> é mais claro no tema escuro, para ter contraste como texto — e um botão pintado com ele ficaria pastel com texto branco. <code>--tuc-danger-fill</code> é o mesmo nos dois temas.</p></div></div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Botão e campo têm a mesma altura</p><p>Os dois saem de <code>--tuc-control-height</code> — 38px, ou 44px no layout compacto, onde o alvo de toque precisa ser maior. Raio e borda vêm de <code>--tuc-radius-md</code> e <code>--tuc-border-width</code>. Um botão ao lado de um select fica alinhado sem ajuste.</p></div></div>
+
+<h2 id="estados">Ocupado e desativado</h2>
+<p class="lead">Os dois impedem a ação, mas dizem coisas diferentes, e por isso têm desenhos diferentes.</p>
+
+<pre data-code="html">
+<button class="tuc-btn is-primary" aria-busy="true" disabled>
+  <span class="tuc-spinner"></span> Salvando
+</button>
+
+<button class="tuc-btn is-outline" aria-disabled="true">Exportar</button>
+</pre>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Ocupado não é desativado</p><p>O <code>disabled</code> junto do <code>aria-busy</code> impede o segundo clique, mas o esmaecido de 50% diria "não disponível" — e o botão está trabalhando. Com <code>aria-busy="true"</code> ele fica com a cor cheia e o cursor de espera. O spinner mede em <code>em</code> e pinta com <code>currentColor</code>: dentro do botão ele ocupa o lugar do ícone e sai branco num primário, sem variante.</p></div></div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Desativado mostra o cursor de bloqueio</p><p>Nada de <code>pointer-events: none</code>: sem receber o ponteiro o elemento não troca o cursor, e a pessoa fica sem sinal de que o botão não responde. Num <code>&lt;button disabled&gt;</code> o navegador já impede o clique. Com <code>aria-disabled="true"</code> o clique continua chegando de propósito — é o botão que segue focável e anunciado, e quem usa o atributo trata o clique no próprio manipulador.</p></div></div>
+
+<p>Desativado também não reage ao hover — mudar de cor sugeriria que ainda funciona — e perde a sombra.
+   Ao pressionar, o botão encolhe de leve: num toque, sem hover, a cor sozinha não confirma que o dedo acertou
+   o alvo. Com <code>prefers-reduced-motion</code> esse movimento sai.</p>
+
+<h2 id="teclado">Teclado e acessibilidade</h2>
+<p class="lead">É o <code>&lt;button&gt;</code> do navegador: foco, <code>Enter</code> e <code>Espaço</code> vêm de graça.
+   O que cabe ao template é escolher o elemento certo e dar nome ao que não tem texto.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Tecla</th><th>Ação</th></tr></thead>
+  <tbody>
+    <tr><td><code>Tab</code></td><td>Chega no botão, com o anel de foco dos campos; pula o <code>disabled</code>, não o <code>aria-disabled</code></td></tr>
+    <tr><td><code>Enter</code> <code>Espaço</code></td><td>Aciona o <code>&lt;button&gt;</code>; num <code>&lt;a class="tuc-btn"&gt;</code>, só o <code>Enter</code></td></tr>
+  </tbody>
+</table></div>
+
+<ul>
+  <li><code>is-icon</code> sem texto precisa de <code>aria-label</code>; o <code>&lt;svg&gt;</code> leva <code>aria-hidden="true"</code>.</li>
+  <li><code>&lt;a&gt;</code> para navegar, <code>&lt;button&gt;</code> para agir — o leitor de tela anuncia um e outro de jeitos diferentes.</li>
+  <li>Dentro de <code>&lt;form&gt;</code>, dê <code>type="button"</code> ao que não envia: o padrão do navegador é <code>submit</code>.</li>
+</ul>
+
+<h2 id="api">Classes</h2>
+<p class="lead">Só CSS, sem JavaScript. Não escreva um segundo desenho de botão: ação dentro de tabela ou de bloco de
+   código também é <code>.tuc-btn</code>, com classe própria só para posicionar.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Classe ou atributo</th><th>Para quê</th></tr></thead>
+  <tbody>
+    <tr><td><code>tuc-btn</code></td><td>A base: altura, fonte, raio, foco. Vale em <code>&lt;button&gt;</code> e <code>&lt;a&gt;</code></td></tr>
+    <tr><td><code>is-primary</code> <code>is-outline</code> <code>is-ghost</code> <code>is-danger</code> <code>is-link</code></td><td>Variante</td></tr>
+    <tr><td><code>is-sm</code> <code>is-lg</code></td><td>Tamanho: 30px e 44px; o ícone acompanha</td></tr>
+    <tr><td><code>is-icon</code></td><td>Quadrado, só ícone; combina com <code>is-sm</code> e <code>is-lg</code></td></tr>
+    <tr><td><code>is-block</code></td><td>Ocupa a largura toda</td></tr>
+    <tr><td><code>disabled</code></td><td>Esmaecido, cursor de bloqueio, sem hover; o navegador barra o clique</td></tr>
+    <tr><td><code>aria-disabled="true"</code></td><td>Mesmo desenho, mas focável e com o clique chegando</td></tr>
+    <tr><td><code>aria-busy="true"</code></td><td>Ocupado: cor cheia e cursor de espera, mesmo com <code>disabled</code></td></tr>
+    <tr><td><code>.tuc-spinner</code> dentro</td><td>Ocupa o lugar e o tamanho do ícone</td></tr>
+    <tr><td><code>--tuc-btn-icon</code></td><td>Tamanho do <code>&lt;svg&gt;</code> filho; cada tamanho de botão define o seu</td></tr>
+  </tbody>
+</table></div>
+
+<script>
+  // Ocupado de mentira: a pagina e estatica, entao a espera e um setTimeout.
+  const salvar = document.getElementById('bt-salvar');
+  salvar.addEventListener('click', () => {
+    salvar.setAttribute('aria-busy', 'true');
+    salvar.disabled = true;
+    salvar.replaceChildren(Object.assign(document.createElement('span'), { className: 'tuc-spinner' }), ' Salvando');
+    setTimeout(() => {
+      salvar.removeAttribute('aria-busy');
+      salvar.disabled = false;
+      salvar.textContent = 'Salvar';
+      Tucano.toast.success('Salvo');
+    }, 1500);
+  });
+
+  // aria-disabled deixa o clique chegar: quem usa o atributo decide o que fazer com ele.
+  document.getElementById('bt-exportar').addEventListener('click', () => {
+    document.getElementById('bt-exportar-msg').textContent = 'Clique recebido — o manipulador decidiu não exportar.';
+  });
+</script>

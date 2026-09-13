@@ -40,7 +40,11 @@ const WORDS = [
  * dentro de aspas seria pintada como palavra-chave.
  */
 const RULES = [
-  ['comment', /(&lt;!--[\s\S]*?--&gt;|\/\*[\s\S]*?\*\/|\/\/[^\n]*|#[^\n]*)/],
+  // `//` so abre comentario se nao vier colado a `:` ou a uma letra: em
+  // https://… ele pintava o resto da linha como comentario. E `#` so e
+  // comentario no comeco da linha ou depois de espaco, seguido de espaco: sem
+  // isso toda cor hex de CSS (#4f46e5) saia como comentario.
+  ['comment', /(&lt;!--[\s\S]*?--&gt;|\/\*[\s\S]*?\*\/|(?<![:\w])\/\/[^\n]*|(?<![^\s])#(?:\s[^\n]*)?$|(?<![^\s])#\s[^\n]*)/m],
   ['text',  /("(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*'|`(?:[^`\\]|\\.)*`)/],
   ['tmpl',   /(\{%[\s\S]*?%\}|\{\{[\s\S]*?\}\})/],
   ['tag',    /(&lt;\/?[a-zA-Z][\w-]*)/],

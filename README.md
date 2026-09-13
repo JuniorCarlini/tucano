@@ -143,7 +143,7 @@ dp.destroy();
 | `weekNumbers` | `false` | Coluna de número da semana |
 | `placement` | `'bottom-center'` | Lado e alinhamento do popover. Centraliza no campo; se não couber, desliza para dentro da tela e vira para cima quando falta espaço embaixo. `bottom-start`, `bottom-end`, `top-center`... |
 | `isoName` | `name` do input | `name` do input hidden em ISO |
-| `native` | `'auto'` | Seletor nativo do sistema em telas de toque (veja abaixo) |
+| `native` | `false` | Seletor nativo do sistema: `true` sempre, `'auto'` em tela de toque (só em JS) |
 
 ### Eventos
 
@@ -1078,7 +1078,8 @@ propósito, para o componente não escurecer sozinho numa página clara.
 Variáveis, agrupadas:
 
 **Cor** — `--tuc-accent`, `--tuc-accent-hover`, `--tuc-accent-fg`,
-`--tuc-accent-soft`, `--tuc-accent-ring`, `--tuc-bg`, `--tuc-fg`,
+`--tuc-accent-text` (destaque usado como cor de texto), `--tuc-thumb` (botão da
+chave), `--tuc-accent-soft`, `--tuc-accent-ring`, `--tuc-bg`, `--tuc-fg`,
 `--tuc-muted`, `--tuc-subtle`, `--tuc-border`, `--tuc-hover`, `--tuc-elevated`
 
 **Tons** — `--tuc-success`, `--tuc-warning`, `--tuc-danger`, `--tuc-info` e seus `-soft`,
@@ -1125,7 +1126,7 @@ animação.
 
 Nos projetos que **usam** a biblioteca, um `AGENTS.md` de três linhas evita que
 a IA escreva um date picker do zero — o modelo está na
-[documentação](https://juniorcarlini.github.io/tucano/#agentes).
+[documentação](https://juniorcarlini.github.io/tucano/ai/).
 
 ## Desenvolvimento
 
@@ -1141,7 +1142,7 @@ src/js/components/   um arquivo por componente com JavaScript
 src/styles/core/     reset e tokens
 src/styles/components/
 dist/                versionado, para o uso estático e o CDN funcionarem sem build
-index.html           a documentação (também é a página do GitHub Pages)
+site/                fonte do site de documentação; index.html e <componente>/index.html são gerados
 ```
 
 As classes e variáveis usam o prefixo `tuc-` para não colidir com o CSS do

@@ -131,7 +131,7 @@ export class DatePicker {
 
     this.popover = new Popover(this.input, this.panel, {
       placement: this.opts.placement,
-      appendTo: this.opts.appendTo || document.body,
+      appendTo: this.opts.appendTo,
       closeOnFocusOut: true,
       // Clique fora: nao devolvemos o foco, senao roubariamos de onde o usuario clicou.
       onDismiss: (reason) => this.close({ restoreFocus: reason === 'escape' }),
@@ -268,7 +268,7 @@ export class DatePicker {
       on(input, 'focus', () => { if (this.opts.openOnFocus && !this._suppressOpen) this.open(); }),
       on(input, 'click', () => { if (!this._suppressOpen && !this._compact) this.open(); }),
       on(input, 'keydown', (e) => {
-        if (e.key === 'ArrowDown' && !this.isOpen) { e.preventDefault(); this.open(); }
+        if (e.key === 'ArrowDown' && !this.isOpen) { e.preventDefault(); this.open(); this._focusGrid(); }
         /*
          * Espaco tambem abre, com a ressalva de o campo estar vazio: em modo
          * com hora se digita "07/09/2026 14:30", e ali o espaco e digitacao.
@@ -279,7 +279,7 @@ export class DatePicker {
          * para abrir o calendario quebraria o envio em silencio, em todo form
          * que ja existe.
          */
-        else if (e.key === ' ' && !this.isOpen && !input.value) { e.preventDefault(); this.open(); }
+        else if (e.key === ' ' && !this.isOpen && !input.value) { e.preventDefault(); this.open(); this._focusGrid(); }
         else if (e.key === 'Enter' && this.isOpen) { e.preventDefault(); this._commitTyped(); }
         else if (e.key === 'Escape' && this.isOpen) { e.preventDefault(); this.close(); }
       }),
@@ -362,6 +362,19 @@ export class DatePicker {
     const raw = this.opts.value ?? (this.input ? this.input.value : null);
     if (!raw) return;
     if (this.isRange) {
+      /*
+       * O par em ISO separado por virgula e o que o proprio componente posta — e
+       * o que o Django devolve ao campo quando o formulario volta com erro. O
+       * separador de digitacao aceita hifen, que corta a data ISO no meio:
+       * "2026-03-01,2026-03-15" virava 31/12/2025 — 01/03/2001, calado.
+       */
+      const iso = String(raw).match(/^\s*(\d{4}-\d{2}-\d{2}[T\d:.]*)\s*,\s*(\d{4}-\d{2}-\d{2}[T\d:.]*)\s*$/);
+      if (iso) {
+        this.start = this._normalize(parseISO(iso[1]));
+        this.end = this._normalize(parseISO(iso[2]));
+        this._syncTarget();
+        return;
+      }
       const [a, b] = String(raw).split(/\s*(?:–|—|-{1,2}|a[téa]?)\s*/i);
       this.start = this._normalize(parseUserInput(a, this.opts.locale)) || this._normalize(parseISO(a));
       this.end = this._normalize(parseUserInput(b, this.opts.locale)) || this._normalize(parseISO(b));
@@ -944,6 +957,16 @@ export class DatePicker {
   /* ---------------------------------------------------------------- *
    * Navegacao                                                         *
    * ---------------------------------------------------------------- */
+
+  /*
+   * Abrir pelo teclado leva o foco ao dia, como no padrao de date picker do ARIA
+   * APG. Antes o foco ficava no campo: as setas nao chegavam a grade, e o Tab
+   * seguinte fechava o painel — quem so usa teclado nunca escolhia um dia. O
+   * clique nao passa por aqui, porque quem clica pode querer digitar.
+   */
+  _focusGrid() {
+    this.panel.querySelector('.tuc-dp__day[tabindex="0"]')?.focus();
+  }
 
   _shiftView(delta) {
     this.viewDate = addMonths(this.viewDate, delta);

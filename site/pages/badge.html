@@ -1,0 +1,100 @@
+<!--
+title: Etiqueta
+description: Etiqueta de estado de um registro — aprovado, vencido, rascunho — em quatro tons e neutra, com ponto ou sem. Só classe.
+-->
+<h1>Etiqueta</h1>
+<p class="lead">O estado de um registro: aprovado, em análise, vencido, rascunho. Nasceu para a coluna "situação" da
+   tabela, que é onde ela sempre aparece, mas não depende dela: vale em card, em lista e ao lado de um título. Só classe.</p>
+
+<div class="demo is-hero">
+  <div class="bar">
+    <span class="tuc-badge is-success">Aprovado</span>
+    <span class="tuc-badge is-warning">Em análise</span>
+    <span class="tuc-badge is-danger">Vencido</span>
+    <span class="tuc-badge is-info">Novo</span>
+    <span class="tuc-badge">Rascunho</span>
+    <span class="tuc-badge is-plain">Sem ponto</span>
+  </div>
+</div>
+
+<h2 id="exemplos">Exemplos</h2>
+<p class="lead">O tom carrega o significado; o peso fica com o texto da linha.</p>
+
+<div class="demo">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <h4>Na tabela</h4>
+      <p>A coluna de situação, lida de relance numa lista longa.</p>
+      <div class="tuc-table-wrap"><table class="tuc-table">
+        <thead><tr><th>Contrato</th><th>Situação</th></tr></thead>
+        <tbody>
+          <tr><td>Padaria Pão Quente</td><td><span class="tuc-badge is-success">Pago</span></td></tr>
+          <tr><td>Oficina Duas Rodas</td><td><span class="tuc-badge is-warning">Em análise</span></td></tr>
+          <tr><td>Clínica Bem-Estar</td><td><span class="tuc-badge is-danger">Vencido</span></td></tr>
+          <tr><td>Estúdio Aurora</td><td><span class="tuc-badge">Rascunho</span></td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <div class="demo-cell">
+      <h4>Sem ponto</h4>
+      <p><code>is-plain</code>, para o que não é estado: versão, contagem, categoria.</p>
+      <div class="bar">
+        <span class="tuc-badge is-plain">v2.4</span>
+        <span class="tuc-badge is-plain">12 anexos</span>
+        <span class="tuc-badge is-plain">Serviços</span>
+        <span class="tuc-badge is-info is-plain">Beta</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h2 id="uso">Como usar</h2>
+<pre data-code="html">
+<span class="tuc-badge is-success">Aprovado</span>
+<span class="tuc-badge is-warning">Em análise</span>
+<span class="tuc-badge is-danger">Vencido</span>
+<span class="tuc-badge is-info">Novo</span>
+<span class="tuc-badge">Rascunho</span>
+<span class="tuc-badge is-plain">12 anexos</span>
+</pre>
+
+<h3>No Django</h3>
+<p>O tom é decisão do modelo, e não do template: assim ele é o mesmo na listagem, no detalhe e no e-mail.</p>
+
+<pre data-code="python">
+class Contrato(models.Model):
+    status = models.CharField(max_length=20, choices=Status.choices)
+
+    @property
+    def status_tone(self):
+        return {"pago": "success", "analise": "warning", "vencido": "danger"}.get(self.status, "")
+</pre>
+
+<pre data-code="django">
+<span class="tuc-badge {% if contrato.status_tone %}is-{{ contrato.status_tone }}{% endif %}">
+  {{ contrato.get_status_display }}
+</span>
+</pre>
+
+<h2 id="cor">Por que não preenchida</h2>
+<p class="lead">Fundo suave com texto forte. Numa lista de vinte linhas, vinte etiquetas sólidas competem com o conteúdo e a
+   tabela vira um semáforo.</p>
+
+<p>O ponto repete o estado sem depender só da cor de fundo — ajuda quem não distingue as cores, somado ao texto, e desenha
+   melhor em tela pequena. Ele é um pseudo-elemento, então o leitor de tela lê só o texto, e é o texto que precisa dizer o
+   estado: "Vencido", e não uma etiqueta vermelha vazia.</p>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">A cor é a mesma do toast e do aviso</p><p>Os tons leem <code>--tuc-success</code>, <code>--tuc-warning</code>, <code>--tuc-danger</code>, <code>--tuc-info</code> e os <code>-soft</code>, e nunca o <code>--tuc-accent</code>. A marca pode ser de qualquer cor; o significado de "vencido" não pode mudar junto com ela.</p></div></div>
+
+<h2 id="api">Classes</h2>
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Classe</th><th>Para quê</th></tr></thead>
+  <tbody>
+    <tr><td><code>.tuc-badge</code></td><td>A etiqueta. Sem tom, neutra, com borda</td></tr>
+    <tr><td><code>is-success</code></td><td>Deu certo: aprovado, pago, ativo</td></tr>
+    <tr><td><code>is-warning</code></td><td>Pede atenção: em análise, pendente</td></tr>
+    <tr><td><code>is-danger</code></td><td>Deu errado: vencido, recusado, bloqueado</td></tr>
+    <tr><td><code>is-info</code></td><td>Informação: novo, agendado</td></tr>
+    <tr><td><code>is-plain</code></td><td>Tira o ponto</td></tr>
+  </tbody>
+</table></div>

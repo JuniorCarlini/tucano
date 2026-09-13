@@ -414,7 +414,7 @@ var Tucano = (() => {
       this.placement = options.placement || "bottom-start";
       this.offset = options.offset ?? 8;
       this.padding = options.padding ?? 8;
-      this.appendTo = options.appendTo || document.body;
+      this.appendTo = options.appendTo || this.anchor.closest?.("dialog[open]") || document.body;
       this.matchWidth = options.matchWidth || false;
       this.closeIfDetached = options.closeIfDetached || false;
       this.closeOnFocusOut = options.closeOnFocusOut || false;
@@ -705,7 +705,7 @@ var Tucano = (() => {
       this._render();
       this.popover = new Popover(this.input, this.panel, {
         placement: this.opts.placement,
-        appendTo: this.opts.appendTo || document.body,
+        appendTo: this.opts.appendTo,
         closeOnFocusOut: true,
         // Clique fora: nao devolvemos o foco, senao roubariamos de onde o usuario clicou.
         onDismiss: (reason) => this.close({ restoreFocus: reason === "escape" })
@@ -832,9 +832,11 @@ var Tucano = (() => {
           if (e.key === "ArrowDown" && !this.isOpen) {
             e.preventDefault();
             this.open();
+            this._focusGrid();
           } else if (e.key === " " && !this.isOpen && !input.value) {
             e.preventDefault();
             this.open();
+            this._focusGrid();
           } else if (e.key === "Enter" && this.isOpen) {
             e.preventDefault();
             this._commitTyped();
@@ -916,6 +918,13 @@ var Tucano = (() => {
       const raw = this.opts.value ?? (this.input ? this.input.value : null);
       if (!raw) return;
       if (this.isRange) {
+        const iso = String(raw).match(/^\s*(\d{4}-\d{2}-\d{2}[T\d:.]*)\s*,\s*(\d{4}-\d{2}-\d{2}[T\d:.]*)\s*$/);
+        if (iso) {
+          this.start = this._normalize(parseISO(iso[1]));
+          this.end = this._normalize(parseISO(iso[2]));
+          this._syncTarget();
+          return;
+        }
         const [a, b] = String(raw).split(/\s*(?:–|—|-{1,2}|a[téa]?)\s*/i);
         this.start = this._normalize(parseUserInput(a, this.opts.locale)) || this._normalize(parseISO(a));
         this.end = this._normalize(parseUserInput(b, this.opts.locale)) || this._normalize(parseISO(b));
@@ -1461,6 +1470,15 @@ var Tucano = (() => {
     /* ---------------------------------------------------------------- *
      * Navegacao                                                         *
      * ---------------------------------------------------------------- */
+    /*
+     * Abrir pelo teclado leva o foco ao dia, como no padrao de date picker do ARIA
+     * APG. Antes o foco ficava no campo: as setas nao chegavam a grade, e o Tab
+     * seguinte fechava o painel — quem so usa teclado nunca escolhia um dia. O
+     * clique nao passa por aqui, porque quem clica pode querer digitar.
+     */
+    _focusGrid() {
+      this.panel.querySelector('.tuc-dp__day[tabindex="0"]')?.focus();
+    }
     _shiftView(delta) {
       this.viewDate = addMonths(this.viewDate, delta);
       this._render();
@@ -1693,7 +1711,7 @@ var Tucano = (() => {
       this._renderMenu();
       this.popover = new Popover(this.control, this.menu, {
         placement: this.opts.placement,
-        appendTo: this.opts.appendTo || document.body,
+        appendTo: this.opts.appendTo,
         matchWidth: true,
         closeOnFocusOut: true,
         onDismiss: () => this.close()
@@ -2375,7 +2393,7 @@ var Tucano = (() => {
       this._paint();
       this.popover = new Popover(this.field, this.panel, {
         placement: this.opts.placement,
-        appendTo: this.opts.appendTo || document.body,
+        appendTo: this.opts.appendTo,
         closeOnFocusOut: true,
         onDismiss: () => this.close()
       });
@@ -2706,13 +2724,13 @@ var Tucano = (() => {
     const m = document.cookie.match(new RegExp(`(?:^|;\\s*)${name}=([^;]*)`));
     return m ? decodeURIComponent(m[1]) : null;
   }
-  function uploadFile({ url, file, field = "file", extras = {}, headers = {}, onProgress }) {
+  function uploadFile({ url, file, field = "file", extras = {}, headers = {}, method = "POST", onProgress }) {
     const xhr = new XMLHttpRequest();
     const promise = new Promise((resolve, reject) => {
       const data = new FormData();
       data.append(field, file);
       for (const [k, v] of Object.entries(extras)) data.append(k, v);
-      xhr.open("POST", url);
+      xhr.open(method, url);
       xhr.responseType = "json";
       for (const [k, v] of Object.entries(headers)) if (v != null) xhr.setRequestHeader(k, v);
       xhr.upload.addEventListener("progress", (e) => {
@@ -2987,6 +3005,7 @@ var Tucano = (() => {
         field: this.opts.fieldName,
         extras: this.opts.extraData,
         headers,
+        method: this.opts.method,
         onProgress: (fraction) => {
           item.progress = fraction;
           this._paintProgress(item);
@@ -3398,6 +3417,7 @@ var Tucano = (() => {
     setValue(value) {
       this.input.value = String(value ?? "");
       this._format({ keepCursor: false });
+      if (this.hidden) this.hidden.value = this.getRaw();
       this._emit();
     }
     isValid() {
@@ -3517,7 +3537,12 @@ var Tucano = (() => {
         on(input, "blur", () => {
           if (this.opts.validate) this._validate();
         }),
-        on(input, "focus", () => this._mark(true))
+        // So quem valida mexe no erro. Sem `validate`, o aria-invalid e de quem
+        // renderizou o campo — o Django 5 o escreve no campo que voltou com erro — e
+        // zera-lo no foco apagava a marca vermelha no primeiro clique.
+        on(input, "focus", () => {
+          if (this.opts.validate) this._mark(true);
+        })
       );
     }
     _onType(e) {
@@ -3871,9 +3896,10 @@ var Tucano = (() => {
     for (const node of scope.querySelectorAll("[data-tuc-toast]:not([data-tuc-ready])")) {
       node.setAttribute("data-tuc-ready", "");
       const d = node.dataset;
-      const raw = (d.type || "info").trim().split(/\s+/)[0];
+      const palavras = (d.type || "info").trim().split(/\s+/).map((w) => DJANGO_MAP[w] ?? w);
+      const tipo = palavras.find((w) => w in DURATION) ?? palavras[0];
       out.push(toast({
-        type: DJANGO_MAP[raw] ?? raw,
+        type: tipo,
         title: d.title || void 0,
         text: (d.text ?? node.textContent).trim(),
         duration: d.duration === "false" ? null : d.duration ? +d.duration : void 0,
@@ -3988,7 +4014,7 @@ var Tucano = (() => {
     }
     setText(text) {
       this.opts.text = text;
-      this.panel.textContent = text;
+      this.panel.querySelector(".tuc-tip__text").textContent = text;
     }
     destroy() {
       this._hide();
@@ -4002,6 +4028,7 @@ var Tucano = (() => {
   function autoInit7(scope = document) {
     const out = [];
     for (const node of scope.querySelectorAll("[data-tuc-tip]:not([data-tuc-ready])")) {
+      if (!node.dataset.tucTip && !node.title) continue;
       node.setAttribute("data-tuc-ready", "");
       out.push(new Tooltip(node, {
         text: node.dataset.tucTip || void 0,
@@ -4014,7 +4041,7 @@ var Tucano = (() => {
   }
 
   // src/js/core/dialog.js
-  var EXIT_MS2 = 160;
+  var EXIT_MS2 = 200;
   var Dialog = class {
     /**
      * Adota um <dialog> ja escrito no template. O no e de quem escreveu o HTML:
@@ -4137,8 +4164,9 @@ var Tucano = (() => {
           this.opts.className
         ].filter(Boolean).join(" "),
         id: this.id,
-        // O titulo nomeia o dialogo; sem titulo o proprio texto serve.
-        ...this.opts.title ? { "aria-labelledby": titleId } : {}
+        // O titulo nomeia o dialogo; sem titulo o proprio texto serve — e o
+        // comentario dizia isso sem que nada fosse posto.
+        ...this.opts.title ? { "aria-labelledby": titleId } : this.opts.text ? { "aria-label": this.opts.text } : {}
       }, [this.panel]);
       this.body = this.panel.querySelector(".tuc-modal__body");
       this.node._tucano = this;
@@ -4237,7 +4265,7 @@ var Tucano = (() => {
           this.opts.className
         ].filter(Boolean).join(" "),
         id: this.id,
-        ...this.opts.title ? { "aria-labelledby": titleId } : {}
+        ...this.opts.title ? { "aria-labelledby": titleId } : this.opts.text ? { "aria-label": this.opts.text } : {}
       }, [this.panel]);
       this.body = this.panel.querySelector(".tuc-drawer__body");
       this.node._tucano = this;
@@ -4525,6 +4553,10 @@ var Tucano = (() => {
       );
       this.panel.classList.add("tuc-dropdown");
       this.panel.setAttribute("role", "menu");
+      for (const item of this.panel.querySelectorAll(".tuc-dropdown__item")) {
+        item.setAttribute("role", "menuitem");
+        item.setAttribute("tabindex", "-1");
+      }
       this.trigger.setAttribute("aria-haspopup", "menu");
       this.trigger.setAttribute("aria-expanded", "false");
       this._cleanups.push(
@@ -4639,10 +4671,6 @@ var Tucano = (() => {
       if (!panel) continue;
       panel.hidden = false;
       panel.remove();
-      for (const item of panel.querySelectorAll(".tuc-dropdown__item")) {
-        item.setAttribute("role", "menuitem");
-        item.setAttribute("tabindex", "-1");
-      }
       out.push(new Dropdown(trigger, {
         panel,
         placement: trigger.dataset.placement || void 0
@@ -4896,7 +4924,7 @@ var Tucano = (() => {
       url.searchParams.set(this.opts.param, String(page));
       return `${url.pathname}${url.search}${url.hash}`;
     }
-    _item(page, { text, current = false, disabled = false, edge = false } = {}) {
+    _item(page, { text, current = false, disabled = false, edge = false, label } = {}) {
       const className = [
         "tuc-btn",
         current ? "is-outline" : "is-ghost",
@@ -4908,7 +4936,10 @@ var Tucano = (() => {
       const a = el("a", {
         class: className,
         href: this.href(page),
-        ...current ? { "aria-current": "page" } : {}
+        ...current ? { "aria-current": "page" } : {},
+        // Abaixo de 40rem a palavra some e o icone e aria-hidden: sem isto a ponta
+        // ficava um link sem nome para o leitor de tela.
+        ...label ? { "aria-label": label } : {}
       }, children);
       this._cleanups.push(on(a, "click", (e) => {
         if (!this.opts.onChange) return;
@@ -4930,7 +4961,8 @@ var Tucano = (() => {
           el("span", { class: "tuc-pagination__word", text: this.opts.prevText })
         ],
         disabled: page <= 1,
-        edge: true
+        edge: true,
+        label: this.opts.prevText
       }));
       for (const n of pageWindow(page, pages, this.opts)) {
         if (n === null) {
@@ -4945,14 +4977,18 @@ var Tucano = (() => {
           icon(ICON_CHEVRON_RIGHT, 15)
         ],
         disabled: page >= pages,
-        edge: true
+        edge: true,
+        label: this.opts.nextText
       }));
       return this;
     }
     /** Troca a página mostrada como atual — para quem navega sem recarregar. */
     setPage(page) {
       this.opts.page = Math.min(Math.max(1, page), this.opts.pages);
-      return this.render();
+      const tinhaFoco = this.node.contains(document.activeElement);
+      this.render();
+      if (tinhaFoco) this.node.querySelector('[aria-current="page"]')?.focus();
+      return this;
     }
     destroy() {
       this._cleanups.forEach((fn) => fn());
@@ -5174,7 +5210,11 @@ var Tucano = (() => {
     "let"
   ].join("|");
   var RULES = [
-    ["comment", /(&lt;!--[\s\S]*?--&gt;|\/\*[\s\S]*?\*\/|\/\/[^\n]*|#[^\n]*)/],
+    // `//` so abre comentario se nao vier colado a `:` ou a uma letra: em
+    // https://… ele pintava o resto da linha como comentario. E `#` so e
+    // comentario no comeco da linha ou depois de espaco, seguido de espaco: sem
+    // isso toda cor hex de CSS (#4f46e5) saia como comentario.
+    ["comment", /(&lt;!--[\s\S]*?--&gt;|\/\*[\s\S]*?\*\/|(?<![:\w])\/\/[^\n]*|(?<![^\s])#(?:\s[^\n]*)?$|(?<![^\s])#\s[^\n]*)/m],
     ["text", /("(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*'|`(?:[^`\\]|\\.)*`)/],
     ["tmpl", /(\{%[\s\S]*?%\}|\{\{[\s\S]*?\}\})/],
     ["tag", /(&lt;\/?[a-zA-Z][\w-]*)/],
@@ -5554,6 +5594,12 @@ var Tucano = (() => {
             onmousedown: (e) => {
               e.preventDefault();
               this.apply(name);
+            },
+            // Enter e Espaco num botao focado viram click com detail 0 — o mouse
+            // ja agiu no mousedown, entao so o teclado passa daqui. Sem isto a
+            // barra so funcionava com mouse.
+            onclick: (e) => {
+              if (e.detail === 0) this.apply(name);
             }
           }, [icon(ICONS[name] ?? ICONS.clear, 15)]);
           b.dataset.action = name;
@@ -5567,12 +5613,15 @@ var Tucano = (() => {
         hidden: true
       }, Object.keys(TABLE).map((name) => el("button", {
         type: "button",
-        class: `tuc-btn is-ghost is-icon is-sm${name.startsWith("remove") ? " is-remove" : ""}`,
+        class: `tuc-btn is-ghost is-icon is-sm${name.startsWith("delete") ? " is-remove" : ""}`,
         "aria-label": TABLE_LABELS[name],
         "data-tuc-tip": TABLE_LABELS[name],
         onmousedown: (e) => {
           e.preventDefault();
           this.inTable(name);
+        },
+        onclick: (e) => {
+          if (e.detail === 0) this.inTable(name);
         }
       }, [icon(TABLE_ICONS[name], 15)])));
       this.root = el("div", { class: "tuc-editor" }, [this.toolbar, this.tableBar, this.area]);
@@ -5593,6 +5642,8 @@ var Tucano = (() => {
         // selectionchange e global: e o unico evento que pega o cursor mudando
         // de lugar por qualquer caminho, inclusive clique fora e volta.
         on(document, "selectionchange", () => {
+          const sel = window.getSelection();
+          if (sel?.rangeCount && this.area.contains(sel.anchorNode)) this._range = sel.getRangeAt(0).cloneRange();
           this._syncTableBar();
           this._markActive();
         })
@@ -5685,6 +5736,11 @@ var Tucano = (() => {
      */
     _focus() {
       this.area.focus({ preventScroll: true });
+      const sel = window.getSelection();
+      if (this._range && sel && !this.area.contains(sel.anchorNode)) {
+        sel.removeAllRanges();
+        sel.addRange(this._range);
+      }
     }
     /* Elemento em volta do cursor, dentro da area. */
     _currentNode() {

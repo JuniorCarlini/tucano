@@ -70,35 +70,11 @@
   --tuc-accent-fg: #0a0a0a;
   --tuc-accent-text: #B84300;
   --tuc-thumb: #ffffff;
-  --tuc-accent-soft: var(--tuc-accent);
-  @supports (color: color-mix(in lab, red, red)) {
-    --tuc-accent-soft: color-mix(in oklab, var(--tuc-accent) 12%, transparent);
-  }
-  --tuc-accent-ring: var(--tuc-accent);
-  @supports (color: color-mix(in lab, red, red)) {
-    --tuc-accent-ring: color-mix(in oklab, var(--tuc-accent) 35%, transparent);
-  }
   --tuc-success: #16a34a;
   --tuc-warning: #d97706;
   --tuc-danger: #dc2626;
   --tuc-info: #1d4ed8;
   --tuc-danger-fill: #dc2626;
-  --tuc-success-soft: var(--tuc-success);
-  @supports (color: color-mix(in lab, red, red)) {
-    --tuc-success-soft: color-mix(in oklab, var(--tuc-success) 12%, transparent);
-  }
-  --tuc-warning-soft: var(--tuc-warning);
-  @supports (color: color-mix(in lab, red, red)) {
-    --tuc-warning-soft: color-mix(in oklab, var(--tuc-warning) 14%, transparent);
-  }
-  --tuc-danger-soft: var(--tuc-danger);
-  @supports (color: color-mix(in lab, red, red)) {
-    --tuc-danger-soft: color-mix(in oklab, var(--tuc-danger) 12%, transparent);
-  }
-  --tuc-info-soft: var(--tuc-info);
-  @supports (color: color-mix(in lab, red, red)) {
-    --tuc-info-soft: color-mix(in oklab, var(--tuc-info) 12%, transparent);
-  }
   --tuc-bg: #ffffff;
   --tuc-fg: #0a0a0a;
   --tuc-muted: #737373;
@@ -126,6 +102,32 @@
   --tuc-font: inherit;
   --tuc-text: 0.8125rem;
   --tuc-cell: 2.25rem;
+}
+:root, :where([class^='tuc-'], [class*=' tuc-']) {
+  --tuc-accent-soft: var(--tuc-accent);
+  @supports (color: color-mix(in lab, red, red)) {
+    --tuc-accent-soft: color-mix(in oklab, var(--tuc-accent) 12%, transparent);
+  }
+  --tuc-accent-ring: var(--tuc-accent);
+  @supports (color: color-mix(in lab, red, red)) {
+    --tuc-accent-ring: color-mix(in oklab, var(--tuc-accent) 35%, transparent);
+  }
+  --tuc-success-soft: var(--tuc-success);
+  @supports (color: color-mix(in lab, red, red)) {
+    --tuc-success-soft: color-mix(in oklab, var(--tuc-success) 12%, transparent);
+  }
+  --tuc-warning-soft: var(--tuc-warning);
+  @supports (color: color-mix(in lab, red, red)) {
+    --tuc-warning-soft: color-mix(in oklab, var(--tuc-warning) 14%, transparent);
+  }
+  --tuc-danger-soft: var(--tuc-danger);
+  @supports (color: color-mix(in lab, red, red)) {
+    --tuc-danger-soft: color-mix(in oklab, var(--tuc-danger) 12%, transparent);
+  }
+  --tuc-info-soft: var(--tuc-info);
+  @supports (color: color-mix(in lab, red, red)) {
+    --tuc-info-soft: color-mix(in oklab, var(--tuc-info) 12%, transparent);
+  }
 }
 .dark, [data-theme='dark'] {
   --tuc-accent-text: #FF7501;

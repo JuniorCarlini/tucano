@@ -1,0 +1,317 @@
+<!--
+title: Tema
+description: Todos os tokens --tuc-* da Tucano com os valores claro e escuro, tema escuro por .dark ou automático, escopo por contêiner, layout compacto e a troca da cor de destaque.
+-->
+<h1>Tema</h1>
+<p class="lead">Cor, raio, espessura de borda, altura de campo, fonte e movimento passam por variável CSS com o prefixo
+   <code>--tuc-</code>, e todas vivem em <code>:root</code>. Trocar o visual é sobrescrever variável, sem recompilar
+   nada: nenhum valor de cor, raio, borda ou altura está escrito à mão no CSS dos componentes.</p>
+
+<div class="demo is-hero">
+  <p class="tuc-label" id="theme-amostras-rotulo">Cor de destaque desta página</p>
+  <div class="bar" id="theme-amostras" role="group" aria-labelledby="theme-amostras-rotulo">
+    <button type="button" class="tuc-btn is-outline is-sm" aria-pressed="true" data-accent="#FF7501"><span aria-hidden="true" style="width:14px;height:14px;border-radius:50%;background:#FF7501"></span>Laranja tucano</button>
+    <button type="button" class="tuc-btn is-outline is-sm" aria-pressed="false" data-accent="#4f46e5" data-hover="#4338ca" data-fg="#ffffff" data-text="#4338ca" data-text-dark="#818cf8"><span aria-hidden="true" style="width:14px;height:14px;border-radius:50%;background:#4f46e5"></span>Índigo</button>
+    <button type="button" class="tuc-btn is-outline is-sm" aria-pressed="false" data-accent="#0f766e" data-hover="#115e59" data-fg="#ffffff" data-text="#0f766e" data-text-dark="#2dd4bf"><span aria-hidden="true" style="width:14px;height:14px;border-radius:50%;background:#0f766e"></span>Verde-azulado</button>
+    <button type="button" class="tuc-btn is-outline is-sm" aria-pressed="false" data-accent="#e11d48" data-hover="#be123c" data-fg="#ffffff" data-text="#be123c" data-text-dark="#fb7185"><span aria-hidden="true" style="width:14px;height:14px;border-radius:50%;background:#e11d48"></span>Rosa</button>
+    <button type="button" class="tuc-btn is-outline is-sm" aria-pressed="false" data-accent="#7c3aed" data-hover="#6d28d9" data-fg="#ffffff" data-text="#6d28d9" data-text-dark="#a78bfa"><span aria-hidden="true" style="width:14px;height:14px;border-radius:50%;background:#7c3aed"></span>Violeta</button>
+  </div>
+
+  <div class="demo-grid" style="margin-top:28px">
+    <div class="demo-cell">
+      <div class="bar">
+        <button type="button" class="tuc-btn is-primary">Salvar</button>
+        <button type="button" class="tuc-btn is-outline">Cancelar</button>
+        <a class="tuc-btn is-link" href="#tokens">Ver tokens</a>
+      </div>
+      <div class="bar" style="margin-top:16px">
+        <label class="tuc-choice"><input type="checkbox" class="tuc-check" checked> Nota fiscal</label>
+        <label class="tuc-choice"><input type="radio" class="tuc-radio" name="theme-frete" checked> Expressa</label>
+        <label class="tuc-choice"><input type="checkbox" role="switch" class="tuc-switch" checked> Avisos</label>
+      </div>
+      <div class="tuc-tabs is-segmented" data-tuc-tabs style="margin-top:16px">
+        <div class="tuc-tabs__list">
+          <button class="tuc-tabs__tab" aria-selected="true">Dia</button>
+          <button class="tuc-tabs__tab">Semana</button>
+          <button class="tuc-tabs__tab">Mês</button>
+        </div>
+        <div class="tuc-tabs__panel" hidden></div>
+        <div class="tuc-tabs__panel" hidden></div>
+        <div class="tuc-tabs__panel" hidden></div>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <label class="tuc-label" for="theme-tags">Tags</label>
+      <select id="theme-tags" name="tags" data-tuc-select multiple>
+        <option selected>Django</option><option selected>HTMX</option><option>Tailwind</option>
+      </select>
+      <label class="tuc-label" for="theme-data" style="margin-top:14px">Vencimento</label>
+      <input type="text" id="theme-data" data-tuc-datepicker>
+      <nav class="tuc-menu" aria-label="Exemplo de menu" style="margin-top:14px">
+        <a class="tuc-menu__item is-active" href="#tokens" aria-current="true">Faturamento</a>
+        <a class="tuc-menu__item" href="#escuro">Relatórios</a>
+      </nav>
+    </div>
+  </div>
+</div>
+
+<p>Nas amostras, o laranja padrão pede texto escuro em cima e as cores escuras pedem texto branco — por isso cada uma
+   troca <code>--tuc-accent-fg</code> junto, e também <code>--tuc-accent-text</code>, o tom do destaque usado como
+   cor de texto no item de menu ativo e na tag do select. Trocar só o <code>--tuc-accent</code> deixaria texto
+   ilegível no botão primário.</p>
+
+<pre data-code="css">
+:root {
+  --tuc-accent: #4f46e5;
+  --tuc-accent-hover: #4338ca;
+  --tuc-accent-fg: #ffffff;       /* texto sobre o destaque */
+  --tuc-accent-text: #4338ca;     /* destaque como cor de texto, no claro */
+  --tuc-radius: 1rem;             /* cantos mais redondos */
+  --tuc-control-height: 2.5rem;   /* campos mais altos */
+}
+.dark {
+  --tuc-accent-text: #818cf8;     /* no escuro, um tom mais claro para ter contraste */
+}
+</pre>
+
+<h2 id="destaque">O destaque e o texto sobre ele</h2>
+<p class="lead">O destaque padrão é o laranja do tucano, <code>#FF7501</code>, igual nos dois temas. E ele tem dois
+   tokens de texto, porque laranja vivo é difícil de ler nos dois papéis.</p>
+
+<p>Sobre o laranja o texto é escuro: <code>--tuc-accent-fg</code> é <code>#0a0a0a</code>, com contraste de 7,4 — o branco
+   dava 2,7. E o laranja vivo como cor de texto sobre fundo claro também dá 2,7, então link, item de menu ativo, tag
+   do select, "hoje" no calendário e ícone ativo usam <code>--tuc-accent-text</code>: <code>#B84300</code> no claro
+   (5,5 sobre branco, 5,0 sobre <code>--tuc-hover</code>, 4,6 sobre o fundo suave) e o próprio <code>#FF7501</code> no
+   escuro (6,7).</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>O que se pinta</th><th>Token</th></tr></thead>
+  <tbody>
+    <tr><td>Fundo, borda, marcação, sublinhado</td><td><code>--tuc-accent</code></td></tr>
+    <tr><td>A propriedade <code>color</code> de um texto em destaque</td><td><code>--tuc-accent-text</code></td></tr>
+    <tr><td>Texto e ícone em cima do destaque</td><td><code>--tuc-accent-fg</code></td></tr>
+    <tr><td>A bolinha da chave</td><td><code>--tuc-thumb</code> — pintada com <code>--tuc-accent-fg</code> ela ficaria preta</td></tr>
+  </tbody>
+</table></div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Ao trocar o destaque, confira três contrastes</p><p>O texto em cima dele (<code>--tuc-accent-fg</code> sobre <code>--tuc-accent</code>), e o texto de destaque sobre branco, sobre <code>--tuc-hover</code> e sobre <code>--tuc-accent-soft</code>. Cor clara pede <code>--tuc-accent-fg</code> escuro; cor escura, branco.</p></div></div>
+
+<p>Tom semântico nunca lê o destaque. Sucesso, alerta, perigo e informação têm tokens próprios, porque a marca pode
+   ser de qualquer cor e o significado não pode mudar junto. Foi por isso que informação ganhou
+   <code>--tuc-info</code>: com o destaque laranja, o aviso de informação ficava igual ao de alerta, e a etiqueta "Novo"
+   colava em "Em análise".</p>
+
+<h2 id="tokens">Tokens</h2>
+<p class="lead">A lista completa, com o valor de cada tema. A fonte da verdade é
+   <code>src/styles/core/tokens.css</code>; o <code>llms.txt</code> traz a mesma lista, gerada do código.</p>
+
+<h3>Superfície e texto</h3>
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Token</th><th>Claro</th><th>Escuro</th><th>Controla</th></tr></thead>
+  <tbody>
+    <tr><td><code>--tuc-bg</code></td><td><code>#ffffff</code></td><td><code>#171717</code></td><td>Fundo de campos, painéis e diálogos</td></tr>
+    <tr><td><code>--tuc-fg</code></td><td><code>#0a0a0a</code></td><td><code>#fafafa</code></td><td>Texto principal</td></tr>
+    <tr><td><code>--tuc-muted</code></td><td><code>#737373</code></td><td><code>#a3a3a3</code></td><td>Texto secundário: dica, cabeçalho de tabela, hora da linha do tempo</td></tr>
+    <tr><td><code>--tuc-subtle</code></td><td><code>#a3a3a3</code></td><td><code>#737373</code></td><td>Texto e ícone apagados: dia fora do mês, seta de ordenação, ponto neutro da linha do tempo</td></tr>
+    <tr><td><code>--tuc-border</code></td><td><code>#e5e5e5</code></td><td><code>#2e2e2e</code></td><td>Linhas e bordas</td></tr>
+    <tr><td><code>--tuc-hover</code></td><td><code>#f5f5f5</code></td><td><code>#262626</code></td><td>Fundo sob o cursor</td></tr>
+    <tr><td><code>--tuc-elevated</code></td><td><code>#fafafa</code></td><td><code>#1f1f1f</code></td><td>Fundo de bloco interno: cabeçalho de tabela, zebra, etiqueta neutra</td></tr>
+  </tbody>
+</table></div>
+
+<h3>Destaque</h3>
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Token</th><th>Claro</th><th>Escuro</th><th>Controla</th></tr></thead>
+  <tbody>
+    <tr><td><code>--tuc-accent</code></td><td><code>#FF7501</code></td><td>igual</td><td>Botão primário, dia escolhido, caixa marcada, aba ativa, borda de foco</td></tr>
+    <tr><td><code>--tuc-accent-hover</code></td><td><code>#FF8A2A</code></td><td>igual</td><td>Botão primário sob o cursor</td></tr>
+    <tr><td><code>--tuc-accent-fg</code></td><td><code>#0a0a0a</code></td><td>igual</td><td>Texto e ícone sobre o destaque</td></tr>
+    <tr><td><code>--tuc-accent-text</code></td><td><code>#B84300</code></td><td><code>#FF7501</code></td><td>Destaque como cor de texto: link, menu ativo, tag do select, "hoje", avatar da tabela</td></tr>
+    <tr><td><code>--tuc-thumb</code></td><td><code>#ffffff</code></td><td>igual</td><td>Bolinha da chave</td></tr>
+    <tr><td><code>--tuc-accent-soft</code></td><td>12% do destaque</td><td>igual</td><td>Faixa do período, tag do select, linha marcada da tabela, fundo do avatar</td></tr>
+    <tr><td><code>--tuc-accent-ring</code></td><td>35% do destaque</td><td>igual</td><td>Anel de foco de campos e botões</td></tr>
+  </tbody>
+</table></div>
+
+<h3>Tons semânticos</h3>
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Token</th><th>Claro</th><th>Escuro</th><th>Controla</th></tr></thead>
+  <tbody>
+    <tr><td><code>--tuc-success</code></td><td><code>#16a34a</code></td><td><code>#4ade80</code></td><td>Etiqueta, aviso, toast e linha do tempo de sucesso</td></tr>
+    <tr><td><code>--tuc-warning</code></td><td><code>#d97706</code></td><td><code>#fbbf24</code></td><td>O mesmo, para alerta</td></tr>
+    <tr><td><code>--tuc-danger</code></td><td><code>#dc2626</code></td><td><code>#f87171</code></td><td>O mesmo, para perigo; também borda e mensagem de campo com erro</td></tr>
+    <tr><td><code>--tuc-info</code></td><td><code>#1d4ed8</code></td><td><code>#60a5fa</code></td><td>O mesmo, para informação — 6,7 sobre branco e 5,6 sobre o próprio fundo suave</td></tr>
+    <tr><td><code>--tuc-danger-fill</code></td><td><code>#dc2626</code></td><td>igual</td><td>Preenchimento sólido: botão de perigo</td></tr>
+    <tr><td><code>--tuc-success-soft</code></td><td>12% do tom</td><td>12% do tom</td><td>Fundo suave da etiqueta</td></tr>
+    <tr><td><code>--tuc-warning-soft</code></td><td>14% do tom</td><td>14% do tom</td><td>Fundo suave da etiqueta</td></tr>
+    <tr><td><code>--tuc-danger-soft</code></td><td>12% do tom</td><td>12% do tom</td><td>Fundo suave da etiqueta</td></tr>
+    <tr><td><code>--tuc-info-soft</code></td><td>12% do tom</td><td>12% do tom</td><td>Fundo suave da etiqueta</td></tr>
+  </tbody>
+</table></div>
+<p>Tom de texto e preenchimento sólido são tokens diferentes de propósito. O <code>--tuc-danger</code> é mais claro no
+   escuro para ter contraste sobre fundo escuro — e um botão pintado com ele ficaria pastel com texto branco em cima.
+   O <code>--tuc-danger-fill</code> é o mesmo nos dois temas.</p>
+
+<h3>Forma e tamanho</h3>
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Token</th><th>Padrão</th><th>Até 40rem</th><th>Controla</th></tr></thead>
+  <tbody>
+    <tr><td><code>--tuc-radius</code></td><td><code>0.875rem</code></td><td>—</td><td>Cantos de painéis e blocos internos</td></tr>
+    <tr><td><code>--tuc-radius-md</code></td><td><code>0.625rem</code></td><td>—</td><td>Controles e células de dia</td></tr>
+    <tr><td><code>--tuc-radius-sm</code></td><td><code>0.5rem</code></td><td>—</td><td>Botões e opções</td></tr>
+    <tr><td><code>--tuc-radius-xs</code></td><td><code>0.375rem</code></td><td>—</td><td>Tags e detalhes</td></tr>
+    <tr><td><code>--tuc-border-width</code></td><td><code>1px</code></td><td>—</td><td>Espessura de toda borda do pacote</td></tr>
+    <tr><td><code>--tuc-control-height</code></td><td><code>2.375rem</code></td><td><code>2.75rem</code></td><td>Altura de campo, botão, select, campo de cor, aba segmentada e paginação</td></tr>
+    <tr><td><code>--tuc-swatch</code></td><td><code>2rem</code></td><td><code>2.5rem</code></td><td>Amostra, valor e conta-gotas dentro do color picker</td></tr>
+    <tr><td><code>--tuc-cell</code></td><td><code>2.25rem</code></td><td>—</td><td>Célula de dia do calendário</td></tr>
+    <tr><td><code>--tuc-text</code></td><td><code>0.8125rem</code></td><td><code>1rem</code> nos campos</td><td>Tamanho do texto</td></tr>
+    <tr><td><code>--tuc-font</code></td><td><code>inherit</code></td><td>—</td><td>Família da fonte — por padrão, a do projeto</td></tr>
+  </tbody>
+</table></div>
+
+<h3>Profundidade e movimento</h3>
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Token</th><th>Claro</th><th>Escuro</th><th>Controla</th></tr></thead>
+  <tbody>
+    <tr><td><code>--tuc-ring</code></td><td><code>rgb(0 0 0 / 0.12)</code></td><td><code>rgb(255 255 255 / 0.14)</code></td><td>Contorno fino dos painéis, parte da sombra</td></tr>
+    <tr><td><code>--tuc-shadow</code></td><td>três camadas</td><td>três camadas, mais densas</td><td>Elevação de calendário, select, color picker, menu e toast</td></tr>
+    <tr><td><code>--tuc-ease</code></td><td><code>cubic-bezier(0.16, 1, 0.3, 1)</code></td><td>igual</td><td>Curva de entrada: desacelera até parar</td></tr>
+    <tr><td><code>--tuc-ease-in</code></td><td><code>cubic-bezier(0.4, 0, 0.9, 0.3)</code></td><td>igual</td><td>Curva de saída: acelera até sumir</td></tr>
+    <tr><td><code>--tuc-duration</code></td><td><code>160ms</code></td><td>igual</td><td>Painéis e mudanças de estado</td></tr>
+    <tr><td><code>--tuc-duration-lg</code></td><td><code>280ms</code></td><td>igual</td><td>O que atravessa a tela: modal, gaveta, toast</td></tr>
+    <tr><td><code>--tuc-duration-out</code></td><td><code>170ms</code></td><td>igual</td><td>Saídas</td></tr>
+  </tbody>
+</table></div>
+<p>Entrada e saída usam curvas diferentes de propósito: usar a mesma curva nos dois faz a saída parecer preguiçosa.</p>
+
+<h2 id="escuro">Tema escuro</h2>
+<p class="lead">O escuro segue a classe <code>.dark</code> no <code>&lt;html&gt;</code>, a convenção do Tailwind e do admin
+   moderno do Django. <code>data-theme="dark"</code> também vale.</p>
+
+<pre data-code="html">
+<html class="dark">
+<html data-theme="dark">
+</pre>
+
+<p>Para seguir o sistema operacional, marque a raiz com <code>data-tuc-theme="auto"</code>. É opt-in de propósito: seguir
+   o sistema por padrão fazia o componente escurecer sozinho numa página clara. Quem manda no tema é o projeto, e não
+   o sistema operacional.</p>
+
+<pre data-code="html">
+<html data-tuc-theme="auto">
+</pre>
+
+<p>O escuro também põe <code>color-scheme: dark</code>, que faz o navegador desenhar barra de rolagem e campo nativo em
+   tom escuro — só dentro dos componentes, para não impor o esquema de cores à página inteira.</p>
+
+<h2 id="escopo">Escopo por contêiner</h2>
+<p class="lead">Como são variáveis, o escopo é seu: em <code>:root</code> valem para a página inteira, e declaradas num
+   contêiner valem só ali dentro. É o jeito de ter um painel com cor própria, ou uma faixa escura numa página clara.</p>
+
+<div class="demo">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <h4>Destaque só neste bloco</h4>
+      <p>As variáveis vão no próprio contêiner.</p>
+      <div id="theme-verde" style="--tuc-accent:#0f766e;--tuc-accent-hover:#115e59;--tuc-accent-fg:#ffffff;--tuc-accent-soft:color-mix(in oklab, #0f766e 12%, transparent);--tuc-accent-ring:color-mix(in oklab, #0f766e 35%, transparent)">
+        <div class="bar">
+          <button type="button" class="tuc-btn is-primary">Aprovar</button>
+          <label class="tuc-choice"><input type="checkbox" role="switch" class="tuc-switch" checked> Ativo</label>
+        </div>
+        <select id="theme-verde-select" data-tuc-select multiple aria-label="Unidades" style="margin-top:12px">
+          <option selected>Matriz</option><option selected>Filial Sul</option><option>Filial Norte</option>
+        </select>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Escuro só neste bloco</h4>
+      <p><code>.dark</code> num contêiner, com fundo próprio.</p>
+      <div class="dark" id="theme-escuro" style="padding:18px;border-radius:12px;background:var(--tuc-bg);color:var(--tuc-fg);--tuc-success-soft:color-mix(in oklab, var(--tuc-success) 12%, transparent);--tuc-warning-soft:color-mix(in oklab, var(--tuc-warning) 14%, transparent);--tuc-danger-soft:color-mix(in oklab, var(--tuc-danger) 12%, transparent);--tuc-info-soft:color-mix(in oklab, var(--tuc-info) 12%, transparent)">
+        <div class="bar">
+          <span class="tuc-badge is-success">Pago</span>
+          <span class="tuc-badge is-warning">Pendente</span>
+          <span class="tuc-badge is-info">Novo</span>
+        </div>
+        <input type="text" class="tuc-input" aria-label="Busca" placeholder="Buscar..." style="margin-top:12px">
+        <div class="bar" style="margin-top:12px">
+          <button type="button" class="tuc-btn is-primary is-sm">Salvar</button>
+          <button type="button" class="tuc-btn is-outline is-sm">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">No contêiner, redeclare os tokens derivados</p><p><code>--tuc-accent-soft</code>, <code>--tuc-accent-ring</code> e os <code>-soft</code> dos tons são calculados a partir de outro token onde foram declarados, em <code>:root</code> — e descem para os filhos já calculados. Na raiz, trocar <code>--tuc-accent</code> recalcula tudo; num contêiner, o fundo suave continuaria na cor antiga. Por isso os dois blocos acima repetem a conta junto.</p></div></div>
+
+<pre data-code="css">
+.painel-verde {
+  --tuc-accent: #0f766e;
+  --tuc-accent-hover: #115e59;
+  --tuc-accent-fg: #ffffff;
+  --tuc-accent-text: #0f766e;
+  --tuc-accent-soft: color-mix(in oklab, var(--tuc-accent) 12%, transparent);
+  --tuc-accent-ring: color-mix(in oklab, var(--tuc-accent) 35%, transparent);
+}
+.dark .painel-verde {
+  --tuc-accent-text: #2dd4bf;     /* texto de destaque legível sobre fundo escuro */
+}
+
+/* .dark num contêiner: os tons mudam, e o fundo suave deles precisa ser refeito ali */
+.faixa.dark {
+  background: var(--tuc-bg);
+  --tuc-success-soft: color-mix(in oklab, var(--tuc-success) 12%, transparent);
+  --tuc-warning-soft: color-mix(in oklab, var(--tuc-warning) 14%, transparent);
+  --tuc-danger-soft: color-mix(in oklab, var(--tuc-danger) 12%, transparent);
+  --tuc-info-soft: color-mix(in oklab, var(--tuc-info) 12%, transparent);
+}
+</pre>
+
+<p>Painel que abre fora do contêiner — calendário, lista do select, menu, toast — é inserido no fim do
+   <code>&lt;body&gt;</code> e não herda as variáveis dele. Para esses, declare o tema em <code>:root</code>, ou use
+   <code>appendTo</code> onde o componente oferece.</p>
+
+<h2 id="compacto">Layout compacto</h2>
+<p class="lead">Abaixo de <code>40rem</code> (640px) o layout fica compacto. O mesmo ponto de corte vale para o CSS e para o
+   JavaScript do date picker, e é por largura — não por <code>pointer: coarse</code> —, porque um notebook com tela de
+   toque não deveria receber comportamento de celular.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Muda</th><th>Para</th><th>Por quê</th></tr></thead>
+  <tbody>
+    <tr><td><code>--tuc-text</code></td><td><code>1rem</code>, em tudo onde se digita ou se toca: campos, select, date picker, color picker, upload, editor, caixas, abas, paginação e botão</td><td>O Safari do iOS dá zoom ao focar qualquer campo com menos de 16px, e a página inteira salta. Toast e tooltip ficam de fora: neles não há campo</td></tr>
+    <tr><td><code>--tuc-control-height</code></td><td><code>2.75rem</code> (44px)</td><td>Alvo de toque confortável</td></tr>
+    <tr><td><code>--tuc-swatch</code></td><td><code>2.5rem</code></td><td>Acompanha o texto maior no toque</td></tr>
+    <tr><td>Date picker</td><td>Em tela estreita <em>e</em> de toque, o campo não recebe foco e o próprio painel é a entrada</td><td>Sem foco não sobe o teclado, que cobriria o calendário. A condição de toque entra para não desligar a digitação numa janela estreita de desktop</td></tr>
+  </tbody>
+</table></div>
+
+<p>Se o seu projeto troca de layout em outro ponto, o compacto da biblioteca não acompanha — ele é fixo em
+   <code>40rem</code>. Os seus campos devem adotar os mesmos 16px no celular pelo mesmo motivo; é o padrão
+   <code>text-base md:text-sm</code> do shadcn.</p>
+
+<script>
+  // Troca o destaque da página inteira: uma folha de estilo no <head> com os
+  // tokens em :root. O laranja volta ao padrão tirando a folha, e não repetindo
+  // os valores — assim o texto de destaque do escuro continua sendo o do pacote.
+  const folha = document.createElement('style');
+  // O texto de destaque do bloco verde muda com o tema, e atributo style não tem
+  // como dizer "no escuro": vai numa folha, como no exemplo de CSS da página.
+  const escopo = document.createElement('style');
+  escopo.textContent = '#theme-verde{--tuc-accent-text:#0f766e}:root.dark #theme-verde{--tuc-accent-text:#2dd4bf}';
+  document.head.append(escopo, folha);
+  const amostras = document.getElementById('theme-amostras');
+  amostras.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-accent]');
+    if (!b) return;
+    for (const n of amostras.querySelectorAll('[data-accent]')) n.setAttribute('aria-pressed', String(n === b));
+    const d = b.dataset;
+    if (!d.hover) { folha.textContent = ''; return; }
+    // O laranja pede texto escuro em cima; estas cores escuras pedem texto branco.
+    // --tuc-accent-text muda por tema: :root.dark vence o .dark do pacote, que
+    // tem o mesmo peso de :root e viria antes desta folha.
+    folha.textContent = `:root{--accent:${d.accent};--tuc-accent:${d.accent};--tuc-accent-hover:${d.hover};`
+      + `--tuc-accent-fg:${d.fg};--tuc-accent-text:${d.text}}`
+      + `:root.dark{--accent:${d.accent};--tuc-accent-text:${d.textDark}}`;
+  });
+</script>

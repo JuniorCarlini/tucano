@@ -29,6 +29,8 @@ const pagina = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
 <input id="doc" data-tuc-mask="cpf-cnpj">
 <input id="valor" data-tuc-mask="real">
 <input id="data" data-tuc-mask="date">
+<input id="dt" data-tuc-datepicker>
+<textarea id="ked" data-tuc-editor></textarea>
 <div class="tuc-tabs" data-tuc-tabs id="abas"><div class="tuc-tabs__list">
   <button class="tuc-tabs__tab" aria-selected="true">A</button><button class="tuc-tabs__tab">B</button>
   <button class="tuc-tabs__tab" disabled>C</button><button class="tuc-tabs__tab">D</button></div>
@@ -89,6 +91,8 @@ const TECLAS = {
   ArrowLeft: { code: 'ArrowLeft', key: 'ArrowLeft', vk: 37 },
   Home: { code: 'Home', key: 'Home', vk: 36 },
   End: { code: 'End', key: 'End', vk: 35 },
+  ArrowDown: { code: 'ArrowDown', key: 'ArrowDown', vk: 40 },
+  Escape: { code: 'Escape', key: 'Escape', vk: 27 },
 };
 async function tecla(nome, vezes = 1) {
   const t = TECLAS[nome];
@@ -237,8 +241,43 @@ await caso('setas andam entre as abas, pulam a desativada e trocam o painel', as
   return r === 'A01' ? null : `Home não voltou para a primeira: ${r}`;
 });
 
+await caso('barra do editor aplica o comando pelo teclado, no texto selecionado', async () => {
+  // Os botões agiam só no mousedown: com o foco no botão, Espaço e Enter não
+  // faziam nada. Aqui a seleção é feita na área, o foco vai ao botão e a tecla
+  // é de verdade — evento sintético numa página sem foco não prova isso.
+  await avaliar(`(() => {
+    const area = document.getElementById('ked').closest('.tuc-editor').querySelector('.tuc-editor__area');
+    area.innerHTML = '<p>texto</p>';
+    area.focus();
+    const r = document.createRange();
+    r.selectNodeContents(area.querySelector('p'));
+    const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
+  })()`);
+  await espera(50);
+  await avaliar(`document.getElementById('ked').closest('.tuc-editor').querySelector('[data-action="bold"]').focus()`);
+  await digitar(' ');
+  const html = await avaliar(`document.getElementById('ked').closest('.tuc-editor').querySelector('.tuc-editor__area').innerHTML`);
+  return /<(b|strong)>/.test(html) ? null : `negrito não aplicado: ${html}`;
+});
+
+await caso('↓ no campo de data abre o calendário e leva o foco ao dia', async () => {
+  // Antes o foco ficava no campo: a seta não chegava à grade e o Tab fechava o
+  // painel, e quem usa só teclado nunca escolhia um dia.
+  await avaliar(`document.getElementById('dt').focus()`);
+  await tecla('ArrowDown');
+  const aberto = await avaliar(`[document.activeElement.classList.contains('tuc-dp__day'), document.getElementById('dt')._tucano.isOpen]`);
+  if (!aberto[0] || !aberto[1]) return `foco num dia: ${aberto[0]}, aberto: ${aberto[1]}`;
+  const antes = await avaliar('document.activeElement.dataset.date');
+  await tecla('ArrowRight');
+  const depois = await avaliar('document.activeElement.dataset.date');
+  if (!depois || antes === depois) return `a seta não andou: ${antes} → ${depois}`;
+  await tecla('Escape');
+  const fim = await avaliar(`[document.activeElement.id, document.getElementById('dt')._tucano.isOpen]`);
+  return fim[0] === 'dt' && !fim[1] ? null : `Esc deixou o foco em "${fim[0]}", aberto: ${fim[1]}`;
+});
+
 ws.close();
 chrome.kill();
 unlinkSync(arq);
-console.log(falhas ? `\n${falhas} falha(s) no teclado` : '\n11 caminhos de teclado verificados');
+console.log(falhas ? `\n${falhas} falha(s) no teclado` : '\n13 caminhos de teclado verificados');
 process.exit(falhas ? 1 : 0);

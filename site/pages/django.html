@@ -1,0 +1,399 @@
+<!--
+title: Django
+description: Tucano com Django — widgets por data-attribute, o que chega no request.POST, erros com aria-invalid, messages como toast, HTMX, CSRF no upload e tabela com Paginator.
+-->
+<h1>Django</h1>
+<p class="lead">A Tucano foi desenhada para o caminho do Django: o campo continua sendo o elemento nativo do formulário,
+   o valor chega no <code>request.POST</code> do jeito que o form espera, e tudo se configura por atributo — no
+   <code>widgets</code> do form, sem uma linha de JavaScript.</p>
+
+<div class="demo is-hero">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <label class="tuc-label" for="django-evento">Data do evento</label>
+      <input type="text" id="django-evento" name="data_evento" data-tuc-datepicker data-time="true" value="2026-12-25 09:30:00">
+      <div class="out" id="django-evento-post"></div>
+    </div>
+    <div class="demo-cell">
+      <label class="tuc-label" for="django-periodo">Período</label>
+      <input type="text" id="django-periodo" name="periodo" data-tuc-datepicker data-mode="range">
+      <div class="out" id="django-periodo-post"></div>
+    </div>
+    <div class="demo-cell">
+      <label class="tuc-label" for="django-tags">Tags</label>
+      <select id="django-tags" name="tags" data-tuc-select multiple data-placeholder="Adicione tags...">
+        <option value="django" selected>Django</option><option value="htmx" selected>HTMX</option>
+        <option value="postgres">PostgreSQL</option><option value="celery">Celery</option>
+      </select>
+      <div class="out" id="django-tags-post"></div>
+    </div>
+    <div class="demo-cell">
+      <label class="tuc-label" for="django-cor">Cor</label>
+      <input type="text" id="django-cor" name="cor" data-tuc-color data-alpha="false" value="#4f46e5">
+      <div class="out" id="django-cor-post"></div>
+    </div>
+  </div>
+  <p class="tuc-hint">Embaixo de cada campo, o que o formulário enviaria agora. Mude os valores para ver.</p>
+</div>
+
+<h2 id="carregar">Carregar</h2>
+<p class="lead">Copie a pasta <code>dist/</code> para os estáticos do projeto e carregue os dois arquivos no template base.
+   O <code>defer</code> deixa o script rodar depois do HTML, e o CSS já desenha o campo cru no tamanho final, então nada
+   pula quando ele inicializa.</p>
+<pre data-code="django">
+{% load static %}
+<link rel="stylesheet" href="{% static 'tucano/tucano.min.css' %}">
+<script src="{% static 'tucano/tucano.min.js' %}" defer></script>
+</pre>
+
+<h2 id="widgets">Widgets</h2>
+<p class="lead">Cada componente é um atributo <code>data-tuc-*</code>. No Django ele entra pelo <code>attrs</code> do widget,
+   e o valor vazio basta: o atributo existir é o que liga.</p>
+
+<pre data-code="python">
+class ContratoForm(forms.ModelForm):
+    class Meta:
+        model = Contrato
+        fields = ["data_evento", "vencimento", "uf", "tags", "cor", "documento", "descricao", "anexo"]
+        widgets = {
+            "data_evento": forms.TextInput(attrs={"data-tuc-datepicker": "", "data-time": "true"}),
+            "vencimento":  forms.TextInput(attrs={"data-tuc-datepicker": "", "data-min": "2026-01-01"}),
+            "uf":          forms.Select(attrs={"data-tuc-select": ""}),
+            "tags":        forms.SelectMultiple(attrs={"data-tuc-select": "", "data-max-items": "3"}),
+            "cor":         forms.TextInput(attrs={"data-tuc-color": "", "data-alpha": "false"}),
+            "documento":   forms.TextInput(attrs={"data-tuc-mask": "cpf-cnpj", "data-validate": "true"}),
+            "descricao":   forms.Textarea(attrs={"data-tuc-editor": ""}),
+            "anexo":       forms.ClearableFileInput(attrs={"data-tuc-upload": "", "data-max-size": "5mb"}),
+        }
+</pre>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Use TextInput no date picker, e não DateInput</p><p>O <code>DateInput</code> renderiza <code>type="date"</code>, e o navegador desenha o próprio calendário ao lado do nosso. O campo de texto com <code>data-tuc-datepicker</code> é o que dá o painel da biblioteca; quem quiser o seletor do sistema no celular pede com <code>data-native</code>.</p></div></div>
+
+<p>Com <code>{{ form }}</code>, <code>{{ form.as_div }}</code> ou campo a campo, os atributos saem no HTML e cada campo
+   se inicializa sozinho no carregamento e depois de cada troca do HTMX.</p>
+
+<h2 id="post">O que chega no POST</h2>
+<p class="lead">O elemento nativo continua dono do valor, então o servidor recebe o que receberia sem a biblioteca. A
+   diferença está onde ela ajuda o form: a data chega em ISO, e não no formato da tela.</p>
+
+<pre data-code="text">
+data_evento = 2026-12-25T09:30          # DateTimeField faz o parse direto
+vencimento  = 2026-12-25                # DateField também
+periodo     = 2026-03-01,2026-03-15     # separe na vírgula no clean_
+tags        = django                    # request.POST.getlist("tags")
+tags        = htmx
+cor         = #4f46e5
+documento   = 123.456.789-09            # o texto do campo, formatado
+</pre>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Campo</th><th>O que chega</th><th>Por quê</th></tr></thead>
+  <tbody>
+    <tr><td>Date picker</td><td>ISO: <code>2026-12-25</code>, e <code>2026-12-25T09:30</code> com <code>data-time</code> — com <code>data-seconds</code>, os segundos também</td><td>O campo visível mostra o formato do locale e fica sem <code>name</code>; um <code>&lt;input type="hidden"&gt;</code> com o <code>name</code> original carrega o ISO</td></tr>
+    <tr><td>Período</td><td><code>2026-03-01,2026-03-15</code></td><td>Início e fim em ISO, separados por vírgula, num campo só</td></tr>
+    <tr><td>Select múltiplo</td><td>Um valor por opção marcada</td><td>É o <code>&lt;select multiple&gt;</code> nativo que posta: leia com <code>getlist()</code></td></tr>
+    <tr><td>Color picker</td><td><code>#4f46e5</code>; com opacidade abaixo de 1, <code>#4f46e580</code></td><td><code>data-format</code> troca para <code>rgb</code> ou <code>hsl</code>; <code>data-alpha="false"</code> tira a opacidade</td></tr>
+    <tr><td>Máscara</td><td>O texto formatado, como está no campo</td><td>A máscara é comportamento puro sobre o <code>&lt;input&gt;</code>. Com <code>data-tuc-reveal</code>, um hidden com o <code>name</code> leva o conteúdo sem formatação</td></tr>
+    <tr><td>Upload sem <code>data-url</code></td><td>Os arquivos, em <code>request.FILES</code></td><td>Eles ficam no <code>&lt;input type="file"&gt;</code> nativo e sobem no submit — o form precisa de <code>enctype="multipart/form-data"</code></td></tr>
+    <tr><td>Upload com <code>data-url</code></td><td>Os ids que o endpoint devolveu, com o <code>name</code> do input</td><td>Cada arquivo já subiu na hora; o form posta só a referência</td></tr>
+    <tr><td>Editor</td><td>HTML sanitizado, no <code>&lt;textarea&gt;</code></td><td>O textarea continua sendo o campo; sanitize de novo no servidor antes de publicar</td></tr>
+  </tbody>
+</table></div>
+
+<h3>Período no form</h3>
+<p>O Django não tem campo de intervalo, então o período chega como texto e se separa no <code>clean_</code>.</p>
+<pre data-code="python">
+from datetime import date
+
+class ReservaForm(forms.Form):
+    periodo = forms.CharField(widget=PeriodoInput(attrs={"data-tuc-datepicker": "", "data-mode": "range"}))
+
+    def clean_periodo(self):
+        inicio, _, fim = self.cleaned_data["periodo"].partition(",")
+        try:
+            return date.fromisoformat(inicio), date.fromisoformat(fim)
+        except ValueError:
+            raise forms.ValidationError("Escolha o início e o fim do período.")
+</pre>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">O período volta ao campo no formato da tela</p><p>O date picker lê o valor inicial de um período no formato que ele exibe, <code>01/03/2026 — 15/03/2026</code>, e não em ISO com vírgula. Quando o form volta com erro, o Django reescreve no campo exatamente o que foi postado — o ISO — e o período apareceria trocado. Um widget que devolve o formato de exibição resolve os dois casos, o valor postado e o inicial.</p></div></div>
+
+<pre data-code="python">
+from datetime import date
+
+class PeriodoInput(forms.TextInput):
+    def format_value(self, value):
+        if isinstance(value, str) and "," in value:
+            try:
+                value = [date.fromisoformat(p) for p in value.split(",", 1)]
+            except ValueError:
+                return value
+        if isinstance(value, (list, tuple)) and len(value) == 2:
+            return f"{value[0]:%d/%m/%Y} — {value[1]:%d/%m/%Y}"
+        return super().format_value(value)
+</pre>
+<p>Data simples e data com hora não precisam disso: o valor que o Django escreve — <code>2026-12-25</code> ou
+   <code>2026-12-25 09:30:00</code> — é lido direto, como no primeiro campo do exemplo acima.</p>
+
+<h2 id="erros">Erros de formulário</h2>
+<p class="lead">Campo com erro é <code>aria-invalid="true"</code>, e não uma classe. É o atributo que o leitor de tela
+   anuncia, e o Django 5 o escreve sozinho em todo campo que voltou com erro — então <code>{{ field }}</code> sai
+   pintado de vermelho sem ninguém escrever nada.</p>
+
+<pre data-code="django">
+{# o Django 5 já põe aria-invalid no campo com erro, e aria-describedby apontando para a ajuda #}
+<label class="tuc-label{% if field.field.required %} is-required{% endif %}" for="{{ field.id_for_label }}">{{ field.label }}</label>
+{{ field }}
+{% if field.help_text %}<p class="tuc-hint" id="{{ field.auto_id }}_helptext">{{ field.help_text }}</p>{% endif %}
+{% for error in field.errors %}<p class="tuc-error">{{ error }}</p>{% endfor %}
+</pre>
+
+<p>O atributo fica no elemento nativo, e o CSS alcança o controle que o script montou: o select, o campo de cor, o
+   editor e a zona de upload ganham a borda e o anel de erro pelo nativo que está dentro deles. Nenhum componente
+   copia o atributo, e por isso nenhum fica dessincronizado quando o HTMX troca o campo.</p>
+
+<div class="demo">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <label class="tuc-label is-required" for="django-cnpj">CNPJ</label>
+      <input type="text" id="django-cnpj" name="cnpj" data-tuc-mask="cnpj" value="11.222.333/0001-00" aria-invalid="true" aria-describedby="django-cnpj-e">
+      <p class="tuc-error" id="django-cnpj-e">CNPJ inválido.</p>
+    </div>
+    <div class="demo-cell">
+      <label class="tuc-label is-required" for="django-uf">Estado</label>
+      <select id="django-uf" name="uf" data-tuc-select aria-invalid="true" aria-describedby="django-uf-e"><option value="">Selecione...</option><option>São Paulo</option><option>Paraná</option></select>
+      <p class="tuc-error" id="django-uf-e">Este campo é obrigatório.</p>
+    </div>
+  </div>
+</div>
+
+<p>Para o Django 4 ou anterior, ponha o atributo no widget quando o campo tiver erro — no <code>__init__</code> do form,
+   depois da validação:</p>
+<pre data-code="python">
+class BaseForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for name in self.errors:
+            if name in self.fields:
+                self.fields[name].widget.attrs["aria-invalid"] = "true"
+</pre>
+<p>Validação do próprio navegador também pinta, mas só depois de a pessoa mexer: um campo <code>required</code> vazio
+   fica vermelho por <code>:user-invalid</code> ao sair dele ou ao tentar enviar, e não no carregamento.</p>
+
+<h2 id="messages">Mensagens como toast</h2>
+<p class="lead">O framework de <code>messages</code> vira toast sem JavaScript. Ponha o laço no template base; cada
+   <code>&lt;div&gt;</code> é lido, vira toast e sai do DOM.</p>
+
+<pre data-code="django">
+{% for m in messages %}
+  <div data-tuc-toast data-type="{{ m.level_tag }}">{{ m }}</div>
+{% endfor %}
+</pre>
+
+<p>Os níveis <code>debug</code>, <code>info</code>, <code>success</code>, <code>warning</code> e <code>error</code> são
+   traduzidos sozinhos — <code>debug</code> vira <code>info</code>. Use <code>m.level_tag</code> e não
+   <code>m.tags</code>: com <code>extra_tags</code>, o <code>tags</code> começa pela tag extra, e o componente lê só a
+   primeira palavra.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Atributo</th><th>Para quê</th></tr></thead>
+  <tbody>
+    <tr><td><code>data-type</code></td><td>Tipo: os níveis do Django, ou <code>loading</code></td></tr>
+    <tr><td><code>data-title</code></td><td>Título em negrito acima do texto</td></tr>
+    <tr><td><code>data-text</code></td><td>Texto; sem ele vale o conteúdo do <code>&lt;div&gt;</code></td></tr>
+    <tr><td><code>data-duration</code></td><td>Tempo na tela, em ms; <code>false</code> não fecha sozinho</td></tr>
+    <tr><td><code>data-position</code></td><td><code>top-start</code>, <code>top-center</code>, <code>top-end</code>, <code>bottom-start</code>, <code>bottom-center</code> ou <code>bottom-end</code> (padrão)</td></tr>
+  </tbody>
+</table></div>
+
+<pre data-code="python">
+from django.contrib import messages
+
+def salvar(request, pk):
+    ...
+    messages.success(request, "Contrato salvo.")
+    return redirect("contrato", pk=pk)
+</pre>
+
+<h2 id="htmx">HTMX</h2>
+<p class="lead">HTMX já está coberto. A biblioteca inicializa de novo a cada <code>htmx:afterSwap</code>, dentro do
+   trecho trocado, então campo que chega por swap funciona sem você fazer nada. Quem já está pronto tem
+   <code>data-tuc-ready</code> e é pulado.</p>
+
+<h3>Toast disparado pelo servidor</h3>
+<p>Numa resposta do HTMX não há redirect nem template base para o laço de <code>messages</code>. O servidor manda o
+   toast pelo cabeçalho <code>HX-Trigger</code>, e a biblioteca escuta o evento <code>tucano:toast</code> no
+   <code>&lt;body&gt;</code>:</p>
+<pre data-code="python">
+import json
+
+def salvar(request, pk):
+    ...
+    return HttpResponse(status=204, headers={"HX-Trigger": json.dumps(
+        {"tucano:toast": {"type": "success", "text": "Contrato salvo"}})})
+</pre>
+<p>O objeto aceita as mesmas opções do <code>Tucano.toast()</code>: <code>type</code>, <code>title</code>,
+   <code>text</code>, <code>duration</code>, <code>position</code>. Um texto solto no lugar do objeto vira toast de
+   informação. Se o fragmento trocado trouxer <code>&lt;div data-tuc-toast&gt;</code>, eles também viram toast.</p>
+
+<h3>Campo que dispara requisição</h3>
+<p>Cada componente dispara o <code>change</code> nativo, então <code>hx-trigger="change"</code> funciona sem ajuste. No
+   date picker, porém, quem tem o <code>name</code> é o hidden com o ISO, e não o campo visível: ponha o
+   <code>hx-get</code> no formulário, que inclui todos os campos, em vez de no input.</p>
+<pre data-code="django">
+<form hx-get="{% url 'agenda' %}" hx-trigger="change" hx-target="#resultado">
+  <input type="text" name="dia" data-tuc-datepicker>
+  <select name="sala" data-tuc-select>...</select>
+</form>
+</pre>
+
+<h3>Trocar as opções de um select</h3>
+<p>Um select que já existe e recebe <code>&lt;option&gt;</code> novas por <code>hx-swap="innerHTML"</code> não é
+   inicializado de novo — ele já está pronto. Peça para ele reler as opções:</p>
+<pre data-code="django">
+<select name="estado" data-tuc-select hx-get="{% url 'cidades' %}" hx-target="#cidade">...</select>
+<select name="cidade" id="cidade" data-tuc-select></select>
+</pre>
+<pre data-code="js">
+document.addEventListener('htmx:afterSwap', (e) => {
+  if (e.target.matches('select[data-tuc-select]')) e.target._tucano?.refresh();
+});
+</pre>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">HTML que não veio pelo HTMX</p><p>O automático cobre o carregamento e o <code>htmx:afterSwap</code>. Se o HTML entrar por <code>fetch</code> e <code>innerHTML</code>, chame <code>Tucano.init(no)</code> no trecho novo. E pelo npm, importando de <code>tucano</code>, nada se inicializa sozinho: importe <code>tucano/auto</code>, que faz o boot e escuta o HTMX como o script do CDN.</p></div></div>
+
+<h2 id="csrf">CSRF no upload</h2>
+<p class="lead">No upload direto cada arquivo sobe numa requisição própria, fora do submit do formulário — e o
+   <code>{% csrf_token %}</code> do form não vai junto. Por isso o componente lê o cookie <code>csrftoken</code> e
+   manda o valor no cabeçalho <code>X-CSRFToken</code>, que é o que o Django confere. A remoção por
+   <code>data-delete-url</code> leva o mesmo cabeçalho.</p>
+
+<pre data-code="django">
+<form method="post" action="{% url 'galeria-salvar' %}">
+  {% csrf_token %}
+  <input type="file" name="fotos" multiple accept="image/*"
+         data-tuc-upload data-url="{% url 'upload-temp' %}" data-max-size="5mb">
+  <button class="tuc-btn is-primary">Salvar</button>
+</form>
+</pre>
+
+<pre data-code="python">
+def upload_temp(request):
+    arquivo = request.FILES["file"]              # data-field-name muda o "file"
+    temp = TempUpload.objects.create(arquivo=arquivo)
+    return JsonResponse({"id": str(temp.id), "url": temp.arquivo.url})
+
+def galeria_salvar(request):
+    ids = request.POST.getlist("fotos")          # os ids devolvidos acima
+    ...
+</pre>
+
+<p>O cookie só pode ser lido se o JavaScript o enxergar. Com <code>CSRF_COOKIE_HTTPONLY = True</code> ou outro
+   <code>CSRF_COOKIE_NAME</code>, passe o token por conta própria — o <code>{% csrf_token %}</code> do formulário já
+   deixou o valor na página:</p>
+<pre data-code="js">
+const token = document.querySelector('[name=csrfmiddlewaretoken]').value;
+new Tucano.Upload('#fotos', { url: '/upload/', headers: { 'X-CSRFToken': token } });
+</pre>
+
+<p>Com o HTMX é o mesmo problema pelo outro lado: as requisições dele também precisam do cabeçalho. Declare uma
+   vez no <code>&lt;body&gt;</code>:</p>
+<pre data-code="django">
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+</pre>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Lembre da limpeza</p><p>No upload direto o arquivo chega ao servidor antes de o formulário ser salvo. Se a pessoa sobe e fecha a aba, ele fica lá: uma tarefa apagando temporários com mais de 24 horas resolve.</p></div></div>
+
+<h2 id="tabela">Tabela e paginação com Paginator</h2>
+<p class="lead">A tabela ordena pelo servidor e a paginação é feita para o <code>Paginator</code>. Os dois são links de
+   verdade que preservam o resto da query string, então ordem, filtro e página convivem na mesma URL.</p>
+
+<pre data-code="python">
+from django.core.paginator import Paginator
+
+ORDENS = {"cliente": "nome", "valor": "valor", "vencimento": "vencimento"}
+
+def contratos(request):
+    qs = Contrato.objects.all()
+    if q := request.GET.get("q"):
+        qs = qs.filter(nome__icontains=q)
+
+    campo = ORDENS.get(request.GET.get("sort"), "nome")
+    if request.GET.get("dir") == "desc":
+        campo = f"-{campo}"
+    qs = qs.order_by(campo, "pk")               # ordenar ANTES de paginar
+
+    page_obj = Paginator(qs, 20).get_page(request.GET.get("page"))
+    return render(request, "contratos/lista.html", {"page_obj": page_obj})
+</pre>
+
+<pre data-code="django">
+<form method="get">
+  <input class="tuc-input" type="search" name="q" value="{{ request.GET.q }}">
+  {# mantém a ordem ao filtrar #}
+  <input type="hidden" name="sort" value="{{ request.GET.sort }}">
+  <input type="hidden" name="dir" value="{{ request.GET.dir }}">
+</form>
+
+<table data-tuc-table>
+  <thead><tr>
+    <th data-sort="text" data-field="cliente">Cliente</th>
+    <th data-sort="date" data-field="vencimento">Vencimento</th>
+    <th data-sort="number" data-field="valor" class="is-number">Valor</th>
+  </tr></thead>
+  <tbody>
+    {% for obj in page_obj %}
+    <tr data-id="{{ obj.pk }}">
+      <td>{{ obj.nome }}</td>
+      <td>{{ obj.vencimento|date:"d/m/Y" }}</td>
+      <td class="is-number">{{ obj.valor|floatformat:2 }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="3" class="tuc-table__empty">Nenhum contrato encontrado.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div data-tuc-pagination
+     data-page="{{ page_obj.number }}"
+     data-pages="{{ page_obj.paginator.num_pages }}"></div>
+</pre>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Clique em</th><th>A URL vira</th></tr></thead>
+  <tbody>
+    <tr><td>Cabeçalho "Valor"</td><td><code>?q=vale&amp;sort=valor&amp;dir=asc</code> — o <code>page</code> sai, porque trocar a ordem volta para a página 1</td></tr>
+    <tr><td>De novo no mesmo cabeçalho</td><td><code>?q=vale&amp;sort=valor&amp;dir=desc</code></td></tr>
+    <tr><td>Página 3</td><td><code>?q=vale&amp;sort=valor&amp;dir=desc&amp;page=3</code></td></tr>
+  </tbody>
+</table></div>
+
+<p>Traduza o <code>?sort</code> por uma lista fechada, como o <code>ORDENS</code> acima: passar o parâmetro direto ao
+   <code>order_by()</code> deixaria qualquer um ordenar por qualquer campo, e um nome inexistente derruba a view. O
+   <code>"pk"</code> no fim desempata — sem ordem total, a mesma linha pode aparecer em duas páginas. Com uma página
+   só, a paginação não é renderizada. Os detalhes estão nas páginas <a href="../table/">Tabela</a> e
+   <a href="../pagination/">Paginação</a>.</p>
+
+<script>
+  // O que o formulário enviaria: o hidden do date picker, as opções marcadas do
+  // select nativo e o valor do campo de cor. Lido do DOM, e não do evento, para
+  // mostrar exatamente o que o POST levaria.
+  const mostrarPost = (id) => {
+    const campo = document.getElementById(id);
+    const out = document.getElementById(`${id}-post`);
+    if (!campo || !out) return;
+    let linhas;
+    if (campo.tagName === 'SELECT') {
+      linhas = [...campo.selectedOptions].map((o) => `${campo.name} = ${o.value}`);
+    } else {
+      const hidden = campo.parentElement.querySelector('input[type=hidden]');
+      const fonte = hidden || campo;
+      linhas = [`${fonte.name} = ${fonte.value || '""'}`];
+    }
+    out.textContent = linhas.length ? linhas.map((l) => `POST  ${l}`).join('\n') : 'POST  (nada)';
+    out.style.whiteSpace = 'pre-line';
+  };
+  const CAMPOS = ['django-evento', 'django-periodo', 'django-tags', 'django-cor'];
+  document.addEventListener('tucano:change', () => CAMPOS.forEach(mostrarPost));
+  document.addEventListener('DOMContentLoaded', () => CAMPOS.forEach(mostrarPost));
+</script>

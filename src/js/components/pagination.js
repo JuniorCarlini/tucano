@@ -68,7 +68,7 @@ export class Pagination {
     return `${url.pathname}${url.search}${url.hash}`;
   }
 
-  _item(page, { text, current = false, disabled = false, edge = false } = {}) {
+  _item(page, { text, current = false, disabled = false, edge = false, label } = {}) {
     /*
      * O item e o botao do sistema. A pagina atual ganha contorno em vez de
      * preenchimento: numa barra com dez alvos, dez botoes solidos brigam entre
@@ -93,6 +93,9 @@ export class Pagination {
     const a = el('a', {
       class: className, href: this.href(page),
       ...(current ? { 'aria-current': 'page' } : {}),
+      // Abaixo de 40rem a palavra some e o icone e aria-hidden: sem isto a ponta
+      // ficava um link sem nome para o leitor de tela.
+      ...(label ? { 'aria-label': label } : {}),
     }, children);
     this._cleanups.push(on(a, 'click', (e) => {
       if (!this.opts.onChange) return;
@@ -113,7 +116,7 @@ export class Pagination {
       // O svg direto no botao, sem span em volta: e assim que o .tuc-btn o dimensiona.
       text: [icon(ICON_CHEVRON_LEFT, 15),
              el('span', { class: 'tuc-pagination__word', text: this.opts.prevText })],
-      disabled: page <= 1, edge: true,
+      disabled: page <= 1, edge: true, label: this.opts.prevText,
     }));
 
     for (const n of pageWindow(page, pages, this.opts)) {
@@ -127,7 +130,7 @@ export class Pagination {
     this.node.append(this._item(page + 1, {
       text: [el('span', { class: 'tuc-pagination__word', text: this.opts.nextText }),
              icon(ICON_CHEVRON_RIGHT, 15)],
-      disabled: page >= pages, edge: true,
+      disabled: page >= pages, edge: true, label: this.opts.nextText,
     }));
     return this;
   }
@@ -135,7 +138,12 @@ export class Pagination {
   /** Troca a página mostrada como atual — para quem navega sem recarregar. */
   setPage(page) {
     this.opts.page = Math.min(Math.max(1, page), this.opts.pages);
-    return this.render();
+    // Redesenhar troca os links; quem estava no teclado perdia o foco para o
+    // comeco da pagina. Volta para a pagina atual.
+    const tinhaFoco = this.node.contains(document.activeElement);
+    this.render();
+    if (tinhaFoco) this.node.querySelector('[aria-current="page"]')?.focus();
+    return this;
   }
 
   destroy() {

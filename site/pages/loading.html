@@ -1,0 +1,152 @@
+<!--
+title: Carregando
+description: Spinner para a ação que a pessoa espera e esqueleto para o conteúdo que ainda vai chegar, com botão ocupado e o indicador do HTMX. Só classe.
+-->
+<h1>Carregando</h1>
+<p class="lead">Spinner para a ação que a pessoa disparou e espera, como o botão de salvar; esqueleto para o conteúdo que
+   ainda vai chegar e já tem forma conhecida, como a linha da tabela. O esqueleto evita o salto: o espaço já está reservado
+   com o tamanho do que vem. Só classe, sem JavaScript.</p>
+
+<div class="demo is-hero">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <h4>Spinner</h4>
+      <p>Clique em salvar: o botão fica ocupado por dois segundos.</p>
+      <div class="bar">
+        <button type="button" class="tuc-btn is-primary" id="loading-salvar">Salvar</button>
+        <span class="tuc-spinner"></span>
+        <span class="tuc-spinner is-lg"></span>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Esqueleto</h4>
+      <p>A forma do que vem, no lugar do que vem.</p>
+      <div class="bar" style="flex-wrap:nowrap;gap:12px">
+        <span class="tuc-skeleton is-circle" style="width:36px;flex:none"></span>
+        <div style="flex:1;display:grid;gap:8px">
+          <span class="tuc-skeleton" style="width:55%"></span>
+          <span class="tuc-skeleton" style="width:85%;height:.75em"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h2 id="exemplos">Exemplos</h2>
+<p class="lead">O spinner mede em <code>em</code> e pinta com <code>currentColor</code>, então acompanha o lugar onde está sem variante nenhuma.</p>
+
+<div class="demo">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <h4>Botão ocupado</h4>
+      <p><code>aria-busy="true"</code> com <code>disabled</code>. No botão, o spinner ocupa o lugar e o tamanho do ícone.</p>
+      <div class="bar">
+        <button type="button" class="tuc-btn is-primary" aria-busy="true" disabled><span class="tuc-spinner"></span> Salvando</button>
+        <button type="button" class="tuc-btn is-outline is-sm" aria-busy="true" disabled><span class="tuc-spinner"></span> Enviando</button>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>No texto</h4>
+      <p>Na altura da letra, e na cor dela.</p>
+      <p style="color:var(--fg)"><span class="tuc-spinner"></span> Buscando cobranças…</p>
+    </div>
+    <div class="demo-cell">
+      <h4>Linha de tabela</h4>
+      <p>O esqueleto pode ser qualquer elemento, inclusive um <code>&lt;td&gt;</code>.</p>
+      <div class="tuc-table-wrap"><table class="tuc-table">
+        <thead><tr><th>Cliente</th><th>Valor</th></tr></thead>
+        <tbody>
+          <tr><td><span class="tuc-skeleton" style="width:70%"></span></td><td><span class="tuc-skeleton" style="width:50%"></span></td></tr>
+          <tr><td><span class="tuc-skeleton" style="width:55%"></span></td><td><span class="tuc-skeleton" style="width:40%"></span></td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <div class="demo-cell">
+      <h4>Avatar e card</h4>
+      <p><code>is-circle</code> fica redondo na largura que você der.</p>
+      <div class="bar" style="flex-wrap:nowrap;gap:12px">
+        <span class="tuc-skeleton is-circle" style="width:48px;flex:none"></span>
+        <div style="flex:1;display:grid;gap:8px">
+          <span class="tuc-skeleton" style="width:40%"></span>
+          <span class="tuc-skeleton" style="height:3.5em"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h2 id="uso">Como usar</h2>
+<pre data-code="html">
+<button class="tuc-btn is-primary" aria-busy="true" disabled>
+  <span class="tuc-spinner"></span> Salvando
+</button>
+
+<span class="tuc-spinner is-lg"></span>
+
+<div class="tuc-skeleton" style="width:60%"></div>
+<span class="tuc-skeleton is-circle" style="width:36px"></span>
+</pre>
+
+<p>O esqueleto é um bloco de <code>1em</code> de altura e da largura toda: a largura e, quando precisar, a altura são suas.
+   Não escreva spinner à mão, com SVG ou borda própria — o toast de carregando e os componentes usam este.</p>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Ocupado não é desativado</p><p>O <code>disabled</code> impede o segundo clique, mas o esmaecido de 50% diz "não disponível", e o botão está trabalhando. Com <code>aria-busy="true"</code> ele fica com a cor cheia e o cursor de espera.</p></div></div>
+
+<h2 id="htmx">Com o HTMX</h2>
+<p class="lead"><code>htmx-indicator</code> é a classe do próprio HTMX: escondida, e visível só durante a requisição. Junto do
+   spinner, ele aparece e some sem uma linha de JavaScript.</p>
+
+<pre data-code="django">
+<button class="tuc-btn is-primary" hx-post="{% url 'contrato-salvar' contrato.pk %}" hx-disabled-elt="this">
+  <span class="tuc-spinner htmx-indicator"></span> Salvar
+</button>
+</pre>
+
+<p>O esqueleto serve de conteúdo provisório para o que o HTMX vai buscar logo que a página abre. Quando a resposta chega,
+   ela substitui o esqueleto no mesmo espaço, e nada pula.</p>
+
+<pre data-code="django">
+<div hx-get="{% url 'clientes-tabela' %}" hx-trigger="load" hx-swap="outerHTML">
+  <span class="tuc-skeleton" style="width:60%"></span>
+  <span class="tuc-skeleton" style="width:80%; margin-top:8px"></span>
+</div>
+</pre>
+
+<h2 id="acessibilidade">Acessibilidade</h2>
+<p class="lead">O texto diz o que está acontecendo, e o spinner confirma. "Salvando" ao lado do spinner é anunciado; um
+   spinner sozinho é um círculo girando para quem não vê.</p>
+
+<p>O esqueleto é decoração: não seleciona texto, não recebe ponteiro e seu texto, se houver, fica transparente. Com
+   <code>prefers-reduced-motion</code> o brilho do esqueleto para de vez, porque é só enfeite. O spinner continua girando,
+   mais devagar: parado, ele deixaria de dizer "esperando" e viraria um círculo qualquer.</p>
+
+<h2 id="api">Classes</h2>
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Classe ou atributo</th><th>Para quê</th></tr></thead>
+  <tbody>
+    <tr><td><code>.tuc-spinner</code></td><td>Círculo girando, de <code>1em</code>, na cor do texto</td></tr>
+    <tr><td><code>is-lg</code></td><td>No spinner: <code>1.5em</code></td></tr>
+    <tr><td><code>.tuc-btn &gt; .tuc-spinner</code></td><td>Dentro do botão, no tamanho do ícone dele</td></tr>
+    <tr><td><code>aria-busy="true"</code></td><td>No <code>.tuc-btn</code>: ocupado, com cor cheia e cursor de espera, mesmo com <code>disabled</code></td></tr>
+    <tr><td><code>.tuc-skeleton</code></td><td>Bloco com brilho, no lugar do conteúdo que vem</td></tr>
+    <tr><td><code>is-circle</code></td><td>No esqueleto: redondo, com a altura igual à largura</td></tr>
+    <tr><td><code>htmx-indicator</code></td><td>Do HTMX: mostra o elemento só durante a requisição</td></tr>
+  </tbody>
+</table></div>
+
+<script>
+  // Botão que fica ocupado: aria-busy e disabled juntos, e o spinner no lugar do ícone.
+  document.addEventListener('click', (e) => {
+    const botao = e.target.closest('#loading-salvar');
+    if (!botao || botao.getAttribute('aria-busy') === 'true') return;
+    botao.setAttribute('aria-busy', 'true');
+    botao.disabled = true;
+    botao.innerHTML = '<span class="tuc-spinner"></span> Salvando';
+    setTimeout(() => {
+      botao.removeAttribute('aria-busy');
+      botao.disabled = false;
+      botao.textContent = 'Salvar';
+      Tucano.toast.success('Salvo');
+    }, 2000);
+  });
+</script>

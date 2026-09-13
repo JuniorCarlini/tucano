@@ -39,6 +39,12 @@ export class Dropdown {
       (this.opts.items ?? []).map((i) => this._item(i)));
     this.panel.classList.add('tuc-dropdown');
     this.panel.setAttribute('role', 'menu');
+    // Papel e tabindex dos itens aqui, e nao so no autoInit: um painel passado
+    // em JS ficava com itens que o leitor de tela nao anunciava como opcao.
+    for (const item of this.panel.querySelectorAll('.tuc-dropdown__item')) {
+      item.setAttribute('role', 'menuitem');
+      item.setAttribute('tabindex', '-1');
+    }
 
     this.trigger.setAttribute('aria-haspopup', 'menu');
     this.trigger.setAttribute('aria-expanded', 'false');
@@ -174,10 +180,6 @@ export function autoInit(scope = document) {
     if (!panel) continue;
     panel.hidden = false;   // quem esconde agora e o popover, tirando do fluxo
     panel.remove();
-    for (const item of panel.querySelectorAll('.tuc-dropdown__item')) {
-      item.setAttribute('role', 'menuitem');
-      item.setAttribute('tabindex', '-1');
-    }
     out.push(new Dropdown(trigger, {
       panel,
       placement: trigger.dataset.placement || undefined,

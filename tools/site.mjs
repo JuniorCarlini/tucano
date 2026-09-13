@@ -90,7 +90,7 @@ function api(nome) {
   ];
   if (c.seletores.length || c.classe) {
     partes.push(`<div class="api-line"><span>Marcação</span><div>${lista(c.seletores)}</div></div>`);
-    partes.push(`<div class="api-line"><span>Em JS</span><div><code>new Tucano.${esc(c.classe)}(alvo, opcoes)</code>${
+    partes.push(`<div class="api-line"><span>Em JS</span><div><code>new Tucano.${esc(c.classe)}(${c.argumentos})</code>${
       c.atalhos.length ? ` ${lista(c.atalhos.map((a) => `Tucano.${a}()`))}` : ''}</div></div>`);
   }
   if (c.atributos.length) partes.push(`<div class="api-line"><span>Atributos</span><div>${lista(c.atributos)}</div></div>`);

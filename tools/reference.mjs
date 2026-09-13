@@ -34,7 +34,7 @@ const linhas = [INICIO, '', 'Inventario extraido do codigo a cada build. Se algo
 for (const c of componentes) {
   linhas.push(`### ${c.classe ?? c.nome}`);
   if (c.seletores.length) linhas.push(`  marcacao   ${c.seletores.join('  ou  ')}`);
-  linhas.push(`  em JS      new Tucano.${c.classe}(alvo, opcoes)`
+  linhas.push(`  em JS      new Tucano.${c.classe}(${c.argumentos})`
     + (c.atalhos.length ? `   atalhos: ${c.atalhos.map((a) => `Tucano.${a}()`).join(', ')}` : ''));
   if (c.atributos.length) linhas.push(`  atributos  ${c.atributos.join(' ')}`);
   if (c.opcoes.length) {

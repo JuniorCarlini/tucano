@@ -1,0 +1,201 @@
+<!--
+title: Caixa, opção e chave
+description: Checkbox, radio e switch desenhados sobre o <input> nativo — name, value, required e o estado misto continuam sendo do navegador, sem JavaScript.
+-->
+<h1>Caixa, opção e chave</h1>
+<p class="lead">Os três são o <code>&lt;input&gt;</code> nativo com o desenho trocado, e nada mais. O
+   <code>name</code>, o <code>value</code>, o <code>required</code> e o anúncio do leitor de tela continuam
+   sendo os do navegador — o formulário posta como sempre postou, e não há JavaScript nenhum.</p>
+
+<div class="demo is-hero">
+  <div class="demo-grid is-3">
+    <div class="demo-cell">
+      <span class="tuc-label">Caixa de seleção</span>
+      <div class="tuc-choices">
+        <label class="tuc-choice"><input type="checkbox" class="tuc-check" name="nf" checked> Nota fiscal por e-mail</label>
+        <label class="tuc-choice"><input type="checkbox" class="tuc-check" name="boleto"> Aceitar boleto</label>
+        <label class="tuc-choice"><input type="checkbox" class="tuc-check" name="pix" disabled> Pix parcelado</label>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <fieldset class="tuc-choices">
+        <legend>Entrega</legend>
+        <label class="tuc-choice"><input type="radio" class="tuc-radio" name="ch-frete" value="normal" checked><span>Normal<span class="tuc-choice__hint">Até 7 dias úteis, sem custo</span></span></label>
+        <label class="tuc-choice"><input type="radio" class="tuc-radio" name="ch-frete" value="expressa"><span>Expressa<span class="tuc-choice__hint">Chega amanhã · R$ 24,90</span></span></label>
+        <label class="tuc-choice"><input type="radio" class="tuc-radio" name="ch-frete" value="loja" disabled><span>Retirar na loja<span class="tuc-choice__hint">Indisponível nesta cidade</span></span></label>
+      </fieldset>
+    </div>
+    <div class="demo-cell">
+      <span class="tuc-label">Chave</span>
+      <div class="tuc-choices">
+        <label class="tuc-choice is-end"><input type="checkbox" role="switch" class="tuc-switch" checked><span>Avisos por e-mail<span class="tuc-choice__hint">Resumo diário das aprovações</span></span></label>
+        <label class="tuc-choice is-end"><input type="checkbox" role="switch" class="tuc-switch"><span>Modo compacto<span class="tuc-choice__hint">Mais linhas por página</span></span></label>
+        <label class="tuc-choice is-end"><input type="checkbox" role="switch" class="tuc-switch" checked disabled><span>Dois fatores<span class="tuc-choice__hint">Exigida pela sua organização</span></span></label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h2 id="exemplos">Exemplos</h2>
+<p class="lead">Tudo abaixo é o mesmo <code>&lt;input&gt;</code> com classes e atributos diferentes.</p>
+
+<div class="demo">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <h4>Estado misto</h4>
+      <p>O <code>indeterminate</code> nativo vira um traço. Ele não existe como atributo de HTML — só como propriedade, em JavaScript.</p>
+      <div class="tuc-choices">
+        <label class="tuc-choice"><input type="checkbox" class="tuc-check" id="ch-todos"> Todos os contratos</label>
+        <label class="tuc-choice" style="margin-left:1.5rem"><input type="checkbox" class="tuc-check" checked> Contrato 1042</label>
+        <label class="tuc-choice" style="margin-left:1.5rem"><input type="checkbox" class="tuc-check"> Contrato 1043</label>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Lado a lado</h4>
+      <p><code>is-inline</code> no grupo põe as opções na mesma linha, quebrando quando não cabem.</p>
+      <fieldset class="tuc-choices is-inline">
+        <legend>Periodicidade</legend>
+        <label class="tuc-choice"><input type="radio" class="tuc-radio" name="ch-periodo" value="mensal" checked> Mensal</label>
+        <label class="tuc-choice"><input type="radio" class="tuc-radio" name="ch-periodo" value="trimestral"> Trimestral</label>
+        <label class="tuc-choice"><input type="radio" class="tuc-radio" name="ch-periodo" value="anual"> Anual</label>
+      </fieldset>
+    </div>
+    <div class="demo-cell">
+      <h4>Com erro</h4>
+      <p><code>aria-invalid="true"</code> no input pinta a borda enquanto ele está desmarcado — o Django 5 já escreve o atributo.</p>
+      <label class="tuc-choice"><input type="checkbox" class="tuc-check" name="termos" aria-invalid="true" aria-describedby="ch-termos-msg"> Li e aceito os termos</label>
+      <p class="tuc-error" id="ch-termos-msg">Aceite os termos para continuar.</p>
+    </div>
+    <div class="demo-cell">
+      <h4>Controle à direita</h4>
+      <p><code>is-end</code> faz a linha inteira clicável, com os controles alinhados numa coluna — a lista de preferências.</p>
+      <div class="tuc-choices">
+        <label class="tuc-choice is-end"><input type="checkbox" role="switch" class="tuc-switch" checked><span>Notificar novos pedidos</span></label>
+        <label class="tuc-choice is-end"><input type="checkbox" role="switch" class="tuc-switch"><span>Notificar cancelamentos</span></label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h2 id="uso">Como usar</h2>
+<p class="lead">Classe no input e um <code>&lt;label class="tuc-choice"&gt;</code> em volta. Clicar no texto marca, e o
+   leitor de tela lê o texto como nome do controle — sem <code>for</code> nem <code>id</code>.</p>
+
+<pre data-code="html">
+<label class="tuc-choice">
+  <input type="checkbox" class="tuc-check" name="nf"> Nota fiscal por e-mail
+</label>
+
+<fieldset class="tuc-choices">
+  <legend>Entrega</legend>
+  <label class="tuc-choice">
+    <input type="radio" class="tuc-radio" name="frete" value="normal" checked>
+    <span>Normal <span class="tuc-choice__hint">Até 7 dias úteis</span></span>
+  </label>
+  <label class="tuc-choice">
+    <input type="radio" class="tuc-radio" name="frete" value="expressa">
+    <span>Expressa <span class="tuc-choice__hint">Chega amanhã</span></span>
+  </label>
+</fieldset>
+
+<label class="tuc-choice is-end">
+  <input type="checkbox" role="switch" class="tuc-switch" name="avisos"> Avisos por e-mail
+</label>
+</pre>
+
+<p>Com descrição, texto e <code>.tuc-choice__hint</code> vão dentro de um <code>&lt;span&gt;</code>: é o que mantém
+   os dois empilhados ao lado do controle, alinhado à primeira linha.</p>
+
+<h3>No formulário do Django</h3>
+<p>A classe vai nos <code>attrs</code> do widget. Para opções (<code>RadioSelect</code>,
+   <code>CheckboxSelectMultiple</code>), percorra o campo no template: cada item entrega o input pronto em
+   <code>tag</code> e o texto em <code>choice_label</code>.</p>
+<pre data-code="python">
+class PreferenciasForm(forms.Form):
+    nf = forms.BooleanField(
+        required=False, label="Nota fiscal por e-mail",
+        widget=forms.CheckboxInput(attrs={"class": "tuc-check"}),
+    )
+    avisos = forms.BooleanField(
+        required=False, label="Avisos por e-mail",
+        widget=forms.CheckboxInput(attrs={"class": "tuc-switch", "role": "switch"}),
+    )
+    frete = forms.ChoiceField(
+        choices=[("normal", "Normal"), ("expressa", "Expressa")],
+        widget=forms.RadioSelect(attrs={"class": "tuc-radio"}),
+    )
+</pre>
+<pre data-code="django">
+<label class="tuc-choice">{{ form.nf }} {{ form.nf.label }}</label>
+
+<label class="tuc-choice is-end">{{ form.avisos }} <span>{{ form.avisos.label }}</span></label>
+
+<fieldset class="tuc-choices">
+  <legend>{{ form.frete.label }}</legend>
+  {% for opcao in form.frete %}
+    <label class="tuc-choice">{{ opcao.tag }} {{ opcao.choice_label }}</label>
+  {% endfor %}
+</fieldset>
+</pre>
+
+<p>O POST é o do HTML: caixa marcada envia o <code>value</code> (ou <code>on</code>, sem ele), desmarcada não envia
+   nada — é por isso que o <code>BooleanField</code> precisa de <code>required=False</code>.</p>
+
+<h3>Estado misto</h3>
+<p>Para a caixa que resume um grupo, como o "selecionar todos" de uma tabela. Só existe como propriedade:</p>
+<pre data-code="js">
+document.querySelector('#todos').indeterminate = true;
+</pre>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Chave é para o que acontece na hora</p><p>Caixa, para o que só vale ao salvar. Uma chave num formulário que ainda pede "Salvar" promete um efeito que não aconteceu.</p></div></div>
+
+<h2 id="desenho">Por que desenhados</h2>
+<p class="lead"><code>accent-color</code> resolveria em uma linha, mas entrega o desenho do sistema: no macOS um azul que
+   não é o seu, no Windows outro canto, e nenhum dos dois com o raio do resto dos campos.</p>
+
+<p>E ele só pinta a caixa marcada — a opção ao lado continuaria com o círculo do sistema. Desenhados, os três
+   combinam entre si e com o input vizinho em qualquer sistema, e usam os mesmos tokens: o destaque é
+   <code>--tuc-accent</code>, o anel de foco é o <code>--tuc-accent-ring</code> dos campos.</p>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Resiste ao CSS do projeto</p><p>As classes são repetidas no seletor (<code>input.tuc-check.tuc-check</code>) para vencer regras comuns como <code>input[type=checkbox] { ... }</code> e <code>.card label { display: block }</code>, que com uma classe só desmontariam a linha.</p></div></div>
+
+<h2 id="teclado">Teclado e acessibilidade</h2>
+<p class="lead">Tudo é do navegador, porque o controle continua sendo o input. O <code>&lt;fieldset&gt;</code> com
+   <code>&lt;legend&gt;</code> dá ao leitor de tela o nome do grupo de opções.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Tecla</th><th>Ação</th></tr></thead>
+  <tbody>
+    <tr><td><code>Tab</code></td><td>Chega na caixa ou na chave; num grupo de opções, na que está marcada</td></tr>
+    <tr><td><code>Espaço</code></td><td>Marca e desmarca a caixa, liga e desliga a chave</td></tr>
+    <tr><td><code>↑</code> <code>↓</code> <code>←</code> <code>→</code></td><td>Anda entre as opções de mesmo <code>name</code>, marcando</td></tr>
+  </tbody>
+</table></div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">A chave precisa de role="switch" no template</p><p>CSS não põe papel. É o <code>role</code> que faz o leitor de tela dizer "chave, ligada" em vez de "caixa de seleção, marcada" — e quem esquecer continua com um checkbox que funciona, só anunciado pelo nome errado.</p></div></div>
+
+<p>Com <code>prefers-reduced-motion</code> as transições de marcar e de deslizar a chave são desligadas.</p>
+
+<h2 id="api">Classes</h2>
+<p class="lead">Só CSS. Não há componente para inicializar nem evento próprio: ouça o <code>change</code> nativo.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Classe ou atributo</th><th>Onde</th><th>Para quê</th></tr></thead>
+  <tbody>
+    <tr><td><code>tuc-check</code></td><td><code>input type="checkbox"</code></td><td>Caixa de seleção; o estado misto é o <code>indeterminate</code> nativo</td></tr>
+    <tr><td><code>tuc-radio</code></td><td><code>input type="radio"</code></td><td>Opção — uma de várias com o mesmo <code>name</code></td></tr>
+    <tr><td><code>tuc-switch</code></td><td><code>input type="checkbox"</code></td><td>Chave; exige <code>role="switch"</code> no input</td></tr>
+    <tr><td><code>tuc-choice</code></td><td><code>label</code></td><td>Junta controle e texto, com o controle alinhado à primeira linha</td></tr>
+    <tr><td><code>tuc-choice__hint</code></td><td><code>span</code> dentro do texto</td><td>Descrição embaixo do texto</td></tr>
+    <tr><td><code>is-end</code></td><td><code>.tuc-choice</code></td><td>Controle à direita e a linha inteira clicável</td></tr>
+    <tr><td><code>tuc-choices</code></td><td><code>fieldset</code> ou <code>div</code></td><td>Grupo empilhado; desfaz a borda, o padding e o <code>min-width</code> do fieldset</td></tr>
+    <tr><td><code>is-inline</code></td><td><code>.tuc-choices</code></td><td>Opções lado a lado, quebrando linha</td></tr>
+    <tr><td><code>disabled</code></td><td>input</td><td>Esmaece o controle e o texto do rótulo, com cursor de bloqueio</td></tr>
+    <tr><td><code>aria-invalid="true"</code></td><td>input</td><td>Borda de erro enquanto desmarcado; <code>:user-invalid</code> faz o mesmo depois de a pessoa mexer</td></tr>
+  </tbody>
+</table></div>
+
+<script>
+  // O estado misto so existe como propriedade: nenhum atributo de HTML o liga.
+  document.getElementById('ch-todos').indeterminate = true;
+</script>

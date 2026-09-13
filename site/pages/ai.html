@@ -1,0 +1,90 @@
+<!--
+title: Para agentes de IA
+description: Como fazer uma IA usar a Tucano sem reexplicar a cada conversa — o llms.txt com a API completa, o AGENTS.md de três linhas para o seu projeto e as regras do que ela não deve fazer.
+-->
+<h1>Para agentes de IA</h1>
+<p class="lead">Uma IA que não conhece a biblioteca escreve um date picker do zero, inventa uma classe vermelha para
+   erro e ordena a tabela no cliente. Dois arquivos resolvem isso sem você explicar de novo a cada conversa: a
+   referência completa em texto puro e três linhas no <code>AGENTS.md</code> do seu projeto.</p>
+
+<h2 id="llms">llms.txt</h2>
+<p class="lead">A API inteira num arquivo de texto, feito para ser lido por modelo e não por gente. Aponte a IA
+   para ele:</p>
+
+<p><a href="https://juniorcarlini.github.io/tucano/llms.txt"><code>https://juniorcarlini.github.io/tucano/llms.txt</code></a></p>
+
+<p>Primeiro vem uma seção por componente, com o caminho declarativo por <code>data-*</code>, que é o normal num projeto
+   Django. Depois, a referência completa: seletor, atributos, todas as opções com o comentário que as explica,
+   métodos, eventos, classes CSS e tokens. Essa parte é gerada do código a cada build — se uma opção não está lá,
+   ela não existe. No fim ficam as regras do que não fazer.</p>
+
+<p>Toda página deste site anuncia o arquivo no <code>&lt;head&gt;</code>, para ferramenta que procura por ele:</p>
+<pre data-code="html">
+<link rel="alternate" type="text/plain" href="https://juniorcarlini.github.io/tucano/llms.txt">
+</pre>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Por que texto puro, e não esta documentação</p><p>Uma página de docs traz menu, demonstração e script junto com a informação, e a IA gasta contexto lendo o que não serve. O <code>llms.txt</code> é só a API, na ordem em que se usa, e cabe inteiro numa conversa.</p></div></div>
+
+<h2 id="agents">AGENTS.md no seu projeto</h2>
+<p class="lead">Cole isto no <code>AGENTS.md</code> da raiz do projeto que usa a Tucano — ou no <code>CLAUDE.md</code>, no
+   <code>.cursorrules</code>, onde a sua ferramenta procurar. É o que faz a IA escolher a biblioteca em vez de
+   escrever um componente do zero.</p>
+
+<pre data-code="text">
+## Interface
+Este projeto usa a Tucano. Não escreva do zero date picker, select com busca, color picker, upload, máscara, toast, tooltip, modal, gaveta, acordeão, abas, menu suspenso, tabela, paginação nem editor de texto.
+Referência completa: https://juniorcarlini.github.io/tucano/llms.txt
+</pre>
+
+<p>Três linhas bastam porque o trabalho está no link. Se quiser que a IA acerte já na primeira resposta, sem abrir a
+   referência, acrescente os exemplos que o seu projeto mais usa:</p>
+
+<pre data-code="text">
+## Interface
+Este projeto usa a Tucano. Não escreva do zero date picker, select com busca, color picker, upload, máscara, toast, tooltip, modal, gaveta, acordeão, abas, menu suspenso, tabela, paginação nem editor de texto.
+Referência completa: https://juniorcarlini.github.io/tucano/llms.txt
+
+<input data-tuc-datepicker data-mode="range">
+<select data-tuc-select multiple>
+<input data-tuc-mask="cpf-cnpj">
+<input type="file" data-tuc-upload>
+<button data-tuc-tip="..." class="tuc-btn is-primary">
+
+Tucano.toast.success('Salvo');
+await Tucano.confirm({ title: 'Excluir?' });
+Tucano.drawer({ title: 'Filtros', side: 'right' });
+
+O elemento nativo continua dono do valor: name, required e getlist() do Django seguem funcionando. Não substitua por estado só em JS.
+</pre>
+
+<h3>E o AGENTS.md da Tucano</h3>
+<p>O <a href="https://github.com/JuniorCarlini/tucano/blob/main/AGENTS.md"><code>AGENTS.md</code></a> do repositório é para
+   quem vai mexer no código <em>da própria</em> biblioteca: como rodar, a estrutura e as decisões que não devem ser
+   revertidas sem motivo, cada uma com o defeito que a motivou. Para usar a Tucano num projeto, ele não é
+   necessário — o <code>llms.txt</code> é.</p>
+
+<h2 id="regras">O que a IA não deve fazer</h2>
+<p class="lead">São as regras que fecham o <code>llms.txt</code>. Cada uma existe porque é o erro que um modelo comete
+   quando deduz em vez de ler.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Não faça</th><th>Faça</th><th>Por quê</th></tr></thead>
+  <tbody>
+    <tr><td>Escrever date picker, select com busca ou color picker do zero</td><td>Marcar o campo com <code>data-tuc-datepicker</code>, <code>data-tuc-select</code>, <code>data-tuc-color</code></td><td>É o que a biblioteca existe para evitar</td></tr>
+    <tr><td>Usar a API em JavaScript por hábito</td><td>Preferir os <code>data-*</code>; JS só para opção que não existe como atributo — <code>disabledDates</code>, presets próprios, <code>onChange</code></td><td>Atributo funciona no template, sobrevive ao HTMX e dispensa script</td></tr>
+    <tr><td>Remover o <code>&lt;select&gt;</code> nativo ou o <code>name</code> do input</td><td>Deixar o elemento nativo no formulário</td><td>É nele que o valor vive: <code>required</code> e <code>getlist()</code> dependem dele</td></tr>
+    <tr><td>Estilizar as classes internas <code>.tuc-*__*</code></td><td>Sobrescrever as variáveis <code>--tuc-*</code> em <code>:root</code></td><td>As classes internas são montadas pelo script e o desenho sai dos tokens</td></tr>
+    <tr><td>Escrever <code>abrir()</code>, <code>tamanho</code>, <code>'direita'</code></td><td><code>open</code>/<code>close</code>/<code>toggle</code>, <code>size</code>, <code>tone</code>, <code>side</code>, <code>items</code>, <code>actions</code>; valores <code>'left'</code>, <code>'right'</code>, <code>'danger'</code>, <code>'success'</code></td><td>A API é toda em inglês, e opção desconhecida é ignorada em silêncio</td></tr>
+    <tr><td>Ordenar no cliente uma lista paginada</td><td>Deixar o cabeçalho ser o <code>&lt;a&gt;</code> para <code>?sort=</code> e <code>?dir=</code>, com a ordem no <code>order_by()</code> antes do <code>Paginator</code></td><td>Ordenar a página da tela produz uma ordem falsa. <code>data-sort-mode="client"</code> só para tabela pequena e sem paginação</td></tr>
+    <tr><td>Inventar classe vermelha para campo com erro</td><td><code>aria-invalid="true"</code> no campo e a mensagem em <code>.tuc-error</code></td><td>É o atributo que o leitor de tela anuncia, e o Django 5 já o escreve</td></tr>
+    <tr><td>Abrir painel quando o campo recebe foco</td><td>Deixar abrir por <code>↓</code>, <code>Espaço</code>, clique; <code>Enter</code> também no select</td><td>É a regra do <code>&lt;select&gt;</code> nativo e do ARIA APG</td></tr>
+    <tr><td>Esquecer o <code>hidden</code> no painel do dropdown escrito no template</td><td><code>&lt;div class="tuc-dropdown" id="..." hidden&gt;</code></td><td>Sem ele o menu aparece no meio da página até o script rodar. O <code>&lt;dialog&gt;</code> do modal e da gaveta não precisa</td></tr>
+    <tr><td>Desenhar um segundo botão</td><td><code>.tuc-btn</code> com <code>is-outline</code>, <code>is-ghost</code>, <code>is-icon</code>, <code>is-sm</code> — inclusive dentro de tabela</td><td>Classe própria só para posicionar</td></tr>
+    <tr><td>Escrever o placeholder de campo com máscara</td><td>Deixar vazio</td><td>Ele sai do gabarito: <code>data-tuc-mask="cpf"</code> já nasce com <code>000.000.000-00</code></td></tr>
+    <tr><td>Publicar o que veio do editor com <code>|safe</code> direto</td><td>Sanitizar no servidor antes</td><td>A peneira do editor protege o editor, não a publicação</td></tr>
+    <tr><td>Esperar que HTML inserido por <code>fetch</code> ou <code>innerHTML</code> se inicialize sozinho</td><td>Chamar <code>Tucano.init(no)</code> no trecho novo</td><td>O automático cobre o load e cada <code>htmx:afterSwap</code>; outro caminho de inserção a biblioteca não vê</td></tr>
+    <tr><td>Remover <code>data-tuc-ready</code></td><td>Deixar o atributo</td><td>É ele que impede o autoInit de montar o mesmo campo duas vezes</td></tr>
+  </tbody>
+</table></div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Na dúvida, a referência gerada manda</p><p>Se um exemplo em prosa e a "Referência completa" do <code>llms.txt</code> discordarem, vale a referência: ela é extraída do código a cada build. Peça à IA para copiar o exemplo de cada seção em vez de deduzir, e para conferir cada opção nessa lista.</p></div></div>

@@ -112,7 +112,8 @@ export class Tooltip {
 
   setText(text) {
     this.opts.text = text;
-    this.panel.textContent = text;
+    // So o texto: trocar o textContent do painel apagava a seta junto.
+    this.panel.querySelector('.tuc-tip__text').textContent = text;
   }
 
   destroy() {
@@ -130,6 +131,9 @@ const FOCUSABLE = /^(A|BUTTON|INPUT|SELECT|TEXTAREA)$/;
 export function autoInit(scope = document) {
   const out = [];
   for (const node of scope.querySelectorAll('[data-tuc-tip]:not([data-tuc-ready])')) {
+    // Sem texto e sem title nao ha dica. O construtor lanca erro nesse caso, e
+    // lancar aqui interrompia os tooltips seguintes da mesma pagina.
+    if (!node.dataset.tucTip && !node.title) continue;
     node.setAttribute('data-tuc-ready', '');
     out.push(new Tooltip(node, {
       text: node.dataset.tucTip || undefined,

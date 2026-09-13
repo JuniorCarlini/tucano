@@ -20,6 +20,8 @@ export const componentes = readdirSync('src/js/components').filter((f) => f.ends
   return {
     nome,
     classe: (t.match(/^export class (\w+)/m) || [])[1],
+    // Toast, Modal, Gaveta e Paginacao nao recebem alvo: so as opcoes.
+    argumentos: /^\s{2}constructor\(\s*options\b/m.test(t) ? 'opcoes' : 'alvo, opcoes',
     atalhos: [...t.matchAll(/^export function (\w+)\(/gm)].map((m) => m[1]).filter((n) => n !== 'autoInit'),
     // O comentario ao lado da opcao explica o valor aceito; vale ouro para a IA.
     /*

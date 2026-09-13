@@ -16,14 +16,24 @@
  * Aqui ficam.
  */
 import { readFileSync, readdirSync } from 'node:fs';
+import { paginas } from './pages.mjs';
 
 let falhas = 0;
 const falhar = (msg) => { console.log(`  FALHA  ${msg}`); falhas++; };
 const ok = (msg) => console.log(`  ok     ${msg}`);
 
-const html = readFileSync('index.html', 'utf8');
-const estilos = [...html.matchAll(/<style>([\s\S]*?)<\/style>/g)].map((m) => m[1]).join(' ');
-const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1]).join(' ');
+/*
+ * O site sao varias paginas geradas, com o estilo em site/site.css e o script
+ * comum em site/site.js. Cada pagina ainda pode trazer <style> e <script> seus.
+ */
+const html = paginas.map((arq) => readFileSync(arq, 'utf8')).join('\n');
+const estilos = readFileSync('site/site.css', 'utf8') + ' '
+  + [...html.matchAll(/<style>([\s\S]*?)<\/style>/g)].map((m) => m[1]).join(' ');
+const scripts = readFileSync('site/site.js', 'utf8') + ' '
+  + [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1]).join(' ');
+/* Blocos de codigo trazem `class="..."` como texto de exemplo — classe do projeto
+   de quem copia, e nao da pagina. Fora deles e que se confere. */
+const htmlSemCodigo = html.replace(/<pre[\s\S]*?<\/pre>/g, '').replace(/<code>[\s\S]*?<\/code>/g, '');
 
 /* 1. Classe da pagina definida no CSS, usada no HTML e escrita pelo JS. */
 {
@@ -33,7 +43,7 @@ const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m
   const usadas = new Set();
   // Os exemplos em <code> tambem trazem `class="..."`, mas como texto: o que
   // sai de la (`{% if ... == 'listar' %}`) nao tem forma de nome de classe.
-  for (const m of html.matchAll(/class="([^"]*)"/g)) for (const c of m[1].split(/\s+/)) if (nome(c) && proprias(c)) usadas.add(c);
+  for (const m of htmlSemCodigo.matchAll(/class="([^"]*)"/g)) for (const c of m[1].split(/\s+/)) if (nome(c) && proprias(c)) usadas.add(c);
   for (const m of scripts.matchAll(/className\s*=\s*'([^']*)'|classList\.(?:add|toggle|remove)\('([^']*)'/g)) {
     for (const c of (m[1] || m[2]).split(/\s+/)) if (proprias(c)) usadas.add(c);
   }
@@ -58,7 +68,7 @@ const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m
 {
   const quebrados = [...html.matchAll(/<pre>([\s\S]*?)<\/pre>/g)]
     .filter((m) => /<[a-zA-Z][^<>]*</.test(m[1]))
-    .map((m) => `index.html:${html.slice(0, m.index).split('\n').length}`);
+    .map((m) => `página:${html.slice(0, m.index).split('\n').length}`);
   if (quebrados.length) falhar(`bloco de código com tag dentro de tag: ${quebrados.join(' ')}`);
   else ok('blocos de código da página: marcação de destaque íntegra');
 }

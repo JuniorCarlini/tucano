@@ -15,7 +15,12 @@ export class Popover {
     this.placement = options.placement || 'bottom-start';
     this.offset = options.offset ?? 8;
     this.padding = options.padding ?? 8;
-    this.appendTo = options.appendTo || document.body;
+    /*
+     * Dentro de um <dialog> aberto o painel nasce no proprio dialogo. O dialogo
+     * esta na top layer, acima de tudo; um painel no body ficava atras dele, e o
+     * select ou o calendario de um formulario em modal abria invisivel.
+     */
+    this.appendTo = options.appendTo || this.anchor.closest?.('dialog[open]') || document.body;
     // Menu de select acompanha a largura do campo; calendario nao.
     this.matchWidth = options.matchWidth || false;
     /*

@@ -58,14 +58,14 @@ export function csrfToken(name = 'csrftoken') {
  *
  * Devolve { promessa, abortar }.
  */
-export function uploadFile({ url, file, field = 'file', extras = {}, headers = {}, onProgress }) {
+export function uploadFile({ url, file, field = 'file', extras = {}, headers = {}, method = 'POST', onProgress }) {
   const xhr = new XMLHttpRequest();
   const promise = new Promise((resolve, reject) => {
     const data = new FormData();
     data.append(field, file);
     for (const [k, v] of Object.entries(extras)) data.append(k, v);
 
-    xhr.open('POST', url);
+    xhr.open(method, url);
     xhr.responseType = 'json';
     for (const [k, v] of Object.entries(headers)) if (v != null) xhr.setRequestHeader(k, v);
 

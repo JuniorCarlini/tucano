@@ -105,6 +105,9 @@ export class Mask {
   setValue(value) {
     this.input.value = String(value ?? '');
     this._format({ keepCursor: false });
+    // O escondido do campo sensivel e quem posta; sem isto ele so acompanhava a
+    // digitacao, e um valor posto por codigo nao chegava ao servidor.
+    if (this.hidden) this.hidden.value = this.getRaw();
     this._emit();
   }
 
@@ -241,7 +244,10 @@ export class Mask {
     this._cleanups.push(
       on(input, 'input', (e) => this._onType(e)),
       on(input, 'blur', () => { if (this.opts.validate) this._validate(); }),
-      on(input, 'focus', () => this._mark(true)),
+      // So quem valida mexe no erro. Sem `validate`, o aria-invalid e de quem
+      // renderizou o campo — o Django 5 o escreve no campo que voltou com erro — e
+      // zera-lo no foco apagava a marca vermelha no primeiro clique.
+      on(input, 'focus', () => { if (this.opts.validate) this._mark(true); }),
     );
   }
 

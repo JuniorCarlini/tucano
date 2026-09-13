@@ -406,6 +406,10 @@ export class Editor {
           // mousedown e nao click: click viria depois do blur, e a selecao
           // dentro da area ja teria sido perdida.
           onmousedown: (e) => { e.preventDefault(); this.apply(name); },
+          // Enter e Espaco num botao focado viram click com detail 0 — o mouse
+          // ja agiu no mousedown, entao so o teclado passa daqui. Sem isto a
+          // barra so funcionava com mouse.
+          onclick: (e) => { if (e.detail === 0) this.apply(name); },
         }, [icon(ICONS[name] ?? ICONS.clear, 15)]);
         b.dataset.action = name;
         return GROUPS.has(name)
@@ -425,10 +429,11 @@ export class Editor {
       hidden: true,
     }, Object.keys(TABLE).map((name) => el('button', {
       type: 'button',
-      class: `tuc-btn is-ghost is-icon is-sm${name.startsWith('remove') ? ' is-remove' : ''}`,
+      class: `tuc-btn is-ghost is-icon is-sm${name.startsWith('delete') ? ' is-remove' : ''}`,
       'aria-label': TABLE_LABELS[name],
       'data-tuc-tip': TABLE_LABELS[name],
       onmousedown: (e) => { e.preventDefault(); this.inTable(name); },
+      onclick: (e) => { if (e.detail === 0) this.inTable(name); },
     }, [icon(TABLE_ICONS[name], 15)])));
 
     this.root = el('div', { class: 'tuc-editor' }, [this.toolbar, this.tableBar, this.area]);
@@ -446,7 +451,14 @@ export class Editor {
       on(this.area, 'mouseup', () => this._markActive()),
       // selectionchange e global: e o unico evento que pega o cursor mudando
       // de lugar por qualquer caminho, inclusive clique fora e volta.
-      on(document, 'selectionchange', () => { this._syncTableBar(); this._markActive(); }),
+      on(document, 'selectionchange', () => {
+        // Guarda a ultima selecao feita dentro da area: quem chega a barra pelo
+        // Tab tira o foco dali, e o comando precisa de onde aplicar.
+        const sel = window.getSelection();
+        if (sel?.rangeCount && this.area.contains(sel.anchorNode)) this._range = sel.getRangeAt(0).cloneRange();
+        this._syncTableBar();
+        this._markActive();
+      }),
     );
 
     this._paint();
@@ -546,6 +558,13 @@ export class Editor {
    */
   _focus() {
     this.area.focus({ preventScroll: true });
+    // Pelo mouse a selecao nunca sai da area; pelo teclado ela ficou para tras
+    // quando o foco foi para o botao. Devolve a ultima que estava aqui dentro.
+    const sel = window.getSelection();
+    if (this._range && sel && !this.area.contains(sel.anchorNode)) {
+      sel.removeAllRanges();
+      sel.addRange(this._range);
+    }
   }
 
   /* Elemento em volta do cursor, dentro da area. */

@@ -45,8 +45,9 @@ export class Modal extends Dialog {
         this.opts.className,
       ].filter(Boolean).join(' '),
       id: this.id,
-      // O titulo nomeia o dialogo; sem titulo o proprio texto serve.
-      ...(this.opts.title ? { 'aria-labelledby': titleId } : {}),
+      // O titulo nomeia o dialogo; sem titulo o proprio texto serve — e o
+      // comentario dizia isso sem que nada fosse posto.
+      ...(this.opts.title ? { 'aria-labelledby': titleId } : this.opts.text ? { 'aria-label': this.opts.text } : {}),
     }, [this.panel]);
 
     this.body = this.panel.querySelector('.tuc-modal__body');

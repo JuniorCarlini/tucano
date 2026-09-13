@@ -38,7 +38,11 @@ jobs:
       # Geometria dos campos nos dois temas — some se um token mudar de valor.
       - run: npm run audit
 
-      # O que foi compilado tem que bater com o que esta versionado: build
-      # esquecido antes da tag ja fez o CDN e o npm divergirem.
+      # O que foi compilado e gerado tem que bater com o que esta versionado:
+      # build esquecido antes da tag ja fez o CDN e o npm divergirem. Olha a
+      # arvore inteira, e nao uma lista: o site tem uma pasta por componente, e
+      # pagina nova esquecida fora do commit tambem e build desatualizado.
       - name: Built files are up to date
-        run: git diff --exit-code -- dist llms.txt README.md index.html
+        run: |
+          git diff --exit-code
+          test -z "$(git status --porcelain)" || { git status --porcelain; exit 1; }

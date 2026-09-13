@@ -113,3 +113,20 @@ import 'tucano/css';
 <h2 id="componentes">Componentes</h2>
 <p class="lead">Cada um tem a própria página, com exemplos, o jeito Django, teclado e a API completa.</p>
 <!-- componentes -->
+
+<script>
+  // Endereços da página única antiga (index.html#select) continuam valendo: cada
+  // âncora vai para a página que herdou o assunto. Link colado em issue, README
+  // de projeto e resposta de fórum não quebra com a troca.
+  (() => {
+    const antigas = {
+      data: 'datepicker', select: 'select', cor: 'color', upload: 'upload', mascaras: 'mask',
+      formulario: 'form', botao: 'button', escolha: 'choice', etiqueta: 'badge', toast: 'toast',
+      tooltip: 'tooltip', modal: 'modal', drawer: 'drawer', accordion: 'accordion', editor: 'editor',
+      dropdown: 'dropdown', table: 'table', pagination: 'pagination', tabs: 'tabs', alert: 'alert',
+      loading: 'loading', django: 'django', tema: 'theme', teclado: 'keyboard', api: 'ai', agentes: 'ai',
+    };
+    const destino = antigas[location.hash.slice(1)];
+    if (destino) location.replace(`${destino}/`);
+  })();
+</script>

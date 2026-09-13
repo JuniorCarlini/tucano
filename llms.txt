@@ -127,8 +127,8 @@ navegador envia tudo num bloco e não reporta andamento.
     <input name="cpf" value="111.444.777-35" data-tuc-mask="cpf" data-tuc-reveal>
     <span data-tuc-format="cpf">12345678901</span>
 
-Formatos: cpf, cnpj, cnpj-numerico, cpf-cnpj, telefone, celular, cep, real,
-moeda, data, hora, cartao. Gabarito livre aceita # (digito), A (letra) e *
+Formatos: cpf, cnpj, cnpj-numerico, cpf-cnpj, phone, mobile, cep, real,
+currency, date, time, card. Gabarito livre aceita # (digito), A (letra) e *
 (ambos), ex.: data-tuc-mask="##/##".
 
 data-validate confere o digito verificador ao sair do campo e usa
@@ -163,10 +163,10 @@ Sobre <dialog> nativo: showModal() poe na top layer, acima de qualquer z-index
 e imune a ancestral com overflow:hidden ou transform. Foco preso, foco devolvido
 e Escape vem do proprio elemento.
 
-    Tucano.modal({ title:'Excluir contrato', text:'...', tom:'perigo', tamanho:'md', folha:true,
-      acoes:[{texto:'Cancelar',variante:'outline'},{texto:'Excluir',variante:'danger',onClick:fn}] });
+    Tucano.modal({ title:'Excluir contrato', text:'...', tone:'danger', size:'md', sheet:true,
+      actions:[{text:'Cancelar',variant:'outline'},{text:'Excluir',variant:'danger',onClick:fn}] });
 
-    if (await Tucano.confirmar({ title:'Excluir contrato?' })) excluir();
+    if (await Tucano.confirm({ title:'Excluir contrato?' })) excluir();
 
 Tons: padrao, perigo, sucesso, aviso (mudam o brilho do fundo e a aura da caixa).
 Tamanhos: sm, md, lg, full. Fechar por fora, pelo X ou por Escape resolve false.
@@ -181,11 +181,11 @@ e funciona antes de o JS carregar. O componente so acrescenta a animacao, que o
 nativo nao faz (altura auto nao transiciona, e ao fechar o conteudo some de uma
 vez).
 
-    <div data-tuc-accordion data-unico="true">
+    <div data-tuc-accordion data-single="true">
       <details open><summary>Projetos</summary><p>...</p></details>
     </div>
 
-data-unico="true" recolhe os outros ao abrir um. .tuc-accordion.is-plain tira as
+data-single="true" recolhe os outros ao abrir um. .tuc-accordion.is-plain tira as
 divisorias, para menu lateral.
 
 ## Menu
@@ -231,8 +231,8 @@ Exibicao: envolva a saida em .tuc-prose para ela ficar igual ao editor.
 
     <div class="tuc-prose">{{ projeto.descricao|safe }}</div>
 
-O codigo publicado e colorido pelo init(). Tucano.destacar(texto) faz isso a
-mao; Tucano.sanitizar(html) aplica a peneira.
+O codigo publicado e colorido pelo init(). Tucano.highlight(texto) faz isso a
+mao; Tucano.sanitize(html) aplica a peneira.
 
 ## Levar so o que se usa
 
@@ -347,7 +347,8 @@ a troca de pagina. Quem intercepta passa onChange. Ponta inativa e <span>, nao
 
 Campo com erro = aria-invalid="true" no elemento nativo (o Django 5 ja escreve).
 Pinta borda e anel vermelhos em todo campo da biblioteca, inclusive select, cor,
-editor e upload montados pelo script. Nao existe classe de erro para o campo.
+editor e upload montados pelo script. Use aria-invalid no campo; .tuc-invalid so e posta pela propria mascara quando
+valida (data-validate).
 :user-invalid (required, type=email) pinta so depois de a pessoa mexer.
 .tuc-input vale em input, textarea e select nativo.
 
@@ -396,12 +397,12 @@ fora e no Escape. Do servidor:
 O hidden e obrigatorio: sem ele o painel aparece no meio da pagina ate o script
 rodar. Em JS:
 
-    new Tucano.Dropdown('#acoes', { placement:'bottom-start', itens:[
-      { rotulo:'Contrato' },
-      { texto:'Editar', icone:PATH_SVG, atalho:'Cmd E', onClick:fn },
-      { texto:'Abrir', href:'/contratos/12/' },
-      { separador:true },
-      { texto:'Excluir', variante:'perigo', onClick:fn },
+    new Tucano.Dropdown('#acoes', { placement:'bottom-start', items:[
+      { label:'Contrato' },
+      { text:'Editar', icon:PATH_SVG, shortcut:'Cmd E', onClick:fn },
+      { text:'Abrir', href:'/contratos/12/' },
+      { separator:true },
+      { text:'Excluir', variant:'danger', onClick:fn },
     ]});
 
 Item com href vira <a>; sem href vira <button>. Teclado: setas andam, Home e End
@@ -482,9 +483,9 @@ class="tuc-timeline__icon"><svg>...</svg></span> como primeiro filho do item.
 Componente proprio, mas divide com o modal a mecanica do <dialog>: top layer,
 foco preso, Escape, foco devolvido. Muda a geometria e o movimento.
 
-    Tucano.gaveta({ title:'Filtros', lado:'direita' }).conteudo(form);
+    Tucano.drawer({ title:'Filtros', side:'right' }).content(form);
 
-lado: esquerda | direita | cima | baixo. Nas laterais o tamanho e largura de
+side: left | right | top | bottom. Nas laterais o size e largura de
 coluna (18, 24, 34rem) e no celular para em 85% da tela. Do servidor:
 <dialog class="tuc-drawer is-right"> no template, data-tuc-drawer="#id" no
 gatilho e data-tuc-drawer-close nos botoes de fechar.
@@ -492,21 +493,21 @@ gatilho e data-tuc-drawer-close nos botoes de fechar.
 ## Toast e tooltip
 
     Tucano.toast('Salvo');
-    Tucano.toast.erro('Nao foi possivel salvar');
-    Tucano.toast({ type:'sucesso', title:'...', text:'...', action:{text:'Desfazer', onClick:fn}, position:'bottom-end', duration:null });
+    Tucano.toast.error('Nao foi possivel salvar');
+    Tucano.toast({ type:'success', title:'...', text:'...', action:{text:'Desfazer', onClick:fn}, position:'bottom-end', duration:null });
 
-Tipos: info, sucesso, aviso, erro, carregando.
+Tipos: info, success, warning, error, loading.
 Posicoes: top-start, top-center, top-end, bottom-start, bottom-center,
 bottom-end. Padrao: bottom-end. No celular o toast ocupa a largura da tela e
 entra pelo eixo vertical, qualquer que seja a posicao.
 
-O tipo carregando nao fecha sozinho; quem fecha e o fim da operacao. Ele vira o
+O tipo loading nao fecha sozinho; quem fecha e o fim da operacao. Ele vira o
 resultado no mesmo cartao, sem piscar:
 
-    const t = Tucano.toast.carregando('Enviando...');
-    t.atualizar({ type:'sucesso', text:'Enviado' });
+    const t = Tucano.toast.loading('Enviando...');
+    t.update({ type:'success', text:'Enviado' });
 
-    Tucano.toast.promessa(fetch(url), {
+    Tucano.toast.promise(fetch(url), {
       loading: 'Enviando...', success: (r) => `Enviado (${r.status})`, error: 'Falhou',
     });
 
@@ -514,7 +515,7 @@ Mensagens do Django viram toast sem JavaScript:
     {% for m in messages %}<div data-tuc-toast data-type="{{ m.tags }}">{{ m }}</div>{% endfor %}
 
 Servidor dispara pelo HTMX:
-    HX-Trigger: {"tucano:toast": {"type": "sucesso", "text": "Salvo"}}
+    HX-Trigger: {"tucano:toast": {"type": "success", "text": "Salvo"}}
 
 Tooltip:
     <button data-tuc-tip="Gera o PDF">Exportar</button>
@@ -564,7 +565,7 @@ O que chega no servidor:
     new Tucano.ColorPicker('#cor', { format: 'rgb' });
 
 Métodos: getValue, setValue, clear, open, close, destroy. Select tem refresh.
-ColorPicker tem getRgb. Modal, Drawer e Dropdown tem open, close, toggle;
+ColorPicker tem getRgb. Modal e Drawer tem open, close e content; Dropdown tem open, close e toggle;
 Modal e Drawer tem content(no). Table tem sort, getSelected, clearSelection.
 Pagination tem setPage. Toast tem update e close.
 
@@ -578,13 +579,17 @@ Eventos proprios: tucano:change (campos), tuc:sort e tuc:select (tabela).
 Todas as cores e medidas são variáveis CSS com prefixo --tuc-. Nada de cor,
 raio, espessura de borda ou altura está fixo no CSS dos componentes.
 
-Cor: --tuc-accent, --tuc-accent-hover, --tuc-accent-fg, --tuc-accent-soft,
+Cor: --tuc-accent (#FF7501 nos dois temas), --tuc-accent-hover, --tuc-accent-fg
+(texto sobre o destaque, escuro), --tuc-accent-text (destaque usado como cor de
+texto: link, menu ativo, tag), --tuc-thumb (botao da chave), --tuc-accent-soft,
 --tuc-accent-ring, --tuc-bg, --tuc-fg, --tuc-muted, --tuc-subtle,
 --tuc-border, --tuc-hover, --tuc-elevated
 Forma: --tuc-radius, --tuc-radius-md, --tuc-radius-sm, --tuc-radius-xs,
---tuc-border-width, --tuc-control-height, --tuc-cell, --tuc-text, --tuc-font
-Tons: --tuc-success, --tuc-warning, --tuc-danger e os -soft, usados pelo toast
-e pela etiqueta de estado. --tuc-danger-fill e separado: no escuro o vermelho de
+--tuc-border-width, --tuc-control-height, --tuc-cell, --tuc-swatch, --tuc-text,
+--tuc-font
+Tons: --tuc-success, --tuc-warning, --tuc-danger, --tuc-info e os -soft, usados
+pelo toast, pelo aviso e pela etiqueta de estado. Tom semantico nunca le o
+destaque. --tuc-danger-fill e separado: no escuro o vermelho de
 texto e mais claro para ter contraste, e um botao pintado com ele ficaria
 pastel — o preenchimento e o mesmo nos dois temas.
 Profundidade: --tuc-shadow, --tuc-ring, --tuc-duration, --tuc-duration-lg,
@@ -693,7 +698,7 @@ Inventario extraido do codigo a cada build. Se algo nao esta aqui, nao existe.
 
 ### Drawer
   marcacao   dialog.tuc-drawer  ou  [data-tuc-drawer-close]  ou  [data-tuc-drawer]
-  em JS      new Tucano.Drawer(alvo, opcoes)   atalhos: Tucano.drawer()
+  em JS      new Tucano.Drawer(opcoes)   atalhos: Tucano.drawer()
   atributos  data-backdrop data-closable data-tuc-drawer
   opcoes
     title              = null
@@ -749,7 +754,7 @@ Inventario extraido do codigo a cada build. Se algo nao esta aqui, nao existe.
 
 ### Modal
   marcacao   dialog.tuc-modal  ou  [data-tuc-modal-close]  ou  [data-tuc-modal]
-  em JS      new Tucano.Modal(alvo, opcoes)   atalhos: Tucano.modal(), Tucano.confirm()
+  em JS      new Tucano.Modal(opcoes)   atalhos: Tucano.modal(), Tucano.confirm()
   atributos  data-backdrop data-closable data-tuc-modal
   opcoes
     title              = null
@@ -766,7 +771,7 @@ Inventario extraido do codigo a cada build. Se algo nao esta aqui, nao existe.
 
 ### Pagination
   marcacao   [data-tuc-pagination]
-  em JS      new Tucano.Pagination(alvo, opcoes)   atalhos: Tucano.pageWindow(), Tucano.pagination()
+  em JS      new Tucano.Pagination(opcoes)   atalhos: Tucano.pageWindow(), Tucano.pagination()
   atributos  data-around data-edges data-next-text data-page data-pages data-param data-prev-text
   opcoes
     page               = 1
@@ -840,7 +845,7 @@ Inventario extraido do codigo a cada build. Se algo nao esta aqui, nao existe.
 
 ### Toast
   marcacao   [data-tuc-toast]
-  em JS      new Tucano.Toast(alvo, opcoes)   atalhos: Tucano.toast(), Tucano.listenForEvents()
+  em JS      new Tucano.Toast(opcoes)   atalhos: Tucano.toast(), Tucano.listenForEvents()
   atributos  data-duration data-position data-text data-title data-type
   opcoes
     type               = 'info'  — 'info' | 'success' | 'warning' | 'error' | 'loading'…

@@ -270,6 +270,7 @@ export class Upload {
       field: this.opts.fieldName,
       extras: this.opts.extraData,
       headers,
+      method: this.opts.method,
       onProgress: (fraction) => {
         item.progress = fraction;
         this._paintProgress(item);

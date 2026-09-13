@@ -33,8 +33,6 @@
   /* Botao da chave: claro nos dois temas. Nao e --tuc-accent-fg, que e o texto
      escuro sobre o laranja — a bolinha ficaria preta. */
   --tuc-thumb: #ffffff;
-  --tuc-accent-soft: color-mix(in oklab, var(--tuc-accent) 12%, transparent);
-  --tuc-accent-ring: color-mix(in oklab, var(--tuc-accent) 35%, transparent);
 
   /*
    * Tons semanticos. Estavam escritos a mao dentro do toast; virando token,
@@ -56,10 +54,6 @@
    * ele fica pastel com texto branco em cima. O fill e o mesmo nos dois temas.
    */
   --tuc-danger-fill: #dc2626;
-  --tuc-success-soft: color-mix(in oklab, var(--tuc-success) 12%, transparent);
-  --tuc-warning-soft: color-mix(in oklab, var(--tuc-warning) 14%, transparent);
-  --tuc-danger-soft: color-mix(in oklab, var(--tuc-danger) 12%, transparent);
-  --tuc-info-soft: color-mix(in oklab, var(--tuc-info) 12%, transparent);
 
   --tuc-bg: #ffffff;
   --tuc-fg: #0a0a0a;
@@ -106,6 +100,25 @@
   --tuc-font: inherit;
   --tuc-text: 0.8125rem;
   --tuc-cell: 2.25rem;
+}
+
+/*
+ * Tokens derivados, declarados em cada elemento da biblioteca e nao so na raiz.
+ *
+ * Uma variavel que usa var() e resolvida onde e declarada. Na raiz, o suave e o
+ * anel eram calculados uma vez com o destaque da raiz: trocar --tuc-accent num
+ * contêiner mudava o botao e deixava o fundo da tag e o anel de foco na cor
+ * antiga, e um .dark num contêiner nao escurecia os -soft dos tons. Declarados
+ * tambem em cada elemento tuc-, eles sao recalculados com o valor herdado ali.
+ */
+:root,
+:where([class^='tuc-'], [class*=' tuc-']) {
+  --tuc-accent-soft: color-mix(in oklab, var(--tuc-accent) 12%, transparent);
+  --tuc-accent-ring: color-mix(in oklab, var(--tuc-accent) 35%, transparent);
+  --tuc-success-soft: color-mix(in oklab, var(--tuc-success) 12%, transparent);
+  --tuc-warning-soft: color-mix(in oklab, var(--tuc-warning) 14%, transparent);
+  --tuc-danger-soft: color-mix(in oklab, var(--tuc-danger) 12%, transparent);
+  --tuc-info-soft: color-mix(in oklab, var(--tuc-info) 12%, transparent);
 }
 
 /* Dark por classe (.dark no html) — o padrao de Tailwind e do Django admin moderno. */

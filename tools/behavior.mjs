@@ -197,6 +197,136 @@ body{margin:0;padding:16px;font-family:system-ui}
     if (getComputedStyle(itens[0], '::before').display === 'none') throw new Error('primeiro item sem trilho');
     if (getComputedStyle(itens[1], '::before').display !== 'none') throw new Error('último item com trilho');
   });
+  t('toast do Django acha o tipo mesmo com extra_tags na frente', function () {
+    var box = document.createElement('div');
+    box.innerHTML = '<div data-tuc-toast data-type="destaque success">Salvo</div>';
+    document.body.append(box);
+    var criados = Tucano.autoInitToasts(box);
+    var tipo = criados[0] && criados[0].node.className;
+    criados.forEach(function (x) { x.close(); });
+    box.remove();
+    if (!/is-success/.test(tipo || '')) throw new Error('classe: ' + tipo);
+  });
+  t('setText do tooltip troca o texto e mantém o painel', function () {
+    var b = document.createElement('button');
+    document.body.append(b);
+    var tip = new Tucano.Tooltip(b, { text: 'antes' });
+    tip.setText('depois');
+    var span = tip.panel.querySelector('.tuc-tip__text');
+    tip.destroy(); b.remove();
+    if (!span || span.textContent !== 'depois') throw new Error('texto ' + (span && span.textContent));
+  });
+  t('tooltip sem texto não impede os seguintes de montar', function () {
+    var box = document.createElement('div');
+    box.innerHTML = '<button data-tuc-tip="">vazio</button><button data-tuc-tip="dica">cheio</button>';
+    document.body.append(box);
+    Tucano.autoInitTooltips(box);
+    var ok = box.querySelectorAll('button')[1].hasAttribute('data-tuc-ready');
+    box.remove();
+    if (!ok) throw new Error('o segundo tooltip não montou');
+  });
+  t('dropdown com painel em JS marca os itens como opção de menu', function () {
+    var painel = document.createElement('div');
+    painel.innerHTML = '<button class="tuc-dropdown__item">A</button>';
+    var gatilho = document.createElement('button');
+    document.body.append(gatilho);
+    var dd = new Tucano.Dropdown(gatilho, { panel: painel });
+    var item = painel.querySelector('.tuc-dropdown__item');
+    var papel = item.getAttribute('role'), tab = item.getAttribute('tabindex');
+    dd.destroy(); gatilho.remove();
+    if (papel !== 'menuitem' || tab !== '-1') throw new Error('role ' + papel + ', tabindex ' + tab);
+  });
+  t('período em ISO volta ao campo como as datas certas', function () {
+    // É o que o Django devolve ao campo quando o formulário volta com erro.
+    var box = document.createElement('div');
+    box.innerHTML = '<input data-tuc-datepicker data-mode="range" value="2026-03-01,2026-03-15">';
+    document.body.append(box);
+    Tucano.init(box);
+    var i = box.querySelector('input')._tucano;
+    var ok = i.start && i.end && i.start.getMonth() === 2 && i.start.getDate() === 1 && i.end.getDate() === 15;
+    var visto = box.querySelector('input').value;
+    box.remove();
+    if (!ok) throw new Error('lido como ' + visto);
+  });
+  t('URL em bloco de código não vira comentário', function () {
+    var html = Tucano.highlight('curl https://exemplo.com/api');
+    if (html.indexOf('tuc-tok-comment') >= 0) throw new Error(html);
+    if (Tucano.highlight('x = 1 // nota').indexOf('tuc-tok-comment') < 0) throw new Error('comentário de verdade sumiu');
+    if (Tucano.highlight('--tuc-accent: #4f46e5;').indexOf('tuc-tok-comment') >= 0) throw new Error('cor hex virou comentário');
+    if (Tucano.highlight('x = 1  # nota').indexOf('tuc-tok-comment') < 0) throw new Error('comentário com # sumiu');
+  });
+  t('fundo suave acompanha o destaque trocado num contêiner', function () {
+    var box = document.createElement('div');
+    box.innerHTML = '<span class="tuc-badge is-info" id="padrao">a</span><div style="--tuc-info:#00aa00"><span class="tuc-badge is-info" id="trocado">b</span></div>';
+    document.body.append(box);
+    var a = getComputedStyle(box.querySelector('#padrao')).backgroundColor;
+    var b = getComputedStyle(box.querySelector('#trocado')).backgroundColor;
+    box.remove();
+    if (a === b) throw new Error('fundo não mudou: ' + b);
+  });
+  t('painel do select dentro de um modal nasce no próprio diálogo', function () {
+    // No body ele ficava atrás do <dialog>, que está na top layer.
+    limpar();
+    var m = Tucano.modal({ title: 'Com campo', text: 'x' });
+    var dlg = document.querySelector('dialog[open]');
+    var nativo = document.createElement('select');
+    nativo.innerHTML = '<option>A</option><option>B</option>';
+    dlg.querySelector('.tuc-modal__panel').append(nativo);
+    var sel = new Tucano.Select(nativo);
+    sel.open();
+    // O menu desta instância: a página tem outro select, cujo menu mora no body.
+    var menu = sel.menu;
+    var dentro = !!menu && dlg.contains(menu);
+    sel.close(); m.close(); limpar();
+    if (!dentro) throw new Error('o menu não está dentro do diálogo');
+  });
+  t('modal sem título ganha nome pelo texto', function () {
+    limpar();
+    var m = Tucano.modal({ text: 'Excluir o contrato 12?' });
+    var nome = document.querySelector('dialog[open]').getAttribute('aria-label');
+    m.close(); limpar();
+    if (nome !== 'Excluir o contrato 12?') throw new Error('aria-label ' + nome);
+  });
+  t('pontas da paginação têm nome, e setPage devolve o foco', function () {
+    var box = document.createElement('div');
+    document.body.append(box);
+    var p = new Tucano.Pagination({ page: 2, pages: 9, onChange: function () {} });
+    box.append(p.node);
+    var pontas = p.node.querySelectorAll('a.tuc-pagination__edge');
+    var nomes = [].map.call(pontas, function (a) { return a.getAttribute('aria-label'); }).join('|');
+    p.node.querySelector('a[aria-current="page"]').focus();
+    p.setPage(3);
+    var foco = document.activeElement && document.activeElement.getAttribute('aria-current');
+    var atual = document.activeElement && document.activeElement.textContent.trim();
+    box.remove();
+    if (nomes !== 'Anterior|Próxima') throw new Error('nomes ' + nomes);
+    if (foco !== 'page' || atual !== '3') throw new Error('foco em ' + atual);
+  });
+  t('máscara não apaga o erro do servidor ao focar', function () {
+    // O Django 5 escreve aria-invalid no campo que voltou com erro. A máscara sem
+    // data-validate não é dona desse atributo e não pode zerá-lo no foco.
+    var box = document.createElement('div');
+    box.innerHTML = '<input data-tuc-mask="cpf" aria-invalid="true">';
+    document.body.append(box);
+    Tucano.init(box);
+    var campo = box.querySelector('input');
+    campo.dispatchEvent(new FocusEvent('focus'));
+    var marca = campo.getAttribute('aria-invalid');
+    box.remove();
+    if (marca !== 'true') throw new Error('aria-invalid virou ' + marca);
+  });
+  t('setValue do campo sensível atualiza o que é enviado', function () {
+    var box = document.createElement('div');
+    box.innerHTML = '<input name="doc" data-tuc-mask="cpf" data-tuc-reveal>';
+    document.body.append(box);
+    Tucano.init(box);
+    box.querySelector('input:not([type=hidden])')._tucano.setValue('11144477735');
+    var escondido = box.querySelector('input[type=hidden]');
+    var valor = escondido && escondido.value;
+    box.remove();
+    if (!escondido) throw new Error('sem campo escondido');
+    if (valor !== '11144477735') throw new Error('escondido com "' + valor + '"');
+  });
   t('abas ligam aba e painel pelos papéis', function () {
     var abas = document.querySelectorAll('#tb .tuc-tabs__tab'), paineis = document.querySelectorAll('#tb .tuc-tabs__panel');
     if (document.querySelector('#tb .tuc-tabs__list').getAttribute('role') !== 'tablist') throw new Error('sem tablist');

@@ -71,7 +71,7 @@ export class ColorPicker {
     this._paint();
     this.popover = new Popover(this.field, this.panel, {
       placement: this.opts.placement,
-      appendTo: this.opts.appendTo || document.body,
+      appendTo: this.opts.appendTo,
       closeOnFocusOut: true,
       onDismiss: () => this.close(),
     });

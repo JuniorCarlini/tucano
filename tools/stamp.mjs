@@ -28,14 +28,9 @@ const v = JSON.parse(readFileSync('package.json', 'utf8')).version;
 
 /* Cada entrada: [padrao, substituto]. O padrao precisa casar ao menos uma vez. */
 const files = {
-  'index.html': [
-    [/<b>\d+ KB<\/b> JS gzip/g, `<b>${js} KB</b> JS gzip`],
-    [/<b>\d+ KB<\/b> CSS gzip/g, `<b>${css} KB</b> CSS gzip`],
-    [/<span class="tuc-badge is-plain ver">v[\d.]+<\/span>/g, `<span class="tuc-badge is-plain ver">v${v}</span>`],
-    [/<span class="tuc-badge is-plain ver">v[\d.]+ · \d+ KB<\/span>/g, `<span class="tuc-badge is-plain ver">v${v} · ${total} KB</span>`],
-    [/tucano@v[\d.]+/g, `tucano@v${v}`],
-    [/(dist\/tucano(?:\.min)?\.(?:css|js))\?v=[\d.]+/g, `$1?v=${v}`],
-  ],
+  /* As paginas do site nao entram aqui: tools/site.mjs as gera ja com versao e
+     tamanho, lidos do package.json e do dist no momento do build. Carimbar por
+     cima seria procurar, numa pagina gerada, padroes da pagina antiga. */
   'README.md': [
     [/\*\*\d+ KB de JS \+ \d+ KB de CSS\*\*/g, `**${js} KB de JS + ${css} KB de CSS**`],
     [/tucano@v[\d.]+/g, `tucano@v${v}`],

@@ -54,6 +54,35 @@ projeto.
   vermelho e verde fixos, que não clareavam no tema escuro.
 - O anel de foco do painel de abas subia por cima da lista.
 - O erro da busca no servidor aparecia igual a "nenhum resultado".
+- No date picker, abrir com `↓` ou `Espaço` deixava o foco no campo: as setas
+  não chegavam aos dias e o `Tab` fechava o painel. Agora o foco vai ao dia.
+- A máscara apagava o `aria-invalid` do campo ao focar, e o erro que o Django
+  mandou sumia no primeiro clique. Agora só a validação da própria máscara mexe
+  nele.
+- `setValue()` no campo sensível não atualizava o valor enviado no formulário.
+- A barra do editor só respondia ao mouse: com o foco num botão, `Enter` e
+  `Espaço` não faziam nada. Agora funcionam, e o comando vale para o texto que
+  estava selecionado.
+- Os botões de apagar linha, coluna e tabela do editor não ficavam vermelhos.
+- A opção `method` do upload era ignorada, e o envio saía sempre como POST.
+- Toast vindo das mensagens do Django pegava o tipo errado quando a mensagem
+  tinha `extra_tags`: lia só a primeira palavra.
+- `Tooltip.setText()` apagava a seta junto com o texto.
+- Um `data-tuc-tip` vazio interrompia a montagem dos tooltips seguintes.
+- Menu suspenso criado em JS com `panel` deixava os itens sem `role="menuitem"`.
+- Select, date picker e color picker dentro de modal ou gaveta abriam o painel
+  atrás do diálogo. Agora o painel nasce dentro do `<dialog>` aberto.
+- Modal sem título ficava sem nome para o leitor de tela; agora o texto nomeia.
+- O diálogo saía do DOM 10 ms antes do fim da animação de saída.
+- Na paginação, as pontas ficavam sem nome no celular, e `setPage()` perdia o
+  foco de quem navegava pelo teclado.
+- O date picker de período lia errado o próprio valor em ISO
+  (`2026-03-01,2026-03-15`), que é o que o Django devolve quando o formulário
+  volta com erro.
+- Trocar `--tuc-accent` ou um tom num contêiner não mudava o fundo suave nem o
+  anel de foco, que ficavam na cor da raiz.
+- O destacador de código pintava o resto da linha como comentário depois de
+  `https://`, e toda cor hex de CSS (`#4f46e5`) como comentário.
 
 ## 0.31.0 — 2026-09-04
 
