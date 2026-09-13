@@ -207,7 +207,9 @@ function paginador(de) {
  * o contexto.
  */
 function tituloDaPagina(slug, p) {
-  if (slug === 'index') return 'Tucano — componentes de formulário para Django e HTMX';
+  // Nao e so Django: vale para qualquer back-end que devolve HTML do servidor.
+  // O titulo cita os tres mais buscados; a lista completa fica no conteudo.
+  if (slug === 'index') return 'Tucano — componentes JS para Django, Laravel, Rails e HTMX';
   if (slug === 'changelog') return 'Changelog da Tucano — o que mudou em cada versão';
   // Guia tem titulo proprio: o padrao dos componentes repetiria "Django" no guia
   // de Django e nao diria do que e o de tema.
@@ -219,7 +221,11 @@ function tituloDaPagina(slug, p) {
   };
   if (guias[slug]) return guias[slug];
   if (p.group === 'Guias') return `${p.meta.title} — guia da Tucano`;
-  return `${p.meta.title} — componente para Django e HTMX | Tucano`;
+  // A marca so entra quando cabe: o Google corta perto de 60 caracteres, e o que
+  // precisa aparecer e o nome da pagina e para quem ela serve. "Tucano" continua
+  // no og:site_name e no JSON-LD.
+  const base = `${p.meta.title} — JavaScript puro para Django, Laravel e Rails`;
+  return base.length + ' | Tucano'.length <= 60 ? `${base} | Tucano` : base;
 }
 
 const pacote = JSON.parse(readFileSync('package.json', 'utf8'));
@@ -241,7 +247,10 @@ function jsonld(slug, p, titulo, canonical) {
         '@type': 'SoftwareSourceCode', ...software, name: 'Tucano', url: BASE_URL,
         description: p.meta.description, codeRepository: 'https://github.com/JuniorCarlini/tucano',
         programmingLanguage: ['JavaScript', 'CSS'], runtimePlatform: 'Navegador', version: versao,
-        license: 'https://opensource.org/licenses/MIT', keywords: pacote.keywords.join(', '), author: autor,
+        license: 'https://opensource.org/licenses/MIT', author: autor,
+        // Os do package.json sao do npm; aqui entram os back-ends com que a
+        // biblioteca funciona igual, que e o que se procura antes de conhece-la.
+        keywords: [...pacote.keywords, 'laravel', 'rails', 'flask', 'fastapi', 'php', 'ruby', 'python', 'server-side rendering'].join(', '),
       },
     ]
     : [

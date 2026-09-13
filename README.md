@@ -3,6 +3,12 @@
 Componentes de formulário e interface para a web, para quem escreve HTML.
 Sem React, sem Vue, sem dependência em runtime.
 
+Funciona com Django, Laravel, Rails ou qualquer back-end que devolve HTML do
+servidor, com ou sem HTMX: o valor fica no formulário nativo e os componentes se
+montam sozinhos. Os exemplos usam Django; em PHP e Rails, campo múltiplo precisa
+de `name` terminado em `[]`, e o upload direto precisa do cabeçalho de CSRF do
+framework (`data-csrf="false"` e a opção `headers` do `new Upload`).
+
 **37 KB de JS + 13 KB de CSS** (minificado + gzip).
 
 **[Documentação e exemplos ao vivo →](https://juniorcarlini.github.io/tucano/)**
