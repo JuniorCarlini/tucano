@@ -111,13 +111,11 @@ function api(nome) {
  * O CHANGELOG.md vira uma linha do tempo (.tuc-timeline): uma versao por item.
  *
  * Le so o formato que o arquivo usa — `## versao — data`, `### grupo` e listas
- * com continuacao recuada — e monta cada parte com as pecas da biblioteca:
- * "Atencao ao atualizar" e um .tuc-alert is-warning, os outros grupos levam uma
- * .tuc-badge no tom do que dizem. A secao "Ainda nao publicado" ganha ponto
- * vazado; a versao mais nova, ponto cheio e a etiqueta "atual".
+ * com continuacao recuada. Cada grupo e um subtitulo em texto com a lista
+ * embaixo, sem aviso nem etiqueta: numa pagina de dezenas de versoes, caixa
+ * colorida em cada uma pesava mais que o conteudo. Quem diz o estado e o ponto:
+ * vazado em "Ainda nao publicado", cheio na versao mais nova.
  */
-const ICON_ATENCAO = 'M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z';
-const TOM_GRUPO = { 'Novo': 'is-success', 'Mudou': 'is-info', 'Corrigido': '' };
 
 function changelog(md) {
   const inline = (t) => esc(t).replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
@@ -152,17 +150,10 @@ function changelog(md) {
       // Id com "v" na frente: um id que comeca com numero vale como ancora, mas nao
       // como seletor CSS — #0-31-0 quebra querySelector.
       `<h2 class="tuc-timeline__title" id="${slug(publicada ? `v${numero}` : numero)}">${inline(numero)}</h2>`,
-      atual ? '<span class="tuc-badge is-success is-plain">atual</span>' : '',
-      publicada ? '' : '<span class="tuc-badge is-plain">em desenvolvimento</span>',
       data ? `<time class="tuc-timeline__time" datetime="${data}">${dia}/${mes}/${ano}</time>` : '',
     ].join('');
-    const corpo = v.grupos.map((g) => {
-      if (/^Aten/.test(g.nome)) {
-        return `<div class="tuc-alert is-warning"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${ICON_ATENCAO}"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">${inline(g.nome)}</p>${lista(g.itens, 'release__list')}</div></div>`;
-      }
-      const rotulo = g.nome ? `<span class="tuc-badge ${TOM_GRUPO[g.nome] ?? ''}">${inline(g.nome)}</span>` : '';
-      return `<div class="release__group">${rotulo}${lista(g.itens, 'release__list')}</div>`;
-    }).join('');
+    const corpo = v.grupos.map((g) => `<div class="release__group">${
+      g.nome ? `<h3 class="release__heading">${inline(g.nome)}</h3>` : ''}${lista(g.itens, 'release__list')}</div>`).join('');
     return `<li class="tuc-timeline__item${tom}"><div class="tuc-timeline__head">${cabeca}</div><div class="tuc-timeline__body">${corpo}</div></li>`;
   });
   return `<ol class="tuc-timeline changelog">\n${itens.join('\n')}\n</ol>`;

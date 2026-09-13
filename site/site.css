@@ -84,14 +84,15 @@ html.dark .i-moon { display: none; }
 .changelog > .tuc-timeline__item:last-child { padding-bottom: 0; }
 .doc .changelog h2.tuc-timeline__title { margin: 0; padding: 0; border: 0; font-size: 20px; letter-spacing: -.015em; }
 .changelog .tuc-timeline__body { margin-top: 12px; color: var(--fg); }
-.release__group { margin-top: 20px; }
+.release__group { margin-top: 18px; }
+.release__group:first-child { margin-top: 4px; }
+/* Subtitulo do grupo em texto: sem caixa nem etiqueta, que pesavam em cada versao. */
+.doc .release__heading { margin: 0; font-size: 13px; font-weight: 600; letter-spacing: .01em; color: var(--muted); }
 /* disc declarado: dentro do <ol> da linha do tempo o navegador trocava para o
    marcador de segundo nivel, o circulo vazado. */
-.release__list { margin: 8px 0 0; padding-left: 18px; list-style: disc; }
+.release__list { margin: 4px 0 0; padding-left: 18px; list-style: disc; }
 .release__list li { margin: 6px 0; max-width: 72ch; }
 .release__list li::marker { color: var(--subtle); }
-.changelog .tuc-alert { margin: 0 0 4px; }
-.changelog .tuc-alert .release__list { margin-top: 4px; }
 
 /* ---------- demonstracao ---------- */
 
