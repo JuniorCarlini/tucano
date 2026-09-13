@@ -191,7 +191,7 @@ description: Tabela renderizada pelo servidor, com ordenação por link (?sort= 
         </span>
       </td>
       <td><span class="tuc-badge is-success">{{ obj.get_status_display }}</span></td>
-      <td class="is-number" data-sort-value="{{ obj.valor }}">{{ obj.valor|floatformat:2 }}</td>
+      <td class="is-number" data-sort-value="{{ obj.valor }}" data-tuc-format="real">{{ obj.valor }}</td>
       <td class="tuc-table__actions">
         <a class="tuc-btn is-outline is-icon is-sm" href="{% url 'contrato-editar' obj.pk %}" aria-label="Editar">...</a>
       </td>
@@ -384,6 +384,7 @@ document.querySelector('#contratos').addEventListener('tuc:select', (e) => {
     <tr><td><code>.tuc-badge</code></td><td>Etiqueta de estado: <code>is-success</code>, <code>is-warning</code>, <code>is-danger</code>, <code>is-info</code>; sem tom fica neutra</td></tr>
     <tr><td><code>.tuc-table__actions</code></td><td>Coluna encostada à direita, sem quebra de linha, para os botões do sistema — <code>tuc-btn is-outline is-icon is-sm</code></td></tr>
     <tr><td><code>.is-number</code></td><td>Em <code>th</code> e <code>td</code>: alinha à direita com dígitos de largura fixa, para comparar valores com a vista</td></tr>
+    <tr><td><code>data-tuc-format="real"</code></td><td>Na célula de valor: o <code>12400.00</code> que o Django imprime vira <code>R$ 12.400,00</code>. Aceita ponto ou vírgula como decimal; <code>data-tuc-format="currency"</code> formata sem o símbolo</td></tr>
     <tr><td><code>.tuc-table__empty</code></td><td>Célula única do estado vazio, centrada e com respiro</td></tr>
   </tbody>
 </table></div>

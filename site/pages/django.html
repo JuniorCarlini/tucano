@@ -346,7 +346,7 @@ def contratos(request):
     <tr data-id="{{ obj.pk }}">
       <td>{{ obj.nome }}</td>
       <td>{{ obj.vencimento|date:"d/m/Y" }}</td>
-      <td class="is-number">{{ obj.valor|floatformat:2 }}</td>
+      <td class="is-number" data-tuc-format="real">{{ obj.valor }}</td>
     </tr>
     {% empty %}
     <tr><td colspan="3" class="tuc-table__empty">Nenhum contrato encontrado.</td></tr>
