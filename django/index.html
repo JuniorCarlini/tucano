@@ -185,21 +185,13 @@ documento   = 123.456.789-09            # o texto do campo, formatado</code></pr
 
 <h3>Período no form</h3>
 <p>O Django não tem campo de intervalo, então o período chega como texto e se separa no <code>clean_</code>.</p>
-<div class="tuc-prose doc-code"><pre><code>from datetime import date
 
-class ReservaForm(forms.Form):
-    periodo = forms.CharField(widget=PeriodoInput(attrs={"data-tuc-datepicker": "", "data-mode": "range"}))
-
-    def clean_periodo(self):
-        inicio, _, fim = self.cleaned_data["periodo"].partition(",")
-        try:
-            return date.fromisoformat(inicio), date.fromisoformat(fim)
-        except ValueError:
-            raise forms.ValidationError("Escolha o início e o fim do período.")</code></pre></div>
-
-<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">O período volta ao campo no formato da tela</p><p>O date picker lê o valor inicial de um período no formato que ele exibe, <code>01/03/2026 — 15/03/2026</code>, e não em ISO com vírgula. Quando o form volta com erro, o Django reescreve no campo exatamente o que foi postado — o ISO — e o período apareceria trocado. Um widget que devolve o formato de exibição resolve os dois casos, o valor postado e o inicial.</p></div></div>
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">O período volta ao campo no formato da tela</p><p>O date picker lê o valor inicial de um período no formato que ele exibe, <code>01/03/2026 — 15/03/2026</code>. Quando o form volta com erro, o Django reescreve no campo exatamente o que foi postado — o ISO com vírgula. Um widget que devolve o formato de exibição deixa o campo certo nos dois casos, o valor postado e o inicial.</p></div></div>
 
 <div class="tuc-prose doc-code"><pre><code>from datetime import date
+
+from django import forms
+
 
 class PeriodoInput(forms.TextInput):
     def format_value(self, value):
@@ -247,8 +239,8 @@ class PeriodoInput(forms.TextInput):
 <p>Para o Django 4 ou anterior, ponha o atributo no widget quando o campo tiver erro — no <code>__init__</code> do form,
    depois da validação:</p>
 <div class="tuc-prose doc-code"><pre><code>class BaseForm(forms.Form):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def full_clean(self):
+        super().full_clean()
         for name in self.errors:
             if name in self.fields:
                 self.fields[name].widget.attrs["aria-invalid"] = "true"</code></pre></div>
