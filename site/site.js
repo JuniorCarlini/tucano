@@ -41,14 +41,4 @@
       ? (d.files.map((f) => f.name).join(', ') || '—')
       : d.iso ?? (Array.isArray(d.value) ? (d.value.join(', ') || '—') : (d.value || '—'));
   });
-
-  /* "Nesta pagina" acompanha a rolagem. */
-  const ancoras = [...document.querySelectorAll('.toc .tuc-menu__item')];
-  if (ancoras.length) {
-    const marcar = (id) => ancoras.forEach((a) => a.classList.toggle('is-active', a.getAttribute('href') === `#${id}`));
-    const obs = new IntersectionObserver((vistos) => {
-      for (const v of vistos) if (v.isIntersecting) marcar(v.target.id);
-    }, { rootMargin: '-10% 0px -75% 0px' });
-    document.querySelectorAll('.doc h2[id]').forEach((h) => obs.observe(h));
-  }
 })();

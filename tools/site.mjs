@@ -35,7 +35,6 @@ const layout = readFileSync('site/layout.html', 'utf8');
 const nav = JSON.parse(readFileSync('site/nav.json', 'utf8'));
 
 const esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-const semTags = (t) => t.replace(/<[^>]+>/g, '').trim();
 
 /* ---- paginas ---- */
 
@@ -124,13 +123,6 @@ function menu(de) {
   }).join('\n')}`).join('\n');
 }
 
-function indice(corpo) {
-  const titulos = [...corpo.matchAll(/<h2 id="([\w-]+)">([\s\S]*?)<\/h2>/g)];
-  if (titulos.length < 2) return '';
-  return `<div class="toc__title">Nesta página</div>\n<nav class="tuc-menu">${
-    titulos.map((t) => `<a class="tuc-menu__item" href="#${t[1]}">${esc(semTags(t[2]))}</a>`).join('')}</nav>`;
-}
-
 function paginador(de) {
   const i = ordem.indexOf(de);
   const ant = ordem[i - 1], prox = ordem[i + 1];
@@ -169,7 +161,6 @@ for (const [slug, p] of paginas) {
     .replaceAll('{{version}}', versao)
     .replaceAll('{{kb-total}}', String(tamanhos.js + tamanhos.css))
     .replace('{{nav}}', () => menu(slug))
-    .replace('{{toc}}', () => indice(corpo))
     .replace('{{pager}}', () => paginador(slug))
     .replace('{{scripts}}', () => scripts.join('\n'))
     .replace('{{content}}', () => corpo);   // por ultimo: o conteudo traz {{ }} de template Django
