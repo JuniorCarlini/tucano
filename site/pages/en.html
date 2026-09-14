@@ -1,0 +1,133 @@
+<!--
+title: Home and installation
+lang: en
+description: Form, list and dialog components in plain JavaScript for Django, Laravel, Rails or any back-end that renders HTML, with HTMX. No dependencies, already compiled.
+-->
+<section class="hero">
+  <div>
+    <img class="hero__logo logo-light" src="../site/assets/logo-light.svg" width="96" height="89" alt="Tucano">
+    <img class="hero__logo logo-dark" src="../site/assets/logo-dark.svg" width="96" height="89" alt="">
+    <h1>Form, list and dialog components for people who write HTML.</h1>
+    <p class="intro">Add a <code>data-tuc-*</code> attribute in your template and the field becomes a component — no React,
+       no build step, and no framework dragged along. Works with Django, Laravel, Rails or any back-end that renders HTML, and with HTMX.</p>
+    <div class="hero__actions">
+      <a class="tuc-btn is-primary is-lg" href="#installation">Install in 1 minute</a>
+      <a class="tuc-btn is-outline is-lg" href="../select/">See the components</a>
+      <a class="tuc-btn is-primary is-lg hero__github" href="https://github.com/JuniorCarlini/tucano"><svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.470 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>GitHub</a>
+    </div>
+    <div class="pills">
+      <span class="tuc-badge is-plain"><b>{{kb-js}} KB</b> JS gzip</span>
+      <span class="tuc-badge is-plain"><b>{{kb-css}} KB</b> CSS gzip</span>
+      <span class="tuc-badge is-plain"><b>0</b> dependencies</span>
+      <span class="tuc-badge is-plain">No Tailwind preflight</span>
+      <span class="tuc-badge is-plain">Keyboard accessible</span>
+    </div>
+    <p class="hero__lang"><a class="tuc-btn is-link" href="../" hreflang="pt-BR" lang="pt-BR">Ler em português</a></p>
+  </div>
+
+  <form class="preview" onsubmit="return false">
+    <p class="preview__title">New invoice</p>
+    <div class="field">
+      <label class="tuc-label is-required" for="p-cliente">Customer</label>
+      <select id="p-cliente" data-tuc-select data-search="false" data-placeholder="Choose a customer...">
+        <option value=""></option>
+        <option>Corner Bakery</option><option>Two Wheels Garage</option>
+        <option>Wellness Clinic</option><option>Main Street Market</option>
+        <option>Aurora Studio</option>
+      </select>
+    </div>
+    <div class="row">
+      <div>
+        <label class="tuc-label is-required" for="p-valor">Amount</label>
+        <input type="text" id="p-valor" data-tuc-mask="currency" data-currency="USD" value="1250.00">
+      </div>
+      <div>
+        <label class="tuc-label is-required" for="p-venc">Due date</label>
+        <input type="text" id="p-venc" placeholder="mm/dd/yyyy">
+      </div>
+    </div>
+    <div class="field" style="margin-top:14px">
+      <label class="tuc-label" for="p-doc">Card number</label>
+      <input type="text" id="p-doc" data-tuc-mask="card">
+    </div>
+    <div class="field" style="margin-top:18px">
+      <label class="tuc-choice is-end"><input type="checkbox" role="switch" class="tuc-switch" checked><span>Send by email<span class="tuc-choice__hint">The customer gets the invoice and a payment link</span></span></label>
+    </div>
+    <div class="preview__foot">
+      <button type="button" class="tuc-btn is-outline">Cancel</button>
+      <button type="button" class="tuc-btn is-primary" onclick="Tucano.toast.success('Invoice created')">Create invoice</button>
+    </div>
+  </form>
+</section>
+
+<h2 id="installation">Installation</h2>
+<p class="lead">Two files and nothing else. Pick the path that fits your project — none of them requires a build step
+   on your side.</p>
+
+<div class="tuc-tabs" data-tuc-tabs>
+  <div class="tuc-tabs__list">
+    <button class="tuc-tabs__tab" aria-selected="true">CDN</button>
+    <button class="tuc-tabs__tab">Static files</button>
+    <button class="tuc-tabs__tab">npm</button>
+  </div>
+  <div class="tuc-tabs__panel">
+<pre data-code="html">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v{{version}}/dist/tucano.min.css">
+<script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v{{version}}/dist/tucano.min.js" defer></script>
+</pre>
+    <p>Always pin the version. <code>@latest</code> stays cached on jsDelivr for a long time and silently serves an old build.</p>
+  </div>
+  <div class="tuc-tabs__panel" hidden>
+    <p>Copy the <code>dist/</code> folder into your project's static files. In Django:</p>
+<pre data-code="django">
+{% load static %}
+<link rel="stylesheet" href="{% static 'tucano/tucano.min.css' %}">
+<script src="{% static 'tucano/tucano.min.js' %}" defer></script>
+</pre>
+  </div>
+  <div class="tuc-tabs__panel" hidden>
+<pre data-code="shell">
+npm install tucano
+</pre>
+<pre data-code="js">
+import { DatePicker, Select, toast } from 'tucano';
+import 'tucano/css';
+</pre>
+    <p>With npm your bundler keeps only what you import: the date picker alone is a third of the package. Importing
+       from <code>tucano</code> does not auto-initialize fields — call <code>Tucano.init(document)</code> or import
+       <code>tucano/auto</code>.</p>
+  </div>
+</div>
+
+<h2 id="how-it-works">How it works</h2>
+<p class="lead">The HTML you already write keeps owning the value. The component only swaps the look and adds the behavior.</p>
+
+<div class="steps">
+  <div class="step"><b>1. Mark the field</b><span>A <code>data-tuc-*</code> attribute on the <code>&lt;input&gt;</code> or <code>&lt;select&gt;</code> in your template.</span></div>
+  <div class="step"><b>2. It initializes itself</b><span>On page load and again after every <code>htmx:afterSwap</code> — without a line of JavaScript.</span></div>
+  <div class="step"><b>3. The POST is the usual one</b><span>The native element stays in the form: <code>name</code>, <code>required</code> and multiple values work as always.</span></div>
+</div>
+
+<pre data-code="html">
+<input type="text" name="due_date" data-tuc-datepicker>
+<select name="state" data-tuc-select>...</select>
+<input type="text" name="card" data-tuc-mask="card">
+</pre>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Dates and numbers follow your page's language</p><p>The date picker reads <code>&lt;html lang&gt;</code> for month names, weekdays and date format, and currency masks take a currency code. Labels, placeholders and messages are yours: write them in your template, in any language, like <code>data-placeholder="Search customers..."</code>.</p></div></div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Plays well with your project's Tailwind</p><p>The package does not ship the preflight, and the components carry their own reset: your CSS does not break the components, and the components do not touch your project.</p></div></div>
+
+<h2 id="components">Components</h2>
+<p class="lead">Each one has its own page with examples, the Django way, keyboard support and the full API. The component
+   pages are written in Portuguese; the code, attributes and API are in English. For an AI assistant, point it to the
+   <a href="../llms.txt"><code>llms.txt</code></a> reference.</p>
+<!-- componentes -->
+
+<script>
+  // O calendario desta demonstracao nasce por JS, e nao por data-tuc-datepicker,
+  // so para desligar o botao "Limpar": ele ainda e texto fixo em portugues, e numa
+  // pagina em ingles apareceria assim que o calendario abrisse. Meses, dias da
+  // semana e formato ja seguem o lang="en" da pagina.
+  new Tucano.DatePicker('#p-venc', { clearable: false });
+</script>

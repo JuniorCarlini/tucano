@@ -65,6 +65,24 @@ for (const item of itens) {
 }
 const ordem = itens.filter((i) => paginas.has(i.slug)).map((i) => i.slug);
 
+/*
+ * Paginas em outro idioma. So o inicio tem versao em ingles: e por ele que chega
+ * quem nao le portugues, e os componentes nao tem texto a traduzir — cada projeto
+ * escreve os proprios rotulos. Ficam fora do menu e do anterior/proxima, que sao
+ * da documentacao em portugues; o que liga as duas versoes e o hreflang.
+ */
+const IDIOMAS = {
+  'pt-BR': { ogLocale: 'pt_BR', imagemAlt: 'Tucano — componentes de formulário em JavaScript puro' },
+  en: { ogLocale: 'en_US', imagemAlt: 'Tucano — form components in plain JavaScript' },
+};
+const extras = new Map();
+for (const slug of ['en']) {
+  const p = lerPagina(slug);
+  if (p) extras.set(slug, { slug, title: p.meta.title, group: '', lang: p.meta.lang || 'pt-BR', ...p });
+}
+/* Versoes do inicio, na ordem do hreflang: a primeira e tambem o x-default. */
+const versoesDoInicio = [['pt-BR', 'index'], ...[...extras.values()].map((p) => [p.lang, p.slug])];
+
 /* Caminho de uma pagina para outra, relativo: funciona no Pages, no CDN e aberto
    direto do disco, sem depender de onde o site foi publicado. */
 const acima = (slug) => (slug === 'index' ? '' : '../');
@@ -185,6 +203,8 @@ function menu(de) {
  * desenho de botao que a pagina de vitrine nao pode ter.
  */
 function paginador(de) {
+  // Pagina de outro idioma nao faz parte da sequencia da documentacao.
+  if (!ordem.includes(de)) return '';
   const i = ordem.indexOf(de);
   const ant = ordem[i - 1], prox = ordem[i + 1];
   const seta = (d) => `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"/></svg>`;
@@ -210,6 +230,7 @@ function tituloDaPagina(slug, p) {
   // Nao e so Django: vale para qualquer back-end que devolve HTML do servidor.
   // O titulo cita os tres mais buscados; a lista completa fica no conteudo.
   if (slug === 'index') return 'Tucano — componentes JS para Django, Laravel, Rails e HTMX';
+  if (slug === 'en') return 'Tucano — JS components for Django, Laravel, Rails and HTMX';
   if (slug === 'changelog') return 'Changelog da Tucano — o que mudou em cada versão';
   // Guia tem titulo proprio: o padrao dos componentes repetiria "Django" no guia
   // de Django e nao diria do que e o de tema.
@@ -240,6 +261,15 @@ function jsonld(slug, p, titulo, canonical) {
   const site = { '@id': `${BASE_URL}#website` };
   const software = { '@id': `${BASE_URL}#software` };
   const autor = { '@type': 'Person', name: pacote.author, url: 'https://github.com/JuniorCarlini' };
+  if (extras.has(slug)) {
+    // A versao traduzida do inicio e uma pagina do mesmo site, sobre o mesmo codigo.
+    const grafoExtra = [{
+      '@type': 'WebPage', name: titulo, description: p.meta.description, url: canonical,
+      inLanguage: p.lang, isPartOf: site, about: software, image: `${BASE_URL}og.png`,
+    }];
+    const jsonExtra = JSON.stringify({ '@context': 'https://schema.org', '@graph': grafoExtra }).replace(/</g, '\\u003c');
+    return `<script type="application/ld+json">${jsonExtra}</script>`;
+  }
   const grafo = slug === 'index'
     ? [
       { '@type': 'WebSite', ...site, name: 'Tucano', url: BASE_URL, inLanguage: 'pt-BR', description: p.meta.description, publisher: autor },
@@ -273,14 +303,29 @@ function jsonld(slug, p, titulo, canonical) {
 
 /* Sitemap: sem ele o buscador so acha as paginas seguindo links. */
 function sitemap() {
-  const urls = ordem.map((slug) => `  <url><loc>${BASE_URL}${slug === 'index' ? '' : `${slug}/`}</loc></url>`);
+  const urls = [...ordem, ...extras.keys()].map((slug) => `  <url><loc>${BASE_URL}${slug === 'index' ? '' : `${slug}/`}</loc></url>`);
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>\n`;
+}
+
+/*
+ * hreflang: diz ao buscador que o inicio em portugues e em ingles sao a mesma
+ * pagina, para mostrar a de cada idioma a quem procura. Cada versao lista todas,
+ * inclusive ela mesma, e o x-default aponta o portugues. So o inicio tem par.
+ */
+function hreflang(slug) {
+  if (!versoesDoInicio.some(([, s]) => s === slug)) return '';
+  const url = (s) => BASE_URL + (s === 'index' ? '' : `${s}/`);
+  return [
+    ...versoesDoInicio.map(([lang, s]) => `<link rel="alternate" hreflang="${lang}" href="${url(s)}">`),
+    `<link rel="alternate" hreflang="x-default" href="${url('index')}">`,
+  ].join('\n');
 }
 
 /* ---- escrita ---- */
 
 let escritas = 0;
-for (const [slug, p] of paginas) {
+for (const [slug, p] of [...paginas, ...extras]) {
+  const lang = p.lang || 'pt-BR';
   const profundidade = (OUT === '.' ? 0 : OUT.split('/').length) + (slug === 'index' ? 0 : 1);
   const raiz = '../'.repeat(profundidade);
 
@@ -301,7 +346,11 @@ for (const [slug, p] of paginas) {
     .replaceAll('{{title}}', esc(titulo))
     .replaceAll('{{description}}', esc(p.meta.description || ''))
     .replaceAll('{{canonical}}', canonical)
-    .replaceAll('{{og-type}}', slug === 'index' ? 'website' : 'article')
+    .replaceAll('{{lang}}', lang)
+    .replaceAll('{{og-locale}}', IDIOMAS[lang].ogLocale)
+    .replaceAll('{{og-image-alt}}', esc(IDIOMAS[lang].imagemAlt))
+    .replace('{{hreflang}}', () => hreflang(slug))
+    .replaceAll('{{og-type}}', slug === 'index' || extras.has(slug) ? 'website' : 'article')
     .replace('{{jsonld}}', () => jsonld(slug, p, titulo, canonical))
     .replaceAll('{{root}}', raiz)
     .replaceAll('{{home}}', link(slug, 'index'))
@@ -321,4 +370,4 @@ for (const [slug, p] of paginas) {
 mkdirSync(OUT, { recursive: true });
 writeFileSync(`${OUT}/sitemap.xml`, sitemap());
 
-console.log(`site: ${escritas} página(s) e sitemap.xml em ${OUT}/ · ${itens.length - escritas} ainda sem conteúdo`);
+console.log(`site: ${escritas} página(s) e sitemap.xml em ${OUT}/ · ${itens.length - paginas.size} ainda sem conteúdo`);
