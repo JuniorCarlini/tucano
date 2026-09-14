@@ -534,11 +534,15 @@ da versão é procurado pelo `stamp.mjs` com a classe exata
 `tuc-badge is-plain ver`: mudou a marcação, muda a expressão junto.
 
 **Toda mudança que quem usa percebe entra no `CHANGELOG.md`, em "Ainda não
-publicado".** Novo, mudou, corrigido — e, em "Atenção ao atualizar", o que obriga
-alguém a mexer no próprio projeto: classe renomeada ou removida, padrão que
-mudou. Na hora da tag, a seção ganha o número e a data. O arquivo é a fonte da
-página Changelog do site e vai no pacote do npm; ele não é montado a partir
-das tags no build porque o CI baixa o repositório sem histórico.
+publicado" — e na mesma hora em `CHANGELOG.en.md` ("Unreleased") e
+`CHANGELOG.es.md` ("Sin publicar").** Novo, mudou, corrigido — e, em "Atenção ao
+atualizar", o que obriga alguém a mexer no próprio projeto: classe renomeada ou
+removida, padrão que mudou. Na hora da tag, a seção ganha o número e a data nos
+três arquivos. O português é a fonte da página Changelog em português e vai no
+pacote do npm; os outros dois alimentam a página no idioma deles. Nenhum é
+montado a partir das tags no build porque o CI baixa o repositório sem histórico.
+O `consistency.mjs` compara as versões e a quantidade de itens dos três e falha
+se uma nota ficou só em português.
 
 **O destaque padrão é o laranja do tucano, `#FF7501`, igual nos dois temas —
 e texto no destaque tem token próprio.** Sobre o laranja o texto é branco:

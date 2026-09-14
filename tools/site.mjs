@@ -182,8 +182,8 @@ function api(nome, lang) {
  * com continuacao recuada. Cada grupo e um subtitulo em texto com a lista
  * embaixo, sem aviso nem etiqueta: numa pagina de dezenas de versoes, caixa
  * colorida em cada uma pesava mais que o conteudo. Quem diz o estado e o ponto:
- * vazado em "Ainda nao publicado", cheio na versao mais nova. O texto e o do
- * arquivo, em portugues, nos tres idiomas.
+ * vazado na versao ainda nao publicada, cheio na mais nova. Cada idioma tem o
+ * proprio arquivo (CHANGELOG.en.md, CHANGELOG.es.md), no mesmo formato.
  */
 
 function changelog(md) {
@@ -434,7 +434,12 @@ for (const idioma of IDIOMAS) {
     corpo = codigos(corpo);
     corpo = corpo.replace(/<!-- api -->/g, () => api(p.meta.component, lang));
     corpo = corpo.replace(/<!-- componentes -->/g, () => grade(slug, lang));
-    corpo = corpo.replace(/<!-- changelog -->/g, () => changelog(readFileSync('CHANGELOG.md', 'utf8')));
+    // Cada idioma le as notas no proprio idioma; sem o arquivo, cai no portugues
+    // em vez de a pagina sair vazia.
+    corpo = corpo.replace(/<!-- changelog -->/g, () => {
+      const traduzido = idioma.dir ? `CHANGELOG.${idioma.dir}.md` : 'CHANGELOG.md';
+      return changelog(readFileSync(existsSync(traduzido) ? traduzido : 'CHANGELOG.md', 'utf8'));
+    });
 
     const titulo = tituloDaPagina(slug, p);
     const canonical = BASE_URL + rota;

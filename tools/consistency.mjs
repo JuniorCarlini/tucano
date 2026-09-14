@@ -228,5 +228,46 @@ const htmlSemCodigo = html.replace(/<pre[\s\S]*?<\/pre>/g, '').replace(/<code>[\
   else ok(`README: ${anunciadas.size} opções nas tabelas, todas lidas por alguém`);
 }
 
+/*
+ * 7. Changelog traduzido com uma versao a menos, ou com a nota pela metade.
+ *
+ * O site mostra as notas no idioma de cada pagina, e cada idioma tem o proprio
+ * arquivo. A regra e escrever a nota nos tres; sem esta checagem, esquecer uma
+ * tradução nao quebra nada, e a pagina em ingles simplesmente para numa versao
+ * antiga. Compara, com o portugues, a lista de versoes (numero e data, na mesma
+ * ordem) e a quantidade de itens de cada uma. A versao ainda nao publicada tem
+ * titulo proprio em cada idioma e casa com as outras por nao comecar com numero.
+ */
+{
+  const versoes = (arq) => {
+    const lista = [];
+    for (const linha of readFileSync(arq, 'utf8').split('\n')) {
+      if (linha.startsWith('## ')) {
+        const titulo = linha.slice(3).trim();
+        lista.push({ chave: /^\d/.test(titulo) ? titulo : '(não publicada)', itens: 0 });
+      } else if (linha.startsWith('- ') && lista.length) lista[lista.length - 1].itens++;
+    }
+    return lista;
+  };
+  const pt = versoes('CHANGELOG.md');
+  const problemas = [];
+  for (const arq of ['CHANGELOG.en.md', 'CHANGELOG.es.md']) {
+    let tr;
+    try { tr = versoes(arq); } catch { problemas.push(`${arq} não existe`); continue; }
+    const chavesPt = pt.map((v) => v.chave), chavesTr = tr.map((v) => v.chave);
+    const faltam = chavesPt.filter((c) => !chavesTr.includes(c));
+    const sobram = chavesTr.filter((c) => !chavesPt.includes(c));
+    if (faltam.length) problemas.push(`${arq} sem ${faltam.slice(0, 3).join(', ')}${faltam.length > 3 ? '…' : ''}`);
+    if (sobram.length) problemas.push(`${arq} com versão que o português não tem: ${sobram.slice(0, 3).join(', ')}`);
+    if (!faltam.length && !sobram.length && chavesPt.join() !== chavesTr.join()) problemas.push(`${arq} com as versões em outra ordem`);
+    for (const v of pt) {
+      const par = tr.find((x) => x.chave === v.chave);
+      if (par && par.itens !== v.itens) problemas.push(`${arq} ${v.chave}: ${par.itens} itens, o português tem ${v.itens}`);
+    }
+  }
+  if (problemas.length) falhar(`changelog traduzido fora de compasso: ${problemas.slice(0, 4).join(' · ')}`);
+  else ok(`changelog: ${pt.length} versões iguais em português, inglês e espanhol`);
+}
+
 console.log(falhas ? `\n${falhas} incoerência(s)` : '\ntudo coerente');
 process.exit(falhas ? 1 : 0);
