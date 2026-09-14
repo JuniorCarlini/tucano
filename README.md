@@ -1139,7 +1139,7 @@ a IA escreva um date picker do zero — o modelo está na
 ```bash
 npm install
 npm run build       # gera dist/
-npm run dev         # build + servidor da demo
+npm run serve       # build + servidor local em http://127.0.0.1:4322
 ```
 
 ```

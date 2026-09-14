@@ -75,7 +75,6 @@
     "test:examples": "node tools/examples.mjs",
     "test:consistency": "node tools/consistency.mjs",
     "audit": "node tools/audit.mjs",
-    "dev": "npm run build && npx serve .",
     "serve": "npm run build && python3 -m http.server 4322 --bind 127.0.0.1",
     "prepublishOnly": "npm test && npm run audit"
   },

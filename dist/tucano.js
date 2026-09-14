@@ -3534,11 +3534,6 @@ var Tucano = (() => {
     /* ---------------------------------------------------------------- *
      * Interno                                                           *
      * ---------------------------------------------------------------- */
-    _template(given) {
-      if (this.isCurrency) return "";
-      const chars = given ?? clear(this.input.value, [].concat(this.templates).join(""));
-      return pickTemplate(chars, this.templates);
-    }
     _wire() {
       const input = this.input;
       if (!input.getAttribute("inputmode")) {
