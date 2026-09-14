@@ -17,6 +17,12 @@ cambios en tu proyecto.
   mostraba el campo vacío, pero el `<select>` volvía solo a la primera opción y
   el formulario enviaba el valor anterior. Ahora el nativo queda sin nada
   seleccionado: el campo no se envía y `required` bloquea el envío.
+- Escribir en un select con búsqueda y la lista cerrada perdía la primera letra:
+  abría la lista, y abrirla vaciaba la búsqueda. "sa" se volvía "a". Ahora la
+  búsqueda guarda todo lo escrito, también en el select remoto.
+- El `reset()` del formulario devolvía el `<select>` a su valor inicial, pero el
+  componente seguía mostrando el valor anterior, porque el reset no dispara
+  `change`. Ahora la pantalla acompaña el reset.
 
 ## 0.33.0 — 2026-09-14
 

@@ -18,6 +18,12 @@ in your project.
   option on its own and the form posted the old value. The native element now
   ends up with nothing selected: the field is not posted, and `required` blocks
   the submit.
+- Typing into a searchable select with the list closed lost the first letter:
+  it opened the list, and opening cleared the search. "sa" became "a". The
+  search now keeps everything typed, remote selects included.
+- The form's `reset()` put the `<select>` back to its initial value, but the
+  component kept showing the old one, because reset does not fire `change`. The
+  display now follows the reset.
 
 ## 0.33.0 — 2026-09-14
 

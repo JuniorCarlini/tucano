@@ -212,16 +212,27 @@ export class Select {
         this.isOpen ? this.search.focus() : this.open();
       }),
       on(this.search, 'input', () => {
-        this.query = this.search.value;
-        if (!this.isOpen) this.open();
+        // open() zera a busca. Com a lista fechada, a primeira letra digitada e
+        // o que abre a lista, e sumia junto: "pa" virava "a".
+        const typed = this.search.value;
+        if (!this.isOpen) { this.open(); this.search.value = typed; }
+        this.query = typed;
         if (this.remote) { this._scheduleSearch(); return; }
         this.activeIndex = this._filtered().findIndex((i) => !i.disabled);
         this._renderMenu();
         this._renderControl();
       }),
       on(this.search, 'keydown', (e) => this._onKeydown(e)),
-      // Se o valor mudar por fora (reset de formulario, JS de terceiros).
+      // Se o valor mudar por fora, por JS de terceiros que dispara change.
       on(this.native, 'change', () => { if (!this._pushing) this._syncFromNative(); }),
+      /*
+       * O reset do formulario volta o <select> aos valores iniciais sem disparar
+       * change: o nativo mudava e a tela continuava mostrando o valor antigo. O
+       * evento chega antes de os valores voltarem, entao a leitura espera a vez.
+       */
+      this.native.form
+        ? on(this.native.form, 'reset', () => setTimeout(() => this._syncFromNative()))
+        : () => {},
       on(this.list, 'scroll', () => this._onListScroll()),
     );
   }

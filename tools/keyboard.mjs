@@ -33,6 +33,8 @@ const pagina = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
 <select id="uf" data-tuc-select><option value="">Selecione...</option><option value="SP">São Paulo</option><option value="RJ">Rio de Janeiro</option></select>
 <select id="semvazia" data-tuc-select><option value="UN">Unidade</option><option value="PC">Peça</option></select>
 <select id="fixo" data-tuc-select data-clearable="false"><option value="SP">São Paulo</option><option value="RJ">Rio de Janeiro</option></select>
+<select id="comBusca" data-tuc-select><option value="AC">Acre</option><option value="BA">Bahia</option><option value="MG">Minas Gerais</option><option value="PR">Paraná</option><option value="SC">Santa Catarina</option><option value="SP">São Paulo</option></select>
+<form id="freset"><select id="ufreset" data-tuc-select><option value="SP" selected>São Paulo</option><option value="RJ">Rio de Janeiro</option></select></form>
 <textarea id="ked" data-tuc-editor></textarea>
 <div class="tuc-tabs" data-tuc-tabs id="abas"><div class="tuc-tabs__list">
   <button class="tuc-tabs__tab" aria-selected="true">A</button><button class="tuc-tabs__tab">B</button>
@@ -309,8 +311,29 @@ await caso('Backspace no select simples sem o X não limpa', async () => {
   return v === 'RJ' ? null : `com clearable false o valor virou "${v}"`;
 });
 
+await caso('digitar com a lista do select fechada não perde a primeira letra', async () => {
+  // A primeira letra abria a lista, e o open() zerava a busca junto: "sa" virava "a".
+  await avaliar(`(() => { const c = document.getElementById('comBusca')._tucano; c.close(); c.search.focus(); })()`);
+  await digitar('sa');
+  const r = await avaliar(`(() => { const c = document.getElementById('comBusca')._tucano;
+    const busca = c.search.value; c.close(); return busca; })()`);
+  return r === 'sa' ? null : `a busca ficou "${r}"`;
+});
+
+await caso('reset do formulário volta o select e o que ele mostra', async () => {
+  // O reset não dispara change: o nativo voltava e a tela seguia com o valor antigo.
+  await partir('ufreset', 'RJ');
+  const r = await avaliar(`(async () => {
+    document.getElementById('freset').reset();
+    await new Promise((ok) => setTimeout(ok, 30));
+    const s = document.getElementById('ufreset');
+    return [s.value, s._tucano.getValue(), s._tucano.control.textContent.trim()]; })()`);
+  return r[0] === 'SP' && r[1] === 'SP' && r[2].includes('São Paulo')
+    ? null : `nativo "${r[0]}", componente ${JSON.stringify(r[1])}, tela "${r[2]}"`;
+});
+
 ws.close();
 chrome.kill();
 unlinkSync(arq);
-console.log(falhas ? `\n${falhas} falha(s) no teclado` : '\n16 caminhos de teclado verificados');
+console.log(falhas ? `\n${falhas} falha(s) no teclado` : '\n18 caminhos de teclado verificados');
 process.exit(falhas ? 1 : 0);

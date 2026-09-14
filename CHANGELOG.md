@@ -17,6 +17,12 @@ projeto.
   mostrava o campo vazio, mas o `<select>` voltava sozinho para a primeira
   opção e o formulário postava o valor antigo. Agora o nativo fica sem nada
   selecionado: não posta o campo, e o `required` barra o envio.
+- Digitar num select com busca e a lista fechada perdia a primeira letra: ela
+  abria a lista, e abrir zerava a busca. "sa" virava "a". Agora a busca guarda
+  tudo o que foi digitado, inclusive no select remoto.
+- O `reset()` do formulário voltava o `<select>` ao valor inicial, mas o
+  componente continuava mostrando o valor antigo, porque o reset não dispara
+  `change`. Agora a tela acompanha o reset.
 
 ## 0.33.0 — 2026-09-14
 
