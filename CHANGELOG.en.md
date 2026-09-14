@@ -4,6 +4,21 @@ What changed in each Tucano release, newest first. Check the "Before upgrading"
 section of each version first: that is where you will find what requires changes
 in your project.
 
+## 0.33.1 — 2026-09-14
+
+### Fixed
+
+- In a single select, `Backspace` and `Delete` with the search empty did
+  nothing: only multiple mode responded, removing the last tag. Someone who
+  tabbed to a filled select could not empty it without reaching for the X with
+  the mouse. Both keys now clear the value, like the X. With `clearable: false`
+  there is no X, and the keyboard does not clear either.
+- Clearing a single select with no `<option value="">` — by the X or by the
+  keyboard — showed an empty field, but the `<select>` fell back to its first
+  option on its own and the form posted the old value. The native element now
+  ends up with nothing selected: the field is not posted, and `required` blocks
+  the submit.
+
 ## 0.33.0 — 2026-09-14
 
 ### Before upgrading

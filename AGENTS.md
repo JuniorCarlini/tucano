@@ -662,8 +662,8 @@ colados no documento e têm que montar; os de JS não são executados (citam
 contra o código: `Tucano.x` existe? o método existe no protótipo? cada chave de
 opção é lida por alguém, inclusive dentro de `actions` e `items`?
 
-**`tools/keyboard.mjs` — 13 caminhos de teclado real**, pelo protocolo de
-depuração do Chrome: `Backspace` e `Delete` na máscara, as setas nas abas, o
+**`tools/keyboard.mjs` — 16 caminhos de teclado real**, pelo protocolo de
+depuração do Chrome: `Backspace` e `Delete` na máscara e no select, as setas nas abas, o
 `↓` que leva o foco ao dia no date picker e a barra do editor pelo teclado.
 Evento sintético não dispara a ação padrão, então só assim o caminho é o real.
 

@@ -250,6 +250,10 @@ export class Select {
     if (!this.multiple && !chosen.size) {
       const empty = [...this.native.options].find((o) => o.value === '');
       if (empty) empty.selected = true;
+      // Sem <option value="">, o navegador volta sozinho para a primeira opção:
+      // a tela mostrava o campo vazio e o formulário postava o valor antigo.
+      // Sem nada selecionado, o <select> não posta nada e o `required` barra.
+      else this.native.selectedIndex = -1;
     }
     this.native.dispatchEvent(new Event('change', { bubbles: true }));
     this._pushing = false;
@@ -564,6 +568,17 @@ export class Select {
       // Campo de busca vazio: apagar remove a ultima tag, como em qualquer editor de tags.
       const chosen = this.items.filter((i) => i.selected);
       if (chosen.length) this._toggleItem(chosen[chosen.length - 1]);
+    } else if ((e.key === 'Backspace' || e.key === 'Delete') && !this.search.value && !this.multiple) {
+      /*
+       * No simples, apagar com a busca vazia limpa o valor — o mesmo que o X faz.
+       * Antes so o multiplo respondia: quem tabulava ate um select preenchido e
+       * apertava Backspace nao conseguia esvaziar sem pegar o mouse. Com
+       * `clearable: false` o X nao existe, e o teclado tambem nao limpa.
+       */
+      if (this.opts.clearable && this.getValue() !== null) {
+        e.preventDefault();
+        this.clear();
+      }
     } else if (e.key === 'Home' || e.key === 'End') {
       if (!this.isOpen) return;
       e.preventDefault();

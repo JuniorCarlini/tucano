@@ -4,6 +4,20 @@ Qué cambió en cada versión de Tucano, de la más reciente a la más antigua. 
 primero la sección "Antes de actualizar" de cada versión: ahí está lo que exige
 cambios en tu proyecto.
 
+## 0.33.1 — 2026-09-14
+
+### Corregido
+
+- En el select simple, `Backspace` y `Delete` con la búsqueda vacía no hacían
+  nada: solo el múltiple respondía, quitando la última etiqueta. Quien llegaba
+  con Tab a un select lleno no podía vaciarlo sin ir con el mouse a la X. Ahora
+  las dos teclas limpian el valor, como la X. Con `clearable: false` no hay X, y
+  el teclado tampoco limpia.
+- Limpiar un select simple sin `<option value="">` — con la X o con el teclado —
+  mostraba el campo vacío, pero el `<select>` volvía solo a la primera opción y
+  el formulario enviaba el valor anterior. Ahora el nativo queda sin nada
+  seleccionado: el campo no se envía y `required` bloquea el envío.
+
 ## 0.33.0 — 2026-09-14
 
 ### Antes de actualizar

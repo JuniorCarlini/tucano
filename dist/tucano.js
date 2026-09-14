@@ -1841,6 +1841,7 @@ var Tucano = (() => {
       if (!this.multiple && !chosen.size) {
         const empty = [...this.native.options].find((o) => o.value === "");
         if (empty) empty.selected = true;
+        else this.native.selectedIndex = -1;
       }
       this.native.dispatchEvent(new Event("change", { bubbles: true }));
       this._pushing = false;
@@ -2134,6 +2135,11 @@ var Tucano = (() => {
       } else if (e.key === "Backspace" && !this.search.value && this.multiple) {
         const chosen = this.items.filter((i) => i.selected);
         if (chosen.length) this._toggleItem(chosen[chosen.length - 1]);
+      } else if ((e.key === "Backspace" || e.key === "Delete") && !this.search.value && !this.multiple) {
+        if (this.opts.clearable && this.getValue() !== null) {
+          e.preventDefault();
+          this.clear();
+        }
       } else if (e.key === "Home" || e.key === "End") {
         if (!this.isOpen) return;
         e.preventDefault();

@@ -30,6 +30,9 @@ const pagina = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
 <input id="valor" data-tuc-mask="real">
 <input id="data" data-tuc-mask="date">
 <input id="dt" data-tuc-datepicker>
+<select id="uf" data-tuc-select><option value="">Selecione...</option><option value="SP">São Paulo</option><option value="RJ">Rio de Janeiro</option></select>
+<select id="semvazia" data-tuc-select><option value="UN">Unidade</option><option value="PC">Peça</option></select>
+<select id="fixo" data-tuc-select data-clearable="false"><option value="SP">São Paulo</option><option value="RJ">Rio de Janeiro</option></select>
 <textarea id="ked" data-tuc-editor></textarea>
 <div class="tuc-tabs" data-tuc-tabs id="abas"><div class="tuc-tabs__list">
   <button class="tuc-tabs__tab" aria-selected="true">A</button><button class="tuc-tabs__tab">B</button>
@@ -276,8 +279,38 @@ await caso('↓ no campo de data abre o calendário e leva o foco ao dia', async
   return fim[0] === 'dt' && !fim[1] ? null : `Esc deixou o foco em "${fim[0]}", aberto: ${fim[1]}`;
 });
 
+await caso('Backspace e Delete no select simples com a busca vazia limpam o valor', async () => {
+  // So o multiplo respondia: no simples, esvaziar exigia o mouse no X.
+  for (const t of ['Backspace', 'Delete']) {
+    await partir('uf', 'SP');
+    await avaliar(`document.getElementById('uf')._tucano.search.focus()`);
+    await tecla(t);
+    const v = await avaliar(`document.getElementById('uf').value`);
+    if (v !== '') return `${t} deixou o valor "${v}"`;
+  }
+  return null;
+});
+
+await caso('limpar um select sem <option value=""> esvazia o nativo, não volta para a primeira opção', async () => {
+  // A tela mostrava vazio e o formulário postava a primeira opção.
+  await partir('semvazia', 'PC');
+  await avaliar(`document.getElementById('semvazia')._tucano.search.focus()`);
+  await tecla('Backspace');
+  const r = await avaliar(`(() => { const s = document.getElementById('semvazia');
+    return [s.value, s.selectedIndex, s._tucano.getValue()]; })()`);
+  return r[0] === '' && r[1] === -1 && r[2] === null ? null : `nativo "${r[0]}" índice ${r[1]}, componente ${r[2]}`;
+});
+
+await caso('Backspace no select simples sem o X não limpa', async () => {
+  await partir('fixo', 'RJ');
+  await avaliar(`document.getElementById('fixo')._tucano.search.focus()`);
+  await tecla('Backspace');
+  const v = await avaliar(`document.getElementById('fixo').value`);
+  return v === 'RJ' ? null : `com clearable false o valor virou "${v}"`;
+});
+
 ws.close();
 chrome.kill();
 unlinkSync(arq);
-console.log(falhas ? `\n${falhas} falha(s) no teclado` : '\n13 caminhos de teclado verificados');
+console.log(falhas ? `\n${falhas} falha(s) no teclado` : '\n16 caminhos de teclado verificados');
 process.exit(falhas ? 1 : 0);
