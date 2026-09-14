@@ -30,11 +30,11 @@ const pagina = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
 <input id="valor" data-tuc-mask="real">
 <input id="data" data-tuc-mask="date">
 <input id="dt" data-tuc-datepicker>
-<select id="uf" data-tuc-select><option value="">Selecione...</option><option value="SP">São Paulo</option><option value="RJ">Rio de Janeiro</option></select>
-<select id="semvazia" data-tuc-select><option value="UN">Unidade</option><option value="PC">Peça</option></select>
-<select id="fixo" data-tuc-select data-clearable="false"><option value="SP">São Paulo</option><option value="RJ">Rio de Janeiro</option></select>
-<select id="comBusca" data-tuc-select><option value="AC">Acre</option><option value="BA">Bahia</option><option value="MG">Minas Gerais</option><option value="PR">Paraná</option><option value="SC">Santa Catarina</option><option value="SP">São Paulo</option></select>
-<form id="freset"><select id="ufreset" data-tuc-select><option value="SP" selected>São Paulo</option><option value="RJ">Rio de Janeiro</option></select></form>
+<select id="state" data-tuc-select><option value="">Selecione...</option><option value="SP">São Paulo</option><option value="RJ">Rio de Janeiro</option></select>
+<select id="noEmpty" data-tuc-select><option value="UN">Unidade</option><option value="PC">Peça</option></select>
+<select id="fixed" data-tuc-select data-clearable="false"><option value="SP">São Paulo</option><option value="RJ">Rio de Janeiro</option></select>
+<select id="searchable" data-tuc-select><option value="AC">Acre</option><option value="BA">Bahia</option><option value="MG">Minas Gerais</option><option value="PR">Paraná</option><option value="SC">Santa Catarina</option><option value="SP">São Paulo</option></select>
+<form id="resetForm"><select id="resetState" data-tuc-select><option value="SP" selected>São Paulo</option><option value="RJ">Rio de Janeiro</option></select></form>
 <textarea id="ked" data-tuc-editor></textarea>
 <div class="tuc-tabs" data-tuc-tabs id="abas"><div class="tuc-tabs__list">
   <button class="tuc-tabs__tab" aria-selected="true">A</button><button class="tuc-tabs__tab">B</button>
@@ -284,10 +284,10 @@ await caso('↓ no campo de data abre o calendário e leva o foco ao dia', async
 await caso('Backspace e Delete no select simples com a busca vazia limpam o valor', async () => {
   // So o multiplo respondia: no simples, esvaziar exigia o mouse no X.
   for (const t of ['Backspace', 'Delete']) {
-    await partir('uf', 'SP');
-    await avaliar(`document.getElementById('uf')._tucano.search.focus()`);
+    await partir('state', 'SP');
+    await avaliar(`document.getElementById('state')._tucano.search.focus()`);
     await tecla(t);
-    const v = await avaliar(`document.getElementById('uf').value`);
+    const v = await avaliar(`document.getElementById('state').value`);
     if (v !== '') return `${t} deixou o valor "${v}"`;
   }
   return null;
@@ -295,38 +295,38 @@ await caso('Backspace e Delete no select simples com a busca vazia limpam o valo
 
 await caso('limpar um select sem <option value=""> esvazia o nativo, não volta para a primeira opção', async () => {
   // A tela mostrava vazio e o formulário postava a primeira opção.
-  await partir('semvazia', 'PC');
-  await avaliar(`document.getElementById('semvazia')._tucano.search.focus()`);
+  await partir('noEmpty', 'PC');
+  await avaliar(`document.getElementById('noEmpty')._tucano.search.focus()`);
   await tecla('Backspace');
-  const r = await avaliar(`(() => { const s = document.getElementById('semvazia');
+  const r = await avaliar(`(() => { const s = document.getElementById('noEmpty');
     return [s.value, s.selectedIndex, s._tucano.getValue()]; })()`);
   return r[0] === '' && r[1] === -1 && r[2] === null ? null : `nativo "${r[0]}" índice ${r[1]}, componente ${r[2]}`;
 });
 
 await caso('Backspace no select simples sem o X não limpa', async () => {
-  await partir('fixo', 'RJ');
-  await avaliar(`document.getElementById('fixo')._tucano.search.focus()`);
+  await partir('fixed', 'RJ');
+  await avaliar(`document.getElementById('fixed')._tucano.search.focus()`);
   await tecla('Backspace');
-  const v = await avaliar(`document.getElementById('fixo').value`);
+  const v = await avaliar(`document.getElementById('fixed').value`);
   return v === 'RJ' ? null : `com clearable false o valor virou "${v}"`;
 });
 
 await caso('digitar com a lista do select fechada não perde a primeira letra', async () => {
   // A primeira letra abria a lista, e o open() zerava a busca junto: "sa" virava "a".
-  await avaliar(`(() => { const c = document.getElementById('comBusca')._tucano; c.close(); c.search.focus(); })()`);
+  await avaliar(`(() => { const c = document.getElementById('searchable')._tucano; c.close(); c.search.focus(); })()`);
   await digitar('sa');
-  const r = await avaliar(`(() => { const c = document.getElementById('comBusca')._tucano;
-    const busca = c.search.value; c.close(); return busca; })()`);
+  const r = await avaliar(`(() => { const c = document.getElementById('searchable')._tucano;
+    const query = c.search.value; c.close(); return query; })()`);
   return r === 'sa' ? null : `a busca ficou "${r}"`;
 });
 
 await caso('reset do formulário volta o select e o que ele mostra', async () => {
   // O reset não dispara change: o nativo voltava e a tela seguia com o valor antigo.
-  await partir('ufreset', 'RJ');
+  await partir('resetState', 'RJ');
   const r = await avaliar(`(async () => {
-    document.getElementById('freset').reset();
+    document.getElementById('resetForm').reset();
     await new Promise((ok) => setTimeout(ok, 30));
-    const s = document.getElementById('ufreset');
+    const s = document.getElementById('resetState');
     return [s.value, s._tucano.getValue(), s._tucano.control.textContent.trim()]; })()`);
   return r[0] === 'SP' && r[1] === 'SP' && r[2].includes('São Paulo')
     ? null : `nativo "${r[0]}", componente ${JSON.stringify(r[1])}, tela "${r[2]}"`;

@@ -452,75 +452,75 @@ body{margin:0;padding:16px;font-family:system-ui}
     // conteúdo de trás andava. Este Chrome roda com --hide-scrollbars, então a
     // barra nunca ocupa espaço aqui: o teste confere as duas metades do mecanismo.
     limpar();
-    var raiz = document.documentElement;
-    raiz.removeAttribute('data-tuc-gutter');
-    var m = Tucano.modal({ title: 'M' });
-    if (raiz.hasAttribute('data-tuc-gutter')) throw new Error('marcou sem barra que ocupa espaço');
-    raiz.setAttribute('data-tuc-gutter', '');
-    raiz.style.setProperty('--tuc-gutter-pad', '31px');
-    var comMarca = getComputedStyle(document.body).paddingRight;
-    m.close(); limpar();
-    var fechado = getComputedStyle(document.body).paddingRight;
-    raiz.removeAttribute('data-tuc-gutter');
-    raiz.style.removeProperty('--tuc-gutter-pad');
-    if (comMarca !== '31px') throw new Error('com a marca e diálogo aberto, o padding do body é ' + comMarca);
-    if (fechado === '31px') throw new Error('continuou reservando depois de fechar');
+    var root = document.documentElement;
+    root.removeAttribute('data-tuc-gutter');
+    var modal = Tucano.modal({ title: 'M' });
+    if (root.hasAttribute('data-tuc-gutter')) throw new Error('marcou sem barra que ocupa espaço');
+    root.setAttribute('data-tuc-gutter', '');
+    root.style.setProperty('--tuc-gutter-pad', '31px');
+    var withMark = getComputedStyle(document.body).paddingRight;
+    modal.close(); limpar();
+    var afterClose = getComputedStyle(document.body).paddingRight;
+    root.removeAttribute('data-tuc-gutter');
+    root.style.removeProperty('--tuc-gutter-pad');
+    if (withMark !== '31px') throw new Error('com a marca e diálogo aberto, o padding do body é ' + withMark);
+    if (afterClose === '31px') throw new Error('continuou reservando depois de fechar');
   });
   t('tabela larga rola sozinha no editor e no .tuc-prose, e a estreita ocupa a largura', function () {
     // Com a tabela presa em 100%, dez colunas viravam uma palavra por linha.
     // Vinte colunas: a página de teste é larga, e dez de 7rem ainda cabiam nela.
-    var cols = function (n) { var h = ''; for (var i = 0; i < n; i++) h += '<td>Valor com texto ' + i + '</td>'; return '<table><tbody><tr>' + h + '</tr></tbody></table>'; };
-    var ed = document.getElementById('ed')._tucano, antigo = ed.getValue();
-    ed.setValue('<p>a</p>' + cols(20) + cols(2));
-    var caixas = ed.area.querySelectorAll('.tuc-editor__scroll');
-    if (caixas.length !== 2) throw new Error('editor: ' + caixas.length + ' caixa(s) para 2 tabelas');
-    if (caixas[0].scrollWidth <= caixas[0].clientWidth) throw new Error('editor: tabela larga não rola');
-    if (ed.area.scrollWidth > ed.area.clientWidth + 1) throw new Error('editor: a área inteira rola, e não só a tabela');
-    var estreita = caixas[1].querySelector('table');
-    if (Math.abs(estreita.getBoundingClientRect().width - caixas[1].clientWidth) > 1) throw new Error('editor: tabela de 2 colunas não ocupa a largura');
-    if (ed.getValue().indexOf('div') >= 0) throw new Error('a caixa foi parar no valor salvo');
-    caixas[0].querySelector('td').dispatchEvent(new Event('input', { bubbles: true }));
-    ed.area.querySelector('table').remove();
-    ed.area.dispatchEvent(new Event('input', { bubbles: true }));
-    if (ed.area.querySelectorAll('.tuc-editor__scroll').length !== 1) throw new Error('editor: sobrou caixa vazia ao apagar a tabela');
-    ed.setValue(antigo);
+    var columns = function (n) { var cells = ''; for (var i = 0; i < n; i++) cells += '<td>Valor com texto ' + i + '</td>'; return '<table><tbody><tr>' + cells + '</tr></tbody></table>'; };
+    var editor = document.getElementById('ed')._tucano, previous = editor.getValue();
+    editor.setValue('<p>a</p>' + columns(20) + columns(2));
+    var boxes = editor.area.querySelectorAll('.tuc-editor__scroll');
+    if (boxes.length !== 2) throw new Error('editor: ' + boxes.length + ' caixa(s) para 2 tabelas');
+    if (boxes[0].scrollWidth <= boxes[0].clientWidth) throw new Error('editor: tabela larga não rola');
+    if (editor.area.scrollWidth > editor.area.clientWidth + 1) throw new Error('editor: a área inteira rola, e não só a tabela');
+    var narrow = boxes[1].querySelector('table');
+    if (Math.abs(narrow.getBoundingClientRect().width - boxes[1].clientWidth) > 1) throw new Error('editor: tabela de 2 colunas não ocupa a largura');
+    if (editor.getValue().indexOf('div') >= 0) throw new Error('a caixa foi parar no valor salvo');
+    boxes[0].querySelector('td').dispatchEvent(new Event('input', { bubbles: true }));
+    editor.area.querySelector('table').remove();
+    editor.area.dispatchEvent(new Event('input', { bubbles: true }));
+    if (editor.area.querySelectorAll('.tuc-editor__scroll').length !== 1) throw new Error('editor: sobrou caixa vazia ao apagar a tabela');
+    editor.setValue(previous);
 
     var prose = document.createElement('div');
     prose.className = 'tuc-prose';
-    prose.innerHTML = cols(20);
+    prose.innerHTML = columns(20);
     document.body.append(prose);
     Tucano.init(prose);
-    var caixa = prose.querySelector('.tuc-prose__scroll');
-    var rola = caixa && caixa.scrollWidth > caixa.clientWidth, larguraProse = prose.scrollWidth <= prose.clientWidth + 1;
+    var box = prose.querySelector('.tuc-prose__scroll');
+    var scrolls = box && box.scrollWidth > box.clientWidth, proseFits = prose.scrollWidth <= prose.clientWidth + 1;
     Tucano.init(prose);
-    var repetida = prose.querySelectorAll('.tuc-prose__scroll').length;
+    var boxCount = prose.querySelectorAll('.tuc-prose__scroll').length;
     prose.remove();
-    if (!caixa) throw new Error('prose: tabela sem caixa');
-    if (!rola) throw new Error('prose: tabela larga não rola');
-    if (!larguraProse) throw new Error('prose: o bloco inteiro passou da largura');
-    if (repetida !== 1) throw new Error('prose: init de novo criou ' + repetida + ' caixas');
+    if (!box) throw new Error('prose: tabela sem caixa');
+    if (!scrolls) throw new Error('prose: tabela larga não rola');
+    if (!proseFits) throw new Error('prose: o bloco inteiro passou da largura');
+    if (boxCount !== 1) throw new Error('prose: init de novo criou ' + boxCount + ' caixas');
   });
   t('onClose recebe os motivos em inglês: button no X, backdrop no fundo', function () {
     // O onClose só roda depois da animação de saída, e este teste é síncrono:
     // o motivo é lido na chamada de close(), que é o valor repassado ao callback.
     limpar();
-    var motivos = [];
-    var espiar = function (d) { var original = d.close; d.close = function (r) { motivos.push(r); return original.call(d, r); }; return d; };
-    var a = espiar(Tucano.modal({ title: 'A' }));
-    a.node.querySelector('.tuc-modal__close').click();
-    var b = espiar(Tucano.drawer({ title: 'B' }));
-    b.node.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    var reasons = [];
+    var spy = function (dialog) { var original = dialog.close; dialog.close = function (reason) { reasons.push(reason); return original.call(dialog, reason); }; return dialog; };
+    var modal = spy(Tucano.modal({ title: 'A' }));
+    modal.node.querySelector('.tuc-modal__close').click();
+    var drawer = spy(Tucano.drawer({ title: 'B' }));
+    drawer.node.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     limpar();
-    if (motivos.join(',') !== 'button,backdrop') throw new Error('motivos: ' + motivos.join(','));
+    if (reasons.join(',') !== 'button,backdrop') throw new Error('motivos: ' + reasons.join(','));
   });
   t('máscara cnpj-numeric recusa letra', function () {
-    var i = document.createElement('input');
-    document.body.append(i);
-    var m = new Tucano.Mask(i, { format: 'cnpj-numeric' });
-    m.setValue('AB222333000181');
-    var valor = i.value;
-    m.destroy(); i.remove();
-    if (/[A-Z]/.test(valor)) throw new Error('aceitou letra: ' + valor);
+    var input = document.createElement('input');
+    document.body.append(input);
+    var mask = new Tucano.Mask(input, { format: 'cnpj-numeric' });
+    mask.setValue('AB222333000181');
+    var value = input.value;
+    mask.destroy(); input.remove();
+    if (/[A-Z]/.test(value)) throw new Error('aceitou letra: ' + value);
   });
   t('menu numa coluna de altura fixa rola, em vez de vazar', function () {
     var coluna = document.createElement('div');
