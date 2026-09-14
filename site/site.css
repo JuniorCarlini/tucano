@@ -18,7 +18,11 @@ html.dark {
 }
 
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; scroll-padding-top: 32px; }
+/* Fundo e color-scheme no <html>, e nao so no body: e o <html> que o navegador
+   pinta enquanto a proxima pagina carrega, e sem cor ali o quadro era branco —
+   um clarao a cada clique no tema escuro. */
+html { scroll-behavior: smooth; scroll-padding-top: 32px; background: var(--bg); color-scheme: light; }
+html.dark { color-scheme: dark; }
 body {
   margin: 0; background: var(--bg); color: var(--fg);
   font: 15px/1.7 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Inter, sans-serif;
