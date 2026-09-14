@@ -5203,6 +5203,12 @@ function highlight(code) {
   });
 }
 function autoInit15(scope = document) {
+  for (const table of scope.querySelectorAll(".tuc-prose table")) {
+    if (table.parentElement.classList.contains("tuc-prose__scroll")) continue;
+    const box = el("div", { class: "tuc-prose__scroll" });
+    table.before(box);
+    box.append(table);
+  }
   const blocks = [...scope.querySelectorAll(".tuc-prose pre > code:not([data-tuc-painted])")];
   for (const code of blocks) {
     code.setAttribute("data-tuc-painted", "");
@@ -5406,6 +5412,22 @@ function buildTable(doc, rows, cols) {
   table.append(thead, tbody);
   return table;
 }
+var SCROLL = "tuc-editor__scroll";
+function wrapTables(area) {
+  for (const box of area.querySelectorAll(`.${SCROLL}`)) {
+    const table = [...box.children].find((n) => n.tagName === "TABLE");
+    const extra = [...box.childNodes].filter((n) => n !== table);
+    if (extra.length) box.after(...extra);
+    if (!table) box.remove();
+  }
+  for (const table of area.querySelectorAll("table")) {
+    if (table.parentElement.classList.contains(SCROLL)) continue;
+    const box = document.createElement("div");
+    box.className = SCROLL;
+    table.before(box);
+    box.append(table);
+  }
+}
 function nextCell(cell, back) {
   const table = cell.closest("table");
   const cells = [...table.querySelectorAll("th, td")];
@@ -5540,6 +5562,7 @@ var Editor = class {
     });
     this.area.style.minHeight = this.opts.minHeight;
     this.area.innerHTML = sanitize(field.value) || "<p><br></p>";
+    wrapTables(this.area);
     const GROUPS = /* @__PURE__ */ new Set(["left", "quote"]);
     this.toolbar = el(
       "div",
@@ -5593,6 +5616,7 @@ var Editor = class {
     field.classList.add("tuc-editor__value");
     this._cleanups.push(
       on(this.area, "input", () => {
+        wrapTables(this.area);
         this._sync();
         this._schedulePaint();
       }),
@@ -5747,6 +5771,7 @@ var Editor = class {
     const cell = this._currentCell();
     if (!cell) return this;
     const destination = TABLE[name]?.(cell);
+    wrapTables(this.area);
     this._focus();
     focusCell(destination);
     this._sync();
@@ -5761,10 +5786,11 @@ var Editor = class {
       const sel = window.getSelection();
       const inside = this._currentCell()?.closest("table");
       if (inside) {
-        inside.after(table);
+        (inside.closest(`.${SCROLL}`) || inside).after(table);
         const p = document.createElement("p");
         p.append(document.createElement("br"));
         table.after(p);
+        wrapTables(this.area);
         focusCell(table.querySelector("th"));
         this._sync();
         return this;
@@ -5776,6 +5802,7 @@ var Editor = class {
         const p = document.createElement("p");
         p.append(document.createElement("br"));
         table.after(p);
+        wrapTables(this.area);
         const first = table.querySelector("th");
         if (first) {
           const r = document.createRange();
@@ -5877,6 +5904,7 @@ var Editor = class {
   }
   setValue(html) {
     this.area.innerHTML = sanitize(html) || "<p><br></p>";
+    wrapTables(this.area);
     this._paint();
     this._sync();
     return this;

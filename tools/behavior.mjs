@@ -464,6 +464,40 @@ body{margin:0;padding:16px;font-family:system-ui}
     if (comMarca !== 'stable') throw new Error('com a marca e diálogo aberto, scrollbar-gutter é ' + comMarca);
     if (fechado === 'stable') throw new Error('continuou reservando depois de fechar');
   });
+  t('tabela larga rola sozinha no editor e no .tuc-prose, e a estreita ocupa a largura', function () {
+    // Com a tabela presa em 100%, dez colunas viravam uma palavra por linha.
+    // Vinte colunas: a página de teste é larga, e dez de 7rem ainda cabiam nela.
+    var cols = function (n) { var h = ''; for (var i = 0; i < n; i++) h += '<td>Valor com texto ' + i + '</td>'; return '<table><tbody><tr>' + h + '</tr></tbody></table>'; };
+    var ed = document.getElementById('ed')._tucano, antigo = ed.getValue();
+    ed.setValue('<p>a</p>' + cols(20) + cols(2));
+    var caixas = ed.area.querySelectorAll('.tuc-editor__scroll');
+    if (caixas.length !== 2) throw new Error('editor: ' + caixas.length + ' caixa(s) para 2 tabelas');
+    if (caixas[0].scrollWidth <= caixas[0].clientWidth) throw new Error('editor: tabela larga não rola');
+    if (ed.area.scrollWidth > ed.area.clientWidth + 1) throw new Error('editor: a área inteira rola, e não só a tabela');
+    var estreita = caixas[1].querySelector('table');
+    if (Math.abs(estreita.getBoundingClientRect().width - caixas[1].clientWidth) > 1) throw new Error('editor: tabela de 2 colunas não ocupa a largura');
+    if (ed.getValue().indexOf('div') >= 0) throw new Error('a caixa foi parar no valor salvo');
+    caixas[0].querySelector('td').dispatchEvent(new Event('input', { bubbles: true }));
+    ed.area.querySelector('table').remove();
+    ed.area.dispatchEvent(new Event('input', { bubbles: true }));
+    if (ed.area.querySelectorAll('.tuc-editor__scroll').length !== 1) throw new Error('editor: sobrou caixa vazia ao apagar a tabela');
+    ed.setValue(antigo);
+
+    var prose = document.createElement('div');
+    prose.className = 'tuc-prose';
+    prose.innerHTML = cols(20);
+    document.body.append(prose);
+    Tucano.init(prose);
+    var caixa = prose.querySelector('.tuc-prose__scroll');
+    var rola = caixa && caixa.scrollWidth > caixa.clientWidth, larguraProse = prose.scrollWidth <= prose.clientWidth + 1;
+    Tucano.init(prose);
+    var repetida = prose.querySelectorAll('.tuc-prose__scroll').length;
+    prose.remove();
+    if (!caixa) throw new Error('prose: tabela sem caixa');
+    if (!rola) throw new Error('prose: tabela larga não rola');
+    if (!larguraProse) throw new Error('prose: o bloco inteiro passou da largura');
+    if (repetida !== 1) throw new Error('prose: init de novo criou ' + repetida + ' caixas');
+  });
   t('menu numa coluna de altura fixa rola, em vez de vazar', function () {
     var coluna = document.createElement('div');
     coluna.style.cssText = 'display:flex;flex-direction:column;height:200px';

@@ -1165,6 +1165,14 @@ textarea.tuc-editor__value[hidden] {
   color: inherit;
   text-transform: none;
   letter-spacing: normal;
+  width: 7rem;
+}
+.tuc-editor__scroll, .tuc-prose__scroll {
+  margin-block: calc(var(--spacing, 0.25rem) * 3);
+  overflow-x: auto;
+}
+.tuc-editor__scroll > table, .tuc-prose__scroll > table {
+  margin-block: 0px;
 }
 .tuc-editor__area, .tuc-prose {
   --tuc-tok-comment: #6b7280;

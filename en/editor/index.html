@@ -325,6 +325,10 @@ npm run build  # builds dist</code></pre>
 
 <div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">The two looks cannot drift apart</p><p>The <code>.tuc-prose</code> rules are the same as the editing area's, shared in the CSS. They also defend against the host's CSS: <code>table { display: block }</code> and <code>th { text-transform: uppercase }</code> are common recipes in projects, and inherited here they would break the table and misrepresent what was written.</p></div></div>
 
+<p>A table with many columns doesn't squeeze the text: each column has a minimum width, and a table wider than the
+   available space scrolls horizontally, on its own, both in the editor and in <code>.tuc-prose</code>. The scrolling box
+   is display only — <code>init()</code> wraps it around the table, and the saved HTML stays without it.</p>
+
 <h3>Highlighted code and copy</h3>
 <p><code>init()</code> highlights every <code>&lt;pre&gt;&lt;code&gt;</code> inside <code>.tuc-prose</code> and adds a
    copy button in the corner — including anything that arrives later via HTMX. Hover over the block above to see it.</p>

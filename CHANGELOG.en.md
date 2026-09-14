@@ -42,6 +42,10 @@ in your project.
   or macOS with a mouse) made the background content jump sideways: the scroll
   lock hid the scrollbar and the page gained its width. The scrollbar's space
   is now reserved while the dialog is open.
+- A table with many columns in the editor and in `.tuc-prose` was locked to the
+  available width and squeezed the text to one word per line. Each column now
+  has a minimum width and a wide table scrolls horizontally, on its own,
+  without moving the rest of the text. The saved HTML doesn't change.
 
 ## 0.32.1 — 2026-09-13
 

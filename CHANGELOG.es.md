@@ -46,6 +46,10 @@ cambios en tu proyecto.
   contenido del fondo: el bloqueo de desplazamiento ocultaba la barra y la página
   ganaba su ancho. Ahora el espacio de la barra queda reservado mientras el
   diálogo está abierto.
+- Una tabla con muchas columnas en el editor y en `.tuc-prose` quedaba presa en
+  el ancho disponible y apretaba el texto a una palabra por línea. Ahora cada
+  columna tiene un ancho mínimo y la tabla ancha se desplaza en horizontal, por
+  sí sola, sin mover el resto del texto. El HTML guardado no cambia.
 
 ## 0.32.1 — 2026-09-13
 

@@ -43,6 +43,10 @@ projeto.
   espaço (Windows, ou macOS com mouse) fazia o conteúdo do fundo pular para o
   lado: a trava de rolagem escondia a barra e a página ganhava a largura dela.
   Agora o espaço da barra fica reservado enquanto o diálogo está aberto.
+- Tabela com muitas colunas no editor e no `.tuc-prose` ficava presa na largura
+  e espremia o texto em uma palavra por linha. Agora cada coluna tem largura
+  mínima e a tabela larga rola na horizontal, sozinha, sem mover o resto do
+  texto. O HTML salvo não muda.
 
 ## 0.32.1 — 2026-09-13
 

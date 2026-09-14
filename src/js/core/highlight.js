@@ -82,6 +82,14 @@ export function highlight(code) {
  * Roda sozinho pelo init(), inclusive no que chegar depois por HTMX.
  */
 export function autoInit(scope = document) {
+  // Tabela larga rola dentro de uma caixa propria, e nao espreme as colunas.
+  // A caixa entra so aqui, na exibicao: o HTML salvo continua sem ela.
+  for (const table of scope.querySelectorAll('.tuc-prose table')) {
+    if (table.parentElement.classList.contains('tuc-prose__scroll')) continue;
+    const box = el('div', { class: 'tuc-prose__scroll' });
+    table.before(box);
+    box.append(table);
+  }
   const blocks = [...scope.querySelectorAll('.tuc-prose pre > code:not([data-tuc-painted])')];
   for (const code of blocks) {
     code.setAttribute('data-tuc-painted', '');

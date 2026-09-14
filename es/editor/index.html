@@ -325,6 +325,10 @@ npm run build  # genera el dist</code></pre>
 
 <div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Los dos aspectos no pueden divergir</p><p>Las reglas de <code>.tuc-prose</code> son las mismas del área de edición, compartidas en el CSS. También se defienden del CSS de quien las aloja: <code>table { display: block }</code> y <code>th { text-transform: uppercase }</code> son recetas comunes en proyectos, y heredadas aquí desarmarían la tabla y mentirían sobre lo que se escribió.</p></div></div>
 
+<p>Una tabla con muchas columnas no aprieta el texto: cada columna tiene un ancho mínimo, y la tabla que supera el ancho
+   disponible se desplaza en horizontal, por sí sola, tanto en el editor como en <code>.tuc-prose</code>. La caja que se
+   desplaza es solo visual — el <code>init()</code> la pone alrededor de la tabla, y el HTML guardado sigue sin ella.</p>
+
 <h3>Código coloreado y copiar</h3>
 <p>El <code>init()</code> colorea cada <code>&lt;pre&gt;&lt;code&gt;</code> dentro de <code>.tuc-prose</code> y pone un botón de
    copiar en la esquina — incluso en lo que llegue después por HTMX. Pasa el ratón sobre el bloque de arriba para verlo.</p>

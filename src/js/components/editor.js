@@ -226,6 +226,33 @@ function buildTable(doc, rows, cols) {
   return table;
 }
 
+/*
+ * Cada tabela mora numa caixa que rola na horizontal, para a tabela larga nao
+ * espremer as colunas. A caixa e so exibicao: e uma <div>, que a peneira
+ * dissolve, entao o valor salvo continua sem ela.
+ *
+ * Roda depois de tudo que pode criar ou apagar tabela — valor inicial, inserir,
+ * operacoes de tabela, desfazer — e deixa uma tabela por caixa, nada alem dela
+ * ali dentro, e nenhuma caixa vazia. No caso comum nao mexe em nada.
+ */
+const SCROLL = 'tuc-editor__scroll';
+
+function wrapTables(area) {
+  for (const box of area.querySelectorAll(`.${SCROLL}`)) {
+    const table = [...box.children].find((n) => n.tagName === 'TABLE');
+    const extra = [...box.childNodes].filter((n) => n !== table);
+    if (extra.length) box.after(...extra);
+    if (!table) box.remove();
+  }
+  for (const table of area.querySelectorAll('table')) {
+    if (table.parentElement.classList.contains(SCROLL)) continue;
+    const box = document.createElement('div');
+    box.className = SCROLL;
+    table.before(box);
+    box.append(table);
+  }
+}
+
 /** Proxima celula na ordem de leitura, ou nada se for a ultima. */
 function nextCell(cell, back) {
   const table = cell.closest('table');
@@ -391,6 +418,7 @@ export class Editor {
     this.area.style.minHeight = this.opts.minHeight;
     // O valor inicial tambem passa pela peneira: pode vir do banco.
     this.area.innerHTML = sanitize(field.value) || '<p><br></p>';
+    wrapTables(this.area);
 
     // Onde a barra muda de assunto: marcacao de texto, alinhamento, blocos.
     const GROUPS = new Set(['left', 'quote']);
@@ -443,7 +471,7 @@ export class Editor {
     field.classList.add('tuc-editor__value');
 
     this._cleanups.push(
-      on(this.area, 'input', () => { this._sync(); this._schedulePaint(); }),
+      on(this.area, 'input', () => { wrapTables(this.area); this._sync(); this._schedulePaint(); }),
       on(this.area, 'blur', () => this._sync()),
       on(this.area, 'paste', (e) => this._paste(e)),
       on(this.area, 'keydown', (e) => this._onKey(e)),
@@ -618,6 +646,7 @@ export class Editor {
     const cell = this._currentCell();
     if (!cell) return this;
     const destination = TABLE[name]?.(cell);
+    wrapTables(this.area);
     this._focus();
     focusCell(destination);
     this._sync();
@@ -640,10 +669,13 @@ export class Editor {
        */
       const inside = this._currentCell()?.closest('table');
       if (inside) {
-        inside.after(table);
+        // Depois da caixa da tabela atual, e nao dentro dela.
+        (inside.closest(`.${SCROLL}`) || inside).after(table);
         const p = document.createElement('p');
         p.append(document.createElement('br'));
         table.after(p);
+        // Antes do cursor: mover a tabela para a caixa desfaria a selecao.
+        wrapTables(this.area);
         focusCell(table.querySelector('th'));
         this._sync();
         return this;
@@ -658,6 +690,7 @@ export class Editor {
         const p = document.createElement('p');
         p.append(document.createElement('br'));
         table.after(p);
+        wrapTables(this.area);
         const first = table.querySelector('th');
         if (first) {
           const r = document.createRange();
@@ -772,6 +805,7 @@ export class Editor {
   getValue() { return sanitize(this.area.innerHTML); }
   setValue(html) {
     this.area.innerHTML = sanitize(html) || '<p><br></p>';
+    wrapTables(this.area);
     this._paint();
     this._sync();
     return this;

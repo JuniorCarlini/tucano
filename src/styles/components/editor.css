@@ -175,7 +175,25 @@ textarea.tuc-editor__value[hidden] { display: none; }
   color: inherit;
   text-transform: none;
   letter-spacing: normal;
+
+  /*
+   * Largura minima de coluna. Com `fixed` e a tabela em 100%, a soma das
+   * larguras vale como piso: poucas colunas continuam dividindo a largura toda,
+   * e muitas passam dela em vez de espremer o texto em uma palavra por linha.
+   */
+  width: 7rem;
 }
+
+/*
+ * A tabela larga rola sozinha, dentro desta caixa — e nao o editor ou o texto
+ * inteiro. O <table> nao pode rolar ele mesmo: com display: block o layout de
+ * tabela desmonta (ver acima). A caixa vem do JS: no editor, montada em volta
+ * de cada tabela e dissolvida pela peneira ao salvar; no .tuc-prose, pelo init().
+ */
+.tuc-editor__scroll,
+.tuc-prose__scroll { @apply my-3 overflow-x-auto; }
+.tuc-editor__scroll > table,
+.tuc-prose__scroll > table { @apply my-0; }
 /*
  * O cabecalho nao recebe estilo nosso: nem fundo, nem alinhamento, nem peso.
  * Ele divide com as celulas comuns so a borda e o respiro, que sao estrutura da
