@@ -50,6 +50,20 @@
 }
 
 /*
+ * Com um dialogo aberto a pagina de tras nao rola.
+ *
+ * showModal() bloqueia clique e teclado atras, mas nao a rolagem: a roda do
+ * mouse sobre o fundo, ou a que sobra depois de o corpo do dialogo chegar ao
+ * fim, rolava a pagina inteira atras dele — quem lia o modal perdia o lugar da
+ * pagina ao fechar. Por :has, e nao por classe posta em JS, para valer tambem
+ * no <dialog> que o template abre e sair junto quando ele fecha.
+ */
+html:has(> body dialog.tuc-modal[open]),
+html:has(> body dialog.tuc-drawer[open]) {
+  overflow: hidden;
+}
+
+/*
  * O brilho do fundo. Um radial atras da caixa levanta o centro da tela e separa
  * o dialogo do que ficou embaixo sem precisar escurecer tudo; o blur termina de
  * tirar a pagina do foco.
@@ -130,7 +144,8 @@
 .tuc-modal__close, .tuc-drawer__close { @apply -mr-1.5 -mt-1 shrink-0; }
 
 /* O corpo e quem rola quando o conteudo passa da altura disponivel. */
-.tuc-modal__body, .tuc-drawer__body { @apply min-h-0 flex-1 overflow-y-auto; }
+/* contain: chegar ao fim do corpo nao passa a rolagem para a pagina de tras. */
+.tuc-modal__body, .tuc-drawer__body { @apply min-h-0 flex-1 overflow-y-auto; overscroll-behavior: contain; }
 .tuc-modal__body:empty, .tuc-drawer__body:empty { @apply hidden; }
 
 .tuc-modal__footer, .tuc-drawer__footer { @apply flex flex-wrap items-center justify-end gap-2; }

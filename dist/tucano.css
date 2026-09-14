@@ -3310,6 +3310,9 @@ textarea.tuc-editor__value[hidden] {
 .tuc-modal:not([open]), .tuc-drawer:not([open]) {
   display: none;
 }
+html:has(> body dialog.tuc-modal[open]), html:has(> body dialog.tuc-drawer[open]) {
+  overflow: hidden;
+}
 .tuc-modal::backdrop, .tuc-drawer::backdrop {
   --tuc-glow-x: 50%;
   --tuc-glow-y: 42%;
@@ -3410,6 +3413,7 @@ textarea.tuc-editor__value[hidden] {
   min-height: 0px;
   flex: 1;
   overflow-y: auto;
+  overscroll-behavior: contain;
 }
 .tuc-modal__body:empty, .tuc-drawer__body:empty {
   display: none;

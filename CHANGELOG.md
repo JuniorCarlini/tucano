@@ -14,6 +14,10 @@ projeto.
 - `.tuc-menu` numa coluna de altura fixa, como a barra lateral de um sistema,
   vazava da coluna e a página rolava inteira no lugar dele. Agora o menu rola
   sozinho ali; fora de uma coluna assim, nada muda.
+- Com um modal ou uma gaveta aberta, a roda do mouse rolava a página de trás —
+  sobre o fundo escurecido e depois de o conteúdo do diálogo chegar ao fim. A
+  página agora fica parada enquanto houver um diálogo aberto, e chegar ao fim do
+  corpo não passa a rolagem adiante.
 
 ## 0.32.1 — 2026-09-13
 
