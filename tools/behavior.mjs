@@ -447,6 +447,23 @@ body{margin:0;padding:16px;font-family:system-ui}
     if (corpo.scrollHeight <= corpo.clientHeight) throw new Error('corpo não rola');
     g.close(); limpar();
   });
+  t('diálogo aberto reserva o espaço da barra de rolagem, e só quando ela ocupa espaço', function () {
+    // A trava de rolagem sumia com a barra, a página ganhava a largura dela e o
+    // conteúdo de trás andava. Este Chrome roda com --hide-scrollbars, então a
+    // barra nunca ocupa espaço aqui: o teste confere as duas metades do mecanismo.
+    limpar();
+    var raiz = document.documentElement;
+    raiz.removeAttribute('data-tuc-gutter');
+    var m = Tucano.modal({ title: 'M' });
+    if (raiz.hasAttribute('data-tuc-gutter')) throw new Error('marcou sem barra que ocupa espaço');
+    raiz.setAttribute('data-tuc-gutter', '');
+    var comMarca = getComputedStyle(raiz).scrollbarGutter;
+    m.close(); limpar();
+    var fechado = getComputedStyle(raiz).scrollbarGutter;
+    raiz.removeAttribute('data-tuc-gutter');
+    if (comMarca !== 'stable') throw new Error('com a marca e diálogo aberto, scrollbar-gutter é ' + comMarca);
+    if (fechado === 'stable') throw new Error('continuou reservando depois de fechar');
+  });
   t('menu numa coluna de altura fixa rola, em vez de vazar', function () {
     var coluna = document.createElement('div');
     coluna.style.cssText = 'display:flex;flex-direction:column;height:200px';

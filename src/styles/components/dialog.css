@@ -62,6 +62,12 @@ html:has(> body dialog.tuc-modal[open]),
 html:has(> body dialog.tuc-drawer[open]) {
   overflow: hidden;
 }
+/* Sem a barra, o fundo pulava para o lado. data-tuc-gutter vem do JS, so quando
+   a barra ocupa espaco; stable reserva esse espaco tambem com overflow hidden. */
+html[data-tuc-gutter]:has(> body dialog.tuc-modal[open]),
+html[data-tuc-gutter]:has(> body dialog.tuc-drawer[open]) {
+  scrollbar-gutter: stable;
+}
 
 /*
  * O brilho do fundo. Um radial atras da caixa levanta o centro da tela e separa

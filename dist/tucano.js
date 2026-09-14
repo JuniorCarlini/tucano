@@ -4067,6 +4067,11 @@ var Tucano = (() => {
 
   // src/js/core/dialog.js
   var EXIT_MS2 = 200;
+  function reserveScrollbar() {
+    if (document.querySelector("dialog.tuc-modal[open], dialog.tuc-drawer[open]")) return;
+    const root = document.documentElement;
+    root.toggleAttribute("data-tuc-gutter", innerWidth - root.clientWidth > 0);
+  }
   var Dialog = class {
     /**
      * Adota um <dialog> ja escrito no template. O no e de quem escreveu o HTML:
@@ -4081,6 +4086,7 @@ var Tucano = (() => {
     open() {
       if (this.isOpen) return this;
       this.isOpen = true;
+      reserveScrollbar();
       if (!this._adopted) document.body.append(this.node);
       this.node.showModal();
       this._wire();

@@ -38,6 +38,10 @@ in your project.
   body no longer passes the scroll on.
 - The close X on modals and drawers sat about 2px inside the line where the
   content and the footer buttons end. The X stroke now ends on that same line.
+- Opening a modal or drawer on a page whose scrollbar takes up space (Windows,
+  or macOS with a mouse) made the background content jump sideways: the scroll
+  lock hid the scrollbar and the page gained its width. The scrollbar's space
+  is now reserved while the dialog is open.
 
 ## 0.32.1 — 2026-09-13
 

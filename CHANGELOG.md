@@ -39,6 +39,10 @@ projeto.
 - O X de fechar do modal e da gaveta ficava uns 2px para dentro da linha onde
   terminam o conteúdo e os botões do rodapé. Agora o traço do X termina na mesma
   linha.
+- Abrir um modal ou uma gaveta numa página com barra de rolagem que ocupa
+  espaço (Windows, ou macOS com mouse) fazia o conteúdo do fundo pular para o
+  lado: a trava de rolagem escondia a barra e a página ganhava a largura dela.
+  Agora o espaço da barra fica reservado enquanto o diálogo está aberto.
 
 ## 0.32.1 — 2026-09-13
 

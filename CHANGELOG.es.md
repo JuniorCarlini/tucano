@@ -41,6 +41,11 @@ cambios en tu proyecto.
 - La X de cerrar del modal y del panel lateral quedaba unos 2px hacia dentro de
   la línea donde terminan el contenido y los botones del pie. Ahora el trazo de la
   X termina en esa misma línea.
+- Abrir un modal o un panel lateral en una página con barra de desplazamiento que
+  ocupa espacio (Windows, o macOS con ratón) hacía saltar hacia un lado el
+  contenido del fondo: el bloqueo de desplazamiento ocultaba la barra y la página
+  ganaba su ancho. Ahora el espacio de la barra queda reservado mientras el
+  diálogo está abierto.
 
 ## 0.32.1 — 2026-09-13
 
