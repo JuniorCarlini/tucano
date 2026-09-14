@@ -22,15 +22,26 @@ export const EXIT_MS = 200;
  * Com um dialogo aberto a pagina para de rolar (overflow: hidden no <html>, no
  * CSS). Numa barra de rolagem que ocupa espaco — Windows, ou macOS com mouse —
  * ela sumia, a pagina ganhava a largura dela e todo o fundo pulava para o lado.
- * A marca pede ao CSS que reserve o espaco da barra enquanto o dialogo estiver
- * aberto. Mede antes de abrir, e so se nenhum outro estiver aberto: com a pagina
- * ja travada a barra nao existe mais e a medida daria zero. Pagina curta e barra
- * sobreposta medem zero e ficam sem a marca, porque ali nada pula.
+ *
+ * O body ganha, a direita, o espaco que a barra ocupava. scrollbar-gutter
+ * resolvia o pulo, mas deixava a faixa da barra fora do fundo escurecido: uma
+ * linha branca (ou preta, no escuro) na borda da tela. Com o padding a janela
+ * fica inteira e o fundo cobre tudo.
+ *
+ * Mede antes de abrir, e so se nenhum outro estiver aberto: com a pagina ja
+ * travada a barra nao existe mais e a medida daria zero. O padding que o body
+ * ja tinha entra na conta. Pagina curta e barra sobreposta medem zero e ficam
+ * sem a marca, porque ali nada pula.
  */
 function reserveScrollbar() {
   if (document.querySelector('dialog.tuc-modal[open], dialog.tuc-drawer[open]')) return;
   const root = document.documentElement;
-  root.toggleAttribute('data-tuc-gutter', innerWidth - root.clientWidth > 0);
+  const bar = innerWidth - root.clientWidth;
+  root.toggleAttribute('data-tuc-gutter', bar > 0);
+  if (bar > 0) {
+    const own = parseFloat(getComputedStyle(document.body).paddingRight) || 0;
+    root.style.setProperty('--tuc-gutter-pad', `${own + bar}px`);
+  }
 }
 
 export class Dialog {

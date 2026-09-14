@@ -457,12 +457,14 @@ body{margin:0;padding:16px;font-family:system-ui}
     var m = Tucano.modal({ title: 'M' });
     if (raiz.hasAttribute('data-tuc-gutter')) throw new Error('marcou sem barra que ocupa espaço');
     raiz.setAttribute('data-tuc-gutter', '');
-    var comMarca = getComputedStyle(raiz).scrollbarGutter;
+    raiz.style.setProperty('--tuc-gutter-pad', '31px');
+    var comMarca = getComputedStyle(document.body).paddingRight;
     m.close(); limpar();
-    var fechado = getComputedStyle(raiz).scrollbarGutter;
+    var fechado = getComputedStyle(document.body).paddingRight;
     raiz.removeAttribute('data-tuc-gutter');
-    if (comMarca !== 'stable') throw new Error('com a marca e diálogo aberto, scrollbar-gutter é ' + comMarca);
-    if (fechado === 'stable') throw new Error('continuou reservando depois de fechar');
+    raiz.style.removeProperty('--tuc-gutter-pad');
+    if (comMarca !== '31px') throw new Error('com a marca e diálogo aberto, o padding do body é ' + comMarca);
+    if (fechado === '31px') throw new Error('continuou reservando depois de fechar');
   });
   t('tabela larga rola sozinha no editor e no .tuc-prose, e a estreita ocupa a largura', function () {
     // Com a tabela presa em 100%, dez colunas viravam uma palavra por linha.

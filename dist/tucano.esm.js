@@ -4001,7 +4001,12 @@ var EXIT_MS2 = 200;
 function reserveScrollbar() {
   if (document.querySelector("dialog.tuc-modal[open], dialog.tuc-drawer[open]")) return;
   const root = document.documentElement;
-  root.toggleAttribute("data-tuc-gutter", innerWidth - root.clientWidth > 0);
+  const bar = innerWidth - root.clientWidth;
+  root.toggleAttribute("data-tuc-gutter", bar > 0);
+  if (bar > 0) {
+    const own = parseFloat(getComputedStyle(document.body).paddingRight) || 0;
+    root.style.setProperty("--tuc-gutter-pad", `${own + bar}px`);
+  }
 }
 var Dialog = class {
   /**

@@ -62,11 +62,13 @@ html:has(> body dialog.tuc-modal[open]),
 html:has(> body dialog.tuc-drawer[open]) {
   overflow: hidden;
 }
-/* Sem a barra, o fundo pulava para o lado. data-tuc-gutter vem do JS, so quando
-   a barra ocupa espaco; stable reserva esse espaco tambem com overflow hidden. */
-html[data-tuc-gutter]:has(> body dialog.tuc-modal[open]),
-html[data-tuc-gutter]:has(> body dialog.tuc-drawer[open]) {
-  scrollbar-gutter: stable;
+/* Sem a barra, o fundo pulava para o lado. data-tuc-gutter e --tuc-gutter-pad
+   vem do JS, so quando a barra ocupa espaco: o body ganha a largura dela no
+   padding. Padding, e nao scrollbar-gutter, que deixava a faixa da barra fora do
+   fundo escurecido, como uma linha na borda da tela. */
+html[data-tuc-gutter]:has(> body dialog.tuc-modal[open]) > body,
+html[data-tuc-gutter]:has(> body dialog.tuc-drawer[open]) > body {
+  padding-right: var(--tuc-gutter-pad);
 }
 
 /*

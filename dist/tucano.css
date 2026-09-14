@@ -3339,8 +3339,8 @@ textarea.tuc-editor__value[hidden] {
 html:has(> body dialog.tuc-modal[open]), html:has(> body dialog.tuc-drawer[open]) {
   overflow: hidden;
 }
-html[data-tuc-gutter]:has(> body dialog.tuc-modal[open]), html[data-tuc-gutter]:has(> body dialog.tuc-drawer[open]) {
-  scrollbar-gutter: stable;
+html[data-tuc-gutter]:has(> body dialog.tuc-modal[open]) > body, html[data-tuc-gutter]:has(> body dialog.tuc-drawer[open]) > body {
+  padding-right: var(--tuc-gutter-pad);
 }
 .tuc-modal::backdrop, .tuc-drawer::backdrop {
   --tuc-glow-x: 50%;
