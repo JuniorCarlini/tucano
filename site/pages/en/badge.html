@@ -1,0 +1,101 @@
+<!--
+title: Badge
+lang: en
+description: A status badge for a record — approved, overdue, draft — in four tones plus neutral, with or without a dot. Classes only.
+-->
+<h1>Badge</h1>
+<p class="lead">The status of a record: approved, under review, overdue, draft. It was born for the "status" column of a
+   table, which is where it always shows up, but it doesn't depend on it: it works in a card, in a list and next to a heading. Classes only.</p>
+
+<div class="demo is-hero">
+  <div class="bar">
+    <span class="tuc-badge is-success">Approved</span>
+    <span class="tuc-badge is-warning">Under review</span>
+    <span class="tuc-badge is-danger">Overdue</span>
+    <span class="tuc-badge is-info">New</span>
+    <span class="tuc-badge">Draft</span>
+    <span class="tuc-badge is-plain">No dot</span>
+  </div>
+</div>
+
+<h2 id="exemplos">Examples</h2>
+<p class="lead">The tone carries the meaning; the weight stays with the text of the row.</p>
+
+<div class="demo">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <h4>In a table</h4>
+      <p>The status column, read at a glance in a long list.</p>
+      <div class="tuc-table-wrap"><table class="tuc-table">
+        <thead><tr><th>Contract</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Corner Bakery</td><td><span class="tuc-badge is-success">Paid</span></td></tr>
+          <tr><td>Two Wheels Garage</td><td><span class="tuc-badge is-warning">Under review</span></td></tr>
+          <tr><td>Wellness Clinic</td><td><span class="tuc-badge is-danger">Overdue</span></td></tr>
+          <tr><td>Aurora Studio</td><td><span class="tuc-badge">Draft</span></td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <div class="demo-cell">
+      <h4>No dot</h4>
+      <p><code>is-plain</code>, for what isn't a status: version, count, category.</p>
+      <div class="bar">
+        <span class="tuc-badge is-plain">v2.4</span>
+        <span class="tuc-badge is-plain">12 attachments</span>
+        <span class="tuc-badge is-plain">Services</span>
+        <span class="tuc-badge is-info is-plain">Beta</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h2 id="uso">How to use</h2>
+<pre data-code="html">
+<span class="tuc-badge is-success">Approved</span>
+<span class="tuc-badge is-warning">Under review</span>
+<span class="tuc-badge is-danger">Overdue</span>
+<span class="tuc-badge is-info">New</span>
+<span class="tuc-badge">Draft</span>
+<span class="tuc-badge is-plain">12 attachments</span>
+</pre>
+
+<h3>In Django</h3>
+<p>The tone is a decision of the model, not of the template: that way it is the same in the list, in the detail page and in the email.</p>
+
+<pre data-code="python">
+class Contrato(models.Model):
+    status = models.CharField(max_length=20, choices=Status.choices)
+
+    @property
+    def status_tone(self):
+        return {"pago": "success", "analise": "warning", "vencido": "danger"}.get(self.status, "")
+</pre>
+
+<pre data-code="django">
+<span class="tuc-badge {% if contrato.status_tone %}is-{{ contrato.status_tone }}{% endif %}">
+  {{ contrato.get_status_display }}
+</span>
+</pre>
+
+<h2 id="cor">Why not filled</h2>
+<p class="lead">Soft background with strong text. In a list of twenty rows, twenty solid badges compete with the content and the
+   table turns into a traffic light.</p>
+
+<p>The dot repeats the status without relying on background color alone — together with the text, it helps people who can't
+   tell the colors apart, and it reads better on a small screen. It is a pseudo-element, so the screen reader reads only the
+   text, and it is the text that has to state the status: "Overdue", not an empty red badge.</p>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">The color is the same as the toast and the alert</p><p>The tones read <code>--tuc-success</code>, <code>--tuc-warning</code>, <code>--tuc-danger</code>, <code>--tuc-info</code> and their <code>-soft</code> versions, and never <code>--tuc-accent</code>. The brand can be any color; the meaning of "overdue" can't change along with it.</p></div></div>
+
+<h2 id="api">Classes</h2>
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Class</th><th>What for</th></tr></thead>
+  <tbody>
+    <tr><td><code>.tuc-badge</code></td><td>The badge. With no tone, neutral, with a border</td></tr>
+    <tr><td><code>is-success</code></td><td>It worked: approved, paid, active</td></tr>
+    <tr><td><code>is-warning</code></td><td>Needs attention: under review, pending</td></tr>
+    <tr><td><code>is-danger</code></td><td>It went wrong: overdue, declined, blocked</td></tr>
+    <tr><td><code>is-info</code></td><td>Information: new, scheduled</td></tr>
+    <tr><td><code>is-plain</code></td><td>Removes the dot</td></tr>
+  </tbody>
+</table></div>

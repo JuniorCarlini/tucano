@@ -1,0 +1,253 @@
+<!--
+title: Timeline
+lang: en
+description: Ordered history on <ol> — order progress, contract history, audit log — with tones, filled or hollow dot and an icon in place of the dot. Classes only, no JavaScript.
+-->
+<h1>Timeline</h1>
+<p class="lead">History in order: the progress of an order, what happened to a contract, the versions of a
+   changelog. It's just classes on <code>&lt;ol&gt;</code> — the order is part of the meaning, and the screen reader announces
+   "item 2 of 5" without anyone writing ARIA. The dot and the rail are drawn by the class; the template only brings the
+   content.</p>
+
+<div class="demo is-hero">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <ol class="tuc-timeline" id="timeline-pedido">
+        <li class="tuc-timeline__item is-success is-filled">
+          <div class="tuc-timeline__head">
+            <p class="tuc-timeline__title">Order confirmed</p>
+            <time class="tuc-timeline__time" datetime="2026-09-08T10:14">08/09 · 10:14</time>
+          </div>
+          <div class="tuc-timeline__body">Payment approved via Pix.</div>
+        </li>
+        <li class="tuc-timeline__item is-success is-filled">
+          <div class="tuc-timeline__head">
+            <p class="tuc-timeline__title">Picked at the warehouse</p>
+            <time class="tuc-timeline__time" datetime="2026-09-09T08:40">09/09 · 08:40</time>
+          </div>
+        </li>
+        <li class="tuc-timeline__item is-accent is-filled">
+          <div class="tuc-timeline__head">
+            <p class="tuc-timeline__title">In transit</p>
+            <time class="tuc-timeline__time" datetime="2026-09-10T15:02">10/09 · 15:02</time>
+          </div>
+          <div class="tuc-timeline__body">Left the Campinas distribution center.</div>
+        </li>
+        <li class="tuc-timeline__item">
+          <div class="tuc-timeline__head">
+            <p class="tuc-timeline__title">Out for delivery</p>
+          </div>
+        </li>
+        <li class="tuc-timeline__item">
+          <div class="tuc-timeline__head">
+            <p class="tuc-timeline__title">Delivered</p>
+          </div>
+          <div class="tuc-timeline__body">Expected: 12/09/2026.</div>
+        </li>
+      </ol>
+    </div>
+    <div class="demo-cell">
+      <p class="tuc-hint">What already happened has a filled dot in the success tone; the current step, filled in the accent; what's still ahead stays hollow and neutral. The dot tells the state — the text is free to say what and when.</p>
+    </div>
+  </div>
+</div>
+
+<h2 id="exemplos">Examples</h2>
+<p class="lead">Everything below is the same list, with tone, fill, icon and badge swapped.</p>
+
+<div class="demo">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <h4>Contract history, with icons</h4>
+      <p><code>tuc-timeline__icon</code> as the item's first child puts the icon in place of the dot.</p>
+      <ol class="tuc-timeline">
+        <li class="tuc-timeline__item is-success">
+          <span class="tuc-timeline__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg></span>
+          <div class="tuc-timeline__head">
+            <p class="tuc-timeline__title">Contract signed</p>
+            <time class="tuc-timeline__time" datetime="2026-09-12">12/09/2026</time>
+          </div>
+          <div class="tuc-timeline__body">Both parties signed through the portal.</div>
+        </li>
+        <li class="tuc-timeline__item is-info">
+          <span class="tuc-timeline__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></span>
+          <div class="tuc-timeline__head">
+            <p class="tuc-timeline__title">Sent for signature</p>
+            <time class="tuc-timeline__time" datetime="2026-09-10">10/09/2026</time>
+          </div>
+        </li>
+        <li class="tuc-timeline__item is-warning">
+          <span class="tuc-timeline__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4z"/></svg></span>
+          <div class="tuc-timeline__head">
+            <p class="tuc-timeline__title">Clause 4 revised</p>
+            <time class="tuc-timeline__time" datetime="2026-09-05">05/09/2026</time>
+          </div>
+          <div class="tuc-timeline__body">Late fee went from 2% to 1%.</div>
+        </li>
+        <li class="tuc-timeline__item">
+          <span class="tuc-timeline__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6"/></svg></span>
+          <div class="tuc-timeline__head">
+            <p class="tuc-timeline__title">Draft created</p>
+            <time class="tuc-timeline__time" datetime="2026-09-01">01/09/2026</time>
+          </div>
+        </li>
+      </ol>
+    </div>
+    <div class="demo-cell">
+      <h4>Audit log, with badge</h4>
+      <p>A <code>tuc-badge</code> in the header aligns to the center of the row.</p>
+      <ol class="tuc-timeline">
+        <li class="tuc-timeline__item is-danger is-filled">
+          <div class="tuc-timeline__head">
+            <p class="tuc-timeline__title">Permission removed</p>
+            <span class="tuc-badge is-danger">Access</span>
+            <time class="tuc-timeline__time" datetime="2026-09-11T17:32">11/09 · 17:32</time>
+          </div>
+          <div class="tuc-timeline__body">Ana Lima removed Rafael Souza's access to finance.</div>
+        </li>
+        <li class="tuc-timeline__item is-info is-filled">
+          <div class="tuc-timeline__head">
+            <p class="tuc-timeline__title">Sign-in from a new device</p>
+            <span class="tuc-badge is-info">Session</span>
+            <time class="tuc-timeline__time" datetime="2026-09-11T09:03">11/09 · 09:03</time>
+          </div>
+          <div class="tuc-timeline__body">Chrome on macOS, São Paulo.</div>
+        </li>
+        <li class="tuc-timeline__item is-filled">
+          <div class="tuc-timeline__head">
+            <p class="tuc-timeline__title">Report exported</p>
+            <span class="tuc-badge">Data</span>
+            <time class="tuc-timeline__time" datetime="2026-09-10T14:20">10/09 · 14:20</time>
+          </div>
+        </li>
+      </ol>
+    </div>
+    <div class="demo-cell">
+      <h4>The five tones, hollow</h4>
+      <p>Without <code>is-filled</code> the dot is a ring in the tone, over the background.</p>
+      <ol class="tuc-timeline">
+        <li class="tuc-timeline__item is-accent"><div class="tuc-timeline__head"><p class="tuc-timeline__title">is-accent</p></div></li>
+        <li class="tuc-timeline__item is-success"><div class="tuc-timeline__head"><p class="tuc-timeline__title">is-success</p></div></li>
+        <li class="tuc-timeline__item is-warning"><div class="tuc-timeline__head"><p class="tuc-timeline__title">is-warning</p></div></li>
+        <li class="tuc-timeline__item is-danger"><div class="tuc-timeline__head"><p class="tuc-timeline__title">is-danger</p></div></li>
+        <li class="tuc-timeline__item is-info"><div class="tuc-timeline__head"><p class="tuc-timeline__title">is-info</p></div></li>
+        <li class="tuc-timeline__item"><div class="tuc-timeline__head"><p class="tuc-timeline__title">no tone</p></div></li>
+      </ol>
+    </div>
+    <div class="demo-cell">
+      <h4>The five tones, filled</h4>
+      <p><code>is-filled</code> fills the dot with the item's tone.</p>
+      <ol class="tuc-timeline">
+        <li class="tuc-timeline__item is-accent is-filled"><div class="tuc-timeline__head"><p class="tuc-timeline__title">is-accent is-filled</p></div></li>
+        <li class="tuc-timeline__item is-success is-filled"><div class="tuc-timeline__head"><p class="tuc-timeline__title">is-success is-filled</p></div></li>
+        <li class="tuc-timeline__item is-warning is-filled"><div class="tuc-timeline__head"><p class="tuc-timeline__title">is-warning is-filled</p></div></li>
+        <li class="tuc-timeline__item is-danger is-filled"><div class="tuc-timeline__head"><p class="tuc-timeline__title">is-danger is-filled</p></div></li>
+        <li class="tuc-timeline__item is-info is-filled"><div class="tuc-timeline__head"><p class="tuc-timeline__title">is-info is-filled</p></div></li>
+        <li class="tuc-timeline__item is-filled"><div class="tuc-timeline__head"><p class="tuc-timeline__title">is-filled, no tone</p></div></li>
+      </ol>
+    </div>
+  </div>
+</div>
+
+<h2 id="uso">How to use</h2>
+<p class="lead">There's no JavaScript and no <code>data-*</code> attribute: write the classes and you're done. Each item has a
+   header with title and time, and an optional body.</p>
+
+<pre data-code="html">
+<ol class="tuc-timeline">
+  <li class="tuc-timeline__item is-success is-filled">
+    <div class="tuc-timeline__head">
+      <p class="tuc-timeline__title">Contract signed</p>
+      <time class="tuc-timeline__time" datetime="2026-09-12">12/09/2026</time>
+    </div>
+    <div class="tuc-timeline__body">Both parties signed.</div>
+  </li>
+  <li class="tuc-timeline__item">
+    <div class="tuc-timeline__head">
+      <p class="tuc-timeline__title">Sent for signature</p>
+      <time class="tuc-timeline__time" datetime="2026-09-10">10/09/2026</time>
+    </div>
+  </li>
+</ol>
+</pre>
+
+<h3>With an icon</h3>
+<p>The icon goes in a <code>&lt;span&gt;</code> as the item's first child. When it's there, the dot goes away and the circle
+   gets the tone's soft background; the SVG is sized by the class.</p>
+<pre data-code="html">
+<li class="tuc-timeline__item is-success">
+  <span class="tuc-timeline__icon"><svg viewBox="0 0 24 24" aria-hidden="true">...</svg></span>
+  <div class="tuc-timeline__head">...</div>
+</li>
+</pre>
+
+<h3>In the Django template</h3>
+<p>The tone usually comes from the event type. A dictionary on the model, or a filter, avoids a cascade of <code>if</code> in the
+   template.</p>
+<pre data-code="python">
+class Evento(models.Model):
+    TONS = {"assinado": "is-success", "revisado": "is-warning", "cancelado": "is-danger"}
+    tipo = models.CharField(max_length=20)
+    titulo = models.CharField(max_length=120)
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def tom(self):
+        return self.TONS.get(self.tipo, "")
+</pre>
+<pre data-code="django">
+<ol class="tuc-timeline">
+  {% for evento in contrato.eventos.all %}
+  <li class="tuc-timeline__item {{ evento.tom }}{% if forloop.first %} is-filled{% endif %}">
+    <div class="tuc-timeline__head">
+      <p class="tuc-timeline__title">{{ evento.titulo }}</p>
+      <time class="tuc-timeline__time" datetime="{{ evento.criado_em|date:'c' }}">{{ evento.criado_em|date:"d/m/Y H:i" }}</time>
+    </div>
+  </li>
+  {% endfor %}
+</ol>
+</pre>
+
+<h3>Adjusting the geometry</h3>
+<p>Three variables on the list itself control the math for the dot and the rail. The first line of the header has a fixed
+   height for the same reason as <code>.tuc-choice</code>: the center of the dot can't depend on the project's font.</p>
+<pre data-code="css">
+.linha-grande {
+  --tuc-timeline-gutter: 2rem;   /* dot column; the icon fills all of it */
+  --tuc-timeline-dot: 1rem;      /* dot diameter */
+  --tuc-timeline-line: 2rem;     /* height of the header's first line */
+}
+</pre>
+
+<h2 id="acessibilidade">Accessibility</h2>
+<p class="lead">The structure does the work. <code>&lt;ol&gt;</code> gives each item's position, <code>&lt;time datetime&gt;</code>
+   gives the date in a machine-readable format, and the dot and rail are pseudo-elements, invisible to the screen reader.</p>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Color can't be the only information</p><p>The dot's tone doesn't reach people who can't see it and confuses people who can't tell colors apart. State it in the text — "Canceled", "In transit" — or in a <code>tuc-badge</code> in the header, and mark the icon's SVG with <code>aria-hidden="true"</code>.</p></div></div>
+
+<h2 id="api">Classes</h2>
+<p class="lead">Classes only, no JavaScript component.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Class</th><th>Where</th><th>What it does</th></tr></thead>
+  <tbody>
+    <tr><td><code>tuc-timeline</code></td><td><code>&lt;ol&gt;</code></td><td>The list; removes marker and indentation</td></tr>
+    <tr><td><code>tuc-timeline__item</code></td><td><code>&lt;li&gt;</code></td><td>An event; draws dot and rail. The last item has no rail</td></tr>
+    <tr><td><code>is-accent</code> <code>is-success</code> <code>is-warning</code> <code>is-danger</code> <code>is-info</code></td><td>item</td><td>Tone of the dot and icon; without a tone, <code>--tuc-subtle</code></td></tr>
+    <tr><td><code>is-filled</code></td><td>item</td><td>Filled dot in the tone; without it, hollow</td></tr>
+    <tr><td><code>tuc-timeline__icon</code></td><td>item's first child</td><td>Icon in place of the dot, with the tone's soft background</td></tr>
+    <tr><td><code>tuc-timeline__head</code></td><td>item</td><td>Row for the title, the time and a badge; wraps when it doesn't fit</td></tr>
+    <tr><td><code>tuc-timeline__title</code></td><td>in the header</td><td>Title in weight 600, no margin — can be a <code>&lt;p&gt;</code> or an <code>&lt;h2&gt;</code>/<code>&lt;h3&gt;</code></td></tr>
+    <tr><td><code>tuc-timeline__time</code></td><td>in the header</td><td>Date or time, smaller, in a muted tone and with fixed-width digits</td></tr>
+    <tr><td><code>tuc-timeline__body</code></td><td>item</td><td>Supporting text in a muted tone</td></tr>
+  </tbody>
+</table></div>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Variable</th><th>Default</th><th>Controls</th></tr></thead>
+  <tbody>
+    <tr><td><code>--tuc-timeline-gutter</code></td><td><code>1.5rem</code></td><td>Width of the dot column and size of the icon</td></tr>
+    <tr><td><code>--tuc-timeline-dot</code></td><td><code>0.75rem</code></td><td>Dot diameter</td></tr>
+    <tr><td><code>--tuc-timeline-line</code></td><td><code>1.5rem</code></td><td>Height of the header's first line, where the dot is centered</td></tr>
+  </tbody>
+</table></div>

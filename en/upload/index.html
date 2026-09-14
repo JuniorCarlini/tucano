@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Upload — plain JavaScript for Django, Laravel and Rails</title>
+<meta name="description" content="Upload with drag and drop, thumbnails, type, size and count limits, and direct upload with progress, cancel and retry — on top of the native &lt;input type="file"&gt;.">
+<meta name="author" content="Junior Carlini">
+<link rel="canonical" href="https://juniorcarlini.github.io/tucano/en/upload/">
+<link rel="alternate" hreflang="pt-BR" href="https://juniorcarlini.github.io/tucano/upload/">
+<link rel="alternate" hreflang="en" href="https://juniorcarlini.github.io/tucano/en/upload/">
+<link rel="alternate" hreflang="es" href="https://juniorcarlini.github.io/tucano/es/upload/">
+<link rel="alternate" hreflang="x-default" href="https://juniorcarlini.github.io/tucano/upload/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)">
+<link rel="alternate" type="text/plain" href="../../llms.txt" title="API reference for AI agents">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Tucano">
+<meta property="og:title" content="Upload — plain JavaScript for Django, Laravel and Rails">
+<meta property="og:description" content="Upload with drag and drop, thumbnails, type, size and count limits, and direct upload with progress, cancel and retry — on top of the native &lt;input type="file"&gt;.">
+<meta property="og:url" content="https://juniorcarlini.github.io/tucano/en/upload/">
+<meta property="og:image" content="https://juniorcarlini.github.io/tucano/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Tucano — form components in plain JavaScript">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Upload — plain JavaScript for Django, Laravel and Rails">
+<meta name="twitter:description" content="Upload with drag and drop, thumbnails, type, size and count limits, and direct upload with progress, cancel and retry — on top of the native &lt;input type="file"&gt;.">
+<meta name="twitter:image" content="https://juniorcarlini.github.io/tucano/og.png">
+<link rel="sitemap" type="application/xml" href="../../sitemap.xml">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"Upload — plain JavaScript for Django, Laravel and Rails","name":"Upload","description":"Upload with drag and drop, thumbnails, type, size and count limits, and direct upload with progress, cancel and retry — on top of the native \u003cinput type=\"file\">.","url":"https://juniorcarlini.github.io/tucano/en/upload/","inLanguage":"en","image":"https://juniorcarlini.github.io/tucano/og.png","author":{"@type":"Person","name":"Junior Carlini","url":"https://github.com/JuniorCarlini"},"isPartOf":{"@id":"https://juniorcarlini.github.io/tucano/#website"},"about":{"@id":"https://juniorcarlini.github.io/tucano/#software"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Tucano","item":"https://juniorcarlini.github.io/tucano/en/"},{"@type":"ListItem","position":2,"name":"Upload","item":"https://juniorcarlini.github.io/tucano/en/upload/"}]}]}</script>
+<link rel="icon" type="image/svg+xml" href="../../site/assets/favicon.svg">
+<link rel="icon" type="image/png" sizes="192x192" href="../../site/assets/favicon-192.png">
+<link rel="icon" type="image/png" sizes="48x48" href="../../site/assets/favicon-48.png">
+<link rel="apple-touch-icon" href="../../site/assets/apple-touch-icon.png">
+
+<link rel="stylesheet" href="../../dist/tucano.css?v=0.32.1">
+<link rel="stylesheet" href="../../site/site.css?v=0.32.1">
+<!-- O tema e aplicado antes do primeiro quadro: sem isto a pagina piscava clara
+     para quem escolheu o escuro. -->
+<script>try{if(localStorage.getItem("tucano-tema")==="dark")document.documentElement.classList.add("dark")}catch{}</script>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="../"><img class="brand__logo logo-light" src="../../site/assets/logo-light.svg" width="26" height="24" alt=""><img class="brand__logo logo-dark" src="../../site/assets/logo-dark.svg" width="26" height="24" alt=""><b>Tucano</b></a>
+  <span class="tuc-badge is-plain ver">v0.32.1</span>
+  <div class="topbar__actions">
+    <button class="tuc-btn is-outline is-sm" data-tuc-dropdown="#idiomas-topo" data-placement="bottom-end" aria-label="Language: English"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>EN</button><div class="tuc-dropdown" id="idiomas-topo" hidden><a class="tuc-dropdown__item" href="../../upload/" hreflang="pt-BR" lang="pt-BR"><span class="tuc-dropdown__text">Português</span></a><a class="tuc-dropdown__item" href="../../en/upload/" hreflang="en" lang="en" aria-current="true"><span class="tuc-dropdown__text">English</span></a><a class="tuc-dropdown__item" href="../../es/upload/" hreflang="es" lang="es"><span class="tuc-dropdown__text">Español</span></a></div>
+    <button class="tuc-btn is-outline is-icon is-sm" data-tema data-label-light="Use light theme" data-label-dark="Use dark theme" aria-label="Toggle theme"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
+    <button class="tuc-btn is-outline is-icon is-sm" id="menu" aria-label="Open menu" aria-expanded="false" aria-controls="side"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  </div>
+</header>
+
+<aside class="side" id="side">
+  <div class="side__head">
+    <a class="brand" href="../"><img class="brand__logo logo-light" src="../../site/assets/logo-light.svg" width="26" height="24" alt=""><img class="brand__logo logo-dark" src="../../site/assets/logo-dark.svg" width="26" height="24" alt=""><b>Tucano</b></a>
+    <div class="side__tools">
+      <button class="tuc-btn is-outline is-sm" data-tuc-dropdown="#idiomas-lateral" data-placement="bottom-end" aria-label="Language: English"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>EN</button><div class="tuc-dropdown" id="idiomas-lateral" hidden><a class="tuc-dropdown__item" href="../../upload/" hreflang="pt-BR" lang="pt-BR"><span class="tuc-dropdown__text">Português</span></a><a class="tuc-dropdown__item" href="../../en/upload/" hreflang="en" lang="en" aria-current="true"><span class="tuc-dropdown__text">English</span></a><a class="tuc-dropdown__item" href="../../es/upload/" hreflang="es" lang="es"><span class="tuc-dropdown__text">Español</span></a></div>
+      <button class="tuc-btn is-outline is-icon is-sm" data-tema data-label-light="Use light theme" data-label-dark="Use dark theme" aria-label="Toggle theme"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
+    </div>
+  </div>
+  <span class="tuc-badge is-plain ver">v0.32.1 · 50 KB</span>
+  <nav class="tuc-menu" aria-label="Documentation">
+<div class="tuc-menu__section">Get started</div>
+    <a class="tuc-menu__item" href="../">Home and installation</a>
+    <a class="tuc-menu__item" href="../changelog/">Changelog</a>
+<div class="tuc-menu__section">Fields</div>
+    <a class="tuc-menu__item" href="../form/">Form</a>
+    <a class="tuc-menu__item" href="../select/">Select</a>
+    <a class="tuc-menu__item" href="../datepicker/">Date picker</a>
+    <a class="tuc-menu__item" href="../mask/">Masks</a>
+    <a class="tuc-menu__item" href="../color/">Color picker</a>
+    <a class="tuc-menu__item" href="../choice/">Checkbox, radio and switch</a>
+    <a class="tuc-menu__item is-active" href="../upload/" aria-current="page">Upload</a>
+    <a class="tuc-menu__item" href="../editor/">Text editor</a>
+<div class="tuc-menu__section">Actions</div>
+    <a class="tuc-menu__item" href="../button/">Button</a>
+    <a class="tuc-menu__item" href="../dropdown/">Dropdown menu</a>
+<div class="tuc-menu__section">Feedback</div>
+    <a class="tuc-menu__item" href="../toast/">Toast</a>
+    <a class="tuc-menu__item" href="../alert/">Alert</a>
+    <a class="tuc-menu__item" href="../tooltip/">Tooltip</a>
+    <a class="tuc-menu__item" href="../loading/">Loading</a>
+    <a class="tuc-menu__item" href="../badge/">Badge</a>
+<div class="tuc-menu__section">Dialogs</div>
+    <a class="tuc-menu__item" href="../modal/">Modal</a>
+    <a class="tuc-menu__item" href="../drawer/">Drawer</a>
+<div class="tuc-menu__section">Navigation</div>
+    <a class="tuc-menu__item" href="../tabs/">Tabs</a>
+    <a class="tuc-menu__item" href="../accordion/">Accordion</a>
+    <a class="tuc-menu__item" href="../menu/">Side menu</a>
+    <a class="tuc-menu__item" href="../pagination/">Pagination</a>
+<div class="tuc-menu__section">Data</div>
+    <a class="tuc-menu__item" href="../table/">Table</a>
+    <a class="tuc-menu__item" href="../timeline/">Timeline</a>
+<div class="tuc-menu__section">Guides</div>
+    <a class="tuc-menu__item" href="../django/">Django</a>
+    <a class="tuc-menu__item" href="../theme/">Theme</a>
+    <a class="tuc-menu__item" href="../keyboard/">Keyboard and accessibility</a>
+    <a class="tuc-menu__item" href="../ai/">For AI agents</a>
+  </nav>
+</aside>
+
+<main class="main">
+  <article class="doc">
+<h1>Upload</h1>
+<p class="lead">Drag and drop, thumbnails and type and size validation on top of the native <code>&lt;input type="file"&gt;</code>,
+   which stays in the DOM: <code>name</code>, <code>required</code> and <code>request.FILES</code> keep working.
+   With a URL, each file uploads right away, with its own progress bar.</p>
+
+<div class="demo is-hero">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <label class="tuc-label" for="up-anexos">In the form — sent on submit</label>
+      <input type="file" id="up-anexos" name="anexos" multiple data-tuc-upload data-max-size="5mb">
+      <div class="out" id="up-anexos-out"></div>
+    </div>
+    <div class="demo-cell">
+      <label class="tuc-label" for="up-fotos">Direct — one bar per file</label>
+      <input type="file" id="up-fotos" name="fotos" multiple accept="image/*" data-tuc-upload data-url="demo:upload" data-max-size="5mb">
+      <div class="out" id="up-fotos-post"></div>
+    </div>
+  </div>
+  <p class="tuc-hint">On this page the direct upload is simulated in the browser; in your project it goes to the <code>data-url</code>.</p>
+</div>
+
+<h2 id="exemplos">Examples</h2>
+<p class="lead">Everything below is the same <code>&lt;input type="file"&gt;</code> with different attributes.</p>
+
+<div class="demo">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <h4>Images only, at most 2</h4>
+      <p><code>accept</code>, <code>data-max-files</code> and <code>data-max-size</code>. The hint below the drop zone is built from these three.</p>
+      <input type="file" id="up-capa" name="capa" accept="image/png,image/jpeg" multiple data-tuc-upload data-max-files="2" data-max-size="2mb" aria-label="Cover">
+      <div class="out" id="up-capa-out"></div>
+    </div>
+    <div class="demo-cell">
+      <h4>A single file</h4>
+      <p>Without <code>multiple</code>, choosing another file replaces the previous one instead of adding to it.</p>
+      <input type="file" id="up-contrato" name="contrato" accept=".pdf" data-tuc-upload aria-label="Contract">
+      <div class="out" id="up-contrato-out"></div>
+    </div>
+    <div class="demo-cell">
+      <h4>A failing server</h4>
+      <p>A response outside 2xx becomes an error on the item, with "Tentar de novo" (retry) and "Remover" (remove).</p>
+      <input type="file" id="up-falha" name="falha" multiple data-tuc-upload data-url="demo:erro" aria-label="Files">
+    </div>
+    <div class="demo-cell">
+      <h4>Upload on demand</h4>
+      <p><code>autoUpload: false</code> holds the files until <code>uploadAll()</code>.</p>
+      <input type="file" id="up-manual" name="lote" multiple aria-label="Batch">
+      <div class="bar" style="margin-top:10px">
+        <button type="button" class="tuc-btn is-outline is-sm" id="up-manual-enviar">Upload now</button>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>With an error</h4>
+      <p><code>aria-invalid="true"</code> on the native input paints the drop zone — Django 5 already writes the attribute.</p>
+      <input type="file" id="up-erro" name="comprovante" data-tuc-upload aria-invalid="true" aria-describedby="up-erro-msg" aria-label="Receipt">
+      <p class="tuc-error" id="up-erro-msg">Upload the receipt.</p>
+    </div>
+  </div>
+</div>
+
+<h2 id="uso">How to use</h2>
+<p class="lead">Mark the <code>&lt;input type="file"&gt;</code> and it initializes on its own, including anything that arrives later via
+   HTMX. What decides the mode is whether <code>data-url</code> is present.</p>
+
+<div class="tuc-prose doc-code"><pre><code>&lt;!-- In the form: nothing changes in your view --&gt;
+&lt;input type="file" name="anexos" multiple data-tuc-upload data-max-size="5mb"&gt;
+
+&lt;!-- Direct: uploads right away, the form posts the ids --&gt;
+&lt;input type="file" name="fotos" multiple accept="image/*"
+       data-tuc-upload data-url="{% url 'upload-temp' %}"&gt;</code></pre></div>
+
+<h3>In a Django form</h3>
+<p>In form mode the <code>&lt;form&gt;</code> needs <code>enctype="multipart/form-data"</code>, like any
+   upload. For multiple files, Django requires a widget that declares it accepts <code>multiple</code>.</p>
+<div class="tuc-prose doc-code"><pre><code>class MultipleFileInput(forms.FileInput):
+    allow_multiple_selected = True
+
+class ChamadoForm(forms.Form):
+    contrato = forms.FileField(
+        widget=forms.FileInput(attrs={"data-tuc-upload": "", "accept": ".pdf", "data-max-size": "10mb"}),
+    )
+    anexos = forms.FileField(
+        required=False,
+        widget=MultipleFileInput(attrs={"data-tuc-upload": "", "multiple": True, "data-max-files": "5"}),
+    )
+
+def abrir_chamado(request):
+    form = ChamadoForm(request.POST, request.FILES)
+    if form.is_valid():
+        for arquivo in request.FILES.getlist("anexos"):
+            ...</code></pre></div>
+<div class="tuc-prose doc-code"><pre><code>&lt;form method="post" enctype="multipart/form-data"&gt;
+  {% csrf_token %}
+  {{ form }}
+  &lt;button type="submit" class="tuc-btn is-primary"&gt;Submit&lt;/button&gt;
+&lt;/form&gt;</code></pre></div>
+
+<h3>In JavaScript</h3>
+<p>For options that do not exist as attributes — extra fields, headers, texts, <code>onError</code> — or to read the list.</p>
+<div class="tuc-prose doc-code"><pre><code>const up = new Tucano.Upload('#fotos', {
+  url: '/upload/temp/',
+  maxSize: '5mb',
+  maxFiles: 10,
+  extraData: { pasta: 'obras' },        // sent along in each file's FormData
+  onError: (erro, arquivo) =&gt; console.warn(arquivo.name, erro.message),
+});
+
+up.getValue();    // ids returned by the server; File[] in form mode
+up.getFiles();    // [{ name, size, type, status, progress, id, url, file }]
+up.uploadAll();   // uploads whatever is pending (autoUpload: false)
+up.clear();
+up.destroy();</code></pre></div>
+
+<h2 id="modos">The two modes</h2>
+<p class="lead">The difference is not only technical: it changes where the upload lives, and what the server needs to have.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th></th><th>In the form</th><th>Direct (<code>data-url</code>)</th></tr></thead>
+  <tbody>
+    <tr><td>When it uploads</td><td>On submit</td><td>When the file is chosen or dropped</td></tr>
+    <tr><td>The server receives</td><td><code>request.FILES</code>, together with the rest of the form</td><td>One POST per file to the endpoint</td></tr>
+    <tr><td>The form posts</td><td>The files</td><td>Only the returned ids</td></tr>
+    <tr><td>Progress per file</td><td>No</td><td>Yes</td></tr>
+    <tr><td>Cancel and retry</td><td>No</td><td>Yes</td></tr>
+    <tr><td>Needs an endpoint</td><td>No</td><td>Yes</td></tr>
+    <tr><td>Works without a <code>&lt;form&gt;</code></td><td>No</td><td>Yes, as a standalone drop zone</td></tr>
+  </tbody>
+</table></div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Why there is no progress in form mode</p><p>On a regular submit the browser sends everything in a single block and does not report progress — this is not a limitation of the library, it is how HTML works. Progress per file requires each one to upload right away, which is direct mode.</p></div></div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Dropped files are sent on submit too</p><p>In form mode, whatever was dropped on the zone is written back to the native <code>input.files</code> — the only way to do that is through <code>DataTransfer</code>. That way a dragged file arrives in <code>request.FILES</code> just like one chosen from the dialog.</p></div></div>
+
+<h2 id="direto">Direct upload</h2>
+<p class="lead">Each file goes in its own POST to the <code>data-url</code>, and the endpoint returns JSON with an id. The
+   component keeps that id and, instead of the file, the form posts the ids.</p>
+
+<div class="tuc-prose doc-code"><pre><code>@require_POST
+def upload_temp(request):
+    arquivo = request.FILES["file"]          # data-field-name changes "file"
+    temp = TempUpload.objects.create(arquivo=arquivo)
+    return JsonResponse({"id": str(temp.id), "url": temp.arquivo.url})
+
+def excluir_temp(request, pk):               # data-delete-url="/upload/temp/"
+    if request.method == "DELETE":
+        TempUpload.objects.filter(pk=pk).delete()
+    return HttpResponse(status=204)</code></pre></div>
+
+<div class="tuc-prose doc-code"><pre><code>urlpatterns = [
+    path("upload/temp/", upload_temp, name="upload-temp"),
+    path("upload/temp/&lt;uuid:pk&gt;/", excluir_temp),
+]</code></pre></div>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Attribute</th><th>Default</th><th>What for</th></tr></thead>
+  <tbody>
+    <tr><td><code>data-url</code></td><td>—</td><td>Turns on direct mode: each file uploads here, via POST</td></tr>
+    <tr><td><code>data-field-name</code></td><td><code>file</code></td><td>Name of the file field in the POST</td></tr>
+    <tr><td><code>data-response-id</code></td><td><code>id</code></td><td>Key of the id in the JSON response</td></tr>
+    <tr><td><code>data-response-url</code></td><td><code>url</code></td><td>Key of the url in the JSON response</td></tr>
+    <tr><td><code>data-delete-url</code></td><td>—</td><td>Removing an already uploaded file calls <code>DELETE</code> on <code>&lt;data-delete-url&gt;&lt;id&gt;/</code></td></tr>
+    <tr><td><code>data-auto-upload</code></td><td><code>true</code></td><td><code>false</code> waits for <code>uploadAll()</code></td></tr>
+    <tr><td><code>data-csrf</code></td><td><code>true</code></td><td><code>false</code> does not send the token</td></tr>
+  </tbody>
+</table></div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">CSRF is handled for you</p><p>The token is read from the <code>csrftoken</code> cookie and sent in <code>X-CSRFToken</code>, on the POST and on the <code>DELETE</code> — without it Django responds 403, and the error is not obvious to diagnose. With <code>CSRF_COOKIE_HTTPONLY = True</code> the cookie is not readable: pass the token in <code>headers: { 'X-CSRFToken': '{{ csrf_token }}' }</code>, which takes precedence.</p></div></div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Remember the cleanup</p><p>If the person uploads files and closes the tab without saving, they stay on the server. A task that deletes temporary files older than 24 hours takes care of it.</p></div></div>
+
+<p>Uploading uses <code>XMLHttpRequest</code>, not <code>fetch</code>: <code>fetch</code> still does not report upload progress
+   reliably across browsers. Cancelling aborts the request and removes the item from the list; a response outside
+   2xx or a network failure leaves the item in error, with the message in place of the size.</p>
+
+<h2 id="validacao">Type, size and count</h2>
+<p class="lead"><code>accept</code> and <code>multiple</code> are the input's native attributes, and the component respects
+   both. <code>accept</code> filters the system dialog <em>and</em> is checked again on drop, where the system does not filter.</p>
+
+<div class="tuc-prose doc-code"><pre><code>&lt;!-- by extension --&gt;
+&lt;input type="file" accept=".pdf,.docx" data-tuc-upload&gt;
+
+&lt;!-- by family --&gt;
+&lt;input type="file" accept="image/*" data-tuc-upload&gt;
+
+&lt;!-- by exact type --&gt;
+&lt;input type="file" accept="image/png,image/jpeg" data-tuc-upload&gt;
+
+&lt;!-- mixed, with limits --&gt;
+&lt;input type="file" accept=".pdf,image/*" multiple data-tuc-upload
+       data-max-size="500kb" data-max-files="3"&gt;</code></pre></div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Prefer extensions over MIME types</p><p>The browser does not always know a file's type: a <code>.csv</code> often arrives with an empty <code>type</code>, and then <code>accept="text/csv"</code> rejects it while <code>accept=".csv"</code> accepts it. The same goes for <code>.csv</code>, <code>.md</code>, <code>.log</code> and less common formats. For images and PDF, the MIME type is reliable.</p></div></div>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Attribute</th><th>Accepts</th><th>Rejects with</th></tr></thead>
+  <tbody>
+    <tr><td><code>accept</code></td><td>Extension, <code>family/*</code> or exact type, separated by commas</td><td>"Tipo de arquivo não aceito" (file type not accepted)</td></tr>
+    <tr><td><code>data-max-size</code></td><td><code>5mb</code>, <code>500kb</code>, <code>1gb</code> or bytes</td><td>"Arquivo maior que 5 MB" (file larger than 5 MB)</td></tr>
+    <tr><td><code>data-max-files</code></td><td>Number of files accepted in the list</td><td>"No máximo 2 arquivos" (at most 2 files)</td></tr>
+  </tbody>
+</table></div>
+
+<p>The hint below the drop zone is built from these three — <code>image/png, image/jpeg · até 2 MB · no máximo 2 arquivos</code> —,
+   so it does not need to be written again. The component's default texts are in Portuguese; the texts option replaces them. A rejected file does not enter the list: a notice appears with the name and the
+   reason, which disappears after 5 seconds, and <code>onError(erro, arquivo)</code> is called. An accepted image gets a thumbnail.</p>
+
+<h2 id="valor">Value and form</h2>
+<p class="lead">What reaches the server is what would reach it without the component, in each mode.</p>
+
+<div class="tuc-prose doc-code"><pre><code># In the form: the files, in the same POST as the rest
+FILES  anexos = relatorio.pdf      # request.FILES.getlist("anexos")
+FILES  anexos = planta.png
+
+# Direct: the endpoint received one POST per file, and the form posts the ids
+POST   fotos  = 3f2a9c...          # request.POST.getlist("fotos")
+POST   fotos  = 8b41e0...</code></pre></div>
+
+<p>In direct mode the <code>name</code> leaves the file input and moves to one <code>&lt;input type="hidden"&gt;</code> per
+   finished file — so only the ids of the files that finished uploading go in the POST, and the file is never sent twice.</p>
+
+<p>Every change to the list fires <code>tucano:change</code> on the input itself, and <code>onChange</code> receives the same data.</p>
+
+<div class="tuc-prose doc-code"><pre><code>document.querySelector('#fotos').addEventListener('tucano:change', (e) =&gt; {
+  e.detail.value;      // ready ids in direct mode; File[] in form mode
+  e.detail.files;      // each one with status: 'pending' | 'uploading' | 'ready' | 'error'
+  e.detail.instance;   // the Upload
+});</code></pre></div>
+
+<h2 id="teclado">Keyboard and accessibility</h2>
+<p class="lead">The drop zone is a focusable <code>role="button"</code>, described by the type and size hint. The native input leaves
+   the view, but not the form.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Key</th><th>Action</th></tr></thead>
+  <tbody>
+    <tr><td><code>Tab</code></td><td>Reaches the drop zone and, after it, each file's buttons</td></tr>
+    <tr><td><code>Enter</code> <code>Space</code></td><td>On the drop zone, opens the file chooser dialog</td></tr>
+  </tbody>
+</table></div>
+
+<ul>
+  <li>Cancel, remove and retry are <code>&lt;button&gt;</code> elements with <code>aria-label</code>.</li>
+  <li>The rejection comes out in a notice with <code>role="alert"</code>: it appears after the action and goes away on its own, so screen reader users need to hear it right away.</li>
+  <li><code>aria-invalid="true"</code> stays on the native input; the CSS reaches the drop zone from it.</li>
+</ul>
+
+<h2 id="api">API</h2>
+<p class="lead">Generated from the code on every build — if something is not here, it does not exist.</p>
+<div class="api-line"><span>Markup</span><div><code>input[type=file][data-tuc-upload]</code></div></div>
+<div class="api-line"><span>In JS</span><div><code>new Tucano.Upload(alvo, opcoes)</code></div></div>
+<div class="api-line"><span>Attributes</span><div><code>data-auto-upload</code> <code>data-csrf</code> <code>data-delete-url</code> <code>data-field-name</code> <code>data-max-files</code> <code>data-max-size</code> <code>data-response-id</code> <code>data-response-url</code> <code>data-url</code></div></div>
+<div class="api-line"><span>Methods</span><div><code>getFiles</code> <code>getValue</code> <code>uploadAll</code> <code>clear</code> <code>destroy</code></div></div>
+<div class="api-line"><span>Events</span><div><code>tucano:change</code></div></div>
+<h3>Options</h3>
+<p>The notes in this table come from comments in the source code, which are written in Portuguese.</p>
+<div class="tuc-table-wrap"><table class="tuc-table"><thead><tr><th style="width:26%">Option</th><th style="width:22%">Default</th><th>What for</th></tr></thead><tbody>
+<tr><td><code>url</code></td><td><code>null</code></td><td>com url: upload direto. sem: os arquivos vao no submit</td></tr>
+<tr><td><code>method</code></td><td><code>'POST'</code></td><td></td></tr>
+<tr><td><code>fieldName</code></td><td><code>'file'</code></td><td>nome do campo no FormData do upload direto</td></tr>
+<tr><td><code>extraData</code></td><td><code>{}</code></td><td>campos extras enviados junto</td></tr>
+<tr><td><code>headers</code></td><td><code>{}</code></td><td></td></tr>
+<tr><td><code>csrf</code></td><td><code>true</code></td><td>manda X-CSRFToken lido do cookie (Django)</td></tr>
+<tr><td><code>responseId</code></td><td><code>'id'</code></td><td>chave do id na resposta JSON</td></tr>
+<tr><td><code>responseUrl</code></td><td><code>'url'</code></td><td>chave da url na resposta JSON</td></tr>
+<tr><td><code>deleteUrl</code></td><td><code>null</code></td><td>se definido, remover chama DELETE aqui</td></tr>
+<tr><td><code>maxSize</code></td><td><code>null</code></td><td>'5mb' ou bytes</td></tr>
+<tr><td><code>maxFiles</code></td><td><code>null</code></td><td></td></tr>
+<tr><td><code>autoUpload</code></td><td><code>true</code></td><td>no modo direto, comeca ao soltar</td></tr>
+<tr><td><code>locale</code></td><td><code>undefined</code></td><td></td></tr>
+<tr><td><code>texts</code></td><td><code>{}</code></td><td></td></tr>
+<tr><td><code>onChange</code></td><td><code>null</code></td><td></td></tr>
+<tr><td><code>onError</code></td><td><code>null</code></td><td></td></tr>
+</tbody></table></div>
+
+
+<nav class="pager" aria-label="Documentation pagination"><a class="tuc-btn is-outline is-lg pager__prev" href="../choice/" aria-label="Previous page: Checkbox, radio and switch"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Checkbox, radio and switch</a><a class="tuc-btn is-outline is-lg pager__next" href="../editor/" aria-label="Next page: Text editor">Text editor<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></a></nav>
+  </article>
+</main>
+
+<script src="../../dist/tucano.js?v=0.32.1"></script>
+<script src="../../site/site.js?v=0.32.1"></script>
+<script>
+  /*
+   * Simulated upload. The component uploads via XMLHttpRequest and does not accept an
+   * upload function, so the static page swaps XHR only for "demo:" URLs — any
+   * other goes straight to the original. Nothing leaves the machine.
+   */
+  const XHR = window.XMLHttpRequest;
+  let seq = 0;
+  window.XMLHttpRequest = class extends XHR {
+    open(method, url, ...resto) {
+      this._demo = String(url).startsWith('demo:') ? String(url).slice(5) : null;
+      if (!this._demo) return super.open(method, url, ...resto);
+    }
+    setRequestHeader(k, v) { if (!this._demo) super.setRequestHeader(k, v); }
+    send(corpo) {
+      if (!this._demo) return super.send(corpo);
+      const arquivo = [...corpo.values()].find((v) => v instanceof File);
+      const total = arquivo?.size || 1;
+      const falha = this._demo === 'erro';
+      let enviado = 0;
+      this._timer = setInterval(() => {
+        enviado = Math.min(total, enviado + total / 14);
+        this.upload.dispatchEvent(new ProgressEvent('progress', { lengthComputable: true, loaded: enviado, total }));
+        if (enviado < total * (falha ? 0.6 : 1)) return;
+        clearInterval(this._timer);
+        seq++;
+        Object.defineProperty(this, 'status', { value: falha ? 500 : 200 });
+        Object.defineProperty(this, 'response', { value: falha ? null : { id: `tmp-${seq}`, url: `/media/tmp/${arquivo.name}` } });
+        this.dispatchEvent(new ProgressEvent('load'));
+      }, 140);
+    }
+    abort() {
+      if (!this._demo) return super.abort();
+      clearInterval(this._timer);
+      this.dispatchEvent(new ProgressEvent('abort'));
+    }
+  };
+
+  // What the form would post in direct mode: the hidden inputs with the ids.
+  document.getElementById('up-fotos').addEventListener('tucano:change', (e) => {
+    document.getElementById('up-fotos-post').textContent =
+      e.detail.value.map((id) => `POST fotos = ${id}`).join(' · ');
+  });
+
+  const lote = new Tucano.Upload('#up-manual', { url: 'demo:upload', autoUpload: false });
+  document.getElementById('up-manual-enviar').addEventListener('click', () => lote.uploadAll());
+</script>
+</body>
+</html>

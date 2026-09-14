@@ -1,0 +1,235 @@
+<!--
+title: Dropdown menu
+component: dropdown
+lang: en
+description: Action menu anchored to a button, written in the template or built in JS: flips sides when it doesn't fit, moves with the arrow keys and returns focus to the trigger.
+-->
+<h1>Dropdown menu</h1>
+<p class="lead">Action menu anchored to a button. It flips sides when it doesn't fit, closes on an outside click, on
+   <code>Escape</code> and when focus leaves, and moves with the arrow keys. The items can be written
+   in the template, which is the way to go when the server is the one that knows what the person is allowed to do.</p>
+
+<div class="demo is-hero">
+  <div class="bar">
+    <button type="button" class="tuc-btn is-outline" data-tuc-dropdown="#dropdown-acoes">
+      Actions
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+    <div class="tuc-dropdown" id="dropdown-acoes" hidden>
+      <div class="tuc-dropdown__label">Contract</div>
+      <button type="button" class="tuc-dropdown__item" onclick="Tucano.toast('Edit')"><span class="tuc-dropdown__text">Edit</span><span class="tuc-dropdown__shortcut">⌘E</span></button>
+      <button type="button" class="tuc-dropdown__item" onclick="Tucano.toast('Duplicate')"><span class="tuc-dropdown__text">Duplicate</span><span class="tuc-dropdown__shortcut">⌘D</span></button>
+      <a class="tuc-dropdown__item" href="#uso"><span class="tuc-dropdown__text">See how to use</span></a>
+      <hr class="tuc-dropdown__separator">
+      <button type="button" class="tuc-dropdown__item" aria-disabled="true"><span class="tuc-dropdown__text">Archive</span></button>
+      <button type="button" class="tuc-dropdown__item is-danger" onclick="Tucano.toast.error('Delete')"><span class="tuc-dropdown__text">Delete</span><span class="tuc-dropdown__shortcut">⌫</span></button>
+    </div>
+
+    <button type="button" class="tuc-btn is-outline" id="dropdown-js">Built in JS</button>
+  </div>
+</div>
+
+<h2 id="exemplos">Examples</h2>
+<p class="lead">The same component, with different positions and content.</p>
+
+<div class="demo">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <h4>Right-aligned</h4>
+      <p><code>data-placement="bottom-end"</code>: for a button pushed against the right edge.</p>
+      <button type="button" class="tuc-btn is-outline" data-tuc-dropdown="#dropdown-direita" data-placement="bottom-end">Export</button>
+      <div class="tuc-dropdown" id="dropdown-direita" hidden>
+        <button type="button" class="tuc-dropdown__item" onclick="Tucano.toast('PDF')"><span class="tuc-dropdown__text">PDF</span></button>
+        <button type="button" class="tuc-dropdown__item" onclick="Tucano.toast('Spreadsheet')"><span class="tuc-dropdown__text">Spreadsheet</span></button>
+        <button type="button" class="tuc-dropdown__item" onclick="Tucano.toast('CSV')"><span class="tuc-dropdown__text">CSV</span></button>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>To the side</h4>
+      <p><code>data-placement="right-start"</code> opens alongside, like a submenu.</p>
+      <button type="button" class="tuc-btn is-outline" data-tuc-dropdown="#dropdown-lado" data-placement="right-start">Move to</button>
+      <div class="tuc-dropdown" id="dropdown-lado" hidden>
+        <button type="button" class="tuc-dropdown__item" onclick="Tucano.toast('In progress')"><span class="tuc-dropdown__text">In progress</span></button>
+        <button type="button" class="tuc-dropdown__item" onclick="Tucano.toast('Done')"><span class="tuc-dropdown__text">Done</span></button>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>With icons</h4>
+      <p>The icon goes in <code>.tuc-dropdown__icon</code> and is muted; on the danger item, it follows the red.</p>
+      <button type="button" class="tuc-btn is-outline" data-tuc-dropdown="#dropdown-icones">File</button>
+      <div class="tuc-dropdown" id="dropdown-icones" hidden>
+        <button type="button" class="tuc-dropdown__item" onclick="Tucano.toast('Rename')"><span class="tuc-dropdown__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4z"/></svg></span><span class="tuc-dropdown__text">Rename</span></button>
+        <button type="button" class="tuc-dropdown__item" onclick="Tucano.toast('Download')"><span class="tuc-dropdown__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5M4 20h16"/></svg></span><span class="tuc-dropdown__text">Download</span></button>
+        <hr class="tuc-dropdown__separator">
+        <button type="button" class="tuc-dropdown__item is-danger" onclick="Tucano.toast.error('Delete')"><span class="tuc-dropdown__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg></span><span class="tuc-dropdown__text">Delete</span></button>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Icon button</h4>
+      <p>The "more actions" of a table row. With no visible text, <code>aria-label</code> is required.</p>
+      <button type="button" class="tuc-btn is-outline is-icon is-sm" aria-label="More actions" data-tuc-dropdown="#dropdown-mais" data-placement="bottom-end"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v.01M12 12v.01M12 19v.01"/></svg></button>
+      <div class="tuc-dropdown" id="dropdown-mais" hidden>
+        <button type="button" class="tuc-dropdown__item" onclick="Tucano.toast('Duplicate')"><span class="tuc-dropdown__text">Duplicate</span></button>
+        <button type="button" class="tuc-dropdown__item" onclick="Tucano.toast('Download PDF')"><span class="tuc-dropdown__text">Download PDF</span></button>
+        <hr class="tuc-dropdown__separator">
+        <button type="button" class="tuc-dropdown__item is-danger" onclick="Tucano.toast.error('Delete')"><span class="tuc-dropdown__text">Delete</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p>The positions are the same as the tooltip's: side <code>top</code>, <code>bottom</code>, <code>left</code> or
+   <code>right</code>, and alignment <code>start</code>, <code>center</code> or <code>end</code>. The default is
+   <code>bottom-start</code>. When the requested side doesn't fit and the opposite one fits better, the menu flips; and it
+   never spills off the screen, it slides back inside.</p>
+
+<h2 id="uso">How to use</h2>
+<p class="lead">A button with <code>data-tuc-dropdown</code> pointing to the panel, and the panel right below it, with
+   <code>hidden</code>. It initializes on its own, including whatever arrives later through HTMX.</p>
+
+<pre data-code="html">
+<button type="button" class="tuc-btn is-outline" data-tuc-dropdown="#acoes">Actions</button>
+
+<div class="tuc-dropdown" id="acoes" hidden>
+  <div class="tuc-dropdown__label">Contract</div>
+  <button type="button" class="tuc-dropdown__item">
+    <span class="tuc-dropdown__text">Edit</span>
+    <span class="tuc-dropdown__shortcut">⌘E</span>
+  </button>
+  <a class="tuc-dropdown__item" href="/contratos/12/">
+    <span class="tuc-dropdown__text">Open</span>
+  </a>
+  <hr class="tuc-dropdown__separator">
+  <button type="button" class="tuc-dropdown__item is-danger">
+    <span class="tuc-dropdown__text">Delete</span>
+  </button>
+</div>
+</pre>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">hidden is required</p><p>The script is loaded with <code>defer</code> and only runs after the page has been drawn. Without <code>hidden</code>, the menu shows up open in the middle of the page until then. On initialization the panel is taken out of the flow and positioned by the component, which removes <code>hidden</code> by itself.</p></div></div>
+
+<h3>Panel parts</h3>
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Class or attribute</th><th>What it's for</th></tr></thead>
+  <tbody>
+    <tr><td><code>.tuc-dropdown</code></td><td>The panel. Needs an <code>id</code>, for the trigger to point to, and <code>hidden</code></td></tr>
+    <tr><td><code>.tuc-dropdown__item</code></td><td>An item. <code>&lt;a href&gt;</code> to navigate, <code>&lt;button type="button"&gt;</code> to act</td></tr>
+    <tr><td><code>.tuc-dropdown__text</code></td><td>The label; truncated with an ellipsis when it doesn't fit</td></tr>
+    <tr><td><code>.tuc-dropdown__icon</code></td><td>Icon on the left, 16px, in the muted color</td></tr>
+    <tr><td><code>.tuc-dropdown__shortcut</code></td><td>Shortcut on the right, with fixed-width digits so the keys line up</td></tr>
+    <tr><td><code>.tuc-dropdown__label</code></td><td>Group title, not clickable</td></tr>
+    <tr><td><code>.tuc-dropdown__separator</code></td><td>Line between groups, on an <code>&lt;hr&gt;</code></td></tr>
+    <tr><td><code>is-danger</code></td><td>On the item: destructive action, in red</td></tr>
+    <tr><td><code>aria-disabled="true"</code></td><td>On the item: disabled. The arrows skip it, and clicking doesn't close the menu</td></tr>
+  </tbody>
+</table></div>
+
+<p>An item with <code>href</code> is a real <code>&lt;a&gt;</code>. Middle-click still opens it in another tab, and
+   the menu doesn't steal the browser's context menu. Clicking any item closes the menu.</p>
+
+<h3>In a Django template</h3>
+<p>Actions that depend on permissions are left out on the server, not hidden in the browser. In a list, the panel's
+   <code>id</code> carries the row's key so each menu points to its own.</p>
+<pre data-code="django">
+{% for contrato in contratos %}
+  <button type="button" class="tuc-btn is-outline is-icon is-sm" aria-label="Actions"
+          data-tuc-dropdown="#acoes-{{ contrato.pk }}" data-placement="bottom-end">...</button>
+
+  <div class="tuc-dropdown" id="acoes-{{ contrato.pk }}" hidden>
+    <a class="tuc-dropdown__item" href="{% url 'contrato-editar' contrato.pk %}">
+      <span class="tuc-dropdown__text">Edit</span>
+    </a>
+    {% if perms.contratos.delete_contrato %}
+      <hr class="tuc-dropdown__separator">
+      <a class="tuc-dropdown__item is-danger" href="{% url 'contrato-excluir' contrato.pk %}">
+        <span class="tuc-dropdown__text">Delete</span>
+      </a>
+    {% endif %}
+  </div>
+{% endfor %}
+</pre>
+
+<h3>In JavaScript</h3>
+<p>For when the items are computed on the fly. The component builds the panel, and each item gets what to do when it's picked.</p>
+<pre data-code="js">
+const menu = new Tucano.Dropdown('#acoes', {
+  placement: 'bottom-end',
+  items: [
+    { label: 'Contract' },
+    { text: 'Edit', icon: 'M12 20h9M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4z', shortcut: '⌘E', onClick: () => editar() },
+    { text: 'Duplicate', icon: Tucano.ICON_COPY, onClick: (dropdown) => duplicar() },
+    { text: 'Open', href: '/contratos/12/' },
+    { text: 'Archive', disabled: true },
+    { separator: true },
+    { text: 'Delete', variant: 'danger', onClick: () => excluir() },
+  ],
+});
+
+menu.open();
+menu.close();
+menu.toggle();
+menu.destroy();   // closes and removes the listeners
+</pre>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Item key</th><th>What it's for</th></tr></thead>
+  <tbody>
+    <tr><td><code>text</code></td><td>The label</td></tr>
+    <tr><td><code>icon</code></td><td>The <code>d</code> of a 24×24 SVG path, like the <code>Tucano.ICON_*</code> ones</td></tr>
+    <tr><td><code>shortcut</code></td><td>Shortcut text, on the right. Display only: binding the key is up to you</td></tr>
+    <tr><td><code>onClick</code></td><td>Called when picked, with the menu instance</td></tr>
+    <tr><td><code>href</code></td><td>Makes the item an <code>&lt;a&gt;</code></td></tr>
+    <tr><td><code>variant</code></td><td><code>'danger'</code> becomes <code>is-danger</code></td></tr>
+    <tr><td><code>disabled</code></td><td>Disables it: <code>aria-disabled="true"</code> and no <code>onClick</code></td></tr>
+    <tr><td><code>separator</code></td><td>On its own, <code>{ separator: true }</code> becomes the line</td></tr>
+    <tr><td><code>label</code></td><td>On its own, <code>{ label: 'Section' }</code> becomes a group title</td></tr>
+  </tbody>
+</table></div>
+
+<p><code>closeOnPick: false</code> keeps the menu open after a pick, for items that toggle something
+   on and off.</p>
+
+<h2 id="teclado">Keyboard and accessibility</h2>
+<p class="lead">The trigger gets <code>aria-haspopup="menu"</code> and <code>aria-expanded</code>, the panel is a
+   <code>menu</code> and each item a <code>menuitem</code>. Opening moves focus inside, and closing returns it to the trigger.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Key</th><th>Action</th></tr></thead>
+  <tbody>
+    <tr><td><code>Enter</code> <code>Space</code> or click</td><td>On the trigger: opens and focuses the first item</td></tr>
+    <tr><td><code>↓</code></td><td>On the trigger: opens straight on the first item</td></tr>
+    <tr><td><code>↑</code></td><td>On the trigger: opens straight on the last item</td></tr>
+    <tr><td><code>↑</code> <code>↓</code></td><td>In the menu: moves between items, wrapping around and skipping disabled ones</td></tr>
+    <tr><td><code>Home</code> <code>End</code></td><td>First and last item</td></tr>
+    <tr><td><code>Esc</code></td><td>Closes and returns focus to the trigger</td></tr>
+    <tr><td><code>Tab</code></td><td>Closes, and focus follows the page order from the trigger</td></tr>
+  </tbody>
+</table></div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Items are kept out of Tab on purpose</p><p>Each item gets <code>tabindex="-1"</code>. Inside a menu, the arrows do the moving; with tabbable items, <code>Tab</code> would leave the menu one item at a time, which is exactly what the menu pattern avoids. And focus returns to the trigger because, without that, keyboard users would close the menu and land at the top of the page.</p></div></div>
+
+<p>Besides <code>Escape</code>, the menu closes on an outside click, when focus moves elsewhere and when the trigger scrolls
+   off screen. The item highlight follows focus, not just the pointer: the arrows are what move focus, and without that
+   keyboard users wouldn't see where they are.</p>
+
+<h2 id="api">API</h2>
+<!-- api -->
+
+<script>
+  {
+    // The same component as the version written in the template, built with JavaScript
+    // to show an item with an icon, a shortcut and a variant.
+    const lapis = 'M12 20h9M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4z';
+    const lixeira = 'M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6';
+    new Tucano.Dropdown('#dropdown-js', {
+      items: [
+        { label: 'This contract' },
+        { text: 'Edit', icon: lapis, shortcut: '⌘E', onClick: () => Tucano.toast('Edit') },
+        { text: 'Duplicate', icon: Tucano.ICON_COPY, shortcut: '⌘D', onClick: () => Tucano.toast('Duplicate') },
+        { text: 'Archive', disabled: true },
+        { separator: true },
+        { text: 'Delete', icon: lixeira, variant: 'danger', onClick: () => Tucano.toast.error('Delete') },
+      ],
+    });
+  }
+</script>

@@ -1,0 +1,320 @@
+<!--
+title: Upload
+component: upload
+lang: es
+description: Upload con arrastrar y soltar, miniatura, límite de tipo, tamaño y cantidad, y envío directo con progreso, cancelar y reintentar — sobre el <input type="file"> nativo.
+-->
+<h1>Upload</h1>
+<p class="lead">Arrastrar y soltar, miniatura y validación de tipo y tamaño sobre el <code>&lt;input type="file"&gt;</code>
+   nativo, que sigue en el DOM: <code>name</code>, <code>required</code> y <code>request.FILES</code> siguen funcionando.
+   Con una URL, cada archivo se sube al momento, con su propia barra.</p>
+
+<div class="demo is-hero">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <label class="tuc-label" for="up-anexos">En el formulario — va en el submit</label>
+      <input type="file" id="up-anexos" name="anexos" multiple data-tuc-upload data-max-size="5mb">
+      <div class="out" id="up-anexos-out"></div>
+    </div>
+    <div class="demo-cell">
+      <label class="tuc-label" for="up-fotos">Directo — una barra por archivo</label>
+      <input type="file" id="up-fotos" name="fotos" multiple accept="image/*" data-tuc-upload data-url="demo:upload" data-max-size="5mb">
+      <div class="out" id="up-fotos-post"></div>
+    </div>
+  </div>
+  <p class="tuc-hint">En esta página el envío directo se simula en el navegador; en tu proyecto va al <code>data-url</code>.</p>
+</div>
+
+<h2 id="exemplos">Ejemplos</h2>
+<p class="lead">Todo lo de abajo es el mismo <code>&lt;input type="file"&gt;</code> con atributos distintos.</p>
+
+<div class="demo">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <h4>Solo imágenes, 2 como máximo</h4>
+      <p><code>accept</code>, <code>data-max-files</code> y <code>data-max-size</code>. La pista debajo de la zona sale de estos tres.</p>
+      <input type="file" id="up-capa" name="capa" accept="image/png,image/jpeg" multiple data-tuc-upload data-max-files="2" data-max-size="2mb" aria-label="Portada">
+      <div class="out" id="up-capa-out"></div>
+    </div>
+    <div class="demo-cell">
+      <h4>Un solo archivo</h4>
+      <p>Sin <code>multiple</code>, elegir otro reemplaza el anterior en lugar de sumarlo.</p>
+      <input type="file" id="up-contrato" name="contrato" accept=".pdf" data-tuc-upload aria-label="Contrato">
+      <div class="out" id="up-contrato-out"></div>
+    </div>
+    <div class="demo-cell">
+      <h4>Servidor que falla</h4>
+      <p>Una respuesta fuera de 2xx se vuelve un error en el ítem, con "Tentar de novo" (reintentar) y "Remover" (quitar).</p>
+      <input type="file" id="up-falha" name="falha" multiple data-tuc-upload data-url="demo:erro" aria-label="Archivos">
+    </div>
+    <div class="demo-cell">
+      <h4>Enviar cuando se pida</h4>
+      <p><code>autoUpload: false</code> retiene los archivos hasta <code>uploadAll()</code>.</p>
+      <input type="file" id="up-manual" name="lote" multiple aria-label="Lote">
+      <div class="bar" style="margin-top:10px">
+        <button type="button" class="tuc-btn is-outline is-sm" id="up-manual-enviar">Enviar ahora</button>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Con error</h4>
+      <p><code>aria-invalid="true"</code> en el input nativo pinta la zona — Django 5 ya escribe el atributo.</p>
+      <input type="file" id="up-erro" name="comprovante" data-tuc-upload aria-invalid="true" aria-describedby="up-erro-msg" aria-label="Comprobante">
+      <p class="tuc-error" id="up-erro-msg">Sube el comprobante.</p>
+    </div>
+  </div>
+</div>
+
+<h2 id="uso">Cómo usar</h2>
+<p class="lead">Marca el <code>&lt;input type="file"&gt;</code> y se inicializa solo, incluso lo que llegue después por
+   HTMX. Lo que decide el modo es la presencia de <code>data-url</code>.</p>
+
+<pre data-code="django">
+<!-- En el formulario: nada cambia en tu view -->
+<input type="file" name="anexos" multiple data-tuc-upload data-max-size="5mb">
+
+<!-- Directo: se sube al momento, el formulario envía los ids -->
+<input type="file" name="fotos" multiple accept="image/*"
+       data-tuc-upload data-url="{% url 'upload-temp' %}">
+</pre>
+
+<h3>En el formulario de Django</h3>
+<p>En el modo formulario el <code>&lt;form&gt;</code> necesita <code>enctype="multipart/form-data"</code>, como cualquier
+   upload. Para varios archivos, Django exige un widget que declare aceptar <code>multiple</code>.</p>
+<pre data-code="python">
+class MultipleFileInput(forms.FileInput):
+    allow_multiple_selected = True
+
+class ChamadoForm(forms.Form):
+    contrato = forms.FileField(
+        widget=forms.FileInput(attrs={"data-tuc-upload": "", "accept": ".pdf", "data-max-size": "10mb"}),
+    )
+    anexos = forms.FileField(
+        required=False,
+        widget=MultipleFileInput(attrs={"data-tuc-upload": "", "multiple": True, "data-max-files": "5"}),
+    )
+
+def abrir_chamado(request):
+    form = ChamadoForm(request.POST, request.FILES)
+    if form.is_valid():
+        for arquivo in request.FILES.getlist("anexos"):
+            ...
+</pre>
+<pre data-code="django">
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  {{ form }}
+  <button type="submit" class="tuc-btn is-primary">Enviar</button>
+</form>
+</pre>
+
+<h3>En JavaScript</h3>
+<p>Para opciones que no existen como atributo — campos extra, cabeceras, textos, <code>onError</code> — o para leer la lista.</p>
+<pre data-code="js">
+const up = new Tucano.Upload('#fotos', {
+  url: '/upload/temp/',
+  maxSize: '5mb',
+  maxFiles: 10,
+  extraData: { pasta: 'obras' },        // va junto en el FormData de cada archivo
+  onError: (erro, arquivo) => console.warn(arquivo.name, erro.message),
+});
+
+up.getValue();    // ids devueltos por el servidor; File[] en el modo formulario
+up.getFiles();    // [{ name, size, type, status, progress, id, url, file }]
+up.uploadAll();   // sube lo que esté pendiente (autoUpload: false)
+up.clear();
+up.destroy();
+</pre>
+
+<h2 id="modos">Los dos modos</h2>
+<p class="lead">La diferencia no es solo técnica: cambia dónde vive el upload, y qué necesita tener el servidor.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th></th><th>En el formulario</th><th>Directo (<code>data-url</code>)</th></tr></thead>
+  <tbody>
+    <tr><td>Cuándo se sube</td><td>En el submit</td><td>Al elegir o soltar el archivo</td></tr>
+    <tr><td>El servidor recibe</td><td><code>request.FILES</code>, junto con el resto del formulario</td><td>Un POST por archivo en el endpoint</td></tr>
+    <tr><td>El formulario envía</td><td>Los archivos</td><td>Solo los ids devueltos</td></tr>
+    <tr><td>Progreso por archivo</td><td>No</td><td>Sí</td></tr>
+    <tr><td>Cancelar y reintentar</td><td>No</td><td>Sí</td></tr>
+    <tr><td>Necesita endpoint</td><td>No</td><td>Sí</td></tr>
+    <tr><td>Funciona sin <code>&lt;form&gt;</code></td><td>No</td><td>Sí, como zona de envío suelta</td></tr>
+  </tbody>
+</table></div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Por qué no hay progreso en el modo formulario</p><p>En un submit común el navegador envía todo en un solo bloque y no informa el avance — no es una limitación de la biblioteca, es cómo funciona HTML. El progreso por archivo exige que cada uno se suba al momento, que es el modo directo.</p></div></div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Lo arrastrado también va en el submit</p><p>En el modo formulario, lo que se soltó en la zona se escribe de vuelta en el <code>input.files</code> nativo — la única forma de hacerlo es con <code>DataTransfer</code>. Así el archivo arrastrado llega a <code>request.FILES</code> igual que el elegido desde la ventana.</p></div></div>
+
+<h2 id="direto">Upload directo</h2>
+<p class="lead">Cada archivo va en un POST propio al <code>data-url</code>, y el endpoint devuelve JSON con un id. El
+   componente guarda ese id y, en lugar del archivo, el formulario envía los ids.</p>
+
+<pre data-code="python">
+@require_POST
+def upload_temp(request):
+    arquivo = request.FILES["file"]          # data-field-name cambia el "file"
+    temp = TempUpload.objects.create(arquivo=arquivo)
+    return JsonResponse({"id": str(temp.id), "url": temp.arquivo.url})
+
+def excluir_temp(request, pk):               # data-delete-url="/upload/temp/"
+    if request.method == "DELETE":
+        TempUpload.objects.filter(pk=pk).delete()
+    return HttpResponse(status=204)
+</pre>
+
+<pre data-code="python">
+urlpatterns = [
+    path("upload/temp/", upload_temp, name="upload-temp"),
+    path("upload/temp/<uuid:pk>/", excluir_temp),
+]
+</pre>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Atributo</th><th>Por defecto</th><th>Para qué</th></tr></thead>
+  <tbody>
+    <tr><td><code>data-url</code></td><td>—</td><td>Activa el modo directo: cada archivo se sube aquí, por POST</td></tr>
+    <tr><td><code>data-field-name</code></td><td><code>file</code></td><td>Nombre del campo del archivo en el POST</td></tr>
+    <tr><td><code>data-response-id</code></td><td><code>id</code></td><td>Clave del id en la respuesta JSON</td></tr>
+    <tr><td><code>data-response-url</code></td><td><code>url</code></td><td>Clave de la url en la respuesta JSON</td></tr>
+    <tr><td><code>data-delete-url</code></td><td>—</td><td>Quitar un archivo ya enviado llama a <code>DELETE</code> en <code>&lt;data-delete-url&gt;&lt;id&gt;/</code></td></tr>
+    <tr><td><code>data-auto-upload</code></td><td><code>true</code></td><td><code>false</code> espera a <code>uploadAll()</code></td></tr>
+    <tr><td><code>data-csrf</code></td><td><code>true</code></td><td><code>false</code> no envía el token</td></tr>
+  </tbody>
+</table></div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">El CSRF va solo</p><p>El token se lee de la cookie <code>csrftoken</code> y se envía en <code>X-CSRFToken</code>, en el POST y en el <code>DELETE</code> — sin él Django responde 403, y el error no es fácil de diagnosticar. Con <code>CSRF_COOKIE_HTTPONLY = True</code> la cookie no se puede leer: pasa el token en <code>headers: { 'X-CSRFToken': '{{ csrf_token }}' }</code>, que tiene prioridad.</p></div></div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">No olvides la limpieza</p><p>Si la persona sube archivos y cierra la pestaña sin guardar, quedan en el servidor. Una tarea que borre los temporales con más de 24 horas lo resuelve.</p></div></div>
+
+<p>El envío usa <code>XMLHttpRequest</code>, y no <code>fetch</code>: <code>fetch</code> todavía no informa el progreso de subida
+   de forma confiable entre navegadores. Cancelar aborta la petición y quita el ítem de la lista; una respuesta fuera de
+   2xx o un fallo de red dejan el ítem en error, con el mensaje en lugar del tamaño.</p>
+
+<h2 id="validacao">Tipo, tamaño y cantidad</h2>
+<p class="lead"><code>accept</code> y <code>multiple</code> son los atributos nativos del input, y el componente respeta
+   los dos. El <code>accept</code> filtra la ventana del sistema <em>y</em> se comprueba de nuevo al arrastrar, donde el sistema no filtra.</p>
+
+<pre data-code="html">
+<!-- por extensión -->
+<input type="file" accept=".pdf,.docx" data-tuc-upload>
+
+<!-- por familia -->
+<input type="file" accept="image/*" data-tuc-upload>
+
+<!-- por tipo exacto -->
+<input type="file" accept="image/png,image/jpeg" data-tuc-upload>
+
+<!-- mezclando, con límites -->
+<input type="file" accept=".pdf,image/*" multiple data-tuc-upload
+       data-max-size="500kb" data-max-files="3">
+</pre>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Prefiere la extensión al tipo MIME</p><p>El navegador no siempre sabe el tipo de un archivo: un <code>.csv</code> suele llegar con <code>type</code> vacío, y entonces <code>accept="text/csv"</code> lo rechaza mientras <code>accept=".csv"</code> lo acepta. Vale para <code>.csv</code>, <code>.md</code>, <code>.log</code> y formatos menos comunes. Para imágenes y PDF, el MIME es confiable.</p></div></div>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Atributo</th><th>Acepta</th><th>Rechaza con</th></tr></thead>
+  <tbody>
+    <tr><td><code>accept</code></td><td>Extensión, <code>familia/*</code> o tipo exacto, separados por comas</td><td>"Tipo de arquivo não aceito" (tipo de archivo no aceptado)</td></tr>
+    <tr><td><code>data-max-size</code></td><td><code>5mb</code>, <code>500kb</code>, <code>1gb</code> o bytes</td><td>"Arquivo maior que 5 MB" (archivo mayor que 5 MB)</td></tr>
+    <tr><td><code>data-max-files</code></td><td>Número de archivos aceptados en la lista</td><td>"No máximo 2 arquivos" (2 archivos como máximo)</td></tr>
+  </tbody>
+</table></div>
+
+<p>La pista debajo de la zona se arma con estos tres — <code>image/png, image/jpeg · até 2 MB · no máximo 2 arquivos</code> —,
+   así que no hace falta escribirla de nuevo. Los textos por defecto del componente están en portugués; la opción texts los reemplaza. Un archivo rechazado no entra en la lista: aparece un aviso con el nombre y el
+   motivo, que desaparece en 5 segundos, y se llama a <code>onError(erro, arquivo)</code>. Una imagen aceptada recibe miniatura.</p>
+
+<h2 id="valor">Valor y formulario</h2>
+<p class="lead">Lo que llega al servidor es lo que llegaría sin el componente, en cada modo.</p>
+
+<pre data-code="text">
+# En el formulario: los archivos, en el mismo POST que el resto
+FILES  anexos = relatorio.pdf      # request.FILES.getlist("anexos")
+FILES  anexos = planta.png
+
+# Directo: el endpoint recibió un POST por archivo, y el formulario envía los ids
+POST   fotos  = 3f2a9c...          # request.POST.getlist("fotos")
+POST   fotos  = 8b41e0...
+</pre>
+
+<p>En el modo directo el <code>name</code> sale del input de archivo y pasa a un <code>&lt;input type="hidden"&gt;</code> por
+   archivo listo — así solo los ids de los que terminaron de subir entran en el POST, y el archivo nunca va dos veces.</p>
+
+<p>Cada cambio en la lista dispara <code>tucano:change</code> en el propio input, y <code>onChange</code> recibe los mismos datos.</p>
+
+<pre data-code="js">
+document.querySelector('#fotos').addEventListener('tucano:change', (e) => {
+  e.detail.value;      // ids listos en el modo directo; File[] en el formulario
+  e.detail.files;      // cada uno con status: 'pending' | 'uploading' | 'ready' | 'error'
+  e.detail.instance;   // el Upload
+});
+</pre>
+
+<h2 id="teclado">Teclado y accesibilidad</h2>
+<p class="lead">La zona es un <code>role="button"</code> enfocable, descrito por la pista de tipo y tamaño. El input nativo sale de
+   la vista, pero no del formulario.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Tecla</th><th>Acción</th></tr></thead>
+  <tbody>
+    <tr><td><code>Tab</code></td><td>Llega a la zona y, después, a los botones de cada archivo</td></tr>
+    <tr><td><code>Enter</code> <code>Espacio</code></td><td>En la zona, abre la ventana para elegir archivo</td></tr>
+  </tbody>
+</table></div>
+
+<ul>
+  <li>Cancelar, quitar y reintentar son <code>&lt;button&gt;</code> con <code>aria-label</code>.</li>
+  <li>El rechazo sale en un aviso con <code>role="alert"</code>: aparece después de la acción y desaparece solo, así que quien usa lector de pantalla necesita oírlo en el momento.</li>
+  <li><code>aria-invalid="true"</code> queda en el input nativo; el CSS alcanza la zona a partir de él.</li>
+</ul>
+
+<h2 id="api">API</h2>
+<!-- api -->
+
+<script>
+  /*
+   * Envío simulado. El componente sube por XMLHttpRequest y no acepta una función
+   * de envío, así que la página estática reemplaza el XHR solo para URLs "demo:" — cualquier
+   * otra pasa directo al original. Nada sale de la máquina.
+   */
+  const XHR = window.XMLHttpRequest;
+  let seq = 0;
+  window.XMLHttpRequest = class extends XHR {
+    open(method, url, ...resto) {
+      this._demo = String(url).startsWith('demo:') ? String(url).slice(5) : null;
+      if (!this._demo) return super.open(method, url, ...resto);
+    }
+    setRequestHeader(k, v) { if (!this._demo) super.setRequestHeader(k, v); }
+    send(corpo) {
+      if (!this._demo) return super.send(corpo);
+      const arquivo = [...corpo.values()].find((v) => v instanceof File);
+      const total = arquivo?.size || 1;
+      const falha = this._demo === 'erro';
+      let enviado = 0;
+      this._timer = setInterval(() => {
+        enviado = Math.min(total, enviado + total / 14);
+        this.upload.dispatchEvent(new ProgressEvent('progress', { lengthComputable: true, loaded: enviado, total }));
+        if (enviado < total * (falha ? 0.6 : 1)) return;
+        clearInterval(this._timer);
+        seq++;
+        Object.defineProperty(this, 'status', { value: falha ? 500 : 200 });
+        Object.defineProperty(this, 'response', { value: falha ? null : { id: `tmp-${seq}`, url: `/media/tmp/${arquivo.name}` } });
+        this.dispatchEvent(new ProgressEvent('load'));
+      }, 140);
+    }
+    abort() {
+      if (!this._demo) return super.abort();
+      clearInterval(this._timer);
+      this.dispatchEvent(new ProgressEvent('abort'));
+    }
+  };
+
+  // Lo que el formulario enviaría en el modo directo: los hidden con los ids.
+  document.getElementById('up-fotos').addEventListener('tucano:change', (e) => {
+    document.getElementById('up-fotos-post').textContent =
+      e.detail.value.map((id) => `POST fotos = ${id}`).join(' · ');
+  });
+
+  const lote = new Tucano.Upload('#up-manual', { url: 'demo:upload', autoUpload: false });
+  document.getElementById('up-manual-enviar').addEventListener('click', () => lote.uploadAll());
+</script>

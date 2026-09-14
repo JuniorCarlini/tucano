@@ -1,0 +1,231 @@
+<!--
+title: Pestañas
+component: tabs
+lang: es
+description: Pestañas dibujadas en la plantilla, con los roles tab y tabpanel y el teclado del ARIA APG, variante segmentada de la altura de un campo y activación manual para paneles que cargan por HTMX.
+-->
+<h1>Pestañas</h1>
+<p class="lead">La plantilla ya trae la lista dibujada, la pestaña inicial marcada y los demás paneles con <code>hidden</code> — la página
+   nace correcta antes del script. El JavaScript pone lo que el HTML no da: los roles que hacen que el lector de pantalla anuncie
+   "pestaña, 2 de 4", la conexión entre pestaña y panel y el teclado, en el que la lista es una sola parada del <code>Tab</code>.</p>
+
+<div class="demo is-hero">
+  <div class="tuc-tabs" data-tuc-tabs id="tabs-cliente">
+    <div class="tuc-tabs__list">
+      <button class="tuc-tabs__tab" aria-selected="true">Datos</button>
+      <button class="tuc-tabs__tab">Dirección</button>
+      <button class="tuc-tabs__tab">Facturas <span class="tuc-badge is-plain">3</span></button>
+      <button class="tuc-tabs__tab" disabled>Historial</button>
+    </div>
+    <div class="tuc-tabs__panel">
+      <div class="demo-grid">
+        <div class="demo-cell"><label class="tuc-label" for="tabs-cliente-nome">Razón social</label><input type="text" class="tuc-input" id="tabs-cliente-nome" value="Tucano Comércio Ltda"></div>
+        <div class="demo-cell"><label class="tuc-label" for="tabs-cliente-doc">CNPJ (identificador fiscal brasileño, con su máscara)</label><input type="text" id="tabs-cliente-doc" data-tuc-mask="cnpj" value="11222333000181"></div>
+      </div>
+    </div>
+    <div class="tuc-tabs__panel" hidden>
+      <div class="demo-grid">
+        <div class="demo-cell"><label class="tuc-label" for="tabs-cliente-cep">CEP (código postal brasileño)</label><input type="text" id="tabs-cliente-cep" data-tuc-mask="cep" value="01310100"></div>
+        <div class="demo-cell"><label class="tuc-label" for="tabs-cliente-cidade">Ciudad</label><input type="text" class="tuc-input" id="tabs-cliente-cidade" value="São Paulo"></div>
+      </div>
+    </div>
+    <div class="tuc-tabs__panel" hidden>
+      <p>Tres facturas pendientes. El panel es cualquier HTML, incluso el que llega por HTMX.</p>
+    </div>
+    <div class="tuc-tabs__panel" hidden></div>
+  </div>
+</div>
+
+<h2 id="exemplos">Ejemplos</h2>
+<p class="lead">El mismo marcado, con una clase o un atributo más.</p>
+
+<div class="demo">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <h4>Segmentadas</h4>
+      <p><code>is-segmented</code> tiene la altura de un campo, para cambiar la vista de una lista junto a un filtro.</p>
+      <div class="tuc-tabs is-segmented" data-tuc-tabs id="tabs-segmentadas">
+        <div class="tuc-tabs__list">
+          <button class="tuc-tabs__tab" aria-selected="true">Todos</button>
+          <button class="tuc-tabs__tab">Pendientes</button>
+          <button class="tuc-tabs__tab">Pagados</button>
+        </div>
+        <div class="tuc-tabs__panel"><p>128 contratos.</p></div>
+        <div class="tuc-tabs__panel" hidden><p>12 esperando pago.</p></div>
+        <div class="tuc-tabs__panel" hidden><p>116 liquidados.</p></div>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Segmentadas junto a un campo</h4>
+      <p>Borde y relleno suman la altura del control: la fila no se desalinea.</p>
+      <div class="bar">
+        <div class="tuc-tabs is-segmented" data-tuc-tabs id="tabs-filtro">
+          <div class="tuc-tabs__list">
+            <button class="tuc-tabs__tab" aria-selected="true">Día</button>
+            <button class="tuc-tabs__tab">Semana</button>
+            <button class="tuc-tabs__tab">Mes</button>
+          </div>
+        </div>
+        <input type="search" class="tuc-input" id="tabs-filtro-busca" placeholder="Buscar..." aria-label="Buscar" style="width:auto;flex:1">
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Activación manual</h4>
+      <p><code>data-manual="true"</code>: las flechas solo mueven el foco, y <code>Enter</code> o <code>Espacio</code> abren.</p>
+      <div class="tuc-tabs" data-tuc-tabs data-manual="true" id="tabs-manual">
+        <div class="tuc-tabs__list">
+          <button class="tuc-tabs__tab" aria-selected="true">Resumen</button>
+          <button class="tuc-tabs__tab">Cobros</button>
+          <button class="tuc-tabs__tab">Adjuntos</button>
+        </div>
+        <div class="tuc-tabs__panel"><p>Aquí iría el panel cargado por HTMX.</p></div>
+        <div class="tuc-tabs__panel" hidden><p>Una petición por pestaña abierta, no por pestaña recorrida.</p></div>
+        <div class="tuc-tabs__panel" hidden><p>Ningún adjunto.</p></div>
+      </div>
+      <div class="out" id="tabs-manual-log"></div>
+    </div>
+    <div class="demo-cell">
+      <h4>Con icono y contador</h4>
+      <p>El <code>svg</code> y la <code>.tuc-badge is-plain</code> dentro de la pestaña siguen su color.</p>
+      <div class="tuc-tabs" data-tuc-tabs id="tabs-icones">
+        <div class="tuc-tabs__list">
+          <button class="tuc-tabs__tab" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/></svg>Panel</button>
+          <button class="tuc-tabs__tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v16H4zM4 9h16M9 20V9"/></svg>Tareas <span class="tuc-badge is-plain">7</span></button>
+          <button class="tuc-tabs__tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15a3 3 0 100-6 3 3 0 000 6zM19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg>Ajustes</button>
+        </div>
+        <div class="tuc-tabs__panel"><p>Vista general del proyecto.</p></div>
+        <div class="tuc-tabs__panel" hidden><p>Siete tareas abiertas.</p></div>
+        <div class="tuc-tabs__panel" hidden><p>Preferencias del proyecto.</p></div>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Muchas pestañas</h4>
+      <p>La lista se desplaza en horizontal en lugar de partirse en dos líneas; la pestaña enfocada con las flechas entra en pantalla.</p>
+      <div class="tuc-tabs" data-tuc-tabs id="tabs-meses">
+        <div class="tuc-tabs__list">
+          <button class="tuc-tabs__tab">Enero</button><button class="tuc-tabs__tab">Febrero</button>
+          <button class="tuc-tabs__tab">Marzo</button><button class="tuc-tabs__tab">Abril</button>
+          <button class="tuc-tabs__tab">Mayo</button><button class="tuc-tabs__tab">Junio</button>
+          <button class="tuc-tabs__tab">Julio</button><button class="tuc-tabs__tab" aria-selected="true">Agosto</button>
+        </div>
+        <div class="tuc-tabs__panel" hidden><p>Enero.</p></div><div class="tuc-tabs__panel" hidden><p>Febrero.</p></div>
+        <div class="tuc-tabs__panel" hidden><p>Marzo.</p></div><div class="tuc-tabs__panel" hidden><p>Abril.</p></div>
+        <div class="tuc-tabs__panel" hidden><p>Mayo.</p></div><div class="tuc-tabs__panel" hidden><p>Junio.</p></div>
+        <div class="tuc-tabs__panel" hidden><p>Julio.</p></div><div class="tuc-tabs__panel"><p>Agosto — la pestaña marcada en la plantilla.</p></div>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Pestaña desactivada</h4>
+      <p><code>disabled</code> o <code>aria-disabled="true"</code>: no se abre, y las flechas la saltan.</p>
+      <div class="tuc-tabs" data-tuc-tabs id="tabs-desativada">
+        <div class="tuc-tabs__list">
+          <button class="tuc-tabs__tab" aria-selected="true">Borrador</button>
+          <button class="tuc-tabs__tab" aria-disabled="true">Revisión</button>
+          <button class="tuc-tabs__tab">Publicado</button>
+        </div>
+        <div class="tuc-tabs__panel"><p>En edición.</p></div>
+        <div class="tuc-tabs__panel" hidden><p>Revisión.</p></div>
+        <div class="tuc-tabs__panel" hidden><p>Publicado.</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h2 id="uso">Cómo usar</h2>
+<p class="lead">Escribe las clases, <code>aria-selected="true"</code> en la pestaña inicial y <code>hidden</code> en los demás paneles. Las
+   pestañas y los paneles se emparejan por orden: la tercera pestaña abre el tercer panel.</p>
+
+<pre data-code="html">
+<div class="tuc-tabs" data-tuc-tabs>
+  <div class="tuc-tabs__list">
+    <button class="tuc-tabs__tab" aria-selected="true">Datos</button>
+    <button class="tuc-tabs__tab">Dirección</button>
+  </div>
+  <div class="tuc-tabs__panel">…</div>
+  <div class="tuc-tabs__panel" hidden>…</div>
+</div>
+</pre>
+
+<p>Sin <code>aria-selected</code> en ninguna, se abre la primera pestaña activa. El script da <code>type="button"</code> a las pestañas que no tienen
+   <code>type</code> — sin eso, cambiar de pestaña dentro de un <code>&lt;form&gt;</code> enviaría el formulario —, crea los
+   <code>id</code> que faltan y conecta pestaña y panel mediante <code>aria-controls</code> y <code>aria-labelledby</code>.</p>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Por qué las clases vienen de la plantilla, y no del script</p><p>Así la lista ya nace dibujada en el primer fotograma, sin bloque de espera y sin salto cuando llega el JavaScript. Por el mismo motivo el <code>hidden</code> de los paneles es obligatorio: sin él, todos aparecerían apilados hasta que se ejecute el script.</p></div></div>
+
+<h3>Con HTMX, panel bajo demanda</h3>
+<p>Para no cargar el contenido de todas las pestañas a la vez, cada pestaña busca su propio panel la primera vez que se abre.
+   Activa <code>data-manual="true"</code>: en el modo manual, abrir es siempre un clic — de ratón, de <code>Enter</code> o de
+   <code>Espacio</code> —, así que el <code>hx-trigger</code> en la pestaña cubre todos los caminos.</p>
+<pre data-code="django">
+<div class="tuc-tabs" data-tuc-tabs data-manual="true">
+  <div class="tuc-tabs__list">
+    <button class="tuc-tabs__tab" aria-selected="true">Resumen</button>
+    <button class="tuc-tabs__tab" hx-get="{% url 'cliente-faturas' cliente.pk %}"
+            hx-target="#faturas" hx-trigger="click once">Facturas</button>
+  </div>
+  <div class="tuc-tabs__panel">{% include "clientes/resumo.html" %}</div>
+  <div class="tuc-tabs__panel" id="faturas" hidden></div>
+</div>
+</pre>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Por qué existe el modo manual</p><p>En la activación automática, la flecha cambia el panel al instante. Con paneles que cargan del servidor, recorrer cuatro pestañas hasta la deseada sería disparar cuatro peticiones. En el manual la flecha solo lleva el foco, y quien decide abrir es la persona.</p></div></div>
+
+<h3>En JavaScript</h3>
+<pre data-code="js">
+const abas = new Tucano.Tabs('#cliente', {
+  selected: 1,        // índice de la pestaña inicial
+  manual: true,
+  onChange: (index, { tab, panel }) => console.log(index, tab.textContent),
+});
+
+abas.select(2);                     // abre la tercera; dispara onChange
+abas.select(0, { silent: true });   // abre sin disparar nada
+abas.index;                         // índice de la pestaña abierta, o -1
+abas.tabs;                          // las pestañas, en orden
+abas.panels;                        // los paneles, en orden
+</pre>
+
+<p>Cada cambio — por la persona o por <code>select()</code> — dispara <code>tucano:change</code> en el elemento de las pestañas, y el evento
+   burbujea. <code>select()</code> en una pestaña desactivada no hace nada.</p>
+<pre data-code="js">
+document.addEventListener('tucano:change', (e) => {
+  if (!e.target.matches('.tuc-tabs')) return;
+  e.detail.value;      // índice de la pestaña abierta
+  e.detail.tab;        // el botón de la pestaña
+  e.detail.panel;      // el panel
+  e.detail.instance;   // las Tabs
+});
+</pre>
+
+<p>Las pestañas dentro de un panel son otro conjunto: el componente solo mira la lista y los paneles que son hijos directos de su
+   elemento.</p>
+
+<h2 id="teclado">Teclado y accesibilidad</h2>
+<p class="lead">El teclado sigue el patrón de pestañas del ARIA APG. Toda la lista es una sola parada del <code>Tab</code> — si no, quien
+   navega con teclado recorrería todas las pestañas antes de llegar al contenido de la abierta.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Tecla</th><th>Acción</th></tr></thead>
+  <tbody>
+    <tr><td><code>Tab</code></td><td>Entra en la pestaña abierta; el siguiente <code>Tab</code> va al contenido del panel</td></tr>
+    <tr><td><code>←</code> <code>→</code></td><td>Pestaña anterior y siguiente, saltando las desactivadas y dando la vuelta en los extremos</td></tr>
+    <tr><td><code>Home</code> <code>End</code></td><td>Primera y última pestaña activas</td></tr>
+    <tr><td><code>Enter</code> <code>Espacio</code></td><td>En el modo manual, abre la pestaña enfocada</td></tr>
+  </tbody>
+</table></div>
+
+<p>La lista recibe <code>role="tablist"</code>, cada pestaña <code>role="tab"</code> con <code>aria-selected</code>, y cada panel
+   <code>role="tabpanel"</code>. El panel sin nada enfocable dentro recibe <code>tabindex="0"</code>, para que el <code>Tab</code> llegue
+   al contenido; con un campo o un enlace dentro, no — sería una parada inútil antes de él.</p>
+
+<h2 id="api">API</h2>
+<!-- api -->
+
+<script>
+  // Muestra el evento de las pestañas manuales: solo llega cuando la pestaña se abre de verdad.
+  document.addEventListener('tucano:change', (e) => {
+    if (e.target.id !== 'tabs-manual') return;
+    document.getElementById('tabs-manual-log').textContent =
+      `tucano:change → value ${e.detail.value} (${e.detail.tab.textContent.trim()})`;
+  });
+</script>

@@ -7,11 +7,12 @@
 (() => {
   const root = document.documentElement;
 
-  /* Tema: a classe .dark no <html>, lembrada entre paginas. */
+  /* Tema: a classe .dark no <html>, lembrada entre paginas. Os rotulos vem do
+     proprio botao, que o gerador escreve no idioma da pagina. */
   const rotular = () => {
     const dark = root.classList.contains('dark');
     document.querySelectorAll('[data-tema]').forEach((b) =>
-      b.setAttribute('aria-label', dark ? 'Usar tema claro' : 'Usar tema escuro'));
+      b.setAttribute('aria-label', dark ? b.dataset.labelLight : b.dataset.labelDark));
   };
   document.querySelectorAll('[data-tema]').forEach((b) => b.addEventListener('click', () => {
     root.classList.toggle('dark');

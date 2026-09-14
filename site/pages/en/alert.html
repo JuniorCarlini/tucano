@@ -1,0 +1,146 @@
+<!--
+title: Alert
+lang: en
+description: A persistent alert on the page, in four tones, with a title and actions: for what stays true while the person is on the screen. Classes only, no JavaScript.
+-->
+<h1>Alert</h1>
+<p class="lead">What stays true while the person is on the screen: "your subscription expires in 3 days", "this contract
+   is locked for editing". The <a href="../toast/">toast</a> is for what just happened and goes away on its own; an alert that
+   disappears before it's read didn't alert anyone. Classes only, no JavaScript.</p>
+
+<div class="demo is-hero">
+  <div class="tuc-alert is-info" style="margin-top:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p>The figures on this screen are refreshed every 5 minutes.</p></div></div>
+  <div class="tuc-alert is-success"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.1V12a10 10 0 11-5.9-9.1M22 4L12 14l-3-3"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Contract signed</p><p>Both parties signed on 2026-09-12.</p></div></div>
+  <div class="tuc-alert is-warning"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Subscription expires in 3 days</p><p>Renew so you don't lose access to reports.</p></div><div class="tuc-alert__actions"><button type="button" class="tuc-btn is-outline is-sm" onclick="Tucano.toast.success('Subscription renewed')">Renew</button></div></div>
+  <div class="tuc-alert is-danger" style="margin-bottom:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM15 9l-6 6M9 9l6 6"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Contract locked for editing</p><p>There's a disputed charge. Contact the billing team.</p></div></div>
+</div>
+
+<h2 id="exemplos">Examples</h2>
+<p class="lead">The parts are optional: title, icon and actions go in only when they're needed.</p>
+
+<div class="demo">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <h4>No tone</h4>
+      <p>Without <code>is-*</code> the alert is neutral, for what's neither good nor bad.</p>
+      <div class="tuc-alert" style="margin:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM12 6v6l4 2"/></svg><div class="tuc-alert__body"><p>Draft saved at 14:32.</p></div></div>
+    </div>
+    <div class="demo-cell">
+      <h4>No icon</h4>
+      <p>The icon is the first child, when there is one; without it the text sits against the edge.</p>
+      <div class="tuc-alert is-info" style="margin:0"><div class="tuc-alert__body"><p class="tuc-alert__title">Scheduled maintenance</p><p>Saturday, 10 PM to 11 PM.</p></div></div>
+    </div>
+    <div class="demo-cell">
+      <h4>With two actions</h4>
+      <p>The actions are the system's buttons. On a narrow screen, they drop below the text.</p>
+      <div class="tuc-alert is-warning" style="margin:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg><div class="tuc-alert__body"><p>There are unpublished changes.</p></div><div class="tuc-alert__actions"><button type="button" class="tuc-btn is-ghost is-sm" onclick="Tucano.toast('Discarded')">Discard</button><button type="button" class="tuc-btn is-outline is-sm" onclick="Tucano.toast.success('Published')">Publish</button></div></div>
+    </div>
+    <div class="demo-cell">
+      <h4>Shows up later</h4>
+      <p>The response to a submit gets <code>role="alert"</code> and is announced right away.</p>
+      <button type="button" class="tuc-btn is-outline is-sm" id="alert-enviar">Submit form</button>
+      <div id="alert-resposta"></div>
+    </div>
+  </div>
+</div>
+
+<h2 id="uso">How to use</h2>
+<p class="lead">A <code>.tuc-alert</code> with the tone, the icon as the first child and the text in <code>.tuc-alert__body</code>.</p>
+
+<pre data-code="html">
+<div class="tuc-alert is-warning">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg>
+  <div class="tuc-alert__body">
+    <p class="tuc-alert__title">Subscription expires in 3 days</p>
+    <p>Renew so you don't lose access.</p>
+  </div>
+  <div class="tuc-alert__actions">
+    <a class="tuc-btn is-outline is-sm" href="/assinatura/">Renew</a>
+  </div>
+</div>
+</pre>
+
+<p>The icon doesn't come from the library: it's the SVG you paste, and it inherits the tone's color. The ones on this page, to copy:</p>
+
+<pre data-code="html">
+<!-- info -->
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg>
+<!-- success -->
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.1V12a10 10 0 11-5.9-9.1M22 4L12 14l-3-3"/></svg>
+<!-- warning -->
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg>
+<!-- danger -->
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM15 9l-6 6M9 9l6 6"/></svg>
+</pre>
+
+<h3>In a Django template</h3>
+<p>The error that doesn't belong to a field, <code>non_field_errors</code>, is the most common case. And Django messages can
+   become an alert, instead of a toast, when they need to stay on the screen. Django's error level is called <code>error</code>; the alert's,
+   <code>is-danger</code>.</p>
+
+<pre data-code="django">
+{% if form.non_field_errors %}
+  <div class="tuc-alert is-danger">
+    <div class="tuc-alert__body">
+      <p class="tuc-alert__title">Couldn't save</p>
+      {% for erro in form.non_field_errors %}<p>{{ erro }}</p>{% endfor %}
+    </div>
+  </div>
+{% endif %}
+
+{% for m in messages %}
+  <div class="tuc-alert {% if m.level_tag == 'error' %}is-danger{% else %}is-{{ m.level_tag }}{% endif %}">
+    <div class="tuc-alert__body"><p>{{ m }}</p></div>
+  </div>
+{% endfor %}
+</pre>
+
+<p>The <code>debug</code> level becomes <code>is-debug</code>, which has no rule, so the alert stays neutral.</p>
+
+<h2 id="acessibilidade">Accessibility</h2>
+<p class="lead"><code>role="alert"</code> only on an alert that appears after the page loads: the response to a submit, an HTMX swap.</p>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Why not on all of them</p><p>An alert that's already in the HTML is read along with the page. With <code>role="alert"</code> it would interrupt the screen reader for nothing, and on a page with three alerts, three times. What arrives later needs the role precisely to interrupt: without it, the submit response shows up on screen and no screen reader user ever finds out.</p></div></div>
+
+<pre data-code="django">
+{# partial HTMX response: shows up later, so it interrupts #}
+<div class="tuc-alert is-success" role="alert">
+  <div class="tuc-alert__body"><p>Proposal sent to {{ cliente.email }}.</p></div>
+</div>
+</pre>
+
+<p>The icon gets <code>aria-hidden="true"</code>: the text is what says what happened, and the tone can't be the only cue.</p>
+
+<h2 id="cor">Color</h2>
+<p class="lead">The background is a light tint of the tone over <code>--tuc-bg</code>, not the transparent <code>-soft</code> from the
+   tokens: over a colored card or an image, the transparent one would leave the text without guaranteed contrast.</p>
+
+<p>The tones read <code>--tuc-info</code>, <code>--tuc-success</code>, <code>--tuc-warning</code> and <code>--tuc-danger</code>, and
+   never <code>--tuc-accent</code>. The brand can be any color, and the meaning can't change along with it. That's why
+   info got its own tone: with an orange accent, the info alert looked the same as the warning one.</p>
+
+<h2 id="api">Classes</h2>
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Class or attribute</th><th>What it's for</th></tr></thead>
+  <tbody>
+    <tr><td><code>.tuc-alert</code></td><td>The alert. Without a tone, neutral</td></tr>
+    <tr><td><code>is-info</code> <code>is-success</code> <code>is-warning</code> <code>is-danger</code></td><td>The tone</td></tr>
+    <tr><td><code>&gt; svg</code></td><td>Icon, as the first child: 16px, centered on the first line, in the tone's color</td></tr>
+    <tr><td><code>.tuc-alert__body</code></td><td>The text; takes up the remaining space</td></tr>
+    <tr><td><code>.tuc-alert__title</code></td><td>First line in bold. The rest of the body uses the muted color</td></tr>
+    <tr><td><code>.tuc-alert__actions</code></td><td>Buttons on the right; below 40rem, they drop below the text</td></tr>
+    <tr><td><code>role="alert"</code></td><td>Only on what appears after the page loads</td></tr>
+    <tr><td><code>--tuc-alert-tone</code></td><td>The color the tone picks; background, border and icon come from it</td></tr>
+  </tbody>
+</table></div>
+
+<script>
+  // An alert that arrives later, like the response to a submit: this one gets role="alert".
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('#alert-enviar')) return;
+    document.getElementById('alert-resposta').innerHTML =
+      '<div class="tuc-alert is-success" role="alert" style="margin:12px 0 0">' +
+      '<div class="tuc-alert__body"><p>Proposal sent at ' +
+      new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) + '.</p></div></div>';
+  });
+</script>

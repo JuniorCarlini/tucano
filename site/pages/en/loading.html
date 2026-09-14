@@ -1,0 +1,153 @@
+<!--
+title: Loading
+lang: en
+description: A spinner for the action someone is waiting on and a skeleton for content still on its way, with a busy button and the HTMX indicator. Classes only.
+-->
+<h1>Loading</h1>
+<p class="lead">A spinner for an action someone triggered and is waiting on, like the save button; a skeleton for content that
+   is still on its way and already has a known shape, like a table row. The skeleton prevents the jump: the space is already
+   reserved at the size of what is coming. Classes only, no JavaScript.</p>
+
+<div class="demo is-hero">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <h4>Spinner</h4>
+      <p>Click save: the button stays busy for two seconds.</p>
+      <div class="bar">
+        <button type="button" class="tuc-btn is-primary" id="loading-salvar">Save</button>
+        <span class="tuc-spinner"></span>
+        <span class="tuc-spinner is-lg"></span>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Skeleton</h4>
+      <p>The shape of what is coming, in the place where it will land.</p>
+      <div class="bar" style="flex-wrap:nowrap;gap:12px">
+        <span class="tuc-skeleton is-circle" style="width:36px;flex:none"></span>
+        <div style="flex:1;display:grid;gap:8px">
+          <span class="tuc-skeleton" style="width:55%"></span>
+          <span class="tuc-skeleton" style="width:85%;height:.75em"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h2 id="exemplos">Examples</h2>
+<p class="lead">The spinner is sized in <code>em</code> and painted with <code>currentColor</code>, so it follows wherever it sits without any variant.</p>
+
+<div class="demo">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <h4>Busy button</h4>
+      <p><code>aria-busy="true"</code> with <code>disabled</code>. Inside the button, the spinner takes the place and the size of the icon.</p>
+      <div class="bar">
+        <button type="button" class="tuc-btn is-primary" aria-busy="true" disabled><span class="tuc-spinner"></span> Saving</button>
+        <button type="button" class="tuc-btn is-outline is-sm" aria-busy="true" disabled><span class="tuc-spinner"></span> Sending</button>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Inline with text</h4>
+      <p>At the height of the letters, and in their color.</p>
+      <p style="color:var(--fg)"><span class="tuc-spinner"></span> Fetching invoices…</p>
+    </div>
+    <div class="demo-cell">
+      <h4>Table row</h4>
+      <p>The skeleton can be any element, including a <code>&lt;td&gt;</code>.</p>
+      <div class="tuc-table-wrap"><table class="tuc-table">
+        <thead><tr><th>Customer</th><th>Amount</th></tr></thead>
+        <tbody>
+          <tr><td><span class="tuc-skeleton" style="width:70%"></span></td><td><span class="tuc-skeleton" style="width:50%"></span></td></tr>
+          <tr><td><span class="tuc-skeleton" style="width:55%"></span></td><td><span class="tuc-skeleton" style="width:40%"></span></td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <div class="demo-cell">
+      <h4>Avatar and card</h4>
+      <p><code>is-circle</code> turns round at whatever width you give it.</p>
+      <div class="bar" style="flex-wrap:nowrap;gap:12px">
+        <span class="tuc-skeleton is-circle" style="width:48px;flex:none"></span>
+        <div style="flex:1;display:grid;gap:8px">
+          <span class="tuc-skeleton" style="width:40%"></span>
+          <span class="tuc-skeleton" style="height:3.5em"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h2 id="uso">How to use</h2>
+<pre data-code="html">
+<button class="tuc-btn is-primary" aria-busy="true" disabled>
+  <span class="tuc-spinner"></span> Saving
+</button>
+
+<span class="tuc-spinner is-lg"></span>
+
+<div class="tuc-skeleton" style="width:60%"></div>
+<span class="tuc-skeleton is-circle" style="width:36px"></span>
+</pre>
+
+<p>The skeleton is a block <code>1em</code> tall and full width: the width and, when needed, the height are up to you.
+   Don't hand-roll a spinner with your own SVG or border — the loading toast and the components use this one.</p>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Busy is not disabled</p><p><code>disabled</code> prevents the second click, but the 50% fade says "not available", and the button is working. With <code>aria-busy="true"</code> it keeps its full color and gets the wait cursor.</p></div></div>
+
+<h2 id="htmx">With HTMX</h2>
+<p class="lead"><code>htmx-indicator</code> is HTMX's own class: hidden, and visible only during the request. Paired with the
+   spinner, it shows up and goes away without a single line of JavaScript.</p>
+
+<pre data-code="django">
+<button class="tuc-btn is-primary" hx-post="{% url 'contrato-salvar' contrato.pk %}" hx-disabled-elt="this">
+  <span class="tuc-spinner htmx-indicator"></span> Save
+</button>
+</pre>
+
+<p>The skeleton works as placeholder content for what HTMX fetches as soon as the page opens. When the response arrives,
+   it replaces the skeleton in the same space, and nothing jumps.</p>
+
+<pre data-code="django">
+<div hx-get="{% url 'clientes-tabela' %}" hx-trigger="load" hx-swap="outerHTML">
+  <span class="tuc-skeleton" style="width:60%"></span>
+  <span class="tuc-skeleton" style="width:80%; margin-top:8px"></span>
+</div>
+</pre>
+
+<h2 id="acessibilidade">Accessibility</h2>
+<p class="lead">The text says what is happening, and the spinner confirms it. "Saving" next to the spinner gets announced; a
+   spinner on its own is just a spinning circle to someone who can't see it.</p>
+
+<p>The skeleton is decoration: it doesn't select text, doesn't take the pointer, and its text, if any, is transparent. With
+   <code>prefers-reduced-motion</code> the skeleton's shimmer stops entirely, because it is only ornament. The spinner keeps
+   spinning, more slowly: standing still, it would stop saying "waiting" and become just another circle.</p>
+
+<h2 id="api">Classes</h2>
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Class or attribute</th><th>What for</th></tr></thead>
+  <tbody>
+    <tr><td><code>.tuc-spinner</code></td><td>Spinning circle, <code>1em</code>, in the text color</td></tr>
+    <tr><td><code>is-lg</code></td><td>On the spinner: <code>1.5em</code></td></tr>
+    <tr><td><code>.tuc-btn &gt; .tuc-spinner</code></td><td>Inside the button, at the size of its icon</td></tr>
+    <tr><td><code>aria-busy="true"</code></td><td>On <code>.tuc-btn</code>: busy, with full color and the wait cursor, even with <code>disabled</code></td></tr>
+    <tr><td><code>.tuc-skeleton</code></td><td>Shimmering block, in place of the content that is coming</td></tr>
+    <tr><td><code>is-circle</code></td><td>On the skeleton: round, with height equal to width</td></tr>
+    <tr><td><code>htmx-indicator</code></td><td>From HTMX: shows the element only during the request</td></tr>
+  </tbody>
+</table></div>
+
+<script>
+  // Button that turns busy: aria-busy and disabled together, and the spinner in place of the icon.
+  document.addEventListener('click', (e) => {
+    const botao = e.target.closest('#loading-salvar');
+    if (!botao || botao.getAttribute('aria-busy') === 'true') return;
+    botao.setAttribute('aria-busy', 'true');
+    botao.disabled = true;
+    botao.innerHTML = '<span class="tuc-spinner"></span> Saving';
+    setTimeout(() => {
+      botao.removeAttribute('aria-busy');
+      botao.disabled = false;
+      botao.textContent = 'Save';
+      Tucano.toast.success('Saved');
+    }, 2000);
+  });
+</script>

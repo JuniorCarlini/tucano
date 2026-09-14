@@ -671,4 +671,26 @@ de navegador escrito dentro de template literal perde toda barra de regex
 
 Em ordem do que mais dói.
 
-Nada aqui no momento.
+**Texto fixo em português dentro dos componentes.** Datas e números já seguem o
+`lang` da página, e parte dos textos pode ser trocada por atributo ou opção
+(`data-placeholder`, `emptyText`, `prevText`, `texts` do upload). O resto está
+escrito direto no código e não há como trocar pelo template: no date picker o
+botão "Limpar", "Aplicar", os atalhos ("Hoje", "Últimos 7 dias"…), o "aaaa" do
+placeholder e os rótulos "Mes anterior"/"Proximo mes"; no select "Buscar...",
+"Nenhum resultado", "Buscando..." como padrão sem atributo e o "Remover" das
+tags; e rótulos lidos pelo leitor de tela em vários componentes — "Fechar" no
+modal, gaveta e toast, "Selecionar linha" na tabela, "Mostrar"/"Ocultar" na
+máscara, "Copiar código", "Escolher cor", os botões do editor. Num projeto em
+inglês ou espanhol eles aparecem em português. A decisão tomada: nada de
+dicionário de idiomas no pacote, que custaria peso; o caminho é deixar todo texto
+trocável por atributo e por um `Tucano.setTexts({...})` global, com o português
+como padrão. Levantado ao traduzir o site; a demonstração em inglês contorna
+desligando o "Limpar" e a busca do select.
+
+**Valores de API ainda em português.** A regra é API toda em inglês, e a
+tradução do site achou valores que escaparam: na máscara, os modos
+`data-reveal-mode="fim"` e `"tudo"` e o formato `cnpj-numerico`; no modal e na
+gaveta, os motivos de `onClose` `'botao'` e `'fundo'`, ao lado de `'action'`,
+`'escape'` e `'api'` em inglês. Trocar é mudança de API pública: pede aceitar os
+nomes antigos por um tempo, avisar em "Atenção ao atualizar" e atualizar o
+`llms.txt` e as páginas nos três idiomas.

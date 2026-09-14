@@ -1,0 +1,198 @@
+<!--
+title: Acordeón
+component: accordion
+lang: es
+description: Acordeón sobre <details> y <summary> nativos — teclado, semántica y estado del navegador, funciona sin JavaScript — con animación al abrir y cerrar, uno abierto a la vez y variante sin divisores para menú.
+-->
+<h1>Acordeón</h1>
+<p class="lead">Bloques que se pliegan y se despliegan, hechos sobre <code>&lt;details&gt;</code> y <code>&lt;summary&gt;</code>. Lo nativo
+   ya resuelve teclado, semántica y estado, y abre y cierra antes de que cargue el JavaScript. El componente entra solo donde
+   lo nativo no llega: animar.</p>
+
+<div class="demo is-hero">
+  <div class="tuc-accordion" data-tuc-accordion data-single="true" id="accordion-faq">
+    <details open>
+      <summary>¿Necesito un build en mi proyecto?</summary>
+      <p>No. El CSS ya viene compilado y Tailwind se usa solo dentro de la biblioteca. De tu lado son dos archivos y nada más.</p>
+    </details>
+    <details>
+      <summary>¿Funciona con HTMX?</summary>
+      <p>Sí. Lo que llega por swap se inicializa solo, así que el acordeón que viene del servidor ya nace animado.</p>
+    </details>
+    <details>
+      <summary>¿Y si falla el JavaScript?</summary>
+      <p>Este acordeón sigue abriendo y cerrando: es un <code>&lt;details&gt;</code> nativo. Lo único que se pierde es la animación.</p>
+    </details>
+  </div>
+</div>
+
+<h2 id="exemplos">Ejemplos</h2>
+<p class="lead">El mismo <code>&lt;details&gt;</code>, con un atributo o una clase de más.</p>
+
+<div class="demo">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <h4>Varios abiertos</h4>
+      <p>Sin <code>data-single</code>, cada elemento abre y cierra por su cuenta.</p>
+      <div class="tuc-accordion" data-tuc-accordion id="accordion-varios">
+        <details open>
+          <summary>Datos del contrato</summary>
+          <p>Número 2026-0142, vigencia de 12 meses.</p>
+        </details>
+        <details open>
+          <summary>Partes</summary>
+          <p>Tucano Comercial S.L. y Panadería Pan Caliente.</p>
+        </details>
+        <details>
+          <summary>Cláusulas</summary>
+          <p>Ajuste anual por inflación y recargo del 2% por retraso.</p>
+        </details>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Uno a la vez</h4>
+      <p><code>data-single="true"</code> pliega los demás al abrir uno.</p>
+      <div class="tuc-accordion" data-tuc-accordion data-single="true" id="accordion-unico">
+        <details>
+          <summary>Plan mensual</summary>
+          <p>Cobro cada día 10, cancela cuando quieras.</p>
+        </details>
+        <details open>
+          <summary>Plan anual</summary>
+          <p>Dos meses de descuento, pagado de una vez.</p>
+        </details>
+        <details>
+          <summary>A consultar</summary>
+          <p>Para más de 50 usuarios.</p>
+        </details>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Contenido de verdad dentro</h4>
+      <p>La altura la mide el navegador, no se adivina: formulario, tabla e imagen abren igual.</p>
+      <div class="tuc-accordion" data-tuc-accordion id="accordion-filtros">
+        <details>
+          <summary>Filtros del informe</summary>
+          <div>
+            <label class="tuc-label" for="accordion-filtros-periodo">Período</label>
+            <input type="text" id="accordion-filtros-periodo" data-tuc-datepicker data-mode="range" placeholder="Elige el intervalo">
+            <label class="tuc-label" for="accordion-filtros-uf" style="margin-top:12px">Estados</label>
+            <select id="accordion-filtros-uf" data-tuc-select multiple data-placeholder="Todos">
+              <option value="sp">São Paulo</option><option value="rj">Rio de Janeiro</option>
+              <option value="mg">Minas Gerais</option><option value="pr">Paraná</option>
+            </select>
+          </div>
+        </details>
+        <details>
+          <summary>Columnas visibles</summary>
+          <div class="tuc-choices">
+            <label class="tuc-choice"><input type="checkbox" class="tuc-check" checked><span>Cliente</span></label>
+            <label class="tuc-choice"><input type="checkbox" class="tuc-check" checked><span>Importe</span></label>
+            <label class="tuc-choice"><input type="checkbox" class="tuc-check"><span>Vencimiento</span></label>
+          </div>
+        </details>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Sin divisores, para menú</h4>
+      <p><code>is-plain</code> quita las líneas y deja el título con aspecto de etiqueta de grupo.</p>
+      <div class="tuc-accordion is-plain" data-tuc-accordion id="accordion-plain">
+        <details open>
+          <summary>Registros</summary>
+          <nav class="tuc-menu" aria-label="Registros">
+            <a class="tuc-menu__item is-active" href="#accordion-plain" aria-current="page">Clientes</a>
+            <a class="tuc-menu__item" href="#accordion-plain">Productos</a>
+            <a class="tuc-menu__item" href="#accordion-plain">Proveedores</a>
+          </nav>
+        </details>
+        <details>
+          <summary>Finanzas</summary>
+          <nav class="tuc-menu" aria-label="Finanzas">
+            <a class="tuc-menu__item" href="#accordion-plain">Cobros</a>
+            <a class="tuc-menu__item" href="#accordion-plain">Extracto</a>
+          </nav>
+        </details>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h2 id="uso">Cómo usar</h2>
+<p class="lead">El HTML es el de siempre. Los <code>&lt;details&gt;</code> deben ser hijos directos del elemento marcado, y el
+   <code>open</code> escrito en la plantilla indica cuáles nacen abiertos.</p>
+
+<pre data-code="html">
+<div class="tuc-accordion" data-tuc-accordion data-single="true">
+  <details open>
+    <summary>Proyectos</summary>
+    <p>Listar, crear y seguir inspecciones.</p>
+  </details>
+  <details>
+    <summary>Informes</summary>
+    <p>Mensual, por equipo y por período.</p>
+  </details>
+</div>
+</pre>
+
+<p>El script añade lo que falta: la clase <code>tuc-accordion</code> en el contenedor, <code>tuc-accordion__item</code> en cada
+   <code>&lt;details&gt;</code>, <code>tuc-accordion__trigger</code> en el <code>&lt;summary&gt;</code>, la flecha, y envuelve el resto del
+   contenido en <code>tuc-accordion__body</code> y <code>tuc-accordion__content</code>. Hasta entonces, el CSS ya dibuja el acordeón en crudo con
+   las mismas líneas y el mismo espaciado, para que nada salte cuando llega el JavaScript.</p>
+
+<h3>En la plantilla de Django</h3>
+<pre data-code="django">
+<div class="tuc-accordion" data-tuc-accordion data-single="true">
+  {% for pergunta in perguntas %}
+    <details{% if forloop.first %} open{% endif %}>
+      <summary>{{ pergunta.titulo }}</summary>
+      {{ pergunta.resposta|linebreaks }}
+    </details>
+  {% endfor %}
+</div>
+</pre>
+
+<h3>En JavaScript</h3>
+<pre data-code="js">
+const faq = new Tucano.Accordion('#faq', { single: true });
+
+const item = document.querySelector('#faq > details:nth-child(2)');
+faq.open(item);      // con single, pliega los demás
+faq.close(item);     // anima y solo entonces quita el open
+faq.items;           // los <details>, en orden
+faq.destroy();
+</pre>
+
+<h2 id="animacao">Cómo anima</h2>
+<p class="lead">La altura del contenido es <code>auto</code>, y <code>auto</code> no tiene transición. Al cerrar, además, el navegador oculta
+   el contenido en el mismo fotograma en que cae el <code>open</code>.</p>
+
+<p>La apertura es CSS puro: el cuerpo es un grid de una fila, y la fila anima de <code>0fr</code> a <code>1fr</code> — interpolable, sin
+   medir nada en JavaScript ni fijar altura. El cierre necesita script: el clic en el <code>&lt;summary&gt;</code> se
+   intercepta, el elemento recibe <code>is-closing</code> y sigue abierto mientras la fila vuelve a <code>0fr</code>, y solo al final cae el
+   <code>open</code>. Reabrir en mitad del cierre cancela la salida y sigue desde el punto en que estaba la altura.</p>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">El fin de la animación viene del transitionend, no de un número</p><p>Un tiempo en JavaScript tendría que reflejar el token del CSS, y los dos se desfasan: 220 ms contra 280 ms arrancaba el contenido antes del final, y el cierre se veía cortado. El elemento se cierra cuando la fila del grid termina su transición; un timeout de 500 ms queda solo como red de seguridad, para pestaña oculta o movimiento reducido, cuando el evento no llega.</p></div></div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">El espacio inferior es margen, no padding</p><p>Una pista en <code>fr</code> no se encoge por debajo del mínimo del contenido, y el padding cuenta en ese mínimo: con padding en el contenido, el elemento cerrado dejaba una rendija de 14px. Por eso el espacio sale del margen del último hijo, que el <code>overflow: hidden</code> recorta hasta cero. Si estilizas el contenido, mantén la regla.</p></div></div>
+
+<p>La primera apertura de un <code>&lt;details&gt;</code> suele atascarse, porque el navegador todavía no midió lo que estaba cerrado.
+   Al iniciar, el componente abre y cierra cada elemento en el mismo bloque síncrono — no llega a pintarse nada — solo para adelantar ese
+   cálculo. Con <code>prefers-reduced-motion</code>, la transición baja a 1 ms.</p>
+
+<h2 id="teclado">Teclado y accesibilidad</h2>
+<p class="lead">Todo aquí viene del <code>&lt;details&gt;</code>: el <code>&lt;summary&gt;</code> es enfocable, y el lector de pantalla anuncia
+   plegado y desplegado sin ningún <code>aria-*</code> nuestro.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Tecla</th><th>Acción</th></tr></thead>
+  <tbody>
+    <tr><td><code>Tab</code></td><td>Va de título en título, y entra en el contenido de los elementos abiertos</td></tr>
+    <tr><td><code>Enter</code> <code>Espacio</code></td><td>Abre o cierra el elemento enfocado, con la misma animación del clic</td></tr>
+  </tbody>
+</table></div>
+
+<p>La flecha es dibujo y lleva <code>aria-hidden</code>, para no leerse junto con el título. Un <code>&lt;details&gt;</code> cerrado no
+   tiene nada enfocable en el recorrido del <code>Tab</code>: el campo de un elemento plegado no se alcanza hasta que alguien lo abre.</p>
+
+<h2 id="api">API</h2>
+<!-- api -->

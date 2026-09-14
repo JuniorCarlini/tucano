@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Toast — JavaScript puro para Django, Laravel y Rails</title>
+<meta name="description" content="Aviso pasajero en una esquina de la pantalla, con un cargando que se convierte en resultado en la misma tarjeta, seis posiciones, mensajes de Django y disparo por la cabecera de HTMX.">
+<meta name="author" content="Junior Carlini">
+<link rel="canonical" href="https://juniorcarlini.github.io/tucano/es/toast/">
+<link rel="alternate" hreflang="pt-BR" href="https://juniorcarlini.github.io/tucano/toast/">
+<link rel="alternate" hreflang="en" href="https://juniorcarlini.github.io/tucano/en/toast/">
+<link rel="alternate" hreflang="es" href="https://juniorcarlini.github.io/tucano/es/toast/">
+<link rel="alternate" hreflang="x-default" href="https://juniorcarlini.github.io/tucano/toast/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)">
+<link rel="alternate" type="text/plain" href="../../llms.txt" title="Referencia de la API para agentes de IA">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Tucano">
+<meta property="og:title" content="Toast — JavaScript puro para Django, Laravel y Rails">
+<meta property="og:description" content="Aviso pasajero en una esquina de la pantalla, con un cargando que se convierte en resultado en la misma tarjeta, seis posiciones, mensajes de Django y disparo por la cabecera de HTMX.">
+<meta property="og:url" content="https://juniorcarlini.github.io/tucano/es/toast/">
+<meta property="og:image" content="https://juniorcarlini.github.io/tucano/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Tucano — componentes de formulario en JavaScript puro">
+<meta property="og:locale" content="es_ES">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Toast — JavaScript puro para Django, Laravel y Rails">
+<meta name="twitter:description" content="Aviso pasajero en una esquina de la pantalla, con un cargando que se convierte en resultado en la misma tarjeta, seis posiciones, mensajes de Django y disparo por la cabecera de HTMX.">
+<meta name="twitter:image" content="https://juniorcarlini.github.io/tucano/og.png">
+<link rel="sitemap" type="application/xml" href="../../sitemap.xml">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"Toast — JavaScript puro para Django, Laravel y Rails","name":"Toast","description":"Aviso pasajero en una esquina de la pantalla, con un cargando que se convierte en resultado en la misma tarjeta, seis posiciones, mensajes de Django y disparo por la cabecera de HTMX.","url":"https://juniorcarlini.github.io/tucano/es/toast/","inLanguage":"es","image":"https://juniorcarlini.github.io/tucano/og.png","author":{"@type":"Person","name":"Junior Carlini","url":"https://github.com/JuniorCarlini"},"isPartOf":{"@id":"https://juniorcarlini.github.io/tucano/#website"},"about":{"@id":"https://juniorcarlini.github.io/tucano/#software"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Tucano","item":"https://juniorcarlini.github.io/tucano/es/"},{"@type":"ListItem","position":2,"name":"Toast","item":"https://juniorcarlini.github.io/tucano/es/toast/"}]}]}</script>
+<link rel="icon" type="image/svg+xml" href="../../site/assets/favicon.svg">
+<link rel="icon" type="image/png" sizes="192x192" href="../../site/assets/favicon-192.png">
+<link rel="icon" type="image/png" sizes="48x48" href="../../site/assets/favicon-48.png">
+<link rel="apple-touch-icon" href="../../site/assets/apple-touch-icon.png">
+
+<link rel="stylesheet" href="../../dist/tucano.css?v=0.32.1">
+<link rel="stylesheet" href="../../site/site.css?v=0.32.1">
+<!-- O tema e aplicado antes do primeiro quadro: sem isto a pagina piscava clara
+     para quem escolheu o escuro. -->
+<script>try{if(localStorage.getItem("tucano-tema")==="dark")document.documentElement.classList.add("dark")}catch{}</script>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="../"><img class="brand__logo logo-light" src="../../site/assets/logo-light.svg" width="26" height="24" alt=""><img class="brand__logo logo-dark" src="../../site/assets/logo-dark.svg" width="26" height="24" alt=""><b>Tucano</b></a>
+  <span class="tuc-badge is-plain ver">v0.32.1</span>
+  <div class="topbar__actions">
+    <button class="tuc-btn is-outline is-sm" data-tuc-dropdown="#idiomas-topo" data-placement="bottom-end" aria-label="Idioma: Español"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>ES</button><div class="tuc-dropdown" id="idiomas-topo" hidden><a class="tuc-dropdown__item" href="../../toast/" hreflang="pt-BR" lang="pt-BR"><span class="tuc-dropdown__text">Português</span></a><a class="tuc-dropdown__item" href="../../en/toast/" hreflang="en" lang="en"><span class="tuc-dropdown__text">English</span></a><a class="tuc-dropdown__item" href="../../es/toast/" hreflang="es" lang="es" aria-current="true"><span class="tuc-dropdown__text">Español</span></a></div>
+    <button class="tuc-btn is-outline is-icon is-sm" data-tema data-label-light="Usar tema claro" data-label-dark="Usar tema oscuro" aria-label="Cambiar tema"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
+    <button class="tuc-btn is-outline is-icon is-sm" id="menu" aria-label="Abrir menú" aria-expanded="false" aria-controls="side"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  </div>
+</header>
+
+<aside class="side" id="side">
+  <div class="side__head">
+    <a class="brand" href="../"><img class="brand__logo logo-light" src="../../site/assets/logo-light.svg" width="26" height="24" alt=""><img class="brand__logo logo-dark" src="../../site/assets/logo-dark.svg" width="26" height="24" alt=""><b>Tucano</b></a>
+    <div class="side__tools">
+      <button class="tuc-btn is-outline is-sm" data-tuc-dropdown="#idiomas-lateral" data-placement="bottom-end" aria-label="Idioma: Español"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>ES</button><div class="tuc-dropdown" id="idiomas-lateral" hidden><a class="tuc-dropdown__item" href="../../toast/" hreflang="pt-BR" lang="pt-BR"><span class="tuc-dropdown__text">Português</span></a><a class="tuc-dropdown__item" href="../../en/toast/" hreflang="en" lang="en"><span class="tuc-dropdown__text">English</span></a><a class="tuc-dropdown__item" href="../../es/toast/" hreflang="es" lang="es" aria-current="true"><span class="tuc-dropdown__text">Español</span></a></div>
+      <button class="tuc-btn is-outline is-icon is-sm" data-tema data-label-light="Usar tema claro" data-label-dark="Usar tema oscuro" aria-label="Cambiar tema"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
+    </div>
+  </div>
+  <span class="tuc-badge is-plain ver">v0.32.1 · 50 KB</span>
+  <nav class="tuc-menu" aria-label="Documentación">
+<div class="tuc-menu__section">Empezar</div>
+    <a class="tuc-menu__item" href="../">Inicio e instalación</a>
+    <a class="tuc-menu__item" href="../changelog/">Changelog</a>
+<div class="tuc-menu__section">Campos</div>
+    <a class="tuc-menu__item" href="../form/">Formulario</a>
+    <a class="tuc-menu__item" href="../select/">Select</a>
+    <a class="tuc-menu__item" href="../datepicker/">Date picker</a>
+    <a class="tuc-menu__item" href="../mask/">Máscaras</a>
+    <a class="tuc-menu__item" href="../color/">Color picker</a>
+    <a class="tuc-menu__item" href="../choice/">Casilla, opción e interruptor</a>
+    <a class="tuc-menu__item" href="../upload/">Upload</a>
+    <a class="tuc-menu__item" href="../editor/">Editor de texto</a>
+<div class="tuc-menu__section">Acciones</div>
+    <a class="tuc-menu__item" href="../button/">Botón</a>
+    <a class="tuc-menu__item" href="../dropdown/">Menú desplegable</a>
+<div class="tuc-menu__section">Avisos</div>
+    <a class="tuc-menu__item is-active" href="../toast/" aria-current="page">Toast</a>
+    <a class="tuc-menu__item" href="../alert/">Aviso</a>
+    <a class="tuc-menu__item" href="../tooltip/">Tooltip</a>
+    <a class="tuc-menu__item" href="../loading/">Cargando</a>
+    <a class="tuc-menu__item" href="../badge/">Etiqueta</a>
+<div class="tuc-menu__section">Diálogos</div>
+    <a class="tuc-menu__item" href="../modal/">Modal</a>
+    <a class="tuc-menu__item" href="../drawer/">Panel lateral</a>
+<div class="tuc-menu__section">Navegación</div>
+    <a class="tuc-menu__item" href="../tabs/">Pestañas</a>
+    <a class="tuc-menu__item" href="../accordion/">Acordeón</a>
+    <a class="tuc-menu__item" href="../menu/">Menú lateral</a>
+    <a class="tuc-menu__item" href="../pagination/">Paginación</a>
+<div class="tuc-menu__section">Datos</div>
+    <a class="tuc-menu__item" href="../table/">Tabla</a>
+    <a class="tuc-menu__item" href="../timeline/">Línea de tiempo</a>
+<div class="tuc-menu__section">Guías</div>
+    <a class="tuc-menu__item" href="../django/">Django</a>
+    <a class="tuc-menu__item" href="../theme/">Tema</a>
+    <a class="tuc-menu__item" href="../keyboard/">Teclado y accesibilidad</a>
+    <a class="tuc-menu__item" href="../ai/">Para agentes de IA</a>
+  </nav>
+</aside>
+
+<main class="main">
+  <article class="doc">
+<h1>Toast</h1>
+<p class="lead">Aviso pasajero en una esquina de la pantalla, para lo que acaba de pasar: guardado, enviado, no salió bien.
+   Se apila, se pausa cuando el puntero o el foco entra y lo anuncia el lector de pantalla. Para lo que sigue vigente
+   mientras la persona está en la pantalla, usa el <a href="../alert/">aviso</a>.</p>
+
+<div class="demo is-hero">
+  <div class="bar">
+    <button type="button" class="tuc-btn is-outline" onclick="Tucano.toast.info('Informe en procesamiento')">Información</button>
+    <button type="button" class="tuc-btn is-outline" onclick="Tucano.toast.success('Registro guardado')">Éxito</button>
+    <button type="button" class="tuc-btn is-outline" onclick="Tucano.toast.warning('La sesión expira en 5 minutos')">Alerta</button>
+    <button type="button" class="tuc-btn is-outline" onclick="Tucano.toast.error('No se pudo guardar')">Error</button>
+    <button type="button" class="tuc-btn is-primary" onclick="Tucano.toast({ type: 'success', title: 'Contrato eliminado', text: 'Todavía se puede deshacer.', action: { text: 'Deshacer', onClick: () => Tucano.toast('Contrato restaurado') } })">Con título y acción</button>
+  </div>
+</div>
+
+<h2 id="exemplos">Ejemplos</h2>
+<p class="lead">Cada tipo tiene color, icono y duración propios. El error se queda más tiempo porque la persona necesita leerlo y,
+   muchas veces, actuar; el cargando no se cierra solo, porque quien lo termina es el fin de la operación.</p>
+
+<div class="demo">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <h4>Tipos</h4>
+      <p><code>info</code>, <code>success</code>, <code>warning</code>, <code>error</code> y <code>loading</code>.</p>
+      <div class="bar">
+        <button type="button" class="tuc-btn is-outline is-sm" onclick="Tucano.toast.info('Nueva versión disponible')">info</button>
+        <button type="button" class="tuc-btn is-outline is-sm" onclick="Tucano.toast.success('Pago confirmado')">success</button>
+        <button type="button" class="tuc-btn is-outline is-sm" onclick="Tucano.toast.warning('Faltan datos de la dirección')">warning</button>
+        <button type="button" class="tuc-btn is-outline is-sm" onclick="Tucano.toast.error('El servidor no respondió')">error</button>
+        <button type="button" class="tuc-btn is-outline is-sm" onclick="Tucano.toast.loading('Generando el PDF...')">loading</button>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>No se cierra solo</h4>
+      <p><code>duration: null</code> lo deja en la pantalla hasta que alguien haga clic en la X.</p>
+      <button type="button" class="tuc-btn is-outline is-sm" onclick="Tucano.toast({ type: 'warning', title: 'El certificado vence mañana', text: 'Renuévalo antes de emitir nuevas facturas.', duration: null })">Abrir</button>
+    </div>
+    <div class="demo-cell">
+      <h4>Duración propia</h4>
+      <p><code>duration</code> en milisegundos, en lugar de la predeterminada del tipo.</p>
+      <button type="button" class="tuc-btn is-outline is-sm" onclick="Tucano.toast({ text: 'Desaparece en 1,5 segundos', duration: 1500 })">Abrir</button>
+    </div>
+    <div class="demo-cell">
+      <h4>Pila</h4>
+      <p>Hasta tres a la vista, apilados; el puntero o el foco los abre en abanico. El quinto cierra el más antiguo.</p>
+      <button type="button" class="tuc-btn is-outline is-sm" onclick="['Primero', 'Segundo', 'Tercero', 'Cuarto', 'Quinto'].forEach((t, i) => setTimeout(() => Tucano.toast(t), i * 180))">Apilar cinco</button>
+    </div>
+  </div>
+</div>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Tipo</th><th>Se queda en pantalla</th><th>Se anuncia como</th></tr></thead>
+  <tbody>
+    <tr><td><code>info</code></td><td>4 s</td><td><code>role="status"</code>, región cortés</td></tr>
+    <tr><td><code>success</code></td><td>3,5 s</td><td><code>role="status"</code>, región cortés</td></tr>
+    <tr><td><code>warning</code></td><td>6 s</td><td><code>role="status"</code>, región cortés</td></tr>
+    <tr><td><code>error</code></td><td>8 s</td><td><code>role="alert"</code>, región asertiva</td></tr>
+    <tr><td><code>loading</code></td><td>hasta el fin de la operación</td><td><code>role="status"</code>, región cortés</td></tr>
+  </tbody>
+</table></div>
+
+<p>En el toast el rojo es el tipo <code>error</code>. En las clases del aviso y de la etiqueta, el mismo tono se llama
+   <code>is-danger</code>.</p>
+
+<h2 id="uso">Cómo usar</h2>
+<p class="lead">No hay nada que marcar en el HTML: el toast se llama cuando algo pasa. El contenedor de cada posición se
+   crea la primera vez que se usa.</p>
+
+<div class="tuc-prose doc-code"><pre><code>Tucano.toast('Guardado');                       // info
+Tucano.toast.success('Registro guardado');
+Tucano.toast.error('No se pudo guardar', { title: 'Error 500' });
+
+Tucano.toast({
+  type: 'success',
+  title: 'Contrato eliminado',
+  text: 'Todavía se puede deshacer.',
+  action: { text: 'Deshacer', onClick: (t) =&gt; restaurar() },
+  position: 'bottom-end',
+  duration: null,       // no se cierra solo
+  closable: true,       // la X
+});</code></pre></div>
+
+<p>Los atajos <code>info</code>, <code>success</code>, <code>warning</code>, <code>error</code> y
+   <code>loading</code> reciben el texto y, después, cualquier otra opción. La acción es un botón del sistema: llama a
+   <code>onClick</code> con el toast y se cierra. Todo devuelve la instancia, que es lo mismo que <code>new Tucano.Toast({ ... })</code>
+   — este recibe solo las opciones, sin objetivo.</p>
+
+<div class="tuc-prose doc-code"><pre><code>const t = Tucano.toast('Exportando...');
+t.close();
+
+// El evento sale de la propia tarjeta después de que deja la pantalla; no se propaga.
+t.node.addEventListener('tucano:toast-closed', () =&gt; console.log('cerrado'));</code></pre></div>
+
+<h2 id="carregando">Cargando y promesa</h2>
+<p class="lead">El toast de <code>loading</code> se convierte en el resultado en la misma tarjeta, en lugar de cerrar uno y abrir otro:
+   la pila no se reorganiza y la vista no pierde el aviso que ya estaba leyendo.</p>
+
+<div class="demo">
+  <div class="bar">
+    <button type="button" class="tuc-btn is-outline" id="toast-manual">Guardar, con update()</button>
+    <button type="button" class="tuc-btn is-outline" onclick="Tucano.toast.promise(new Promise((ok) => setTimeout(() => ok(3), 2000)), { loading: 'Enviando archivos...', success: (n) => n + ' archivos enviados' })">Promesa que sale bien</button>
+    <button type="button" class="tuc-btn is-outline" onclick="Tucano.toast.promise(new Promise((_, falha) => setTimeout(() => falha(new Error('tiempo agotado')), 2000)), { loading: 'Enviando archivos...', error: (e) => 'Falló: ' + e.message }).catch(() => {})">Promesa que falla</button>
+  </div>
+</div>
+
+<div class="tuc-prose doc-code"><pre><code>// Control manual: guarda la instancia y cambia lo que necesites.
+const t = Tucano.toast.loading('Guardando contrato...');
+await salvar();
+t.update({ type: 'success', text: 'Contrato guardado' });
+
+// O entrega la promesa y deja los tres estados en sus manos.
+Tucano.toast.promise(fetch(url), {
+  loading: 'Enviando...',
+  success: (resposta) =&gt; `Enviado (${resposta.status})`,
+  error: 'No se pudo enviar',
+  position: 'top-center',       // el resto vale para el toast
+});</code></pre></div>
+
+<p><code>update()</code> cambia tipo, título, texto y acción sin recrear la tarjeta. Al cambiar de tipo sin
+   <code>duration</code>, vale la duración del tipo nuevo, y el reloj vuelve a empezar: sin eso el cargando, que no se cierra, se convertiría
+   en un "guardado" eterno en la pantalla.</p>
+
+<p>En <code>toast.promise()</code>, <code>success</code> y <code>error</code> aceptan texto o una función que recibe el
+   resultado o el error. Sin ellos, se usan los textos incorporados de la biblioteca, que están en portugués: "Carregando...", "Pronto" y "Algo deu errado". La función devuelve la misma
+   promesa que recibió, para no estorbar a quien ya encadenaba sobre ella — si se rechaza, sigue rechazada, y el error se
+   trata donde ya se trataría.</p>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">null quiere decir "no se cierra", y no "usa el valor predeterminado"</p><p>La duración predeterminada se resuelve con <code>in</code>, y no con <code>??</code>. El <code>null</code> del cargando es un valor: con <code>??</code> caería en los 4 segundos predeterminados, y el toast desaparecería en medio de la operación.</p></div></div>
+
+<h2 id="posicoes">Posiciones</h2>
+<p class="lead">Seis esquinas y centros, con <code>bottom-end</code> como predeterminada. Cada posición tiene su propia pila.</p>
+
+<div class="demo">
+  <div class="bar">
+    <button type="button" class="tuc-btn is-outline is-sm" onclick="Tucano.toast({ text: 'En top-start', position: 'top-start' })">top-start</button>
+    <button type="button" class="tuc-btn is-outline is-sm" onclick="Tucano.toast({ text: 'En top-center', position: 'top-center' })">top-center</button>
+    <button type="button" class="tuc-btn is-outline is-sm" onclick="Tucano.toast({ text: 'En top-end', position: 'top-end' })">top-end</button>
+    <button type="button" class="tuc-btn is-outline is-sm" onclick="Tucano.toast({ text: 'En bottom-start', position: 'bottom-start' })">bottom-start</button>
+    <button type="button" class="tuc-btn is-outline is-sm" onclick="Tucano.toast({ text: 'En bottom-center', position: 'bottom-center' })">bottom-center</button>
+    <button type="button" class="tuc-btn is-outline is-sm" onclick="Tucano.toast({ text: 'En bottom-end', position: 'bottom-end' })">bottom-end</button>
+  </div>
+</div>
+
+<p>En el móvil, por debajo de 40rem, el toast ocupa el ancho de la pantalla y entra por el eje vertical, sea cual sea la posición:
+   pegado a una esquina quedaba con márgenes distintos a cada lado, y deslizar en horizontal una tarjeta tan ancha como
+   la pantalla es un recorrido demasiado largo para un aviso corto. El borde respeta el indicador de inicio del iPhone y el recorte de la cámara.</p>
+
+<p><code>max</code> limita los toasts abiertos en la misma posición, 4 por defecto; el que se pasa cierra el más antiguo. En la pila,
+   a partir del tercero desaparecen de la vista, porque una pila de diez no ayuda a nadie.</p>
+
+<h2 id="django">Mensajes de Django</h2>
+<p class="lead">El framework de <code>messages</code> se convierte en toast sin una línea de JavaScript. Pon el bucle una vez, en la
+   plantilla base: cada <code>&lt;div&gt;</code> se convierte en un toast y sale de la página.</p>
+
+<div class="tuc-prose doc-code"><pre><code>{% for m in messages %}
+  &lt;div data-tuc-toast data-type="{{ m.level_tag }}"&gt;{{ m }}&lt;/div&gt;
+{% endfor %}</code></pre></div>
+
+<div class="tuc-prose doc-code"><pre><code>messages.success(request, "Contrato guardado")
+return redirect("contratos")</code></pre></div>
+
+<div class="demo">
+  <div class="bar">
+    <button type="button" class="tuc-btn is-outline" id="toast-django">Simular el mensaje del redirect</button>
+  </div>
+  <div id="toast-django-alvo"></div>
+</div>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Atributo</th><th>Para qué</th></tr></thead>
+  <tbody>
+    <tr><td><code>data-tuc-toast</code></td><td>Marca el elemento; su texto se convierte en el texto del toast</td></tr>
+    <tr><td><code>data-type</code></td><td>El tipo. <code>debug</code> se convierte en <code>info</code>; <code>info</code>, <code>success</code>, <code>warning</code> y <code>error</code> pasan tal cual</td></tr>
+    <tr><td><code>data-title</code></td><td>Título</td></tr>
+    <tr><td><code>data-text</code></td><td>Texto, en lugar del contenido del elemento</td></tr>
+    <tr><td><code>data-duration</code></td><td>Milisegundos; <code>false</code> no se cierra solo</td></tr>
+    <tr><td><code>data-position</code></td><td>Una de las seis posiciones</td></tr>
+  </tbody>
+</table></div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">m.level_tag, y no m.tags, si usas extra_tags</p><p>Del <code>data-type</code> vale solo la primera palabra. El <code>m.tags</code> de Django escribe las <code>extra_tags</code> antes del nivel, y entonces la primera palabra deja de ser el tipo. Sin <code>extra_tags</code>, los dos dan lo mismo.</p></div></div>
+
+<h2 id="htmx">Por la cabecera de HTMX</h2>
+<p class="lead">En una respuesta de HTMX no hay redirect ni plantilla base para el bucle de mensajes. El servidor dispara el
+   toast por la cabecera <code>HX-Trigger</code>, y el script del CDN ya está escuchando.</p>
+
+<div class="tuc-prose doc-code"><pre><code>import json
+
+def salvar(request, pk):
+    ...
+    return HttpResponse(headers={
+        "HX-Trigger": json.dumps({
+            "tucano:toast": {"type": "success", "text": "Contrato guardado"},
+        }),
+    })</code></pre></div>
+
+<p>El detalle acepta cualquier opción del toast, o solo un texto: <code>{"tucano:toast": "Guardado"}</code>. HTMX dispara el
+   evento <code>tucano:toast</code> en el elemento de la petición, este sube hasta el <code>&lt;body&gt;</code>, y ahí se convierte en toast.
+   El mismo evento sirve desde cualquier otro código:</p>
+
+<div class="tuc-prose doc-code"><pre><code>document.body.dispatchEvent(new CustomEvent('tucano:toast', {
+  detail: { type: 'success', text: 'Contrato guardado' },
+}));</code></pre></div>
+
+<div class="demo">
+  <div class="bar">
+    <button type="button" class="tuc-btn is-outline" id="toast-htmx">Simular la respuesta del servidor</button>
+  </div>
+</div>
+
+<p>Por el CDN, <code>listenForEvents()</code> se activa junto con la inicialización. Importando <code>tucano</code> desde
+   npm nada se ejecuta solo: llama a <code>listenForEvents()</code>, o importa <code>tucano/auto</code>.</p>
+
+<h2 id="acessibilidade">Accesibilidad</h2>
+<p class="lead">El toast no roba el foco: avisa sin sacar a la persona de lo que estaba haciendo. Quien lo anuncia es el lector de pantalla.</p>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">La región se crea antes del mensaje</p><p>El <code>aria-live</code> está en el contenedor, y no en el toast. Una región viva tiene que existir en el DOM antes de que llegue el contenido; creada junto con el mensaje, el lector de pantalla no la anuncia. El error habla en una región <code>assertive</code> y el resto en una <code>polite</code>, y las dos comparten el mismo escenario: posicionadas cada una por su cuenta, se volverían dos pilas paralelas en la pantalla y el límite contaría el doble.</p></div></div>
+
+<p>Cuando <code>update()</code> cambia un toast a <code>error</code>, o de <code>error</code> a otro tipo, este cambia de
+   región, y eso es lo que hace que el lector de pantalla anuncie el cambio. En la pantalla nada se mueve, porque la posición viene del escenario.</p>
+
+<p>El reloj se pausa cuando el puntero entra en el toast o algo dentro de él recibe el foco: nadie consigue leer algo que desaparece
+   mientras intenta hacer clic en "Deshacer". Por el mismo motivo la pila se abre en abanico también con el foco, y no solo con el puntero. La X
+   es un botón de verdad, con <code>aria-label="Fechar"</code> (la etiqueta incorporada de la biblioteca, en portugués). Con <code>prefers-reduced-motion</code>, entrar y salir se reducen
+   a un fundido.</p>
+
+<h2 id="api">API</h2>
+<p class="lead">Generada a partir del código en cada build — si algo no está aquí, no existe.</p>
+<div class="api-line"><span>Marcado</span><div><code>[data-tuc-toast]</code></div></div>
+<div class="api-line"><span>En JS</span><div><code>new Tucano.Toast(opcoes)</code> <code>Tucano.toast()</code> <code>Tucano.listenForEvents()</code></div></div>
+<div class="api-line"><span>Atributos</span><div><code>data-duration</code> <code>data-position</code> <code>data-text</code> <code>data-title</code> <code>data-type</code></div></div>
+<div class="api-line"><span>Métodos</span><div><code>update</code> <code>close</code></div></div>
+<div class="api-line"><span>Eventos</span><div><code>tucano:toast-closed</code></div></div>
+<h3>Opciones</h3>
+<p>Las notas de esta tabla salen de los comentarios del código fuente, que están escritos en portugués.</p>
+<div class="tuc-table-wrap"><table class="tuc-table"><thead><tr><th style="width:26%">Opción</th><th style="width:22%">Por defecto</th><th>Para qué</th></tr></thead><tbody>
+<tr><td><code>type</code></td><td><code>'info'</code></td><td>'info' | 'success' | 'warning' | 'error' | 'loading'</td></tr>
+<tr><td><code>title</code></td><td><code>null</code></td><td></td></tr>
+<tr><td><code>text</code></td><td><code>''</code></td><td></td></tr>
+<tr><td><code>duration</code></td><td><code>undefined</code></td><td>ms. null nao fecha sozinho. Padrao depende do tipo</td></tr>
+<tr><td><code>position</code></td><td><code>'bottom-end'</code></td><td>top-start|top-center|top-end|bottom-start|bottom-center|bottom-end</td></tr>
+<tr><td><code>closable</code></td><td><code>true</code></td><td></td></tr>
+<tr><td><code>action</code></td><td><code>null</code></td><td>{ text, onClick }</td></tr>
+<tr><td><code>max</code></td><td><code>4</code></td><td>toasts simultaneos na mesma posicao</td></tr>
+</tbody></table></div>
+
+
+<nav class="pager" aria-label="Paginación de la documentación"><a class="tuc-btn is-outline is-lg pager__prev" href="../dropdown/" aria-label="Página anterior: Menú desplegable"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Menú desplegable</a><a class="tuc-btn is-outline is-lg pager__next" href="../alert/" aria-label="Página siguiente: Aviso">Aviso<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></a></nav>
+  </article>
+</main>
+
+<script src="../../dist/tucano.js?v=0.32.1"></script>
+<script src="../../site/site.js?v=0.32.1"></script>
+<script>
+  // Delegación en el documento: no depende de que Tucano ya se haya inicializado.
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('#toast-manual')) {
+      const t = Tucano.toast.loading('Guardando contrato...');
+      setTimeout(() => t.update({ type: 'success', text: 'Contrato guardado' }), 1800);
+    }
+    // El mismo HTML que escribe el bucle de messages, entregado a init().
+    if (e.target.closest('#toast-django')) {
+      const alvo = document.getElementById('toast-django-alvo');
+      alvo.innerHTML = '<div data-tuc-toast data-type="success">Contrato guardado</div>';
+      Tucano.init(alvo);
+    }
+    // Lo que hace HTMX al leer el HX-Trigger de la respuesta.
+    if (e.target.closest('#toast-htmx')) {
+      e.target.closest('#toast-htmx').dispatchEvent(new CustomEvent('tucano:toast', {
+        bubbles: true,
+        detail: { type: 'success', text: 'Contrato guardado' },
+      }));
+    }
+  });
+</script>
+</body>
+</html>

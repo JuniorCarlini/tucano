@@ -1,0 +1,227 @@
+<!--
+title: Select
+component: select
+lang: en
+description: Select with search, multiple with tags, groups, limits and server-side search, on top of the native <select> — name, multiple and required keep working.
+-->
+<h1>Select</h1>
+<p class="lead">Enhances the native <code>&lt;select&gt;</code> with search, tags and server-side search. The original
+   element stays in the form holding the value: <code>name</code>, <code>multiple</code>,
+   <code>required</code> and <code>request.POST.getlist()</code> work as always.</p>
+
+<div class="demo is-hero">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <label class="tuc-label" for="s-estado">State</label>
+      <select id="s-estado" name="estado" data-tuc-select>
+        <option value="">Select the state...</option>
+        <option value="AC">Acre</option><option value="AL">Alagoas</option>
+        <option value="AM">Amazonas</option><option value="BA">Bahia</option>
+        <option value="CE">Ceará</option><option value="GO">Goiás</option>
+        <option value="MG">Minas Gerais</option><option value="PA">Pará</option>
+        <option value="PR">Paraná</option><option value="RJ">Rio de Janeiro</option>
+        <option value="RS">Rio Grande do Sul</option><option value="SC">Santa Catarina</option>
+        <option value="SP">São Paulo</option>
+      </select>
+      <div class="out" id="s-estado-out"></div>
+    </div>
+    <div class="demo-cell">
+      <label class="tuc-label" for="s-stack">Technologies</label>
+      <select id="s-stack" name="stack" data-tuc-select multiple data-placeholder="Add technologies...">
+        <option value="django" selected>Django</option><option value="htmx" selected>HTMX</option>
+        <option value="tailwind">Tailwind</option><option value="postgres">PostgreSQL</option>
+        <option value="redis">Redis</option><option value="celery">Celery</option>
+        <option value="docker">Docker</option>
+      </select>
+      <div class="out" id="s-stack-out"></div>
+    </div>
+  </div>
+</div>
+
+<h2 id="exemplos">Examples</h2>
+<p class="lead">Everything below is the same <code>&lt;select&gt;</code> with different attributes.</p>
+
+<div class="demo">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <h4>Groups and a disabled option</h4>
+      <p><code>&lt;optgroup&gt;</code> becomes a group heading; <code>disabled</code> is respected.</p>
+      <select id="s-plano" name="plano" data-tuc-select aria-label="Plan">
+        <option value="">Choose a plan...</option>
+        <optgroup label="Monthly">
+          <option value="m-basic">Basic — $49</option>
+          <option value="m-pro">Pro — $99</option>
+        </optgroup>
+        <optgroup label="Yearly">
+          <option value="a-basic">Basic — $490</option>
+          <option value="a-pro">Pro — $990</option>
+          <option value="a-ent" disabled>Enterprise — contact us</option>
+        </optgroup>
+      </select>
+    </div>
+    <div class="demo-cell">
+      <h4>Choice limit</h4>
+      <p><code>data-max-items="3"</code> stops at the third.</p>
+      <select id="s-times" name="times" data-tuc-select multiple data-max-items="3" data-placeholder="Up to 3 teams..." aria-label="Teams">
+        <option value="a">Sales</option><option value="b">Finance</option>
+        <option value="c">Legal</option><option value="d">Operations</option>
+        <option value="e">Support</option><option value="f">Technology</option>
+      </select>
+    </div>
+    <div class="demo-cell">
+      <h4>Tags on several lines</h4>
+      <p><code>data-wrap-tags="true"</code> lets the field grow instead of scrolling.</p>
+      <select id="s-wrap" name="cidades" data-tuc-select multiple data-wrap-tags="true" aria-label="Cities">
+        <option selected>New York</option><option selected>Los Angeles</option>
+        <option selected>Chicago</option><option selected>Houston</option>
+        <option>Seattle</option><option>Boston</option>
+      </select>
+    </div>
+    <div class="demo-cell">
+      <h4>With an error</h4>
+      <p><code>aria-invalid="true"</code> on the native element — Django 5 already writes it.</p>
+      <select id="s-erro" name="uf" data-tuc-select aria-invalid="true" aria-describedby="s-erro-msg" aria-label="State">
+        <option value="">Select...</option><option>São Paulo</option><option>Paraná</option>
+      </select>
+      <p class="tuc-error" id="s-erro-msg">Choose a state.</p>
+    </div>
+  </div>
+</div>
+
+<h2 id="uso">How to use</h2>
+<p class="lead">Mark the <code>&lt;select&gt;</code> and it initializes by itself, including the ones that arrive later through HTMX.
+   The first <code>&lt;option value=""&gt;</code> becomes the placeholder text, not an option.</p>
+
+<pre data-code="html">
+<select name="uf" data-tuc-select>
+  <option value="">Select...</option>
+  <option value="SP">São Paulo</option>
+</select>
+
+<select name="tags" data-tuc-select multiple data-placeholder="Add...">
+  <option value="django">Django</option>
+</select>
+</pre>
+
+<h3>In the Django form</h3>
+<pre data-code="python">
+class ClienteForm(forms.ModelForm):
+    class Meta:
+        model = Cliente
+        fields = ["uf", "tags"]
+        widgets = {
+            "uf": forms.Select(attrs={"data-tuc-select": ""}),
+            "tags": forms.SelectMultiple(attrs={"data-tuc-select": "", "data-max-items": "3"}),
+        }
+</pre>
+
+<h3>In JavaScript</h3>
+<p>For options that don't exist as attributes, or to read and write the value.</p>
+<pre data-code="js">
+const s = new Tucano.Select('#uf', { search: true, maxItems: 3 });
+s.getValue();            // 'SP' — an array when multiple
+s.setValue(['SP', 'PR']);
+s.refresh();             // rereads the <option> elements after HTMX replaces them
+</pre>
+
+<h2 id="servidor">Server-side search</h2>
+<p class="lead">For lists too large to come whole in the page. On every keystroke the component asks
+   the server, instead of filtering what is already loaded.</p>
+
+<div class="demo">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <label class="tuc-label" for="s-cliente">Customer</label>
+      <select id="s-cliente" name="cliente" data-placeholder="Type the customer name..."></select>
+      <div class="out" id="s-cliente-out"></div>
+    </div>
+    <div class="demo-cell">
+      <label class="tuc-label" for="s-clientes">Customers, multiple</label>
+      <select id="s-clientes" name="clientes" multiple data-placeholder="Search customers..."></select>
+      <div class="out" id="s-clientes-out"></div>
+    </div>
+  </div>
+  <p class="tuc-hint">On this page the response is simulated with a 400 ms delay; in your project it comes from <code>data-url</code>.</p>
+</div>
+
+<pre data-code="django">
+<select name="cliente" data-tuc-select data-url="{% url 'api-clientes' %}"></select>
+</pre>
+
+<pre data-code="python">
+def clientes(request):
+    q = request.GET.get("q", "")
+    qs = Cliente.objects.filter(nome__icontains=q)[:20]
+    return JsonResponse([{"value": c.pk, "label": c.nome} for c in qs], safe=False)
+</pre>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Attribute</th><th>Default</th><th>What for</th></tr></thead>
+  <tbody>
+    <tr><td><code>data-url</code></td><td>—</td><td>Turns on server-side search</td></tr>
+    <tr><td><code>data-query-param</code></td><td><code>q</code></td><td>Name of the search term parameter in the URL</td></tr>
+    <tr><td><code>data-min-chars</code></td><td><code>1</code></td><td>Characters typed before asking</td></tr>
+    <tr><td><code>data-debounce</code></td><td><code>300</code></td><td>Wait, in ms, after the last keystroke</td></tr>
+    <tr><td><code>data-page-param</code></td><td><code>page</code></td><td>Loads the next page on scroll; <code>false</code> turns it off</td></tr>
+    <tr><td><code>data-cache</code></td><td><code>true</code></td><td>Keeps the result of each term</td></tr>
+  </tbody>
+</table></div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Accepts the response in several formats</p><p>So the server doesn't have to change because of this: <code>[{value, label}]</code>, <code>["a", "b"]</code>, DRF's <code>{results: [...]}</code> and Select2's <code>{id, text}</code>. For any other source there is <code>loadOptions</code>.</p></div></div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Why JSON, and not HTMX, here</p><p>The list lives inside the panel the component redraws. If HTMX also wrote there, the same DOM would have two owners. And for a list of options JSON is the right contract: HTML would have to be parsed back into objects.</p></div></div>
+
+<h2 id="valor">Value and form</h2>
+<p class="lead">The value is held by the native <code>&lt;select&gt;</code>, hidden next to the control. Django receives
+   exactly what it would receive without the component.</p>
+
+<pre data-code="text">
+POST  uf   = SP
+POST  tags = django     # request.POST.getlist("tags")
+POST  tags = htmx
+</pre>
+
+<p>Every choice fires <code>tucano:change</code> on the <code>&lt;select&gt;</code> itself, and also the native <code>change</code> — so HTMX's <code>hx-trigger="change"</code> works with no adjustment.</p>
+
+<pre data-code="js">
+document.querySelector('#uf').addEventListener('tucano:change', (e) => {
+  e.detail.value;      // 'SP', or an array when multiple
+  e.detail.instance;   // the Select
+});
+</pre>
+
+<h2 id="teclado">Keyboard and accessibility</h2>
+<p class="lead">The control is a <code>combobox</code> with a <code>listbox</code>, and announces open, closed and the active option.
+   Arriving with <code>Tab</code> doesn't open the panel — that's the rule of the native <code>&lt;select&gt;</code>.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Key</th><th>Action</th></tr></thead>
+  <tbody>
+    <tr><td><code>↓</code> <code>Enter</code> <code>Space</code></td><td>Opens the panel</td></tr>
+    <tr><td><code>↑</code> <code>↓</code></td><td>Moves between options, skipping disabled ones</td></tr>
+    <tr><td><code>Home</code> <code>End</code></td><td>First and last option</td></tr>
+    <tr><td><code>Enter</code></td><td>Chooses the active option</td></tr>
+    <tr><td><code>Backspace</code></td><td>With the search empty, removes the last tag</td></tr>
+    <tr><td><code>Esc</code></td><td>Closes and returns focus to the field</td></tr>
+  </tbody>
+</table></div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Search ignores accents</p><p><code>sao</code> finds "São Paulo". And the field has a fixed height on purpose: with tags wrapping it would grow and misalign the form — the overflow scrolls horizontally, unless you use <code>data-wrap-tags</code>.</p></div></div>
+
+<h2 id="api">API</h2>
+<!-- api -->
+
+<script>
+  // Simulated server-side search: the docs page is static, so the response comes
+  // from a local list, with a fake network delay.
+  const CLIENTES = ['Corner Bakery', 'Two Wheels Garage', 'Wellness Clinic', 'Main Street Market',
+    'Aurora Studio', 'Tucano Trading', 'Silva Auto Parts', 'Horizon Builders', 'Central Pharmacy',
+    'Page 12 Bookstore', 'Movement Gym', 'Loyal Friend Pet Shop'];
+  const buscar = (termo) => new Promise((ok) => setTimeout(() => {
+    const q = termo.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+    ok(CLIENTES.map((nome, i) => ({ value: String(i + 1), label: nome }))
+      .filter((c) => c.label.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().includes(q)));
+  }, 400));
+  new Tucano.Select('#s-cliente', { loadOptions: buscar });
+  new Tucano.Select('#s-clientes', { loadOptions: buscar });
+</script>

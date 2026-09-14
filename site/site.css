@@ -47,6 +47,8 @@ html.dark .i-moon { display: none; }
   scrollbar-width: thin; scrollbar-color: var(--line) transparent;
 }
 .side__head { display: flex; align-items: center; justify-content: space-between; }
+/* Seletor de idioma e botao de tema lado a lado, a direita da marca. */
+.side__tools { display: flex; align-items: center; gap: 6px; }
 .ver { margin: 10px 0 18px; font-family: ui-monospace, Menlo, monospace; }
 /* Pagina ainda nao escrita: fica no menu, apagada, para a estrutura ja aparecer. */
 .tuc-menu__item.is-soon { opacity: .42; cursor: default; }
@@ -158,8 +160,6 @@ html.dark .logo-dark { display: block; }
   --tuc-accent-ring: color-mix(in oklab, var(--fg) 30%, transparent);
 }
 .pills { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 24px; }
-/* Link para a outra versao do inicio: discreto, abaixo das pilulas. */
-.hero__lang { margin: 18px 0 0; }
 .pills .tuc-badge b { color: var(--fg); font-weight: 600; }
 .preview { padding: 28px; border: 1px solid var(--line); border-radius: 18px; background: var(--panel); box-shadow: 0 30px 60px -40px rgb(0 0 0 / .35); }
 .preview__title { margin: 0 0 18px; font-size: 15px; font-weight: 650; }

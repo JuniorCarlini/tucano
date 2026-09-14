@@ -1,0 +1,312 @@
+<!--
+title: Date picker
+component: datepicker
+lang: es
+description: Date picker con fecha, rango, hora y atajos, escritura con máscara y el valor en ISO en el POST — DateField y DateTimeField de Django lo leen directamente.
+-->
+<h1>Date picker</h1>
+<p class="lead">Convierte un <code>&lt;input type="text"&gt;</code> en un campo de fecha con calendario, rango y hora.
+   En pantalla aparece el formato del idioma de la página; en el formulario va ISO, que es lo que Django
+   espera. La escritura con máscara sigue valiendo, para quien escribe más rápido de lo que hace clic.</p>
+
+<div class="demo is-hero">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <label class="tuc-label" for="dp-vencimento">Vencimiento</label>
+      <input type="text" id="dp-vencimento" name="vencimento" data-tuc-datepicker>
+      <div class="out" id="dp-vencimento-out"></div>
+    </div>
+    <div class="demo-cell">
+      <label class="tuc-label" for="dp-periodo">Periodo del informe</label>
+      <input type="text" id="dp-periodo" name="periodo" data-tuc-datepicker data-mode="range">
+      <div class="out" id="dp-periodo-out"></div>
+    </div>
+  </div>
+</div>
+
+<h2 id="exemplos">Ejemplos</h2>
+<p class="lead">El mismo <code>&lt;input&gt;</code> con atributos distintos. Debajo de cada campo aparece el valor ISO,
+   que es lo que llega al servidor.</p>
+
+<div class="demo">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <h4>Fecha y hora</h4>
+      <p><code>data-time="true"</code> añade las columnas de hora y minuto, de 5 en 5.</p>
+      <input type="text" id="dp-hora" name="quando" data-tuc-datepicker data-time="true" aria-label="Fecha y hora">
+      <div class="out" id="dp-hora-out"></div>
+    </div>
+    <div class="demo-cell">
+      <h4>Rango con hora</h4>
+      <p>Con hora el panel no se cierra solo: el botón Aplicar confirma.</p>
+      <input type="text" id="dp-janela" name="janela" data-tuc-datepicker data-mode="range" data-time="true" aria-label="Ventana de mantenimiento">
+      <div class="out" id="dp-janela-out"></div>
+    </div>
+    <div class="demo-cell">
+      <h4>Minuto a minuto, con segundos</h4>
+      <p><code>data-minute-step="1"</code> lista de 00 a 59; <code>data-seconds="true"</code> añade la tercera columna.</p>
+      <input type="text" id="dp-exato" name="exato" data-tuc-datepicker data-time="true" data-minute-step="1" data-seconds="true" aria-label="Hora exacta">
+      <div class="out" id="dp-exato-out"></div>
+    </div>
+    <div class="demo-cell">
+      <h4>Límites</h4>
+      <p><code>data-min</code> y <code>data-max</code> en <code>aaaa-mm-dd</code>. Fuera de ellos el día queda desactivado.</p>
+      <input type="text" id="dp-limites" name="limites" data-tuc-datepicker data-min="2026-01-01" data-max="2026-12-31" aria-label="Fecha en 2026">
+      <div class="out" id="dp-limites-out"></div>
+    </div>
+    <div class="demo-cell">
+      <h4>Solo días hábiles, a partir de hoy</h4>
+      <p><code>disabledDates</code> recibe una función y no existe como atributo — va en JavaScript.</p>
+      <input type="text" id="dp-uteis" aria-label="Día hábil">
+      <div class="out" id="dp-uteis-out"></div>
+    </div>
+    <div class="demo-cell">
+      <h4>Atajos de rango</h4>
+      <p><code>data-presets="true"</code> activa Hoy, Últimos 7 días, Este mes y los demás.</p>
+      <input type="text" id="dp-atalhos" name="atalhos" data-tuc-datepicker data-mode="range" data-presets="true" data-months="1" aria-label="Rango con atajos">
+      <div class="out" id="dp-atalhos-out"></div>
+    </div>
+    <div class="demo-cell">
+      <h4>Atajos propios</h4>
+      <p>Una lista de <code>{ label, value() }</code>, en JavaScript.</p>
+      <input type="text" id="dp-atalhos-proprios" aria-label="Rango con atajos propios">
+      <div class="out" id="dp-atalhos-proprios-out"></div>
+    </div>
+    <div class="demo-cell">
+      <h4>Número de semana</h4>
+      <p><code>data-week-numbers="true"</code> muestra la semana ISO-8601 a la izquierda.</p>
+      <input type="text" id="dp-semana" name="semana" data-tuc-datepicker data-week-numbers="true" aria-label="Fecha con semana">
+      <div class="out" id="dp-semana-out"></div>
+    </div>
+    <div class="demo-cell">
+      <h4>Otro idioma</h4>
+      <p><code>data-locale="en-US"</code>: mes antes del día, semana que empieza el domingo, nombres en inglés.</p>
+      <input type="text" id="dp-locale" name="locale" data-tuc-datepicker data-locale="en-US" aria-label="Date">
+      <div class="out" id="dp-locale-out"></div>
+    </div>
+    <div class="demo-cell">
+      <h4>Formato propio</h4>
+      <p><code>data-format="dd.MM.yyyy"</code>. La máscara sigue el formato sola.</p>
+      <input type="text" id="dp-formato" name="formato" data-tuc-datepicker data-format="dd.MM.yyyy" aria-label="Fecha con puntos">
+      <div class="out" id="dp-formato-out"></div>
+    </div>
+    <div class="demo-cell">
+      <h4>Con icono</h4>
+      <p>El <code>.tuc-input-group</code> del formulario, con un SVG antes del campo.</p>
+      <div class="tuc-input-group"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z"/></svg><input type="text" id="dp-icone" name="entrega" data-tuc-datepicker aria-label="Entrega"></div>
+      <div class="out" id="dp-icone-out"></div>
+    </div>
+    <div class="demo-cell">
+      <h4>Con error</h4>
+      <p><code>aria-invalid="true"</code> en el campo — Django 5 ya lo escribe.</p>
+      <input type="text" id="dp-erro" name="prazo" data-tuc-datepicker aria-invalid="true" aria-describedby="dp-erro-msg" aria-label="Plazo">
+      <p class="tuc-error" id="dp-erro-msg">La fecha tiene que ser posterior a hoy.</p>
+    </div>
+  </div>
+</div>
+
+<h2 id="uso">Cómo usar</h2>
+<p class="lead">Marca el <code>&lt;input&gt;</code> y se inicializa solo al cargar y en cada
+   <code>htmx:afterSwap</code>. El componente pone la clase <code>.tuc-input</code> en el campo, así que no hace falta escribirla.</p>
+
+<pre data-code="html">
+<input type="text" name="data" data-tuc-datepicker>
+<input type="text" name="quando" data-tuc-datepicker data-time="true">
+<input type="text" name="periodo" data-tuc-datepicker data-mode="range">
+<input type="text" name="janela" data-tuc-datepicker data-mode="range" data-time="true">
+</pre>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Atributo</th><th>Por defecto</th><th>Para qué</th></tr></thead>
+  <tbody>
+    <tr><td><code>data-mode</code></td><td><code>single</code></td><td><code>range</code> para rango</td></tr>
+    <tr><td><code>data-time</code></td><td><code>false</code></td><td>Añade el selector de hora</td></tr>
+    <tr><td><code>data-minute-step</code></td><td><code>5</code></td><td>Paso de la columna de minutos; <code>1</code> los lista todos</td></tr>
+    <tr><td><code>data-seconds</code></td><td><code>false</code></td><td>Columna de segundos</td></tr>
+    <tr><td><code>data-min</code> <code>data-max</code></td><td>—</td><td>Límites, en <code>aaaa-mm-dd</code></td></tr>
+    <tr><td><code>data-months</code></td><td><code>1</code>, o <code>2</code> en rango</td><td>Cuántos meses lado a lado</td></tr>
+    <tr><td><code>data-presets</code></td><td><code>false</code></td><td><code>true</code> activa los atajos — solo en modo rango</td></tr>
+    <tr><td><code>data-week-numbers</code></td><td><code>false</code></td><td>Columna con la semana ISO</td></tr>
+    <tr><td><code>data-locale</code></td><td><code>&lt;html lang&gt;</code></td><td>Nombres, orden de día y mes, inicio de la semana y reloj de 12 o 24 horas</td></tr>
+    <tr><td><code>data-format</code></td><td>del idioma</td><td>Formato de visualización, como <code>dd/MM/yyyy</code></td></tr>
+    <tr><td><code>data-iso-name</code></td><td>el <code>name</code></td><td><code>name</code> del campo oculto con el ISO</td></tr>
+    <tr><td><code>data-placement</code></td><td><code>bottom-center</code></td><td>Lado y alineación del panel</td></tr>
+    <tr><td><code>data-native</code></td><td><code>false</code></td><td><code>true</code> usa el selector del sistema</td></tr>
+  </tbody>
+</table></div>
+
+<h3>En el formulario de Django</h3>
+<pre data-code="python">
+class EventoForm(forms.ModelForm):
+    class Meta:
+        model = Evento
+        fields = ["data", "inicio", "periodo"]
+        widgets = {
+            "data": forms.TextInput(attrs={"data-tuc-datepicker": ""}),
+            "inicio": forms.TextInput(attrs={"data-tuc-datepicker": "", "data-time": "true"}),
+            "periodo": forms.TextInput(attrs={"data-tuc-datepicker": "", "data-mode": "range"}),
+        }
+</pre>
+<p>No uses <code>type="date"</code> en el widget: activaría el calendario del navegador encima del nuestro. El valor inicial puede venir
+   en ISO o en el formato del idioma — el componente lee los dos.</p>
+
+<h3>En JavaScript</h3>
+<p>Para lo que no cabe en un atributo — <code>disabledDates</code>, atajos propios, <code>openOnFocus</code>, <code>firstDayOfWeek</code>,
+   <code>autoApply</code>, <code>clearable</code>, <code>onChange</code> — y para leer y escribir el valor.</p>
+<pre data-code="js">
+const dp = new Tucano.DatePicker('#entrega', {
+  mode: 'range',
+  time: true,
+  minuteStep: 15,
+  min: '2026-01-01',
+  disabledDates: (d) => d.getDay() === 0,   // cerrado los domingos
+  onChange: (value, { iso }) => console.log(value, iso),
+});
+
+dp.setValue({ start: '2026-03-01', end: '2026-03-15' });
+dp.getValue();   // { start: Date, end: Date } — en el modo simple, un Date
+dp.clear();
+dp.open();
+dp.destroy();
+</pre>
+
+<pre data-code="js">
+// Atajos propios: value() devuelve { start, end } y se llama cada vez que se abre.
+new Tucano.DatePicker('#competencia', {
+  mode: 'range',
+  presets: [
+    { label: 'Próximos 7 días', value: () => {
+      const hoje = Tucano.dates.startOfDay(new Date());
+      return { start: hoje, end: Tucano.dates.addDays(hoje, 6) };
+    } },
+  ],
+});
+</pre>
+
+<h2 id="valor">Valor y formulario</h2>
+<p class="lead">El campo visible muestra la fecha formateada, como <code>25/12/2026</code>; un <code>&lt;input type="hidden"&gt;</code> creado al lado lleva el
+   <code>name</code> y el valor en ISO. El servidor recibe ISO y nunca el texto formateado, que cambiaría con el idioma de quien lo rellenó.</p>
+
+<pre data-code="text">
+POST  data    = 2026-12-25
+POST  inicio  = 2026-12-25T09:30          # DateTimeField lo lee directamente
+POST  exato   = 2026-12-25T09:30:15       # con data-seconds
+POST  periodo = 2026-03-01,2026-03-15     # inicio y fin, separados por coma
+</pre>
+
+<p><code>DateField</code> y <code>DateTimeField</code> hacen el parse de esto sin configuración. El rango llega en un solo campo; sepáralo en el <code>clean_</code>:</p>
+<pre data-code="python">
+class ReservaForm(forms.Form):
+    periodo = forms.CharField()
+
+    def clean_periodo(self):
+        inicio, _, fim = self.cleaned_data["periodo"].partition(",")
+        return date.fromisoformat(inicio), date.fromisoformat(fim)
+</pre>
+
+<p>Para editar, devuelve el valor en ISO en el <code>value</code> — el componente lee ISO y también el formato del idioma. Con
+   <code>data-iso-name</code> el campo visible se queda con su propio <code>name</code> y el oculto recibe otro, y los dos se envían.
+   Un campo sin <code>name</code> y sin <code>data-iso-name</code> no recibe ningún campo oculto.</p>
+
+<p>Cada elección dispara <code>tucano:change</code> en el campo visible, y también el <code>change</code> nativo, así la validación y
+   <code>hx-trigger="change"</code> ven el valor.</p>
+<pre data-code="js">
+document.querySelector('#vencimento').addEventListener('tucano:change', (e) => {
+  e.detail.value;      // Date, o { start, end } en el rango
+  e.detail.iso;        // '2026-12-25' — el mismo texto del campo oculto
+  e.detail.instance;   // el DatePicker
+});
+</pre>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Aquí <code>e.target.name</code> viene vacío</p><p>El evento sale del campo visible, y el <code>name</code> pasó al oculto. Usa <code>e.detail.iso</code>, o lee el oculto, que está justo después del campo.</p></div></div>
+
+<h2 id="digitacao">Escritura</h2>
+<p class="lead">El campo tiene una máscara sacada del propio formato de visualización, así que sigue al idioma sin configuración.
+   Se escriben solo los números; la barra, los dos puntos y la raya del rango se ponen solos.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Modo</th><th>Máscara en pt-BR</th></tr></thead>
+  <tbody>
+    <tr><td>Fecha</td><td><code>dd/mm/aaaa</code></td></tr>
+    <tr><td>Fecha y hora</td><td><code>dd/mm/aaaa hh:mm</code></td></tr>
+    <tr><td>Rango</td><td><code>dd/mm/aaaa — dd/mm/aaaa</code></td></tr>
+    <tr><td>Rango con hora</td><td><code>dd/mm/aaaa hh:mm — dd/mm/aaaa hh:mm</code></td></tr>
+  </tbody>
+</table></div>
+
+<p>Con la máscara completa el calendario ya salta a la fecha escrita y la marca, sin cerrarse. El valor se confirma al salir del campo
+   o con <code>Enter</code> mientras el panel está abierto. Un texto que no se convierte en fecha vuelve al valor anterior, y una fecha fuera de
+   <code>min</code>, <code>max</code> o <code>disabledDates</code> no se acepta. Borrar sobre un separador elimina el dígito
+   vecino, en lugar de trabarse.</p>
+
+<p>Un formato con nombre de mes (<code>MMMM</code>) o <code>AM/PM</code> no se puede enmascarar; ahí el campo queda libre y vale la
+   lectura tolerante, que acepta <code>25/12/26</code>, <code>25-12-2026</code>, <code>25122026</code>, <code>2512</code> (año en curso) y
+   <code>12/25/2026 2:05 pm</code>. Escribir solo la fecha en un campo con hora mantiene la hora que ya estaba elegida.</p>
+
+<p>Hacer clic en el mes de la cabecera cambia a la cuadrícula de meses, y en el año, a la de años — así una fecha de nacimiento no cuesta treinta clics en la flecha.</p>
+
+<h2 id="celular">En el móvil</h2>
+<p class="lead">El panel es el mismo del escritorio, adaptado al tacto: texto de 16px, celdas más grandes, un mes debajo del otro en el
+   rango y los atajos en una franja que se desplaza en horizontal.</p>
+
+<p>Los 16px no son estética: Safari de iOS hace zoom en toda la página al enfocar un campo con fuente más pequeña. Por el mismo motivo, en pantalla
+   estrecha táctil el campo no recibe foco ni máscara — tocar abre el panel, y el teclado del sistema no sube a tapar el calendario.</p>
+
+<p>El selector del propio sistema es opcional:</p>
+<pre data-code="js">
+native: false     // por defecto: el panel en todas partes
+native: 'auto'    // el selector del sistema donde el puntero es táctil
+native: true      // siempre el selector del sistema — como atributo, data-native="true"
+</pre>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">El modo nativo no cambia el <code>type</code> de tu campo</p><p>Cambiar a <code>type="date"</code> hacía que todo CSS escrito como <code>input[type=text]</code> dejara de coincidir, y el campo se volvía un input en bruto del navegador. Ahora un input nativo transparente queda encima, del tamaño del campo, y el POST sigue siendo el del oculto. El rango nunca usa el nativo: no existe selector de intervalo en HTML.</p></div></div>
+
+<h2 id="teclado">Teclado y accesibilidad</h2>
+<p class="lead">El campo anuncia que abre un <code>dialog</code>, la cuadrícula es <code>role="grid"</code> y cada día tiene
+   <code>aria-selected</code> y el nombre completo — "viernes, 25 de diciembre de 2026". Llegar con <code>Tab</code> no abre el panel.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Tecla</th><th>Dónde</th><th>Acción</th></tr></thead>
+  <tbody>
+    <tr><td><code>↓</code></td><td>Campo</td><td>Abre el calendario</td></tr>
+    <tr><td><code>Espacio</code></td><td>Campo vacío</td><td>Abre el calendario</td></tr>
+    <tr><td><code>Enter</code></td><td>Campo, panel abierto</td><td>Confirma lo que se escribió</td></tr>
+    <tr><td><code>←</code> <code>→</code></td><td>Cuadrícula</td><td>Día anterior y siguiente</td></tr>
+    <tr><td><code>↑</code> <code>↓</code></td><td>Cuadrícula</td><td>Mismo día en la semana anterior y en la siguiente</td></tr>
+    <tr><td><code>PageUp</code> <code>PageDown</code></td><td>Cuadrícula</td><td>Mes anterior y siguiente; con <code>Shift</code>, año</td></tr>
+    <tr><td><code>Home</code> <code>End</code></td><td>Cuadrícula</td><td>Inicio y fin de la semana</td></tr>
+    <tr><td><code>Enter</code> <code>Espacio</code></td><td>Cuadrícula</td><td>Elige el día</td></tr>
+    <tr><td><code>Tab</code></td><td>Campo, panel abierto</td><td>Pasa al siguiente campo y cierra el panel</td></tr>
+    <tr><td><code>Tab</code></td><td>Dentro del panel</td><td>Recorre los controles sin salir del panel</td></tr>
+    <tr><td><code>Esc</code></td><td>Campo o panel</td><td>Cierra y devuelve el foco al campo</td></tr>
+  </tbody>
+</table></div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Por qué <code>Tab</code> no abre, y <code>Enter</code> tampoco</p><p>Quien tabula por un formulario hasta el botón de guardar no debería llevarse un calendario en la cara en cada campo, tapando el siguiente — era lo que apilaba paneles. Y este es un campo de texto dentro de un <code>&lt;form&gt;</code>: <code>Enter</code> ahí envía el formulario, que es lo que se espera después de escribir la fecha. Por eso quien abre es <code>Espacio</code>, y solo con el campo vacío, porque con hora se escribe <code>07/09/2026 14:30</code>. Quien prefiera el comportamiento anterior activa <code>openOnFocus: true</code>.</p></div></div>
+
+<p>Un clic fuera cierra sin robar el foco de donde se hizo clic; un rango elegido a medias se descarta al cerrar, porque no
+   existe medio intervalo. Con <code>prefers-reduced-motion</code> el panel solo se desvanece, sin deslizarse.</p>
+
+<h2 id="api">API</h2>
+<!-- api -->
+
+<script>
+  // Las opciones que reciben una función no existen como atributo: estos tres campos se montan aquí.
+  const hoje = Tucano.dates.startOfDay(new Date());
+  new Tucano.DatePicker('#dp-uteis', {
+    min: hoje,
+    disabledDates: (d) => d.getDay() === 0 || d.getDay() === 6,
+  });
+  new Tucano.DatePicker('#dp-atalhos-proprios', {
+    mode: 'range',
+    months: 1,
+    presets: [
+      { label: 'Próximos 7 días', value: () => ({ start: hoje, end: Tucano.dates.addDays(hoje, 6) }) },
+      { label: 'Próximos 30 días', value: () => ({ start: hoje, end: Tucano.dates.addDays(hoje, 29) }) },
+      { label: 'Próximo mes', value: () => ({
+        start: new Date(hoje.getFullYear(), hoje.getMonth() + 1, 1),
+        end: new Date(hoje.getFullYear(), hoje.getMonth() + 2, 0),
+      }) },
+    ],
+  });
+</script>

@@ -1,0 +1,207 @@
+<!--
+title: Keyboard and accessibility
+lang: en
+description: What each key does in every Tucano component — date picker, select, color picker, dropdown menu, tabs, modal, drawer, tooltip and table — and what each one announces to the screen reader.
+-->
+<h1>Keyboard and accessibility</h1>
+<p class="lead">Everything works without a mouse, and the keys are those of the native element and the ARIA APG — anyone who
+   already knows how to use a <code>&lt;select&gt;</code> has nothing new to learn. This page gathers in one place what each
+   component does with the keyboard and what it announces to screen reader users. The accessible labels the library
+   writes on its own are still in Portuguese; they are quoted below with their meaning.</p>
+
+<h2 id="tab">Tab doesn't open panels</h2>
+<p class="lead">Reaching a field with <code>Tab</code> never opens a calendar, list or color picker. Opening is always
+   explicit: <code>↓</code>, a click, and in the select also <code>Enter</code> and <code>Space</code>.</p>
+
+<p>Opening on focus looked convenient and was the source of two bugs. Panels piled up while tabbing — anyone going
+   through a form to the save button got a calendar in their face at every field, with the panel covering
+   the next field. And in the color field the panel covered the very field of someone who wanted to type the hex. It's the rule of
+   the native <code>&lt;select&gt;</code>, and it's the ARIA APG's.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Component</th><th>Opens with</th></tr></thead>
+  <tbody>
+    <tr><td>Date picker</td><td><code>↓</code>, click; <code>Space</code> when the field is empty</td></tr>
+    <tr><td>Select</td><td><code>↓</code>, <code>↑</code>, <code>Enter</code>, <code>Space</code>, click</td></tr>
+    <tr><td>Color picker</td><td><code>↓</code> in the field or on the swatch; <code>Enter</code> and <code>Space</code> on the swatch, which is a <code>&lt;button&gt;</code></td></tr>
+    <tr><td>Dropdown menu</td><td><code>↓</code>, <code>↑</code>, <code>Enter</code>, <code>Space</code> or a click on the trigger</td></tr>
+  </tbody>
+</table></div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">In the date field, Enter belongs to the form</p><p>The date picker is a text field inside a <code>&lt;form&gt;</code>, and <code>Enter</code> in a text field submits the form — which is what anyone expects after typing the date. Hijacking the key would silently break submission in every existing form, so there it's <code>Space</code> that opens. And only when the field is empty: in time mode you type <code>07/09/2026 14:30</code>, and the space is part of the typing. With the panel open, <code>Enter</code> confirms what was typed.</p></div></div>
+
+<p>If you prefer the old behavior in the date picker, turn on <code>openOnFocus: true</code>. Any panel that opened
+   closes when focus leaves it, so tabbing through the page never leaves menus open behind you.</p>
+
+<h2 id="datepicker">Date picker</h2>
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Key</th><th>Where</th><th>Action</th></tr></thead>
+  <tbody>
+    <tr><td><code>↓</code></td><td>Field, closed</td><td>Opens the calendar</td></tr>
+    <tr><td><code>Space</code></td><td>Empty field, closed</td><td>Opens the calendar</td></tr>
+    <tr><td><code>Enter</code></td><td>Field, open</td><td>Confirms the typed date; when closed, submits the form</td></tr>
+    <tr><td><code>←</code> <code>→</code></td><td>Day</td><td>Previous and next day</td></tr>
+    <tr><td><code>↑</code> <code>↓</code></td><td>Day</td><td>Same day in the previous and next week</td></tr>
+    <tr><td><code>PageUp</code> <code>PageDown</code></td><td>Day</td><td>Previous and next month; with <code>Shift</code>, year</td></tr>
+    <tr><td><code>Home</code> <code>End</code></td><td>Day</td><td>Start and end of the week, respecting the locale's first day</td></tr>
+    <tr><td><code>Enter</code> <code>Space</code></td><td>Day</td><td>Picks the day</td></tr>
+    <tr><td><code>Tab</code></td><td>Panel</td><td>Cycles inside the panel, without escaping to the page</td></tr>
+    <tr><td><code>Esc</code></td><td>Panel</td><td>Closes and returns focus to the field</td></tr>
+  </tbody>
+</table></div>
+<p>The field is a <code>combobox</code> with <code>aria-haspopup="dialog"</code> and <code>aria-expanded</code>, and gets
+   <code>aria-controls</code> pointing to the panel while it's open. The panel is <code>role="dialog"</code>
+   labeled "Selecionar data" (select date) or "Selecionar período" (select period); each month is a <code>role="grid"</code> with the month's name, and
+   each day a <code>gridcell</code> with <code>aria-selected</code> and the full label — "Saturday, September 12,
+   2026". The month title is <code>aria-live="polite"</code>, so changing months is announced. The hour,
+   minute and second lists are <code>listbox</code>. Closing by clicking outside doesn't return focus to the field, so it
+   isn't stolen from where the person clicked.</p>
+
+<h2 id="select">Select</h2>
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Key</th><th>Action</th></tr></thead>
+  <tbody>
+    <tr><td><code>↓</code> <code>↑</code> <code>Enter</code> <code>Space</code></td><td>When closed, opens the panel</td></tr>
+    <tr><td><code>↑</code> <code>↓</code></td><td>When open, moves between options, skipping disabled ones and wrapping around</td></tr>
+    <tr><td><code>Home</code> <code>End</code></td><td>First and last option</td></tr>
+    <tr><td><code>Enter</code></td><td>Picks the active option; in multiple mode, checks or unchecks it</td></tr>
+    <tr><td>Letters</td><td>With search on, they filter the list ignoring accents. Search turns on by itself from 6 options, or with <code>data-search="true"</code></td></tr>
+    <tr><td><code>Backspace</code></td><td>In multiple mode, with an empty search, removes the last tag</td></tr>
+    <tr><td><code>Esc</code></td><td>Closes and returns focus to the field</td></tr>
+  </tbody>
+</table></div>
+<p>The control is a <code>combobox</code> with <code>aria-haspopup="listbox"</code>, <code>aria-expanded</code> and
+   <code>aria-controls</code> pointing to the list while it's open — when closed, the list leaves the DOM and the attribute
+   goes with it. The list is a <code>listbox</code>, with
+   <code>aria-multiselectable</code> in multiple mode; each option is an <code>option</code> with <code>aria-selected</code> and
+   <code>aria-disabled</code>. The active option reaches the screen reader through <code>aria-activedescendant</code>, without taking
+   focus away from the search field. Each tag's X is called "Remover" (remove) followed by the option's name. The
+   native <code>&lt;select&gt;</code> stays in the form with <code>aria-hidden</code>, so it isn't read twice.</p>
+
+<h2 id="color">Color picker</h2>
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Key</th><th>Where</th><th>Action</th></tr></thead>
+  <tbody>
+    <tr><td><code>↓</code></td><td>Field or swatch</td><td>Opens the panel</td></tr>
+    <tr><td><code>Enter</code> <code>Space</code></td><td>Swatch</td><td>Opens and closes the panel</td></tr>
+    <tr><td><code>←</code> <code>→</code></td><td>Color area</td><td>Saturation, in steps of 2%; with <code>Shift</code>, steps of 10</td></tr>
+    <tr><td><code>↑</code> <code>↓</code></td><td>Color area</td><td>Brightness, in the same steps</td></tr>
+    <tr><td><code>←</code> <code>↓</code> / <code>→</code> <code>↑</code></td><td>Hue and opacity sliders</td><td>Decreases and increases by 1; with <code>Shift</code>, by 10</td></tr>
+    <tr><td><code>Esc</code></td><td>Panel</td><td>Closes and returns focus to the swatch</td></tr>
+  </tbody>
+</table></div>
+<p>The swatch is a <code>&lt;button&gt;</code> "Escolher cor" (choose color) with <code>aria-haspopup="dialog"</code> and
+   <code>aria-expanded</code>; the panel is a <code>role="dialog"</code> "Seletor de cor" (color picker). The sliders are
+   <code>role="slider"</code> with <code>aria-valuenow</code>, and each palette color is a button labeled with its own
+   value. The text field is still the <code>&lt;input&gt;</code> where you type the hex.</p>
+
+<h2 id="dropdown">Dropdown menu</h2>
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Key</th><th>Where</th><th>Action</th></tr></thead>
+  <tbody>
+    <tr><td><code>↓</code></td><td>Trigger</td><td>Opens and moves to the first item</td></tr>
+    <tr><td><code>↑</code></td><td>Trigger</td><td>Opens and moves to the last item</td></tr>
+    <tr><td><code>Enter</code> <code>Space</code></td><td>Trigger</td><td>Opens and closes</td></tr>
+    <tr><td><code>↑</code> <code>↓</code></td><td>Menu</td><td>Previous and next item, wrapping around and skipping disabled ones</td></tr>
+    <tr><td><code>Home</code> <code>End</code></td><td>Menu</td><td>First and last item</td></tr>
+    <tr><td><code>Enter</code></td><td>Item</td><td>Activates it; an item without <code>href</code> is a <code>&lt;button&gt;</code> and also accepts <code>Space</code></td></tr>
+    <tr><td><code>Esc</code></td><td>Menu</td><td>Closes and returns focus to the trigger</td></tr>
+    <tr><td><code>Tab</code></td><td>Menu</td><td>Closes and moves on to the next element on the page</td></tr>
+  </tbody>
+</table></div>
+<p>The trigger gets <code>aria-haspopup="menu"</code> and <code>aria-expanded</code>; the panel is <code>role="menu"</code>, each
+   item a <code>menuitem</code>, the separator a <code>separator</code> and the disabled item <code>aria-disabled</code>. Items
+   have <code>tabindex="-1"</code> on purpose: inside a menu the arrows navigate, and tabbable items would make
+   <code>Tab</code> leave the menu one item at a time.</p>
+
+<h2 id="tabs">Tabs</h2>
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Key</th><th>Action</th></tr></thead>
+  <tbody>
+    <tr><td><code>Tab</code></td><td>Enters the open tab and leaves the list straight to the panel — the list is a single stop</td></tr>
+    <tr><td><code>←</code> <code>→</code></td><td>Previous and next tab, wrapping around and skipping disabled ones</td></tr>
+    <tr><td><code>Home</code> <code>End</code></td><td>First and last tab</td></tr>
+    <tr><td><code>Enter</code> <code>Space</code></td><td>With <code>data-manual="true"</code>, switches the panel; without it, the arrow already switches</td></tr>
+  </tbody>
+</table></div>
+<p>The script adds <code>tablist</code>, <code>tab</code> and <code>tabpanel</code>, links each tab to its panel through
+   <code>aria-controls</code> and <code>aria-labelledby</code>, and keeps <code>aria-selected</code> and
+   <code>tabindex</code> up to date. Manual mode exists for panels that load through HTMX: with automatic activation,
+   crossing four tabs with the arrow would fire four requests.</p>
+
+<h2 id="dialogo">Modal and drawer</h2>
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Key</th><th>Action</th></tr></thead>
+  <tbody>
+    <tr><td><code>Tab</code> <code>Shift+Tab</code></td><td>Cycle inside the dialog, without escaping to the page</td></tr>
+    <tr><td><code>Esc</code></td><td>Closes with animation and returns focus to whatever opened it — unless <code>closable: false</code> or <code>data-closable="false"</code></td></tr>
+  </tbody>
+</table></div>
+<p>Both are a <code>&lt;dialog&gt;</code> opened with <code>showModal()</code>, and that's where the accessibility comes from: the
+   page behind becomes inert, focus is trapped and returns to the trigger on close, all done by the browser and not by
+   our JavaScript. The native <code>Escape</code> would close it instantly, without animation; the library intercepts
+   <code>cancel</code> to close the same way the X does. With a title, the dialog is labeled by it through
+   <code>aria-labelledby</code>, and the X is called "Fechar" (close). In <code>Tucano.confirm()</code>, closing with
+   <code>Esc</code> is a refusal: the promise resolves to <code>false</code>.</p>
+
+<h2 id="tooltip">Tooltip</h2>
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Key or gesture</th><th>Action</th></tr></thead>
+  <tbody>
+    <tr><td><code>Tab</code> to the element</td><td>Shows the tip right away, without the pointer delay</td></tr>
+    <tr><td><code>Tab</code> away</td><td>Hides the tip</td></tr>
+    <tr><td><code>Esc</code></td><td>Hides it, even with the pointer resting on top</td></tr>
+    <tr><td>Tap</td><td>On a touchscreen, tapping opens and tapping again closes</td></tr>
+  </tbody>
+</table></div>
+<p>The bubble is <code>role="tooltip"</code> and the element points to it through <code>aria-describedby</code>, so the screen
+   reader reads the tip along with the button's name. An element that doesn't receive focus — a <code>&lt;span&gt;</code>, for
+   example — gets <code>tabindex="0"</code>, otherwise keyboard users would never see the tip. <code>Esc</code> with the
+   pointer on top is what WCAG 1.4.13 asks for, for people who use screen magnification and need to dismiss a tip
+   that covers the content.</p>
+
+<h2 id="table">Table</h2>
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Key</th><th>Action</th></tr></thead>
+  <tbody>
+    <tr><td><code>Tab</code></td><td>Goes through the sortable headers, the selection checkboxes and the row buttons</td></tr>
+    <tr><td><code>Enter</code></td><td>On a header, sorts — in server mode, follows the link</td></tr>
+    <tr><td><code>Space</code></td><td>Checks the checkbox; in client mode, also sorts through the header button</td></tr>
+  </tbody>
+</table></div>
+<p>The sorted header has <code>aria-sort="ascending"</code> or <code>"descending"</code> and the others
+   <code>"none"</code>. In server mode the trigger is an <code>&lt;a&gt;</code>, announced as a link; in client mode, a
+   <code>&lt;button&gt;</code>. The header checkbox is "Selecionar todas as linhas desta página" (select all rows on this page), each row's is
+   "Selecionar linha" (select row), and the mixed state is the native <code>indeterminate</code>.</p>
+
+<h2 id="outros">The other components</h2>
+<p class="lead">These have no keyboard handling of their own: the native element underneath is what responds. Even so, each one has
+   something to tell the screen reader.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Component</th><th>Keyboard</th><th>What it announces</th></tr></thead>
+  <tbody>
+    <tr><td>Accordion</td><td><code>Enter</code> and <code>Space</code> on the <code>&lt;summary&gt;</code>, from the browser</td><td>Open and closed, through <code>&lt;details&gt;</code>; the arrow is <code>aria-hidden</code></td></tr>
+    <tr><td>Upload</td><td><code>Enter</code> and <code>Space</code> on the drop zone open the file dialog</td><td>The zone is <code>role="button"</code> described by the hint about types and size; a rejected file shows up in a <code>role="alert"</code> notice</td></tr>
+    <tr><td>Mask with eye</td><td><code>Enter</code> and <code>Space</code> on the eye button</td><td>"Mostrar" (show) and "Ocultar" (hide), with <code>aria-pressed</code>; with <code>data-validate</code>, a field that fails gets <code>aria-invalid</code></td></tr>
+    <tr><td>Text editor</td><td><code>Ctrl</code>/<code>⌘</code> + <code>B</code>, <code>I</code>, <code>U</code>, <code>K</code>; <code>Tab</code> in a table moves between cells and, in the last one, creates a row</td><td>The area is a multiline <code>role="textbox"</code>; the bars are <code>role="toolbar"</code> and the formatting buttons have <code>aria-pressed</code></td></tr>
+    <tr><td>Toast</td><td>The timer pauses when something inside it receives focus</td><td>Two live regions created before the first message: <code>polite</code> for normal ones and <code>assertive</code> for errors; each toast is <code>status</code> or <code>alert</code></td></tr>
+    <tr><td>Pagination</td><td>Native links</td><td><code>&lt;nav&gt;</code> "Paginação" (pagination), <code>aria-current="page"</code> on the current one; a disabled end is a <code>&lt;span&gt;</code>, out of the <code>Tab</code> path</td></tr>
+    <tr><td>Checkbox, radio and switch</td><td>Those of the native <code>&lt;input&gt;</code></td><td>The browser's; the switch needs <code>role="switch"</code> in the template, because CSS can't add a role</td></tr>
+  </tbody>
+</table></div>
+
+<h2 id="principios">What applies to all of them</h2>
+<p class="lead">The decisions that repeat from component to component.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Rule</th><th>Why</th></tr></thead>
+  <tbody>
+    <tr><td>The native element stays in the form</td><td>Name, required state, mixed state and the screen reader announcement are still the browser's</td></tr>
+    <tr><td>A field with an error is <code>aria-invalid="true"</code>, not a class</td><td>It's the attribute the screen reader announces, and Django 5 writes it on its own. In components that replace the field with their own control, the attribute stays on the native element and the CSS reaches the control</td></tr>
+    <tr><td>A panel that opened closes when focus leaves</td><td>Without this, tabbing through the page left a trail of open panels</td></tr>
+    <tr><td><code>Esc</code> closes and returns focus to whatever opened it</td><td>Closing and dropping focus at the start of the page would make keyboard users start over from the top</td></tr>
+    <tr><td>Drawings get <code>aria-hidden</code></td><td>Arrows, icons and the pagination ellipsis are not read aloud</td></tr>
+    <tr><td><code>prefers-reduced-motion</code> turns off animations</td><td>Applies to panels, dialogs, toasts, tabs, accordion, table and buttons</td></tr>
+  </tbody>
+</table></div>

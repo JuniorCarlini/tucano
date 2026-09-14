@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tucano para agentes de IA — llms.txt y AGENTS.md</title>
+<meta name="description" content="Cómo hacer que una IA use Tucano sin volver a explicarlo en cada conversación — el llms.txt con la API completa, el AGENTS.md de tres líneas para tu proyecto y las reglas de lo que no debe hacer.">
+<meta name="author" content="Junior Carlini">
+<link rel="canonical" href="https://juniorcarlini.github.io/tucano/es/ai/">
+<link rel="alternate" hreflang="pt-BR" href="https://juniorcarlini.github.io/tucano/ai/">
+<link rel="alternate" hreflang="en" href="https://juniorcarlini.github.io/tucano/en/ai/">
+<link rel="alternate" hreflang="es" href="https://juniorcarlini.github.io/tucano/es/ai/">
+<link rel="alternate" hreflang="x-default" href="https://juniorcarlini.github.io/tucano/ai/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)">
+<link rel="alternate" type="text/plain" href="../../llms.txt" title="Referencia de la API para agentes de IA">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Tucano">
+<meta property="og:title" content="Tucano para agentes de IA — llms.txt y AGENTS.md">
+<meta property="og:description" content="Cómo hacer que una IA use Tucano sin volver a explicarlo en cada conversación — el llms.txt con la API completa, el AGENTS.md de tres líneas para tu proyecto y las reglas de lo que no debe hacer.">
+<meta property="og:url" content="https://juniorcarlini.github.io/tucano/es/ai/">
+<meta property="og:image" content="https://juniorcarlini.github.io/tucano/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Tucano — componentes de formulario en JavaScript puro">
+<meta property="og:locale" content="es_ES">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Tucano para agentes de IA — llms.txt y AGENTS.md">
+<meta name="twitter:description" content="Cómo hacer que una IA use Tucano sin volver a explicarlo en cada conversación — el llms.txt con la API completa, el AGENTS.md de tres líneas para tu proyecto y las reglas de lo que no debe hacer.">
+<meta name="twitter:image" content="https://juniorcarlini.github.io/tucano/og.png">
+<link rel="sitemap" type="application/xml" href="../../sitemap.xml">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"Tucano para agentes de IA — llms.txt y AGENTS.md","name":"Para agentes de IA","description":"Cómo hacer que una IA use Tucano sin volver a explicarlo en cada conversación — el llms.txt con la API completa, el AGENTS.md de tres líneas para tu proyecto y las reglas de lo que no debe hacer.","url":"https://juniorcarlini.github.io/tucano/es/ai/","inLanguage":"es","image":"https://juniorcarlini.github.io/tucano/og.png","author":{"@type":"Person","name":"Junior Carlini","url":"https://github.com/JuniorCarlini"},"isPartOf":{"@id":"https://juniorcarlini.github.io/tucano/#website"},"about":{"@id":"https://juniorcarlini.github.io/tucano/#software"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Tucano","item":"https://juniorcarlini.github.io/tucano/es/"},{"@type":"ListItem","position":2,"name":"Para agentes de IA","item":"https://juniorcarlini.github.io/tucano/es/ai/"}]}]}</script>
+<link rel="icon" type="image/svg+xml" href="../../site/assets/favicon.svg">
+<link rel="icon" type="image/png" sizes="192x192" href="../../site/assets/favicon-192.png">
+<link rel="icon" type="image/png" sizes="48x48" href="../../site/assets/favicon-48.png">
+<link rel="apple-touch-icon" href="../../site/assets/apple-touch-icon.png">
+
+<link rel="stylesheet" href="../../dist/tucano.css?v=0.32.1">
+<link rel="stylesheet" href="../../site/site.css?v=0.32.1">
+<!-- O tema e aplicado antes do primeiro quadro: sem isto a pagina piscava clara
+     para quem escolheu o escuro. -->
+<script>try{if(localStorage.getItem("tucano-tema")==="dark")document.documentElement.classList.add("dark")}catch{}</script>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="../"><img class="brand__logo logo-light" src="../../site/assets/logo-light.svg" width="26" height="24" alt=""><img class="brand__logo logo-dark" src="../../site/assets/logo-dark.svg" width="26" height="24" alt=""><b>Tucano</b></a>
+  <span class="tuc-badge is-plain ver">v0.32.1</span>
+  <div class="topbar__actions">
+    <button class="tuc-btn is-outline is-sm" data-tuc-dropdown="#idiomas-topo" data-placement="bottom-end" aria-label="Idioma: Español"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>ES</button><div class="tuc-dropdown" id="idiomas-topo" hidden><a class="tuc-dropdown__item" href="../../ai/" hreflang="pt-BR" lang="pt-BR"><span class="tuc-dropdown__text">Português</span></a><a class="tuc-dropdown__item" href="../../en/ai/" hreflang="en" lang="en"><span class="tuc-dropdown__text">English</span></a><a class="tuc-dropdown__item" href="../../es/ai/" hreflang="es" lang="es" aria-current="true"><span class="tuc-dropdown__text">Español</span></a></div>
+    <button class="tuc-btn is-outline is-icon is-sm" data-tema data-label-light="Usar tema claro" data-label-dark="Usar tema oscuro" aria-label="Cambiar tema"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
+    <button class="tuc-btn is-outline is-icon is-sm" id="menu" aria-label="Abrir menú" aria-expanded="false" aria-controls="side"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  </div>
+</header>
+
+<aside class="side" id="side">
+  <div class="side__head">
+    <a class="brand" href="../"><img class="brand__logo logo-light" src="../../site/assets/logo-light.svg" width="26" height="24" alt=""><img class="brand__logo logo-dark" src="../../site/assets/logo-dark.svg" width="26" height="24" alt=""><b>Tucano</b></a>
+    <div class="side__tools">
+      <button class="tuc-btn is-outline is-sm" data-tuc-dropdown="#idiomas-lateral" data-placement="bottom-end" aria-label="Idioma: Español"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>ES</button><div class="tuc-dropdown" id="idiomas-lateral" hidden><a class="tuc-dropdown__item" href="../../ai/" hreflang="pt-BR" lang="pt-BR"><span class="tuc-dropdown__text">Português</span></a><a class="tuc-dropdown__item" href="../../en/ai/" hreflang="en" lang="en"><span class="tuc-dropdown__text">English</span></a><a class="tuc-dropdown__item" href="../../es/ai/" hreflang="es" lang="es" aria-current="true"><span class="tuc-dropdown__text">Español</span></a></div>
+      <button class="tuc-btn is-outline is-icon is-sm" data-tema data-label-light="Usar tema claro" data-label-dark="Usar tema oscuro" aria-label="Cambiar tema"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
+    </div>
+  </div>
+  <span class="tuc-badge is-plain ver">v0.32.1 · 50 KB</span>
+  <nav class="tuc-menu" aria-label="Documentación">
+<div class="tuc-menu__section">Empezar</div>
+    <a class="tuc-menu__item" href="../">Inicio e instalación</a>
+    <a class="tuc-menu__item" href="../changelog/">Changelog</a>
+<div class="tuc-menu__section">Campos</div>
+    <a class="tuc-menu__item" href="../form/">Formulario</a>
+    <a class="tuc-menu__item" href="../select/">Select</a>
+    <a class="tuc-menu__item" href="../datepicker/">Date picker</a>
+    <a class="tuc-menu__item" href="../mask/">Máscaras</a>
+    <a class="tuc-menu__item" href="../color/">Color picker</a>
+    <a class="tuc-menu__item" href="../choice/">Casilla, opción e interruptor</a>
+    <a class="tuc-menu__item" href="../upload/">Upload</a>
+    <a class="tuc-menu__item" href="../editor/">Editor de texto</a>
+<div class="tuc-menu__section">Acciones</div>
+    <a class="tuc-menu__item" href="../button/">Botón</a>
+    <a class="tuc-menu__item" href="../dropdown/">Menú desplegable</a>
+<div class="tuc-menu__section">Avisos</div>
+    <a class="tuc-menu__item" href="../toast/">Toast</a>
+    <a class="tuc-menu__item" href="../alert/">Aviso</a>
+    <a class="tuc-menu__item" href="../tooltip/">Tooltip</a>
+    <a class="tuc-menu__item" href="../loading/">Cargando</a>
+    <a class="tuc-menu__item" href="../badge/">Etiqueta</a>
+<div class="tuc-menu__section">Diálogos</div>
+    <a class="tuc-menu__item" href="../modal/">Modal</a>
+    <a class="tuc-menu__item" href="../drawer/">Panel lateral</a>
+<div class="tuc-menu__section">Navegación</div>
+    <a class="tuc-menu__item" href="../tabs/">Pestañas</a>
+    <a class="tuc-menu__item" href="../accordion/">Acordeón</a>
+    <a class="tuc-menu__item" href="../menu/">Menú lateral</a>
+    <a class="tuc-menu__item" href="../pagination/">Paginación</a>
+<div class="tuc-menu__section">Datos</div>
+    <a class="tuc-menu__item" href="../table/">Tabla</a>
+    <a class="tuc-menu__item" href="../timeline/">Línea de tiempo</a>
+<div class="tuc-menu__section">Guías</div>
+    <a class="tuc-menu__item" href="../django/">Django</a>
+    <a class="tuc-menu__item" href="../theme/">Tema</a>
+    <a class="tuc-menu__item" href="../keyboard/">Teclado y accesibilidad</a>
+    <a class="tuc-menu__item is-active" href="../ai/" aria-current="page">Para agentes de IA</a>
+  </nav>
+</aside>
+
+<main class="main">
+  <article class="doc">
+<h1>Para agentes de IA</h1>
+<p class="lead">Una IA que no conoce la biblioteca escribe un date picker desde cero, inventa una clase roja para el
+   error y ordena la tabla en el cliente. Dos archivos lo resuelven sin que tengas que explicarlo de nuevo en cada conversación: la
+   referencia completa en texto plano y tres líneas en el <code>AGENTS.md</code> de tu proyecto.</p>
+
+<h2 id="llms">llms.txt</h2>
+<p class="lead">La API entera en un archivo de texto, hecho para que lo lea un modelo y no una persona. Indícale a la IA
+   que lo use:</p>
+
+<p><a href="https://juniorcarlini.github.io/tucano/llms.txt"><code>https://juniorcarlini.github.io/tucano/llms.txt</code></a></p>
+
+<p>Primero viene una sección por componente, con el camino declarativo por <code>data-*</code>, que es lo normal en un proyecto
+   Django. Después, la referencia completa: selector, atributos, todas las opciones con el comentario que las explica,
+   métodos, eventos, clases CSS y tokens. Esa parte se genera a partir del código en cada build — si una opción no está ahí,
+   no existe. Al final quedan las reglas de lo que no hay que hacer. La prosa del archivo está escrita en portugués, y
+   los nombres de la API — atributos, opciones, métodos, eventos — en inglés, así que un modelo la lee sin problema.</p>
+
+<p>Todas las páginas de este sitio anuncian el archivo en el <code>&lt;head&gt;</code>, para las herramientas que lo buscan:</p>
+<div class="tuc-prose doc-code"><pre><code>&lt;link rel="alternate" type="text/plain" href="https://juniorcarlini.github.io/tucano/llms.txt"&gt;</code></pre></div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Por qué texto plano, y no esta documentación</p><p>Una página de documentación trae menú, demostraciones y scripts junto con la información, y la IA gasta contexto leyendo lo que no le sirve. El <code>llms.txt</code> es solo la API, en el orden en que se usa, y cabe entero en una conversación.</p></div></div>
+
+<h2 id="agents">AGENTS.md en tu proyecto</h2>
+<p class="lead">Pega esto en el <code>AGENTS.md</code> de la raíz del proyecto que usa Tucano — o en el <code>CLAUDE.md</code>, en el
+   <code>.cursorrules</code>, donde tu herramienta lo busque. Es lo que hace que la IA elija la biblioteca en lugar de
+   escribir un componente desde cero.</p>
+
+<div class="tuc-prose doc-code"><pre><code>## Interfaz
+Este proyecto usa Tucano. No escribas desde cero date picker, select con búsqueda, color picker, upload, máscara, toast, tooltip, modal, panel lateral, acordeón, pestañas, menú desplegable, tabla, paginación ni editor de texto.
+Referencia completa: https://juniorcarlini.github.io/tucano/llms.txt</code></pre></div>
+
+<p>La lista nombra los componentes con JavaScript, que son los que una IA más reescribe. Las piezas que son solo clases —
+   botón, aviso, etiqueta, cargando, línea de tiempo, casilla, opción e interruptor, menú lateral, rótulo y campo de formulario —
+   están en el mismo <code>llms.txt</code>, y la regla "no diseñes un segundo botón" cubre el resto.</p>
+
+<p>Tres líneas bastan porque el trabajo está en el enlace. Si quieres que la IA acierte ya en la primera respuesta, sin abrir la
+   referencia, añade los ejemplos que tu proyecto más usa:</p>
+
+<div class="tuc-prose doc-code"><pre><code>## Interfaz
+Este proyecto usa Tucano. No escribas desde cero date picker, select con búsqueda, color picker, upload, máscara, toast, tooltip, modal, panel lateral, acordeón, pestañas, menú desplegable, tabla, paginación ni editor de texto.
+Referencia completa: https://juniorcarlini.github.io/tucano/llms.txt
+
+&lt;input data-tuc-datepicker data-mode="range"&gt;
+&lt;select data-tuc-select multiple&gt;
+&lt;input data-tuc-mask="cpf-cnpj"&gt;
+&lt;input type="file" data-tuc-upload&gt;
+&lt;button data-tuc-tip="..." class="tuc-btn is-primary"&gt;
+
+Tucano.toast.success('Guardado');
+await Tucano.confirm({ title: '¿Eliminar?' });
+Tucano.drawer({ title: 'Filtros', side: 'right' });
+
+El elemento nativo sigue siendo el dueño del valor: name, required y el getlist() de Django siguen funcionando. No lo sustituyas por estado solo en JS.</code></pre></div>
+
+<h3>Y el AGENTS.md de Tucano</h3>
+<p>El <a href="https://github.com/JuniorCarlini/tucano/blob/main/AGENTS.md"><code>AGENTS.md</code></a> del repositorio es para
+   quien va a tocar el código <em>de la propia</em> biblioteca: cómo ejecutarla, la estructura y las decisiones que no deben
+   revertirse sin motivo, cada una con el defecto que la motivó. Para usar Tucano en un proyecto no hace
+   falta — el <code>llms.txt</code>, sí.</p>
+
+<h2 id="regras">Lo que la IA no debe hacer</h2>
+<p class="lead">Son las reglas que cierran el <code>llms.txt</code>. Cada una existe porque es el error que comete un modelo
+   cuando deduce en lugar de leer.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>No hagas</th><th>Haz</th><th>Por qué</th></tr></thead>
+  <tbody>
+    <tr><td>Escribir date picker, select con búsqueda o color picker desde cero</td><td>Marcar el campo con <code>data-tuc-datepicker</code>, <code>data-tuc-select</code>, <code>data-tuc-color</code></td><td>Es lo que la biblioteca existe para evitar</td></tr>
+    <tr><td>Usar la API en JavaScript por costumbre</td><td>Preferir los <code>data-*</code>; JS solo para opciones que no existen como atributo — <code>disabledDates</code>, atajos propios, <code>onChange</code></td><td>El atributo funciona en la plantilla, sobrevive a HTMX y no necesita script</td></tr>
+    <tr><td>Quitar el <code>&lt;select&gt;</code> nativo o el <code>name</code> del input</td><td>Dejar el elemento nativo en el formulario</td><td>Es en él donde vive el valor: <code>required</code> y <code>getlist()</code> dependen de él</td></tr>
+    <tr><td>Dar estilo a las clases internas <code>.tuc-*__*</code></td><td>Sobrescribir las variables <code>--tuc-*</code> en <code>:root</code></td><td>Las clases internas las monta el script y el diseño sale de los tokens</td></tr>
+    <tr><td>Escribir <code>abrir()</code>, <code>tamanho</code>, <code>'direita'</code></td><td><code>open</code>/<code>close</code>/<code>toggle</code>, <code>size</code>, <code>tone</code>, <code>side</code>, <code>items</code>, <code>actions</code>; valores <code>'left'</code>, <code>'right'</code>, <code>'danger'</code>, <code>'success'</code></td><td>La API está toda en inglés, y una opción desconocida se ignora en silencio</td></tr>
+    <tr><td>Ordenar en el cliente una lista paginada</td><td>Dejar que la cabecera sea el <code>&lt;a&gt;</code> a <code>?sort=</code> y <code>?dir=</code>, con el orden en <code>order_by()</code> antes de <code>Paginator</code></td><td>Ordenar la página de la pantalla produce un orden falso. <code>data-sort-mode="client"</code> solo para tablas pequeñas y sin paginación</td></tr>
+    <tr><td>Inventar una clase roja para el campo con error</td><td><code>aria-invalid="true"</code> en el campo y el mensaje en <code>.tuc-error</code></td><td>Es el atributo que anuncia el lector de pantalla, y Django 5 ya lo escribe</td></tr>
+    <tr><td>Abrir el panel cuando el campo recibe el foco</td><td>Dejar que se abra con <code>↓</code>, <code>Espacio</code>, clic; <code>Enter</code> también en el select</td><td>Es la regla del <code>&lt;select&gt;</code> nativo y del ARIA APG</td></tr>
+    <tr><td>Olvidar el <code>hidden</code> en el panel del dropdown escrito en la plantilla</td><td><code>&lt;div class="tuc-dropdown" id="..." hidden&gt;</code></td><td>Sin él el menú aparece en medio de la página hasta que se ejecuta el script. El <code>&lt;dialog&gt;</code> del modal y del panel lateral no lo necesita</td></tr>
+    <tr><td>Diseñar un segundo botón</td><td><code>.tuc-btn</code> con <code>is-outline</code>, <code>is-ghost</code>, <code>is-icon</code>, <code>is-sm</code> — también dentro de una tabla</td><td>Clase propia solo para posicionar</td></tr>
+    <tr><td>Escribir el placeholder de un campo con máscara</td><td>Dejarlo vacío</td><td>Sale del formato: <code>data-tuc-mask="cpf"</code> ya nace con <code>000.000.000-00</code>, y <code>data-tuc-mask="real"</code> con <code>R$ 0,00</code></td></tr>
+    <tr><td>Cargar desde el CDN con <code>@latest</code></td><td>Fijar la versión: <code>tucano@v0.32.1</code></td><td>jsDelivr guarda <code>@latest</code> en caché mucho tiempo y sirve un build antiguo sin avisar</td></tr>
+    <tr><td>Importar de <code>tucano</code> por npm y esperar que los campos se monten</td><td><code>Tucano.init(document)</code>, o importar <code>tucano/auto</code></td><td>Por npm el auto-init no viene incluido, para que el empaquetador lleve solo lo que se importó; <code>tucano/auto</code> inicializa y escucha a HTMX como el script del CDN</td></tr>
+    <tr><td>Leer <code>e.target.name</code> en el <code>tucano:change</code> del date picker</td><td><code>e.detail.iso</code>, o el <code>&lt;input type="hidden"&gt;</code> de al lado</td><td>El date picker mueve el <code>name</code> al hidden con el valor ISO; el campo visible queda sin nombre. En el select, la máscara y el upload el <code>name</code> sigue en el elemento</td></tr>
+    <tr><td>Escribir a mano la validación de CPF o el formato de moneda o de fecha</td><td><code>Tucano.mask</code>, <code>Tucano.dates</code> y <code>Tucano.color</code></td><td>Son los mismos módulos que usan los componentes, expuestos como API: <code>validateCpfCnpj</code>, <code>applyCurrency</code>, <code>format</code>, <code>parseUserInput</code>, <code>isDark</code></td></tr>
+    <tr><td>Montar un aviso flotante propio para la respuesta del servidor</td><td>Los <code>messages</code> de Django en <code>&lt;div data-tuc-toast&gt;</code>, o la cabecera <code>HX-Trigger</code> con <code>tucano:toast</code></td><td>El toast ya se encarga de apilar, pausar con el foco y de las regiones que anuncia el lector de pantalla; el evento de HTMX se escucha solo</td></tr>
+    <tr><td>Publicar lo que salió del editor directamente con <code>|safe</code></td><td>Sanearlo antes en el servidor</td><td>El filtro del editor protege el editor, no la publicación</td></tr>
+    <tr><td>Esperar que el HTML insertado por <code>fetch</code> o <code>innerHTML</code> se inicialice solo</td><td>Llamar a <code>Tucano.init(nodo)</code> sobre el fragmento nuevo</td><td>Lo automático cubre la carga y cada <code>htmx:afterSwap</code>; otro camino de inserción la biblioteca no lo ve</td></tr>
+    <tr><td>Quitar <code>data-tuc-ready</code></td><td>Dejar el atributo</td><td>Es lo que impide que autoInit monte el mismo campo dos veces</td></tr>
+  </tbody>
+</table></div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">En caso de duda, manda la referencia generada</p><p>Si un ejemplo en prosa y la "Referência completa" (referencia completa) del <code>llms.txt</code> no coinciden, vale la referencia: se extrae del código en cada build. Pide a la IA que copie el ejemplo de cada sección en lugar de deducir, y que compruebe cada opción en esa lista.</p></div></div>
+
+<nav class="pager" aria-label="Paginación de la documentación"><a class="tuc-btn is-outline is-lg pager__prev" href="../keyboard/" aria-label="Página anterior: Teclado y accesibilidad"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Teclado y accesibilidad</a></nav>
+  </article>
+</main>
+
+<script src="../../dist/tucano.js?v=0.32.1"></script>
+<script src="../../site/site.js?v=0.32.1"></script>
+
+</body>
+</html>

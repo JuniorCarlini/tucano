@@ -1,0 +1,293 @@
+<!--
+title: Text editor
+component: editor
+lang: en
+description: Editor that shows the result as you write, with tables, code blocks and links, on top of the native <textarea> — and .tuc-prose to display what was saved.
+-->
+<h1>Text editor</h1>
+<p class="lead">It shows the result as you write: whoever fills in a description in the system sees bold as
+   bold, not markup. With tables and code blocks. The original <code>&lt;textarea&gt;</code> stays in the
+   form holding the HTML, so <code>name</code>, <code>required</code> and the POST work without changing the view.</p>
+
+<div class="demo is-hero">
+  <label class="tuc-label" for="ed-descricao">Project description</label>
+  <textarea id="ed-descricao" name="descricao" data-tuc-editor data-placeholder="Write here…">&lt;h2&gt;Contract scope&lt;/h2&gt;
+&lt;p&gt;On-site survey with a &lt;strong&gt;photo report&lt;/strong&gt;, &lt;em&gt;unit measurements&lt;/em&gt; and a &lt;u&gt;signed assessment&lt;/u&gt;.&lt;/p&gt;
+&lt;h3&gt;Stages&lt;/h3&gt;
+&lt;ol&gt;&lt;li&gt;Initial inspection&lt;/li&gt;&lt;li&gt;Measurement&lt;/li&gt;&lt;li&gt;Issuing the assessment&lt;/li&gt;&lt;/ol&gt;
+&lt;table&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Stage&lt;/th&gt;&lt;th style="text-align: center"&gt;Deadline&lt;/th&gt;&lt;th style="text-align: right"&gt;Amount&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;Inspection&lt;/td&gt;&lt;td style="text-align: center"&gt;5 days&lt;/td&gt;&lt;td style="text-align: right"&gt;$2,400&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Measurement&lt;/td&gt;&lt;td style="text-align: center"&gt;10 days&lt;/td&gt;&lt;td style="text-align: right"&gt;$5,800&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
+&lt;blockquote&gt;The deadline counts from the signature date.&lt;/blockquote&gt;
+&lt;p&gt;In the Django template:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;{% for m in messages %}
+  &amp;lt;div data-tuc-toast&amp;gt;{{ m }}&amp;lt;/div&amp;gt;
+{% endfor %}&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Full terms in &lt;a href="https://exemplo.com"&gt;our policy&lt;/a&gt;. A sentence with &lt;code&gt;code&lt;/code&gt; in the middle.&lt;/p&gt;</textarea>
+  <div class="out" id="ed-descricao-valor"></div>
+</div>
+
+<h2 id="exemplos">Examples</h2>
+<p class="lead">The same <code>&lt;textarea&gt;</code>, with different attributes or options.</p>
+
+<div class="demo">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <h4>Slim toolbar</h4>
+      <p><code>toolbar</code> picks the buttons and their order — here, only what a comment needs.</p>
+      <textarea id="ed-comentario" name="comentario" aria-label="Comment">&lt;p&gt;Approved with &lt;strong&gt;reservations&lt;/strong&gt;.&lt;/p&gt;</textarea>
+    </div>
+    <div class="demo-cell">
+      <h4>Empty, shorter</h4>
+      <p><code>data-placeholder</code> and <code>data-min-height="5rem"</code>.</p>
+      <textarea id="ed-obs" name="observacoes" data-tuc-editor data-placeholder="Notes for the team…" data-min-height="5rem" aria-label="Notes"></textarea>
+    </div>
+    <div class="demo-cell">
+      <h4>With an error</h4>
+      <p><code>aria-invalid="true"</code> on the textarea paints the frame — Django 5 already writes the attribute.</p>
+      <textarea id="ed-erro" name="justificativa" data-tuc-editor data-min-height="5rem" aria-invalid="true" aria-describedby="ed-erro-msg" aria-label="Justification"></textarea>
+      <p class="tuc-error" id="ed-erro-msg">Write the justification.</p>
+    </div>
+    <div class="demo-cell">
+      <h4>The sanitizer, live</h4>
+      <p><code>Tucano.sanitize()</code> on HTML with <code>onerror</code>, <code>javascript:</code> and <code>&lt;script&gt;</code>.</p>
+      <div class="out" id="ed-peneira-entrada"></div>
+      <div class="out" id="ed-peneira-saida"></div>
+    </div>
+  </div>
+</div>
+
+<h2 id="uso">How to use</h2>
+<p class="lead">Mark the <code>&lt;textarea&gt;</code> and it initializes on its own, including anything that arrives later via HTMX.
+   The initial content is the stored HTML, and it also goes through the sanitizer — it may have come from the database.</p>
+
+<pre data-code="django">
+<textarea name="descricao" data-tuc-editor>{{ form.descricao.value|default:"" }}</textarea>
+</pre>
+
+<h3>In a Django form</h3>
+<pre data-code="python">
+class ProjetoForm(forms.ModelForm):
+    class Meta:
+        model = Projeto
+        fields = ["descricao"]
+        widgets = {
+            "descricao": forms.Textarea(attrs={
+                "data-tuc-editor": "",
+                "data-placeholder": "Describe the scope...",
+                "data-min-height": "12rem",
+            }),
+        }
+</pre>
+
+<h3>In JavaScript</h3>
+<p>To choose the toolbar and the table size, which do not exist as attributes, or to read and write the value.</p>
+<pre data-code="js">
+const ed = new Tucano.Editor('#descricao', {
+  toolbar: ['bold', 'italic', 'list', 'link', 'table'],
+  table: { rows: 4, cols: 2 },     // rows including the header
+});
+
+ed.getValue();                   // HTML, already sanitized
+ed.setValue('<p>New text</p>');  // sanitizes, highlights code and updates the textarea
+ed.apply('bold');                // same as the toolbar button
+ed.inTable('rowBelow');          // operation on the cell where the cursor is
+ed.destroy();                    // gives back the original textarea
+</pre>
+
+<h2 id="barra">The toolbar</h2>
+<p class="lead">A lit button means the cursor is inside that formatting — and that clicking again undoes it. The names
+   below are the ones the <code>toolbar</code> option accepts, in the default order.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Name</th><th>Button</th><th>What it does</th></tr></thead>
+  <tbody>
+    <tr><td><code>bold</code> <code>italic</code> <code>underline</code></td><td>Bold, Italic, Underline</td><td>Marks the selection; <code>Ctrl/Cmd+B</code>, <code>+I</code>, <code>+U</code></td></tr>
+    <tr><td><code>title</code> <code>subheading</code></td><td>Heading, Subheading</td><td>Turns the block into <code>&lt;h2&gt;</code> or <code>&lt;h3&gt;</code>; again, back to a paragraph</td></tr>
+    <tr><td><code>list</code> <code>numbered</code></td><td>List, Numbered list</td><td><code>&lt;ul&gt;</code> and <code>&lt;ol&gt;</code></td></tr>
+    <tr><td><code>left</code> <code>center</code> <code>right</code> <code>justify</code></td><td>Alignments</td><td>Aligns the block</td></tr>
+    <tr><td><code>quote</code></td><td>Quote</td><td><code>&lt;blockquote&gt;</code>; again, back to a paragraph</td></tr>
+    <tr><td><code>code</code></td><td>Code</td><td>Inline code or code block — see below</td></tr>
+    <tr><td><code>link</code></td><td>Link</td><td>Opens the address box; <code>Ctrl/Cmd+K</code></td></tr>
+    <tr><td><code>table</code></td><td>Insert table</td><td>Table with a header at the cursor</td></tr>
+    <tr><td><code>clear</code></td><td>Clear formatting</td><td>Removes text formatting from the selection</td></tr>
+  </tbody>
+</table></div>
+
+<p>The toolbar stays on a single line and scrolls when it does not fit, instead of wrapping onto two: that way the height does not change and anyone
+   looking for a button knows it has not moved to another row. The button names shown by the component are in Portuguese.</p>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Pasting always comes in as plain text</p><p>That is what keeps out the HTML from Word and Google Docs, with layout tables and inline styles, which is where homemade editors break first. You lose the source formatting and gain a document that is still yours.</p></div></div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Ctrl+Z is the browser's</p><p>Formatting goes through <code>execCommand</code>, which is deprecated and used anyway: it is the only path with universal support and the only one that integrates with native undo. Reimplementing it by hand would mean reimplementing <code>Ctrl+Z</code> too. The exception is removing a code block, which leaves the history for that one action.</p></div></div>
+
+<h2 id="tabela">Table</h2>
+<p class="lead">The button inserts a table with a header — tables in business apps almost always have one, and without it the first
+   row of data ends up acting as the title. With the cursor in a cell, a second toolbar appears just for it.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Operation</th><th>Name in <code>inTable()</code></th><th>Detail</th></tr></thead>
+  <tbody>
+    <tr><td>Insert row above / below</td><td><code>rowAbove</code> <code>rowBelow</code></td><td>From the header, the new row goes into the body</td></tr>
+    <tr><td>Insert column left / right</td><td><code>colBefore</code> <code>colAfter</code></td><td>The new cell is <code>th</code> in the header and <code>td</code> in the body</td></tr>
+    <tr><td>Delete row</td><td><code>deleteRow</code></td><td>On the last row, the whole table goes away, instead of leaving an empty frame</td></tr>
+    <tr><td>Delete column</td><td><code>deleteColumn</code></td><td>Same, on the last column</td></tr>
+    <tr><td>Delete table</td><td><code>deleteTable</code></td><td></td></tr>
+  </tbody>
+</table></div>
+
+<p>In a table, <code>Tab</code> moves to the next cell and <code>Shift+Tab</code> goes back; in the last cell, <code>Tab</code>
+   creates a new row — you can fill it in without taking your hands off the keyboard. Inserting a table with the cursor inside
+   another one puts the new table after it, not nested. The table toolbar only appears when it is needed: always visible,
+   it would fill the main toolbar with useless buttons most of the time.</p>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Out of scope</p><p>Merging cells and resizing columns — that is what turns an editor into a project of its own. Columns have a fixed width on purpose: with automatic width, the text would resize the column on every keystroke and the whole row would jump around.</p></div></div>
+
+<h2 id="codigo">Code block</h2>
+<p class="lead">The same button does both, depending on the selection: a selection within one line becomes
+   inline <code>&lt;code&gt;</code>; a selection spanning lines becomes <code>&lt;pre&gt;&lt;code&gt;</code>,
+   which is the element that preserves line breaks and indentation. With the cursor inside, the button undoes it.</p>
+
+<p>The block is highlighted as you write — comments, quoted text, numbers, tags, attributes, keywords and
+   template braces. The color is display only: the sanitizer dissolves <code>&lt;span&gt;</code>, so none of it reaches the saved
+   value, nor should it, because color is the decision of whoever displays it.</p>
+
+<h2 id="link">Link</h2>
+<p class="lead">The address is asked for in the library's own modal, not in the browser's <code>prompt</code> — which
+   appears outside the page's design, ignores the theme and cannot be styled.</p>
+
+<p>Select the text and use the button or <code>Ctrl/Cmd+K</code>. <code>Enter</code> in the field confirms. With the cursor
+   on an existing link, the box opens with its address and gains "Remover" (remove). Only addresses starting with
+   <code>http:</code>, <code>https:</code>, <code>mailto:</code>, <code>tel:</code>, <code>#</code> or <code>/</code> get through —
+   everything else, <code>javascript:</code> included, loses the link and keeps the text. Every saved link comes out with
+   <code>target="_blank"</code> and <code>rel="noopener noreferrer"</code>.</p>
+
+<h2 id="valor">Value and form</h2>
+<p class="lead">What holds the value is the <code>&lt;textarea&gt;</code>, hidden inside the editor. On every change it
+   receives the sanitized HTML and fires native <code>input</code> and <code>change</code> events.</p>
+
+<pre data-code="text">
+POST  descricao = <h2>Contract scope</h2><p>Survey with a <strong>report</strong>.</p>
+</pre>
+
+<pre data-code="js">
+document.querySelector('#descricao').addEventListener('change', (e) => {
+  e.target.value;   // the HTML that goes in the POST
+});
+</pre>
+
+<p>The editor does not fire <code>tucano:change</code>: the value is form text, and the textarea's native events already
+   serve HTMX's <code>hx-trigger="change"</code> and validation.</p>
+
+<h3>The sanitizer</h3>
+<p>The output goes through a closed list of tags on every read, not just on what was typed: the browser is
+   free to mark up however it likes when running a command, and the result has to fit what the editor promises.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Input</th><th>Output</th></tr></thead>
+  <tbody>
+    <tr><td><code>p</code> <code>br</code> <code>h2</code> <code>h3</code> <code>strong</code> <code>em</code> <code>u</code> <code>s</code> <code>ul</code> <code>ol</code> <code>li</code> <code>blockquote</code> <code>code</code> <code>pre</code> <code>a</code> <code>table</code> <code>thead</code> <code>tbody</code> <code>tr</code> <code>th</code> <code>td</code></td><td>As they are, with no attributes</td></tr>
+    <tr><td><code>b</code> <code>i</code></td><td>Become <code>strong</code> and <code>em</code></td></tr>
+    <tr><td><code>href</code> on <code>a</code></td><td>Only with an acceptable destination; otherwise the link goes away and the text stays</td></tr>
+    <tr><td><code>text-align</code></td><td>Only <code>left</code>, <code>center</code>, <code>right</code> or <code>justify</code>, on <code>p</code>, <code>h2</code>, <code>h3</code>, <code>li</code>, <code>blockquote</code>, <code>th</code> and <code>td</code> — rewritten from scratch, never the <code>style</code> that came in</td></tr>
+    <tr><td><code>script</code> <code>style</code> <code>iframe</code> <code>object</code></td><td>Removed along with their content</td></tr>
+    <tr><td>Any other tag (<code>div</code>, <code>span</code>, <code>font</code>, <code>h1</code>...)</td><td>Loses the tag and keeps the text</td></tr>
+    <tr><td>Any other attribute (<code>onclick</code>, <code>onerror</code>, <code>class</code>...)</td><td>Removed</td></tr>
+  </tbody>
+</table></div>
+
+<pre data-code="js">
+Tucano.sanitize('<p onclick="x()">Hi <img src=x onerror="roubar()"><b>there</b></p>');
+// '<p>Hi <strong>there</strong></p>'
+</pre>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Sanitize again on the server, before publishing</p><p>The sanitizer protects the editor, not the published page. The HTML arrives by POST, and nothing guarantees it came from this editor — anyone can build the request by hand. Run the value through a server-side sanitizer, with the same tag list, before displaying it with <code>|safe</code>.</p></div></div>
+
+<pre data-code="python">
+import nh3
+
+TAGS = {"p", "br", "h2", "h3", "strong", "em", "u", "s", "ul", "ol", "li",
+        "blockquote", "code", "pre", "a", "table", "thead", "tbody", "tr", "th", "td"}
+
+def limpar(html):
+    return nh3.clean(html, tags=TAGS, attributes={"a": {"href"}},
+                     url_schemes={"http", "https", "mailto", "tel"})
+</pre>
+<p class="tuc-hint">An example with <code>nh3</code>; any sanitizer with a closed list will do. To keep alignment, also allow <code>style</code> with only <code>text-align</code> on blocks.</p>
+
+<h2 id="exibicao">Displaying what was saved</h2>
+<p class="lead">What gets saved is HTML with no classes at all — on purpose, so it works with any server and survives
+   a front-end rewrite. The cost is that, once published, it would inherit your page's styles. Wrapping the output in
+   <code>.tuc-prose</code> gives back exactly the look the person saw while writing.</p>
+
+<pre data-code="django">
+<div class="tuc-prose">{{ projeto.descricao|safe }}</div>
+</pre>
+
+<div class="demo">
+  <span class="tuc-label">The same content, published</span>
+  <div class="tuc-prose">
+    <h2>Contract scope</h2>
+    <p>On-site survey with a <strong>photo report</strong> and <em>unit measurements</em>.</p>
+    <table><thead><tr><th>Stage</th><th style="text-align: center">Deadline</th><th style="text-align: right">Amount</th></tr></thead>
+      <tbody><tr><td>Inspection</td><td style="text-align: center">5 days</td><td style="text-align: right">$2,400</td></tr>
+      <tr><td>Measurement</td><td style="text-align: center">10 days</td><td style="text-align: right">$5,800</td></tr></tbody></table>
+    <pre><code>npm install tucano
+npm run build  # builds dist</code></pre>
+    <blockquote>The deadline counts from the signature date.</blockquote>
+  </div>
+</div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">The two looks cannot drift apart</p><p>The <code>.tuc-prose</code> rules are the same as the editing area's, shared in the CSS. They also defend against the host's CSS: <code>table { display: block }</code> and <code>th { text-transform: uppercase }</code> are common recipes in projects, and inherited here they would break the table and misrepresent what was written.</p></div></div>
+
+<h3>Highlighted code and copy</h3>
+<p><code>init()</code> highlights every <code>&lt;pre&gt;&lt;code&gt;</code> inside <code>.tuc-prose</code> and adds a
+   copy button in the corner — including anything that arrives later via HTMX. Hover over the block above to see it.</p>
+
+<ul>
+  <li>The button appears on hover and on focus: if it were permanent it would compete with the code, which is what the person came to read; but it is still reachable with <code>Tab</code>, for keyboard users. On touch screens it is always visible, more subdued.</li>
+  <li>It copies the raw text, without the color markup. Outside a secure context, where the clipboard does not exist, it selects the block and leaves <code>Ctrl+C</code> one keystroke away.</li>
+  <li>The highlighter does not know any language, on purpose: it recognizes what shows up in almost all of them, which covers any language for 2 KB. The colors are the <code>--tuc-tok-*</code> tokens, with their own palette in dark mode.</li>
+</ul>
+
+<pre data-code="js">
+Tucano.highlight('const x = 1;');   // HTML with <span class="tuc-tok-..."> to color by hand
+Tucano.init(trecho);                // highlights and adds copy to HTML inserted some other way
+</pre>
+
+<h2 id="teclado">Keyboard and accessibility</h2>
+<p class="lead">The area is a <code>role="textbox"</code> with <code>aria-multiline</code>; the toolbar is a
+   <code>role="toolbar"</code>, and each button has a name and <code>aria-pressed</code> following the formatting under the cursor.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Key</th><th>Action</th></tr></thead>
+  <tbody>
+    <tr><td><code>Ctrl/Cmd+B</code> <code>+I</code> <code>+U</code></td><td>Bold, italic, underline</td></tr>
+    <tr><td><code>Ctrl/Cmd+K</code></td><td>Insert or edit link</td></tr>
+    <tr><td><code>Ctrl/Cmd+Z</code></td><td>Undo, through the browser's history</td></tr>
+    <tr><td><code>Tab</code> <code>Shift+Tab</code></td><td>In a table, next and previous cell; in the last one, creates a row</td></tr>
+    <tr><td><code>Enter</code></td><td>In the link box, confirms</td></tr>
+    <tr><td><code>Esc</code></td><td>In the link box, closes without applying</td></tr>
+  </tbody>
+</table></div>
+
+<p>Outside a table, <code>Tab</code> leaves the editor, as in any field. Applying formatting does not scroll the page:
+   focus returns to the area without scrolling.</p>
+
+<h2 id="api">API</h2>
+<!-- api -->
+
+<script>
+  // Slim toolbar: toolbar is a JS option, there is no attribute for it.
+  new Tucano.Editor('#ed-comentario', { toolbar: ['bold', 'italic', 'list', 'link'], minHeight: '5rem' });
+
+  // The value that goes in the POST, read from the textarea on every change.
+  const campo = document.getElementById('ed-descricao');
+  const valor = document.getElementById('ed-descricao-valor');
+  const mostrar = () => { valor.textContent = `POST descricao = ${campo.value}`; };
+  campo.addEventListener('change', mostrar);
+  mostrar();
+
+  // The sanitizer on hostile HTML.
+  const hostil = '<p onclick="roubar()">Hi <img src=x onerror="roubar()"><b>there</b>, <a href="javascript:roubar()">click</a></p><script>roubar()<\/script>';
+  document.getElementById('ed-peneira-entrada').textContent = `input:  ${hostil}`;
+  document.getElementById('ed-peneira-saida').textContent = `output: ${Tucano.sanitize(hostil)}`;
+</script>

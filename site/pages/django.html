@@ -157,7 +157,7 @@ class PeriodoInput(forms.TextInput):
   </div>
 </div>
 
-<p>Para o Django 4 ou anterior, ponha o atributo no widget quando o campo tiver erro — no <code>__init__</code> do form,
+<p>Para o Django 4 ou anterior, ponha o atributo no widget quando o campo tiver erro — no <code>full_clean()</code> do form,
    depois da validação:</p>
 <pre data-code="python">
 class BaseForm(forms.Form):

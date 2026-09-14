@@ -1,0 +1,293 @@
+<!--
+title: Editor de texto
+component: editor
+lang: es
+description: Editor que muestra el resultado mientras se escribe, con tabla, bloque de código y enlace, sobre el <textarea> nativo — y .tuc-prose para mostrar lo guardado.
+-->
+<h1>Editor de texto</h1>
+<p class="lead">Muestra el resultado mientras se escribe: quien completa una descripción en el sistema ve la negrita como
+   negrita, y no marcado. Con tabla y bloque de código. El <code>&lt;textarea&gt;</code> original sigue en el
+   formulario guardando el HTML, así que <code>name</code>, <code>required</code> y el POST funcionan sin cambiar la view.</p>
+
+<div class="demo is-hero">
+  <label class="tuc-label" for="ed-descricao">Descripción del proyecto</label>
+  <textarea id="ed-descricao" name="descricao" data-tuc-editor data-placeholder="Escribe aquí…">&lt;h2&gt;Alcance del contrato&lt;/h2&gt;
+&lt;p&gt;Relevamiento en terreno con &lt;strong&gt;informe fotográfico&lt;/strong&gt;, &lt;em&gt;medición de las unidades&lt;/em&gt; y &lt;u&gt;dictamen firmado&lt;/u&gt;.&lt;/p&gt;
+&lt;h3&gt;Etapas&lt;/h3&gt;
+&lt;ol&gt;&lt;li&gt;Inspección inicial&lt;/li&gt;&lt;li&gt;Medición&lt;/li&gt;&lt;li&gt;Emisión del dictamen&lt;/li&gt;&lt;/ol&gt;
+&lt;table&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Etapa&lt;/th&gt;&lt;th style="text-align: center"&gt;Plazo&lt;/th&gt;&lt;th style="text-align: right"&gt;Importe&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;Inspección&lt;/td&gt;&lt;td style="text-align: center"&gt;5 días&lt;/td&gt;&lt;td style="text-align: right"&gt;2.400 €&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Medición&lt;/td&gt;&lt;td style="text-align: center"&gt;10 días&lt;/td&gt;&lt;td style="text-align: right"&gt;5.800 €&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
+&lt;blockquote&gt;El plazo corre desde la firma.&lt;/blockquote&gt;
+&lt;p&gt;En el template de Django:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;{% for m in messages %}
+  &amp;lt;div data-tuc-toast&amp;gt;{{ m }}&amp;lt;/div&amp;gt;
+{% endfor %}&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Condiciones completas en &lt;a href="https://exemplo.com"&gt;nuestra política&lt;/a&gt;. Frase con &lt;code&gt;código&lt;/code&gt; en el medio.&lt;/p&gt;</textarea>
+  <div class="out" id="ed-descricao-valor"></div>
+</div>
+
+<h2 id="exemplos">Ejemplos</h2>
+<p class="lead">El mismo <code>&lt;textarea&gt;</code>, con atributos u opciones distintos.</p>
+
+<div class="demo">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <h4>Barra reducida</h4>
+      <p><code>toolbar</code> elige los botones y el orden — aquí, solo lo que necesita un comentario.</p>
+      <textarea id="ed-comentario" name="comentario" aria-label="Comentario">&lt;p&gt;Aprobado con &lt;strong&gt;reservas&lt;/strong&gt;.&lt;/p&gt;</textarea>
+    </div>
+    <div class="demo-cell">
+      <h4>Vacío, más bajo</h4>
+      <p><code>data-placeholder</code> y <code>data-min-height="5rem"</code>.</p>
+      <textarea id="ed-obs" name="observacoes" data-tuc-editor data-placeholder="Observaciones para el equipo…" data-min-height="5rem" aria-label="Observaciones"></textarea>
+    </div>
+    <div class="demo-cell">
+      <h4>Con error</h4>
+      <p><code>aria-invalid="true"</code> en el textarea pinta el marco — Django 5 ya escribe el atributo.</p>
+      <textarea id="ed-erro" name="justificativa" data-tuc-editor data-min-height="5rem" aria-invalid="true" aria-describedby="ed-erro-msg" aria-label="Justificación"></textarea>
+      <p class="tuc-error" id="ed-erro-msg">Escribe la justificación.</p>
+    </div>
+    <div class="demo-cell">
+      <h4>El filtro, en vivo</h4>
+      <p><code>Tucano.sanitize()</code> sobre un HTML con <code>onerror</code>, <code>javascript:</code> y <code>&lt;script&gt;</code>.</p>
+      <div class="out" id="ed-peneira-entrada"></div>
+      <div class="out" id="ed-peneira-saida"></div>
+    </div>
+  </div>
+</div>
+
+<h2 id="uso">Cómo usar</h2>
+<p class="lead">Marca el <code>&lt;textarea&gt;</code> y se inicializa solo, incluso lo que llegue después por HTMX.
+   El contenido inicial es el HTML guardado, y también pasa por el filtro — puede haber venido de la base de datos.</p>
+
+<pre data-code="django">
+<textarea name="descricao" data-tuc-editor>{{ form.descricao.value|default:"" }}</textarea>
+</pre>
+
+<h3>En el formulario de Django</h3>
+<pre data-code="python">
+class ProjetoForm(forms.ModelForm):
+    class Meta:
+        model = Projeto
+        fields = ["descricao"]
+        widgets = {
+            "descricao": forms.Textarea(attrs={
+                "data-tuc-editor": "",
+                "data-placeholder": "Describe el alcance...",
+                "data-min-height": "12rem",
+            }),
+        }
+</pre>
+
+<h3>En JavaScript</h3>
+<p>Para elegir la barra y el tamaño de la tabla, que no existen como atributo, o para leer y escribir el valor.</p>
+<pre data-code="js">
+const ed = new Tucano.Editor('#descricao', {
+  toolbar: ['bold', 'italic', 'list', 'link', 'table'],
+  table: { rows: 4, cols: 2 },     // filas contando el encabezado
+});
+
+ed.getValue();                   // HTML ya filtrado
+ed.setValue('<p>Texto nuevo</p>');  // filtra, colorea el código y actualiza el textarea
+ed.apply('bold');                // lo mismo que el botón de la barra
+ed.inTable('rowBelow');          // operación en la celda donde está el cursor
+ed.destroy();                    // devuelve el textarea original
+</pre>
+
+<h2 id="barra">La barra</h2>
+<p class="lead">Un botón encendido indica que el cursor está dentro de ese formato — y que hacer clic de nuevo lo deshace. Los nombres
+   de abajo son los que acepta la opción <code>toolbar</code>, en el orden por defecto.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Nombre</th><th>Botón</th><th>Qué hace</th></tr></thead>
+  <tbody>
+    <tr><td><code>bold</code> <code>italic</code> <code>underline</code></td><td>Negrita, Cursiva, Subrayado</td><td>Marca el fragmento; <code>Ctrl/Cmd+B</code>, <code>+I</code>, <code>+U</code></td></tr>
+    <tr><td><code>title</code> <code>subheading</code></td><td>Título, Subtítulo</td><td>Convierte el bloque en <code>&lt;h2&gt;</code> o <code>&lt;h3&gt;</code>; de nuevo, vuelve a párrafo</td></tr>
+    <tr><td><code>list</code> <code>numbered</code></td><td>Lista, Lista numerada</td><td><code>&lt;ul&gt;</code> y <code>&lt;ol&gt;</code></td></tr>
+    <tr><td><code>left</code> <code>center</code> <code>right</code> <code>justify</code></td><td>Alineaciones</td><td>Alinea el bloque</td></tr>
+    <tr><td><code>quote</code></td><td>Cita</td><td><code>&lt;blockquote&gt;</code>; de nuevo, vuelve a párrafo</td></tr>
+    <tr><td><code>code</code></td><td>Código</td><td>Código en medio de la frase o bloque de código — ver abajo</td></tr>
+    <tr><td><code>link</code></td><td>Enlace</td><td>Abre la caja de dirección; <code>Ctrl/Cmd+K</code></td></tr>
+    <tr><td><code>table</code></td><td>Insertar tabla</td><td>Tabla con encabezado en la posición del cursor</td></tr>
+    <tr><td><code>clear</code></td><td>Limpiar formato</td><td>Quita el formato de texto del fragmento seleccionado</td></tr>
+  </tbody>
+</table></div>
+
+<p>La barra queda en una sola línea y se desplaza cuando no cabe, en lugar de partirse en dos: así la altura no cambia y quien
+   busca un botón sabe que no cambió de fila. Los nombres de los botones que muestra el componente están en portugués.</p>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Pegar siempre entra como texto plano</p><p>Es lo que evita el HTML de Word y de Google Docs, con tablas de maquetación y estilos incrustados, que es donde un editor casero se rompe primero. Pierdes el formato de origen y ganas un documento que sigue siendo tuyo.</p></div></div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">El Ctrl+Z es el del navegador</p><p>El formato pasa por <code>execCommand</code>, que está obsoleto y se usa igual: es el único camino con soporte universal y el único que se integra con el deshacer nativo. Reimplementarlo a mano sería reimplementar el <code>Ctrl+Z</code> también. La excepción es quitar un bloque de código, que sale del historial solo en esa acción.</p></div></div>
+
+<h2 id="tabela">Tabla</h2>
+<p class="lead">El botón inserta una tabla con encabezado — una tabla de sistema casi siempre tiene uno, y sin él la primera
+   fila de datos termina haciendo de título. Con el cursor en una celda, aparece una segunda barra solo para ella.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Operación</th><th>Nombre en <code>inTable()</code></th><th>Detalle</th></tr></thead>
+  <tbody>
+    <tr><td>Insertar fila arriba / abajo</td><td><code>rowAbove</code> <code>rowBelow</code></td><td>Desde el encabezado, la fila nueva va al cuerpo</td></tr>
+    <tr><td>Insertar columna a la izquierda / a la derecha</td><td><code>colBefore</code> <code>colAfter</code></td><td>La celda nueva es <code>th</code> en el encabezado y <code>td</code> en el cuerpo</td></tr>
+    <tr><td>Eliminar fila</td><td><code>deleteRow</code></td><td>En la última fila, desaparece la tabla entera, en lugar de quedar el marco</td></tr>
+    <tr><td>Eliminar columna</td><td><code>deleteColumn</code></td><td>Ídem, en la última columna</td></tr>
+    <tr><td>Eliminar tabla</td><td><code>deleteTable</code></td><td></td></tr>
+  </tbody>
+</table></div>
+
+<p>En la tabla, <code>Tab</code> avanza a la celda siguiente y <code>Shift+Tab</code> vuelve; en la última celda, <code>Tab</code>
+   crea una fila nueva — se puede completar sin quitar las manos del teclado. Insertar una tabla con el cursor dentro de
+   otra pone la nueva después de ella, y no anidada. La barra de tabla solo aparece cuando hace falta: siempre visible,
+   llenaría la barra principal de botones inútiles la mayor parte del tiempo.</p>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Fuera del alcance</p><p>Combinar celdas y redimensionar columnas — es lo que convierte un editor en un proyecto aparte. Las columnas tienen ancho fijo a propósito: con ancho automático, el texto redimensionaría la columna con cada tecla y toda la fila bailaría.</p></div></div>
+
+<h2 id="codigo">Bloque de código</h2>
+<p class="lead">El mismo botón hace las dos cosas, según lo seleccionado: un fragmento dentro de una línea se vuelve
+   <code>&lt;code&gt;</code> en medio de la frase; una selección que atraviesa líneas se vuelve <code>&lt;pre&gt;&lt;code&gt;</code>,
+   que es el elemento que conserva saltos de línea y sangría. Con el cursor dentro, el botón lo deshace.</p>
+
+<p>El bloque se colorea mientras se escribe — comentarios, texto entre comillas, números, etiquetas, atributos, palabras clave y
+   llaves de template. El color es solo visual: el filtro disuelve <code>&lt;span&gt;</code>, así que nada de él llega al valor
+   guardado, ni debería, porque el color es decisión de quien muestra el contenido.</p>
+
+<h2 id="link">Enlace</h2>
+<p class="lead">La dirección se pide en un modal de la propia biblioteca, y no en el <code>prompt</code> del navegador — que
+   aparece fuera del diseño de la página, ignora el tema y no se puede estilizar.</p>
+
+<p>Selecciona el texto y usa el botón o <code>Ctrl/Cmd+K</code>. <code>Enter</code> en el campo confirma. Con el cursor
+   en un enlace existente, la caja se abre con su dirección y suma "Remover" (quitar). Solo pasan direcciones que empiezan con
+   <code>http:</code>, <code>https:</code>, <code>mailto:</code>, <code>tel:</code>, <code>#</code> o <code>/</code> —
+   el resto, <code>javascript:</code> incluido, pierde el enlace y conserva el texto. Todo enlace guardado sale con
+   <code>target="_blank"</code> y <code>rel="noopener noreferrer"</code>.</p>
+
+<h2 id="valor">Valor y formulario</h2>
+<p class="lead">Quien guarda el valor es el <code>&lt;textarea&gt;</code>, oculto dentro del editor. Con cada cambio
+   recibe el HTML filtrado y dispara los eventos nativos <code>input</code> y <code>change</code>.</p>
+
+<pre data-code="text">
+POST  descricao = <h2>Alcance del contrato</h2><p>Relevamiento con <strong>informe</strong>.</p>
+</pre>
+
+<pre data-code="js">
+document.querySelector('#descricao').addEventListener('change', (e) => {
+  e.target.value;   // el HTML que va en el POST
+});
+</pre>
+
+<p>El editor no dispara <code>tucano:change</code>: el valor es texto de formulario, y los eventos nativos del textarea ya
+   sirven al <code>hx-trigger="change"</code> de HTMX y a la validación.</p>
+
+<h3>El filtro</h3>
+<p>La salida pasa por una lista cerrada de etiquetas en cada lectura, y no solo en lo que se escribió: el navegador tiene
+   libertad para marcar como quiera al ejecutar un comando, y el resultado tiene que caber en lo que el editor promete.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Entrada</th><th>Salida</th></tr></thead>
+  <tbody>
+    <tr><td><code>p</code> <code>br</code> <code>h2</code> <code>h3</code> <code>strong</code> <code>em</code> <code>u</code> <code>s</code> <code>ul</code> <code>ol</code> <code>li</code> <code>blockquote</code> <code>code</code> <code>pre</code> <code>a</code> <code>table</code> <code>thead</code> <code>tbody</code> <code>tr</code> <code>th</code> <code>td</code></td><td>Tal como están, sin atributos</td></tr>
+    <tr><td><code>b</code> <code>i</code></td><td>Se convierten en <code>strong</code> y <code>em</code></td></tr>
+    <tr><td><code>href</code> de <code>a</code></td><td>Solo con un destino aceptable; si no, el enlace desaparece y el texto queda</td></tr>
+    <tr><td><code>text-align</code></td><td>Solo <code>left</code>, <code>center</code>, <code>right</code> o <code>justify</code>, en <code>p</code>, <code>h2</code>, <code>h3</code>, <code>li</code>, <code>blockquote</code>, <code>th</code> y <code>td</code> — reescrito desde cero, nunca el <code>style</code> que vino</td></tr>
+    <tr><td><code>script</code> <code>style</code> <code>iframe</code> <code>object</code></td><td>Desaparecen con su contenido</td></tr>
+    <tr><td>Cualquier otra etiqueta (<code>div</code>, <code>span</code>, <code>font</code>, <code>h1</code>...)</td><td>Pierde la etiqueta y conserva el texto</td></tr>
+    <tr><td>Cualquier otro atributo (<code>onclick</code>, <code>onerror</code>, <code>class</code>...)</td><td>Desaparece</td></tr>
+  </tbody>
+</table></div>
+
+<pre data-code="js">
+Tucano.sanitize('<p onclick="x()">Hola <img src=x onerror="roubar()"><b>tú</b></p>');
+// '<p>Hola <strong>tú</strong></p>'
+</pre>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Sanitiza de nuevo en el servidor, antes de publicar</p><p>El filtro protege el editor, no la publicación. El HTML llega por POST, y nadie garantiza que vino de este editor — cualquiera arma la petición a mano. Pasa el valor por un sanitizador del lado del servidor, con la misma lista de etiquetas, antes de mostrarlo con <code>|safe</code>.</p></div></div>
+
+<pre data-code="python">
+import nh3
+
+TAGS = {"p", "br", "h2", "h3", "strong", "em", "u", "s", "ul", "ol", "li",
+        "blockquote", "code", "pre", "a", "table", "thead", "tbody", "tr", "th", "td"}
+
+def limpar(html):
+    return nh3.clean(html, tags=TAGS, attributes={"a": {"href"}},
+                     url_schemes={"http", "https", "mailto", "tel"})
+</pre>
+<p class="tuc-hint">Un ejemplo con <code>nh3</code>; cualquier sanitizador con lista cerrada sirve. Para conservar la alineación, permite también el <code>style</code> con solo <code>text-align</code> en los bloques.</p>
+
+<h2 id="exibicao">Mostrar lo guardado</h2>
+<p class="lead">Lo que se guarda es HTML sin ninguna clase — a propósito, para servir a cualquier servidor y sobrevivir a
+   un cambio de front. El precio es que, publicado, heredaría el estilo de tu página. Envolver la salida en
+   <code>.tuc-prose</code> devuelve exactamente el aspecto que la persona vio al escribir.</p>
+
+<pre data-code="django">
+<div class="tuc-prose">{{ projeto.descricao|safe }}</div>
+</pre>
+
+<div class="demo">
+  <span class="tuc-label">El mismo contenido, ya publicado</span>
+  <div class="tuc-prose">
+    <h2>Alcance del contrato</h2>
+    <p>Relevamiento en terreno con <strong>informe fotográfico</strong> y <em>medición de las unidades</em>.</p>
+    <table><thead><tr><th>Etapa</th><th style="text-align: center">Plazo</th><th style="text-align: right">Importe</th></tr></thead>
+      <tbody><tr><td>Inspección</td><td style="text-align: center">5 días</td><td style="text-align: right">2.400 €</td></tr>
+      <tr><td>Medición</td><td style="text-align: center">10 días</td><td style="text-align: right">5.800 €</td></tr></tbody></table>
+    <pre><code>npm install tucano
+npm run build  # genera el dist</code></pre>
+    <blockquote>El plazo corre desde la firma.</blockquote>
+  </div>
+</div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Los dos aspectos no pueden divergir</p><p>Las reglas de <code>.tuc-prose</code> son las mismas del área de edición, compartidas en el CSS. También se defienden del CSS de quien las aloja: <code>table { display: block }</code> y <code>th { text-transform: uppercase }</code> son recetas comunes en proyectos, y heredadas aquí desarmarían la tabla y mentirían sobre lo que se escribió.</p></div></div>
+
+<h3>Código coloreado y copiar</h3>
+<p>El <code>init()</code> colorea cada <code>&lt;pre&gt;&lt;code&gt;</code> dentro de <code>.tuc-prose</code> y pone un botón de
+   copiar en la esquina — incluso en lo que llegue después por HTMX. Pasa el ratón sobre el bloque de arriba para verlo.</p>
+
+<ul>
+  <li>El botón aparece al pasar el ratón y con el foco: permanente, competiría con el código, que es lo que la persona vino a leer; pero sigue alcanzable con <code>Tab</code>, para quien navega con teclado. En pantallas táctiles queda siempre visible, más discreto.</li>
+  <li>Copia el texto crudo, sin las marcas de color. Fuera de un contexto seguro, donde el portapapeles no existe, selecciona el bloque y deja el <code>Ctrl+C</code> a una tecla.</li>
+  <li>El resaltador no conoce ningún lenguaje, a propósito: reconoce lo que aparece en casi todos, lo que cubre cualquier lenguaje por 2 KB. Los colores son los tokens <code>--tuc-tok-*</code>, con paleta propia en el modo oscuro.</li>
+</ul>
+
+<pre data-code="js">
+Tucano.highlight('const x = 1;');   // HTML con <span class="tuc-tok-..."> para colorear a mano
+Tucano.init(trecho);                // colorea y pone el copiar en HTML insertado por otro camino
+</pre>
+
+<h2 id="teclado">Teclado y accesibilidad</h2>
+<p class="lead">El área es un <code>role="textbox"</code> con <code>aria-multiline</code>; la barra es un
+   <code>role="toolbar"</code>, y cada botón tiene nombre y <code>aria-pressed</code> que acompaña el formato bajo el cursor.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Tecla</th><th>Acción</th></tr></thead>
+  <tbody>
+    <tr><td><code>Ctrl/Cmd+B</code> <code>+I</code> <code>+U</code></td><td>Negrita, cursiva, subrayado</td></tr>
+    <tr><td><code>Ctrl/Cmd+K</code></td><td>Insertar o editar enlace</td></tr>
+    <tr><td><code>Ctrl/Cmd+Z</code></td><td>Deshace, con el historial del navegador</td></tr>
+    <tr><td><code>Tab</code> <code>Shift+Tab</code></td><td>En una tabla, celda siguiente y anterior; en la última, crea una fila</td></tr>
+    <tr><td><code>Enter</code></td><td>En la caja de enlace, confirma</td></tr>
+    <tr><td><code>Esc</code></td><td>En la caja de enlace, cierra sin aplicar</td></tr>
+  </tbody>
+</table></div>
+
+<p>Fuera de una tabla, <code>Tab</code> sale del editor, como en cualquier campo. Aplicar formato no desplaza la página:
+   el foco vuelve al área sin hacer scroll.</p>
+
+<h2 id="api">API</h2>
+<!-- api -->
+
+<script>
+  // Barra reducida: toolbar es una opción de JS, no tiene atributo.
+  new Tucano.Editor('#ed-comentario', { toolbar: ['bold', 'italic', 'list', 'link'], minHeight: '5rem' });
+
+  // El valor que va en el POST, leído del textarea en cada change.
+  const campo = document.getElementById('ed-descricao');
+  const valor = document.getElementById('ed-descricao-valor');
+  const mostrar = () => { valor.textContent = `POST descricao = ${campo.value}`; };
+  campo.addEventListener('change', mostrar);
+  mostrar();
+
+  // El filtro sobre un HTML hostil.
+  const hostil = '<p onclick="roubar()">Hola <img src=x onerror="roubar()"><b>tú</b>, <a href="javascript:roubar()">clic</a></p><script>roubar()<\/script>';
+  document.getElementById('ed-peneira-entrada').textContent = `entrada: ${hostil}`;
+  document.getElementById('ed-peneira-saida').textContent = `salida:  ${Tucano.sanitize(hostil)}`;
+</script>

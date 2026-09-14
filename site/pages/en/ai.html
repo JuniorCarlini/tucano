@@ -1,0 +1,101 @@
+<!--
+title: For AI agents
+lang: en
+description: How to get an AI to use Tucano without explaining it again in every conversation — llms.txt with the full API, a three-line AGENTS.md for your project and the rules about what it must not do.
+-->
+<h1>For AI agents</h1>
+<p class="lead">An AI that doesn't know the library writes a date picker from scratch, invents a red class for errors
+   and sorts the table on the client. Two files fix that without you explaining it again in every conversation: the
+   full reference in plain text and three lines in your project's <code>AGENTS.md</code>.</p>
+
+<h2 id="llms">llms.txt</h2>
+<p class="lead">The whole API in one text file, made to be read by a model and not by people. Point the AI
+   to it:</p>
+
+<p><a href="https://juniorcarlini.github.io/tucano/llms.txt"><code>https://juniorcarlini.github.io/tucano/llms.txt</code></a></p>
+
+<p>First comes a section per component, with the declarative path through <code>data-*</code>, which is the normal one in a Django
+   project. Then the full reference: selector, attributes, every option with the comment that explains it,
+   methods, events, CSS classes and tokens. That part is generated from the code on every build — if an option isn't there,
+   it doesn't exist. The rules about what not to do come at the end. The prose in the file is written in Portuguese,
+   while the API names — attributes, options, methods, events — are in English, so a model reads it without trouble.</p>
+
+<p>Every page on this site advertises the file in its <code>&lt;head&gt;</code>, for tools that look for it:</p>
+<pre data-code="html">
+<link rel="alternate" type="text/plain" href="https://juniorcarlini.github.io/tucano/llms.txt">
+</pre>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Why plain text, and not this documentation</p><p>A docs page carries menus, demos and scripts along with the information, and the AI spends context reading what it doesn't need. <code>llms.txt</code> is only the API, in the order you use it, and it fits whole in one conversation.</p></div></div>
+
+<h2 id="agents">AGENTS.md in your project</h2>
+<p class="lead">Paste this into the <code>AGENTS.md</code> at the root of the project that uses Tucano — or into <code>CLAUDE.md</code>,
+   <code>.cursorrules</code>, wherever your tool looks. It's what makes the AI pick the library instead of
+   writing a component from scratch.</p>
+
+<pre data-code="text">
+## Interface
+This project uses Tucano. Do not write from scratch a date picker, searchable select, color picker, upload, mask, toast, tooltip, modal, drawer, accordion, tabs, dropdown menu, table, pagination or text editor.
+Full reference: https://juniorcarlini.github.io/tucano/llms.txt
+</pre>
+
+<p>The list names the components that have JavaScript, which are the ones an AI rewrites most. The pieces that are only classes —
+   button, alert, badge, loading, timeline, checkbox, radio and switch, side menu, label and form field —
+   are in the same <code>llms.txt</code>, and the rule "don't design a second button" covers the rest.</p>
+
+<p>Three lines are enough because the work is in the link. If you want the AI to get it right in the first answer, without opening the
+   reference, add the examples your project uses most:</p>
+
+<pre data-code="text">
+## Interface
+This project uses Tucano. Do not write from scratch a date picker, searchable select, color picker, upload, mask, toast, tooltip, modal, drawer, accordion, tabs, dropdown menu, table, pagination or text editor.
+Full reference: https://juniorcarlini.github.io/tucano/llms.txt
+
+<input data-tuc-datepicker data-mode="range">
+<select data-tuc-select multiple>
+<input data-tuc-mask="cpf-cnpj">
+<input type="file" data-tuc-upload>
+<button data-tuc-tip="..." class="tuc-btn is-primary">
+
+Tucano.toast.success('Saved');
+await Tucano.confirm({ title: 'Delete?' });
+Tucano.drawer({ title: 'Filters', side: 'right' });
+
+The native element still owns the value: name, required and Django's getlist() keep working. Do not replace it with JS-only state.
+</pre>
+
+<h3>And Tucano's own AGENTS.md</h3>
+<p>The repository's <a href="https://github.com/JuniorCarlini/tucano/blob/main/AGENTS.md"><code>AGENTS.md</code></a> is for
+   people who will work on the code <em>of the library itself</em>: how to run it, the structure and the decisions that shouldn't be
+   reverted without a reason, each with the bug that prompted it. To use Tucano in a project, you don't
+   need it — you need <code>llms.txt</code>.</p>
+
+<h2 id="regras">What the AI must not do</h2>
+<p class="lead">These are the rules that close <code>llms.txt</code>. Each one exists because it's the mistake a model makes
+   when it guesses instead of reading.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Don't</th><th>Do</th><th>Why</th></tr></thead>
+  <tbody>
+    <tr><td>Write a date picker, searchable select or color picker from scratch</td><td>Mark the field with <code>data-tuc-datepicker</code>, <code>data-tuc-select</code>, <code>data-tuc-color</code></td><td>That's what the library exists to avoid</td></tr>
+    <tr><td>Use the JavaScript API out of habit</td><td>Prefer the <code>data-*</code> attributes; JS only for options that don't exist as attributes — <code>disabledDates</code>, custom presets, <code>onChange</code></td><td>An attribute works in the template, survives HTMX and needs no script</td></tr>
+    <tr><td>Remove the native <code>&lt;select&gt;</code> or the input's <code>name</code></td><td>Keep the native element in the form</td><td>That's where the value lives: <code>required</code> and <code>getlist()</code> depend on it</td></tr>
+    <tr><td>Style the internal <code>.tuc-*__*</code> classes</td><td>Override the <code>--tuc-*</code> variables in <code>:root</code></td><td>The internal classes are built by the script and the look comes from the tokens</td></tr>
+    <tr><td>Write <code>abrir()</code>, <code>tamanho</code>, <code>'direita'</code></td><td><code>open</code>/<code>close</code>/<code>toggle</code>, <code>size</code>, <code>tone</code>, <code>side</code>, <code>items</code>, <code>actions</code>; values <code>'left'</code>, <code>'right'</code>, <code>'danger'</code>, <code>'success'</code></td><td>The API is entirely in English, and an unknown option is silently ignored</td></tr>
+    <tr><td>Sort a paginated list on the client</td><td>Let the header be the <code>&lt;a&gt;</code> to <code>?sort=</code> and <code>?dir=</code>, with the order in <code>order_by()</code> before <code>Paginator</code></td><td>Sorting the page on screen produces a false order. <code>data-sort-mode="client"</code> only for small tables without pagination</td></tr>
+    <tr><td>Invent a red class for a field with an error</td><td><code>aria-invalid="true"</code> on the field and the message in <code>.tuc-error</code></td><td>It's the attribute the screen reader announces, and Django 5 already writes it</td></tr>
+    <tr><td>Open a panel when the field receives focus</td><td>Let it open with <code>↓</code>, <code>Space</code>, click; <code>Enter</code> too in the select</td><td>It's the rule of the native <code>&lt;select&gt;</code> and of the ARIA APG</td></tr>
+    <tr><td>Forget <code>hidden</code> on a dropdown panel written in the template</td><td><code>&lt;div class="tuc-dropdown" id="..." hidden&gt;</code></td><td>Without it the menu shows up in the middle of the page until the script runs. The modal's and drawer's <code>&lt;dialog&gt;</code> doesn't need it</td></tr>
+    <tr><td>Design a second button</td><td><code>.tuc-btn</code> with <code>is-outline</code>, <code>is-ghost</code>, <code>is-icon</code>, <code>is-sm</code> — including inside a table</td><td>A custom class only for positioning</td></tr>
+    <tr><td>Write the placeholder of a masked field</td><td>Leave it empty</td><td>It comes from the format: <code>data-tuc-mask="cpf"</code> already starts with <code>000.000.000-00</code>, and <code>data-tuc-mask="real"</code> with <code>R$ 0,00</code></td></tr>
+    <tr><td>Load from the CDN with <code>@latest</code></td><td>Pin the version: <code>tucano@v{{version}}</code></td><td>jsDelivr caches <code>@latest</code> for a long time and silently serves an old build</td></tr>
+    <tr><td>Import from <code>tucano</code> through npm and expect fields to set themselves up</td><td><code>Tucano.init(document)</code>, or import <code>tucano/auto</code></td><td>Through npm auto-init isn't included, so the bundler keeps only what was imported; <code>tucano/auto</code> initializes and listens to HTMX like the CDN script</td></tr>
+    <tr><td>Read <code>e.target.name</code> in the date picker's <code>tucano:change</code></td><td><code>e.detail.iso</code>, or the <code>&lt;input type="hidden"&gt;</code> next to it</td><td>The date picker moves the <code>name</code> to the hidden input with the ISO value; the visible field has no name. In the select, mask and upload the <code>name</code> stays on the target</td></tr>
+    <tr><td>Write CPF validation, currency or date formatting by hand</td><td><code>Tucano.mask</code>, <code>Tucano.dates</code> and <code>Tucano.color</code></td><td>They're the same modules the components use, exposed as API: <code>validateCpfCnpj</code>, <code>applyCurrency</code>, <code>format</code>, <code>parseUserInput</code>, <code>isDark</code></td></tr>
+    <tr><td>Build a custom floating notice for the server's response</td><td>Django's <code>messages</code> in <code>&lt;div data-tuc-toast&gt;</code>, or the <code>HX-Trigger</code> header with <code>tucano:toast</code></td><td>The toast already handles stacking, pausing on focus and the regions the screen reader announces; the HTMX event is listened to automatically</td></tr>
+    <tr><td>Publish what came from the editor with <code>|safe</code> directly</td><td>Sanitize on the server first</td><td>The editor's filter protects the editor, not the published page</td></tr>
+    <tr><td>Expect HTML inserted through <code>fetch</code> or <code>innerHTML</code> to initialize itself</td><td>Call <code>Tucano.init(node)</code> on the new fragment</td><td>The automatic setup covers load and every <code>htmx:afterSwap</code>; the library doesn't see any other insertion path</td></tr>
+    <tr><td>Remove <code>data-tuc-ready</code></td><td>Keep the attribute</td><td>It's what stops autoInit from setting up the same field twice</td></tr>
+  </tbody>
+</table></div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">When in doubt, the generated reference wins</p><p>If a prose example and the "Referência completa" (full reference) section of <code>llms.txt</code> disagree, the reference wins: it's extracted from the code on every build. Ask the AI to copy each section's example instead of guessing, and to check every option against that list.</p></div></div>

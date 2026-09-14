@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Timeline — plain JavaScript for Django, Laravel and Rails</title>
+<meta name="description" content="Ordered history on &lt;ol&gt; — order progress, contract history, audit log — with tones, filled or hollow dot and an icon in place of the dot. Classes only, no JavaScript.">
+<meta name="author" content="Junior Carlini">
+<link rel="canonical" href="https://juniorcarlini.github.io/tucano/en/timeline/">
+<link rel="alternate" hreflang="pt-BR" href="https://juniorcarlini.github.io/tucano/timeline/">
+<link rel="alternate" hreflang="en" href="https://juniorcarlini.github.io/tucano/en/timeline/">
+<link rel="alternate" hreflang="es" href="https://juniorcarlini.github.io/tucano/es/timeline/">
+<link rel="alternate" hreflang="x-default" href="https://juniorcarlini.github.io/tucano/timeline/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)">
+<link rel="alternate" type="text/plain" href="../../llms.txt" title="API reference for AI agents">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Tucano">
+<meta property="og:title" content="Timeline — plain JavaScript for Django, Laravel and Rails">
+<meta property="og:description" content="Ordered history on &lt;ol&gt; — order progress, contract history, audit log — with tones, filled or hollow dot and an icon in place of the dot. Classes only, no JavaScript.">
+<meta property="og:url" content="https://juniorcarlini.github.io/tucano/en/timeline/">
+<meta property="og:image" content="https://juniorcarlini.github.io/tucano/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Tucano — form components in plain JavaScript">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Timeline — plain JavaScript for Django, Laravel and Rails">
+<meta name="twitter:description" content="Ordered history on &lt;ol&gt; — order progress, contract history, audit log — with tones, filled or hollow dot and an icon in place of the dot. Classes only, no JavaScript.">
+<meta name="twitter:image" content="https://juniorcarlini.github.io/tucano/og.png">
+<link rel="sitemap" type="application/xml" href="../../sitemap.xml">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"Timeline — plain JavaScript for Django, Laravel and Rails","name":"Timeline","description":"Ordered history on \u003col> — order progress, contract history, audit log — with tones, filled or hollow dot and an icon in place of the dot. Classes only, no JavaScript.","url":"https://juniorcarlini.github.io/tucano/en/timeline/","inLanguage":"en","image":"https://juniorcarlini.github.io/tucano/og.png","author":{"@type":"Person","name":"Junior Carlini","url":"https://github.com/JuniorCarlini"},"isPartOf":{"@id":"https://juniorcarlini.github.io/tucano/#website"},"about":{"@id":"https://juniorcarlini.github.io/tucano/#software"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Tucano","item":"https://juniorcarlini.github.io/tucano/en/"},{"@type":"ListItem","position":2,"name":"Timeline","item":"https://juniorcarlini.github.io/tucano/en/timeline/"}]}]}</script>
+<link rel="icon" type="image/svg+xml" href="../../site/assets/favicon.svg">
+<link rel="icon" type="image/png" sizes="192x192" href="../../site/assets/favicon-192.png">
+<link rel="icon" type="image/png" sizes="48x48" href="../../site/assets/favicon-48.png">
+<link rel="apple-touch-icon" href="../../site/assets/apple-touch-icon.png">
+
+<link rel="stylesheet" href="../../dist/tucano.css?v=0.32.1">
+<link rel="stylesheet" href="../../site/site.css?v=0.32.1">
+<!-- O tema e aplicado antes do primeiro quadro: sem isto a pagina piscava clara
+     para quem escolheu o escuro. -->
+<script>try{if(localStorage.getItem("tucano-tema")==="dark")document.documentElement.classList.add("dark")}catch{}</script>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="../"><img class="brand__logo logo-light" src="../../site/assets/logo-light.svg" width="26" height="24" alt=""><img class="brand__logo logo-dark" src="../../site/assets/logo-dark.svg" width="26" height="24" alt=""><b>Tucano</b></a>
+  <span class="tuc-badge is-plain ver">v0.32.1</span>
+  <div class="topbar__actions">
+    <button class="tuc-btn is-outline is-sm" data-tuc-dropdown="#idiomas-topo" data-placement="bottom-end" aria-label="Language: English"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>EN</button><div class="tuc-dropdown" id="idiomas-topo" hidden><a class="tuc-dropdown__item" href="../../timeline/" hreflang="pt-BR" lang="pt-BR"><span class="tuc-dropdown__text">Português</span></a><a class="tuc-dropdown__item" href="../../en/timeline/" hreflang="en" lang="en" aria-current="true"><span class="tuc-dropdown__text">English</span></a><a class="tuc-dropdown__item" href="../../es/timeline/" hreflang="es" lang="es"><span class="tuc-dropdown__text">Español</span></a></div>
+    <button class="tuc-btn is-outline is-icon is-sm" data-tema data-label-light="Use light theme" data-label-dark="Use dark theme" aria-label="Toggle theme"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
+    <button class="tuc-btn is-outline is-icon is-sm" id="menu" aria-label="Open menu" aria-expanded="false" aria-controls="side"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  </div>
+</header>
+
+<aside class="side" id="side">
+  <div class="side__head">
+    <a class="brand" href="../"><img class="brand__logo logo-light" src="../../site/assets/logo-light.svg" width="26" height="24" alt=""><img class="brand__logo logo-dark" src="../../site/assets/logo-dark.svg" width="26" height="24" alt=""><b>Tucano</b></a>
+    <div class="side__tools">
+      <button class="tuc-btn is-outline is-sm" data-tuc-dropdown="#idiomas-lateral" data-placement="bottom-end" aria-label="Language: English"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>EN</button><div class="tuc-dropdown" id="idiomas-lateral" hidden><a class="tuc-dropdown__item" href="../../timeline/" hreflang="pt-BR" lang="pt-BR"><span class="tuc-dropdown__text">Português</span></a><a class="tuc-dropdown__item" href="../../en/timeline/" hreflang="en" lang="en" aria-current="true"><span class="tuc-dropdown__text">English</span></a><a class="tuc-dropdown__item" href="../../es/timeline/" hreflang="es" lang="es"><span class="tuc-dropdown__text">Español</span></a></div>
+      <button class="tuc-btn is-outline is-icon is-sm" data-tema data-label-light="Use light theme" data-label-dark="Use dark theme" aria-label="Toggle theme"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
+    </div>
+  </div>
+  <span class="tuc-badge is-plain ver">v0.32.1 · 50 KB</span>
+  <nav class="tuc-menu" aria-label="Documentation">
+<div class="tuc-menu__section">Get started</div>
+    <a class="tuc-menu__item" href="../">Home and installation</a>
+    <a class="tuc-menu__item" href="../changelog/">Changelog</a>
+<div class="tuc-menu__section">Fields</div>
+    <a class="tuc-menu__item" href="../form/">Form</a>
+    <a class="tuc-menu__item" href="../select/">Select</a>
+    <a class="tuc-menu__item" href="../datepicker/">Date picker</a>
+    <a class="tuc-menu__item" href="../mask/">Masks</a>
+    <a class="tuc-menu__item" href="../color/">Color picker</a>
+    <a class="tuc-menu__item" href="../choice/">Checkbox, radio and switch</a>
+    <a class="tuc-menu__item" href="../upload/">Upload</a>
+    <a class="tuc-menu__item" href="../editor/">Text editor</a>
+<div class="tuc-menu__section">Actions</div>
+    <a class="tuc-menu__item" href="../button/">Button</a>
+    <a class="tuc-menu__item" href="../dropdown/">Dropdown menu</a>
+<div class="tuc-menu__section">Feedback</div>
+    <a class="tuc-menu__item" href="../toast/">Toast</a>
+    <a class="tuc-menu__item" href="../alert/">Alert</a>
+    <a class="tuc-menu__item" href="../tooltip/">Tooltip</a>
+    <a class="tuc-menu__item" href="../loading/">Loading</a>
+    <a class="tuc-menu__item" href="../badge/">Badge</a>
+<div class="tuc-menu__section">Dialogs</div>
+    <a class="tuc-menu__item" href="../modal/">Modal</a>
+    <a class="tuc-menu__item" href="../drawer/">Drawer</a>
+<div class="tuc-menu__section">Navigation</div>
+    <a class="tuc-menu__item" href="../tabs/">Tabs</a>
+    <a class="tuc-menu__item" href="../accordion/">Accordion</a>
+    <a class="tuc-menu__item" href="../menu/">Side menu</a>
+    <a class="tuc-menu__item" href="../pagination/">Pagination</a>
+<div class="tuc-menu__section">Data</div>
+    <a class="tuc-menu__item" href="../table/">Table</a>
+    <a class="tuc-menu__item is-active" href="../timeline/" aria-current="page">Timeline</a>
+<div class="tuc-menu__section">Guides</div>
+    <a class="tuc-menu__item" href="../django/">Django</a>
+    <a class="tuc-menu__item" href="../theme/">Theme</a>
+    <a class="tuc-menu__item" href="../keyboard/">Keyboard and accessibility</a>
+    <a class="tuc-menu__item" href="../ai/">For AI agents</a>
+  </nav>
+</aside>
+
+<main class="main">
+  <article class="doc">
+<h1>Timeline</h1>
+<p class="lead">History in order: the progress of an order, what happened to a contract, the versions of a
+   changelog. It's just classes on <code>&lt;ol&gt;</code> — the order is part of the meaning, and the screen reader announces
+   "item 2 of 5" without anyone writing ARIA. The dot and the rail are drawn by the class; the template only brings the
+   content.</p>
+
+<div class="demo is-hero">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <ol class="tuc-timeline" id="timeline-pedido">
+        <li class="tuc-timeline__item is-success is-filled">
+          <div class="tuc-timeline__head">
+            <p class="tuc-timeline__title">Order confirmed</p>
+            <time class="tuc-timeline__time" datetime="2026-09-08T10:14">08/09 · 10:14</time>
+          </div>
+          <div class="tuc-timeline__body">Payment approved via Pix.</div>
+        </li>
+        <li class="tuc-timeline__item is-success is-filled">
+          <div class="tuc-timeline__head">
+            <p class="tuc-timeline__title">Picked at the warehouse</p>
+            <time class="tuc-timeline__time" datetime="2026-09-09T08:40">09/09 · 08:40</time>
+          </div>
+        </li>
+        <li class="tuc-timeline__item is-accent is-filled">
+          <div class="tuc-timeline__head">
+            <p class="tuc-timeline__title">In transit</p>
+            <time class="tuc-timeline__time" datetime="2026-09-10T15:02">10/09 · 15:02</time>
+          </div>
+          <div class="tuc-timeline__body">Left the Campinas distribution center.</div>
+        </li>
+        <li class="tuc-timeline__item">
+          <div class="tuc-timeline__head">
+            <p class="tuc-timeline__title">Out for delivery</p>
+          </div>
+        </li>
+        <li class="tuc-timeline__item">
+          <div class="tuc-timeline__head">
+            <p class="tuc-timeline__title">Delivered</p>
+          </div>
+          <div class="tuc-timeline__body">Expected: 12/09/2026.</div>
+        </li>
+      </ol>
+    </div>
+    <div class="demo-cell">
+      <p class="tuc-hint">What already happened has a filled dot in the success tone; the current step, filled in the accent; what's still ahead stays hollow and neutral. The dot tells the state — the text is free to say what and when.</p>
+    </div>
+  </div>
+</div>
+
+<h2 id="exemplos">Examples</h2>
+<p class="lead">Everything below is the same list, with tone, fill, icon and badge swapped.</p>
+
+<div class="demo">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <h4>Contract history, with icons</h4>
+      <p><code>tuc-timeline__icon</code> as the item's first child puts the icon in place of the dot.</p>
+      <ol class="tuc-timeline">
+        <li class="tuc-timeline__item is-success">
+          <span class="tuc-timeline__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg></span>
+          <div class="tuc-timeline__head">
+            <p class="tuc-timeline__title">Contract signed</p>
+            <time class="tuc-timeline__time" datetime="2026-09-12">12/09/2026</time>
+          </div>
+          <div class="tuc-timeline__body">Both parties signed through the portal.</div>
+        </li>
+        <li class="tuc-timeline__item is-info">
+          <span class="tuc-timeline__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></span>
+          <div class="tuc-timeline__head">
+            <p class="tuc-timeline__title">Sent for signature</p>
+            <time class="tuc-timeline__time" datetime="2026-09-10">10/09/2026</time>
+          </div>
+        </li>
+        <li class="tuc-timeline__item is-warning">
+          <span class="tuc-timeline__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4z"/></svg></span>
+          <div class="tuc-timeline__head">
+            <p class="tuc-timeline__title">Clause 4 revised</p>
+            <time class="tuc-timeline__time" datetime="2026-09-05">05/09/2026</time>
+          </div>
+          <div class="tuc-timeline__body">Late fee went from 2% to 1%.</div>
+        </li>
+        <li class="tuc-timeline__item">
+          <span class="tuc-timeline__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6"/></svg></span>
+          <div class="tuc-timeline__head">
+            <p class="tuc-timeline__title">Draft created</p>
+            <time class="tuc-timeline__time" datetime="2026-09-01">01/09/2026</time>
+          </div>
+        </li>
+      </ol>
+    </div>
+    <div class="demo-cell">
+      <h4>Audit log, with badge</h4>
+      <p>A <code>tuc-badge</code> in the header aligns to the center of the row.</p>
+      <ol class="tuc-timeline">
+        <li class="tuc-timeline__item is-danger is-filled">
+          <div class="tuc-timeline__head">
+            <p class="tuc-timeline__title">Permission removed</p>
+            <span class="tuc-badge is-danger">Access</span>
+            <time class="tuc-timeline__time" datetime="2026-09-11T17:32">11/09 · 17:32</time>
+          </div>
+          <div class="tuc-timeline__body">Ana Lima removed Rafael Souza's access to finance.</div>
+        </li>
+        <li class="tuc-timeline__item is-info is-filled">
+          <div class="tuc-timeline__head">
+            <p class="tuc-timeline__title">Sign-in from a new device</p>
+            <span class="tuc-badge is-info">Session</span>
+            <time class="tuc-timeline__time" datetime="2026-09-11T09:03">11/09 · 09:03</time>
+          </div>
+          <div class="tuc-timeline__body">Chrome on macOS, São Paulo.</div>
+        </li>
+        <li class="tuc-timeline__item is-filled">
+          <div class="tuc-timeline__head">
+            <p class="tuc-timeline__title">Report exported</p>
+            <span class="tuc-badge">Data</span>
+            <time class="tuc-timeline__time" datetime="2026-09-10T14:20">10/09 · 14:20</time>
+          </div>
+        </li>
+      </ol>
+    </div>
+    <div class="demo-cell">
+      <h4>The five tones, hollow</h4>
+      <p>Without <code>is-filled</code> the dot is a ring in the tone, over the background.</p>
+      <ol class="tuc-timeline">
+        <li class="tuc-timeline__item is-accent"><div class="tuc-timeline__head"><p class="tuc-timeline__title">is-accent</p></div></li>
+        <li class="tuc-timeline__item is-success"><div class="tuc-timeline__head"><p class="tuc-timeline__title">is-success</p></div></li>
+        <li class="tuc-timeline__item is-warning"><div class="tuc-timeline__head"><p class="tuc-timeline__title">is-warning</p></div></li>
+        <li class="tuc-timeline__item is-danger"><div class="tuc-timeline__head"><p class="tuc-timeline__title">is-danger</p></div></li>
+        <li class="tuc-timeline__item is-info"><div class="tuc-timeline__head"><p class="tuc-timeline__title">is-info</p></div></li>
+        <li class="tuc-timeline__item"><div class="tuc-timeline__head"><p class="tuc-timeline__title">no tone</p></div></li>
+      </ol>
+    </div>
+    <div class="demo-cell">
+      <h4>The five tones, filled</h4>
+      <p><code>is-filled</code> fills the dot with the item's tone.</p>
+      <ol class="tuc-timeline">
+        <li class="tuc-timeline__item is-accent is-filled"><div class="tuc-timeline__head"><p class="tuc-timeline__title">is-accent is-filled</p></div></li>
+        <li class="tuc-timeline__item is-success is-filled"><div class="tuc-timeline__head"><p class="tuc-timeline__title">is-success is-filled</p></div></li>
+        <li class="tuc-timeline__item is-warning is-filled"><div class="tuc-timeline__head"><p class="tuc-timeline__title">is-warning is-filled</p></div></li>
+        <li class="tuc-timeline__item is-danger is-filled"><div class="tuc-timeline__head"><p class="tuc-timeline__title">is-danger is-filled</p></div></li>
+        <li class="tuc-timeline__item is-info is-filled"><div class="tuc-timeline__head"><p class="tuc-timeline__title">is-info is-filled</p></div></li>
+        <li class="tuc-timeline__item is-filled"><div class="tuc-timeline__head"><p class="tuc-timeline__title">is-filled, no tone</p></div></li>
+      </ol>
+    </div>
+  </div>
+</div>
+
+<h2 id="uso">How to use</h2>
+<p class="lead">There's no JavaScript and no <code>data-*</code> attribute: write the classes and you're done. Each item has a
+   header with title and time, and an optional body.</p>
+
+<div class="tuc-prose doc-code"><pre><code>&lt;ol class="tuc-timeline"&gt;
+  &lt;li class="tuc-timeline__item is-success is-filled"&gt;
+    &lt;div class="tuc-timeline__head"&gt;
+      &lt;p class="tuc-timeline__title"&gt;Contract signed&lt;/p&gt;
+      &lt;time class="tuc-timeline__time" datetime="2026-09-12"&gt;12/09/2026&lt;/time&gt;
+    &lt;/div&gt;
+    &lt;div class="tuc-timeline__body"&gt;Both parties signed.&lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li class="tuc-timeline__item"&gt;
+    &lt;div class="tuc-timeline__head"&gt;
+      &lt;p class="tuc-timeline__title"&gt;Sent for signature&lt;/p&gt;
+      &lt;time class="tuc-timeline__time" datetime="2026-09-10"&gt;10/09/2026&lt;/time&gt;
+    &lt;/div&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;</code></pre></div>
+
+<h3>With an icon</h3>
+<p>The icon goes in a <code>&lt;span&gt;</code> as the item's first child. When it's there, the dot goes away and the circle
+   gets the tone's soft background; the SVG is sized by the class.</p>
+<div class="tuc-prose doc-code"><pre><code>&lt;li class="tuc-timeline__item is-success"&gt;
+  &lt;span class="tuc-timeline__icon"&gt;&lt;svg viewBox="0 0 24 24" aria-hidden="true"&gt;...&lt;/svg&gt;&lt;/span&gt;
+  &lt;div class="tuc-timeline__head"&gt;...&lt;/div&gt;
+&lt;/li&gt;</code></pre></div>
+
+<h3>In the Django template</h3>
+<p>The tone usually comes from the event type. A dictionary on the model, or a filter, avoids a cascade of <code>if</code> in the
+   template.</p>
+<div class="tuc-prose doc-code"><pre><code>class Evento(models.Model):
+    TONS = {"assinado": "is-success", "revisado": "is-warning", "cancelado": "is-danger"}
+    tipo = models.CharField(max_length=20)
+    titulo = models.CharField(max_length=120)
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def tom(self):
+        return self.TONS.get(self.tipo, "")</code></pre></div>
+<div class="tuc-prose doc-code"><pre><code>&lt;ol class="tuc-timeline"&gt;
+  {% for evento in contrato.eventos.all %}
+  &lt;li class="tuc-timeline__item {{ evento.tom }}{% if forloop.first %} is-filled{% endif %}"&gt;
+    &lt;div class="tuc-timeline__head"&gt;
+      &lt;p class="tuc-timeline__title"&gt;{{ evento.titulo }}&lt;/p&gt;
+      &lt;time class="tuc-timeline__time" datetime="{{ evento.criado_em|date:'c' }}"&gt;{{ evento.criado_em|date:"d/m/Y H:i" }}&lt;/time&gt;
+    &lt;/div&gt;
+  &lt;/li&gt;
+  {% endfor %}
+&lt;/ol&gt;</code></pre></div>
+
+<h3>Adjusting the geometry</h3>
+<p>Three variables on the list itself control the math for the dot and the rail. The first line of the header has a fixed
+   height for the same reason as <code>.tuc-choice</code>: the center of the dot can't depend on the project's font.</p>
+<div class="tuc-prose doc-code"><pre><code>.linha-grande {
+  --tuc-timeline-gutter: 2rem;   /* dot column; the icon fills all of it */
+  --tuc-timeline-dot: 1rem;      /* dot diameter */
+  --tuc-timeline-line: 2rem;     /* height of the header's first line */
+}</code></pre></div>
+
+<h2 id="acessibilidade">Accessibility</h2>
+<p class="lead">The structure does the work. <code>&lt;ol&gt;</code> gives each item's position, <code>&lt;time datetime&gt;</code>
+   gives the date in a machine-readable format, and the dot and rail are pseudo-elements, invisible to the screen reader.</p>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Color can't be the only information</p><p>The dot's tone doesn't reach people who can't see it and confuses people who can't tell colors apart. State it in the text — "Canceled", "In transit" — or in a <code>tuc-badge</code> in the header, and mark the icon's SVG with <code>aria-hidden="true"</code>.</p></div></div>
+
+<h2 id="api">Classes</h2>
+<p class="lead">Classes only, no JavaScript component.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Class</th><th>Where</th><th>What it does</th></tr></thead>
+  <tbody>
+    <tr><td><code>tuc-timeline</code></td><td><code>&lt;ol&gt;</code></td><td>The list; removes marker and indentation</td></tr>
+    <tr><td><code>tuc-timeline__item</code></td><td><code>&lt;li&gt;</code></td><td>An event; draws dot and rail. The last item has no rail</td></tr>
+    <tr><td><code>is-accent</code> <code>is-success</code> <code>is-warning</code> <code>is-danger</code> <code>is-info</code></td><td>item</td><td>Tone of the dot and icon; without a tone, <code>--tuc-subtle</code></td></tr>
+    <tr><td><code>is-filled</code></td><td>item</td><td>Filled dot in the tone; without it, hollow</td></tr>
+    <tr><td><code>tuc-timeline__icon</code></td><td>item's first child</td><td>Icon in place of the dot, with the tone's soft background</td></tr>
+    <tr><td><code>tuc-timeline__head</code></td><td>item</td><td>Row for the title, the time and a badge; wraps when it doesn't fit</td></tr>
+    <tr><td><code>tuc-timeline__title</code></td><td>in the header</td><td>Title in weight 600, no margin — can be a <code>&lt;p&gt;</code> or an <code>&lt;h2&gt;</code>/<code>&lt;h3&gt;</code></td></tr>
+    <tr><td><code>tuc-timeline__time</code></td><td>in the header</td><td>Date or time, smaller, in a muted tone and with fixed-width digits</td></tr>
+    <tr><td><code>tuc-timeline__body</code></td><td>item</td><td>Supporting text in a muted tone</td></tr>
+  </tbody>
+</table></div>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Variable</th><th>Default</th><th>Controls</th></tr></thead>
+  <tbody>
+    <tr><td><code>--tuc-timeline-gutter</code></td><td><code>1.5rem</code></td><td>Width of the dot column and size of the icon</td></tr>
+    <tr><td><code>--tuc-timeline-dot</code></td><td><code>0.75rem</code></td><td>Dot diameter</td></tr>
+    <tr><td><code>--tuc-timeline-line</code></td><td><code>1.5rem</code></td><td>Height of the header's first line, where the dot is centered</td></tr>
+  </tbody>
+</table></div>
+
+<nav class="pager" aria-label="Documentation pagination"><a class="tuc-btn is-outline is-lg pager__prev" href="../table/" aria-label="Previous page: Table"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Table</a><a class="tuc-btn is-outline is-lg pager__next" href="../django/" aria-label="Next page: Django">Django<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></a></nav>
+  </article>
+</main>
+
+<script src="../../dist/tucano.js?v=0.32.1"></script>
+<script src="../../site/site.js?v=0.32.1"></script>
+
+</body>
+</html>

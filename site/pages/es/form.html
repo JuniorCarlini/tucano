@@ -1,0 +1,212 @@
+<!--
+title: Formulario
+lang: es
+description: Etiqueta, texto de ayuda, mensaje de error y el campo que no pasó la validación, marcado con aria-invalid — el atributo que Django 5 ya escribe — en cualquier campo de la biblioteca.
+-->
+<h1>Formulario</h1>
+<p class="lead">Etiqueta, texto de ayuda, mensaje de error y el campo de texto, solo con clases y sin JavaScript. El campo
+   que no pasó la validación se marca con <code>aria-invalid="true"</code>, el atributo que el lector de pantalla anuncia y que Django 5
+   escribe solo — así <code>{{ field }}</code> sale en rojo sin que nadie escriba nada.</p>
+
+<div class="demo is-hero">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <label class="tuc-label is-required" for="fm-razao">Razón social</label>
+      <input type="text" class="tuc-input" id="fm-razao" name="razao" value="Tucano Comercial S.L." required aria-describedby="fm-razao-ajuda">
+      <p class="tuc-hint" id="fm-razao-ajuda">Tal como figura en el registro fiscal.</p>
+    </div>
+    <div class="demo-cell">
+      <label class="tuc-label is-required" for="fm-email">Correo de facturación</label>
+      <input type="email" class="tuc-input" id="fm-email" name="email" value="facturacion@" required aria-invalid="true" aria-describedby="fm-email-erro">
+      <p class="tuc-error" id="fm-email-erro">Escribe un correo completo.</p>
+    </div>
+    <div class="demo-cell">
+      <label class="tuc-label" for="fm-plano">Plan</label>
+      <select id="fm-plano" name="plano" data-tuc-select data-search="false" aria-describedby="fm-plano-ajuda">
+        <option>Mensual</option><option>Trimestral</option><option>Anual</option>
+      </select>
+      <p class="tuc-hint" id="fm-plano-ajuda">Puedes cambiarlo después, sin penalización.</p>
+    </div>
+    <div class="demo-cell">
+      <label class="tuc-label" for="fm-obs">Observaciones</label>
+      <textarea class="tuc-input" id="fm-obs" name="obs" rows="3" placeholder="Visible solo para el equipo"></textarea>
+    </div>
+  </div>
+</div>
+
+<h2 id="exemplos">Ejemplos</h2>
+<p class="lead">Las mismas cuatro clases en situaciones distintas.</p>
+
+<div class="demo">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <h4>Obligatorio</h4>
+      <p><code>is-required</code> en la etiqueta pone el asterisco; el <code>required</code> va en el campo.</p>
+      <label class="tuc-label is-required" for="fm-nome">Nombre</label>
+      <input type="text" class="tuc-input" id="fm-nome" name="nome" required>
+    </div>
+    <div class="demo-cell">
+      <h4>Validación del navegador</h4>
+      <p>Se pinta con <code>:user-invalid</code>, solo después de tocar el campo. Escribe algo sin <code>@</code> y sal.</p>
+      <label class="tuc-label" for="fm-contato">Correo</label>
+      <input type="email" class="tuc-input" id="fm-contato" name="contato" required placeholder="nombre@empresa.com">
+    </div>
+    <div class="demo-cell">
+      <h4>Con icono</h4>
+      <p><code>.tuc-input-group</code> con un SVG antes del campo.</p>
+      <label class="tuc-label" for="fm-busca">Buscar cliente</label>
+      <div class="tuc-input-group"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 21l-4.3-4.3M11 18a7 7 0 100-14 7 7 0 000 14z"/></svg><input type="search" class="tuc-input" id="fm-busca" name="q" placeholder="Nombre o identificación fiscal"></div>
+    </div>
+    <div class="demo-cell">
+      <h4>Desactivado</h4>
+      <p><code>disabled</code> nativo; nada más.</p>
+      <label class="tuc-label" for="fm-codigo">Código</label>
+      <input type="text" class="tuc-input" id="fm-codigo" name="codigo" value="CLI-00042" disabled>
+    </div>
+    <div class="demo-cell">
+      <h4>Lista corta</h4>
+      <p><code>data-tuc-select</code> con <code>data-search="false"</code>: sin campo de búsqueda, y con el error de <code>aria-invalid</code>.</p>
+      <label class="tuc-label" for="fm-uf">Provincia</label>
+      <select id="fm-uf" name="uf" data-tuc-select data-search="false" required aria-invalid="true" aria-describedby="fm-uf-erro">
+        <option value="">Selecciona</option><option>Córdoba</option><option>Mendoza</option>
+      </select>
+      <p class="tuc-error" id="fm-uf-erro">Elige una provincia.</p>
+    </div>
+    <div class="demo-cell">
+      <h4>Varias opciones</h4>
+      <p>Con <code>multiple</code> las elecciones se vuelven etiquetas, y <code>getlist()</code> sigue recibiendo una por opción.</p>
+      <label class="tuc-label" for="fm-dias">Días de entrega</label>
+      <select id="fm-dias" name="dias" data-tuc-select multiple>
+        <option selected>Lunes</option><option>Martes</option><option selected>Miércoles</option><option>Jueves</option><option>Viernes</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<h3>El error vale en los componentes</h3>
+<p>El mismo <code>aria-invalid="true"</code> pinta los campos que el script sustituye por un control propio. El atributo se queda en el
+   elemento nativo, y el CSS llega al control a partir de él.</p>
+
+<div class="demo">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <label class="tuc-label is-required" for="fm-cliente">Cliente</label>
+      <select id="fm-cliente" name="cliente" data-tuc-select aria-invalid="true" aria-describedby="fm-cliente-erro">
+        <option value="">Selecciona...</option><option>Panadería El Horno</option><option>Taller Dos Ruedas</option>
+      </select>
+      <p class="tuc-error" id="fm-cliente-erro">Elige el cliente.</p>
+    </div>
+    <div class="demo-cell">
+      <label class="tuc-label is-required" for="fm-venc">Vencimiento</label>
+      <input type="text" id="fm-venc" name="vencimento" data-tuc-datepicker aria-invalid="true" aria-describedby="fm-venc-erro">
+      <p class="tuc-error" id="fm-venc-erro">La fecha tiene que ser posterior a hoy.</p>
+    </div>
+    <div class="demo-cell">
+      <label class="tuc-label is-required" for="fm-doc">CNPJ</label>
+      <input type="text" id="fm-doc" name="cnpj" data-tuc-mask="cnpj" value="11222333000100" aria-invalid="true" aria-describedby="fm-doc-erro">
+      <p class="tuc-error" id="fm-doc-erro">CNPJ no válido.</p>
+    </div>
+    <div class="demo-cell">
+      <label class="tuc-label" for="fm-cor">Color de la etiqueta</label>
+      <input type="text" id="fm-cor" name="cor" value="#e11d48" data-tuc-color aria-invalid="true" aria-describedby="fm-cor-erro">
+      <p class="tuc-error" id="fm-cor-erro">Ese color ya está en uso.</p>
+    </div>
+    <div class="demo-cell">
+      <label class="tuc-choice"><input type="checkbox" class="tuc-check" name="termos" required aria-invalid="true" aria-describedby="fm-termos-erro"> He leído y acepto los términos de uso</label>
+      <p class="tuc-error" id="fm-termos-erro">Obligatorio para continuar.</p>
+    </div>
+  </div>
+</div>
+
+<h2 id="uso">Cómo usar</h2>
+<p class="lead">Etiqueta con <code>for</code>, y ayuda y error unidos al campo con <code>aria-describedby</code>. Eso es lo que hace que el
+   lector de pantalla lea la ayuda y el error junto con el nombre del campo.</p>
+
+<pre data-code="html">
+<label class="tuc-label is-required" for="doc">CNPJ</label>
+<input id="doc" name="doc" data-tuc-mask="cnpj" required aria-invalid="true" aria-describedby="doc-e">
+<p class="tuc-error" id="doc-e">CNPJ no válido.</p>
+
+<label class="tuc-label" for="plano">Plan</label>
+<select id="plano" name="plano" data-tuc-select aria-describedby="plano-h">
+  <option>Mensual</option>
+  <option>Anual</option>
+</select>
+<p class="tuc-hint" id="plano-h">Puedes cambiarlo después.</p>
+
+<textarea class="tuc-input" name="obs" rows="3"></textarea>
+</pre>
+
+<p>Los componentes de campo — date picker, máscara, color picker — se ponen la <code>.tuc-input</code> solos. Escribe la clase en los
+   campos comunes, para que toda la fila del formulario tenga la misma altura.</p>
+
+<h3>En la plantilla de Django</h3>
+<pre data-code="django">
+{# Django 5 ya pone aria-invalid y aria-describedby en el campo #}
+<label class="tuc-label{% if field.field.required %} is-required{% endif %}" for="{{ field.id_for_label }}">{{ field.label }}</label>
+{{ field }}
+{% if field.help_text %}<p class="tuc-hint" id="{{ field.auto_id }}_helptext">{{ field.help_text }}</p>{% endif %}
+{% for error in field.errors %}<p class="tuc-error">{{ error }}</p>{% endfor %}
+</pre>
+<p>El <code>id</code> de la ayuda es el que Django 5 indica en el <code>aria-describedby</code> del campo, <code>&lt;id del campo&gt;_helptext</code>.
+   Con este fragmento en un <code>{% include %}</code>, todos los campos del proyecto salen con la misma etiqueta, ayuda y error.</p>
+
+<h3>En el formulario de Django</h3>
+<pre data-code="python">
+class ClienteForm(forms.ModelForm):
+    class Meta:
+        model = Cliente
+        fields = ["razao", "email", "plano", "obs"]
+        widgets = {
+            "razao": forms.TextInput(attrs={"class": "tuc-input"}),
+            "email": forms.EmailInput(attrs={"class": "tuc-input"}),
+            "plano": forms.Select(attrs={"data-tuc-select": ""}),
+            "obs": forms.Textarea(attrs={"class": "tuc-input", "rows": 3}),
+        }
+</pre>
+
+<h3>En JavaScript</h3>
+<p>No hay componente: para marcar un error que solo descubre el cliente, escribe el atributo, y bórralo cuando se corrija.</p>
+<pre data-code="js">
+const campo = document.querySelector('#email');
+campo.setAttribute('aria-invalid', 'true');
+campo.setAttribute('aria-describedby', 'email-e');
+// corregido:
+campo.removeAttribute('aria-invalid');
+</pre>
+
+<h2 id="erro">Por qué un atributo, y no una clase</h2>
+<p class="lead">Una clase roja solo sirve a quien ve. <code>aria-invalid</code> sirve a la pantalla y al lector de pantalla al mismo
+   tiempo, y por eso los dos no pueden divergir.</p>
+
+<p>Desde Django 5.0 el formulario escribe el atributo en cada campo que volvió con error. En los componentes que sustituyen el campo
+   por un control propio — select, color picker, editor, upload — el atributo sigue en el nativo, y el CSS llega al control
+   con <code>select[aria-invalid] + .tuc-select</code> y <code>:has()</code>. Ningún componente copia el atributo, y por eso ninguno
+   se desincroniza cuando HTMX sustituye el campo. Incluso antes de que el script se monte, el campo en bruto ya nace con el borde rojo.</p>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">La validación del navegador pinta, pero solo después de tocar el campo</p><p>Un campo <code>required</code> vacío o un <code>type="email"</code> sin <code>@</code> se ponen rojos con <code>:user-invalid</code> cuando la persona sale de él o intenta enviar — y no al cargar la página, que nacería toda roja. Un navegador que no conoce el selector simplemente no pinta este caso.</p></div></div>
+
+<p>Con foco el anillo también queda rojo, y no vuelve al color de acento: el error sigue valiendo mientras se corrige. En la casilla y en la
+   opción el error aparece solo mientras están desmarcadas — marcadas, el color de acento dice más que un error que dejó de valer.
+   El asterisco de <code>is-required</code> es solo dibujo: el lector de pantalla ya anuncia el <code>required</code>, y oír "asterisco"
+   después del nombre estorbaría.</p>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Convive con el CSS del proyecto</p><p><code>label</code> e <code>input[type=text]</code> están entre las etiquetas que todo proyecto estiliza, y <code>.card label</code> le ganaría a una clase sola. Las clases de aquí se repiten en el selector para pesar más, así la etiqueta y el campo no se desarman dentro de las tarjetas de tu layout.</p></div></div>
+
+<h2 id="api">Clases</h2>
+<p class="lead">Solo CSS. Ninguna necesita JavaScript.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Clase o atributo</th><th>Dónde</th><th>Para qué</th></tr></thead>
+  <tbody>
+    <tr><td><code>tuc-label</code></td><td><code>&lt;label&gt;</code></td><td>Etiqueta encima del campo</td></tr>
+    <tr><td><code>is-required</code></td><td>con <code>tuc-label</code></td><td>Asterisco después del nombre, oculto para el lector de pantalla</td></tr>
+    <tr><td><code>tuc-hint</code></td><td>debajo del campo</td><td>Texto de ayuda</td></tr>
+    <tr><td><code>tuc-error</code></td><td>debajo del campo</td><td>Mensaje de error</td></tr>
+    <tr><td><code>tuc-input</code></td><td><code>&lt;input&gt;</code> <code>&lt;textarea&gt;</code> <code>&lt;select&gt;</code></td><td>Campo con la altura, el borde y el foco de la biblioteca; en el <code>&lt;select&gt;</code>, la flecha</td></tr>
+    <tr><td><code>tuc-input-group</code></td><td>alrededor del campo</td><td>Deja espacio para un <code>&lt;svg&gt;</code> a la izquierda</td></tr>
+    <tr><td><code>aria-invalid="true"</code></td><td>en el campo nativo</td><td>Borde y anillo de error, en cualquier campo de la biblioteca</td></tr>
+    <tr><td><code>:user-invalid</code></td><td>automático</td><td>Error de la validación del navegador, después de que la persona toque el campo</td></tr>
+    <tr><td><code>tuc-invalid</code></td><td><code>&lt;input&gt;</code></td><td>La pone la máscara al fallar la validación, junto con <code>aria-invalid</code>; no la escribas a mano</td></tr>
+  </tbody>
+</table></div>

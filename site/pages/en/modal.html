@@ -1,0 +1,339 @@
+<!--
+title: Modal
+component: modal
+lang: en
+description: A modal built on the native <dialog>, with top layer, trapped focus and Esc, tones that change the backdrop glow, a confirmation that returns a promise, and a modal written in the Django template.
+-->
+<h1>Modal</h1>
+<p class="lead">A dialog that sits on top of everything, with a blurred backdrop and a glow in the tone's color. Built on the
+   native <code>&lt;dialog&gt;</code>: that is where the layer above any <code>z-index</code>, the trapped focus, the
+   <code>Esc</code> key and focus returning to whoever opened it come from — the component only draws the box and animates it.</p>
+
+<div class="demo is-hero">
+  <div class="bar">
+    <button class="tuc-btn is-primary" onclick="Tucano.modal({title:'Publish report?', text:'Everyone with access to the project will see the new version.', actions:[{text:'Not now'},{text:'Publish', variant:'primary', onClick:()=>Tucano.toast.success('Report published')}]})">Open a modal</button>
+    <button class="tuc-btn is-outline" onclick="Tucano.confirm({title:'Delete contract?', text:'This action cannot be undone.', confirm:'Delete'}).then(ok=>Tucano.toast[ok?'success':'info'](ok?'Contract deleted':'Nothing was deleted'))">Confirm deletion</button>
+    <button class="tuc-btn is-outline" data-tuc-modal="#modal-template">Written in HTML</button>
+  </div>
+</div>
+
+<dialog class="tuc-modal is-md" id="modal-template" aria-labelledby="modal-template-title">
+  <div class="tuc-modal__panel">
+    <div class="tuc-modal__top">
+      <div class="tuc-modal__header">
+        <p class="tuc-modal__title" id="modal-template-title">Edit contact</p>
+        <p class="tuc-modal__text">This <code>&lt;dialog&gt;</code> was already on the page. It is the way to go for a form rendered by the server.</p>
+      </div>
+      <button type="button" class="tuc-btn is-ghost is-icon is-sm tuc-modal__close" aria-label="Close" data-tuc-modal-close><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="tuc-modal__body">
+      <label class="tuc-label" for="modal-template-nome">Name</label>
+      <input type="text" class="tuc-input" id="modal-template-nome" value="Emma Carter">
+    </div>
+    <div class="tuc-modal__footer">
+      <button type="button" class="tuc-btn is-outline" data-tuc-modal-close>Cancel</button>
+      <button type="button" class="tuc-btn is-primary" data-tuc-modal-close>Save</button>
+    </div>
+  </div>
+</dialog>
+
+<h2 id="exemplos">Examples</h2>
+<p class="lead">Every example below is the same <code>Tucano.modal()</code> with different options.</p>
+
+<div class="demo">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <h4>Sizes</h4>
+      <p><code>size</code> sets the maximum width of the box; <code>md</code> is the default.</p>
+      <div class="bar">
+        <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Small', text:'22rem maximum width.', size:'sm'})">sm</button>
+        <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Medium', text:'30rem — the default.', size:'md'})">md</button>
+        <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Large', text:'44rem, for a table or a wide form.', size:'lg'})">lg</button>
+        <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Full screen', text:'Takes the whole screen, with a 1rem margin.', size:'full', actions:[{text:'Close'}]})">full</button>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Tones</h4>
+      <p><code>tone</code> changes the backdrop glow and the aura around the box.</p>
+      <div class="bar">
+        <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Default', text:'Glow in the accent color.', tone:'default'})">default</button>
+        <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Delete contract', text:'This action cannot be undone.', tone:'danger'})">danger</button>
+        <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'All set', text:'Import complete.', tone:'success'})">success</button>
+        <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Heads up', text:'This contract has pending items.', tone:'warning'})">warning</button>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Confirmation with a promise</h4>
+      <p><code>Tucano.confirm()</code> resolves <code>true</code> or <code>false</code>; closing from outside counts as a no.</p>
+      <div class="bar">
+        <button class="tuc-btn is-outline is-sm" onclick="Tucano.confirm({title:'Delete contract?', text:'This action cannot be undone.', confirm:'Delete'}).then(ok=>Tucano.toast[ok?'success':'info'](ok?'Contract deleted':'Nothing was deleted'))">Danger, the default</button>
+        <button class="tuc-btn is-outline is-sm" onclick="Tucano.confirm({title:'Send invoice?', text:'The customer receives the invoice by email.', tone:'default', confirm:'Send', cancel:'Go back'}).then(ok=>Tucano.toast[ok?'success':'info'](ok?'Invoice sent':'Sending canceled'))">Neutral tone</button>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Sheet on mobile</h4>
+      <p><code>sheet: true</code> slides up from the bottom on narrow screens. Narrow the window to see it.</p>
+      <div class="bar">
+        <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Sheet', text:'Below 40rem the box sits against the bottom edge and slides up.', sheet:true, actions:[{text:'Got it', variant:'primary'}]})">Open as a sheet</button>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>No closing from outside</h4>
+      <p><code>closeOnBackdrop: false</code> ignores clicks on the backdrop; <code>closable: false</code> removes the X and <code>Esc</code>.</p>
+      <div class="bar">
+        <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Backdrop off', text:'Clicking outside does not close it. The X and Esc still do.', closeOnBackdrop:false})">Backdrop only</button>
+        <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Importing spreadsheet', text:'Only the button closes it — useful when something is in progress.', closable:false, closeOnBackdrop:false, actions:[{text:'Close'}]})">Locked</button>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Close reason</h4>
+      <p><code>onClose</code> receives how the person left. Close it in different ways.</p>
+      <div class="bar">
+        <button class="tuc-btn is-outline is-sm" onclick="Tucano.modal({title:'Close it however you like', text:'With the X, Esc, the backdrop or the button — the notice tells you which.', actions:[{text:'Close'}], onClose:(reason)=>Tucano.toast.info('Reason: ' + reason)})">Open</button>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Free content</h4>
+      <p><code>content(node)</code> puts any element in the body, which scrolls when it gets taller than the screen.</p>
+      <div class="bar">
+        <button class="tuc-btn is-outline is-sm" onclick="modalFormulario()">With a form</button>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Action that doesn't close</h4>
+      <p><code>closes: false</code> on an action keeps the modal open after the click.</p>
+      <div class="bar">
+        <button class="tuc-btn is-outline is-sm" onclick="modalEtapas()">Step-by-step wizard</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h2 id="uso">How to use</h2>
+<p class="lead">There are two ways. From JavaScript, the modal is built on the spot, goes into <code>&lt;body&gt;</code> when it
+   opens and leaves when it closes. From the template, the <code>&lt;dialog&gt;</code> is already on the page and the component only opens, closes and animates it.</p>
+
+<h3>In JavaScript</h3>
+<pre data-code="js">
+Tucano.modal({
+  title: 'Delete contract',
+  text: 'This action cannot be undone.',
+  tone: 'danger',     // default | danger | success | warning
+  size: 'md',         // sm | md | lg | full
+  sheet: true,        // slides up from the bottom on mobile
+  actions: [
+    { text: 'Cancel', variant: 'outline' },
+    { text: 'Delete', variant: 'danger', onClick: () => excluir() },
+  ],
+  onClose: (reason, modal) => console.log(reason),
+});
+
+// Text only: the shortcut accepts a string
+Tucano.modal('File uploaded.');
+</pre>
+
+<p>The <code>Tucano.modal()</code> shortcut creates and opens in one step, and returns the instance. To build it first and open it later,
+   use the class:</p>
+<pre data-code="js">
+const m = new Tucano.Modal({ title: 'New contact', size: 'lg' });
+m.content(formulario);   // any node, or an array of nodes
+m.open();
+m.close();               // animates out and calls onClose(reason)
+</pre>
+
+<h3>Confirmation</h3>
+<p>The most common use of a modal in a CRUD app is asking before deleting. <code>Tucano.confirm()</code> returns a promise, and the
+   code keeps reading top to bottom:</p>
+<pre data-code="js">
+if (await Tucano.confirm({ title: 'Delete contract?', text: 'This action cannot be undone.', confirm: 'Delete' })) {
+  excluir();
+}
+</pre>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Option</th><th>Default</th><th>What for</th></tr></thead>
+  <tbody>
+    <tr><td><code>confirm</code></td><td><code>'Confirmar'</code></td><td>Label of the button that resolves <code>true</code></td></tr>
+    <tr><td><code>cancel</code></td><td><code>'Cancelar'</code></td><td>Label of the button that resolves <code>false</code></td></tr>
+    <tr><td><code>tone</code></td><td><code>'danger'</code></td><td>With <code>danger</code> the confirm button is red; with any other tone, primary</td></tr>
+  </tbody>
+</table></div>
+<p>The other modal options work here too, except <code>actions</code>, which <code>confirm()</code> builds on its own. An
+   <code>onClose</code> you pass is still called.</p>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Closing from outside is a no, not limbo</p><p>With the X, <code>Esc</code> or the backdrop, the promise resolves <code>false</code>. Without that it would stay pending forever, and the <code>await</code> would never return.</p></div></div>
+
+<h3>Actions</h3>
+<p>Each item in <code>actions</code> becomes a <code>.tuc-btn</code> in the footer, in the order it was written.</p>
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Key</th><th>Default</th><th>What for</th></tr></thead>
+  <tbody>
+    <tr><td><code>text</code></td><td>—</td><td>Button label</td></tr>
+    <tr><td><code>variant</code></td><td><code>'outline'</code></td><td>Button variant: <code>primary</code>, <code>outline</code>, <code>ghost</code>, <code>danger</code>…</td></tr>
+    <tr><td><code>onClick</code></td><td>—</td><td>Receives the modal instance</td></tr>
+    <tr><td><code>closes</code></td><td><code>true</code></td><td><code>false</code> keeps the modal open after the click</td></tr>
+  </tbody>
+</table></div>
+
+<h2 id="template">Written in the template</h2>
+<p class="lead">When the content is rendered by the server — a Django form, with errors and <code>csrf_token</code> —,
+   the <code>&lt;dialog&gt;</code> lives in the template. Every <code>dialog.tuc-modal</code> is adopted on load and on every
+   <code>htmx:afterSwap</code>; opening doesn't insert it and closing doesn't remove it, because the node belongs to whoever wrote the HTML.</p>
+
+<pre data-code="django">
+<dialog class="tuc-modal is-md" id="excluir" aria-labelledby="excluir-titulo">
+  <form class="tuc-modal__panel" method="post" action="{% url 'contrato-excluir' contrato.pk %}">
+    {% csrf_token %}
+    <div class="tuc-modal__top">
+      <div class="tuc-modal__header">
+        <h2 class="tuc-modal__title" id="excluir-titulo">Delete contract?</h2>
+        <p class="tuc-modal__text">This action cannot be undone.</p>
+      </div>
+      <button type="button" class="tuc-btn is-ghost is-icon is-sm tuc-modal__close" aria-label="Close" data-tuc-modal-close>…</button>
+    </div>
+    <div class="tuc-modal__footer">
+      <button type="button" class="tuc-btn is-outline" data-tuc-modal-close>Cancel</button>
+      <button class="tuc-btn is-danger">Delete</button>
+    </div>
+  </form>
+</dialog>
+
+<button class="tuc-btn is-outline" data-tuc-modal="#excluir">Delete</button>
+</pre>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Attribute</th><th>Where</th><th>What for</th></tr></thead>
+  <tbody>
+    <tr><td><code>data-tuc-modal="#id"</code></td><td>Trigger</td><td>Opens the <code>&lt;dialog&gt;</code> matching the selector on click</td></tr>
+    <tr><td><code>data-tuc-modal-close</code></td><td>Button inside the dialog</td><td>Closes it, with the reason <code>'botao'</code></td></tr>
+    <tr><td><code>data-closable="false"</code></td><td><code>&lt;dialog&gt;</code></td><td><code>Esc</code> no longer closes it</td></tr>
+    <tr><td><code>data-backdrop="false"</code></td><td><code>&lt;dialog&gt;</code></td><td>Clicking the backdrop no longer closes it</td></tr>
+  </tbody>
+</table></div>
+
+<p>The classes are the same ones JavaScript builds: <code>__panel</code> is the box, <code>__top</code> holds the
+   <code>__header</code> (with <code>__title</code> and <code>__text</code>) and the <code>__close</code>, <code>__body</code> is the
+   scrolling body and <code>__footer</code> aligns the actions to the right. Size and tone go as classes on the
+   <code>&lt;dialog&gt;</code> itself: <code>is-lg</code>, <code>is-danger</code>, <code>is-sheet</code>.</p>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">In the template, the X and the dialog's name are up to you</p><p>From JavaScript, the close button and <code>aria-labelledby</code> come ready-made. In a hand-written <code>&lt;dialog&gt;</code>, write both: without the X the person depends on <code>Esc</code>, and without <code>aria-labelledby</code> the screen reader announces just "dialog".</p></div></div>
+
+<h3>Confirm before submitting a form</h3>
+<p>For a delete form that is already on the page, <code>confirm()</code> intercepts the submit and lets it through only on a yes:</p>
+<pre data-code="js">
+document.querySelector('#excluir-contrato').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const ok = await Tucano.confirm({ title: 'Delete contract?', confirm: 'Delete' });
+  if (ok) e.target.submit();
+});
+</pre>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">A closed &lt;dialog&gt; must go back to display: none — and the library already does that</p><p>The modal rule declares <code>display: grid</code>, which beats the browser stylesheet. Without <code>.tuc-modal:not([open]) { display: none }</code>, a <code>&lt;dialog&gt;</code> sitting in the template would stay rendered, fixed and transparent over the whole page: nothing shows, and no click works. That's why it doesn't need <code>hidden</code>.</p></div></div>
+
+<h2 id="tons">Tones and glow</h2>
+<p class="lead">The backdrop isn't just dark: a radial glow behind the box separates the dialog from what is underneath, and the blur takes the
+   page out of focus. The tone changes the color of that glow and of the aura around the box — not the color of the buttons, which is still
+   each action's choice.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th><code>tone</code></th><th>Class</th><th>Glow color</th></tr></thead>
+  <tbody>
+    <tr><td><code>default</code></td><td><code>is-default</code></td><td><code>--tuc-accent</code> — changing the accent changes the glow</td></tr>
+    <tr><td><code>danger</code></td><td><code>is-danger</code></td><td><code>--tuc-danger-fill</code></td></tr>
+    <tr><td><code>success</code></td><td><code>is-success</code></td><td><code>--tuc-success</code></td></tr>
+    <tr><td><code>warning</code></td><td><code>is-warning</code></td><td><code>--tuc-warning</code></td></tr>
+  </tbody>
+</table></div>
+
+<h2 id="tamanhos">Sizes</h2>
+<p class="lead">The box takes the available width up to the size's limit, and the body scrolls when the content gets taller than the screen.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th><code>size</code></th><th>Maximum width</th><th>What for</th></tr></thead>
+  <tbody>
+    <tr><td><code>sm</code></td><td><code>22rem</code></td><td>Short confirmation</td></tr>
+    <tr><td><code>md</code></td><td><code>30rem</code></td><td>The default: notice, form with a few fields</td></tr>
+    <tr><td><code>lg</code></td><td><code>44rem</code></td><td>Table or wide form</td></tr>
+    <tr><td><code>full</code></td><td>the screen, with a <code>1rem</code> margin</td><td>Full width and height: editor, document preview</td></tr>
+  </tbody>
+</table></div>
+
+<p>Below <code>40rem</code> the footer buttons take the full row, so the touch target grows. With <code>sheet</code>, the box
+   loses its bottom corners, sits against the bottom edge and respects the iPhone safe area. It is optional because not every modal wants
+   to become a drawer on mobile.</p>
+
+<h2 id="teclado">Keyboard and accessibility</h2>
+<p class="lead"><code>showModal()</code> puts the dialog in the <i>top layer</i> and makes the rest of the page inert: focus can't escape
+   behind it, and on close it goes back to whoever opened it. None of that is our JavaScript — it is the native element.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Key</th><th>Action</th></tr></thead>
+  <tbody>
+    <tr><td><code>Tab</code> <code>Shift</code>+<code>Tab</code></td><td>Moves between the dialog's controls, without going back to the page</td></tr>
+    <tr><td><code>Enter</code> <code>Space</code></td><td>Activates the focused button</td></tr>
+    <tr><td><code>Esc</code></td><td>Closes with animation and returns focus; does nothing with <code>closable: false</code></td></tr>
+  </tbody>
+</table></div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Why &lt;dialog&gt;, and not a div with z-index</p><p>The <i>top layer</i> sits above any <code>z-index</code> and is immune to an ancestor with <code>overflow: hidden</code> or <code>transform</code> — the three reasons a hand-made modal shows up clipped or underneath. The native <code>Esc</code> closes instantly, without animation; the component intercepts <code>cancel</code> to close along the same path as the others, which animates and reports the reason.</p></div></div>
+
+<p>With <code>title</code>, the dialog gets <code>aria-labelledby</code> pointing to it, and the screen reader announces the title when it
+   opens. The X is a <code>.tuc-btn</code> with <code>aria-label="Fechar"</code>. With <code>prefers-reduced-motion</code>, the entrance
+   lasts 100 ms and doesn't grow.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Reason in <code>onClose</code></th><th>When</th></tr></thead>
+  <tbody>
+    <tr><td><code>'botao'</code></td><td>The X, or a <code>data-tuc-modal-close</code> in the template</td></tr>
+    <tr><td><code>'action'</code></td><td>A button from <code>actions</code></td></tr>
+    <tr><td><code>'escape'</code></td><td>The <code>Esc</code> key</td></tr>
+    <tr><td><code>'fundo'</code></td><td>Click outside the box</td></tr>
+    <tr><td><code>'api'</code></td><td><code>close()</code> called with no argument</td></tr>
+  </tbody>
+</table></div>
+
+<p>The modal and the <a href="../drawer/">drawer</a> share this mechanism: a fix made in one of them applies to the other.</p>
+
+<h2 id="api">API</h2>
+<!-- api -->
+
+<script>
+  // Free content: the body receives a node built here.
+  function modalFormulario() {
+    const corpo = document.createElement('div');
+    corpo.innerHTML = '<label class="tuc-label" for="modal-form-nome">Name</label>'
+      + '<input type="text" class="tuc-input" id="modal-form-nome" placeholder="Full name">'
+      + '<label class="tuc-label" for="modal-form-email" style="margin-top:12px">Email</label>'
+      + '<input type="email" class="tuc-input" id="modal-form-email" placeholder="name@company.com">';
+    new Tucano.Modal({
+      title: 'New contact',
+      text: 'The body takes any node — here, two fields.',
+      actions: [
+        { text: 'Cancel' },
+        { text: 'Save', variant: 'primary', onClick: () => Tucano.toast.success('Contact saved') },
+      ],
+    }).content(corpo).open();
+  }
+
+  // closes: false keeps the modal open; the body is swapped at each step.
+  function modalEtapas() {
+    const etapas = ['Choose the plan.', 'Enter the billing details.', 'Review and confirm.'];
+    let atual = 0;
+    const texto = () => {
+      const p = document.createElement('p');
+      p.textContent = `Step ${atual + 1} of ${etapas.length}: ${etapas[atual]}`;
+      return p;
+    };
+    const m = new Tucano.Modal({
+      title: 'Subscription',
+      actions: [
+        { text: 'Cancel' },
+        { text: 'Next step', variant: 'primary', closes: false, onClick: (modal) => {
+          if (atual < etapas.length - 1) { atual++; modal.content(texto()); }
+          else { modal.close('action'); Tucano.toast.success('Subscription complete'); }
+        } },
+      ],
+    });
+    m.content(texto()).open();
+  }
+</script>

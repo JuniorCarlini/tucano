@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Text editor — plain JavaScript for Django, Laravel and Rails</title>
+<meta name="description" content="Editor that shows the result as you write, with tables, code blocks and links, on top of the native &lt;textarea&gt; — and .tuc-prose to display what was saved.">
+<meta name="author" content="Junior Carlini">
+<link rel="canonical" href="https://juniorcarlini.github.io/tucano/en/editor/">
+<link rel="alternate" hreflang="pt-BR" href="https://juniorcarlini.github.io/tucano/editor/">
+<link rel="alternate" hreflang="en" href="https://juniorcarlini.github.io/tucano/en/editor/">
+<link rel="alternate" hreflang="es" href="https://juniorcarlini.github.io/tucano/es/editor/">
+<link rel="alternate" hreflang="x-default" href="https://juniorcarlini.github.io/tucano/editor/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)">
+<link rel="alternate" type="text/plain" href="../../llms.txt" title="API reference for AI agents">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Tucano">
+<meta property="og:title" content="Text editor — plain JavaScript for Django, Laravel and Rails">
+<meta property="og:description" content="Editor that shows the result as you write, with tables, code blocks and links, on top of the native &lt;textarea&gt; — and .tuc-prose to display what was saved.">
+<meta property="og:url" content="https://juniorcarlini.github.io/tucano/en/editor/">
+<meta property="og:image" content="https://juniorcarlini.github.io/tucano/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Tucano — form components in plain JavaScript">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Text editor — plain JavaScript for Django, Laravel and Rails">
+<meta name="twitter:description" content="Editor that shows the result as you write, with tables, code blocks and links, on top of the native &lt;textarea&gt; — and .tuc-prose to display what was saved.">
+<meta name="twitter:image" content="https://juniorcarlini.github.io/tucano/og.png">
+<link rel="sitemap" type="application/xml" href="../../sitemap.xml">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"Text editor — plain JavaScript for Django, Laravel and Rails","name":"Text editor","description":"Editor that shows the result as you write, with tables, code blocks and links, on top of the native \u003ctextarea> — and .tuc-prose to display what was saved.","url":"https://juniorcarlini.github.io/tucano/en/editor/","inLanguage":"en","image":"https://juniorcarlini.github.io/tucano/og.png","author":{"@type":"Person","name":"Junior Carlini","url":"https://github.com/JuniorCarlini"},"isPartOf":{"@id":"https://juniorcarlini.github.io/tucano/#website"},"about":{"@id":"https://juniorcarlini.github.io/tucano/#software"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Tucano","item":"https://juniorcarlini.github.io/tucano/en/"},{"@type":"ListItem","position":2,"name":"Text editor","item":"https://juniorcarlini.github.io/tucano/en/editor/"}]}]}</script>
+<link rel="icon" type="image/svg+xml" href="../../site/assets/favicon.svg">
+<link rel="icon" type="image/png" sizes="192x192" href="../../site/assets/favicon-192.png">
+<link rel="icon" type="image/png" sizes="48x48" href="../../site/assets/favicon-48.png">
+<link rel="apple-touch-icon" href="../../site/assets/apple-touch-icon.png">
+
+<link rel="stylesheet" href="../../dist/tucano.css?v=0.32.1">
+<link rel="stylesheet" href="../../site/site.css?v=0.32.1">
+<!-- O tema e aplicado antes do primeiro quadro: sem isto a pagina piscava clara
+     para quem escolheu o escuro. -->
+<script>try{if(localStorage.getItem("tucano-tema")==="dark")document.documentElement.classList.add("dark")}catch{}</script>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="../"><img class="brand__logo logo-light" src="../../site/assets/logo-light.svg" width="26" height="24" alt=""><img class="brand__logo logo-dark" src="../../site/assets/logo-dark.svg" width="26" height="24" alt=""><b>Tucano</b></a>
+  <span class="tuc-badge is-plain ver">v0.32.1</span>
+  <div class="topbar__actions">
+    <button class="tuc-btn is-outline is-sm" data-tuc-dropdown="#idiomas-topo" data-placement="bottom-end" aria-label="Language: English"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>EN</button><div class="tuc-dropdown" id="idiomas-topo" hidden><a class="tuc-dropdown__item" href="../../editor/" hreflang="pt-BR" lang="pt-BR"><span class="tuc-dropdown__text">Português</span></a><a class="tuc-dropdown__item" href="../../en/editor/" hreflang="en" lang="en" aria-current="true"><span class="tuc-dropdown__text">English</span></a><a class="tuc-dropdown__item" href="../../es/editor/" hreflang="es" lang="es"><span class="tuc-dropdown__text">Español</span></a></div>
+    <button class="tuc-btn is-outline is-icon is-sm" data-tema data-label-light="Use light theme" data-label-dark="Use dark theme" aria-label="Toggle theme"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
+    <button class="tuc-btn is-outline is-icon is-sm" id="menu" aria-label="Open menu" aria-expanded="false" aria-controls="side"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  </div>
+</header>
+
+<aside class="side" id="side">
+  <div class="side__head">
+    <a class="brand" href="../"><img class="brand__logo logo-light" src="../../site/assets/logo-light.svg" width="26" height="24" alt=""><img class="brand__logo logo-dark" src="../../site/assets/logo-dark.svg" width="26" height="24" alt=""><b>Tucano</b></a>
+    <div class="side__tools">
+      <button class="tuc-btn is-outline is-sm" data-tuc-dropdown="#idiomas-lateral" data-placement="bottom-end" aria-label="Language: English"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>EN</button><div class="tuc-dropdown" id="idiomas-lateral" hidden><a class="tuc-dropdown__item" href="../../editor/" hreflang="pt-BR" lang="pt-BR"><span class="tuc-dropdown__text">Português</span></a><a class="tuc-dropdown__item" href="../../en/editor/" hreflang="en" lang="en" aria-current="true"><span class="tuc-dropdown__text">English</span></a><a class="tuc-dropdown__item" href="../../es/editor/" hreflang="es" lang="es"><span class="tuc-dropdown__text">Español</span></a></div>
+      <button class="tuc-btn is-outline is-icon is-sm" data-tema data-label-light="Use light theme" data-label-dark="Use dark theme" aria-label="Toggle theme"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
+    </div>
+  </div>
+  <span class="tuc-badge is-plain ver">v0.32.1 · 50 KB</span>
+  <nav class="tuc-menu" aria-label="Documentation">
+<div class="tuc-menu__section">Get started</div>
+    <a class="tuc-menu__item" href="../">Home and installation</a>
+    <a class="tuc-menu__item" href="../changelog/">Changelog</a>
+<div class="tuc-menu__section">Fields</div>
+    <a class="tuc-menu__item" href="../form/">Form</a>
+    <a class="tuc-menu__item" href="../select/">Select</a>
+    <a class="tuc-menu__item" href="../datepicker/">Date picker</a>
+    <a class="tuc-menu__item" href="../mask/">Masks</a>
+    <a class="tuc-menu__item" href="../color/">Color picker</a>
+    <a class="tuc-menu__item" href="../choice/">Checkbox, radio and switch</a>
+    <a class="tuc-menu__item" href="../upload/">Upload</a>
+    <a class="tuc-menu__item is-active" href="../editor/" aria-current="page">Text editor</a>
+<div class="tuc-menu__section">Actions</div>
+    <a class="tuc-menu__item" href="../button/">Button</a>
+    <a class="tuc-menu__item" href="../dropdown/">Dropdown menu</a>
+<div class="tuc-menu__section">Feedback</div>
+    <a class="tuc-menu__item" href="../toast/">Toast</a>
+    <a class="tuc-menu__item" href="../alert/">Alert</a>
+    <a class="tuc-menu__item" href="../tooltip/">Tooltip</a>
+    <a class="tuc-menu__item" href="../loading/">Loading</a>
+    <a class="tuc-menu__item" href="../badge/">Badge</a>
+<div class="tuc-menu__section">Dialogs</div>
+    <a class="tuc-menu__item" href="../modal/">Modal</a>
+    <a class="tuc-menu__item" href="../drawer/">Drawer</a>
+<div class="tuc-menu__section">Navigation</div>
+    <a class="tuc-menu__item" href="../tabs/">Tabs</a>
+    <a class="tuc-menu__item" href="../accordion/">Accordion</a>
+    <a class="tuc-menu__item" href="../menu/">Side menu</a>
+    <a class="tuc-menu__item" href="../pagination/">Pagination</a>
+<div class="tuc-menu__section">Data</div>
+    <a class="tuc-menu__item" href="../table/">Table</a>
+    <a class="tuc-menu__item" href="../timeline/">Timeline</a>
+<div class="tuc-menu__section">Guides</div>
+    <a class="tuc-menu__item" href="../django/">Django</a>
+    <a class="tuc-menu__item" href="../theme/">Theme</a>
+    <a class="tuc-menu__item" href="../keyboard/">Keyboard and accessibility</a>
+    <a class="tuc-menu__item" href="../ai/">For AI agents</a>
+  </nav>
+</aside>
+
+<main class="main">
+  <article class="doc">
+<h1>Text editor</h1>
+<p class="lead">It shows the result as you write: whoever fills in a description in the system sees bold as
+   bold, not markup. With tables and code blocks. The original <code>&lt;textarea&gt;</code> stays in the
+   form holding the HTML, so <code>name</code>, <code>required</code> and the POST work without changing the view.</p>
+
+<div class="demo is-hero">
+  <label class="tuc-label" for="ed-descricao">Project description</label>
+  <textarea id="ed-descricao" name="descricao" data-tuc-editor data-placeholder="Write here…">&lt;h2&gt;Contract scope&lt;/h2&gt;
+&lt;p&gt;On-site survey with a &lt;strong&gt;photo report&lt;/strong&gt;, &lt;em&gt;unit measurements&lt;/em&gt; and a &lt;u&gt;signed assessment&lt;/u&gt;.&lt;/p&gt;
+&lt;h3&gt;Stages&lt;/h3&gt;
+&lt;ol&gt;&lt;li&gt;Initial inspection&lt;/li&gt;&lt;li&gt;Measurement&lt;/li&gt;&lt;li&gt;Issuing the assessment&lt;/li&gt;&lt;/ol&gt;
+&lt;table&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Stage&lt;/th&gt;&lt;th style="text-align: center"&gt;Deadline&lt;/th&gt;&lt;th style="text-align: right"&gt;Amount&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;Inspection&lt;/td&gt;&lt;td style="text-align: center"&gt;5 days&lt;/td&gt;&lt;td style="text-align: right"&gt;$2,400&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Measurement&lt;/td&gt;&lt;td style="text-align: center"&gt;10 days&lt;/td&gt;&lt;td style="text-align: right"&gt;$5,800&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
+&lt;blockquote&gt;The deadline counts from the signature date.&lt;/blockquote&gt;
+&lt;p&gt;In the Django template:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;{% for m in messages %}
+  &amp;lt;div data-tuc-toast&amp;gt;{{ m }}&amp;lt;/div&amp;gt;
+{% endfor %}&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Full terms in &lt;a href="https://exemplo.com"&gt;our policy&lt;/a&gt;. A sentence with &lt;code&gt;code&lt;/code&gt; in the middle.&lt;/p&gt;</textarea>
+  <div class="out" id="ed-descricao-valor"></div>
+</div>
+
+<h2 id="exemplos">Examples</h2>
+<p class="lead">The same <code>&lt;textarea&gt;</code>, with different attributes or options.</p>
+
+<div class="demo">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <h4>Slim toolbar</h4>
+      <p><code>toolbar</code> picks the buttons and their order — here, only what a comment needs.</p>
+      <textarea id="ed-comentario" name="comentario" aria-label="Comment">&lt;p&gt;Approved with &lt;strong&gt;reservations&lt;/strong&gt;.&lt;/p&gt;</textarea>
+    </div>
+    <div class="demo-cell">
+      <h4>Empty, shorter</h4>
+      <p><code>data-placeholder</code> and <code>data-min-height="5rem"</code>.</p>
+      <textarea id="ed-obs" name="observacoes" data-tuc-editor data-placeholder="Notes for the team…" data-min-height="5rem" aria-label="Notes"></textarea>
+    </div>
+    <div class="demo-cell">
+      <h4>With an error</h4>
+      <p><code>aria-invalid="true"</code> on the textarea paints the frame — Django 5 already writes the attribute.</p>
+      <textarea id="ed-erro" name="justificativa" data-tuc-editor data-min-height="5rem" aria-invalid="true" aria-describedby="ed-erro-msg" aria-label="Justification"></textarea>
+      <p class="tuc-error" id="ed-erro-msg">Write the justification.</p>
+    </div>
+    <div class="demo-cell">
+      <h4>The sanitizer, live</h4>
+      <p><code>Tucano.sanitize()</code> on HTML with <code>onerror</code>, <code>javascript:</code> and <code>&lt;script&gt;</code>.</p>
+      <div class="out" id="ed-peneira-entrada"></div>
+      <div class="out" id="ed-peneira-saida"></div>
+    </div>
+  </div>
+</div>
+
+<h2 id="uso">How to use</h2>
+<p class="lead">Mark the <code>&lt;textarea&gt;</code> and it initializes on its own, including anything that arrives later via HTMX.
+   The initial content is the stored HTML, and it also goes through the sanitizer — it may have come from the database.</p>
+
+<div class="tuc-prose doc-code"><pre><code>&lt;textarea name="descricao" data-tuc-editor&gt;{{ form.descricao.value|default:"" }}&lt;/textarea&gt;</code></pre></div>
+
+<h3>In a Django form</h3>
+<div class="tuc-prose doc-code"><pre><code>class ProjetoForm(forms.ModelForm):
+    class Meta:
+        model = Projeto
+        fields = ["descricao"]
+        widgets = {
+            "descricao": forms.Textarea(attrs={
+                "data-tuc-editor": "",
+                "data-placeholder": "Describe the scope...",
+                "data-min-height": "12rem",
+            }),
+        }</code></pre></div>
+
+<h3>In JavaScript</h3>
+<p>To choose the toolbar and the table size, which do not exist as attributes, or to read and write the value.</p>
+<div class="tuc-prose doc-code"><pre><code>const ed = new Tucano.Editor('#descricao', {
+  toolbar: ['bold', 'italic', 'list', 'link', 'table'],
+  table: { rows: 4, cols: 2 },     // rows including the header
+});
+
+ed.getValue();                   // HTML, already sanitized
+ed.setValue('&lt;p&gt;New text&lt;/p&gt;');  // sanitizes, highlights code and updates the textarea
+ed.apply('bold');                // same as the toolbar button
+ed.inTable('rowBelow');          // operation on the cell where the cursor is
+ed.destroy();                    // gives back the original textarea</code></pre></div>
+
+<h2 id="barra">The toolbar</h2>
+<p class="lead">A lit button means the cursor is inside that formatting — and that clicking again undoes it. The names
+   below are the ones the <code>toolbar</code> option accepts, in the default order.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Name</th><th>Button</th><th>What it does</th></tr></thead>
+  <tbody>
+    <tr><td><code>bold</code> <code>italic</code> <code>underline</code></td><td>Bold, Italic, Underline</td><td>Marks the selection; <code>Ctrl/Cmd+B</code>, <code>+I</code>, <code>+U</code></td></tr>
+    <tr><td><code>title</code> <code>subheading</code></td><td>Heading, Subheading</td><td>Turns the block into <code>&lt;h2&gt;</code> or <code>&lt;h3&gt;</code>; again, back to a paragraph</td></tr>
+    <tr><td><code>list</code> <code>numbered</code></td><td>List, Numbered list</td><td><code>&lt;ul&gt;</code> and <code>&lt;ol&gt;</code></td></tr>
+    <tr><td><code>left</code> <code>center</code> <code>right</code> <code>justify</code></td><td>Alignments</td><td>Aligns the block</td></tr>
+    <tr><td><code>quote</code></td><td>Quote</td><td><code>&lt;blockquote&gt;</code>; again, back to a paragraph</td></tr>
+    <tr><td><code>code</code></td><td>Code</td><td>Inline code or code block — see below</td></tr>
+    <tr><td><code>link</code></td><td>Link</td><td>Opens the address box; <code>Ctrl/Cmd+K</code></td></tr>
+    <tr><td><code>table</code></td><td>Insert table</td><td>Table with a header at the cursor</td></tr>
+    <tr><td><code>clear</code></td><td>Clear formatting</td><td>Removes text formatting from the selection</td></tr>
+  </tbody>
+</table></div>
+
+<p>The toolbar stays on a single line and scrolls when it does not fit, instead of wrapping onto two: that way the height does not change and anyone
+   looking for a button knows it has not moved to another row. The button names shown by the component are in Portuguese.</p>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Pasting always comes in as plain text</p><p>That is what keeps out the HTML from Word and Google Docs, with layout tables and inline styles, which is where homemade editors break first. You lose the source formatting and gain a document that is still yours.</p></div></div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Ctrl+Z is the browser's</p><p>Formatting goes through <code>execCommand</code>, which is deprecated and used anyway: it is the only path with universal support and the only one that integrates with native undo. Reimplementing it by hand would mean reimplementing <code>Ctrl+Z</code> too. The exception is removing a code block, which leaves the history for that one action.</p></div></div>
+
+<h2 id="tabela">Table</h2>
+<p class="lead">The button inserts a table with a header — tables in business apps almost always have one, and without it the first
+   row of data ends up acting as the title. With the cursor in a cell, a second toolbar appears just for it.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Operation</th><th>Name in <code>inTable()</code></th><th>Detail</th></tr></thead>
+  <tbody>
+    <tr><td>Insert row above / below</td><td><code>rowAbove</code> <code>rowBelow</code></td><td>From the header, the new row goes into the body</td></tr>
+    <tr><td>Insert column left / right</td><td><code>colBefore</code> <code>colAfter</code></td><td>The new cell is <code>th</code> in the header and <code>td</code> in the body</td></tr>
+    <tr><td>Delete row</td><td><code>deleteRow</code></td><td>On the last row, the whole table goes away, instead of leaving an empty frame</td></tr>
+    <tr><td>Delete column</td><td><code>deleteColumn</code></td><td>Same, on the last column</td></tr>
+    <tr><td>Delete table</td><td><code>deleteTable</code></td><td></td></tr>
+  </tbody>
+</table></div>
+
+<p>In a table, <code>Tab</code> moves to the next cell and <code>Shift+Tab</code> goes back; in the last cell, <code>Tab</code>
+   creates a new row — you can fill it in without taking your hands off the keyboard. Inserting a table with the cursor inside
+   another one puts the new table after it, not nested. The table toolbar only appears when it is needed: always visible,
+   it would fill the main toolbar with useless buttons most of the time.</p>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Out of scope</p><p>Merging cells and resizing columns — that is what turns an editor into a project of its own. Columns have a fixed width on purpose: with automatic width, the text would resize the column on every keystroke and the whole row would jump around.</p></div></div>
+
+<h2 id="codigo">Code block</h2>
+<p class="lead">The same button does both, depending on the selection: a selection within one line becomes
+   inline <code>&lt;code&gt;</code>; a selection spanning lines becomes <code>&lt;pre&gt;&lt;code&gt;</code>,
+   which is the element that preserves line breaks and indentation. With the cursor inside, the button undoes it.</p>
+
+<p>The block is highlighted as you write — comments, quoted text, numbers, tags, attributes, keywords and
+   template braces. The color is display only: the sanitizer dissolves <code>&lt;span&gt;</code>, so none of it reaches the saved
+   value, nor should it, because color is the decision of whoever displays it.</p>
+
+<h2 id="link">Link</h2>
+<p class="lead">The address is asked for in the library's own modal, not in the browser's <code>prompt</code> — which
+   appears outside the page's design, ignores the theme and cannot be styled.</p>
+
+<p>Select the text and use the button or <code>Ctrl/Cmd+K</code>. <code>Enter</code> in the field confirms. With the cursor
+   on an existing link, the box opens with its address and gains "Remover" (remove). Only addresses starting with
+   <code>http:</code>, <code>https:</code>, <code>mailto:</code>, <code>tel:</code>, <code>#</code> or <code>/</code> get through —
+   everything else, <code>javascript:</code> included, loses the link and keeps the text. Every saved link comes out with
+   <code>target="_blank"</code> and <code>rel="noopener noreferrer"</code>.</p>
+
+<h2 id="valor">Value and form</h2>
+<p class="lead">What holds the value is the <code>&lt;textarea&gt;</code>, hidden inside the editor. On every change it
+   receives the sanitized HTML and fires native <code>input</code> and <code>change</code> events.</p>
+
+<div class="tuc-prose doc-code"><pre><code>POST  descricao = &lt;h2&gt;Contract scope&lt;/h2&gt;&lt;p&gt;Survey with a &lt;strong&gt;report&lt;/strong&gt;.&lt;/p&gt;</code></pre></div>
+
+<div class="tuc-prose doc-code"><pre><code>document.querySelector('#descricao').addEventListener('change', (e) =&gt; {
+  e.target.value;   // the HTML that goes in the POST
+});</code></pre></div>
+
+<p>The editor does not fire <code>tucano:change</code>: the value is form text, and the textarea's native events already
+   serve HTMX's <code>hx-trigger="change"</code> and validation.</p>
+
+<h3>The sanitizer</h3>
+<p>The output goes through a closed list of tags on every read, not just on what was typed: the browser is
+   free to mark up however it likes when running a command, and the result has to fit what the editor promises.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Input</th><th>Output</th></tr></thead>
+  <tbody>
+    <tr><td><code>p</code> <code>br</code> <code>h2</code> <code>h3</code> <code>strong</code> <code>em</code> <code>u</code> <code>s</code> <code>ul</code> <code>ol</code> <code>li</code> <code>blockquote</code> <code>code</code> <code>pre</code> <code>a</code> <code>table</code> <code>thead</code> <code>tbody</code> <code>tr</code> <code>th</code> <code>td</code></td><td>As they are, with no attributes</td></tr>
+    <tr><td><code>b</code> <code>i</code></td><td>Become <code>strong</code> and <code>em</code></td></tr>
+    <tr><td><code>href</code> on <code>a</code></td><td>Only with an acceptable destination; otherwise the link goes away and the text stays</td></tr>
+    <tr><td><code>text-align</code></td><td>Only <code>left</code>, <code>center</code>, <code>right</code> or <code>justify</code>, on <code>p</code>, <code>h2</code>, <code>h3</code>, <code>li</code>, <code>blockquote</code>, <code>th</code> and <code>td</code> — rewritten from scratch, never the <code>style</code> that came in</td></tr>
+    <tr><td><code>script</code> <code>style</code> <code>iframe</code> <code>object</code></td><td>Removed along with their content</td></tr>
+    <tr><td>Any other tag (<code>div</code>, <code>span</code>, <code>font</code>, <code>h1</code>...)</td><td>Loses the tag and keeps the text</td></tr>
+    <tr><td>Any other attribute (<code>onclick</code>, <code>onerror</code>, <code>class</code>...)</td><td>Removed</td></tr>
+  </tbody>
+</table></div>
+
+<div class="tuc-prose doc-code"><pre><code>Tucano.sanitize('&lt;p onclick="x()"&gt;Hi &lt;img src=x onerror="roubar()"&gt;&lt;b&gt;there&lt;/b&gt;&lt;/p&gt;');
+// '&lt;p&gt;Hi &lt;strong&gt;there&lt;/strong&gt;&lt;/p&gt;'</code></pre></div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Sanitize again on the server, before publishing</p><p>The sanitizer protects the editor, not the published page. The HTML arrives by POST, and nothing guarantees it came from this editor — anyone can build the request by hand. Run the value through a server-side sanitizer, with the same tag list, before displaying it with <code>|safe</code>.</p></div></div>
+
+<div class="tuc-prose doc-code"><pre><code>import nh3
+
+TAGS = {"p", "br", "h2", "h3", "strong", "em", "u", "s", "ul", "ol", "li",
+        "blockquote", "code", "pre", "a", "table", "thead", "tbody", "tr", "th", "td"}
+
+def limpar(html):
+    return nh3.clean(html, tags=TAGS, attributes={"a": {"href"}},
+                     url_schemes={"http", "https", "mailto", "tel"})</code></pre></div>
+<p class="tuc-hint">An example with <code>nh3</code>; any sanitizer with a closed list will do. To keep alignment, also allow <code>style</code> with only <code>text-align</code> on blocks.</p>
+
+<h2 id="exibicao">Displaying what was saved</h2>
+<p class="lead">What gets saved is HTML with no classes at all — on purpose, so it works with any server and survives
+   a front-end rewrite. The cost is that, once published, it would inherit your page's styles. Wrapping the output in
+   <code>.tuc-prose</code> gives back exactly the look the person saw while writing.</p>
+
+<div class="tuc-prose doc-code"><pre><code>&lt;div class="tuc-prose"&gt;{{ projeto.descricao|safe }}&lt;/div&gt;</code></pre></div>
+
+<div class="demo">
+  <span class="tuc-label">The same content, published</span>
+  <div class="tuc-prose">
+    <h2>Contract scope</h2>
+    <p>On-site survey with a <strong>photo report</strong> and <em>unit measurements</em>.</p>
+    <table><thead><tr><th>Stage</th><th style="text-align: center">Deadline</th><th style="text-align: right">Amount</th></tr></thead>
+      <tbody><tr><td>Inspection</td><td style="text-align: center">5 days</td><td style="text-align: right">$2,400</td></tr>
+      <tr><td>Measurement</td><td style="text-align: center">10 days</td><td style="text-align: right">$5,800</td></tr></tbody></table>
+    <pre><code>npm install tucano
+npm run build  # builds dist</code></pre>
+    <blockquote>The deadline counts from the signature date.</blockquote>
+  </div>
+</div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">The two looks cannot drift apart</p><p>The <code>.tuc-prose</code> rules are the same as the editing area's, shared in the CSS. They also defend against the host's CSS: <code>table { display: block }</code> and <code>th { text-transform: uppercase }</code> are common recipes in projects, and inherited here they would break the table and misrepresent what was written.</p></div></div>
+
+<h3>Highlighted code and copy</h3>
+<p><code>init()</code> highlights every <code>&lt;pre&gt;&lt;code&gt;</code> inside <code>.tuc-prose</code> and adds a
+   copy button in the corner — including anything that arrives later via HTMX. Hover over the block above to see it.</p>
+
+<ul>
+  <li>The button appears on hover and on focus: if it were permanent it would compete with the code, which is what the person came to read; but it is still reachable with <code>Tab</code>, for keyboard users. On touch screens it is always visible, more subdued.</li>
+  <li>It copies the raw text, without the color markup. Outside a secure context, where the clipboard does not exist, it selects the block and leaves <code>Ctrl+C</code> one keystroke away.</li>
+  <li>The highlighter does not know any language, on purpose: it recognizes what shows up in almost all of them, which covers any language for 2 KB. The colors are the <code>--tuc-tok-*</code> tokens, with their own palette in dark mode.</li>
+</ul>
+
+<div class="tuc-prose doc-code"><pre><code>Tucano.highlight('const x = 1;');   // HTML with &lt;span class="tuc-tok-..."&gt; to color by hand
+Tucano.init(trecho);                // highlights and adds copy to HTML inserted some other way</code></pre></div>
+
+<h2 id="teclado">Keyboard and accessibility</h2>
+<p class="lead">The area is a <code>role="textbox"</code> with <code>aria-multiline</code>; the toolbar is a
+   <code>role="toolbar"</code>, and each button has a name and <code>aria-pressed</code> following the formatting under the cursor.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Key</th><th>Action</th></tr></thead>
+  <tbody>
+    <tr><td><code>Ctrl/Cmd+B</code> <code>+I</code> <code>+U</code></td><td>Bold, italic, underline</td></tr>
+    <tr><td><code>Ctrl/Cmd+K</code></td><td>Insert or edit link</td></tr>
+    <tr><td><code>Ctrl/Cmd+Z</code></td><td>Undo, through the browser's history</td></tr>
+    <tr><td><code>Tab</code> <code>Shift+Tab</code></td><td>In a table, next and previous cell; in the last one, creates a row</td></tr>
+    <tr><td><code>Enter</code></td><td>In the link box, confirms</td></tr>
+    <tr><td><code>Esc</code></td><td>In the link box, closes without applying</td></tr>
+  </tbody>
+</table></div>
+
+<p>Outside a table, <code>Tab</code> leaves the editor, as in any field. Applying formatting does not scroll the page:
+   focus returns to the area without scrolling.</p>
+
+<h2 id="api">API</h2>
+<p class="lead">Generated from the code on every build — if something is not here, it does not exist.</p>
+<div class="api-line"><span>Markup</span><div><code>[data-tuc-editor]</code></div></div>
+<div class="api-line"><span>In JS</span><div><code>new Tucano.Editor(alvo, opcoes)</code></div></div>
+<div class="api-line"><span>Attributes</span><div><code>data-min-height</code> <code>data-placeholder</code></div></div>
+<div class="api-line"><span>Methods</span><div><code>inTable</code> <code>apply</code> <code>getValue</code> <code>setValue</code> <code>destroy</code></div></div>
+<h3>Options</h3>
+<p>The notes in this table come from comments in the source code, which are written in Portuguese.</p>
+<div class="tuc-table-wrap"><table class="tuc-table"><thead><tr><th style="width:26%">Option</th><th style="width:22%">Default</th><th>What for</th></tr></thead><tbody>
+<tr><td><code>toolbar</code></td><td><code>['bold', 'italic', 'underline', 'title', 'subheading'</code></td><td></td></tr>
+<tr><td><code>table</code></td><td><code>{ rows: 3, cols: 3 }</code></td><td></td></tr>
+<tr><td><code>minHeight</code></td><td><code>'9rem'</code></td><td></td></tr>
+<tr><td><code>placeholder</code></td><td><code>''</code></td><td></td></tr>
+</tbody></table></div>
+
+
+<nav class="pager" aria-label="Documentation pagination"><a class="tuc-btn is-outline is-lg pager__prev" href="../upload/" aria-label="Previous page: Upload"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Upload</a><a class="tuc-btn is-outline is-lg pager__next" href="../button/" aria-label="Next page: Button">Button<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></a></nav>
+  </article>
+</main>
+
+<script src="../../dist/tucano.js?v=0.32.1"></script>
+<script src="../../site/site.js?v=0.32.1"></script>
+<script>
+  // Slim toolbar: toolbar is a JS option, there is no attribute for it.
+  new Tucano.Editor('#ed-comentario', { toolbar: ['bold', 'italic', 'list', 'link'], minHeight: '5rem' });
+
+  // The value that goes in the POST, read from the textarea on every change.
+  const campo = document.getElementById('ed-descricao');
+  const valor = document.getElementById('ed-descricao-valor');
+  const mostrar = () => { valor.textContent = `POST descricao = ${campo.value}`; };
+  campo.addEventListener('change', mostrar);
+  mostrar();
+
+  // The sanitizer on hostile HTML.
+  const hostil = '<p onclick="roubar()">Hi <img src=x onerror="roubar()"><b>there</b>, <a href="javascript:roubar()">click</a></p><script>roubar()<\/script>';
+  document.getElementById('ed-peneira-entrada').textContent = `input:  ${hostil}`;
+  document.getElementById('ed-peneira-saida').textContent = `output: ${Tucano.sanitize(hostil)}`;
+</script>
+</body>
+</html>

@@ -1,0 +1,172 @@
+<!--
+title: Tooltip
+component: tooltip
+lang: en
+description: Short hint anchored to an element, shown on pointer, keyboard focus and touch, with twelve placements, an arrow and color set through variables.
+-->
+<h1>Tooltip</h1>
+<p class="lead">Short hint anchored to an element. It shows on pointer, keyboard focus and touch: a hint that only
+   responds to the mouse doesn't exist for keyboard users, and never shows on a phone, where there's no hover.</p>
+
+<div class="demo is-hero">
+  <div class="bar">
+    <button type="button" class="tuc-btn is-outline" data-tuc-tip="Generates the PDF with the current layout">Export</button>
+    <button type="button" class="tuc-btn is-outline is-icon" aria-label="Duplicate" data-tuc-tip="Duplicate contract"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 9h-9a2 2 0 00-2 2v9a2 2 0 002 2h9a2 2 0 002-2v-9a2 2 0 00-2-2zM5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
+    <button type="button" class="tuc-btn is-outline" data-tuc-tip title="Came from the title, which is removed so the native tooltip doesn't show on top">From title</button>
+    <span data-tuc-tip="1% interest per month, counted from the due date">Late fees and interest</span>
+  </div>
+</div>
+
+<h2 id="exemplos">Examples</h2>
+<p class="lead">Side and alignment are the same as shadcn's, and so is the default: <code>top-center</code>.</p>
+
+<div class="demo">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <h4>Sides</h4>
+      <p><code>top</code>, <code>right</code>, <code>bottom</code> and <code>left</code>. If it doesn't fit, it flips to the opposite side and the arrow follows.</p>
+      <div class="bar">
+        <button type="button" class="tuc-btn is-outline is-sm" data-tuc-tip="Above" data-placement="top-center">top</button>
+        <button type="button" class="tuc-btn is-outline is-sm" data-tuc-tip="To the right" data-placement="right-center">right</button>
+        <button type="button" class="tuc-btn is-outline is-sm" data-tuc-tip="Below" data-placement="bottom-center">bottom</button>
+        <button type="button" class="tuc-btn is-outline is-sm" data-tuc-tip="To the left" data-placement="left-center">left</button>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Alignment</h4>
+      <p><code>start</code>, <code>center</code> and <code>end</code> along the side's axis. The arrow always points to the center of the trigger.</p>
+      <div class="bar">
+        <button type="button" class="tuc-btn is-outline is-sm" data-tuc-tip="Aligned to the start, note the arrow" data-placement="bottom-start">start</button>
+        <button type="button" class="tuc-btn is-outline is-sm" data-tuc-tip="Centered on the trigger" data-placement="bottom-center">center</button>
+        <button type="button" class="tuc-btn is-outline is-sm" data-tuc-tip="Aligned to the end, note the arrow" data-placement="bottom-end">end</button>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Long text</h4>
+      <p>Wraps at 16rem wide; <code>maxWidth</code> changes it in JS.</p>
+      <button type="button" class="tuc-btn is-outline is-sm" data-tuc-tip="This action recalculates every amount in the contract and may take a few minutes">Recalculate</button>
+    </div>
+    <div class="demo-cell">
+      <h4>Delay</h4>
+      <p><code>data-delay="900"</code> waits longer before showing on pointer. On focus, it shows right away.</p>
+      <button type="button" class="tuc-btn is-outline is-sm" data-tuc-tip="Took 900 ms" data-delay="900">900 ms delay</button>
+    </div>
+  </div>
+</div>
+
+<h2 id="uso">How to use</h2>
+<p class="lead">The text goes in the attribute itself, and it initializes on its own, including whatever arrives later through HTMX.</p>
+
+<pre data-code="html">
+<button data-tuc-tip="Generates the PDF with the current layout">Export</button>
+<button data-tuc-tip="..." data-placement="right-center" data-delay="600">More</button>
+<button data-tuc-tip title="Comes from the title">From title</button>
+</pre>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Attribute</th><th>Default</th><th>What it's for</th></tr></thead>
+  <tbody>
+    <tr><td><code>data-tuc-tip</code></td><td>—</td><td>The hint text. When empty, uses the <code>title</code></td></tr>
+    <tr><td><code>data-placement</code></td><td><code>top-center</code></td><td>Side and alignment</td></tr>
+    <tr><td><code>data-delay</code></td><td><code>350</code></td><td>Wait, in ms, before showing on pointer</td></tr>
+    <tr><td><code>data-tip-class</code></td><td>—</td><td>Extra class on the bubble, to change the color in a single case</td></tr>
+  </tbody>
+</table></div>
+
+<p>With an empty <code>data-tuc-tip</code>, the text comes from the <code>title</code>, which is removed: otherwise the browser's native tooltip
+   would show on top of ours. Without the attribute, no <code>title</code> is touched — hijacking every <code>title</code> on the
+   page would be far too intrusive for a library. With neither text nor <code>title</code>, there's nothing to show, and the
+   component logs an error to the console.</p>
+
+<h3>In a Django template</h3>
+<pre data-code="django">
+<span class="tuc-badge is-warning" data-tuc-tip="Due on {{ contrato.vencimento|date:'d/m/Y' }}">
+  {{ contrato.get_status_display }}
+</span>
+</pre>
+
+<p>On an element that doesn't receive focus, like that <code>&lt;span&gt;</code>, the component adds <code>tabindex="0"</code>: without
+   it the hint wouldn't exist for keyboard users. Buttons, links and fields are already focusable and are left as they are.</p>
+
+<h3>In JavaScript</h3>
+<pre data-code="js">
+new Tucano.Tooltip('#exportar', {
+  text: 'Generates the PDF',
+  placement: 'right-center',
+  delay: 350,         // on hover: avoids flicker when the mouse just brushes past
+  delayOut: 120,      // on leave
+  maxWidth: '20rem',
+  className: 'tip-accent',
+});
+</pre>
+
+<h2 id="cor">Color</h2>
+<p class="lead">Two variables, and the arrow reads the same ones: changing the bubble's color doesn't detach the tip. Set them for all tooltips, on
+   <code>.tuc-tip</code>, or for a single case, with <code>data-tip-class</code>.</p>
+
+<div class="demo">
+  <div class="bar">
+    <button type="button" class="tuc-btn is-outline is-sm" data-tuc-tip="Default: the inverse of the theme">Default</button>
+    <button type="button" class="tuc-btn is-outline is-sm" id="tooltip-cor-destaque">Accent</button>
+    <button type="button" class="tuc-btn is-outline is-sm" id="tooltip-cor-perigo">Danger</button>
+    <button type="button" class="tuc-btn is-outline is-sm" id="tooltip-cor-claro">Light</button>
+  </div>
+</div>
+
+<pre data-code="css">
+.tip-accent { --tuc-tip-bg: var(--tuc-accent); --tuc-tip-fg: var(--tuc-accent-fg); }
+.tip-danger { --tuc-tip-bg: var(--tuc-danger-fill); --tuc-tip-fg: #fff; }
+.tip-light  { --tuc-tip-bg: var(--tuc-bg); --tuc-tip-fg: var(--tuc-fg); box-shadow: var(--tuc-shadow); }
+</pre>
+
+<pre data-code="html">
+<button data-tuc-tip="Only administrators can delete" data-tip-class="tip-danger">Delete</button>
+</pre>
+
+<h2 id="comportamento">When it shows and when it hides</h2>
+<p class="lead">Only one hint stays open at a time: opening another closes the previous one.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>What happens</th><th>The hint</th></tr></thead>
+  <tbody>
+    <tr><td>The pointer enters</td><td>Shows after <code>delay</code>, 350 ms</td></tr>
+    <tr><td>The pointer leaves</td><td>Hides after <code>delayOut</code>, 120 ms</td></tr>
+    <tr><td>The element receives focus</td><td>Shows right away</td></tr>
+    <tr><td>Focus leaves</td><td>Hides</td></tr>
+    <tr><td>Tap, on a touch screen</td><td>Tapping opens and closes it; tapping outside closes it</td></tr>
+    <tr><td><code>Esc</code></td><td>Hides, even with the pointer resting on top</td></tr>
+    <tr><td>The trigger scrolls off screen</td><td>Hides, instead of getting stuck at the edge</td></tr>
+  </tbody>
+</table></div>
+
+<h2 id="acessibilidade">Accessibility</h2>
+<p class="lead">The bubble is a <code>role="tooltip"</code>, and the element points to it with <code>aria-describedby</code>: the
+   screen reader reads the hint along with the button, as its description, and not as a stray element on the page.</p>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Esc closes it with the pointer on top</p><p>It's not a detail: it's what WCAG 1.4.13 requires, for people using screen magnification who need to dismiss a hint covering the content without moving the mouse.</p></div></div>
+
+<p>The hint is text only and doesn't receive the pointer. A link, a button or information the person needs to finish the task doesn't
+   belong in it: anyone who doesn't point at or focus that element will never see it. The arrow is decoration and gets <code>aria-hidden</code>. With
+   <code>prefers-reduced-motion</code> the hint shows and hides without animation.</p>
+
+<h2 id="api">API</h2>
+<!-- api -->
+
+<script>
+  {
+    // The documentation page has no component-specific CSS of its own, so here the
+    // two variables go straight on the bubble. In your project, use the class with
+    // data-tip-class, as in the block above.
+    const cores = [
+      ['#tooltip-cor-destaque', 'Changed with two variables', 'var(--tuc-accent)', 'var(--tuc-accent-fg)'],
+      ['#tooltip-cor-perigo', 'Only administrators can delete', 'var(--tuc-danger-fill)', '#fff'],
+      ['#tooltip-cor-claro', 'Light background with shadow', 'var(--tuc-bg)', 'var(--tuc-fg)'],
+    ];
+    for (const [alvo, text, fundo, texto] of cores) {
+      const dica = new Tucano.Tooltip(alvo, { text });
+      dica.panel.style.setProperty('--tuc-tip-bg', fundo);
+      dica.panel.style.setProperty('--tuc-tip-fg', texto);
+      if (alvo === '#tooltip-cor-claro') dica.panel.style.boxShadow = 'var(--tuc-shadow)';
+    }
+  }
+</script>

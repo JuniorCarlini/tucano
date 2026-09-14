@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tucano theme — CSS tokens, dark mode and accent color</title>
+<meta name="description" content="Every Tucano --tuc-* token with its light and dark values, dark mode through .dark or automatic, scoping by container, compact layout and changing the accent color.">
+<meta name="author" content="Junior Carlini">
+<link rel="canonical" href="https://juniorcarlini.github.io/tucano/en/theme/">
+<link rel="alternate" hreflang="pt-BR" href="https://juniorcarlini.github.io/tucano/theme/">
+<link rel="alternate" hreflang="en" href="https://juniorcarlini.github.io/tucano/en/theme/">
+<link rel="alternate" hreflang="es" href="https://juniorcarlini.github.io/tucano/es/theme/">
+<link rel="alternate" hreflang="x-default" href="https://juniorcarlini.github.io/tucano/theme/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)">
+<link rel="alternate" type="text/plain" href="../../llms.txt" title="API reference for AI agents">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Tucano">
+<meta property="og:title" content="Tucano theme — CSS tokens, dark mode and accent color">
+<meta property="og:description" content="Every Tucano --tuc-* token with its light and dark values, dark mode through .dark or automatic, scoping by container, compact layout and changing the accent color.">
+<meta property="og:url" content="https://juniorcarlini.github.io/tucano/en/theme/">
+<meta property="og:image" content="https://juniorcarlini.github.io/tucano/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Tucano — form components in plain JavaScript">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Tucano theme — CSS tokens, dark mode and accent color">
+<meta name="twitter:description" content="Every Tucano --tuc-* token with its light and dark values, dark mode through .dark or automatic, scoping by container, compact layout and changing the accent color.">
+<meta name="twitter:image" content="https://juniorcarlini.github.io/tucano/og.png">
+<link rel="sitemap" type="application/xml" href="../../sitemap.xml">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"Tucano theme — CSS tokens, dark mode and accent color","name":"Theme","description":"Every Tucano --tuc-* token with its light and dark values, dark mode through .dark or automatic, scoping by container, compact layout and changing the accent color.","url":"https://juniorcarlini.github.io/tucano/en/theme/","inLanguage":"en","image":"https://juniorcarlini.github.io/tucano/og.png","author":{"@type":"Person","name":"Junior Carlini","url":"https://github.com/JuniorCarlini"},"isPartOf":{"@id":"https://juniorcarlini.github.io/tucano/#website"},"about":{"@id":"https://juniorcarlini.github.io/tucano/#software"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Tucano","item":"https://juniorcarlini.github.io/tucano/en/"},{"@type":"ListItem","position":2,"name":"Theme","item":"https://juniorcarlini.github.io/tucano/en/theme/"}]}]}</script>
+<link rel="icon" type="image/svg+xml" href="../../site/assets/favicon.svg">
+<link rel="icon" type="image/png" sizes="192x192" href="../../site/assets/favicon-192.png">
+<link rel="icon" type="image/png" sizes="48x48" href="../../site/assets/favicon-48.png">
+<link rel="apple-touch-icon" href="../../site/assets/apple-touch-icon.png">
+
+<link rel="stylesheet" href="../../dist/tucano.css?v=0.32.1">
+<link rel="stylesheet" href="../../site/site.css?v=0.32.1">
+<!-- O tema e aplicado antes do primeiro quadro: sem isto a pagina piscava clara
+     para quem escolheu o escuro. -->
+<script>try{if(localStorage.getItem("tucano-tema")==="dark")document.documentElement.classList.add("dark")}catch{}</script>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="../"><img class="brand__logo logo-light" src="../../site/assets/logo-light.svg" width="26" height="24" alt=""><img class="brand__logo logo-dark" src="../../site/assets/logo-dark.svg" width="26" height="24" alt=""><b>Tucano</b></a>
+  <span class="tuc-badge is-plain ver">v0.32.1</span>
+  <div class="topbar__actions">
+    <button class="tuc-btn is-outline is-sm" data-tuc-dropdown="#idiomas-topo" data-placement="bottom-end" aria-label="Language: English"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>EN</button><div class="tuc-dropdown" id="idiomas-topo" hidden><a class="tuc-dropdown__item" href="../../theme/" hreflang="pt-BR" lang="pt-BR"><span class="tuc-dropdown__text">Português</span></a><a class="tuc-dropdown__item" href="../../en/theme/" hreflang="en" lang="en" aria-current="true"><span class="tuc-dropdown__text">English</span></a><a class="tuc-dropdown__item" href="../../es/theme/" hreflang="es" lang="es"><span class="tuc-dropdown__text">Español</span></a></div>
+    <button class="tuc-btn is-outline is-icon is-sm" data-tema data-label-light="Use light theme" data-label-dark="Use dark theme" aria-label="Toggle theme"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
+    <button class="tuc-btn is-outline is-icon is-sm" id="menu" aria-label="Open menu" aria-expanded="false" aria-controls="side"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  </div>
+</header>
+
+<aside class="side" id="side">
+  <div class="side__head">
+    <a class="brand" href="../"><img class="brand__logo logo-light" src="../../site/assets/logo-light.svg" width="26" height="24" alt=""><img class="brand__logo logo-dark" src="../../site/assets/logo-dark.svg" width="26" height="24" alt=""><b>Tucano</b></a>
+    <div class="side__tools">
+      <button class="tuc-btn is-outline is-sm" data-tuc-dropdown="#idiomas-lateral" data-placement="bottom-end" aria-label="Language: English"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>EN</button><div class="tuc-dropdown" id="idiomas-lateral" hidden><a class="tuc-dropdown__item" href="../../theme/" hreflang="pt-BR" lang="pt-BR"><span class="tuc-dropdown__text">Português</span></a><a class="tuc-dropdown__item" href="../../en/theme/" hreflang="en" lang="en" aria-current="true"><span class="tuc-dropdown__text">English</span></a><a class="tuc-dropdown__item" href="../../es/theme/" hreflang="es" lang="es"><span class="tuc-dropdown__text">Español</span></a></div>
+      <button class="tuc-btn is-outline is-icon is-sm" data-tema data-label-light="Use light theme" data-label-dark="Use dark theme" aria-label="Toggle theme"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
+    </div>
+  </div>
+  <span class="tuc-badge is-plain ver">v0.32.1 · 50 KB</span>
+  <nav class="tuc-menu" aria-label="Documentation">
+<div class="tuc-menu__section">Get started</div>
+    <a class="tuc-menu__item" href="../">Home and installation</a>
+    <a class="tuc-menu__item" href="../changelog/">Changelog</a>
+<div class="tuc-menu__section">Fields</div>
+    <a class="tuc-menu__item" href="../form/">Form</a>
+    <a class="tuc-menu__item" href="../select/">Select</a>
+    <a class="tuc-menu__item" href="../datepicker/">Date picker</a>
+    <a class="tuc-menu__item" href="../mask/">Masks</a>
+    <a class="tuc-menu__item" href="../color/">Color picker</a>
+    <a class="tuc-menu__item" href="../choice/">Checkbox, radio and switch</a>
+    <a class="tuc-menu__item" href="../upload/">Upload</a>
+    <a class="tuc-menu__item" href="../editor/">Text editor</a>
+<div class="tuc-menu__section">Actions</div>
+    <a class="tuc-menu__item" href="../button/">Button</a>
+    <a class="tuc-menu__item" href="../dropdown/">Dropdown menu</a>
+<div class="tuc-menu__section">Feedback</div>
+    <a class="tuc-menu__item" href="../toast/">Toast</a>
+    <a class="tuc-menu__item" href="../alert/">Alert</a>
+    <a class="tuc-menu__item" href="../tooltip/">Tooltip</a>
+    <a class="tuc-menu__item" href="../loading/">Loading</a>
+    <a class="tuc-menu__item" href="../badge/">Badge</a>
+<div class="tuc-menu__section">Dialogs</div>
+    <a class="tuc-menu__item" href="../modal/">Modal</a>
+    <a class="tuc-menu__item" href="../drawer/">Drawer</a>
+<div class="tuc-menu__section">Navigation</div>
+    <a class="tuc-menu__item" href="../tabs/">Tabs</a>
+    <a class="tuc-menu__item" href="../accordion/">Accordion</a>
+    <a class="tuc-menu__item" href="../menu/">Side menu</a>
+    <a class="tuc-menu__item" href="../pagination/">Pagination</a>
+<div class="tuc-menu__section">Data</div>
+    <a class="tuc-menu__item" href="../table/">Table</a>
+    <a class="tuc-menu__item" href="../timeline/">Timeline</a>
+<div class="tuc-menu__section">Guides</div>
+    <a class="tuc-menu__item" href="../django/">Django</a>
+    <a class="tuc-menu__item is-active" href="../theme/" aria-current="page">Theme</a>
+    <a class="tuc-menu__item" href="../keyboard/">Keyboard and accessibility</a>
+    <a class="tuc-menu__item" href="../ai/">For AI agents</a>
+  </nav>
+</aside>
+
+<main class="main">
+  <article class="doc">
+<h1>Theme</h1>
+<p class="lead">Color, radius, border width, field height, font and motion go through CSS variables prefixed with
+   <code>--tuc-</code>, and all of them live in <code>:root</code>. Changing the look means overriding variables, with nothing
+   to recompile: no color, radius, border or height value is hard-coded in the components' CSS.</p>
+
+<div class="demo is-hero">
+  <p class="tuc-label" id="theme-amostras-rotulo">Accent color for this page</p>
+  <div class="bar" id="theme-amostras" role="group" aria-labelledby="theme-amostras-rotulo">
+    <button type="button" class="tuc-btn is-outline is-sm" aria-pressed="true" data-accent="#FF7501"><span aria-hidden="true" style="width:14px;height:14px;border-radius:50%;background:#FF7501"></span>Toucan orange</button>
+    <button type="button" class="tuc-btn is-outline is-sm" aria-pressed="false" data-accent="#4f46e5" data-hover="#4338ca" data-fg="#ffffff" data-text="#4338ca" data-text-dark="#818cf8"><span aria-hidden="true" style="width:14px;height:14px;border-radius:50%;background:#4f46e5"></span>Indigo</button>
+    <button type="button" class="tuc-btn is-outline is-sm" aria-pressed="false" data-accent="#0f766e" data-hover="#115e59" data-fg="#ffffff" data-text="#0f766e" data-text-dark="#2dd4bf"><span aria-hidden="true" style="width:14px;height:14px;border-radius:50%;background:#0f766e"></span>Teal</button>
+    <button type="button" class="tuc-btn is-outline is-sm" aria-pressed="false" data-accent="#e11d48" data-hover="#be123c" data-fg="#ffffff" data-text="#be123c" data-text-dark="#fb7185"><span aria-hidden="true" style="width:14px;height:14px;border-radius:50%;background:#e11d48"></span>Rose</button>
+    <button type="button" class="tuc-btn is-outline is-sm" aria-pressed="false" data-accent="#7c3aed" data-hover="#6d28d9" data-fg="#ffffff" data-text="#6d28d9" data-text-dark="#a78bfa"><span aria-hidden="true" style="width:14px;height:14px;border-radius:50%;background:#7c3aed"></span>Violet</button>
+  </div>
+
+  <div class="demo-grid" style="margin-top:28px">
+    <div class="demo-cell">
+      <div class="bar">
+        <button type="button" class="tuc-btn is-primary">Save</button>
+        <button type="button" class="tuc-btn is-outline">Cancel</button>
+        <a class="tuc-btn is-link" href="#tokens">See tokens</a>
+      </div>
+      <div class="bar" style="margin-top:16px">
+        <label class="tuc-choice"><input type="checkbox" class="tuc-check" checked> Invoice</label>
+        <label class="tuc-choice"><input type="radio" class="tuc-radio" name="theme-frete" checked> Express</label>
+        <label class="tuc-choice"><input type="checkbox" role="switch" class="tuc-switch" checked> Notifications</label>
+      </div>
+      <div class="tuc-tabs is-segmented" data-tuc-tabs style="margin-top:16px">
+        <div class="tuc-tabs__list">
+          <button class="tuc-tabs__tab" aria-selected="true">Day</button>
+          <button class="tuc-tabs__tab">Week</button>
+          <button class="tuc-tabs__tab">Month</button>
+        </div>
+        <div class="tuc-tabs__panel" hidden></div>
+        <div class="tuc-tabs__panel" hidden></div>
+        <div class="tuc-tabs__panel" hidden></div>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <label class="tuc-label" for="theme-tags">Tags</label>
+      <select id="theme-tags" name="tags" data-tuc-select multiple>
+        <option selected>Django</option><option selected>HTMX</option><option>Tailwind</option>
+      </select>
+      <label class="tuc-label" for="theme-data" style="margin-top:14px">Due date</label>
+      <input type="text" id="theme-data" data-tuc-datepicker>
+      <nav class="tuc-menu" aria-label="Sample menu" style="margin-top:14px">
+        <a class="tuc-menu__item is-active" href="#tokens" aria-current="true">Billing</a>
+        <a class="tuc-menu__item" href="#escuro">Reports</a>
+      </nav>
+    </div>
+  </div>
+</div>
+
+<p>In the swatches, each color also changes <code>--tuc-accent-fg</code>, and <code>--tuc-accent-text</code> too — the accent
+   shade used as text color in the active menu item and in the select's tag. Changing only <code>--tuc-accent</code> would
+   leave unreadable text on the primary button.</p>
+
+<div class="tuc-prose doc-code"><pre><code>:root {
+  --tuc-accent: #4f46e5;
+  --tuc-accent-hover: #4338ca;
+  --tuc-accent-fg: #ffffff;       /* text on top of the accent */
+  --tuc-accent-text: #4338ca;     /* accent as text color, in light mode */
+  --tuc-radius: 1rem;             /* rounder corners */
+  --tuc-control-height: 2.5rem;   /* taller fields */
+}
+.dark {
+  --tuc-accent-text: #818cf8;     /* in dark mode, a lighter shade for contrast */
+}</code></pre></div>
+
+<h2 id="destaque">The accent and the text on it</h2>
+<p class="lead">The default accent is toucan orange, <code>#FF7501</code>, the same in both themes. And it has two text
+   tokens, because bright orange is hard to read in both roles.</p>
+
+<p>On the orange, text is white: <code>--tuc-accent-fg</code> is <code>#ffffff</code>. That's a brand choice — white on
+   this orange has a contrast of 2.7, below WCAG's 4.5. If your project needs to pass, set
+   <code>--tuc-accent-fg: #0a0a0a</code> (7.4). And bright orange as text color on a light background also gives 2.7, so links, the active menu item, the select's
+   tag, "today" in the calendar and active icons use <code>--tuc-accent-text</code>: <code>#B84300</code> in light mode
+   (5.5 on white, 5.0 on <code>--tuc-hover</code>, 4.6 on the soft background) and <code>#FF7501</code> itself in
+   dark mode (6.7).</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>What gets painted</th><th>Token</th></tr></thead>
+  <tbody>
+    <tr><td>Background, border, check mark, underline</td><td><code>--tuc-accent</code></td></tr>
+    <tr><td>The <code>color</code> property of accented text</td><td><code>--tuc-accent-text</code></td></tr>
+    <tr><td>Text and icons on top of the accent</td><td><code>--tuc-accent-fg</code></td></tr>
+    <tr><td>The switch knob</td><td><code>--tuc-thumb</code> — separate, so whoever switches <code>--tuc-accent-fg</code> to dark doesn't get a black knob</td></tr>
+  </tbody>
+</table></div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">When you change the accent, check three contrasts</p><p>The text on top of it (<code>--tuc-accent-fg</code> on <code>--tuc-accent</code>), and the accent text on white, on <code>--tuc-hover</code> and on <code>--tuc-accent-soft</code>. A light color calls for a dark <code>--tuc-accent-fg</code>; a dark color, white.</p></div></div>
+
+<p>Semantic tones never read the accent. Success, warning, danger and info have their own tokens, because the brand can
+   be any color and the meaning must not change with it. That's why info got
+   <code>--tuc-info</code>: with the orange accent, the info alert looked the same as the warning one, and the "New" badge
+   was indistinguishable from "Under review".</p>
+
+<h2 id="tokens">Tokens</h2>
+<p class="lead">The complete list, with the value for each theme. The source of truth is
+   <code>src/styles/core/tokens.css</code>; <code>llms.txt</code> has the same list, generated from the code.</p>
+
+<h3>Surface and text</h3>
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Token</th><th>Light</th><th>Dark</th><th>Controls</th></tr></thead>
+  <tbody>
+    <tr><td><code>--tuc-bg</code></td><td><code>#ffffff</code></td><td><code>#171717</code></td><td>Background of fields, panels and dialogs</td></tr>
+    <tr><td><code>--tuc-fg</code></td><td><code>#0a0a0a</code></td><td><code>#fafafa</code></td><td>Main text</td></tr>
+    <tr><td><code>--tuc-muted</code></td><td><code>#737373</code></td><td><code>#a3a3a3</code></td><td>Secondary text: hint, table header, timeline time</td></tr>
+    <tr><td><code>--tuc-subtle</code></td><td><code>#a3a3a3</code></td><td><code>#737373</code></td><td>Faded text and icons: days outside the month, sort arrow, the timeline's neutral dot</td></tr>
+    <tr><td><code>--tuc-border</code></td><td><code>#e5e5e5</code></td><td><code>#2e2e2e</code></td><td>Lines and borders</td></tr>
+    <tr><td><code>--tuc-hover</code></td><td><code>#f5f5f5</code></td><td><code>#262626</code></td><td>Background under the cursor</td></tr>
+    <tr><td><code>--tuc-elevated</code></td><td><code>#fafafa</code></td><td><code>#1f1f1f</code></td><td>Background of inner blocks: table header, zebra stripes, neutral badge</td></tr>
+  </tbody>
+</table></div>
+
+<h3>Accent</h3>
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Token</th><th>Light</th><th>Dark</th><th>Controls</th></tr></thead>
+  <tbody>
+    <tr><td><code>--tuc-accent</code></td><td><code>#FF7501</code></td><td>same</td><td>Primary button, selected day, checked box, active tab, focus border</td></tr>
+    <tr><td><code>--tuc-accent-hover</code></td><td><code>#FF8A2A</code></td><td>same</td><td>Primary button under the cursor</td></tr>
+    <tr><td><code>--tuc-accent-fg</code></td><td><code>#ffffff</code></td><td>same</td><td>Text and icons on top of the accent</td></tr>
+    <tr><td><code>--tuc-accent-text</code></td><td><code>#B84300</code></td><td><code>#FF7501</code></td><td>Accent as text color: link, active menu, select tag, "today", table avatar</td></tr>
+    <tr><td><code>--tuc-thumb</code></td><td><code>#ffffff</code></td><td>same</td><td>Switch knob</td></tr>
+    <tr><td><code>--tuc-accent-soft</code></td><td>12% of the accent</td><td>same</td><td>Range band, select tag, selected table row, avatar background</td></tr>
+    <tr><td><code>--tuc-accent-ring</code></td><td>35% of the accent</td><td>same</td><td>Focus ring of fields and buttons</td></tr>
+  </tbody>
+</table></div>
+
+<h3>Semantic tones</h3>
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Token</th><th>Light</th><th>Dark</th><th>Controls</th></tr></thead>
+  <tbody>
+    <tr><td><code>--tuc-success</code></td><td><code>#16a34a</code></td><td><code>#4ade80</code></td><td>Success badge, alert, toast and timeline</td></tr>
+    <tr><td><code>--tuc-warning</code></td><td><code>#d97706</code></td><td><code>#fbbf24</code></td><td>The same, for warning</td></tr>
+    <tr><td><code>--tuc-danger</code></td><td><code>#dc2626</code></td><td><code>#f87171</code></td><td>The same, for danger; also the border and message of a field with an error</td></tr>
+    <tr><td><code>--tuc-info</code></td><td><code>#1d4ed8</code></td><td><code>#60a5fa</code></td><td>The same, for info — 6.7 on white and 5.6 on its own soft background</td></tr>
+    <tr><td><code>--tuc-danger-fill</code></td><td><code>#dc2626</code></td><td>same</td><td>Solid fill: danger button</td></tr>
+    <tr><td><code>--tuc-success-soft</code></td><td>12% of the tone</td><td>12% of the tone</td><td>Soft badge background</td></tr>
+    <tr><td><code>--tuc-warning-soft</code></td><td>14% of the tone</td><td>14% of the tone</td><td>Soft badge background</td></tr>
+    <tr><td><code>--tuc-danger-soft</code></td><td>12% of the tone</td><td>12% of the tone</td><td>Soft badge background</td></tr>
+    <tr><td><code>--tuc-info-soft</code></td><td>12% of the tone</td><td>12% of the tone</td><td>Soft badge background</td></tr>
+  </tbody>
+</table></div>
+<p>Text tone and solid fill are different tokens on purpose. <code>--tuc-danger</code> is lighter in
+   dark mode to have contrast on a dark background — and a button painted with it would look pastel with white text on top.
+   <code>--tuc-danger-fill</code> is the same in both themes.</p>
+
+<h3>Shape and size</h3>
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Token</th><th>Default</th><th>Up to 40rem</th><th>Controls</th></tr></thead>
+  <tbody>
+    <tr><td><code>--tuc-radius</code></td><td><code>0.875rem</code></td><td>—</td><td>Corners of panels and inner blocks</td></tr>
+    <tr><td><code>--tuc-radius-md</code></td><td><code>0.625rem</code></td><td>—</td><td>Controls and day cells</td></tr>
+    <tr><td><code>--tuc-radius-sm</code></td><td><code>0.5rem</code></td><td>—</td><td>Buttons and options</td></tr>
+    <tr><td><code>--tuc-radius-xs</code></td><td><code>0.375rem</code></td><td>—</td><td>Tags and details</td></tr>
+    <tr><td><code>--tuc-border-width</code></td><td><code>1px</code></td><td>—</td><td>Width of every border in the package</td></tr>
+    <tr><td><code>--tuc-control-height</code></td><td><code>2.375rem</code></td><td><code>2.75rem</code></td><td>Height of field, button, select, color field, segmented tabs and pagination</td></tr>
+    <tr><td><code>--tuc-swatch</code></td><td><code>2rem</code></td><td><code>2.5rem</code></td><td>Swatch, value and eyedropper inside the color picker</td></tr>
+    <tr><td><code>--tuc-cell</code></td><td><code>2.25rem</code></td><td>—</td><td>Calendar day cell</td></tr>
+    <tr><td><code>--tuc-text</code></td><td><code>0.8125rem</code></td><td><code>1rem</code> in fields</td><td>Text size</td></tr>
+    <tr><td><code>--tuc-font</code></td><td><code>inherit</code></td><td>—</td><td>Font family — by default, the project's</td></tr>
+  </tbody>
+</table></div>
+
+<h3>Depth and motion</h3>
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Token</th><th>Light</th><th>Dark</th><th>Controls</th></tr></thead>
+  <tbody>
+    <tr><td><code>--tuc-ring</code></td><td><code>rgb(0 0 0 / 0.12)</code></td><td><code>rgb(255 255 255 / 0.14)</code></td><td>Thin outline of panels, part of the shadow</td></tr>
+    <tr><td><code>--tuc-shadow</code></td><td>three layers</td><td>three layers, denser</td><td>Elevation of calendar, select, color picker, menu and toast</td></tr>
+    <tr><td><code>--tuc-ease</code></td><td><code>cubic-bezier(0.16, 1, 0.3, 1)</code></td><td>same</td><td>Entry curve: decelerates to a stop</td></tr>
+    <tr><td><code>--tuc-ease-in</code></td><td><code>cubic-bezier(0.4, 0, 0.9, 0.3)</code></td><td>same</td><td>Exit curve: accelerates until it disappears</td></tr>
+    <tr><td><code>--tuc-duration</code></td><td><code>160ms</code></td><td>same</td><td>Panels and state changes</td></tr>
+    <tr><td><code>--tuc-duration-lg</code></td><td><code>280ms</code></td><td>same</td><td>What crosses the screen: modal, drawer, toast</td></tr>
+    <tr><td><code>--tuc-duration-out</code></td><td><code>170ms</code></td><td>same</td><td>Exits</td></tr>
+  </tbody>
+</table></div>
+<p>Entry and exit use different curves on purpose: using the same curve for both makes the exit feel sluggish.</p>
+
+<h2 id="escuro">Dark mode</h2>
+<p class="lead">Dark mode follows the <code>.dark</code> class on <code>&lt;html&gt;</code>, the convention of Tailwind and of Django's
+   modern admin. <code>data-theme="dark"</code> works too.</p>
+
+<div class="tuc-prose doc-code"><pre><code>&lt;html class="dark"&gt;
+&lt;html data-theme="dark"&gt;</code></pre></div>
+
+<p>To follow the operating system, mark the root with <code>data-tuc-theme="auto"</code>. It's opt-in on purpose: following
+   the system by default made the component turn dark on its own in a light page. The project decides the theme, not
+   the operating system.</p>
+
+<div class="tuc-prose doc-code"><pre><code>&lt;html data-tuc-theme="auto"&gt;</code></pre></div>
+
+<p>Dark mode also sets <code>color-scheme: dark</code>, which makes the browser draw scrollbars and native fields in a
+   dark tone — only inside the components, so it doesn't force the color scheme on the whole page.</p>
+
+<h2 id="escopo">Scoping by container</h2>
+<p class="lead">Since they are variables, the scope is up to you: in <code>:root</code> they apply to the whole page, and declared on a
+   container they apply only inside it. That's how you get a panel with its own color, or a dark band on a light page.</p>
+
+<div class="demo">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <h4>Accent only in this block</h4>
+      <p>The variables go on the container itself.</p>
+      <div id="theme-verde" style="--tuc-accent:#0f766e;--tuc-accent-hover:#115e59;--tuc-accent-fg:#ffffff;--tuc-accent-soft:color-mix(in oklab, #0f766e 12%, transparent);--tuc-accent-ring:color-mix(in oklab, #0f766e 35%, transparent)">
+        <div class="bar">
+          <button type="button" class="tuc-btn is-primary">Approve</button>
+          <label class="tuc-choice"><input type="checkbox" role="switch" class="tuc-switch" checked> Active</label>
+        </div>
+        <select id="theme-verde-select" data-tuc-select multiple aria-label="Branches" style="margin-top:12px">
+          <option selected>Headquarters</option><option selected>South branch</option><option>North branch</option>
+        </select>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Dark only in this block</h4>
+      <p><code>.dark</code> on a container, with its own background.</p>
+      <div class="dark" id="theme-escuro" style="padding:18px;border-radius:12px;background:var(--tuc-bg);color:var(--tuc-fg);--tuc-success-soft:color-mix(in oklab, var(--tuc-success) 12%, transparent);--tuc-warning-soft:color-mix(in oklab, var(--tuc-warning) 14%, transparent);--tuc-danger-soft:color-mix(in oklab, var(--tuc-danger) 12%, transparent);--tuc-info-soft:color-mix(in oklab, var(--tuc-info) 12%, transparent)">
+        <div class="bar">
+          <span class="tuc-badge is-success">Paid</span>
+          <span class="tuc-badge is-warning">Pending</span>
+          <span class="tuc-badge is-info">New</span>
+        </div>
+        <input type="text" class="tuc-input" aria-label="Search" placeholder="Search..." style="margin-top:12px">
+        <div class="bar" style="margin-top:12px">
+          <button type="button" class="tuc-btn is-primary is-sm">Save</button>
+          <button type="button" class="tuc-btn is-outline is-sm">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">On a container, redeclare the derived tokens</p><p><code>--tuc-accent-soft</code>, <code>--tuc-accent-ring</code> and the tones' <code>-soft</code> tokens are computed from another token where they were declared, in <code>:root</code> — and are inherited by children already computed. At the root, changing <code>--tuc-accent</code> recomputes everything; on a container, the soft background would stay in the old color. That's why both blocks above repeat the calculation along with it.</p></div></div>
+
+<div class="tuc-prose doc-code"><pre><code>.painel-verde {
+  --tuc-accent: #0f766e;
+  --tuc-accent-hover: #115e59;
+  --tuc-accent-fg: #ffffff;
+  --tuc-accent-text: #0f766e;
+  --tuc-accent-soft: color-mix(in oklab, var(--tuc-accent) 12%, transparent);
+  --tuc-accent-ring: color-mix(in oklab, var(--tuc-accent) 35%, transparent);
+}
+.dark .painel-verde {
+  --tuc-accent-text: #2dd4bf;     /* accent text readable on a dark background */
+}
+
+/* .dark on a container: the tones change, and their soft background has to be redone there */
+.faixa.dark {
+  background: var(--tuc-bg);
+  --tuc-success-soft: color-mix(in oklab, var(--tuc-success) 12%, transparent);
+  --tuc-warning-soft: color-mix(in oklab, var(--tuc-warning) 14%, transparent);
+  --tuc-danger-soft: color-mix(in oklab, var(--tuc-danger) 12%, transparent);
+  --tuc-info-soft: color-mix(in oklab, var(--tuc-info) 12%, transparent);
+}</code></pre></div>
+
+<p>A panel that opens outside the container — calendar, select list, menu, toast — is inserted at the end of
+   <code>&lt;body&gt;</code> and doesn't inherit its variables. For those, declare the theme in <code>:root</code>, or use
+   <code>appendTo</code> where the component offers it.</p>
+
+<h2 id="compacto">Compact layout</h2>
+<p class="lead">Below <code>40rem</code> (640px) the layout becomes compact. The same breakpoint applies to the CSS and to the
+   date picker's JavaScript, and it's based on width — not on <code>pointer: coarse</code> —, because a laptop with a
+   touchscreen shouldn't get phone behavior.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Changes</th><th>To</th><th>Why</th></tr></thead>
+  <tbody>
+    <tr><td><code>--tuc-text</code></td><td><code>1rem</code>, everywhere you type or tap: fields, select, date picker, color picker, upload, editor, checkboxes, tabs, pagination and button</td><td>iOS Safari zooms in when focusing any field under 16px, and the whole page jumps. Toast and tooltip are left out: they have no fields</td></tr>
+    <tr><td><code>--tuc-control-height</code></td><td><code>2.75rem</code> (44px)</td><td>Comfortable touch target</td></tr>
+    <tr><td><code>--tuc-swatch</code></td><td><code>2.5rem</code></td><td>Keeps up with the larger text on touch</td></tr>
+    <tr><td>Date picker</td><td>On a narrow <em>and</em> touch screen, the field doesn't receive focus and the panel itself is the input</td><td>Without focus the keyboard doesn't come up, which would cover the calendar. The touch condition is there so typing isn't turned off in a narrow desktop window</td></tr>
+  </tbody>
+</table></div>
+
+<p>If your project switches layout at another breakpoint, the library's compact mode won't follow — it's fixed at
+   <code>40rem</code>. Your own fields should use the same 16px on phones for the same reason; it's shadcn's
+   <code>text-base md:text-sm</code> pattern.</p>
+
+
+<nav class="pager" aria-label="Documentation pagination"><a class="tuc-btn is-outline is-lg pager__prev" href="../django/" aria-label="Previous page: Django"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Django</a><a class="tuc-btn is-outline is-lg pager__next" href="../keyboard/" aria-label="Next page: Keyboard and accessibility">Keyboard and accessibility<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></a></nav>
+  </article>
+</main>
+
+<script src="../../dist/tucano.js?v=0.32.1"></script>
+<script src="../../site/site.js?v=0.32.1"></script>
+<script>
+  // Changes the accent for the whole page: a stylesheet in <head> with the
+  // tokens in :root. Orange goes back to the default by removing the sheet, not by
+  // repeating the values — so the dark-mode accent text stays the package's own.
+  const folha = document.createElement('style');
+  // The green block's accent text changes with the theme, and a style attribute has
+  // no way to say "in dark mode": it goes in a sheet, like the page's CSS example.
+  const escopo = document.createElement('style');
+  escopo.textContent = '#theme-verde{--tuc-accent-text:#0f766e}:root.dark #theme-verde{--tuc-accent-text:#2dd4bf}';
+  document.head.append(escopo, folha);
+  const amostras = document.getElementById('theme-amostras');
+  amostras.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-accent]');
+    if (!b) return;
+    for (const n of amostras.querySelectorAll('[data-accent]')) n.setAttribute('aria-pressed', String(n === b));
+    const d = b.dataset;
+    if (!d.hover) { folha.textContent = ''; return; }
+    // Each swatch brings its own text color for the top of the accent.
+    // --tuc-accent-text changes per theme: :root.dark beats the package's .dark, which
+    // has the same specificity as :root and would come before this sheet.
+    folha.textContent = `:root{--accent:${d.accent};--tuc-accent:${d.accent};--tuc-accent-hover:${d.hover};`
+      + `--tuc-accent-fg:${d.fg};--tuc-accent-text:${d.text}}`
+      + `:root.dark{--accent:${d.accent};--tuc-accent-text:${d.textDark}}`;
+  });
+</script>
+</body>
+</html>

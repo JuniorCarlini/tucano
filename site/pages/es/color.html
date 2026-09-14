@@ -1,0 +1,176 @@
+<!--
+title: Color picker
+component: colorpicker
+lang: es
+description: Color picker sobre un input de texto, con área HSV, tono, opacidad, paleta y cuentagotas, que escribe en hex, rgb o hsl.
+-->
+<h1>Color picker</h1>
+<p class="lead">Un campo de color con área de saturación y brillo, tono, opacidad, paleta y cuentagotas. El
+   <code>&lt;input type="text"&gt;</code> sigue guardando el valor y el <code>name</code>, así que el formulario envía
+   <code>#4f46e5</code> y el hex se puede seguir escribiendo si ya sabes el color.</p>
+
+<div class="demo is-hero">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <label class="tuc-label" for="co-destaque">Color de acento</label>
+      <input type="text" id="co-destaque" name="destaque" value="#FF7501" data-tuc-color>
+      <div class="out" id="co-destaque-out"></div>
+    </div>
+    <div class="demo-cell">
+      <label class="tuc-label" for="co-fundo">Fondo del encabezado, en rgb</label>
+      <input type="text" id="co-fundo" name="fundo" value="rgb(13, 148, 136)" data-tuc-color data-format="rgb">
+      <div class="out" id="co-fundo-out"></div>
+    </div>
+  </div>
+</div>
+
+<h2 id="exemplos">Ejemplos</h2>
+<p class="lead">El mismo <code>&lt;input&gt;</code> con atributos distintos. El panel se abre desde la muestra a la izquierda del campo.</p>
+
+<div class="demo">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <h4>Sin opacidad</h4>
+      <p><code>data-alpha="false"</code> quita la barra; el hex siempre tiene 6 dígitos.</p>
+      <input type="text" id="co-solida" name="solida" value="#0d9488" data-tuc-color data-alpha="false" aria-label="Color sólido">
+      <div class="out" id="co-solida-out"></div>
+    </div>
+    <div class="demo-cell">
+      <h4>Formato hsl</h4>
+      <p><code>data-format="hsl"</code>; con opacidad menor que 1, sale <code>hsla()</code>.</p>
+      <input type="text" id="co-hsl" name="hsl" value="hsla(243, 75%, 59%, 0.6)" data-tuc-color data-format="hsl" aria-label="Color en hsl">
+      <div class="out" id="co-hsl-out"></div>
+    </div>
+    <div class="demo-cell">
+      <h4>Paleta propia</h4>
+      <p><code>data-swatches</code> con los colores de la marca, separados por comas.</p>
+      <input type="text" id="co-marca" name="marca" value="#ea580c" data-tuc-color data-alpha="false" data-swatches="#0a0a0a,#ea580c,#f59e0b,#16a34a,#0284c7" aria-label="Color de la marca">
+      <div class="out" id="co-marca-out"></div>
+    </div>
+    <div class="demo-cell">
+      <h4>Sin paleta</h4>
+      <p><code>data-swatches="false"</code> deja solo el área, las barras y el valor.</p>
+      <input type="text" id="co-livre" name="livre" value="#7c3aed" data-tuc-color data-swatches="false" aria-label="Color libre">
+      <div class="out" id="co-livre-out"></div>
+    </div>
+    <div class="demo-cell">
+      <h4>Panel alineado a la izquierda</h4>
+      <p><code>data-placement="bottom-start"</code>. Los bordes de la pantalla siguen mandando.</p>
+      <input type="text" id="co-lado" name="lado" value="#0284c7" data-tuc-color data-placement="bottom-start" aria-label="Color con panel a la izquierda">
+    </div>
+    <div class="demo-cell">
+      <h4>Con error</h4>
+      <p><code>aria-invalid="true"</code> en el campo — Django 5 ya lo escribe.</p>
+      <input type="text" id="co-erro" name="cor_erro" value="#e11d48" data-tuc-color aria-invalid="true" aria-describedby="co-erro-msg" aria-label="Color de la etiqueta">
+      <p class="tuc-error" id="co-erro-msg">Otra etiqueta ya usa este color.</p>
+    </div>
+  </div>
+</div>
+
+<h2 id="uso">Cómo usar</h2>
+<p class="lead">Marca el <code>&lt;input&gt;</code> y se inicializa solo al cargar la página y en cada <code>htmx:afterSwap</code>.
+   La muestra y el valor se convierten en un único control, <code>.tuc-color-field</code>, con la altura, el radio y el anillo de foco del Select.</p>
+
+<pre data-code="html">
+<input type="text" name="cor" value="#4f46e5" data-tuc-color>
+<input type="text" name="marca" value="#0d9488" data-tuc-color data-alpha="false"
+       data-swatches="#0a0a0a,#ea580c,#16a34a">
+</pre>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Atributo</th><th>Por defecto</th><th>Para qué</th></tr></thead>
+  <tbody>
+    <tr><td><code>data-format</code></td><td><code>hex</code></td><td>Formato del valor: <code>hex</code>, <code>rgb</code> o <code>hsl</code></td></tr>
+    <tr><td><code>data-alpha</code></td><td><code>true</code></td><td><code>false</code> quita la barra de opacidad</td></tr>
+    <tr><td><code>data-swatches</code></td><td>paleta de 15 colores</td><td>Colores separados por comas, o <code>false</code> para ocultarla</td></tr>
+    <tr><td><code>data-placement</code></td><td><code>bottom-center</code></td><td>Lado y alineación del panel</td></tr>
+  </tbody>
+</table></div>
+
+<h3>En el formulario de Django</h3>
+<pre data-code="python">
+class EtiquetaForm(forms.ModelForm):
+    class Meta:
+        model = Etiqueta
+        fields = ["nome", "cor"]
+        widgets = {
+            "cor": forms.TextInput(attrs={"data-tuc-color": "", "data-alpha": "false"}),
+        }
+</pre>
+<p>Un <code>CharField(max_length=9)</code> alcanza para el hex con opacidad (<code>#rrggbbaa</code>). Usa <code>TextInput</code>, y no
+   <code>type="color"</code>: el nativo no tiene opacidad y cambiaría el aspecto del campo.</p>
+
+<h3>En JavaScript</h3>
+<pre data-code="js">
+const c = new Tucano.ColorPicker('#cor', {
+  format: 'rgb',
+  alpha: false,
+  swatches: ['#0a0a0a', '#ea580c', '#16a34a'],
+  onChange: (value, { rgb, hsva }) => console.log(value),
+});
+
+c.getValue();           // 'rgb(79, 70, 229)'
+c.getRgb();             // { r: 79, g: 70, b: 229, a: 1 }
+c.setValue('#16a34a');  // true; un texto que no es color devuelve false y no cambia nada
+c.open();
+c.destroy();
+</pre>
+
+<h2 id="valor">Valor y formulario</h2>
+<p class="lead">Quien envía es tu propio <code>&lt;input&gt;</code>, con su <code>name</code>. El texto queda en el formato pedido,
+   sea cual sea la notación usada para elegir.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Formato</th><th>Opaco</th><th>Con opacidad</th></tr></thead>
+  <tbody>
+    <tr><td><code>hex</code></td><td><code>#4f46e5</code></td><td><code>#4f46e599</code></td></tr>
+    <tr><td><code>rgb</code></td><td><code>rgb(79, 70, 229)</code></td><td><code>rgba(79, 70, 229, 0.6)</code></td></tr>
+    <tr><td><code>hsl</code></td><td><code>hsl(243, 75%, 59%)</code></td><td><code>hsla(243, 75%, 59%, 0.6)</code></td></tr>
+  </tbody>
+</table></div>
+
+<p>Como entrada, escrita en el campo o en el panel, valen <code>#rgb</code>, <code>#rgba</code>, <code>#rrggbb</code>, <code>#rrggbbaa</code>,
+   <code>rgb()</code>, <code>rgba()</code>, <code>hsl()</code> y <code>hsla()</code>. El texto se lee al confirmar — salir del campo o
+   <code>Enter</code> — y un texto que no es color vuelve al valor actual, en lugar de borrar el color.</p>
+
+<p>Cada cambio dispara <code>tucano:change</code> en el campo, y también el <code>change</code> nativo, para la validación y HTMX.</p>
+<pre data-code="js">
+document.querySelector('#cor').addEventListener('tucano:change', (e) => {
+  e.detail.value;      // '#4f46e5'
+  e.detail.rgb;        // { r, g, b, a }
+  e.detail.hsva;       // { h, s, v, a }
+  e.detail.instance;   // el ColorPicker
+});
+</pre>
+
+<p>Para elegir texto claro u oscuro sobre el color que la persona eligió, <code>Tucano.color.isDark('#4f46e5')</code> devuelve
+   <code>true</code> — mide la luminancia, y no el promedio de los canales, que no es como lo lee el ojo.</p>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">El estado guardado es HSVA, y no RGB</p><p>Convertir a RGB en cada movimiento pierde el tono cuando la saturación llega a cero: todo gris se volvería rojo al aclararlo de nuevo. Guardando tono, saturación, brillo y opacidad, arrastrar hasta el blanco y volver devuelve el color del que se partió.</p></div></div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Cuentagotas solo donde el navegador lo tiene</p><p>El botón para capturar un color de la pantalla aparece cuando existe la API <code>EyeDropper</code> — hoy, Chrome y Edge en escritorio. En los demás simplemente no se dibuja, en lugar de quedarse ahí sin funcionar.</p></div></div>
+
+<h2 id="teclado">Teclado y accesibilidad</h2>
+<p class="lead">El disparador es la muestra junto al campo, un <code>&lt;button&gt;</code> de verdad, con
+   <code>aria-haspopup="dialog"</code> y <code>aria-expanded</code>. Llegar con <code>Tab</code> no abre nada.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Tecla</th><th>Dónde</th><th>Acción</th></tr></thead>
+  <tbody>
+    <tr><td><code>Enter</code> <code>Espacio</code></td><td>Muestra</td><td>Abre y cierra el panel</td></tr>
+    <tr><td><code>↓</code></td><td>Muestra o campo</td><td>Abre el panel</td></tr>
+    <tr><td><code>←</code> <code>→</code></td><td>Área</td><td>Saturación, de 2 en 2%; con <code>Shift</code>, de 10 en 10</td></tr>
+    <tr><td><code>↑</code> <code>↓</code></td><td>Área</td><td>Brillo, con el mismo paso</td></tr>
+    <tr><td><code>←</code> <code>→</code> <code>↑</code> <code>↓</code></td><td>Barras</td><td>Tono de 1 en 1 grado, opacidad de 1 en 1%; con <code>Shift</code>, de 10 en 10</td></tr>
+    <tr><td><code>Esc</code></td><td>Panel</td><td>Cierra y devuelve el foco a la muestra</td></tr>
+  </tbody>
+</table></div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Por qué el foco en el campo no abre el panel</p><p>Abrir con el foco molestaba dos veces: el panel aparecía solo con tabular por el formulario, y tapaba el propio campo a quien quería escribir el hex. Por eso el disparador es la muestra, que ya responde a <code>Enter</code> y <code>Espacio</code> por ser un botón, y en el campo queda solo la flecha hacia abajo, la misma del date picker.</p></div></div>
+
+<p>Las barras son <code>role="slider"</code> con <code>aria-valuenow</code>, el área tiene la etiqueta "Saturação e brilho" (saturación y brillo — los textos del componente están en portugués), y el valor en el
+   panel es un <code>.tuc-input</code> común. El panel se cierra cuando el foco sale de él o con un clic afuera; con
+   <code>prefers-reduced-motion</code>, solo se desvanece.</p>
+
+<h2 id="api">API</h2>
+<!-- api -->

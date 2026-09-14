@@ -1,0 +1,208 @@
+<!--
+title: Teclado y accesibilidad
+lang: es
+description: Lo que hace cada tecla en todos los componentes de Tucano — date picker, select, color picker, menú desplegable, pestañas, modal, panel lateral, tooltip y tabla — y lo que cada uno anuncia al lector de pantalla.
+-->
+<h1>Teclado y accesibilidad</h1>
+<p class="lead">Todo se puede usar sin ratón, y las teclas son las del elemento nativo y las del ARIA APG — quien ya sabe usar un
+   <code>&lt;select&gt;</code> no tiene que aprender nada. Esta página reúne en un solo lugar lo que cada componente
+   hace con el teclado y lo que anuncia a quien usa lector de pantalla. Las etiquetas accesibles que la biblioteca
+   escribe por su cuenta siguen en portugués; abajo aparecen entre comillas con su significado.</p>
+
+<h2 id="tab">Tab no abre paneles</h2>
+<p class="lead">Llegar a un campo con <code>Tab</code> nunca abre calendario, lista ni selector de color. Abrir siempre es
+   explícito: <code>↓</code>, clic, y en el select también <code>Enter</code> y <code>Espacio</code>.</p>
+
+<p>Abrir al recibir el foco parecía cómodo y era el origen de dos defectos. Los paneles se amontonaban al tabular — quien
+   recorría un formulario hasta el botón de guardar se encontraba un calendario en la cara en cada campo, con el panel tapando
+   el campo siguiente. Y en el campo de color el panel tapaba el propio campo de quien quería escribir el hex. Es la regla del
+   <code>&lt;select&gt;</code> nativo, y es la del ARIA APG.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Componente</th><th>Se abre con</th></tr></thead>
+  <tbody>
+    <tr><td>Date picker</td><td><code>↓</code>, clic; <code>Espacio</code> con el campo vacío</td></tr>
+    <tr><td>Select</td><td><code>↓</code>, <code>↑</code>, <code>Enter</code>, <code>Espacio</code>, clic</td></tr>
+    <tr><td>Color picker</td><td><code>↓</code> en el campo o en la muestra; <code>Enter</code> y <code>Espacio</code> en la muestra, que es un <code>&lt;button&gt;</code></td></tr>
+    <tr><td>Menú desplegable</td><td><code>↓</code>, <code>↑</code>, <code>Enter</code>, <code>Espacio</code> o clic en el disparador</td></tr>
+  </tbody>
+</table></div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">En el campo de fecha, el Enter es del formulario</p><p>El date picker es un campo de texto dentro de un <code>&lt;form&gt;</code>, y <code>Enter</code> en un campo de texto envía el formulario — es lo que cualquiera espera después de escribir la fecha. Secuestrar la tecla rompería el envío en silencio en todos los formularios existentes, así que ahí quien abre es el <code>Espacio</code>. Y solo con el campo vacío: en modo con hora se escribe <code>07/09/2026 14:30</code>, y el espacio forma parte de lo escrito. Con el panel abierto, el <code>Enter</code> confirma lo que se escribió.</p></div></div>
+
+<p>Quien prefiera el comportamiento anterior en el date picker activa <code>openOnFocus: true</code>. Cualquier panel que se abrió
+   se cierra cuando el foco sale de él, así que tabular por la página nunca deja menús abiertos atrás.</p>
+
+<h2 id="datepicker">Date picker</h2>
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Tecla</th><th>Dónde</th><th>Acción</th></tr></thead>
+  <tbody>
+    <tr><td><code>↓</code></td><td>Campo, cerrado</td><td>Abre el calendario</td></tr>
+    <tr><td><code>Espacio</code></td><td>Campo vacío, cerrado</td><td>Abre el calendario</td></tr>
+    <tr><td><code>Enter</code></td><td>Campo, abierto</td><td>Confirma la fecha escrita; cerrado, envía el formulario</td></tr>
+    <tr><td><code>←</code> <code>→</code></td><td>Día</td><td>Día anterior y siguiente</td></tr>
+    <tr><td><code>↑</code> <code>↓</code></td><td>Día</td><td>Misma fecha en la semana anterior y en la siguiente</td></tr>
+    <tr><td><code>PageUp</code> <code>PageDown</code></td><td>Día</td><td>Mes anterior y siguiente; con <code>Shift</code>, año</td></tr>
+    <tr><td><code>Home</code> <code>End</code></td><td>Día</td><td>Inicio y fin de la semana, respetando el primer día del locale</td></tr>
+    <tr><td><code>Enter</code> <code>Espacio</code></td><td>Día</td><td>Elige el día</td></tr>
+    <tr><td><code>Tab</code></td><td>Panel</td><td>Circula dentro del panel, sin escaparse a la página</td></tr>
+    <tr><td><code>Esc</code></td><td>Panel</td><td>Cierra y devuelve el foco al campo</td></tr>
+  </tbody>
+</table></div>
+<p>El campo es un <code>combobox</code> con <code>aria-haspopup="dialog"</code> y <code>aria-expanded</code>, y recibe
+   <code>aria-controls</code> apuntando al panel mientras está abierto. El panel es <code>role="dialog"</code>
+   con la etiqueta "Selecionar data" (seleccionar fecha) o "Selecionar período" (seleccionar período); cada mes es un <code>role="grid"</code> con el nombre del mes, y
+   cada día un <code>gridcell</code> con <code>aria-selected</code> y la etiqueta completa — "sábado, 12 de
+   septiembre de 2026". El título del mes es <code>aria-live="polite"</code>, así que cambiar de mes se anuncia. Las listas de
+   hora, minuto y segundo son <code>listbox</code>. Cerrar con un clic fuera no devuelve el foco al campo, para no
+   quitárselo al lugar donde la persona hizo clic.</p>
+
+<h2 id="select">Select</h2>
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Tecla</th><th>Acción</th></tr></thead>
+  <tbody>
+    <tr><td><code>↓</code> <code>↑</code> <code>Enter</code> <code>Espacio</code></td><td>Cerrado, abre el panel</td></tr>
+    <tr><td><code>↑</code> <code>↓</code></td><td>Abierto, recorre las opciones, saltando las desactivadas y dando la vuelta</td></tr>
+    <tr><td><code>Home</code> <code>End</code></td><td>Primera y última opción</td></tr>
+    <tr><td><code>Enter</code></td><td>Elige la opción activa; en el múltiple, la marca o la desmarca</td></tr>
+    <tr><td>Letras</td><td>Con la búsqueda activada, filtran la lista ignorando tildes. La búsqueda se activa sola a partir de 6 opciones, o con <code>data-search="true"</code></td></tr>
+    <tr><td><code>Backspace</code></td><td>En el múltiple, con la búsqueda vacía, quita la última etiqueta</td></tr>
+    <tr><td><code>Esc</code></td><td>Cierra y devuelve el foco al campo</td></tr>
+  </tbody>
+</table></div>
+<p>El control es un <code>combobox</code> con <code>aria-haspopup="listbox"</code>, <code>aria-expanded</code> y
+   <code>aria-controls</code> apuntando a la lista mientras está abierta — cerrada, la lista sale del DOM y el atributo
+   se va con ella. La lista es <code>listbox</code>, con
+   <code>aria-multiselectable</code> en el múltiple; cada opción es <code>option</code> con <code>aria-selected</code> y
+   <code>aria-disabled</code>. La opción activa llega al lector de pantalla por <code>aria-activedescendant</code>, sin quitar
+   el foco del campo de búsqueda. La X de cada etiqueta se llama "Remover" (quitar) seguido del nombre de la opción. El
+   <code>&lt;select&gt;</code> nativo sigue en el formulario con <code>aria-hidden</code>, para que no se lea dos
+   veces.</p>
+
+<h2 id="color">Color picker</h2>
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Tecla</th><th>Dónde</th><th>Acción</th></tr></thead>
+  <tbody>
+    <tr><td><code>↓</code></td><td>Campo o muestra</td><td>Abre el panel</td></tr>
+    <tr><td><code>Enter</code> <code>Espacio</code></td><td>Muestra</td><td>Abre y cierra el panel</td></tr>
+    <tr><td><code>←</code> <code>→</code></td><td>Área de color</td><td>Saturación, de 2 en 2%; con <code>Shift</code>, de 10 en 10</td></tr>
+    <tr><td><code>↑</code> <code>↓</code></td><td>Área de color</td><td>Brillo, con el mismo paso</td></tr>
+    <tr><td><code>←</code> <code>↓</code> / <code>→</code> <code>↑</code></td><td>Barras de tono y opacidad</td><td>Disminuye y aumenta de 1 en 1; con <code>Shift</code>, de 10 en 10</td></tr>
+    <tr><td><code>Esc</code></td><td>Panel</td><td>Cierra y devuelve el foco a la muestra</td></tr>
+  </tbody>
+</table></div>
+<p>La muestra es un <code>&lt;button&gt;</code> "Escolher cor" (elegir color) con <code>aria-haspopup="dialog"</code> y
+   <code>aria-expanded</code>; el panel es <code>role="dialog"</code> "Seletor de cor" (selector de color). Las barras son
+   <code>role="slider"</code> con <code>aria-valuenow</code>, y cada color de la paleta es un botón con su propio valor como
+   etiqueta. El campo de texto sigue siendo el <code>&lt;input&gt;</code> donde se escribe el hex.</p>
+
+<h2 id="dropdown">Menú desplegable</h2>
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Tecla</th><th>Dónde</th><th>Acción</th></tr></thead>
+  <tbody>
+    <tr><td><code>↓</code></td><td>Disparador</td><td>Abre y entra en el primer elemento</td></tr>
+    <tr><td><code>↑</code></td><td>Disparador</td><td>Abre y entra en el último elemento</td></tr>
+    <tr><td><code>Enter</code> <code>Espacio</code></td><td>Disparador</td><td>Abre y cierra</td></tr>
+    <tr><td><code>↑</code> <code>↓</code></td><td>Menú</td><td>Elemento anterior y siguiente, dando la vuelta y saltando los desactivados</td></tr>
+    <tr><td><code>Home</code> <code>End</code></td><td>Menú</td><td>Primer y último elemento</td></tr>
+    <tr><td><code>Enter</code></td><td>Elemento</td><td>Lo acciona; un elemento sin <code>href</code> es <code>&lt;button&gt;</code> y acepta también <code>Espacio</code></td></tr>
+    <tr><td><code>Esc</code></td><td>Menú</td><td>Cierra y devuelve el foco al disparador</td></tr>
+    <tr><td><code>Tab</code></td><td>Menú</td><td>Cierra y sigue al siguiente elemento de la página</td></tr>
+  </tbody>
+</table></div>
+<p>El disparador recibe <code>aria-haspopup="menu"</code> y <code>aria-expanded</code>; el panel es <code>role="menu"</code>, cada
+   elemento <code>menuitem</code>, el separador <code>separator</code> y el elemento desactivado <code>aria-disabled</code>. Los elementos
+   tienen <code>tabindex="-1"</code> a propósito: dentro de un menú quien navega es la flecha, y unos elementos tabulables harían que el
+   <code>Tab</code> saliera del menú elemento a elemento.</p>
+
+<h2 id="tabs">Pestañas</h2>
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Tecla</th><th>Acción</th></tr></thead>
+  <tbody>
+    <tr><td><code>Tab</code></td><td>Entra en la pestaña abierta y sale de la lista directo al panel — la lista es una sola parada</td></tr>
+    <tr><td><code>←</code> <code>→</code></td><td>Pestaña anterior y siguiente, dando la vuelta y saltando las desactivadas</td></tr>
+    <tr><td><code>Home</code> <code>End</code></td><td>Primera y última pestaña</td></tr>
+    <tr><td><code>Enter</code> <code>Espacio</code></td><td>Con <code>data-manual="true"</code>, cambia el panel; sin él, la flecha ya lo cambia</td></tr>
+  </tbody>
+</table></div>
+<p>El script pone <code>tablist</code>, <code>tab</code> y <code>tabpanel</code>, une cada pestaña a su panel con
+   <code>aria-controls</code> y <code>aria-labelledby</code>, y mantiene al día <code>aria-selected</code> y el
+   <code>tabindex</code>. El modo manual existe para paneles que cargan por HTMX: con activación automática,
+   recorrer cuatro pestañas con la flecha dispararía cuatro peticiones.</p>
+
+<h2 id="dialogo">Modal y panel lateral</h2>
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Tecla</th><th>Acción</th></tr></thead>
+  <tbody>
+    <tr><td><code>Tab</code> <code>Shift+Tab</code></td><td>Circulan dentro del diálogo, sin escaparse a la página</td></tr>
+    <tr><td><code>Esc</code></td><td>Cierra con animación y devuelve el foco a quien lo abrió — salvo con <code>closable: false</code> o <code>data-closable="false"</code></td></tr>
+  </tbody>
+</table></div>
+<p>Los dos son un <code>&lt;dialog&gt;</code> abierto con <code>showModal()</code>, y de ahí viene la accesibilidad: la
+   página de detrás queda inerte, el foco queda atrapado y vuelve al disparador al cerrar, todo por el navegador y no por
+   JavaScript nuestro. El <code>Escape</code> nativo cerraría al instante, sin animación; la biblioteca intercepta el
+   <code>cancel</code> para cerrar por el mismo camino que la X. Con título, el diálogo queda etiquetado por él vía
+   <code>aria-labelledby</code>, y la X se llama "Fechar" (cerrar). En <code>Tucano.confirm()</code>, cerrar con
+   <code>Esc</code> es un rechazo: la promesa se resuelve con <code>false</code>.</p>
+
+<h2 id="tooltip">Tooltip</h2>
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Tecla o gesto</th><th>Acción</th></tr></thead>
+  <tbody>
+    <tr><td><code>Tab</code> hasta el elemento</td><td>Muestra la pista al instante, sin el retraso del puntero</td></tr>
+    <tr><td><code>Tab</code> hacia fuera</td><td>Oculta la pista</td></tr>
+    <tr><td><code>Esc</code></td><td>La oculta, incluso con el puntero quieto encima</td></tr>
+    <tr><td>Toque</td><td>En pantalla táctil, tocar abre y volver a tocar cierra</td></tr>
+  </tbody>
+</table></div>
+<p>El globo es <code>role="tooltip"</code> y el elemento apunta a él con <code>aria-describedby</code>, así que el lector
+   de pantalla lee la pista junto con el nombre del botón. Un elemento que no recibe foco — un <code>&lt;span&gt;</code>, por
+   ejemplo — recibe <code>tabindex="0"</code>; si no, quien usa teclado nunca vería la pista. El <code>Esc</code> con el
+   puntero encima es lo que pide la WCAG 1.4.13, para quien usa ampliación de pantalla y necesita apartar una pista
+   que tapa el contenido.</p>
+
+<h2 id="table">Tabla</h2>
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Tecla</th><th>Acción</th></tr></thead>
+  <tbody>
+    <tr><td><code>Tab</code></td><td>Pasa por las cabeceras ordenables, por las casillas de selección y por los botones de las filas</td></tr>
+    <tr><td><code>Enter</code></td><td>En la cabecera, ordena — en el modo servidor, sigue el enlace</td></tr>
+    <tr><td><code>Espacio</code></td><td>Marca la casilla; en el modo cliente, también ordena con el botón de la cabecera</td></tr>
+  </tbody>
+</table></div>
+<p>La cabecera ordenada tiene <code>aria-sort="ascending"</code> o <code>"descending"</code> y las demás
+   <code>"none"</code>. En el modo servidor el disparador es un <code>&lt;a&gt;</code>, anunciado como enlace; en el cliente, un
+   <code>&lt;button&gt;</code>. La casilla de la cabecera es "Selecionar todas as linhas desta página" (seleccionar todas las filas de esta página), la de cada fila
+   "Selecionar linha" (seleccionar fila), y el estado mixto es el <code>indeterminate</code> nativo.</p>
+
+<h2 id="outros">Los demás componentes</h2>
+<p class="lead">Estos no tienen teclado propio: lo que responde es el elemento nativo de debajo. Aun así, cada uno tiene
+   algo que decirle al lector de pantalla.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Componente</th><th>Teclado</th><th>Lo que anuncia</th></tr></thead>
+  <tbody>
+    <tr><td>Acordeón</td><td><code>Enter</code> y <code>Espacio</code> en el <code>&lt;summary&gt;</code>, del navegador</td><td>Abierto y cerrado, por el <code>&lt;details&gt;</code>; la flecha es <code>aria-hidden</code></td></tr>
+    <tr><td>Upload</td><td><code>Enter</code> y <code>Espacio</code> en la zona abren la ventana de archivos</td><td>La zona es <code>role="button"</code> descrita por la pista de tipos y tamaño; un archivo rechazado aparece en un aviso <code>role="alert"</code></td></tr>
+    <tr><td>Máscara con ojo</td><td><code>Enter</code> y <code>Espacio</code> en el botón del ojo</td><td>"Mostrar" y "Ocultar", con <code>aria-pressed</code>; con <code>data-validate</code>, el campo que no pasa recibe <code>aria-invalid</code></td></tr>
+    <tr><td>Editor de texto</td><td><code>Ctrl</code>/<code>⌘</code> + <code>B</code>, <code>I</code>, <code>U</code>, <code>K</code>; <code>Tab</code> en una tabla avanza de celda y, en la última, crea una fila</td><td>El área es <code>role="textbox"</code> multilínea; las barras son <code>role="toolbar"</code> y los botones de formato tienen <code>aria-pressed</code></td></tr>
+    <tr><td>Toast</td><td>El temporizador se pausa cuando algo dentro de él recibe el foco</td><td>Dos regiones en vivo creadas antes del primer mensaje: <code>polite</code> para lo normal y <code>assertive</code> para errores; cada toast es <code>status</code> o <code>alert</code></td></tr>
+    <tr><td>Paginación</td><td>Enlaces nativos</td><td><code>&lt;nav&gt;</code> "Paginação" (paginación), <code>aria-current="page"</code> en la actual; el extremo desactivado es un <code>&lt;span&gt;</code>, fuera del camino del <code>Tab</code></td></tr>
+    <tr><td>Casilla, opción e interruptor</td><td>Las del <code>&lt;input&gt;</code> nativo</td><td>Las del navegador; el interruptor necesita <code>role="switch"</code> en la plantilla, porque el CSS no pone roles</td></tr>
+  </tbody>
+</table></div>
+
+<h2 id="principios">Lo que vale para todos</h2>
+<p class="lead">Las decisiones que se repiten de componente en componente.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Regla</th><th>Por qué</th></tr></thead>
+  <tbody>
+    <tr><td>El elemento nativo sigue en el formulario</td><td>Nombre, obligatoriedad, estado mixto y el anuncio del lector de pantalla siguen siendo los del navegador</td></tr>
+    <tr><td>Un campo con error es <code>aria-invalid="true"</code>, y no una clase</td><td>Es el atributo que anuncia el lector de pantalla, y Django 5 lo escribe solo. En los componentes que cambian el campo por un control propio, el atributo se queda en el nativo y el CSS alcanza el control</td></tr>
+    <tr><td>El panel que se abrió se cierra cuando sale el foco</td><td>Sin esto, tabular por la página dejaba un rastro de paneles abiertos</td></tr>
+    <tr><td><code>Esc</code> cierra y devuelve el foco a quien abrió</td><td>Cerrar soltando el foco al principio de la página obligaría a quien usa teclado a empezar desde arriba</td></tr>
+    <tr><td>Los dibujos van con <code>aria-hidden</code></td><td>Flechas, iconos y puntos suspensivos de la paginación no se leen en voz alta</td></tr>
+    <tr><td><code>prefers-reduced-motion</code> desactiva las animaciones</td><td>Vale para paneles, diálogos, toasts, pestañas, acordeón, tabla y botones</td></tr>
+  </tbody>
+</table></div>

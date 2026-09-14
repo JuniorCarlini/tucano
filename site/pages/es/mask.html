@@ -1,0 +1,323 @@
+<!--
+title: Máscaras
+component: mask
+lang: es
+description: Máscara de CPF, CNPJ alfanumérico, teléfono, CEP y moneda, con validación del dígito verificador, campo sensible con ojo y formato de texto que viene de la base de datos.
+-->
+<h1>Máscaras</h1>
+<p class="lead">Da formato mientras se escribe, comprueba el dígito verificador de documentos y oculta datos sensibles.
+   No sustituye el campo por otro control: es comportamiento sobre tu <code>&lt;input&gt;</code>, que sigue con su
+   <code>name</code> y con el estilo que el proyecto ya aplica.</p>
+
+<div class="demo is-hero">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <label class="tuc-label" for="mk-cpf">CPF</label>
+      <input type="text" id="mk-cpf" name="cpf" data-tuc-mask="cpf" data-validate="true">
+      <div class="out" id="mk-cpf-out"></div>
+    </div>
+    <div class="demo-cell">
+      <label class="tuc-label" for="mk-valor">Importe</label>
+      <input type="text" id="mk-valor" name="valor" data-tuc-mask="real">
+      <div class="out" id="mk-valor-out"></div>
+    </div>
+  </div>
+  <p class="tuc-hint">El CPF es el documento fiscal de las personas en Brasil, y el importe está en reales brasileños. Escribe un CPF no válido y sal del campo: el navegador pasa a bloquear el envío.</p>
+</div>
+
+<h2 id="exemplos">Ejemplos</h2>
+<p class="lead">Todo es el mismo <code>data-tuc-mask</code> con otro formato. El texto de espera sale del patrón — nadie escribe <code>000.000.000-00</code> a mano. Los formatos con nombre siguen documentos y convenciones de Brasil; el patrón libre sirve para cualquier otra cosa.</p>
+
+<div class="demo">
+  <div class="demo-grid is-3">
+    <div class="demo-cell">
+      <h4>CNPJ</h4>
+      <p>El documento fiscal de las empresas en Brasil. Acepta el formato nuevo, con letras.</p>
+      <input type="text" id="mk-cnpj" name="cnpj" data-tuc-mask="cnpj" data-validate="true" aria-label="CNPJ">
+    </div>
+    <div class="demo-cell">
+      <h4>CPF o CNPJ</h4>
+      <p>Cambia de patrón según la longitud.</p>
+      <input type="text" id="mk-doc" name="documento" data-tuc-mask="cpf-cnpj" data-validate="true" aria-label="CPF o CNPJ">
+    </div>
+    <div class="demo-cell">
+      <h4>Teléfono</h4>
+      <p>Fijo brasileño con 8 dígitos o móvil con 9.</p>
+      <input type="text" id="mk-telefone" name="telefone" data-tuc-mask="phone" aria-label="Teléfono">
+    </div>
+    <div class="demo-cell">
+      <h4>Móvil</h4>
+      <p>Siempre con 9 dígitos.</p>
+      <input type="text" id="mk-celular" name="celular" data-tuc-mask="mobile" aria-label="Móvil">
+    </div>
+    <div class="demo-cell">
+      <h4>CEP</h4>
+      <p><code>cep</code>, el código postal brasileño.</p>
+      <input type="text" id="mk-cep" name="cep" data-tuc-mask="cep" aria-label="CEP">
+    </div>
+    <div class="demo-cell">
+      <h4>Tarjeta</h4>
+      <p><code>card</code>, en grupos de cuatro.</p>
+      <input type="text" id="mk-cartao" name="cartao" data-tuc-mask="card" aria-label="Número de tarjeta">
+    </div>
+    <div class="demo-cell">
+      <h4>Fecha y hora, en texto</h4>
+      <p><code>date</code> y <code>time</code> — solo la máscara, sin calendario.</p>
+      <div class="bar">
+        <input type="text" id="mk-data" name="data" data-tuc-mask="date" aria-label="Fecha">
+        <input type="text" id="mk-hora" name="hora" data-tuc-mask="time" aria-label="Hora">
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Moneda sin símbolo</h4>
+      <p><code>currency</code>, y tres decimales con <code>data-decimals="3"</code>.</p>
+      <input type="text" id="mk-peso" name="peso" data-tuc-mask="currency" data-decimals="3" aria-label="Peso en kg">
+      <div class="out" id="mk-peso-out"></div>
+    </div>
+    <div class="demo-cell">
+      <h4>Otra moneda</h4>
+      <p><code>data-currency="USD"</code> sobre el <code>currency</code>.</p>
+      <input type="text" id="mk-dolar" name="dolar" data-tuc-mask="currency" data-currency="USD" aria-label="Importe en dólares">
+    </div>
+    <div class="demo-cell">
+      <h4>Patrón libre</h4>
+      <p><code>data-tuc-mask="##/##"</code>, caducidad de la tarjeta.</p>
+      <input type="text" id="mk-validade" name="validade" data-tuc-mask="##/##" aria-label="Caducidad">
+    </div>
+    <div class="demo-cell">
+      <h4>Patrón con letras</h4>
+      <p><code>AAA-####</code>: <code>A</code> es letra, <code>#</code> es dígito. El patrón libre no pasa a mayúsculas.</p>
+      <input type="text" id="mk-protocolo" name="protocolo" data-tuc-mask="AAA-####" aria-label="Número de expediente">
+    </div>
+    <div class="demo-cell">
+      <h4>Con error del servidor</h4>
+      <p><code>aria-invalid="true"</code> en el campo.</p>
+      <input type="text" id="mk-erro" name="cnpj_erro" data-tuc-mask="cnpj" value="11222333000100" aria-invalid="true" aria-describedby="mk-erro-msg" aria-label="CNPJ">
+      <p class="tuc-error" id="mk-erro-msg">CNPJ no válido.</p>
+    </div>
+  </div>
+</div>
+
+<h2 id="uso">Cómo usar</h2>
+<p class="lead">Marca el <code>&lt;input&gt;</code> con el formato, y se inicializa solo al cargar y en cada
+   <code>htmx:afterSwap</code>. El componente pone la clase <code>.tuc-input</code> en el campo y un <code>inputmode</code> numérico
+   cuando el patrón no acepta letras, para que el móvil abra el teclado de números.</p>
+
+<pre data-code="html">
+<input name="cpf"       data-tuc-mask="cpf" data-validate="true">
+<input name="documento" data-tuc-mask="cpf-cnpj">
+<input name="telefone"  data-tuc-mask="phone">
+<input name="valor"     data-tuc-mask="real">
+<input name="validade"  data-tuc-mask="##/##">
+</pre>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Formato</th><th>Resultado</th></tr></thead>
+  <tbody>
+    <tr><td><code>cpf</code></td><td><code>111.444.777-35</code></td></tr>
+    <tr><td><code>cnpj</code></td><td><code>11.222.333/0001-81</code> — acepta letras en las 12 primeras posiciones</td></tr>
+    <tr><td><code>cnpj-numerico</code></td><td>Lo mismo, rechazando letras</td></tr>
+    <tr><td><code>cpf-cnpj</code></td><td>Uno u otro, según la longitud</td></tr>
+    <tr><td><code>phone</code></td><td><code>(69) 3344-5566</code> o <code>(69) 99988-7766</code></td></tr>
+    <tr><td><code>mobile</code></td><td><code>(69) 99988-7766</code></td></tr>
+    <tr><td><code>cep</code></td><td><code>69900-000</code></td></tr>
+    <tr><td><code>date</code> <code>time</code></td><td><code>25/12/2026</code> · <code>14:30</code></td></tr>
+    <tr><td><code>card</code></td><td><code>4111 1111 1111 1111</code></td></tr>
+    <tr><td><code>real</code></td><td><code>R$ 1.234,50</code></td></tr>
+    <tr><td><code>currency</code></td><td><code>1.234,50</code>, sin símbolo — con <code>data-currency</code>, el de la moneda</td></tr>
+    <tr><td>patrón libre</td><td><code>#</code> dígito, <code>A</code> letra, <code>*</code> ambos; el resto entra tal cual</td></tr>
+  </tbody>
+</table></div>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Atributo</th><th>Por defecto</th><th>Para qué</th></tr></thead>
+  <tbody>
+    <tr><td><code>data-tuc-mask</code></td><td>—</td><td>Nombre del formato o patrón libre</td></tr>
+    <tr><td><code>data-validate</code></td><td><code>false</code></td><td>Comprueba el dígito verificador al salir del campo</td></tr>
+    <tr><td><code>data-error-text</code></td><td>del formato</td><td>Mensaje del navegador cuando la validación falla</td></tr>
+    <tr><td><code>data-decimals</code></td><td><code>2</code></td><td>Decimales en la moneda</td></tr>
+    <tr><td><code>data-currency</code></td><td>—</td><td>Código de la moneda, como <code>BRL</code> o <code>USD</code></td></tr>
+    <tr><td><code>data-tuc-reveal</code></td><td>—</td><td>Ojo para mostrar y ocultar; el valor elige el modo</td></tr>
+    <tr><td><code>data-reveal-visible</code></td><td><code>2</code></td><td>Caracteres visibles en el modo <code>fim</code></td></tr>
+    <tr><td><code>data-reveal-mode</code></td><td>según el campo</td><td><code>fim</code>, <code>email</code> o <code>tudo</code></td></tr>
+  </tbody>
+</table></div>
+
+<h3>En el formulario de Django</h3>
+<pre data-code="python">
+class ClienteForm(forms.ModelForm):
+    class Meta:
+        model = Cliente
+        fields = ["documento", "telefone", "limite"]
+        widgets = {
+            "documento": forms.TextInput(attrs={"data-tuc-mask": "cpf-cnpj", "data-validate": "true"}),
+            "telefone": forms.TextInput(attrs={"data-tuc-mask": "phone"}),
+            "limite": forms.TextInput(attrs={"data-tuc-mask": "real"}),
+        }
+</pre>
+
+<p>El campo envía el texto tal como está en pantalla: <code>111.444.777-35</code>, <code>R$ 1.234,50</code>. Límpialo en el <code>clean_</code> —
+   la validación del navegador protege la pantalla, no el servidor.</p>
+<pre data-code="python">
+    def clean_documento(self):
+        return re.sub(r"[^0-9A-Z]", "", self.cleaned_data["documento"].upper())
+
+    def clean_limite(self):
+        texto = re.sub(r"[^\d,]", "", self.cleaned_data["limite"])
+        return Decimal(texto.replace(",", ".")) if texto else None
+</pre>
+
+<h3>En JavaScript</h3>
+<pre data-code="js">
+const m = new Tucano.Mask('#valor', { format: 'real' });
+m.getRaw();          // '123450' — sin puntuación
+m.getNumber();       // 1234.5 — solo en los formatos de moneda; en los demás, null
+m.setValue('99');    // da formato y dispara tucano:change
+m.isValid();         // comprueba el dígito verificador, en los formatos que lo tienen
+m.destroy();
+
+document.querySelector('#valor').addEventListener('tucano:change', (e) => {
+  e.detail.value;    // 'R$ 1.234,50'
+  e.detail.raw;      // '123450'
+  e.detail.number;   // 1234.5
+});
+</pre>
+
+<p>Las utilidades detrás de la máscara también vienen listas, para validar o dar formato fuera de un campo:</p>
+<pre data-code="js">
+Tucano.mask.validateCPF('111.444.777-35')              // true
+Tucano.mask.validateCNPJ('11.222.333/0001-81')         // true
+Tucano.mask.validateCpfCnpj('123.456.789-01')          // false
+Tucano.mask.format('12345678901', 'cpf')               // '123.456.789-01'
+Tucano.mask.applyCurrency('12345', { currency: 'BRL' }) // 'R$ 123,45'
+Tucano.mask.maskEmail('contato@empresa.com.br')        // 'c••••••@empresa.com.br'
+</pre>
+
+<h2 id="validacao">Validación</h2>
+<p class="lead">Con <code>data-validate</code>, el dígito verificador se comprueba al salir del campo. Si falla, el campo recibe
+   <code>aria-invalid="true"</code> y <code>setCustomValidity</code>, y el propio navegador bloquea el envío — sin una línea en el proyecto.</p>
+
+<p>Valen <code>cpf</code>, <code>cnpj</code>, <code>cnpj-numerico</code> y <code>cpf-cnpj</code>; los demás formatos no tienen dígito
+   que comprobar. Un campo vacío pasa: la obligatoriedad es cosa de <code>required</code>. Mientras se escribe el error desaparece, y al volver al campo
+   también — incluida la marca que vino del servidor, porque la persona está corrigiendo.</p>
+
+<pre data-code="html">
+<input name="cpf" data-tuc-mask="cpf" data-validate="true" data-error-text="Revisa el CPF">
+</pre>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">CNPJ alfanumérico</p><p>El formato nuevo mantiene las 14 posiciones y la misma máscara: las 12 primeras aceptan letras, las 2 últimas siguen siendo numéricas, y el dígito verificador usa el código ASCII menos 48 — lo que deja el cálculo antiguo válido para CNPJ solo de números. <code>cnpj</code> acepta los dos y pasa las letras a mayúsculas; <code>cnpj-numerico</code> rechaza letras, para quien todavía no puede recibirlas. Confirma la fecha de entrada en vigor en la Nota Técnica de la Receita Federal de Brasil antes de exigirlo en producción.</p></div></div>
+
+<h2 id="sensivel">Campo sensible</h2>
+<p class="lead"><code>data-tuc-reveal</code> pone un ojo para mostrar y ocultar. Un campo que ya llega relleno nace oculto,
+   con solo el final visible; un campo vacío nace visible, porque quien escribe necesita ver.</p>
+
+<div class="demo">
+  <div class="demo-grid is-3">
+    <div class="demo-cell">
+      <h4>CPF de un registro</h4>
+      <p>Modo <code>fim</code>, con dos visibles.</p>
+      <input type="text" id="mk-cpf-cadastro" name="cpf_cadastro" value="111.444.777-35" data-tuc-mask="cpf" data-tuc-reveal aria-label="CPF del registro">
+    </div>
+    <div class="demo-cell">
+      <h4>Tarjeta</h4>
+      <p><code>data-reveal-visible="4"</code> deja los cuatro últimos.</p>
+      <input type="text" id="mk-cartao-salvo" name="cartao_salvo" value="4111 1111 1111 1234" data-tuc-mask="card" data-tuc-reveal data-reveal-visible="4" aria-label="Tarjeta guardada">
+    </div>
+    <div class="demo-cell">
+      <h4>Correo</h4>
+      <p>En <code>type="email"</code>, deja el dominio.</p>
+      <input type="email" id="mk-email" name="email" value="juan.garcia@empresa.com" data-tuc-reveal aria-label="Correo">
+    </div>
+    <div class="demo-cell">
+      <h4>Clave de API</h4>
+      <p><code>data-tuc-reveal="tudo"</code> no muestra nada.</p>
+      <input type="text" id="mk-chave" name="chave" value="sk_live_a1b2c3d4e5f6" data-tuc-reveal="tudo" aria-label="Clave de API">
+    </div>
+    <div class="demo-cell">
+      <h4>Contraseña</h4>
+      <p>En <code>type="password"</code> el ojo solo cambia el <code>type</code>.</p>
+      <input type="password" id="mk-senha" name="senha" value="mi-contrasena-secreta" data-tuc-reveal aria-label="Contraseña">
+    </div>
+    <div class="demo-cell">
+      <h4>Vacío</h4>
+      <p>Nace visible; el ojo lo oculta después de escribir.</p>
+      <input type="text" id="mk-conta" name="conta" data-tuc-mask="#####-#" data-tuc-reveal aria-label="Cuenta">
+    </div>
+  </div>
+</div>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Modo</th><th>Cuándo</th><th>Resultado</th></tr></thead>
+  <tbody>
+    <tr><td><code>fim</code>, el predeterminado</td><td>Documento, tarjeta, cuenta, teléfono</td><td><code>•••• •••• •••• 1234</code></td></tr>
+    <tr><td><code>email</code></td><td>Automático en <code>type="email"</code></td><td><code>j•••••••••@empresa.com.br</code></td></tr>
+    <tr><td><code>tudo</code></td><td>Token, clave de API</td><td><code>••••••••••••••••••••</code></td></tr>
+  </tbody>
+</table></div>
+
+<pre data-code="html">
+<input name="cpf" value="111.444.777-35" data-tuc-mask="cpf" data-tuc-reveal>
+<input name="cartao" data-tuc-mask="card" data-tuc-reveal data-reveal-visible="4">
+<input name="chave" data-tuc-reveal="tudo">
+<input type="email" name="email" data-tuc-reveal>
+<input type="password" name="senha" data-tuc-reveal>
+</pre>
+
+<p>Lo que el formulario envía no cambia por estar oculto. Fuera de <code>type="password"</code>, el <code>name</code> pasa a un
+   <code>&lt;input type="hidden"&gt;</code> con el valor real, y el campo visible muestra los puntos. Mientras está oculto, el campo es de solo
+   lectura: escribir sobre los puntos sobrescribiría el valor sin que la persona se diera cuenta. Los separadores siguen en su sitio,
+   para que la forma siga siendo reconocible: <code>•••.•••.•••-35</code>.</p>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Con máscara, el oculto lleva el valor sin puntuación</p><p>En un campo con <code>data-tuc-mask</code> y <code>data-tuc-reveal</code>, lo que llega al servidor es <code>11144477735</code>, y no <code>111.444.777-35</code> — es el <code>getRaw()</code>. Sin máscara, va el texto tal como se escribió.</p></div></div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Por qué nacer oculto, y por qué el correo es al revés</p><p>Capturas de pantalla, grabaciones de soporte, alguien mirando por encima del hombro: el dato completo aparecía sin que nadie lo pidiera. Nacer oculto es la diferencia entre exponer por defecto y exponer por elección. En el correo el dominio es lo que ayuda a reconocer la cuenta y la parte local es lo que identifica a la persona — dejar el final revelaría <code>om.br</code> y ocultaría lo útil. Sin <code>@</code>, lo oculta todo.</p></div></div>
+
+<h2 id="exibir">Solo para mostrar</h2>
+<p class="lead">Para lo que ya viene de la base de datos y no se edita, no hace falta un campo: <code>data-tuc-format</code> da formato al texto del
+   propio elemento.</p>
+
+<div class="demo">
+  <div class="tuc-table-wrap"><table class="tuc-table">
+    <thead><tr><th>Marcado</th><th>En pantalla</th></tr></thead>
+    <tbody>
+      <tr><td><code>data-tuc-format="cpf"</code> · 12345678901</td><td><span data-tuc-format="cpf">12345678901</span></td></tr>
+      <tr><td><code>data-tuc-format="cnpj"</code> · 11222333000181</td><td><span data-tuc-format="cnpj">11222333000181</span></td></tr>
+      <tr><td><code>data-tuc-format="cnpj"</code> · 12ABC34501DE35</td><td><span data-tuc-format="cnpj">12ABC34501DE35</span></td></tr>
+      <tr><td><code>data-tuc-format="phone"</code> · 69999887766</td><td><span data-tuc-format="phone">69999887766</span></td></tr>
+      <tr><td><code>data-tuc-format="cep"</code> · 69900000</td><td><span data-tuc-format="cep">69900000</span></td></tr>
+      <tr><td><code>data-tuc-format="real"</code> · 1234.5</td><td><span data-tuc-format="real">1234.5</span></td></tr>
+      <tr><td><code>data-tuc-format="currency"</code> <code>data-decimals="3"</code> · 12.5</td><td><span data-tuc-format="currency" data-decimals="3">12.5</span></td></tr>
+    </tbody>
+  </table></div>
+</div>
+
+<pre data-code="django">
+<span data-tuc-format="cpf">{{ cliente.cpf }}</span>
+<span data-tuc-format="real">{{ pedido.total }}</span>
+<span data-tuc-format="phone" data-value="{{ cliente.telefone }}"></span>
+</pre>
+
+<p>Acepta <code>cpf</code>, <code>cnpj</code>, <code>cpf-cnpj</code>, <code>phone</code>, <code>mobile</code>, <code>cep</code>,
+   <code>card</code>, <code>real</code>, <code>currency</code> y patrón libre, con <code>data-decimals</code> y <code>data-currency</code>
+   en la moneda. El valor sale del texto del elemento o de <code>data-value</code>. La moneda lee el punto decimal de la base de datos
+   (<code>1234.5</code>) y también la coma. Un contenido que no completa el patrón vuelve tal como vino, en lugar de salir a medias
+   y parecer corrupto. Para HTML insertado por otro camino que no sea HTMX, <code>Tucano.autoFormat(elemento)</code>.</p>
+
+<h2 id="teclado">Teclado y accesibilidad</h2>
+<p class="lead">La máscara usa el teclado del navegador, sin atajos propios. De lo que se ocupa es de que el cursor no se pierda.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Tecla</th><th>Acción</th></tr></thead>
+  <tbody>
+    <tr><td><code>Backspace</code> <code>Delete</code></td><td>Sobre un separador, borra el carácter vecino, en lugar de trabarse</td></tr>
+    <tr><td>Pegar</td><td>Descarta lo que no cabe: <code>abc111x444.777--35</code> se convierte en <code>111.444.777-35</code></td></tr>
+    <tr><td>Escribir en la moneda</td><td>Se llena de derecha a izquierda, con el cursor siempre al final</td></tr>
+    <tr><td><code>Tab</code> hasta el ojo</td><td>Es un <code>&lt;button&gt;</code>: <code>Enter</code> y <code>Espacio</code> alternan</td></tr>
+  </tbody>
+</table></div>
+
+<p>El ojo anuncia "Mostrar" u "Ocultar" y el estado con <code>aria-pressed</code>. Al mostrar, el foco va al campo. Si falla la
+   validación, el campo queda con <code>aria-invalid="true"</code>, que el lector de pantalla lee como no válido.</p>
+
+<h2 id="api">API</h2>
+<!-- api -->

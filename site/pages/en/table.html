@@ -1,0 +1,463 @@
+<!--
+title: Table
+component: table
+lang: en
+description: Server-rendered table, with link-based sorting (?sort= and ?dir=), bulk selection that posts as a form, user cell, status badge and actions column.
+-->
+<h1>Table</h1>
+<p class="lead">A server-rendered list. The template's <code>&lt;table&gt;</code> stays the source of
+   truth and the cell is yours. JavaScript only steps in where HTML can't reach: sorting by column and checking
+   rows in bulk.</p>
+
+<div class="demo is-hero">
+  <form id="table-form">
+    <div class="bar" style="margin:0 0 14px">
+      <button type="button" class="tuc-btn is-outline" id="table-aprovar" disabled>Approve selected</button>
+      <span class="tuc-hint" id="table-saida">No rows checked.</span>
+    </div>
+    <table id="table-contratos" data-tuc-table data-selectable data-sort-mode="client">
+      <thead>
+        <tr>
+          <th data-sort="text" data-field="cliente" style="width:38%">Customer</th>
+          <th data-sort="text" data-field="status">Status</th>
+          <th data-sort="date" data-field="vencimento">Due date</th>
+          <th data-sort="number" data-field="valor" class="is-number">Amount</th>
+          <th data-sort="none" class="tuc-table__actions">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-id="1">
+          <td><span class="tuc-table__user"><span class="tuc-table__avatar">VC</span><span>Vale Construction<span class="tuc-table__sub">Tax ID 12-3456789</span></span></span></td>
+          <td><span class="tuc-badge is-warning">Under review</span></td>
+          <td data-sort-value="2026-09-12">12/09/2026</td>
+          <td class="is-number" data-sort-value="12400">R$ 12.400,00</td>
+          <td class="tuc-table__actions"><button type="button" class="tuc-btn is-outline is-icon is-sm" aria-label="Edit" data-tuc-tip="Edit" data-table-edit><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4z"/></svg></button><button type="button" class="tuc-btn is-outline is-icon is-sm" aria-label="More actions" data-table-more><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v.01M12 12v.01M12 19v.01"/></svg></button></td>
+        </tr>
+        <tr data-id="2">
+          <td><span class="tuc-table__user"><span class="tuc-table__avatar">SF</span><span>Serra Farms<span class="tuc-table__sub">Tax ID 98-7654321</span></span></span></td>
+          <td><span class="tuc-badge is-success">Approved</span></td>
+          <td data-sort-value="2026-07-03">03/07/2026</td>
+          <td class="is-number" data-sort-value="3890.5">R$ 3.890,50</td>
+          <td class="tuc-table__actions"><button type="button" class="tuc-btn is-outline is-icon is-sm" aria-label="Edit" data-tuc-tip="Edit" data-table-edit><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4z"/></svg></button><button type="button" class="tuc-btn is-outline is-icon is-sm" aria-label="More actions" data-table-more><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v.01M12 12v.01M12 19v.01"/></svg></button></td>
+        </tr>
+        <tr data-id="3">
+          <td><span class="tuc-table__user"><span class="tuc-table__avatar">HW</span><span>Horizon Woodworks<span class="tuc-table__sub">Tax ID 45-6789012</span></span></span></td>
+          <td><span class="tuc-badge is-danger">Overdue</span></td>
+          <td data-sort-value="2026-11-28">28/11/2026</td>
+          <td class="is-number" data-sort-value="760">R$ 760,00</td>
+          <td class="tuc-table__actions"><button type="button" class="tuc-btn is-outline is-icon is-sm" aria-label="Edit" data-tuc-tip="Edit" data-table-edit><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4z"/></svg></button><button type="button" class="tuc-btn is-outline is-icon is-sm" aria-label="More actions" data-table-more><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v.01M12 12v.01M12 19v.01"/></svg></button></td>
+        </tr>
+        <tr data-id="4">
+          <td><span class="tuc-table__user"><span class="tuc-table__avatar">AT</span><span>Aurora Transport<span class="tuc-table__sub">Tax ID 23-4567890</span></span></span></td>
+          <td><span class="tuc-badge is-info">New</span></td>
+          <td data-sort-value="2026-02-19">19/02/2026</td>
+          <td class="is-number" data-sort-value="45120.9">R$ 45.120,90</td>
+          <td class="tuc-table__actions"><button type="button" class="tuc-btn is-outline is-icon is-sm" aria-label="Edit" data-tuc-tip="Edit" data-table-edit><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4z"/></svg></button><button type="button" class="tuc-btn is-outline is-icon is-sm" aria-label="More actions" data-table-more><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v.01M12 12v.01M12 19v.01"/></svg></button></td>
+        </tr>
+      </tbody>
+    </table>
+  </form>
+  <p class="tuc-hint">This demo sorts on screen (<code>data-sort-mode="client"</code>) because there's no server behind it. In a paginated list, the default is the server — see <a href="#ordenacao">Sorting</a>.</p>
+</div>
+
+<h2 id="exemplos">Examples</h2>
+<p class="lead">Variants are classes on the table itself. By default rows are separated by a bottom border, and
+   not by zebra stripes: in a thirty-row list, stripes turn into noise. If you want stripes, ask for them.</p>
+
+<div class="demo">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <h4>Striped</h4>
+      <p><code>is-striped</code> paints even rows with <code>--tuc-elevated</code>.</p>
+      <div class="tuc-table-wrap"><table class="tuc-table is-striped">
+        <thead><tr><th>Product</th><th class="is-number">Stock</th></tr></thead>
+        <tbody>
+          <tr><td>6 mm screw</td><td class="is-number">1,240</td></tr>
+          <tr><td>Hex nut</td><td class="is-number">860</td></tr>
+          <tr><td>Flat washer</td><td class="is-number">3,105</td></tr>
+          <tr><td>8 mm wall plug</td><td class="is-number">412</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <div class="demo-cell">
+      <h4>With grid</h4>
+      <p><code>is-bordered</code> closes the table and separates the columns.</p>
+      <div class="tuc-table-wrap"><table class="tuc-table is-bordered">
+        <thead><tr><th>Month</th><th class="is-number">Revenue</th><th class="is-number">Expenses</th></tr></thead>
+        <tbody>
+          <tr><td>July</td><td class="is-number">R$ 48.200</td><td class="is-number">R$ 31.900</td></tr>
+          <tr><td>August</td><td class="is-number">R$ 52.750</td><td class="is-number">R$ 33.400</td></tr>
+          <tr><td>September</td><td class="is-number">R$ 50.100</td><td class="is-number">R$ 35.020</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <div class="demo-cell">
+      <h4>Compact</h4>
+      <p><code>is-compact</code> reduces cell spacing, for long lists.</p>
+      <div class="tuc-table-wrap"><table class="tuc-table is-compact">
+        <thead><tr><th>Code</th><th>Description</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>NF-1021</td><td>Maintenance service</td><td><span class="tuc-badge is-success">Paid</span></td></tr>
+          <tr><td>NF-1022</td><td>Parts replacement</td><td><span class="tuc-badge is-warning">Pending</span></td></tr>
+          <tr><td>NF-1023</td><td>Technical visit</td><td><span class="tuc-badge">Draft</span></td></tr>
+          <tr><td>NF-1024</td><td>Installation</td><td><span class="tuc-badge is-danger">Canceled</span></td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <div class="demo-cell">
+      <h4>Empty state</h4>
+      <p>A table with no rows is still a table: a single cell, with <code>tuc-table__empty</code>.</p>
+      <div class="tuc-table-wrap"><table class="tuc-table">
+        <thead><tr><th>Customer</th><th>Due date</th><th class="is-number">Amount</th></tr></thead>
+        <tbody>
+          <tr><td colspan="3" class="tuc-table__empty">No contracts match these filters.</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <div class="demo-cell">
+      <h4>Sticky header</h4>
+      <p><code>is-sticky</code> goes on the wrapper, which gets a max height so there's something to stick against.</p>
+      <div class="tuc-table-wrap is-sticky" style="max-height:12rem">
+        <table class="tuc-table">
+          <thead><tr><th>Time</th><th>Event</th></tr></thead>
+          <tbody>
+            <tr><td>08:00</td><td>Register opened</td></tr>
+            <tr><td>08:12</td><td>Sale 3391</td></tr>
+            <tr><td>08:40</td><td>Sale 3392</td></tr>
+            <tr><td>09:05</td><td>Cash drop</td></tr>
+            <tr><td>09:31</td><td>Sale 3393</td></tr>
+            <tr><td>10:02</td><td>Sale 3394</td></tr>
+            <tr><td>10:48</td><td>Return 88</td></tr>
+            <tr><td>11:20</td><td>Sale 3395</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>User and second line</h4>
+      <p>Photo or initials, name and a subtle line below. With a width on the column, the second line truncates with an ellipsis.</p>
+      <div class="tuc-table-wrap"><table class="tuc-table">
+        <thead><tr><th style="width:60%">Person</th><th>Role</th></tr></thead>
+        <tbody>
+          <tr><td><span class="tuc-table__user"><span class="tuc-table__avatar">AL</span><span>Ana Lima<span class="tuc-table__sub">ana.lima@valeconstruction.com</span></span></span></td><td>Administrator</td></tr>
+          <tr><td><span class="tuc-table__user"><span class="tuc-table__avatar">RS</span><span>Rafael Souza<span class="tuc-table__sub">rafael@serrafarms.com</span></span></span></td><td>Finance</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+</div>
+
+<h2 id="uso">How to use</h2>
+<p class="lead">Mark the <code>&lt;table&gt;</code> with <code>data-tuc-table</code> and it initializes on its own, including one
+   that arrives later through HTMX. On each sortable column, <code>data-sort</code> gives the type and
+   <code>data-field</code> gives the name that goes in the URL.</p>
+
+<pre data-code="html">
+<table data-tuc-table data-selectable>
+  <thead><tr>
+    <th data-sort="text" data-field="cliente" style="width:38%">Customer</th>
+    <th data-sort="number" data-field="valor" class="is-number">Amount</th>
+    <th data-sort="none" class="tuc-table__actions">Actions</th>
+  </tr></thead>
+  <tbody>
+    <tr data-id="12">
+      <td>Vale Construction</td>
+      <td class="is-number" data-sort-value="12400">R$ 12.400,00</td>
+      <td class="tuc-table__actions">
+        <button type="button" class="tuc-btn is-outline is-icon is-sm" aria-label="Edit">...</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</pre>
+
+<h3>In the Django template</h3>
+<p>The loop is the usual one. The row's <code>data-id</code> is what bulk selection posts, and
+   <code>{% empty %}</code> draws the empty state.</p>
+<pre data-code="django">
+<table data-tuc-table data-selectable>
+  <thead><tr>
+    <th data-sort="text" data-field="cliente" style="width:38%">Customer</th>
+    <th data-sort="text" data-field="status">Status</th>
+    <th data-sort="number" data-field="valor" class="is-number">Amount</th>
+    <th data-sort="none" class="tuc-table__actions">Actions</th>
+  </tr></thead>
+  <tbody>
+    {% for obj in page_obj %}
+    <tr data-id="{{ obj.pk }}">
+      <td>
+        <span class="tuc-table__user">
+          <span class="tuc-table__avatar"><img src="{{ obj.foto.url }}" alt=""></span>
+          <span>{{ obj.nome }}<span class="tuc-table__sub">{{ obj.email }}</span></span>
+        </span>
+      </td>
+      <td><span class="tuc-badge is-success">{{ obj.get_status_display }}</span></td>
+      <td class="is-number" data-sort-value="{{ obj.valor }}" data-tuc-format="real">{{ obj.valor }}</td>
+      <td class="tuc-table__actions">
+        <a class="tuc-btn is-outline is-icon is-sm" href="{% url 'contrato-editar' obj.pk %}" aria-label="Edit">...</a>
+      </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="5" class="tuc-table__empty">No contracts found.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+</pre>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">The colspan counts the selection column</p><p>With <code>data-selectable</code> the script adds a column at the start of each row, so the empty cell has to span one more column than the header written in the template. For the same reason, the empty row gets a checkbox with no value; if that bothers you, render the table without <code>data-selectable</code> when there are no rows.</p></div></div>
+
+<h3>In JavaScript</h3>
+<p>To pass <code>onSort</code> and <code>onSelect</code>, which don't exist as attributes, or to read the selection.</p>
+<pre data-code="js">
+const t = new Tucano.Table('#contratos', { selectable: true, sortMode: 'client' });
+t.getSelected();          // ['12', '15'] — the checked data-id values
+t.clearSelection();
+t.sort(2, 'desc', 'number');
+t.destroy();              // releases the listeners
+</pre>
+
+<h2 id="ordenacao">Sorting</h2>
+<p class="lead">Sorting is the server's job, and that's the default. In a paginated list, reordering the twenty rows
+   on screen produces a fake order: the real largest amount may be on page 7, and the table starts lying
+   while looking truthful. What knows how to sort the whole set is the database.</p>
+
+<p>That's why, in server mode, the header becomes an <code>&lt;a&gt;</code> to the same URL with <code>?sort=</code> and
+   <code>?dir=</code>. It works with no JavaScript at all, works with HTMX's <code>hx-boost</code>, opens in another tab
+   and comes back with the browser's button. The arrow comes from the query string, so it stays correct after a reload. The
+   link keeps the rest of the query string — filter and search aren't lost — and drops <code>page</code>: staying on
+   page 7 with a different order would show a chunk from the middle of a list nobody has seen.</p>
+
+<div class="demo">
+  <div class="tuc-table-wrap"><table class="tuc-table" id="table-servidor">
+    <thead><tr>
+      <th data-sort="text" data-field="cliente">Customer</th>
+      <th data-sort="date" data-field="vencimento">Due date</th>
+      <th data-sort="number" data-field="valor" class="is-number">Amount</th>
+    </tr></thead>
+    <tbody>
+      <tr><td>Aurora Studio</td><td data-sort-value="2026-10-05">05/10/2026</td><td class="is-number" data-sort-value="2300">R$ 2.300,00</td></tr>
+      <tr><td>Warm Bread Bakery</td><td data-sort-value="2026-08-21">21/08/2026</td><td class="is-number" data-sort-value="480">R$ 480,00</td></tr>
+      <tr><td>Wellness Clinic</td><td data-sort-value="2026-12-01">01/12/2026</td><td class="is-number" data-sort-value="9150">R$ 9.150,00</td></tr>
+    </tbody>
+  </table></div>
+  <div class="out" id="table-servidor-out"></div>
+  <p class="tuc-hint">Here the headers are the server-mode links — hover to see the <code>href</code>. An <code>onSort</code> cancels the navigation and simulates the response; in your project the click loads the sorted page.</p>
+</div>
+
+<h3>In the view</h3>
+<p><code>?sort</code> and <code>?dir</code> go into <code>order_by()</code> <em>before</em> the <code>Paginator</code>, which is
+   exactly where sorting has to happen. Map the URL name through a closed list: passing the parameter
+   straight to <code>order_by()</code> would let anyone sort by any field, and a nonexistent name brings down
+   the view with <code>FieldError</code>.</p>
+<pre data-code="python">
+from django.core.paginator import Paginator
+
+ORDENS = {"cliente": "nome", "status": "status", "valor": "valor"}
+
+def contratos(request):
+    campo = ORDENS.get(request.GET.get("sort"), "nome")
+    if request.GET.get("dir") == "desc":
+        campo = f"-{campo}"
+    # "pk" breaks ties: without a total order, the same row can show up on two pages.
+    qs = Contrato.objects.order_by(campo, "pk")
+    page_obj = Paginator(qs, 20).get_page(request.GET.get("page"))
+    return render(request, "contratos/lista.html", {"page_obj": page_obj})
+</pre>
+
+<pre data-code="django">
+<table data-tuc-table>...</table>
+<div data-tuc-pagination
+     data-page="{{ page_obj.number }}"
+     data-pages="{{ page_obj.paginator.num_pages }}"></div>
+</pre>
+
+<p>Pagination does the same thing from the other side: the page link keeps <code>sort</code> and <code>dir</code>, so
+   turning the page doesn't undo the order.</p>
+
+<h3>Types and raw value</h3>
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Attribute</th><th>Where</th><th>What for</th></tr></thead>
+  <tbody>
+    <tr><td><code>data-sort="text"</code></td><td><code>&lt;th&gt;</code></td><td>Text, compared in pt-BR, case-insensitive and with numbers in natural order</td></tr>
+    <tr><td><code>data-sort="number"</code></td><td><code>&lt;th&gt;</code></td><td>Number; accepts <code>1.234,50</code> and ignores symbols like <code>R$</code></td></tr>
+    <tr><td><code>data-sort="date"</code></td><td><code>&lt;th&gt;</code></td><td>Date, read by <code>new Date()</code> — use an ISO value</td></tr>
+    <tr><td><code>data-sort="none"</code> or absent</td><td><code>&lt;th&gt;</code></td><td>Column without sorting</td></tr>
+    <tr><td><code>data-field</code></td><td><code>&lt;th&gt;</code></td><td>Name that goes in <code>?sort=</code>; without it, the column index is used</td></tr>
+    <tr><td><code>data-sort-value</code></td><td><code>&lt;td&gt;</code></td><td>Raw value, when the displayed text doesn't sort well</td></tr>
+  </tbody>
+</table></div>
+
+<p>The raw value matters in client mode: <code>12/09/2026</code> isn't a date the browser reads in the Brazilian
+   format, and "3 days ago" or "Under review" don't sort as text. Write the value displayed for people and the
+   ISO date or the number in <code>data-sort-value</code>.</p>
+
+<h3>On screen, for a small table</h3>
+<p><code>data-sort-mode="client"</code> exists for the other case: a small, complete table, without pagination, where sorting
+   on screen is the right thing. There the header becomes a <code>&lt;button&gt;</code>, because there's nowhere to navigate, and
+   <code>aria-sort</code> is updated on every click.</p>
+<pre data-code="html">
+<table data-tuc-table data-sort-mode="client">...</table>
+</pre>
+
+<h3>With HTMX</h3>
+<p>Since the header and the pagination are real links, <code>hx-boost</code> on an ancestor is enough: HTMX swaps the
+   content without reloading, the URL follows along and the new table initializes itself on <code>htmx:afterSwap</code>.</p>
+<pre data-code="html">
+<div hx-boost="true">
+  <table data-tuc-table>...</table>
+  <div data-tuc-pagination data-page="3" data-pages="12"></div>
+</div>
+</pre>
+<p>To handle navigation yourself, pass <code>onSort</code>: when it's defined, the click is canceled and your code
+   takes over. The <code>tuc:sort</code> event fires either way, before navigation.</p>
+<pre data-code="js">
+new Tucano.Table('#contratos', {
+  onSort: ({ column, field, direction }, table) => {
+    htmx.ajax('GET', `?sort=${field}&dir=${direction}`, '#lista');
+  },
+});
+</pre>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Attribute</th><th>Default</th><th>What for</th></tr></thead>
+  <tbody>
+    <tr><td><code>data-sort-mode</code></td><td><code>server</code></td><td><code>client</code> sorts on screen</td></tr>
+    <tr><td><code>data-sort-param</code></td><td><code>sort</code></td><td>Name of the field parameter in the URL</td></tr>
+    <tr><td><code>data-dir-param</code></td><td><code>dir</code></td><td>Name of the direction parameter; the values are <code>asc</code> and <code>desc</code></td></tr>
+    <tr><td><code>data-sortable</code></td><td><code>true</code></td><td><code>false</code> turns off sorting for the whole table</td></tr>
+  </tbody>
+</table></div>
+
+<h2 id="selecao">Bulk selection</h2>
+<p class="lead">Selection is still a form. With <code>data-selectable</code>, each row gets a real
+   <code>&lt;input type="checkbox" name="selected"&gt;</code> with its <code>data-id</code> as the value —
+   in Django it arrives as <code>request.POST.getlist("selected")</code>, with no JavaScript in between.</p>
+
+<pre data-code="django">
+<form method="post" action="{% url 'contratos-aprovar' %}">
+  {% csrf_token %}
+  <table data-tuc-table data-selectable>...</table>
+  <button class="tuc-btn is-primary">Approve selected</button>
+</form>
+</pre>
+
+<pre data-code="python">
+from django.views.decorators.http import require_POST
+
+@require_POST
+def aprovar(request):
+    ids = request.POST.getlist("selected")
+    Contrato.objects.filter(pk__in=ids).update(status="aprovado")
+    return redirect("contratos")
+</pre>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">An action button inside the form takes type="button"</p><p>A <code>&lt;button&gt;</code> with no type inside a <code>&lt;form&gt;</code> submits the form. In the actions column, write <code>type="button"</code> or use <code>&lt;a&gt;</code>, or else "Edit" turns into "Approve selected".</p></div></div>
+
+<p>The header checkbox checks and unchecks the whole page and shows the mixed state when only some rows are checked.
+   Every change fires <code>tuc:select</code> on the table, with the checked values — the same ones the form
+   would send.</p>
+<pre data-code="js">
+document.querySelector('#contratos').addEventListener('tuc:select', (e) => {
+  e.detail.selected;   // ['1', '3']
+  e.detail.row;        // the <tr> that changed
+});
+</pre>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Attribute</th><th>Default</th><th>What for</th></tr></thead>
+  <tbody>
+    <tr><td><code>data-selectable</code></td><td>off</td><td>Turns on the selection column</td></tr>
+    <tr><td><code>data-select-name</code></td><td><code>selected</code></td><td>The <code>name</code> of the checkboxes in the POST</td></tr>
+    <tr><td><code>data-id</code> on the <code>&lt;tr&gt;</code></td><td>—</td><td>The value of that row's checkbox; without it the checkbox is empty</td></tr>
+  </tbody>
+</table></div>
+
+<h2 id="celula">The cell is yours</h2>
+<p class="lead">Anything you want fits inside the <code>&lt;td&gt;</code>. What the library offers are the arrangements that
+   show up in every listing, so nobody has to reinvent aligning an avatar next to a name.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Class</th><th>What it does</th></tr></thead>
+  <tbody>
+    <tr><td><code>.tuc-table__user</code></td><td>Row with avatar and text, vertically centered</td></tr>
+    <tr><td><code>.tuc-table__avatar</code></td><td>32px circle with uppercase initials; with an <code>&lt;img&gt;</code> inside, the photo covers the circle</td></tr>
+    <tr><td><code>.tuc-table__sub</code></td><td>Subtle second line: email under the name, code under the title</td></tr>
+    <tr><td><code>.tuc-badge</code></td><td>Status badge: <code>is-success</code>, <code>is-warning</code>, <code>is-danger</code>, <code>is-info</code>; with no tone it's neutral</td></tr>
+    <tr><td><code>.tuc-table__actions</code></td><td>Column pushed to the right, without line wrapping, for the system buttons — <code>tuc-btn is-outline is-icon is-sm</code></td></tr>
+    <tr><td><code>.is-number</code></td><td>On <code>th</code> and <code>td</code>: right-aligns with fixed-width digits, to compare values at a glance</td></tr>
+    <tr><td><code>data-tuc-format="real"</code></td><td>On the amount cell: the <code>12400.00</code> Django prints becomes <code>R$ 12.400,00</code>. Accepts a dot or comma as decimal separator; <code>data-tuc-format="currency"</code> formats without the symbol</td></tr>
+    <tr><td><code>.tuc-table__empty</code></td><td>Single empty-state cell, centered and with breathing room</td></tr>
+  </tbody>
+</table></div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">A table cell doesn't become flex</p><p><code>display: flex</code> on a <code>&lt;th&gt;</code> or <code>&lt;td&gt;</code> takes the cell out of the column calculation: it stops taking part in the width and draws its own box on top of the header. To push to the right use <code>text-align</code>, as <code>.tuc-table__actions</code> does; flex goes on the content, as in <code>.tuc-table__user</code>. And the second line's ellipsis only shows up with a width on the column — without it the column grows with the text: <code>&lt;th style="width:38%"&gt;</code>.</p></div></div>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">If it's clickable, it looks like a button</p><p>The actions column uses the system's outlined buttons, not loose icons: with no border and no background, an icon reads as disabled decoration. Horizontal scrolling lives in <code>.tuc-table-wrap</code>, which the script creates if it doesn't exist — a <code>&lt;table&gt;</code> with <code>overflow</code> loses its table behavior.</p></div></div>
+
+<h2 id="teclado">Keyboard and accessibility</h2>
+<p class="lead">Everything the table adds is a native element: link, button and checkbox. That's why each one is already
+   in the <code>Tab</code> path and responds to the usual keys.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Key</th><th>Action</th></tr></thead>
+  <tbody>
+    <tr><td><code>Tab</code></td><td>Goes through the sortable headers, the checkboxes and each row's buttons</td></tr>
+    <tr><td><code>Enter</code></td><td>On the header, sorts — follows the link in server mode</td></tr>
+    <tr><td><code>Space</code></td><td>Checks or unchecks the checkbox; in client mode, also sorts through the header button</td></tr>
+  </tbody>
+</table></div>
+
+<p>The sorted header announces <code>aria-sort="ascending"</code> or <code>"descending"</code>; the others,
+   <code>"none"</code>. The header checkbox is labeled "Selecionar todas as linhas desta página" and each row's,
+   "Selecionar linha"; the mixed state is the native <code>indeterminate</code>, which the screen reader announces. The sort
+   arrow is <code>aria-hidden</code>: the attribute tells the direction, not the drawing.</p>
+
+<h2 id="api">API</h2>
+<!-- api -->
+
+<script>
+  // Action buttons: a toast instead of navigating, because there's nowhere to go here.
+  const MAIS_ITENS = [
+    { text: 'Duplicate', onClick: () => Tucano.toast.info('Contract duplicated') },
+    { text: 'Download PDF', onClick: () => Tucano.toast.info('PDF generated') },
+    { separator: true },
+    { text: 'Delete', variant: 'danger', onClick: () => Tucano.toast.error('Contract deleted') },
+  ];
+  document.querySelectorAll('[data-table-more]').forEach((b) =>
+    new Tucano.Dropdown(b, { placement: 'bottom-end', items: MAIS_ITENS }));
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('[data-table-edit]')) Tucano.toast.info('Would open the contract editor');
+  });
+  document.getElementById('table-form').addEventListener('submit', (e) => e.preventDefault());
+
+  // Selection: shows what the POST would send and enables the bulk action. The instance
+  // only exists after DOMContentLoaded, so it's read inside the events.
+  const tabela = document.getElementById('table-contratos');
+  const aprovar = document.getElementById('table-aprovar');
+  const saida = document.getElementById('table-saida');
+  const mostrar = (ids) => {
+    aprovar.disabled = ids.length === 0;
+    saida.textContent = ids.length
+      ? `${ids.length} row${ids.length > 1 ? 's' : ''} checked — the POST would send selected=${ids.join('&selected=')}`
+      : 'No rows checked.';
+  };
+  tabela.addEventListener('tuc:select', (e) => mostrar(e.detail.selected));
+  aprovar.addEventListener('click', () => {
+    const t = tabela._tucano;
+    Tucano.toast.success(`${t.getSelected().length} contract(s) approved`);
+    t.clearSelection();
+    mostrar([]);
+  });
+
+  // Server mode: the header <a> is real. onSort cancels the navigation and
+  // plays the server's role, which would return the page already sorted with the arrow set.
+  const saidaServidor = document.getElementById('table-servidor-out');
+  new Tucano.Table('#table-servidor', {
+    onSort: ({ column, field, direction }, t) => {
+      for (const s of t.sortable) s.th.setAttribute('aria-sort', 'none');
+      t.sortable.find((s) => s.index === column).th.setAttribute('aria-sort', direction === 'asc' ? 'ascending' : 'descending');
+      t.sort(column, direction, t.sortable.find((s) => s.index === column).type);
+      saidaServidor.textContent = `GET ?sort=${field}&dir=${direction} → the server responds with page 1 in this order`;
+    },
+  });
+</script>
