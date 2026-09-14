@@ -550,6 +550,16 @@ input.tuc-check.tuc-check:is([aria-invalid='true'], :user-invalid):not(:checked)
 input.tuc-switch.tuc-switch:is([aria-invalid='true'], :user-invalid):not(:checked) {
   box-shadow: 0 0 0 1px var(--tuc-danger);
 }
+input.tuc-input.tuc-input:is([data-tuc-valid], [data-validate]:not([data-tuc-mask]):user-valid):not([aria-invalid='true']), textarea.tuc-input.tuc-input:is([data-validate]:user-valid):not([aria-invalid='true']), select.tuc-input.tuc-input:is([data-validate]:user-valid):not([aria-invalid='true']) {
+  border-color: var(--tuc-success);
+}
+input.tuc-input.tuc-input:is([data-tuc-valid], [data-validate]:not([data-tuc-mask]):user-valid):not([aria-invalid='true']):focus, textarea.tuc-input.tuc-input:is([data-validate]:user-valid):not([aria-invalid='true']):focus, select.tuc-input.tuc-input:is([data-validate]:user-valid):not([aria-invalid='true']):focus {
+  border-color: var(--tuc-success);
+  box-shadow: 0 0 0 3px var(--tuc-success);
+  @supports (color: color-mix(in lab, red, red)) {
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--tuc-success) 22%, transparent);
+  }
+}
 .tuc-btn {
   display: inline-flex;
   flex-shrink: 0;

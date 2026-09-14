@@ -6,6 +6,13 @@ cambios en tu proyecto.
 
 ## Sin publicar
 
+### Nuevo
+
+- El campo con `data-validate` se pone verde cuando pasa. En la máscara, en cuanto
+  el valor está completo y correcto, ya mientras se escribe (`data-tuc-valid`); el
+  rojo sigue apareciendo solo al salir del campo. En un `.tuc-input` nativo con
+  `data-validate`, el verde viene de `:user-valid`. Sin el atributo, no cambia nada.
+
 ### Corregido
 
 - El panel lateral con contenido más alto que la pantalla — un menú largo, un

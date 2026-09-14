@@ -197,6 +197,11 @@ Tucano.mask.maskEmail('contato@empresa.com.br')        // 'c••••••@e
 <p class="lead">With <code>data-validate</code>, the check digit is verified when leaving the field. If it fails, the field gets
    <code>aria-invalid="true"</code> and <code>setCustomValidity</code>, and the browser itself blocks the submit — without a line in the project.</p>
 
+<p>And a correct value shows right away: as soon as the value is complete and right, the field turns green, without waiting
+   for it to lose focus. The error waits — while typing, a half-typed CPF never turns red; it is only flagged when leaving the
+   field, and clears again once the person goes back to fix it. The green state is the <code>data-tuc-valid</code> attribute,
+   painted with <code>--tuc-success</code>.</p>
+
 <p>It applies to <code>cpf</code>, <code>cnpj</code>, <code>cnpj-numerico</code> and <code>cpf-cnpj</code>; the other formats have no digit
    to verify. An empty field passes: requiredness belongs to <code>required</code>. While typing the error goes away, and when coming back to the field
    too — including the flag that came from the server, because the person is fixing it.</p>

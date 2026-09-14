@@ -138,6 +138,7 @@ export class Mask {
     }
     this.input.setCustomValidity?.('');
     this.input.classList.remove('tuc-invalid');
+    this.input.removeAttribute('data-tuc-valid');
     delete this.input._tucano;
   }
 
@@ -254,8 +255,9 @@ export class Mask {
       on(input, 'blur', () => { if (this.opts.validate) this._validate(); }),
       // So quem valida mexe no erro. Sem `validate`, o aria-invalid e de quem
       // renderizou o campo — o Django 5 o escreve no campo que voltou com erro — e
-      // zera-lo no foco apagava a marca vermelha no primeiro clique.
-      on(input, 'focus', () => { if (this.opts.validate) this._mark(true); }),
+      // zera-lo no foco apagava a marca vermelha no primeiro clique. No foco o
+      // vermelho sai, mas o verde de um valor ja certo fica.
+      on(input, 'focus', () => { if (this.opts.validate) this._mark(true, this._complete()); }),
     );
   }
 
@@ -269,7 +271,20 @@ export class Mask {
       forward: type === 'deleteContentForward',
     });
     this._emit();
-    if (this.opts.validate) this._mark(true);   // some o erro enquanto digita
+    /*
+     * Digitando, o erro nunca aparece: acusar um CPF pela metade so porque ainda
+     * falta digito e punir antes da hora. Mas o acerto aparece na hora — assim que
+     * o valor fica completo e certo, o campo fica verde, sem esperar sair dele.
+     */
+    if (this.opts.validate) this._mark(true, this._complete());
+  }
+
+  /** Valor inteiro (do tamanho do gabarito escolhido) e aprovado pela validacao. */
+  _complete() {
+    if (!this.templates) return false;
+    const raw = this.getRaw();
+    if (!raw) return false;
+    return raw.length >= capacity(pickTemplate([...raw], this.templates)) && this.isValid();
   }
 
   _format({ cursor = null, deleting = false, forward = false, keepCursor = true } = {}) {
@@ -317,19 +332,23 @@ export class Mask {
 
   _validate() {
     const ok = this.isValid();
-    this._mark(ok);
+    this._mark(ok, ok && this._complete());
     return ok;
   }
 
   /**
    * Marca o campo. setCustomValidity faz o formulario do navegador barrar o
    * submit sozinho, sem o projeto escrever nada.
+   *
+   * `aprovado` acende o verde (data-tuc-valid): so para valor preenchido e certo.
+   * Vazio fica neutro — obrigatoriedade e assunto do `required`, nao da mascara.
    */
-  _mark(ok) {
+  _mark(ok, aprovado = false) {
     const msg = ok ? '' : (this.opts.errorText || this.preset?.error || 'Valor inválido');
     this.input.setCustomValidity?.(msg);
     this.input.classList.toggle('tuc-invalid', !ok);
     this.input.setAttribute('aria-invalid', ok ? 'false' : 'true');
+    this.input.toggleAttribute('data-tuc-valid', ok && aprovado);
   }
 
   _emit() {

@@ -135,3 +135,33 @@ input.tuc-radio.tuc-radio:is([aria-invalid='true'], :user-invalid):not(:checked)
 input.tuc-switch.tuc-switch:is([aria-invalid='true'], :user-invalid):not(:checked) {
   box-shadow: 0 0 0 1px var(--tuc-danger);
 }
+
+/* ------------------------------------------------------------------ *
+ * Campo que passou                                                    *
+ * ------------------------------------------------------------------ */
+
+/*
+ * O verde so vale para quem pediu validacao: um formulario inteiro verde a cada
+ * campo preenchido vira ruido, e o verde perde o sentido. Dois caminhos:
+ *
+ *   - `data-tuc-valid`, posto pela mascara com `data-validate` quando o valor
+ *     fica completo e certo — ja durante a digitacao;
+ *   - `:user-valid` num campo nativo com `data-validate` (e-mail, `required`,
+ *     `pattern`), depois de a pessoa mexer. O campo com mascara fica fora deste,
+ *     porque enquanto se digita ele limpa a propria validacao e o navegador o
+ *     daria por valido com o CPF pela metade.
+ *
+ * Erro vence: um campo que voltou do servidor com aria-invalid="true" nunca sai
+ * verde, mesmo com o valor aceito pelo navegador.
+ */
+input.tuc-input.tuc-input:is([data-tuc-valid], [data-validate]:not([data-tuc-mask]):user-valid):not([aria-invalid='true']),
+textarea.tuc-input.tuc-input:is([data-validate]:user-valid):not([aria-invalid='true']),
+select.tuc-input.tuc-input:is([data-validate]:user-valid):not([aria-invalid='true']) {
+  border-color: var(--tuc-success);
+}
+input.tuc-input.tuc-input:is([data-tuc-valid], [data-validate]:not([data-tuc-mask]):user-valid):not([aria-invalid='true']):focus,
+textarea.tuc-input.tuc-input:is([data-validate]:user-valid):not([aria-invalid='true']):focus,
+select.tuc-input.tuc-input:is([data-validate]:user-valid):not([aria-invalid='true']):focus {
+  border-color: var(--tuc-success);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--tuc-success) 22%, transparent);
+}

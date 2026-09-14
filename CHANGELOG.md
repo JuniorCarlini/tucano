@@ -6,6 +6,13 @@ projeto.
 
 ## Ainda não publicado
 
+### Novo
+
+- Campo com `data-validate` fica verde quando passa. Na máscara, assim que o
+  valor fica completo e certo, já digitando (`data-tuc-valid`); o vermelho continua
+  só ao sair do campo. Num `.tuc-input` nativo com `data-validate`, o verde vem por
+  `:user-valid`. Sem o atributo, nada muda.
+
 ### Corrigido
 
 - Gaveta com conteúdo maior que a tela — um menu longo, um formulário de

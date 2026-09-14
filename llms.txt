@@ -137,6 +137,9 @@ currency, date, time, card. Gabarito livre aceita # (digito), A (letra) e *
 
 data-validate confere o digito verificador ao sair do campo e usa
 setCustomValidity, entao o navegador barra o submit sozinho.
+O acerto aparece na hora: com o valor completo e certo o campo ganha
+data-tuc-valid e fica verde, ja digitando; o vermelho so vem ao sair do campo.
+Num .tuc-input nativo, data-validate tambem pinta de verde por :user-valid.
 
 data-tuc-reveal adiciona o olho de mostrar/ocultar, em qualquer campo. Com
 conteudo, nasce oculto; o valor real fica num input hidden com o mesmo name,

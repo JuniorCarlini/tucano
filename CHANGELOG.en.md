@@ -6,6 +6,13 @@ in your project.
 
 ## Unreleased
 
+### New
+
+- Fields with `data-validate` turn green when they pass. On a mask, as soon as the
+  value is complete and correct, while typing (`data-tuc-valid`); red still shows
+  only when leaving the field. On a native `.tuc-input` with `data-validate`, the
+  green comes from `:user-valid`. Without the attribute, nothing changes.
+
 ### Fixed
 
 - A drawer with content taller than the screen — a long menu, a filter form —

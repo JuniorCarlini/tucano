@@ -321,6 +321,40 @@ body{margin:0;padding:16px;font-family:system-ui}
     box.remove();
     if (marca !== 'true') throw new Error('aria-invalid virou ' + marca);
   });
+  t('máscara com validação fica verde quando o CPF fica certo, sem sair do campo', function () {
+    // O acerto aparece na hora: antes, o valor certo não tinha estado nenhum e só o
+    // erro, ao sair do campo, mudava a borda.
+    var campo = document.createElement('input');
+    campo.className = 'tuc-input';
+    document.body.append(campo);
+    var m = new Tucano.Mask(campo, { format: 'cpf', validate: true });
+    campo.value = '11144477735';
+    campo.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertText' }));
+    var verde = campo.hasAttribute('data-tuc-valid');
+    var borda = getComputedStyle(campo).borderTopColor;
+    var sonda = document.createElement('span');
+    sonda.style.color = 'var(--tuc-success)';
+    document.body.append(sonda);
+    var sucesso = getComputedStyle(sonda).color;
+    sonda.remove(); m.destroy(); campo.remove();
+    if (!verde) throw new Error('sem data-tuc-valid com o CPF certo');
+    if (borda !== sucesso) throw new Error('borda ' + borda + ', esperado ' + sucesso);
+  });
+  t('máscara com validação não acusa erro digitando, e acusa ao sair do campo', function () {
+    var campo = document.createElement('input');
+    campo.className = 'tuc-input';
+    document.body.append(campo);
+    var m = new Tucano.Mask(campo, { format: 'cpf', validate: true });
+    campo.value = '11144477700';
+    campo.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertText' }));
+    var digitando = { invalido: campo.getAttribute('aria-invalid'), verde: campo.hasAttribute('data-tuc-valid') };
+    campo.dispatchEvent(new FocusEvent('blur'));
+    var saiu = { invalido: campo.getAttribute('aria-invalid'), verde: campo.hasAttribute('data-tuc-valid') };
+    m.destroy(); campo.remove();
+    if (digitando.invalido === 'true') throw new Error('ficou vermelho no meio da digitação');
+    if (digitando.verde) throw new Error('CPF errado ficou verde');
+    if (saiu.invalido !== 'true' || saiu.verde) throw new Error('ao sair: ' + JSON.stringify(saiu));
+  });
   t('setValue do campo sensível atualiza o que é enviado', function () {
     var box = document.createElement('div');
     box.innerHTML = '<input name="doc" data-tuc-mask="cpf" data-tuc-reveal>';

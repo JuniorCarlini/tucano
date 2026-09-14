@@ -290,6 +290,10 @@ Tucano.mask.maskEmail('contato@empresa.com.br')        // 'c••••••@e
 <p class="lead">Com <code>data-validate</code>, o dígito verificador é conferido ao sair do campo. Reprovado, o campo recebe
    <code>aria-invalid="true"</code> e <code>setCustomValidity</code>, e o próprio navegador barra o envio — sem uma linha no projeto.</p>
 
+<p>E o acerto aparece na hora: assim que o valor fica completo e certo, o campo fica verde, sem esperar sair dele. O erro
+   espera — digitando, um CPF pela metade nunca fica vermelho; ele só é acusado ao sair do campo, e some de novo quando a
+   pessoa volta a corrigir. O verde é o atributo <code>data-tuc-valid</code>, que o CSS pinta com <code>--tuc-success</code>.</p>
+
 <p>Valem <code>cpf</code>, <code>cnpj</code>, <code>cnpj-numerico</code> e <code>cpf-cnpj</code>; os outros formatos não têm dígito
    para conferir. Campo vazio passa: obrigatoriedade é do <code>required</code>. Enquanto se digita o erro some, e ao voltar ao campo
    também — inclusive a marca que veio do servidor, porque a pessoa está corrigindo.</p>
