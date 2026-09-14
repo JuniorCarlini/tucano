@@ -4,7 +4,7 @@ O que mudou em cada versão da Tucano, da mais nova para a mais antiga. Antes de
 atualizar, leia "Atenção ao atualizar": ali está o que pede mudança no seu
 projeto.
 
-## Ainda não publicado
+## 0.32.1 — 2026-09-13
 
 ### Corrigido
 
