@@ -925,14 +925,14 @@ envolve nem substitui o input — é comportamento puro.
 <input                  data-tuc-mask="##/##">   <!-- template livre -->
 ```
 
-Formatos: `cpf`, `cnpj`, `cnpj-numerico`, `cpf-cnpj`, `phone`, `mobile`,
+Formatos: `cpf`, `cnpj`, `cnpj-numeric`, `cpf-cnpj`, `phone`, `mobile`,
 `cep`, `real`, `currency`, `data`, `time`, `card`. No gabarito livre, `#` é
 dígito, `A` é letra e `*` aceita os dois.
 
 **CNPJ alfanumérico.** O formato novo mantém as 14 posições e a mesma máscara:
 as 12 primeiras aceitam letras, as 2 últimas seguem numéricas, e o dígito
 verificador usa o código ASCII menos 48. `cnpj` já aceita os dois formatos;
-`cnpj-numerico` recusa letras. Confirme a vigência na Nota Técnica da Receita
+`cnpj-numeric` recusa letras. Confirme a vigência na Nota Técnica da Receita
 antes de exigir em produção.
 
 ### Validação
@@ -965,7 +965,7 @@ fica à mostra:
 
 ```html
 <input data-tuc-reveal data-reveal-visible="4">
-<input data-tuc-reveal="tudo">
+<input data-tuc-reveal="all">
 <input type="email" data-tuc-reveal>
 ```
 

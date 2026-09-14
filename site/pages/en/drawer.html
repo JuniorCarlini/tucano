@@ -123,7 +123,7 @@ g.close();
 
 <p><code>actions</code> follows the same rules as the modal: <code>text</code>, <code>variant</code> (default <code>outline</code>),
    <code>onClick</code>, which receives the instance, and <code>closes: false</code> to keep it open. <code>onClose(reason, gaveta)</code>
-   receives <code>'botao'</code>, <code>'action'</code>, <code>'escape'</code>, <code>'fundo'</code> or <code>'api'</code>.</p>
+   receives <code>'button'</code>, <code>'action'</code>, <code>'escape'</code>, <code>'backdrop'</code> or <code>'api'</code>.</p>
 
 <h3>In the Django template</h3>
 <p>The typical case is a list's filter form: it is rendered by the server, with the values that came in
@@ -154,7 +154,7 @@ g.close();
   <thead><tr><th>Attribute</th><th>Where</th><th>What for</th></tr></thead>
   <tbody>
     <tr><td><code>data-tuc-drawer="#id"</code></td><td>Trigger</td><td>Opens the drawer matching the selector on click</td></tr>
-    <tr><td><code>data-tuc-drawer-close</code></td><td>Button inside the drawer</td><td>Closes it, with the reason <code>'botao'</code></td></tr>
+    <tr><td><code>data-tuc-drawer-close</code></td><td>Button inside the drawer</td><td>Closes it, with the reason <code>'button'</code></td></tr>
     <tr><td><code>data-closable="false"</code></td><td><code>&lt;dialog&gt;</code></td><td><code>Esc</code> no longer closes it</td></tr>
     <tr><td><code>data-backdrop="false"</code></td><td><code>&lt;dialog&gt;</code></td><td>Clicking the backdrop no longer closes it</td></tr>
   </tbody>

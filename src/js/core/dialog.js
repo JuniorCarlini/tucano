@@ -106,7 +106,7 @@ export class Dialog {
       on(this.node, 'click', (e) => {
         // O <dialog> ocupa a viewport inteira e a caixa fica dentro dele,
         // entao clique que chega ao proprio dialog e clique no fundo.
-        if (this.opts.closeOnBackdrop && e.target === this.node) this.close('fundo');
+        if (this.opts.closeOnBackdrop && e.target === this.node) this.close('backdrop');
       }),
     );
   }
@@ -130,7 +130,7 @@ export function buildPanel(prefix, opts, owner, titleId) {
         type: 'button',
         class: `tuc-btn is-ghost is-icon is-sm ${prefix}__close`,
         'aria-label': 'Fechar',
-        onclick: () => owner.close('botao'),
+        onclick: () => owner.close('button'),
       }, [icon(ICON_X, 15)]) : null,
     ]),
     el('div', { class: `${prefix}__body` }),

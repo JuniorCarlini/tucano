@@ -131,7 +131,7 @@ navegador envia tudo num bloco e não reporta andamento.
     <input name="cpf" value="111.444.777-35" data-tuc-mask="cpf" data-tuc-reveal>
     <span data-tuc-format="cpf">12345678901</span>
 
-Formatos: cpf, cnpj, cnpj-numerico, cpf-cnpj, phone, mobile, cep, real,
+Formatos: cpf, cnpj, cnpj-numeric, cpf-cnpj, phone, mobile, cep, real,
 currency, date, time, card. Gabarito livre aceita # (digito), A (letra) e *
 (ambos), ex.: data-tuc-mask="##/##".
 
@@ -145,15 +145,15 @@ data-tuc-reveal adiciona o olho de mostrar/ocultar, em qualquer campo. Com
 conteudo, nasce oculto; o valor real fica num input hidden com o mesmo name,
 entao o servidor recebe completo. Em type=password o olho so alterna o type.
 
-Modos: data-tuc-reveal (fim, padrao, com data-reveal-visible para o numero de
-caracteres), data-tuc-reveal="tudo" (senha, token, chave) e "email"
+Modos: data-tuc-reveal (end, padrao, com data-reveal-visible para o numero de
+caracteres), data-tuc-reveal="all" (senha, token, chave) e "email"
 (automatico em type=email, guarda o dominio: j****@empresa.com.br).
 
 data-tuc-format formata elementos de exibicao, sem input.
 
 CNPJ alfanumerico: 14 posicoes, mesma mascara, 12 primeiras aceitam letras, 2
 ultimas numericas, digito verificador pelo codigo ASCII menos 48. O formato
-`cnpj` aceita os dois; `cnpj-numerico` recusa letras.
+`cnpj` aceita os dois; `cnpj-numeric` recusa letras.
 
 ## Botão
 
@@ -758,8 +758,8 @@ Inventario extraido do codigo a cada build. Se algo nao esta aqui, nao existe.
     decimals           = 2
     currency           = null  — 'BRL' formata com R$
     reveal             = false  — olhinho para mostrar e ocultar
-    revealVisible      = 2  — quantos caracteres ficam a mostra no modo 'fim'…
-    revealMode         = null  — 'fim' | 'email' | 'tudo'. null decide pelo campo…
+    revealVisible      = 2  — quantos caracteres ficam a mostra no modo 'end'…
+    revealMode         = null  — 'end' | 'email' | 'all'. null decide pelo campo…
     locale             = undefined
     errorText          = null
     onChange           = null
@@ -918,7 +918,7 @@ Inventario extraido do codigo a cada build. Se algo nao esta aqui, nao existe.
   Accordion ColorPicker DatePicker Drawer Dropdown Editor FORMATS ICON_CHECK ICON_COPY ICON_X Mask Modal Pagination Popover Select Table Tabs Toast Tooltip Upload autoFormat confirm drawer highlight icon listenForEvents modal pageWindow pagination sanitize toast
   Tucano.mask / .dates / .color   modulos utilitarios (ver seção Utilitários)
 
-  FORMATS (mascaras prontas): cpf cnpj cnpj-numerico cpf-cnpj phone mobile cep date time card currency real
+  FORMATS (mascaras prontas): cpf cnpj cnpj-numeric cpf-cnpj phone mobile cep date time card currency real
 
 ### Classes CSS
 

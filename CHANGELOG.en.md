@@ -16,6 +16,12 @@ in your project.
   `:root, .dark` `--tuc-accent: #FF7501`, `--tuc-accent-hover: #FF8A2A`,
   `--tuc-accent-fg: #ffffff`, `--tuc-thumb: #ffffff` and `--tuc-accent-text: #B84300`
   — the last one `#FF7501` in `.dark`. The full recipe is on the Theme page.
+- The reasons the modal and the drawer pass to `onClose` are now in English, like
+  the rest of the API: `'button'` instead of `'botao'` and `'backdrop'` instead of
+  `'fundo'`. If your code compares the reason, update both.
+- In the mask, `data-reveal-mode` (and `revealMode`) is now `end` or `all`, and
+  the `cnpj-numerico` format is now `cnpj-numeric`. The old names are still
+  accepted, so nothing breaks, but the documentation only shows the new ones.
 
 ### New
 

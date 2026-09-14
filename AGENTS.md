@@ -690,10 +690,10 @@ trocável por atributo e por um `Tucano.setTexts({...})` global, com o portuguê
 como padrão. Levantado ao traduzir o site; a demonstração em inglês contorna
 desligando o "Limpar" e a busca do select.
 
-**Valores de API ainda em português.** A regra é API toda em inglês, e a
-tradução do site achou valores que escaparam: na máscara, os modos
-`data-reveal-mode="fim"` e `"tudo"` e o formato `cnpj-numerico`; no modal e na
-gaveta, os motivos de `onClose` `'botao'` e `'fundo'`, ao lado de `'action'`,
-`'escape'` e `'api'` em inglês. Trocar é mudança de API pública: pede aceitar os
-nomes antigos por um tempo, avisar em "Atenção ao atualizar" e atualizar o
-`llms.txt` e as páginas nos três idiomas.
+**Nomes antigos aceitos por compatibilidade.** Os valores que tinham escapado em
+português viraram inglês: `end` e `all` no lugar de `fim` e `tudo` (modo do
+reveal e `maskMiddle`), `cnpj-numeric` no lugar de `cnpj-numerico`. Os antigos
+continuam aceitos (`LEGACY_FORMATS` e `LEGACY_MODES`, na máscara) e não aparecem
+em documentação nenhuma. Numa versão com quebra de API anunciada, podem sair. Os
+motivos do `onClose` (`'button'` e `'backdrop'`, antes `'botao'` e `'fundo'`) não
+têm como aceitar os dois, porque são valor entregue, e não recebido.

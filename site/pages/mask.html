@@ -115,7 +115,7 @@ description: Máscara de CPF, CNPJ alfanumérico, telefone, CEP e moeda, com val
   <tbody>
     <tr><td><code>cpf</code></td><td><code>111.444.777-35</code></td></tr>
     <tr><td><code>cnpj</code></td><td><code>11.222.333/0001-81</code> — aceita letras nas 12 primeiras posições</td></tr>
-    <tr><td><code>cnpj-numerico</code></td><td>O mesmo, recusando letras</td></tr>
+    <tr><td><code>cnpj-numeric</code></td><td>O mesmo, recusando letras</td></tr>
     <tr><td><code>cpf-cnpj</code></td><td>Um ou outro, pelo tamanho</td></tr>
     <tr><td><code>phone</code></td><td><code>(69) 3344-5566</code> ou <code>(69) 99988-7766</code></td></tr>
     <tr><td><code>mobile</code></td><td><code>(69) 99988-7766</code></td></tr>
@@ -137,8 +137,8 @@ description: Máscara de CPF, CNPJ alfanumérico, telefone, CEP e moeda, com val
     <tr><td><code>data-decimals</code></td><td><code>2</code></td><td>Casas decimais na moeda</td></tr>
     <tr><td><code>data-currency</code></td><td>—</td><td>Código da moeda, como <code>BRL</code> ou <code>USD</code></td></tr>
     <tr><td><code>data-tuc-reveal</code></td><td>—</td><td>Olho de mostrar e ocultar; o valor escolhe o modo</td></tr>
-    <tr><td><code>data-reveal-visible</code></td><td><code>2</code></td><td>Caracteres à mostra no modo <code>fim</code></td></tr>
-    <tr><td><code>data-reveal-mode</code></td><td>pelo campo</td><td><code>fim</code>, <code>email</code> ou <code>tudo</code></td></tr>
+    <tr><td><code>data-reveal-visible</code></td><td><code>2</code></td><td>Caracteres à mostra no modo <code>end</code></td></tr>
+    <tr><td><code>data-reveal-mode</code></td><td>pelo campo</td><td><code>end</code>, <code>email</code> ou <code>all</code></td></tr>
   </tbody>
 </table></div>
 
@@ -200,7 +200,7 @@ Tucano.mask.maskEmail('contato@empresa.com.br')        // 'c••••••@e
    espera — digitando, um CPF pela metade nunca fica vermelho; ele só é acusado ao sair do campo, e some de novo quando a
    pessoa volta a corrigir. O verde é o atributo <code>data-tuc-valid</code>, que o CSS pinta com <code>--tuc-success</code>.</p>
 
-<p>Valem <code>cpf</code>, <code>cnpj</code>, <code>cnpj-numerico</code> e <code>cpf-cnpj</code>; os outros formatos não têm dígito
+<p>Valem <code>cpf</code>, <code>cnpj</code>, <code>cnpj-numeric</code> e <code>cpf-cnpj</code>; os outros formatos não têm dígito
    para conferir. Campo vazio passa: obrigatoriedade é do <code>required</code>. Enquanto se digita o erro some, e ao voltar ao campo
    também — inclusive a marca que veio do servidor, porque a pessoa está corrigindo.</p>
 
@@ -208,7 +208,7 @@ Tucano.mask.maskEmail('contato@empresa.com.br')        // 'c••••••@e
 <input name="cpf" data-tuc-mask="cpf" data-validate="true" data-error-text="Confira o CPF">
 </pre>
 
-<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">CNPJ alfanumérico</p><p>O formato novo mantém as 14 posições e a mesma máscara: as 12 primeiras aceitam letras, as 2 últimas seguem numéricas, e o dígito verificador usa o código ASCII menos 48 — o que deixa o cálculo antigo valendo para CNPJ só de números. O <code>cnpj</code> aceita os dois e passa as letras para maiúscula; <code>cnpj-numerico</code> recusa letras, para quem ainda não pode recebê-las. Confirme a data de vigência na Nota Técnica da Receita antes de exigir em produção.</p></div></div>
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">CNPJ alfanumérico</p><p>O formato novo mantém as 14 posições e a mesma máscara: as 12 primeiras aceitam letras, as 2 últimas seguem numéricas, e o dígito verificador usa o código ASCII menos 48 — o que deixa o cálculo antigo valendo para CNPJ só de números. O <code>cnpj</code> aceita os dois e passa as letras para maiúscula; <code>cnpj-numeric</code> recusa letras, para quem ainda não pode recebê-las. Confirme a data de vigência na Nota Técnica da Receita antes de exigir em produção.</p></div></div>
 
 <h2 id="sensivel">Campo sensível</h2>
 <p class="lead">O <code>data-tuc-reveal</code> põe um olho para mostrar e ocultar. Campo que já chega preenchido nasce oculto,
@@ -218,7 +218,7 @@ Tucano.mask.maskEmail('contato@empresa.com.br')        // 'c••••••@e
   <div class="demo-grid is-3">
     <div class="demo-cell">
       <h4>CPF de um cadastro</h4>
-      <p>Modo <code>fim</code>, com dois à mostra.</p>
+      <p>Modo <code>end</code>, com dois à mostra.</p>
       <input type="text" id="mk-cpf-cadastro" name="cpf_cadastro" value="111.444.777-35" data-tuc-mask="cpf" data-tuc-reveal aria-label="CPF do cadastro">
     </div>
     <div class="demo-cell">
@@ -233,8 +233,8 @@ Tucano.mask.maskEmail('contato@empresa.com.br')        // 'c••••••@e
     </div>
     <div class="demo-cell">
       <h4>Chave de API</h4>
-      <p><code>data-tuc-reveal="tudo"</code> não mostra nada.</p>
-      <input type="text" id="mk-chave" name="chave" value="sk_live_a1b2c3d4e5f6" data-tuc-reveal="tudo" aria-label="Chave de API">
+      <p><code>data-tuc-reveal="all"</code> não mostra nada.</p>
+      <input type="text" id="mk-chave" name="chave" value="sk_live_a1b2c3d4e5f6" data-tuc-reveal="all" aria-label="Chave de API">
     </div>
     <div class="demo-cell">
       <h4>Senha</h4>
@@ -252,16 +252,16 @@ Tucano.mask.maskEmail('contato@empresa.com.br')        // 'c••••••@e
 <div class="tuc-table-wrap"><table class="tuc-table">
   <thead><tr><th>Modo</th><th>Quando</th><th>Resultado</th></tr></thead>
   <tbody>
-    <tr><td><code>fim</code>, o padrão</td><td>Documento, cartão, conta, telefone</td><td><code>•••• •••• •••• 1234</code></td></tr>
+    <tr><td><code>end</code>, o padrão</td><td>Documento, cartão, conta, telefone</td><td><code>•••• •••• •••• 1234</code></td></tr>
     <tr><td><code>email</code></td><td>Automático em <code>type="email"</code></td><td><code>j•••••••••@empresa.com.br</code></td></tr>
-    <tr><td><code>tudo</code></td><td>Token, chave de API</td><td><code>••••••••••••••••••••</code></td></tr>
+    <tr><td><code>all</code></td><td>Token, chave de API</td><td><code>••••••••••••••••••••</code></td></tr>
   </tbody>
 </table></div>
 
 <pre data-code="html">
 <input name="cpf" value="111.444.777-35" data-tuc-mask="cpf" data-tuc-reveal>
 <input name="cartao" data-tuc-mask="card" data-tuc-reveal data-reveal-visible="4">
-<input name="chave" data-tuc-reveal="tudo">
+<input name="chave" data-tuc-reveal="all">
 <input type="email" name="email" data-tuc-reveal>
 <input type="password" name="senha" data-tuc-reveal>
 </pre>

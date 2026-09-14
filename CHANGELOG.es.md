@@ -16,6 +16,12 @@ cambios en tu proyecto.
   en `:root, .dark` `--tuc-accent: #FF7501`, `--tuc-accent-hover: #FF8A2A`,
   `--tuc-accent-fg: #ffffff`, `--tuc-thumb: #ffffff` y `--tuc-accent-text: #B84300`
   — este último `#FF7501` en `.dark`. La receta completa está en la página Tema.
+- Los motivos que el modal y el panel lateral entregan a `onClose` ahora están en
+  inglés, como el resto de la API: `'button'` en lugar de `'botao'` y `'backdrop'`
+  en lugar de `'fundo'`. Si tu código compara el motivo, cambia los dos.
+- En la máscara, `data-reveal-mode` (y `revealMode`) pasa a ser `end` o `all`, y el
+  formato `cnpj-numerico` pasa a ser `cnpj-numeric`. Los nombres antiguos siguen
+  aceptados, así que nada se rompe, pero la documentación solo muestra los nuevos.
 
 ### Nuevo
 

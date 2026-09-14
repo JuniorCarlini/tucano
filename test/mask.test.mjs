@@ -84,9 +84,15 @@ test('moeda formata a partir dos digitos, da direita para a esquerda', () => {
 });
 
 test('maskMiddle esconde o meio e preserva o fim', () => {
-  const r = maskMiddle('12345678901', 2, 'fim');
+  const r = maskMiddle('12345678901', 2, 'end');
   assert.ok(r.endsWith('01'), `terminou com 01: ${r}`);
   assert.ok(!r.includes('345'), 'o meio nao aparece');
+});
+
+test('maskMiddle aceita os nomes antigos dos modos', () => {
+  assert.equal(maskMiddle('12345678901', 2, 'fim'), maskMiddle('12345678901', 2, 'end'));
+  assert.equal(maskMiddle('123.456', 2, 'tudo'), maskMiddle('123.456', 2, 'all'));
+  assert.ok(!/\d/.test(maskMiddle('123.456', 2, 'all')), 'all nao deixa digito a mostra');
 });
 
 test('maskEmail preserva o dominio — e o que permite reconhecer a conta', () => {

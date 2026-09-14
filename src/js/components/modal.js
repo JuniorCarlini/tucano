@@ -110,7 +110,7 @@ export function autoInit(scope = document) {
     m._adopt(node);
 
     for (const b of node.querySelectorAll('[data-tuc-modal-close]')) {
-      b.addEventListener('click', () => m.close('botao'));
+      b.addEventListener('click', () => m.close('button'));
     }
     out.push(m);
   }

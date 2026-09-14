@@ -500,6 +500,29 @@ body{margin:0;padding:16px;font-family:system-ui}
     if (!larguraProse) throw new Error('prose: o bloco inteiro passou da largura');
     if (repetida !== 1) throw new Error('prose: init de novo criou ' + repetida + ' caixas');
   });
+  t('onClose recebe os motivos em inglês: button no X, backdrop no fundo', function () {
+    // O onClose só roda depois da animação de saída, e este teste é síncrono:
+    // o motivo é lido na chamada de close(), que é o valor repassado ao callback.
+    limpar();
+    var motivos = [];
+    var espiar = function (d) { var original = d.close; d.close = function (r) { motivos.push(r); return original.call(d, r); }; return d; };
+    var a = espiar(Tucano.modal({ title: 'A' }));
+    a.node.querySelector('.tuc-modal__close').click();
+    var b = espiar(Tucano.drawer({ title: 'B' }));
+    b.node.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    limpar();
+    if (motivos.join(',') !== 'button,backdrop') throw new Error('motivos: ' + motivos.join(','));
+  });
+  t('máscara aceita os nomes antigos cnpj-numerico e reveal tudo', function () {
+    var i = document.createElement('input');
+    document.body.append(i);
+    var m = new Tucano.Mask(i, { format: 'cnpj-numerico' });
+    m.setValue('AB222333000181');
+    var semLetra = !/[A-Z]/.test(i.value);
+    m.destroy(); i.remove();
+    if (!semLetra) throw new Error('cnpj-numerico antigo aceitou letra: ' + i.value);
+    if (Tucano.mask.maskMiddle('abc', 2, 'tudo') !== Tucano.mask.maskMiddle('abc', 2, 'all')) throw new Error('tudo não equivale a all');
+  });
   t('menu numa coluna de altura fixa rola, em vez de vazar', function () {
     var coluna = document.createElement('div');
     coluna.style.cssText = 'display:flex;flex-direction:column;height:200px';

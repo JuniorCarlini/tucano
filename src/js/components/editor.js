@@ -209,17 +209,16 @@ function toggleBlock(tag) {
  * navegador nenhum. Vai com cabecalho porque tabela de sistema quase sempre
  * tem um, e sem ele a primeira linha de dados acaba servindo de titulo.
  */
-function buildTable(doc, rows, cols) {
-  const cel = (tag) => { const c = doc.createElement(tag); c.append(doc.createElement('br')); return c; };
-  const table = doc.createElement('table');
-  const thead = doc.createElement('thead');
-  const trCab = doc.createElement('tr');
-  for (let c = 0; c < cols; c++) trCab.append(cel('th'));
-  thead.append(trCab);
-  const tbody = doc.createElement('tbody');
+function buildTable(rows, cols) {
+  const table = document.createElement('table');
+  const thead = document.createElement('thead');
+  const header = document.createElement('tr');
+  for (let c = 0; c < cols; c++) header.append(emptyCell('th'));
+  thead.append(header);
+  const tbody = document.createElement('tbody');
   for (let l = 0; l < rows - 1; l++) {
-    const tr = doc.createElement('tr');
-    for (let c = 0; c < cols; c++) tr.append(cel('td'));
+    const tr = document.createElement('tr');
+    for (let c = 0; c < cols; c++) tr.append(emptyCell('td'));
     tbody.append(tr);
   }
   table.append(thead, tbody);
@@ -311,7 +310,7 @@ function insertRow(cell, after) {
   // Linha acima do cabecalho vira corpo, nao outro cabecalho.
   const body = cell.closest('table').querySelector('tbody');
   if (row.parentElement.tagName === 'THEAD' && body) {
-    after ? body.prepend(nova) : body.prepend(nova);
+    body.prepend(nova);
   } else {
     row.parentElement.insertBefore(nova, after ? row.nextSibling : row);
   }
@@ -544,23 +543,12 @@ export class Editor {
           const body = cell.closest('table').querySelector('tbody') || cell.closest('table');
           const model = body.querySelector('tr') || cell.parentElement;
           const nova = document.createElement('tr');
-          for (let i = 0; i < model.children.length; i++) {
-            const td = document.createElement('td');
-            td.append(document.createElement('br'));
-            nova.append(td);
-          }
+          for (let i = 0; i < model.children.length; i++) nova.append(emptyCell('td'));
           body.append(nova);
           target = nova.firstElementChild;
           this._sync();
         }
-        if (target) {
-          const r = document.createRange();
-          r.selectNodeContents(target);
-          r.collapse(true);
-          const s = window.getSelection();
-          s.removeAllRanges();
-          s.addRange(r);
-        }
+        focusCell(target);
         return;
       }
     }
@@ -658,7 +646,7 @@ export class Editor {
     this._focus();
     if (name === 'table') {
       const { rows, cols } = this.opts.table;
-      const table = buildTable(document, rows, cols);
+      const table = buildTable(rows, cols);
       const sel = window.getSelection();
 
       /*
@@ -691,14 +679,7 @@ export class Editor {
         p.append(document.createElement('br'));
         table.after(p);
         wrapTables(this.area);
-        const first = table.querySelector('th');
-        if (first) {
-          const r = document.createRange();
-          r.selectNodeContents(first);
-          r.collapse(true);
-          sel.removeAllRanges();
-          sel.addRange(r);
-        }
+        focusCell(table.querySelector('th'));
       }
       this._sync();
       return this;

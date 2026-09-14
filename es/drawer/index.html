@@ -224,7 +224,7 @@ g.close();</code></pre></div>
 
 <p><code>actions</code> sigue las mismas reglas del modal: <code>text</code>, <code>variant</code> (predeterminado <code>outline</code>),
    <code>onClick</code>, que recibe la instancia, y <code>closes: false</code> para mantenerlo abierto. <code>onClose(reason, gaveta)</code>
-   recibe <code>'botao'</code>, <code>'action'</code>, <code>'escape'</code>, <code>'fundo'</code> o <code>'api'</code>.</p>
+   recibe <code>'button'</code>, <code>'action'</code>, <code>'escape'</code>, <code>'backdrop'</code> o <code>'api'</code>.</p>
 
 <h3>En la plantilla de Django</h3>
 <p>El caso típico es el formulario de filtros de una lista: lo renderiza el servidor, con los valores que llegaron en
@@ -253,7 +253,7 @@ g.close();</code></pre></div>
   <thead><tr><th>Atributo</th><th>Dónde</th><th>Para qué</th></tr></thead>
   <tbody>
     <tr><td><code>data-tuc-drawer="#id"</code></td><td>Disparador</td><td>Abre el panel del selector al hacer clic</td></tr>
-    <tr><td><code>data-tuc-drawer-close</code></td><td>Botón dentro del panel</td><td>Cierra, con el motivo <code>'botao'</code></td></tr>
+    <tr><td><code>data-tuc-drawer-close</code></td><td>Botón dentro del panel</td><td>Cierra, con el motivo <code>'button'</code></td></tr>
     <tr><td><code>data-closable="false"</code></td><td><code>&lt;dialog&gt;</code></td><td><code>Esc</code> deja de cerrar</td></tr>
     <tr><td><code>data-backdrop="false"</code></td><td><code>&lt;dialog&gt;</code></td><td>El clic en el fondo deja de cerrar</td></tr>
   </tbody>

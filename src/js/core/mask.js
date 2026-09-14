@@ -223,22 +223,27 @@ const PONTO = '\u2022';
  * reconhecivel: `123.456.789-01` vira `•••.•••.•••-01`.
  *
  * modo:
- *   'fim'   (padrao) deixa os ultimos `visiveis` caracteres a mostra
+ *   'end'   (padrao) deixa os ultimos `visible` caracteres a mostra
  *   'email' deixa a primeira letra e o dominio: `j•••@empresa.com.br`
- *   'tudo'  esconde tudo — para senha, token e chave
+ *   'all'   esconde tudo — para senha, token e chave
+ *
+ * 'fim' e 'tudo' sao os nomes antigos de 'end' e 'all', ainda aceitos.
  */
-export function maskMiddle(text, visible = 2, mode = 'fim') {
+const LEGACY_MODES = { fim: 'end', tudo: 'all' };
+
+export function maskMiddle(text, visible = 2, mode = 'end') {
   const s = String(text ?? '');
   if (!s) return s;
+  mode = LEGACY_MODES[mode] ?? mode;
 
   if (mode === 'email') return maskEmail(s);
 
   const alphanumeric = (c) => /[0-9A-Za-z]/.test(c);
   const total = [...s].filter(alphanumeric).length;
-  const show = mode === 'tudo' ? 0 : visible;
+  const show = mode === 'all' ? 0 : visible;
   let seen = 0;
   return [...s].map((c) => {
-    if (!alphanumeric(c)) return mode === 'tudo' ? PONTO : c;
+    if (!alphanumeric(c)) return mode === 'all' ? PONTO : c;
     seen++;
     return seen > total - show ? c : PONTO;
   }).join('');
@@ -252,7 +257,7 @@ export function maskMiddle(text, visible = 2, mode = 'fim') {
 export function maskEmail(value) {
   const s = String(value ?? '');
   const arroba = s.lastIndexOf('@');
-  if (arroba < 1) return maskMiddle(s, 0, 'tudo');
+  if (arroba < 1) return maskMiddle(s, 0, 'all');
   const local = s.slice(0, arroba);
   const domain = s.slice(arroba);
   return local[0] + PONTO.repeat(Math.max(local.length - 1, 1)) + domain;

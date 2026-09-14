@@ -3245,16 +3245,18 @@ var DISPLAY_TEMPLATES = {
   card: "#### #### #### ####"
 };
 var PONTO = "\u2022";
-function maskMiddle(text, visible = 2, mode = "fim") {
+var LEGACY_MODES = { fim: "end", tudo: "all" };
+function maskMiddle(text, visible = 2, mode = "end") {
   const s = String(text ?? "");
   if (!s) return s;
+  mode = LEGACY_MODES[mode] ?? mode;
   if (mode === "email") return maskEmail(s);
   const alphanumeric = (c) => /[0-9A-Za-z]/.test(c);
   const total = [...s].filter(alphanumeric).length;
-  const show = mode === "tudo" ? 0 : visible;
+  const show = mode === "all" ? 0 : visible;
   let seen = 0;
   return [...s].map((c) => {
-    if (!alphanumeric(c)) return mode === "tudo" ? PONTO : c;
+    if (!alphanumeric(c)) return mode === "all" ? PONTO : c;
     seen++;
     return seen > total - show ? c : PONTO;
   }).join("");
@@ -3262,7 +3264,7 @@ function maskMiddle(text, visible = 2, mode = "fim") {
 function maskEmail(value) {
   const s = String(value ?? "");
   const arroba = s.lastIndexOf("@");
-  if (arroba < 1) return maskMiddle(s, 0, "tudo");
+  if (arroba < 1) return maskMiddle(s, 0, "all");
   const local = s.slice(0, arroba);
   const domain = s.slice(arroba);
   return local[0] + PONTO.repeat(Math.max(local.length - 1, 1)) + domain;
@@ -3272,7 +3274,7 @@ function maskEmail(value) {
 var FORMATS = {
   cpf: { template: "###.###.###-##", validate: validateCPF, error: "CPF inv\xE1lido" },
   cnpj: { template: "**.***.***/****-##", validate: validateCNPJ, error: "CNPJ inv\xE1lido", uppercase: true },
-  "cnpj-numerico": { template: "##.###.###/####-##", validate: validateCNPJ, error: "CNPJ inv\xE1lido" },
+  "cnpj-numeric": { template: "##.###.###/####-##", validate: validateCNPJ, error: "CNPJ inv\xE1lido" },
   "cpf-cnpj": {
     template: ["###.###.###-##", "**.***.***/****-##"],
     validate: validateCpfCnpj,
@@ -3288,6 +3290,7 @@ var FORMATS = {
   currency: { isCurrency: true },
   real: { isCurrency: true, currency: "BRL" }
 };
+var LEGACY_FORMATS = { "cnpj-numerico": "cnpj-numeric" };
 var DEFAULTS5 = {
   format: null,
   // nome de FORMATS ou gabarito livre
@@ -3299,9 +3302,9 @@ var DEFAULTS5 = {
   reveal: false,
   // olhinho para mostrar e ocultar
   revealVisible: 2,
-  // quantos caracteres ficam a mostra no modo 'fim'
+  // quantos caracteres ficam a mostra no modo 'end'
   revealMode: null,
-  // 'fim' | 'email' | 'tudo'. null decide pelo campo
+  // 'end' | 'email' | 'all'. null decide pelo campo
   locale: void 0,
   errorText: null,
   onChange: null
@@ -3314,6 +3317,7 @@ var Mask = class {
     this.opts.locale = this.opts.locale || document.documentElement.lang || "pt-BR";
     this.input = node;
     node.classList.add("tuc-input");
+    this.opts.format = LEGACY_FORMATS[this.opts.format] ?? this.opts.format;
     const preset = FORMATS[this.opts.format];
     this.preset = preset || null;
     this.isCurrency = !!preset?.isCurrency;
@@ -3431,7 +3435,7 @@ var Mask = class {
   _hiddenMode() {
     if (this.opts.revealMode) return this.opts.revealMode;
     if (this.input.type === "email") return "email";
-    return "fim";
+    return "end";
   }
   _toggle() {
     this.showing = !this.showing;
@@ -4055,7 +4059,7 @@ var Dialog = class {
         if (this.opts.closable) this.close("escape");
       }),
       on(this.node, "click", (e) => {
-        if (this.opts.closeOnBackdrop && e.target === this.node) this.close("fundo");
+        if (this.opts.closeOnBackdrop && e.target === this.node) this.close("backdrop");
       })
     );
   }
@@ -4072,7 +4076,7 @@ function buildPanel(prefix, opts, owner, titleId) {
         type: "button",
         class: `tuc-btn is-ghost is-icon is-sm ${prefix}__close`,
         "aria-label": "Fechar",
-        onclick: () => owner.close("botao")
+        onclick: () => owner.close("button")
       }, [icon(ICON_X, 15)]) : null
     ]),
     el("div", { class: `${prefix}__body` }),
@@ -4176,7 +4180,7 @@ function autoInit8(scope = document) {
     m.body = node.querySelector(".tuc-modal__body");
     m._adopt(node);
     for (const b of node.querySelectorAll("[data-tuc-modal-close]")) {
-      b.addEventListener("click", () => m.close("botao"));
+      b.addEventListener("click", () => m.close("button"));
     }
     out.push(m);
   }
@@ -4250,7 +4254,7 @@ function autoInit9(scope = document) {
     g.body = node.querySelector(".tuc-drawer__body");
     g._adopt(node);
     for (const b of node.querySelectorAll("[data-tuc-drawer-close]")) {
-      b.addEventListener("click", () => g.close("botao"));
+      b.addEventListener("click", () => g.close("button"));
     }
     out.push(g);
   }
@@ -5392,21 +5396,16 @@ function toggleBlock(tag) {
   const current = document.queryCommandValue("formatBlock")?.toUpperCase();
   document.execCommand("formatBlock", false, current === tag ? "P" : tag);
 }
-function buildTable(doc, rows, cols) {
-  const cel = (tag) => {
-    const c = doc.createElement(tag);
-    c.append(doc.createElement("br"));
-    return c;
-  };
-  const table = doc.createElement("table");
-  const thead = doc.createElement("thead");
-  const trCab = doc.createElement("tr");
-  for (let c = 0; c < cols; c++) trCab.append(cel("th"));
-  thead.append(trCab);
-  const tbody = doc.createElement("tbody");
+function buildTable(rows, cols) {
+  const table = document.createElement("table");
+  const thead = document.createElement("thead");
+  const header = document.createElement("tr");
+  for (let c = 0; c < cols; c++) header.append(emptyCell("th"));
+  thead.append(header);
+  const tbody = document.createElement("tbody");
   for (let l = 0; l < rows - 1; l++) {
-    const tr = doc.createElement("tr");
-    for (let c = 0; c < cols; c++) tr.append(cel("td"));
+    const tr = document.createElement("tr");
+    for (let c = 0; c < cols; c++) tr.append(emptyCell("td"));
     tbody.append(tr);
   }
   table.append(thead, tbody);
@@ -5471,7 +5470,7 @@ function insertRow(cell, after) {
   for (let i = 0; i < row.children.length; i++) nova.append(emptyCell("td"));
   const body = cell.closest("table").querySelector("tbody");
   if (row.parentElement.tagName === "THEAD" && body) {
-    after ? body.prepend(nova) : body.prepend(nova);
+    body.prepend(nova);
   } else {
     row.parentElement.insertBefore(nova, after ? row.nextSibling : row);
   }
@@ -5681,23 +5680,12 @@ var Editor = class {
           const body = cell.closest("table").querySelector("tbody") || cell.closest("table");
           const model = body.querySelector("tr") || cell.parentElement;
           const nova = document.createElement("tr");
-          for (let i = 0; i < model.children.length; i++) {
-            const td = document.createElement("td");
-            td.append(document.createElement("br"));
-            nova.append(td);
-          }
+          for (let i = 0; i < model.children.length; i++) nova.append(emptyCell("td"));
           body.append(nova);
           target = nova.firstElementChild;
           this._sync();
         }
-        if (target) {
-          const r = document.createRange();
-          r.selectNodeContents(target);
-          r.collapse(true);
-          const s = window.getSelection();
-          s.removeAllRanges();
-          s.addRange(r);
-        }
+        focusCell(target);
         return;
       }
     }
@@ -5782,7 +5770,7 @@ var Editor = class {
     this._focus();
     if (name === "table") {
       const { rows, cols } = this.opts.table;
-      const table = buildTable(document, rows, cols);
+      const table = buildTable(rows, cols);
       const sel = window.getSelection();
       const inside = this._currentCell()?.closest("table");
       if (inside) {
@@ -5803,14 +5791,7 @@ var Editor = class {
         p.append(document.createElement("br"));
         table.after(p);
         wrapTables(this.area);
-        const first = table.querySelector("th");
-        if (first) {
-          const r = document.createRange();
-          r.selectNodeContents(first);
-          r.collapse(true);
-          sel.removeAllRanges();
-          sel.addRange(r);
-        }
+        focusCell(table.querySelector("th"));
       }
       this._sync();
       return this;

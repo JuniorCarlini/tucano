@@ -10,12 +10,12 @@ import { el, icon, ICON_EYE, ICON_EYE_OFF, omitUndefined, on } from '../core/dom
  *
  * O `cnpj` aceita letras nas doze primeiras posicoes porque e o que o formato
  * novo permite; as duas ultimas seguem numericas. Quem precisa recusar letras
- * durante a transicao usa `cnpj-numerico`.
+ * durante a transicao usa `cnpj-numeric`.
  */
 export const FORMATS = {
   cpf: { template: '###.###.###-##', validate: validateCPF, error: 'CPF inválido' },
   cnpj: { template: '**.***.***/****-##', validate: validateCNPJ, error: 'CNPJ inválido', uppercase: true },
-  'cnpj-numerico': { template: '##.###.###/####-##', validate: validateCNPJ, error: 'CNPJ inválido' },
+  'cnpj-numeric': { template: '##.###.###/####-##', validate: validateCNPJ, error: 'CNPJ inválido' },
   'cpf-cnpj': {
     template: ['###.###.###-##', '**.***.***/****-##'],
     validate: validateCpfCnpj, error: 'Documento inválido', uppercase: true,
@@ -30,14 +30,20 @@ export const FORMATS = {
   real: { isCurrency: true, currency: 'BRL' },
 };
 
+/*
+ * Nomes antigos, de quando valor de opcao ainda saia em portugues. Continuam
+ * aceitos para quem ja escreveu no template; fora daqui, so os nomes novos.
+ */
+const LEGACY_FORMATS = { 'cnpj-numerico': 'cnpj-numeric' };
+
 const DEFAULTS = {
   format: null,        // nome de FORMATS ou gabarito livre
   validate: false,     // valida no blur e bloqueia o submit
   decimals: 2,
   currency: null,      // 'BRL' formata com R$
   reveal: false,       // olhinho para mostrar e ocultar
-  revealVisible: 2,    // quantos caracteres ficam a mostra no modo 'fim'
-  revealMode: null,    // 'fim' | 'email' | 'tudo'. null decide pelo campo
+  revealVisible: 2,    // quantos caracteres ficam a mostra no modo 'end'
+  revealMode: null,    // 'end' | 'email' | 'all'. null decide pelo campo
   locale: undefined,
   errorText: null,
   onChange: null,
@@ -60,6 +66,7 @@ export class Mask {
     // aparece com a caixa nativa do navegador ao lado dos nossos controles.
     node.classList.add('tuc-input');
 
+    this.opts.format = LEGACY_FORMATS[this.opts.format] ?? this.opts.format;
     const preset = FORMATS[this.opts.format];
     this.preset = preset || null;
     this.isCurrency = !!preset?.isCurrency;
@@ -198,7 +205,7 @@ export class Mask {
   _hiddenMode() {
     if (this.opts.revealMode) return this.opts.revealMode;
     if (this.input.type === 'email') return 'email';
-    return 'fim';
+    return 'end';
   }
 
   _toggle() {

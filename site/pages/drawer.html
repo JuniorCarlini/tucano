@@ -122,7 +122,7 @@ g.close();
 
 <p><code>actions</code> segue as mesmas regras do modal: <code>text</code>, <code>variant</code> (padrão <code>outline</code>),
    <code>onClick</code>, que recebe a instância, e <code>closes: false</code> para manter aberta. <code>onClose(reason, gaveta)</code>
-   recebe <code>'botao'</code>, <code>'action'</code>, <code>'escape'</code>, <code>'fundo'</code> ou <code>'api'</code>.</p>
+   recebe <code>'button'</code>, <code>'action'</code>, <code>'escape'</code>, <code>'backdrop'</code> ou <code>'api'</code>.</p>
 
 <h3>No template do Django</h3>
 <p>O caso típico é o formulário de filtros de uma lista: ele é renderizado pelo servidor, com os valores que vieram no
@@ -153,7 +153,7 @@ g.close();
   <thead><tr><th>Atributo</th><th>Onde</th><th>Para quê</th></tr></thead>
   <tbody>
     <tr><td><code>data-tuc-drawer="#id"</code></td><td>Gatilho</td><td>Abre a gaveta do seletor ao clicar</td></tr>
-    <tr><td><code>data-tuc-drawer-close</code></td><td>Botão dentro da gaveta</td><td>Fecha, com o motivo <code>'botao'</code></td></tr>
+    <tr><td><code>data-tuc-drawer-close</code></td><td>Botão dentro da gaveta</td><td>Fecha, com o motivo <code>'button'</code></td></tr>
     <tr><td><code>data-closable="false"</code></td><td><code>&lt;dialog&gt;</code></td><td>O <code>Esc</code> deixa de fechar</td></tr>
     <tr><td><code>data-backdrop="false"</code></td><td><code>&lt;dialog&gt;</code></td><td>O clique no fundo deixa de fechar</td></tr>
   </tbody>

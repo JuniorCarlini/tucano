@@ -81,7 +81,7 @@ export function autoInit(scope = document) {
     g._adopt(node);
 
     for (const b of node.querySelectorAll('[data-tuc-drawer-close]')) {
-      b.addEventListener('click', () => g.close('botao'));
+      b.addEventListener('click', () => g.close('button'));
     }
     out.push(g);
   }

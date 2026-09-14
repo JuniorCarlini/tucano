@@ -204,7 +204,7 @@ if (await Tucano.confirm({ title: 'Excluir contrato?', text: 'Esta ação não p
   <thead><tr><th>Atributo</th><th>Onde</th><th>Para quê</th></tr></thead>
   <tbody>
     <tr><td><code>data-tuc-modal="#id"</code></td><td>Gatilho</td><td>Abre o <code>&lt;dialog&gt;</code> do seletor ao clicar</td></tr>
-    <tr><td><code>data-tuc-modal-close</code></td><td>Botão dentro do diálogo</td><td>Fecha, com o motivo <code>'botao'</code></td></tr>
+    <tr><td><code>data-tuc-modal-close</code></td><td>Botão dentro do diálogo</td><td>Fecha, com o motivo <code>'button'</code></td></tr>
     <tr><td><code>data-closable="false"</code></td><td><code>&lt;dialog&gt;</code></td><td>O <code>Esc</code> deixa de fechar</td></tr>
     <tr><td><code>data-backdrop="false"</code></td><td><code>&lt;dialog&gt;</code></td><td>O clique no fundo deixa de fechar</td></tr>
   </tbody>
@@ -283,10 +283,10 @@ document.querySelector('#excluir-contrato').addEventListener('submit', async (e)
 <div class="tuc-table-wrap"><table class="tuc-table">
   <thead><tr><th>Motivo em <code>onClose</code></th><th>Quando</th></tr></thead>
   <tbody>
-    <tr><td><code>'botao'</code></td><td>O X, ou um <code>data-tuc-modal-close</code> no template</td></tr>
+    <tr><td><code>'button'</code></td><td>O X, ou um <code>data-tuc-modal-close</code> no template</td></tr>
     <tr><td><code>'action'</code></td><td>Um botão de <code>actions</code></td></tr>
     <tr><td><code>'escape'</code></td><td>A tecla <code>Esc</code></td></tr>
-    <tr><td><code>'fundo'</code></td><td>Clique fora da caixa</td></tr>
+    <tr><td><code>'backdrop'</code></td><td>Clique fora da caixa</td></tr>
     <tr><td><code>'api'</code></td><td><code>close()</code> chamado sem argumento</td></tr>
   </tbody>
 </table></div>
