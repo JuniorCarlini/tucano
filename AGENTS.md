@@ -544,24 +544,23 @@ montado a partir das tags no build porque o CI baixa o repositório sem históri
 O `consistency.mjs` compara as versões e a quantidade de itens dos três e falha
 se uma nota ficou só em português.
 
-**O destaque padrão é o laranja do tucano, `#FF7501`, igual nos dois temas —
-e texto no destaque tem token próprio.** Sobre o laranja o texto é branco:
-`--tuc-accent-fg` é `#ffffff`. Foi decisão de marca, tomada sabendo o número —
-branco sobre `#FF7501` dá 2,7, e `#0a0a0a` daria 7,4. Os tons fechados que passam
-de 4,5 (`#CC4A00`, `#C2410C`, `#B84300`) foram comparados lado a lado e perderam
-para o laranja do bico. Não volte para o escuro nem escureça o laranja sem o dono
-pedir; quem precisa de AA no próprio projeto troca `--tuc-accent-fg`. E o vivo como cor
-de texto sobre fundo claro também dá 2,7, então link, item de menu ativo, tag do
-select, "hoje" do calendário e ícone ativo usam `--tuc-accent-text`: `#B84300` no
-claro (5,5 sobre branco, 5,0 sobre `--tuc-hover`, 4,6 sobre o fundo suave) e o
-próprio `#FF7501` no escuro (6,7). Regra: fundo, borda, marcação e sublinhado
-leem `--tuc-accent`; a propriedade `color` de um texto lê `--tuc-accent-text`.
+**O destaque padrão do pacote é neutro, e o laranja do tucano é só do site.**
+No pacote, `--tuc-accent` é `#0a0a0a` no claro e `#fafafa` no escuro, com
+`--tuc-accent-fg` invertido (`#ffffff` / `#0a0a0a`) e `--tuc-thumb` escuro no
+escuro. A cor é do projeto que instala: um destaque de marca de fábrica brigava
+com a marca do cliente. Não volte a pôr cor no padrão sem o dono pedir. O site
+da documentação define o laranja no `site.css` (`:root`, `.dark` e
+`[data-theme='dark']`, porque o pacote redefine o destaque no escuro): branco
+sobre `#FF7501` dá 2,7, decisão de marca tomada sabendo o número, e como cor de
+texto no claro vale `#B84300` (5,5 sobre branco). Regra: fundo, borda, marcação e
+sublinhado leem `--tuc-accent`; a propriedade `color` de um texto lê
+`--tuc-accent-text` — no neutro coincidem, mas com cor viva não.
 A bolinha da chave tem `--tuc-thumb`, para quem troca `--tuc-accent-fg` para
 escuro não ganhar bolinha preta. Ao trocar o destaque, confira texto em cima dele, e o texto de
 destaque sobre branco, sobre `--tuc-hover` e sobre `--tuc-accent-soft`.
 
-Informação ganhou tom próprio, `--tuc-info`, pelo mesmo motivo: com o destaque
-laranja, o aviso de informação ficava igual ao de alerta. Tom semântico (sucesso,
+Informação ganhou tom próprio, `--tuc-info`: lendo o destaque, com laranja o
+aviso de informação ficava igual ao de alerta. Tom semântico (sucesso,
 alerta, perigo, informação) nunca lê `--tuc-accent` — a marca pode ser de qualquer
 cor, e o significado não pode mudar junto.
 

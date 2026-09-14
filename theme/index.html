@@ -177,15 +177,34 @@
 }</code></pre></div>
 
 <h2 id="destaque">O destaque e o texto sobre ele</h2>
-<p class="lead">O destaque padrão é o laranja do tucano, <code>#FF7501</code>, igual nos dois temas. E ele tem dois
-   tokens de texto, porque laranja vivo é difícil de ler nos dois papéis.</p>
+<p class="lead">O destaque padrão é neutro: preto no tema claro e quase branco no escuro. A cor é do seu projeto — o
+   pacote não impõe marca, e combina com qualquer uma até você trocar. O laranja que você vê nesta documentação é a cor
+   do site, definida do mesmo jeito que você definiria a sua.</p>
 
-<p>Sobre o laranja o texto é branco: <code>--tuc-accent-fg</code> é <code>#ffffff</code>. É escolha de marca — o
-   contraste do branco sobre esse laranja é 2,7, abaixo dos 4,5 da WCAG. Se o seu projeto precisa passar, defina
-   <code>--tuc-accent-fg: #0a0a0a</code> (7,4). E o laranja vivo como cor de texto sobre fundo claro também dá 2,7, então link, item de menu ativo, tag
-   do select, "hoje" no calendário e ícone ativo usam <code>--tuc-accent-text</code>: <code>#B84300</code> no claro
-   (5,5 sobre branco, 5,0 sobre <code>--tuc-hover</code>, 4,6 sobre o fundo suave) e o próprio <code>#FF7501</code> no
-   escuro (6,7).</p>
+<p>O destaque tem tokens separados para cada papel, porque uma cor viva raramente serve para todos. Sobre o laranja
+   deste site o texto é branco (<code>--tuc-accent-fg</code>), com contraste 2,7 — escolha de marca; quem precisa de 4,5
+   usa <code>#0a0a0a</code> (7,4). E laranja vivo como cor de texto sobre fundo claro também dá 2,7, então link, item de
+   menu ativo, tag do select, "hoje" no calendário e ícone ativo leem <code>--tuc-accent-text</code>, aqui
+   <code>#B84300</code> no claro (5,5 sobre branco) e o próprio <code>#FF7501</code> no escuro (6,7).</p>
+
+<div class="tuc-prose doc-code"><pre><code>/* O laranja deste site */
+:root {
+  --tuc-accent: #FF7501;
+  --tuc-accent-hover: #FF8A2A;
+  --tuc-accent-fg: #ffffff;
+  --tuc-accent-text: #B84300;
+  --tuc-thumb: #ffffff;
+}
+.dark {
+  --tuc-accent: #FF7501;
+  --tuc-accent-hover: #FF8A2A;
+  --tuc-accent-fg: #ffffff;
+  --tuc-accent-text: #FF7501;
+  --tuc-thumb: #ffffff;
+}</code></pre></div>
+
+<p>O <code>.dark</code> repete o destaque porque o padrão neutro muda com o tema: sem ele, o escuro voltaria ao quase
+   branco.</p>
 
 <div class="tuc-table-wrap"><table class="tuc-table">
   <thead><tr><th>O que se pinta</th><th>Token</th></tr></thead>
@@ -201,8 +220,8 @@
 
 <p>Tom semântico nunca lê o destaque. Sucesso, alerta, perigo e informação têm tokens próprios, porque a marca pode
    ser de qualquer cor e o significado não pode mudar junto. Foi por isso que informação ganhou
-   <code>--tuc-info</code>: com o destaque laranja, o aviso de informação ficava igual ao de alerta, e a etiqueta "Novo"
-   colava em "Em análise".</p>
+   <code>--tuc-info</code>: lendo o destaque, com laranja o aviso de informação ficava igual ao de alerta, e a etiqueta
+   "Novo" colava em "Em análise".</p>
 
 <h2 id="tokens">Tokens</h2>
 <p class="lead">A lista completa, com o valor de cada tema. A fonte da verdade é
@@ -226,11 +245,11 @@
 <div class="tuc-table-wrap"><table class="tuc-table">
   <thead><tr><th>Token</th><th>Claro</th><th>Escuro</th><th>Controla</th></tr></thead>
   <tbody>
-    <tr><td><code>--tuc-accent</code></td><td><code>#FF7501</code></td><td>igual</td><td>Botão primário, dia escolhido, caixa marcada, aba ativa, borda de foco</td></tr>
-    <tr><td><code>--tuc-accent-hover</code></td><td><code>#FF8A2A</code></td><td>igual</td><td>Botão primário sob o cursor</td></tr>
-    <tr><td><code>--tuc-accent-fg</code></td><td><code>#ffffff</code></td><td>igual</td><td>Texto e ícone sobre o destaque</td></tr>
-    <tr><td><code>--tuc-accent-text</code></td><td><code>#B84300</code></td><td><code>#FF7501</code></td><td>Destaque como cor de texto: link, menu ativo, tag do select, "hoje", avatar da tabela</td></tr>
-    <tr><td><code>--tuc-thumb</code></td><td><code>#ffffff</code></td><td>igual</td><td>Bolinha da chave</td></tr>
+    <tr><td><code>--tuc-accent</code></td><td><code>#0a0a0a</code></td><td><code>#fafafa</code></td><td>Botão primário, dia escolhido, caixa marcada, aba ativa, borda de foco</td></tr>
+    <tr><td><code>--tuc-accent-hover</code></td><td><code>#262626</code></td><td><code>#e5e5e5</code></td><td>Botão primário sob o cursor</td></tr>
+    <tr><td><code>--tuc-accent-fg</code></td><td><code>#ffffff</code></td><td><code>#0a0a0a</code></td><td>Texto e ícone sobre o destaque</td></tr>
+    <tr><td><code>--tuc-accent-text</code></td><td><code>#0a0a0a</code></td><td><code>#fafafa</code></td><td>Destaque como cor de texto: link, menu ativo, tag do select, "hoje", avatar da tabela</td></tr>
+    <tr><td><code>--tuc-thumb</code></td><td><code>#ffffff</code></td><td><code>#171717</code></td><td>Bolinha da chave</td></tr>
     <tr><td><code>--tuc-accent-soft</code></td><td>12% do destaque</td><td>igual</td><td>Faixa do período, tag do select, linha marcada da tabela, fundo do avatar</td></tr>
     <tr><td><code>--tuc-accent-ring</code></td><td>35% do destaque</td><td>igual</td><td>Anel de foco de campos e botões</td></tr>
   </tbody>
@@ -396,8 +415,8 @@
 <script src="../site/site.js?v=0.32.1"></script>
 <script>
   // Troca o destaque da página inteira: uma folha de estilo no <head> com os
-  // tokens em :root. O laranja volta ao padrão tirando a folha, e não repetindo
-  // os valores — assim o texto de destaque do escuro continua sendo o do pacote.
+  // tokens. O laranja volta tirando a folha, e não repetindo os valores — assim
+  // vale o laranja do site.css, nos dois temas.
   const folha = document.createElement('style');
   // O texto de destaque do bloco verde muda com o tema, e atributo style não tem
   // como dizer "no escuro": vai numa folha, como no exemplo de CSS da página.
@@ -412,11 +431,12 @@
     const d = b.dataset;
     if (!d.hover) { folha.textContent = ''; return; }
     // Cada amostra traz o proprio texto em cima do destaque.
-    // --tuc-accent-text muda por tema: :root.dark vence o .dark do pacote, que
-    // tem o mesmo peso de :root e viria antes desta folha.
-    folha.textContent = `:root{--accent:${d.accent};--tuc-accent:${d.accent};--tuc-accent-hover:${d.hover};`
-      + `--tuc-accent-fg:${d.fg};--tuc-accent-text:${d.text}}`
-      + `:root.dark{--accent:${d.accent};--tuc-accent-text:${d.textDark}}`;
+    // .dark entra junto porque o pacote e o site.css redefinem o destaque ali, e
+    // o bloco escuro da demo de escopo tambem precisa acompanhar. Mesmo peso que
+    // eles, e esta folha vem depois; o .dark sozinho no fim so troca o texto.
+    folha.textContent = `:root,.dark{--accent:${d.accent};--tuc-accent:${d.accent};--tuc-accent-hover:${d.hover};`
+      + `--tuc-accent-fg:${d.fg};--tuc-accent-text:${d.text};--tuc-thumb:#ffffff}`
+      + `.dark{--tuc-accent-text:${d.textDark}}`;
   });
 </script>
 </body>

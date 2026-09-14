@@ -6,6 +6,17 @@ cambios en tu proyecto.
 
 ## Sin publicar
 
+### Antes de actualizar
+
+- El color de acento por defecto ahora es neutro: `#0a0a0a` en el tema claro y
+  `#fafafa` en el oscuro, con el texto encima invertido. El color es de tu
+  proyecto, y el paquete no impone una marca. Si no defines `--tuc-accent`, el
+  botón primario, la casilla marcada, la pestaña activa y el día elegido pasarán
+  de naranja a negro (o casi blanco, en oscuro). Para mantener el naranja, define
+  en `:root, .dark` `--tuc-accent: #FF7501`, `--tuc-accent-hover: #FF8A2A`,
+  `--tuc-accent-fg: #ffffff`, `--tuc-thumb: #ffffff` y `--tuc-accent-text: #B84300`
+  — este último `#FF7501` en `.dark`. La receta completa está en la página Tema.
+
 ### Nuevo
 
 - El campo con `data-validate` se pone verde cuando pasa. En la máscara, en cuanto

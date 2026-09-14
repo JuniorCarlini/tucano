@@ -591,10 +591,11 @@ Eventos proprios: tucano:change (campos), tuc:sort e tuc:select (tabela).
 Todas as cores e medidas são variáveis CSS com prefixo --tuc-. Nada de cor,
 raio, espessura de borda ou altura está fixo no CSS dos componentes.
 
-Cor: --tuc-accent (#FF7501 nos dois temas), --tuc-accent-hover, --tuc-accent-fg
-(texto sobre o destaque, branco — contraste 2,7 por escolha de marca; defina
-#0a0a0a se o projeto precisa de 4,5), --tuc-accent-text (destaque usado como cor
-de texto: link, menu ativo, tag), --tuc-thumb (botão da chave), --tuc-accent-soft,
+Cor: --tuc-accent (neutro por padrão: #0a0a0a no claro, #fafafa no escuro — a
+cor é do projeto; ao trocar, redefina também em .dark), --tuc-accent-hover,
+--tuc-accent-fg (texto sobre o destaque: #ffffff no claro, #0a0a0a no escuro),
+--tuc-accent-text (destaque usado como cor de texto: link, menu ativo, tag; com
+cor viva, use um tom mais fechado no claro), --tuc-thumb (botão da chave), --tuc-accent-soft,
 --tuc-accent-ring, --tuc-bg, --tuc-fg, --tuc-muted, --tuc-subtle,
 --tuc-border, --tuc-hover, --tuc-elevated
 Forma: --tuc-radius, --tuc-radius-md, --tuc-radius-sm, --tuc-radius-xs,

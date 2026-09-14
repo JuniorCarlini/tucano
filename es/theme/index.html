@@ -177,15 +177,35 @@
 }</code></pre></div>
 
 <h2 id="destaque">El acento y el texto sobre él</h2>
-<p class="lead">El acento por defecto es el naranja del tucán, <code>#FF7501</code>, igual en los dos temas. Y tiene dos
-   tokens de texto, porque el naranja vivo es difícil de leer en los dos papeles.</p>
+<p class="lead">El acento por defecto es neutro: negro en el tema claro y casi blanco en el oscuro. El color es de tu
+   proyecto — el paquete no impone una marca, y combina con cualquiera hasta que lo cambies. El naranja que ves en esta
+   documentación es el color del sitio, definido de la misma forma en que definirías el tuyo.</p>
 
-<p>Sobre el naranja el texto es blanco: <code>--tuc-accent-fg</code> es <code>#ffffff</code>. Es una decisión de marca — el
-   contraste del blanco sobre ese naranja es 2,7, por debajo del 4,5 de la WCAG. Si tu proyecto necesita cumplirlo, define
-   <code>--tuc-accent-fg: #0a0a0a</code> (7,4). Y el naranja vivo como color de texto sobre fondo claro también da 2,7, así que el enlace, el elemento activo del menú, la etiqueta
-   del select, el "hoy" del calendario y el icono activo usan <code>--tuc-accent-text</code>: <code>#B84300</code> en claro
-   (5,5 sobre blanco, 5,0 sobre <code>--tuc-hover</code>, 4,6 sobre el fondo suave) y el propio <code>#FF7501</code> en
-   oscuro (6,7).</p>
+<p>El acento tiene tokens separados para cada papel, porque un color vivo rara vez sirve para todos. Sobre el naranja de
+   este sitio el texto es blanco (<code>--tuc-accent-fg</code>), con contraste 2,7 — decisión de marca; quien necesite 4,5
+   usa <code>#0a0a0a</code> (7,4). Y el naranja vivo como color de texto sobre fondo claro también da 2,7, así que el
+   enlace, el elemento activo del menú, la etiqueta del select, el "hoy" del calendario y el icono activo leen
+   <code>--tuc-accent-text</code>, aquí <code>#B84300</code> en claro (5,5 sobre blanco) y el propio <code>#FF7501</code>
+   en oscuro (6,7).</p>
+
+<div class="tuc-prose doc-code"><pre><code>/* El naranja de este sitio */
+:root {
+  --tuc-accent: #FF7501;
+  --tuc-accent-hover: #FF8A2A;
+  --tuc-accent-fg: #ffffff;
+  --tuc-accent-text: #B84300;
+  --tuc-thumb: #ffffff;
+}
+.dark {
+  --tuc-accent: #FF7501;
+  --tuc-accent-hover: #FF8A2A;
+  --tuc-accent-fg: #ffffff;
+  --tuc-accent-text: #FF7501;
+  --tuc-thumb: #ffffff;
+}</code></pre></div>
+
+<p>El <code>.dark</code> repite el acento porque el valor neutro por defecto cambia con el tema: sin él, el oscuro
+   volvería al casi blanco.</p>
 
 <div class="tuc-table-wrap"><table class="tuc-table">
   <thead><tr><th>Lo que se pinta</th><th>Token</th></tr></thead>
@@ -201,8 +221,8 @@
 
 <p>Los tonos semánticos nunca leen el acento. Éxito, advertencia, peligro e información tienen tokens propios, porque la marca puede
    ser de cualquier color y el significado no puede cambiar con ella. Por eso información recibió
-   <code>--tuc-info</code>: con el acento naranja, el aviso de información quedaba igual al de advertencia, y la etiqueta "Nuevo"
-   se confundía con "En revisión".</p>
+   <code>--tuc-info</code>: leyendo el acento, con naranja el aviso de información quedaba igual al de advertencia, y la
+   etiqueta "Nuevo" se confundía con "En revisión".</p>
 
 <h2 id="tokens">Tokens</h2>
 <p class="lead">La lista completa, con el valor de cada tema. La fuente de verdad es
@@ -226,11 +246,11 @@
 <div class="tuc-table-wrap"><table class="tuc-table">
   <thead><tr><th>Token</th><th>Claro</th><th>Oscuro</th><th>Controla</th></tr></thead>
   <tbody>
-    <tr><td><code>--tuc-accent</code></td><td><code>#FF7501</code></td><td>igual</td><td>Botón primario, día elegido, casilla marcada, pestaña activa, borde de foco</td></tr>
-    <tr><td><code>--tuc-accent-hover</code></td><td><code>#FF8A2A</code></td><td>igual</td><td>Botón primario bajo el cursor</td></tr>
-    <tr><td><code>--tuc-accent-fg</code></td><td><code>#ffffff</code></td><td>igual</td><td>Texto e icono sobre el acento</td></tr>
-    <tr><td><code>--tuc-accent-text</code></td><td><code>#B84300</code></td><td><code>#FF7501</code></td><td>Acento como color de texto: enlace, menú activo, etiqueta del select, "hoy", avatar de la tabla</td></tr>
-    <tr><td><code>--tuc-thumb</code></td><td><code>#ffffff</code></td><td>igual</td><td>Bolita del interruptor</td></tr>
+    <tr><td><code>--tuc-accent</code></td><td><code>#0a0a0a</code></td><td><code>#fafafa</code></td><td>Botón primario, día elegido, casilla marcada, pestaña activa, borde de foco</td></tr>
+    <tr><td><code>--tuc-accent-hover</code></td><td><code>#262626</code></td><td><code>#e5e5e5</code></td><td>Botón primario bajo el cursor</td></tr>
+    <tr><td><code>--tuc-accent-fg</code></td><td><code>#ffffff</code></td><td><code>#0a0a0a</code></td><td>Texto e icono sobre el acento</td></tr>
+    <tr><td><code>--tuc-accent-text</code></td><td><code>#0a0a0a</code></td><td><code>#fafafa</code></td><td>Acento como color de texto: enlace, menú activo, etiqueta del select, "hoy", avatar de la tabla</td></tr>
+    <tr><td><code>--tuc-thumb</code></td><td><code>#ffffff</code></td><td><code>#171717</code></td><td>Bolita del interruptor</td></tr>
     <tr><td><code>--tuc-accent-soft</code></td><td>12% del acento</td><td>igual</td><td>Franja del período, etiqueta del select, fila marcada de la tabla, fondo del avatar</td></tr>
     <tr><td><code>--tuc-accent-ring</code></td><td>35% del acento</td><td>igual</td><td>Anillo de foco de campos y botones</td></tr>
   </tbody>
@@ -396,8 +416,8 @@
 <script src="../../site/site.js?v=0.32.1"></script>
 <script>
   // Cambia el acento de toda la página: una hoja de estilo en el <head> con los
-  // tokens en :root. El naranja vuelve al valor por defecto quitando la hoja, y no
-  // repitiendo los valores — así el texto de acento del oscuro sigue siendo el del paquete.
+  // tokens. El naranja vuelve quitando la hoja, y no repitiendo los valores — así
+  // vale el naranja del site.css, en los dos temas.
   const folha = document.createElement('style');
   // El texto de acento del bloque verde cambia con el tema, y un atributo style no tiene
   // forma de decir "en oscuro": va en una hoja, como en el ejemplo de CSS de la página.
@@ -412,11 +432,12 @@
     const d = b.dataset;
     if (!d.hover) { folha.textContent = ''; return; }
     // Cada muestra trae su propio color de texto encima del acento.
-    // --tuc-accent-text cambia por tema: :root.dark gana al .dark del paquete, que
-    // tiene el mismo peso que :root y vendría antes de esta hoja.
-    folha.textContent = `:root{--accent:${d.accent};--tuc-accent:${d.accent};--tuc-accent-hover:${d.hover};`
-      + `--tuc-accent-fg:${d.fg};--tuc-accent-text:${d.text}}`
-      + `:root.dark{--accent:${d.accent};--tuc-accent-text:${d.textDark}}`;
+    // .dark entra junto porque el paquete y el site.css redefinen el acento ahí, y
+    // el bloque oscuro de la demo de alcance también debe acompañar. Mismo peso que
+    // ellos, y esta hoja viene después; el .dark solo al final cambia solo el texto.
+    folha.textContent = `:root,.dark{--accent:${d.accent};--tuc-accent:${d.accent};--tuc-accent-hover:${d.hover};`
+      + `--tuc-accent-fg:${d.fg};--tuc-accent-text:${d.text};--tuc-thumb:#ffffff}`
+      + `.dark{--tuc-accent-text:${d.textDark}}`;
   });
 </script>
 </body>

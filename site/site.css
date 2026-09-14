@@ -17,6 +17,20 @@ html.dark {
   --line: #262629; --code: #1a1a1d; --accent: #FF7501;
 }
 
+/* O laranja do tucano e a cor deste site, e nao o padrao do pacote (neutro).
+   Branco sobre #FF7501 da 2,7: escolha de marca, tomada sabendo o numero. Como
+   cor de texto o vivo nao se le no claro, dai o #B84300 (5,5 sobre branco).
+   .dark entra junto porque o pacote redefine o destaque ali: sem ele, o bloco
+   escuro de uma demo voltaria ao neutro. Mesmo peso que o do pacote, e vem depois. */
+:root, .dark, [data-theme='dark'] {
+  --tuc-accent: #FF7501;
+  --tuc-accent-hover: #FF8A2A;
+  --tuc-accent-fg: #ffffff;
+  --tuc-accent-text: #B84300;
+  --tuc-thumb: #ffffff;
+}
+.dark, [data-theme='dark'] { --tuc-accent-text: #FF7501; }
+
 * { box-sizing: border-box; }
 /* Fundo e color-scheme no <html>, e nao so no body: e o <html> que o navegador
    pinta enquanto a proxima pagina carrega, e sem cor ali o quadro era branco —

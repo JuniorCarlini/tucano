@@ -6,6 +6,17 @@ projeto.
 
 ## Ainda não publicado
 
+### Atenção ao atualizar
+
+- A cor de destaque padrão agora é neutra: `#0a0a0a` no tema claro e `#fafafa`
+  no escuro, com o texto em cima invertido. A cor é do seu projeto, e o pacote
+  não impõe marca. Quem não define `--tuc-accent` vai ver botão primário, caixa
+  marcada, aba ativa e dia escolhido passarem de laranja para preto (ou quase
+  branco, no escuro). Para manter o laranja, defina em `:root, .dark`
+  `--tuc-accent: #FF7501`, `--tuc-accent-hover: #FF8A2A`, `--tuc-accent-fg: #ffffff`,
+  `--tuc-thumb: #ffffff` e `--tuc-accent-text: #B84300` — este último `#FF7501`
+  no `.dark`. A receita completa está na página Tema.
+
 ### Novo
 
 - Campo com `data-validate` fica verde quando passa. Na máscara, assim que o

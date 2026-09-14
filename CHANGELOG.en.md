@@ -6,6 +6,17 @@ in your project.
 
 ## Unreleased
 
+### Before upgrading
+
+- The default accent color is now neutral: `#0a0a0a` in light mode and `#fafafa`
+  in dark mode, with the text on top inverted. The color belongs to your project,
+  and the package doesn't impose a brand. If you don't set `--tuc-accent`, the
+  primary button, checked box, active tab and selected day will change from
+  orange to black (or near-white, in dark mode). To keep the orange, set in
+  `:root, .dark` `--tuc-accent: #FF7501`, `--tuc-accent-hover: #FF8A2A`,
+  `--tuc-accent-fg: #ffffff`, `--tuc-thumb: #ffffff` and `--tuc-accent-text: #B84300`
+  — the last one `#FF7501` in `.dark`. The full recipe is on the Theme page.
+
 ### New
 
 - Fields with `data-validate` turn green when they pass. On a mask, as soon as the

@@ -16,25 +16,23 @@
 
 :root {
   /*
-   * O laranja do tucano, o mesmo nos dois temas, com texto branco em cima.
-   * Decisao de marca, tomada sabendo o numero: branco sobre #FF7501 da 2,7, e
-   * o #0a0a0a daria 7,4. Os tons fechados que passam de 4,5 (#CC4A00 em diante)
-   * foram comparados lado a lado e perderam para o laranja do bico. Projeto que
-   * precise de AA no botao primario troca --tuc-accent-fg por #0a0a0a.
+   * Destaque neutro: o proprio texto da pagina, preto no claro e quase branco
+   * no escuro. A cor e do projeto que usa o pacote — um destaque de marca
+   * pronto brigaria com a marca de quem instala, e quase todo projeto trocaria.
+   * Neutro combina com qualquer uma ate ser trocado. O site da documentacao usa
+   * o laranja do tucano sobrescrevendo estes tokens no site.css.
    *
-   * Como cor de texto (link, menu ativo, tag, "hoje" no calendario) o vivo
-   * nao se le sobre fundo claro — 2,7 de novo. Para isso existe
-   * --tuc-accent-text: um laranja mais fechado no claro (5,5 sobre branco, 5,0
-   * sobre --tuc-hover, 4,6 sobre o fundo suave) e o proprio vivo no escuro.
    * Fundo, borda, marcacao e sublinhado usam --tuc-accent; so a propriedade
-   * `color` de um texto usa --tuc-accent-text.
+   * `color` de um texto (link, menu ativo, tag, "hoje" no calendario) usa
+   * --tuc-accent-text. No neutro os dois coincidem, mas ficam separados porque
+   * um destaque vivo, como laranja, nao se le como texto sobre fundo claro.
    */
-  --tuc-accent: #FF7501;
-  --tuc-accent-hover: #FF8A2A;
+  --tuc-accent: #0a0a0a;
+  --tuc-accent-hover: #262626;
   --tuc-accent-fg: #ffffff;
-  --tuc-accent-text: #B84300;
-  /* Botao da chave: claro nos dois temas. Token proprio, e nao --tuc-accent-fg:
-     quem troca o texto do destaque para escuro nao pode ganhar bolinha preta. */
+  --tuc-accent-text: #0a0a0a;
+  /* Botao da chave. Token proprio, e nao --tuc-accent-fg: quem troca o texto
+     do destaque para escuro nao pode ganhar bolinha preta sem pedir. */
   --tuc-thumb: #ffffff;
 
   /*
@@ -46,9 +44,9 @@
   --tuc-warning: #d97706;
   --tuc-danger: #dc2626;
   /*
-   * Informacao tem tom proprio, e nao o destaque. Com o destaque laranja, o aviso
-   * de informacao ficava igual ao de alerta, e a etiqueta "Novo" colava em "Em
-   * analise". #1d4ed8 da 6,7 sobre branco e 5,6 sobre o proprio fundo suave.
+   * Informacao tem tom proprio, e nao o destaque. Lendo o destaque, o aviso de
+   * informacao mudaria com a marca: laranja ficava igual ao de alerta, e a
+   * etiqueta "Novo" colava em "Em analise". #1d4ed8 da 6,7 sobre branco e 5,6 sobre o proprio fundo suave.
    */
   --tuc-info: #1d4ed8;
   /*
@@ -127,7 +125,12 @@
 /* Dark por classe (.dark no html) — o padrao de Tailwind e do Django admin moderno. */
 .dark,
 [data-theme='dark'] {
-  --tuc-accent-text: #FF7501;   /* no escuro o vivo se le como texto: 6,7 */
+  /* Destaque claro sobre fundo escuro; texto e bolinha da chave escuros em cima. */
+  --tuc-accent: #fafafa;
+  --tuc-accent-hover: #e5e5e5;
+  --tuc-accent-fg: #0a0a0a;
+  --tuc-accent-text: #fafafa;
+  --tuc-thumb: #171717;
 
   --tuc-success: #4ade80;
   --tuc-warning: #fbbf24;
@@ -165,7 +168,12 @@
  */
 @media (prefers-color-scheme: dark) {
   :root[data-tuc-theme='auto'] {
-  --tuc-accent-text: #FF7501;   /* no escuro o vivo se le como texto: 6,7 */
+  /* Destaque claro sobre fundo escuro; texto e bolinha da chave escuros em cima. */
+  --tuc-accent: #fafafa;
+  --tuc-accent-hover: #e5e5e5;
+  --tuc-accent-fg: #0a0a0a;
+  --tuc-accent-text: #fafafa;
+  --tuc-thumb: #171717;
 
   --tuc-success: #4ade80;
   --tuc-warning: #fbbf24;

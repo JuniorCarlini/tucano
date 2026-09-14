@@ -75,15 +75,36 @@ description: Every Tucano --tuc-* token with its light and dark values, dark mod
 </pre>
 
 <h2 id="destaque">The accent and the text on it</h2>
-<p class="lead">The default accent is toucan orange, <code>#FF7501</code>, the same in both themes. And it has two text
-   tokens, because bright orange is hard to read in both roles.</p>
+<p class="lead">The default accent is neutral: black in light mode and near-white in dark mode. The color belongs to your
+   project — the package doesn't impose a brand, and it fits any brand until you change it. The orange you see in this
+   documentation is the site's color, set the same way you would set yours.</p>
 
-<p>On the orange, text is white: <code>--tuc-accent-fg</code> is <code>#ffffff</code>. That's a brand choice — white on
-   this orange has a contrast of 2.7, below WCAG's 4.5. If your project needs to pass, set
-   <code>--tuc-accent-fg: #0a0a0a</code> (7.4). And bright orange as text color on a light background also gives 2.7, so links, the active menu item, the select's
-   tag, "today" in the calendar and active icons use <code>--tuc-accent-text</code>: <code>#B84300</code> in light mode
-   (5.5 on white, 5.0 on <code>--tuc-hover</code>, 4.6 on the soft background) and <code>#FF7501</code> itself in
-   dark mode (6.7).</p>
+<p>The accent has a separate token for each role, because a bright color rarely works for all of them. On this site's
+   orange, text is white (<code>--tuc-accent-fg</code>), with a contrast of 2.7 — a brand choice; if you need 4.5, use
+   <code>#0a0a0a</code> (7.4). And bright orange as text color on a light background also gives 2.7, so links, the active
+   menu item, the select's tag, "today" in the calendar and active icons read <code>--tuc-accent-text</code>, here
+   <code>#B84300</code> in light mode (5.5 on white) and <code>#FF7501</code> itself in dark mode (6.7).</p>
+
+<pre data-code="css">
+/* This site's orange */
+:root {
+  --tuc-accent: #FF7501;
+  --tuc-accent-hover: #FF8A2A;
+  --tuc-accent-fg: #ffffff;
+  --tuc-accent-text: #B84300;
+  --tuc-thumb: #ffffff;
+}
+.dark {
+  --tuc-accent: #FF7501;
+  --tuc-accent-hover: #FF8A2A;
+  --tuc-accent-fg: #ffffff;
+  --tuc-accent-text: #FF7501;
+  --tuc-thumb: #ffffff;
+}
+</pre>
+
+<p><code>.dark</code> repeats the accent because the neutral default changes with the theme: without it, dark mode
+   would go back to near-white.</p>
 
 <div class="tuc-table-wrap"><table class="tuc-table">
   <thead><tr><th>What gets painted</th><th>Token</th></tr></thead>
@@ -99,8 +120,8 @@ description: Every Tucano --tuc-* token with its light and dark values, dark mod
 
 <p>Semantic tones never read the accent. Success, warning, danger and info have their own tokens, because the brand can
    be any color and the meaning must not change with it. That's why info got
-   <code>--tuc-info</code>: with the orange accent, the info alert looked the same as the warning one, and the "New" badge
-   was indistinguishable from "Under review".</p>
+   <code>--tuc-info</code>: reading the accent, with orange the info alert looked the same as the warning one, and the
+   "New" badge was indistinguishable from "Under review".</p>
 
 <h2 id="tokens">Tokens</h2>
 <p class="lead">The complete list, with the value for each theme. The source of truth is
@@ -124,11 +145,11 @@ description: Every Tucano --tuc-* token with its light and dark values, dark mod
 <div class="tuc-table-wrap"><table class="tuc-table">
   <thead><tr><th>Token</th><th>Light</th><th>Dark</th><th>Controls</th></tr></thead>
   <tbody>
-    <tr><td><code>--tuc-accent</code></td><td><code>#FF7501</code></td><td>same</td><td>Primary button, selected day, checked box, active tab, focus border</td></tr>
-    <tr><td><code>--tuc-accent-hover</code></td><td><code>#FF8A2A</code></td><td>same</td><td>Primary button under the cursor</td></tr>
-    <tr><td><code>--tuc-accent-fg</code></td><td><code>#ffffff</code></td><td>same</td><td>Text and icons on top of the accent</td></tr>
-    <tr><td><code>--tuc-accent-text</code></td><td><code>#B84300</code></td><td><code>#FF7501</code></td><td>Accent as text color: link, active menu, select tag, "today", table avatar</td></tr>
-    <tr><td><code>--tuc-thumb</code></td><td><code>#ffffff</code></td><td>same</td><td>Switch knob</td></tr>
+    <tr><td><code>--tuc-accent</code></td><td><code>#0a0a0a</code></td><td><code>#fafafa</code></td><td>Primary button, selected day, checked box, active tab, focus border</td></tr>
+    <tr><td><code>--tuc-accent-hover</code></td><td><code>#262626</code></td><td><code>#e5e5e5</code></td><td>Primary button under the cursor</td></tr>
+    <tr><td><code>--tuc-accent-fg</code></td><td><code>#ffffff</code></td><td><code>#0a0a0a</code></td><td>Text and icons on top of the accent</td></tr>
+    <tr><td><code>--tuc-accent-text</code></td><td><code>#0a0a0a</code></td><td><code>#fafafa</code></td><td>Accent as text color: link, active menu, select tag, "today", table avatar</td></tr>
+    <tr><td><code>--tuc-thumb</code></td><td><code>#ffffff</code></td><td><code>#171717</code></td><td>Switch knob</td></tr>
     <tr><td><code>--tuc-accent-soft</code></td><td>12% of the accent</td><td>same</td><td>Range band, select tag, selected table row, avatar background</td></tr>
     <tr><td><code>--tuc-accent-ring</code></td><td>35% of the accent</td><td>same</td><td>Focus ring of fields and buttons</td></tr>
   </tbody>
@@ -293,8 +314,8 @@ description: Every Tucano --tuc-* token with its light and dark values, dark mod
 
 <script>
   // Changes the accent for the whole page: a stylesheet in <head> with the
-  // tokens in :root. Orange goes back to the default by removing the sheet, not by
-  // repeating the values — so the dark-mode accent text stays the package's own.
+  // tokens. Orange comes back by removing the sheet, not by repeating the values —
+  // so the orange from site.css applies, in both themes.
   const folha = document.createElement('style');
   // The green block's accent text changes with the theme, and a style attribute has
   // no way to say "in dark mode": it goes in a sheet, like the page's CSS example.
@@ -309,10 +330,11 @@ description: Every Tucano --tuc-* token with its light and dark values, dark mod
     const d = b.dataset;
     if (!d.hover) { folha.textContent = ''; return; }
     // Each swatch brings its own text color for the top of the accent.
-    // --tuc-accent-text changes per theme: :root.dark beats the package's .dark, which
-    // has the same specificity as :root and would come before this sheet.
-    folha.textContent = `:root{--accent:${d.accent};--tuc-accent:${d.accent};--tuc-accent-hover:${d.hover};`
-      + `--tuc-accent-fg:${d.fg};--tuc-accent-text:${d.text}}`
-      + `:root.dark{--accent:${d.accent};--tuc-accent-text:${d.textDark}}`;
+    // .dark goes along because the package and site.css redefine the accent there,
+    // and the scope demo's dark block must follow too. Same specificity as theirs,
+    // and this sheet comes later; the lone .dark at the end only changes the text.
+    folha.textContent = `:root,.dark{--accent:${d.accent};--tuc-accent:${d.accent};--tuc-accent-hover:${d.hover};`
+      + `--tuc-accent-fg:${d.fg};--tuc-accent-text:${d.text};--tuc-thumb:#ffffff}`
+      + `.dark{--tuc-accent-text:${d.textDark}}`;
   });
 </script>
