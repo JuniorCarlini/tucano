@@ -513,15 +513,14 @@ body{margin:0;padding:16px;font-family:system-ui}
     limpar();
     if (motivos.join(',') !== 'button,backdrop') throw new Error('motivos: ' + motivos.join(','));
   });
-  t('máscara aceita os nomes antigos cnpj-numerico e reveal tudo', function () {
+  t('máscara cnpj-numeric recusa letra', function () {
     var i = document.createElement('input');
     document.body.append(i);
-    var m = new Tucano.Mask(i, { format: 'cnpj-numerico' });
+    var m = new Tucano.Mask(i, { format: 'cnpj-numeric' });
     m.setValue('AB222333000181');
-    var semLetra = !/[A-Z]/.test(i.value);
+    var valor = i.value;
     m.destroy(); i.remove();
-    if (!semLetra) throw new Error('cnpj-numerico antigo aceitou letra: ' + i.value);
-    if (Tucano.mask.maskMiddle('abc', 2, 'tudo') !== Tucano.mask.maskMiddle('abc', 2, 'all')) throw new Error('tudo não equivale a all');
+    if (/[A-Z]/.test(valor)) throw new Error('aceitou letra: ' + valor);
   });
   t('menu numa coluna de altura fixa rola, em vez de vazar', function () {
     var coluna = document.createElement('div');

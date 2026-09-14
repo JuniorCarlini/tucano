@@ -30,12 +30,6 @@ export const FORMATS = {
   real: { isCurrency: true, currency: 'BRL' },
 };
 
-/*
- * Nomes antigos, de quando valor de opcao ainda saia em portugues. Continuam
- * aceitos para quem ja escreveu no template; fora daqui, so os nomes novos.
- */
-const LEGACY_FORMATS = { 'cnpj-numerico': 'cnpj-numeric' };
-
 const DEFAULTS = {
   format: null,        // nome de FORMATS ou gabarito livre
   validate: false,     // valida no blur e bloqueia o submit
@@ -66,7 +60,6 @@ export class Mask {
     // aparece com a caixa nativa do navegador ao lado dos nossos controles.
     node.classList.add('tuc-input');
 
-    this.opts.format = LEGACY_FORMATS[this.opts.format] ?? this.opts.format;
     const preset = FORMATS[this.opts.format];
     this.preset = preset || null;
     this.isCurrency = !!preset?.isCurrency;

@@ -89,10 +89,8 @@ test('maskMiddle esconde o meio e preserva o fim', () => {
   assert.ok(!r.includes('345'), 'o meio nao aparece');
 });
 
-test('maskMiddle aceita os nomes antigos dos modos', () => {
-  assert.equal(maskMiddle('12345678901', 2, 'fim'), maskMiddle('12345678901', 2, 'end'));
-  assert.equal(maskMiddle('123.456', 2, 'tudo'), maskMiddle('123.456', 2, 'all'));
-  assert.ok(!/\d/.test(maskMiddle('123.456', 2, 'all')), 'all nao deixa digito a mostra');
+test('maskMiddle no modo all nao deixa caractere a mostra', () => {
+  assert.ok(!/\d/.test(maskMiddle('123.456', 2, 'all')), maskMiddle('123.456', 2, 'all'));
 });
 
 test('maskEmail preserva o dominio — e o que permite reconhecer a conta', () => {

@@ -226,15 +226,10 @@ const PONTO = '\u2022';
  *   'end'   (padrao) deixa os ultimos `visible` caracteres a mostra
  *   'email' deixa a primeira letra e o dominio: `j•••@empresa.com.br`
  *   'all'   esconde tudo — para senha, token e chave
- *
- * 'fim' e 'tudo' sao os nomes antigos de 'end' e 'all', ainda aceitos.
  */
-const LEGACY_MODES = { fim: 'end', tudo: 'all' };
-
 export function maskMiddle(text, visible = 2, mode = 'end') {
   const s = String(text ?? '');
   if (!s) return s;
-  mode = LEGACY_MODES[mode] ?? mode;
 
   if (mode === 'email') return maskEmail(s);
 

@@ -19,9 +19,9 @@ cambios en tu proyecto.
 - Los motivos que el modal y el panel lateral entregan a `onClose` ahora están en
   inglés, como el resto de la API: `'button'` en lugar de `'botao'` y `'backdrop'`
   en lugar de `'fundo'`. Si tu código compara el motivo, cambia los dos.
-- En la máscara, `data-reveal-mode` (y `revealMode`) pasa a ser `end` o `all`, y el
-  formato `cnpj-numerico` pasa a ser `cnpj-numeric`. Los nombres antiguos siguen
-  aceptados, así que nada se rompe, pero la documentación solo muestra los nuevos.
+- En la máscara, `data-tuc-reveal`, `data-reveal-mode` y `revealMode` pasan a ser
+  `end` o `all` (eran `fim` y `tudo`), y el formato `cnpj-numerico` pasa a ser
+  `cnpj-numeric`. Los nombres antiguos dejan de funcionar: cámbialos en la plantilla.
 
 ### Nuevo
 

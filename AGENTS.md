@@ -65,6 +65,15 @@ escolhas: conviviam `Modal.abrir()` e `DatePicker.open()`, `fechavel` e
 `closable`, `.tuc-gaveta__corpo` e `.tuc-select__menu`. Sem regra, quem usa
 precisa decorar caso a caso.
 
+**Nome errado sai de uma vez, sem apelido.** Ao corrigir um nome de API, a
+versão nova tem só o certo: nada de `LEGACY_*`, alias ou "aceito por um tempo".
+Quem usa a versão antiga continua nela; manter o errado funcionando deixa alguém
+usá-lo sem perceber, gera complicação depois e pesa no pacote. O aviso vai em
+"Atenção ao atualizar", nos três changelogs, dizendo que o nome antigo deixou de
+funcionar. Foi o que aconteceu com `fim`/`tudo` (agora `end`/`all`),
+`cnpj-numerico` (`cnpj-numeric`) e os motivos `'botao'`/`'fundo'` do `onClose`
+(`'button'`/`'backdrop'`).
+
 Ao renomear em massa, três armadilhas apareceram e todas passam pelo build:
 string literal tratada como código traduz frase da interface pela metade
 ("Excluir tabela" virou "Excluir table"); `${...}` dentro de template literal é
@@ -690,10 +699,3 @@ trocável por atributo e por um `Tucano.setTexts({...})` global, com o portuguê
 como padrão. Levantado ao traduzir o site; a demonstração em inglês contorna
 desligando o "Limpar" e a busca do select.
 
-**Nomes antigos aceitos por compatibilidade.** Os valores que tinham escapado em
-português viraram inglês: `end` e `all` no lugar de `fim` e `tudo` (modo do
-reveal e `maskMiddle`), `cnpj-numeric` no lugar de `cnpj-numerico`. Os antigos
-continuam aceitos (`LEGACY_FORMATS` e `LEGACY_MODES`, na máscara) e não aparecem
-em documentação nenhuma. Numa versão com quebra de API anunciada, podem sair. Os
-motivos do `onClose` (`'button'` e `'backdrop'`, antes `'botao'` e `'fundo'`) não
-têm como aceitar os dois, porque são valor entregue, e não recebido.

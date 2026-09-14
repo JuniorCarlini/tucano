@@ -19,9 +19,9 @@ projeto.
 - Os motivos que o modal e a gaveta entregam ao `onClose` agora são em inglês,
   como o resto da API: `'button'` no lugar de `'botao'` e `'backdrop'` no lugar
   de `'fundo'`. Quem compara o motivo no próprio código precisa trocar os dois.
-- Na máscara, `data-reveal-mode` (e `revealMode`) passa a ser `end` ou `all`, e o
-  formato `cnpj-numerico` passa a ser `cnpj-numeric`. Os nomes antigos continuam
-  aceitos, então nada quebra, mas a documentação só mostra os novos.
+- Na máscara, `data-tuc-reveal`, `data-reveal-mode` e `revealMode` passam a ser
+  `end` ou `all` (eram `fim` e `tudo`), e o formato `cnpj-numerico` passa a ser
+  `cnpj-numeric`. Os nomes antigos deixam de funcionar: troque no template.
 
 ### Novo
 

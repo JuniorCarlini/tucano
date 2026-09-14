@@ -3314,11 +3314,9 @@ var Tucano = (() => {
     card: "#### #### #### ####"
   };
   var PONTO = "\u2022";
-  var LEGACY_MODES = { fim: "end", tudo: "all" };
   function maskMiddle(text, visible = 2, mode = "end") {
     const s = String(text ?? "");
     if (!s) return s;
-    mode = LEGACY_MODES[mode] ?? mode;
     if (mode === "email") return maskEmail(s);
     const alphanumeric = (c) => /[0-9A-Za-z]/.test(c);
     const total = [...s].filter(alphanumeric).length;
@@ -3359,7 +3357,6 @@ var Tucano = (() => {
     currency: { isCurrency: true },
     real: { isCurrency: true, currency: "BRL" }
   };
-  var LEGACY_FORMATS = { "cnpj-numerico": "cnpj-numeric" };
   var DEFAULTS5 = {
     format: null,
     // nome de FORMATS ou gabarito livre
@@ -3386,7 +3383,6 @@ var Tucano = (() => {
       this.opts.locale = this.opts.locale || document.documentElement.lang || "pt-BR";
       this.input = node;
       node.classList.add("tuc-input");
-      this.opts.format = LEGACY_FORMATS[this.opts.format] ?? this.opts.format;
       const preset = FORMATS[this.opts.format];
       this.preset = preset || null;
       this.isCurrency = !!preset?.isCurrency;
