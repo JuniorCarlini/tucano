@@ -147,6 +147,16 @@ html.dark .logo-dark { display: block; }
 .hero h1 { font-size: 44px; line-height: 1.1; }
 .hero .intro { font-size: 19px; }
 .hero__actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+/* Botao do GitHub: o .tuc-btn is-primary da biblioteca com as cores trocadas por
+   variavel, e nao um segundo desenho de botao. Le a cor de texto e de fundo da
+   pagina, para ser preto no claro e branco no escuro. Hover e anel de foco sao
+   refeitos aqui porque token derivado nao acompanha a troca num elemento. */
+.hero__github {
+  --tuc-accent: var(--fg);
+  --tuc-accent-hover: color-mix(in oklab, var(--fg) 82%, var(--bg));
+  --tuc-accent-fg: var(--bg);
+  --tuc-accent-ring: color-mix(in oklab, var(--fg) 30%, transparent);
+}
 .pills { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 24px; }
 .pills .tuc-badge b { color: var(--fg); font-weight: 600; }
 .preview { padding: 28px; border: 1px solid var(--line); border-radius: 18px; background: var(--panel); box-shadow: 0 30px 60px -40px rgb(0 0 0 / .35); }
