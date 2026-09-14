@@ -44,6 +44,8 @@ html.dark .i-moon { display: none; }
 .side {
   position: fixed; inset: 0 auto 0 0; width: var(--side); padding: 26px 18px 40px;
   border-right: 1px solid var(--line); overflow-y: auto; background: var(--bg);
+  /* Chegar ao fim do menu nao rola a pagina de conteudo ao lado. */
+  overscroll-behavior: contain;
   scrollbar-width: thin; scrollbar-color: var(--line) transparent;
 }
 .side__head { display: flex; align-items: center; justify-content: space-between; }
