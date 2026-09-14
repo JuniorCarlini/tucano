@@ -44,10 +44,12 @@
 .tuc-drawer.is-top  { @apply items-start; }
 .tuc-drawer.is-bottom { @apply items-end; }
 
+/* max-height e min-height ao lado do height: o painel nunca passa da tela, e o
+   corpo e quem rola quando o conteudo e maior que ela. */
 .tuc-drawer.is-right  .tuc-drawer__panel,
-.tuc-drawer.is-left .tuc-drawer__panel { height: 100%; }
+.tuc-drawer.is-left .tuc-drawer__panel { height: 100%; max-height: 100%; min-height: 0; }
 .tuc-drawer.is-top  .tuc-drawer__panel,
-.tuc-drawer.is-bottom .tuc-drawer__panel { max-width: none; width: 100%; }
+.tuc-drawer.is-bottom .tuc-drawer__panel { max-width: none; width: 100%; max-height: 100%; min-height: 0; }
 
 /* A borda fica so do lado que encosta no conteudo da pagina. */
 .tuc-drawer.is-right  .tuc-drawer__panel { border-left:   var(--tuc-border-width) solid var(--tuc-border); }

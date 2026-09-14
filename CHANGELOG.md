@@ -4,6 +4,17 @@ O que mudou em cada versão da Tucano, da mais nova para a mais antiga. Antes de
 atualizar, leia "Atenção ao atualizar": ali está o que pede mudança no seu
 projeto.
 
+## Ainda não publicado
+
+### Corrigido
+
+- Gaveta com conteúdo maior que a tela — um menu longo, um formulário de
+  filtros — passava da tela e não rolava. O corpo agora rola e o painel fica do
+  tamanho da tela, nas quatro bordas; o modal ganhou a mesma correção.
+- `.tuc-menu` numa coluna de altura fixa, como a barra lateral de um sistema,
+  vazava da coluna e a página rolava inteira no lugar dele. Agora o menu rola
+  sozinho ali; fora de uma coluna assim, nada muda.
+
 ## 0.32.1 — 2026-09-13
 
 ### Corrigido

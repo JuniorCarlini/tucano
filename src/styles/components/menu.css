@@ -10,6 +10,21 @@
   @apply flex flex-col gap-0.5;
   font-family: var(--tuc-font);
   font-size: var(--tuc-text);
+  /*
+   * Rola sozinho quando mora numa coluna de altura fixa — a barra lateral de
+   * sistema, que e flex em coluna com a marca em cima. Sem min-height: 0 o item
+   * de flex nao encolhe abaixo do conteudo e a lista vazava da coluna; a pagina
+   * rolava inteira no lugar do menu. Fora de uma coluna assim a altura e a do
+   * conteudo e nada muda. O foco e o trilho do submenu sao desenhados por
+   * dentro, entao a rolagem nao corta nenhum dos dois.
+   *
+   * Sem overscroll-behavior: contain, de proposito. Com overflow auto o menu vira
+   * conteiner de rolagem mesmo sem nada para rolar, e o contain prendia a roda
+   * do mouse nele: a barra lateral e o corpo da gaveta, que eram quem rolava,
+   * paravam de responder com o ponteiro sobre o menu.
+   */
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .tuc-menu__item {

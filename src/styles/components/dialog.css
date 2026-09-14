@@ -15,6 +15,14 @@
   @apply fixed inset-0 m-0 grid max-h-none max-w-none;
   width: 100%;
   height: 100%;
+  /*
+   * A unica celula da grade tem o tamanho do <dialog>, e nao o do conteudo.
+   * Sem isto a faixa e `auto`, cresce com o que esta dentro, e o height: 100% da
+   * gaveta passava a valer a altura da lista: o painel saia da tela e o corpo,
+   * que devia rolar, nunca ficava menor que o conteudo.
+   */
+  grid-template-rows: minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   border: 0;
   /* A folha do navegador poe padding: 1em no <dialog>. Sem zerar aqui, a
      gaveta ficava com uma folga de 15px de todas as bordas em vez de encostar

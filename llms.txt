@@ -218,6 +218,11 @@ marca a linha.
 
 tuc-menu__count poe um numero a direita do item.
 
+Barra lateral fixa: uma coluna flex de altura fixa (display:flex;
+flex-direction:column; height:100vh), marca em cima e o nav.tuc-menu embaixo.
+O menu rola sozinho quando a lista passa da tela; nao ponha overflow no aside.
+Dentro de uma gaveta (tuc-drawer__body) quem rola e o corpo da gaveta.
+
 ## Editor de texto
 
     <textarea name="descricao" data-tuc-editor>{{ form.descricao.value|default:"" }}</textarea>

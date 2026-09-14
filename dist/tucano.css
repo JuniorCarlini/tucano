@@ -2818,6 +2818,8 @@ textarea.tuc-editor__value[hidden] {
   gap: calc(var(--spacing, 0.25rem) * 0.5);
   font-family: var(--tuc-font);
   font-size: var(--tuc-text);
+  min-height: 0;
+  overflow-y: auto;
 }
 .tuc-menu__item {
   display: flex;
@@ -3292,6 +3294,8 @@ textarea.tuc-editor__value[hidden] {
   max-width: none;
   width: 100%;
   height: 100%;
+  grid-template-rows: minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   border: 0;
   padding: 0;
   background: transparent;
@@ -3533,10 +3537,14 @@ textarea.tuc-editor__value[hidden] {
 }
 .tuc-drawer.is-right .tuc-drawer__panel, .tuc-drawer.is-left .tuc-drawer__panel {
   height: 100%;
+  max-height: 100%;
+  min-height: 0;
 }
 .tuc-drawer.is-top .tuc-drawer__panel, .tuc-drawer.is-bottom .tuc-drawer__panel {
   max-width: none;
   width: 100%;
+  max-height: 100%;
+  min-height: 0;
 }
 .tuc-drawer.is-right .tuc-drawer__panel {
   border-left: var(--tuc-border-width) solid var(--tuc-border);
