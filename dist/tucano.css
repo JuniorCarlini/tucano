@@ -3416,7 +3416,7 @@ html:has(> body dialog.tuc-modal[open]), html:has(> body dialog.tuc-drawer[open]
 }
 .tuc-modal__close, .tuc-drawer__close {
   margin-top: calc(var(--spacing, 0.25rem) * -1);
-  margin-right: calc(var(--spacing, 0.25rem) * -1.5);
+  margin-right: calc(var(--spacing, 0.25rem) * -2);
   flex-shrink: 0;
 }
 .tuc-modal__body, .tuc-drawer__body {

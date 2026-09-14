@@ -27,6 +27,9 @@ cambios en tu proyecto.
   página de detrás — sobre el fondo oscurecido y después de que el contenido del
   diálogo llegara al final. Ahora la página queda quieta mientras haya un diálogo
   abierto, y llegar al final del cuerpo no transmite el desplazamiento.
+- La X de cerrar del modal y del panel lateral quedaba unos 2px hacia dentro de
+  la línea donde terminan el contenido y los botones del pie. Ahora el trazo de la
+  X termina en esa misma línea.
 
 ## 0.32.1 — 2026-09-13
 

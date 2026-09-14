@@ -25,6 +25,9 @@ projeto.
   sobre o fundo escurecido e depois de o conteúdo do diálogo chegar ao fim. A
   página agora fica parada enquanto houver um diálogo aberto, e chegar ao fim do
   corpo não passa a rolagem adiante.
+- O X de fechar do modal e da gaveta ficava uns 2px para dentro da linha onde
+  terminam o conteúdo e os botões do rodapé. Agora o traço do X termina na mesma
+  linha.
 
 ## 0.32.1 — 2026-09-13
 

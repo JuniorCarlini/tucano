@@ -25,6 +25,8 @@ in your project.
   over the dimmed backdrop and after the dialog content reached its end. The
   page now stays still while a dialog is open, and reaching the end of the
   body no longer passes the scroll on.
+- The close X on modals and drawers sat about 2px inside the line where the
+  content and the footer buttons end. The X stroke now ends on that same line.
 
 ## 0.32.1 — 2026-09-13
 

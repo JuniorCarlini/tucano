@@ -140,8 +140,10 @@ html:has(> body dialog.tuc-drawer[open]) {
   line-height: 1.5;
   color: var(--tuc-muted);
 }
-/* Alinhado ao topo: com titulo e texto o X acompanha a primeira linha. */
-.tuc-modal__close, .tuc-drawer__close { @apply -mr-1.5 -mt-1 shrink-0; }
+/* Alinhado ao topo: com titulo e texto o X acompanha a primeira linha.
+   -mr-2 desconta a sobra do botao (30px) em volta do desenho (14px): assim o
+   traco do X termina na mesma linha que o conteudo e os botoes do rodape. */
+.tuc-modal__close, .tuc-drawer__close { @apply -mr-2 -mt-1 shrink-0; }
 
 /* O corpo e quem rola quando o conteudo passa da altura disponivel. */
 /* contain: chegar ao fim do corpo nao passa a rolagem para a pagina de tras. */
