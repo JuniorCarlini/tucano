@@ -41,7 +41,7 @@
 <link rel="stylesheet" href="../../site/site.css?v=0.33.1">
 <!-- O tema e aplicado antes do primeiro quadro: sem isto a pagina piscava clara
      para quem escolheu o escuro. -->
-<script>try{if(localStorage.getItem("tucano-tema")==="dark")document.documentElement.classList.add("dark")}catch{}</script>
+<script>try{if(localStorage.getItem("tucano-theme")==="dark")document.documentElement.classList.add("dark")}catch{}</script>
 </head>
 <body>
 
@@ -49,8 +49,8 @@
   <a class="brand" href="../"><img class="brand__logo logo-light" src="../../site/assets/logo-light.svg" width="26" height="24" alt=""><img class="brand__logo logo-dark" src="../../site/assets/logo-dark.svg" width="26" height="24" alt=""><b>Tucano</b></a>
   <span class="tuc-badge is-plain ver">v0.33.1</span>
   <div class="topbar__actions">
-    <button class="tuc-btn is-outline is-sm" data-tuc-dropdown="#idiomas-topo" data-placement="bottom-end" aria-label="Language: English"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>EN</button><div class="tuc-dropdown" id="idiomas-topo" hidden><a class="tuc-dropdown__item" href="../../table/" hreflang="pt-BR" lang="pt-BR"><span class="tuc-dropdown__text">Português</span></a><a class="tuc-dropdown__item" href="../../en/table/" hreflang="en" lang="en" aria-current="true"><span class="tuc-dropdown__text">English</span></a><a class="tuc-dropdown__item" href="../../es/table/" hreflang="es" lang="es"><span class="tuc-dropdown__text">Español</span></a></div>
-    <button class="tuc-btn is-outline is-icon is-sm" data-tema data-label-light="Use light theme" data-label-dark="Use dark theme" aria-label="Toggle theme"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
+    <button class="tuc-btn is-outline is-sm" data-tuc-dropdown="#languages-top" data-placement="bottom-end" aria-label="Language: English"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>EN</button><div class="tuc-dropdown" id="languages-top" hidden><a class="tuc-dropdown__item" href="../../table/" hreflang="pt-BR" lang="pt-BR"><span class="tuc-dropdown__text">Português</span></a><a class="tuc-dropdown__item" href="../../en/table/" hreflang="en" lang="en" aria-current="true"><span class="tuc-dropdown__text">English</span></a><a class="tuc-dropdown__item" href="../../es/table/" hreflang="es" lang="es"><span class="tuc-dropdown__text">Español</span></a></div>
+    <button class="tuc-btn is-outline is-icon is-sm" data-theme-toggle data-label-light="Use light theme" data-label-dark="Use dark theme" aria-label="Toggle theme"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
     <button class="tuc-btn is-outline is-icon is-sm" id="menu" aria-label="Open menu" aria-expanded="false" aria-controls="side"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
   </div>
 </header>
@@ -59,8 +59,8 @@
   <div class="side__head">
     <a class="brand" href="../"><img class="brand__logo logo-light" src="../../site/assets/logo-light.svg" width="26" height="24" alt=""><img class="brand__logo logo-dark" src="../../site/assets/logo-dark.svg" width="26" height="24" alt=""><b>Tucano</b></a>
     <div class="side__tools">
-      <button class="tuc-btn is-outline is-sm" data-tuc-dropdown="#idiomas-lateral" data-placement="bottom-end" aria-label="Language: English"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>EN</button><div class="tuc-dropdown" id="idiomas-lateral" hidden><a class="tuc-dropdown__item" href="../../table/" hreflang="pt-BR" lang="pt-BR"><span class="tuc-dropdown__text">Português</span></a><a class="tuc-dropdown__item" href="../../en/table/" hreflang="en" lang="en" aria-current="true"><span class="tuc-dropdown__text">English</span></a><a class="tuc-dropdown__item" href="../../es/table/" hreflang="es" lang="es"><span class="tuc-dropdown__text">Español</span></a></div>
-      <button class="tuc-btn is-outline is-icon is-sm" data-tema data-label-light="Use light theme" data-label-dark="Use dark theme" aria-label="Toggle theme"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
+      <button class="tuc-btn is-outline is-sm" data-tuc-dropdown="#languages-side" data-placement="bottom-end" aria-label="Language: English"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>EN</button><div class="tuc-dropdown" id="languages-side" hidden><a class="tuc-dropdown__item" href="../../table/" hreflang="pt-BR" lang="pt-BR"><span class="tuc-dropdown__text">Português</span></a><a class="tuc-dropdown__item" href="../../en/table/" hreflang="en" lang="en" aria-current="true"><span class="tuc-dropdown__text">English</span></a><a class="tuc-dropdown__item" href="../../es/table/" hreflang="es" lang="es"><span class="tuc-dropdown__text">Español</span></a></div>
+      <button class="tuc-btn is-outline is-icon is-sm" data-theme-toggle data-label-light="Use light theme" data-label-dark="Use dark theme" aria-label="Toggle theme"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
     </div>
   </div>
   <span class="tuc-badge is-plain ver">v0.33.1 · 51 KB</span>
@@ -115,16 +115,16 @@
 <div class="demo is-hero">
   <form id="table-form">
     <div class="bar" style="margin:0 0 14px">
-      <button type="button" class="tuc-btn is-outline" id="table-aprovar" disabled>Approve selected</button>
-      <span class="tuc-hint" id="table-saida">No rows checked.</span>
+      <button type="button" class="tuc-btn is-outline" id="table-approve" disabled>Approve selected</button>
+      <span class="tuc-hint" id="table-output">No rows checked.</span>
     </div>
-    <table id="table-contratos" data-tuc-table data-selectable data-sort-mode="client">
+    <table id="table-contracts" data-tuc-table data-selectable data-sort-mode="client">
       <thead>
         <tr>
-          <th data-sort="text" data-field="cliente" style="width:38%">Customer</th>
+          <th data-sort="text" data-field="customer" style="width:38%">Customer</th>
           <th data-sort="text" data-field="status">Status</th>
-          <th data-sort="date" data-field="vencimento">Due date</th>
-          <th data-sort="number" data-field="valor" class="is-number">Amount</th>
+          <th data-sort="date" data-field="due_date">Due date</th>
+          <th data-sort="number" data-field="amount" class="is-number">Amount</th>
           <th data-sort="none" class="tuc-table__actions">Actions</th>
         </tr>
       </thead>
@@ -160,10 +160,10 @@
       </tbody>
     </table>
   </form>
-  <p class="tuc-hint">This demo sorts on screen (<code>data-sort-mode="client"</code>) because there's no server behind it. In a paginated list, the default is the server — see <a href="#ordenacao">Sorting</a>.</p>
+  <p class="tuc-hint">This demo sorts on screen (<code>data-sort-mode="client"</code>) because there's no server behind it. In a paginated list, the default is the server — see <a href="#sorting">Sorting</a>.</p>
 </div>
 
-<h2 id="exemplos">Examples</h2>
+<h2 id="examples">Examples</h2>
 <p class="lead">Variants are classes on the table itself. By default rows are separated by a bottom border, and
    not by zebra stripes: in a thirty-row list, stripes turn into noise. If you want stripes, ask for them.</p>
 
@@ -250,15 +250,15 @@
   </div>
 </div>
 
-<h2 id="uso">How to use</h2>
+<h2 id="usage">How to use</h2>
 <p class="lead">Mark the <code>&lt;table&gt;</code> with <code>data-tuc-table</code> and it initializes on its own, including one
    that arrives later through HTMX. On each sortable column, <code>data-sort</code> gives the type and
    <code>data-field</code> gives the name that goes in the URL.</p>
 
 <div class="tuc-prose doc-code"><pre><code>&lt;table data-tuc-table data-selectable&gt;
   &lt;thead&gt;&lt;tr&gt;
-    &lt;th data-sort="text" data-field="cliente" style="width:38%"&gt;Customer&lt;/th&gt;
-    &lt;th data-sort="number" data-field="valor" class="is-number"&gt;Amount&lt;/th&gt;
+    &lt;th data-sort="text" data-field="customer" style="width:38%"&gt;Customer&lt;/th&gt;
+    &lt;th data-sort="number" data-field="amount" class="is-number"&gt;Amount&lt;/th&gt;
     &lt;th data-sort="none" class="tuc-table__actions"&gt;Actions&lt;/th&gt;
   &lt;/tr&gt;&lt;/thead&gt;
   &lt;tbody&gt;
@@ -277,9 +277,9 @@
    <code>{% empty %}</code> draws the empty state.</p>
 <div class="tuc-prose doc-code"><pre><code>&lt;table data-tuc-table data-selectable&gt;
   &lt;thead&gt;&lt;tr&gt;
-    &lt;th data-sort="text" data-field="cliente" style="width:38%"&gt;Customer&lt;/th&gt;
+    &lt;th data-sort="text" data-field="customer" style="width:38%"&gt;Customer&lt;/th&gt;
     &lt;th data-sort="text" data-field="status"&gt;Status&lt;/th&gt;
-    &lt;th data-sort="number" data-field="valor" class="is-number"&gt;Amount&lt;/th&gt;
+    &lt;th data-sort="number" data-field="amount" class="is-number"&gt;Amount&lt;/th&gt;
     &lt;th data-sort="none" class="tuc-table__actions"&gt;Actions&lt;/th&gt;
   &lt;/tr&gt;&lt;/thead&gt;
   &lt;tbody&gt;
@@ -287,14 +287,14 @@
     &lt;tr data-id="{{ obj.pk }}"&gt;
       &lt;td&gt;
         &lt;span class="tuc-table__user"&gt;
-          &lt;span class="tuc-table__avatar"&gt;&lt;img src="{{ obj.foto.url }}" alt=""&gt;&lt;/span&gt;
-          &lt;span&gt;{{ obj.nome }}&lt;span class="tuc-table__sub"&gt;{{ obj.email }}&lt;/span&gt;&lt;/span&gt;
+          &lt;span class="tuc-table__avatar"&gt;&lt;img src="{{ obj.photo.url }}" alt=""&gt;&lt;/span&gt;
+          &lt;span&gt;{{ obj.name }}&lt;span class="tuc-table__sub"&gt;{{ obj.email }}&lt;/span&gt;&lt;/span&gt;
         &lt;/span&gt;
       &lt;/td&gt;
       &lt;td&gt;&lt;span class="tuc-badge is-success"&gt;{{ obj.get_status_display }}&lt;/span&gt;&lt;/td&gt;
-      &lt;td class="is-number" data-sort-value="{{ obj.valor }}" data-tuc-format="real"&gt;{{ obj.valor }}&lt;/td&gt;
+      &lt;td class="is-number" data-sort-value="{{ obj.amount }}" data-tuc-format="real"&gt;{{ obj.amount }}&lt;/td&gt;
       &lt;td class="tuc-table__actions"&gt;
-        &lt;a class="tuc-btn is-outline is-icon is-sm" href="{% url 'contrato-editar' obj.pk %}" aria-label="Edit"&gt;...&lt;/a&gt;
+        &lt;a class="tuc-btn is-outline is-icon is-sm" href="{% url 'contract-edit' obj.pk %}" aria-label="Edit"&gt;...&lt;/a&gt;
       &lt;/td&gt;
     &lt;/tr&gt;
     {% empty %}
@@ -307,13 +307,13 @@
 
 <h3>In JavaScript</h3>
 <p>To pass <code>onSort</code> and <code>onSelect</code>, which don't exist as attributes, or to read the selection.</p>
-<div class="tuc-prose doc-code"><pre><code>const t = new Tucano.Table('#contratos', { selectable: true, sortMode: 'client' });
+<div class="tuc-prose doc-code"><pre><code>const t = new Tucano.Table('#contracts', { selectable: true, sortMode: 'client' });
 t.getSelected();          // ['12', '15'] — the checked data-id values
 t.clearSelection();
 t.sort(2, 'desc', 'number');
 t.destroy();              // releases the listeners</code></pre></div>
 
-<h2 id="ordenacao">Sorting</h2>
+<h2 id="sorting">Sorting</h2>
 <p class="lead">Sorting is the server's job, and that's the default. In a paginated list, reordering the twenty rows
    on screen produces a fake order: the real largest amount may be on page 7, and the table starts lying
    while looking truthful. What knows how to sort the whole set is the database.</p>
@@ -325,11 +325,11 @@ t.destroy();              // releases the listeners</code></pre></div>
    page 7 with a different order would show a chunk from the middle of a list nobody has seen.</p>
 
 <div class="demo">
-  <div class="tuc-table-wrap"><table class="tuc-table" id="table-servidor">
+  <div class="tuc-table-wrap"><table class="tuc-table" id="table-server">
     <thead><tr>
-      <th data-sort="text" data-field="cliente">Customer</th>
-      <th data-sort="date" data-field="vencimento">Due date</th>
-      <th data-sort="number" data-field="valor" class="is-number">Amount</th>
+      <th data-sort="text" data-field="customer">Customer</th>
+      <th data-sort="date" data-field="due_date">Due date</th>
+      <th data-sort="number" data-field="amount" class="is-number">Amount</th>
     </tr></thead>
     <tbody>
       <tr><td>Aurora Studio</td><td data-sort-value="2026-10-05">05/10/2026</td><td class="is-number" data-sort-value="2300">R$ 2.300,00</td></tr>
@@ -337,7 +337,7 @@ t.destroy();              // releases the listeners</code></pre></div>
       <tr><td>Wellness Clinic</td><td data-sort-value="2026-12-01">01/12/2026</td><td class="is-number" data-sort-value="9150">R$ 9.150,00</td></tr>
     </tbody>
   </table></div>
-  <div class="out" id="table-servidor-out"></div>
+  <div class="out" id="table-server-out"></div>
   <p class="tuc-hint">Here the headers are the server-mode links — hover to see the <code>href</code>. An <code>onSort</code> cancels the navigation and simulates the response; in your project the click loads the sorted page.</p>
 </div>
 
@@ -348,16 +348,16 @@ t.destroy();              // releases the listeners</code></pre></div>
    the view with <code>FieldError</code>.</p>
 <div class="tuc-prose doc-code"><pre><code>from django.core.paginator import Paginator
 
-ORDENS = {"cliente": "nome", "status": "status", "valor": "valor"}
+ORDERS = {"customer": "name", "status": "status", "amount": "amount"}
 
-def contratos(request):
-    campo = ORDENS.get(request.GET.get("sort"), "nome")
+def contracts(request):
+    field = ORDERS.get(request.GET.get("sort"), "name")
     if request.GET.get("dir") == "desc":
-        campo = f"-{campo}"
+        field = f"-{field}"
     # "pk" breaks ties: without a total order, the same row can show up on two pages.
-    qs = Contrato.objects.order_by(campo, "pk")
+    qs = Contract.objects.order_by(field, "pk")
     page_obj = Paginator(qs, 20).get_page(request.GET.get("page"))
-    return render(request, "contratos/lista.html", {"page_obj": page_obj})</code></pre></div>
+    return render(request, "contracts/list.html", {"page_obj": page_obj})</code></pre></div>
 
 <div class="tuc-prose doc-code"><pre><code>&lt;table data-tuc-table&gt;...&lt;/table&gt;
 &lt;div data-tuc-pagination
@@ -399,9 +399,9 @@ def contratos(request):
 &lt;/div&gt;</code></pre></div>
 <p>To handle navigation yourself, pass <code>onSort</code>: when it's defined, the click is canceled and your code
    takes over. The <code>tuc:sort</code> event fires either way, before navigation.</p>
-<div class="tuc-prose doc-code"><pre><code>new Tucano.Table('#contratos', {
+<div class="tuc-prose doc-code"><pre><code>new Tucano.Table('#contracts', {
   onSort: ({ column, field, direction }, table) =&gt; {
-    htmx.ajax('GET', `?sort=${field}&amp;dir=${direction}`, '#lista');
+    htmx.ajax('GET', `?sort=${field}&amp;dir=${direction}`, '#list');
   },
 });</code></pre></div>
 
@@ -415,12 +415,12 @@ def contratos(request):
   </tbody>
 </table></div>
 
-<h2 id="selecao">Bulk selection</h2>
+<h2 id="selection">Bulk selection</h2>
 <p class="lead">Selection is still a form. With <code>data-selectable</code>, each row gets a real
    <code>&lt;input type="checkbox" name="selected"&gt;</code> with its <code>data-id</code> as the value —
    in Django it arrives as <code>request.POST.getlist("selected")</code>, with no JavaScript in between.</p>
 
-<div class="tuc-prose doc-code"><pre><code>&lt;form method="post" action="{% url 'contratos-aprovar' %}"&gt;
+<div class="tuc-prose doc-code"><pre><code>&lt;form method="post" action="{% url 'contracts-approve' %}"&gt;
   {% csrf_token %}
   &lt;table data-tuc-table data-selectable&gt;...&lt;/table&gt;
   &lt;button class="tuc-btn is-primary"&gt;Approve selected&lt;/button&gt;
@@ -429,17 +429,17 @@ def contratos(request):
 <div class="tuc-prose doc-code"><pre><code>from django.views.decorators.http import require_POST
 
 @require_POST
-def aprovar(request):
+def approve(request):
     ids = request.POST.getlist("selected")
-    Contrato.objects.filter(pk__in=ids).update(status="aprovado")
-    return redirect("contratos")</code></pre></div>
+    Contract.objects.filter(pk__in=ids).update(status="approved")
+    return redirect("contracts")</code></pre></div>
 
 <div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">An action button inside the form takes type="button"</p><p>A <code>&lt;button&gt;</code> with no type inside a <code>&lt;form&gt;</code> submits the form. In the actions column, write <code>type="button"</code> or use <code>&lt;a&gt;</code>, or else "Edit" turns into "Approve selected".</p></div></div>
 
 <p>The header checkbox checks and unchecks the whole page and shows the mixed state when only some rows are checked.
    Every change fires <code>tuc:select</code> on the table, with the checked values — the same ones the form
    would send.</p>
-<div class="tuc-prose doc-code"><pre><code>document.querySelector('#contratos').addEventListener('tuc:select', (e) =&gt; {
+<div class="tuc-prose doc-code"><pre><code>document.querySelector('#contracts').addEventListener('tuc:select', (e) =&gt; {
   e.detail.selected;   // ['1', '3']
   e.detail.row;        // the &lt;tr&gt; that changed
 });</code></pre></div>
@@ -453,7 +453,7 @@ def aprovar(request):
   </tbody>
 </table></div>
 
-<h2 id="celula">The cell is yours</h2>
+<h2 id="cell">The cell is yours</h2>
 <p class="lead">Anything you want fits inside the <code>&lt;td&gt;</code>. What the library offers are the arrangements that
    show up in every listing, so nobody has to reinvent aligning an avatar next to a name.</p>
 
@@ -475,7 +475,7 @@ def aprovar(request):
 
 <div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">If it's clickable, it looks like a button</p><p>The actions column uses the system's outlined buttons, not loose icons: with no border and no background, an icon reads as disabled decoration. Horizontal scrolling lives in <code>.tuc-table-wrap</code>, which the script creates if it doesn't exist — a <code>&lt;table&gt;</code> with <code>overflow</code> loses its table behavior.</p></div></div>
 
-<h2 id="teclado">Keyboard and accessibility</h2>
+<h2 id="keyboard">Keyboard and accessibility</h2>
 <p class="lead">Everything the table adds is a native element: link, button and checkbox. That's why each one is already
    in the <code>Tab</code> path and responds to the usual keys.</p>
 
@@ -522,14 +522,14 @@ def aprovar(request):
 <script src="../../site/site.js?v=0.33.1"></script>
 <script>
   // Action buttons: a toast instead of navigating, because there's nowhere to go here.
-  const MAIS_ITENS = [
+  const MORE_ITEMS = [
     { text: 'Duplicate', onClick: () => Tucano.toast.info('Contract duplicated') },
     { text: 'Download PDF', onClick: () => Tucano.toast.info('PDF generated') },
     { separator: true },
     { text: 'Delete', variant: 'danger', onClick: () => Tucano.toast.error('Contract deleted') },
   ];
   document.querySelectorAll('[data-table-more]').forEach((b) =>
-    new Tucano.Dropdown(b, { placement: 'bottom-end', items: MAIS_ITENS }));
+    new Tucano.Dropdown(b, { placement: 'bottom-end', items: MORE_ITEMS }));
   document.addEventListener('click', (e) => {
     if (e.target.closest('[data-table-edit]')) Tucano.toast.info('Would open the contract editor');
   });
@@ -537,32 +537,32 @@ def aprovar(request):
 
   // Selection: shows what the POST would send and enables the bulk action. The instance
   // only exists after DOMContentLoaded, so it's read inside the events.
-  const tabela = document.getElementById('table-contratos');
-  const aprovar = document.getElementById('table-aprovar');
-  const saida = document.getElementById('table-saida');
-  const mostrar = (ids) => {
-    aprovar.disabled = ids.length === 0;
-    saida.textContent = ids.length
+  const table = document.getElementById('table-contracts');
+  const approve = document.getElementById('table-approve');
+  const output = document.getElementById('table-output');
+  const show = (ids) => {
+    approve.disabled = ids.length === 0;
+    output.textContent = ids.length
       ? `${ids.length} row${ids.length > 1 ? 's' : ''} checked — the POST would send selected=${ids.join('&selected=')}`
       : 'No rows checked.';
   };
-  tabela.addEventListener('tuc:select', (e) => mostrar(e.detail.selected));
-  aprovar.addEventListener('click', () => {
-    const t = tabela._tucano;
+  table.addEventListener('tuc:select', (e) => show(e.detail.selected));
+  approve.addEventListener('click', () => {
+    const t = table._tucano;
     Tucano.toast.success(`${t.getSelected().length} contract(s) approved`);
     t.clearSelection();
-    mostrar([]);
+    show([]);
   });
 
   // Server mode: the header <a> is real. onSort cancels the navigation and
   // plays the server's role, which would return the page already sorted with the arrow set.
-  const saidaServidor = document.getElementById('table-servidor-out');
-  new Tucano.Table('#table-servidor', {
+  const serverOutput = document.getElementById('table-server-out');
+  new Tucano.Table('#table-server', {
     onSort: ({ column, field, direction }, t) => {
       for (const s of t.sortable) s.th.setAttribute('aria-sort', 'none');
       t.sortable.find((s) => s.index === column).th.setAttribute('aria-sort', direction === 'asc' ? 'ascending' : 'descending');
       t.sort(column, direction, t.sortable.find((s) => s.index === column).type);
-      saidaServidor.textContent = `GET ?sort=${field}&dir=${direction} → the server responds with page 1 in this order`;
+      serverOutput.textContent = `GET ?sort=${field}&dir=${direction} → the server responds with page 1 in this order`;
     },
   });
 </script>

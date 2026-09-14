@@ -41,7 +41,7 @@
 <link rel="stylesheet" href="../../site/site.css?v=0.33.1">
 <!-- O tema e aplicado antes do primeiro quadro: sem isto a pagina piscava clara
      para quem escolheu o escuro. -->
-<script>try{if(localStorage.getItem("tucano-tema")==="dark")document.documentElement.classList.add("dark")}catch{}</script>
+<script>try{if(localStorage.getItem("tucano-theme")==="dark")document.documentElement.classList.add("dark")}catch{}</script>
 </head>
 <body>
 
@@ -49,8 +49,8 @@
   <a class="brand" href="../"><img class="brand__logo logo-light" src="../../site/assets/logo-light.svg" width="26" height="24" alt=""><img class="brand__logo logo-dark" src="../../site/assets/logo-dark.svg" width="26" height="24" alt=""><b>Tucano</b></a>
   <span class="tuc-badge is-plain ver">v0.33.1</span>
   <div class="topbar__actions">
-    <button class="tuc-btn is-outline is-sm" data-tuc-dropdown="#idiomas-topo" data-placement="bottom-end" aria-label="Language: English"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>EN</button><div class="tuc-dropdown" id="idiomas-topo" hidden><a class="tuc-dropdown__item" href="../../form/" hreflang="pt-BR" lang="pt-BR"><span class="tuc-dropdown__text">Português</span></a><a class="tuc-dropdown__item" href="../../en/form/" hreflang="en" lang="en" aria-current="true"><span class="tuc-dropdown__text">English</span></a><a class="tuc-dropdown__item" href="../../es/form/" hreflang="es" lang="es"><span class="tuc-dropdown__text">Español</span></a></div>
-    <button class="tuc-btn is-outline is-icon is-sm" data-tema data-label-light="Use light theme" data-label-dark="Use dark theme" aria-label="Toggle theme"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
+    <button class="tuc-btn is-outline is-sm" data-tuc-dropdown="#languages-top" data-placement="bottom-end" aria-label="Language: English"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>EN</button><div class="tuc-dropdown" id="languages-top" hidden><a class="tuc-dropdown__item" href="../../form/" hreflang="pt-BR" lang="pt-BR"><span class="tuc-dropdown__text">Português</span></a><a class="tuc-dropdown__item" href="../../en/form/" hreflang="en" lang="en" aria-current="true"><span class="tuc-dropdown__text">English</span></a><a class="tuc-dropdown__item" href="../../es/form/" hreflang="es" lang="es"><span class="tuc-dropdown__text">Español</span></a></div>
+    <button class="tuc-btn is-outline is-icon is-sm" data-theme-toggle data-label-light="Use light theme" data-label-dark="Use dark theme" aria-label="Toggle theme"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
     <button class="tuc-btn is-outline is-icon is-sm" id="menu" aria-label="Open menu" aria-expanded="false" aria-controls="side"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
   </div>
 </header>
@@ -59,8 +59,8 @@
   <div class="side__head">
     <a class="brand" href="../"><img class="brand__logo logo-light" src="../../site/assets/logo-light.svg" width="26" height="24" alt=""><img class="brand__logo logo-dark" src="../../site/assets/logo-dark.svg" width="26" height="24" alt=""><b>Tucano</b></a>
     <div class="side__tools">
-      <button class="tuc-btn is-outline is-sm" data-tuc-dropdown="#idiomas-lateral" data-placement="bottom-end" aria-label="Language: English"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>EN</button><div class="tuc-dropdown" id="idiomas-lateral" hidden><a class="tuc-dropdown__item" href="../../form/" hreflang="pt-BR" lang="pt-BR"><span class="tuc-dropdown__text">Português</span></a><a class="tuc-dropdown__item" href="../../en/form/" hreflang="en" lang="en" aria-current="true"><span class="tuc-dropdown__text">English</span></a><a class="tuc-dropdown__item" href="../../es/form/" hreflang="es" lang="es"><span class="tuc-dropdown__text">Español</span></a></div>
-      <button class="tuc-btn is-outline is-icon is-sm" data-tema data-label-light="Use light theme" data-label-dark="Use dark theme" aria-label="Toggle theme"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
+      <button class="tuc-btn is-outline is-sm" data-tuc-dropdown="#languages-side" data-placement="bottom-end" aria-label="Language: English"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>EN</button><div class="tuc-dropdown" id="languages-side" hidden><a class="tuc-dropdown__item" href="../../form/" hreflang="pt-BR" lang="pt-BR"><span class="tuc-dropdown__text">Português</span></a><a class="tuc-dropdown__item" href="../../en/form/" hreflang="en" lang="en" aria-current="true"><span class="tuc-dropdown__text">English</span></a><a class="tuc-dropdown__item" href="../../es/form/" hreflang="es" lang="es"><span class="tuc-dropdown__text">Español</span></a></div>
+      <button class="tuc-btn is-outline is-icon is-sm" data-theme-toggle data-label-light="Use light theme" data-label-dark="Use dark theme" aria-label="Toggle theme"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
     </div>
   </div>
   <span class="tuc-badge is-plain ver">v0.33.1 · 51 KB</span>
@@ -115,30 +115,30 @@
 <div class="demo is-hero">
   <div class="demo-grid">
     <div class="demo-cell">
-      <label class="tuc-label is-required" for="fm-razao">Company name</label>
-      <input type="text" class="tuc-input" id="fm-razao" name="razao" value="Tucano Trading Ltd" required aria-describedby="fm-razao-ajuda">
-      <p class="tuc-hint" id="fm-razao-ajuda">As it appears on the registration certificate.</p>
+      <label class="tuc-label is-required" for="fm-company">Company name</label>
+      <input type="text" class="tuc-input" id="fm-company" name="company" value="Tucano Trading Ltd" required aria-describedby="fm-company-help">
+      <p class="tuc-hint" id="fm-company-help">As it appears on the registration certificate.</p>
     </div>
     <div class="demo-cell">
       <label class="tuc-label is-required" for="fm-email">Billing email</label>
-      <input type="email" class="tuc-input" id="fm-email" name="email" value="billing@" required aria-invalid="true" aria-describedby="fm-email-erro">
-      <p class="tuc-error" id="fm-email-erro">Enter a complete email address.</p>
+      <input type="email" class="tuc-input" id="fm-email" name="email" value="billing@" required aria-invalid="true" aria-describedby="fm-email-error">
+      <p class="tuc-error" id="fm-email-error">Enter a complete email address.</p>
     </div>
     <div class="demo-cell">
-      <label class="tuc-label" for="fm-plano">Plan</label>
-      <select id="fm-plano" name="plano" data-tuc-select data-search="false" aria-describedby="fm-plano-ajuda">
+      <label class="tuc-label" for="fm-plan">Plan</label>
+      <select id="fm-plan" name="plan" data-tuc-select data-search="false" aria-describedby="fm-plan-help">
         <option>Monthly</option><option>Quarterly</option><option>Yearly</option>
       </select>
-      <p class="tuc-hint" id="fm-plano-ajuda">You can change it later, with no fee.</p>
+      <p class="tuc-hint" id="fm-plan-help">You can change it later, with no fee.</p>
     </div>
     <div class="demo-cell">
-      <label class="tuc-label" for="fm-obs">Notes</label>
-      <textarea class="tuc-input" id="fm-obs" name="obs" rows="3" placeholder="Visible to the team only"></textarea>
+      <label class="tuc-label" for="fm-notes">Notes</label>
+      <textarea class="tuc-input" id="fm-notes" name="notes" rows="3" placeholder="Visible to the team only"></textarea>
     </div>
   </div>
 </div>
 
-<h2 id="exemplos">Examples</h2>
+<h2 id="examples">Examples</h2>
 <p class="lead">The same four classes in different situations.</p>
 
 <div class="demo">
@@ -146,41 +146,41 @@
     <div class="demo-cell">
       <h4>Required</h4>
       <p><code>is-required</code> on the label adds the asterisk; <code>required</code> goes on the field.</p>
-      <label class="tuc-label is-required" for="fm-nome">Name</label>
-      <input type="text" class="tuc-input" id="fm-nome" name="nome" required>
+      <label class="tuc-label is-required" for="fm-name">Name</label>
+      <input type="text" class="tuc-input" id="fm-name" name="name" required>
     </div>
     <div class="demo-cell">
       <h4>Browser validation</h4>
       <p>Painted by <code>:user-invalid</code>, only after the field is touched. Type something without <code>@</code> and leave.</p>
-      <label class="tuc-label" for="fm-contato">Email</label>
-      <input type="email" class="tuc-input" id="fm-contato" name="contato" required placeholder="name@company.com">
+      <label class="tuc-label" for="fm-contact">Email</label>
+      <input type="email" class="tuc-input" id="fm-contact" name="contact" required placeholder="name@company.com">
     </div>
     <div class="demo-cell">
       <h4>With an icon</h4>
       <p><code>.tuc-input-group</code> with an SVG before the field.</p>
-      <label class="tuc-label" for="fm-busca">Search customer</label>
-      <div class="tuc-input-group"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 21l-4.3-4.3M11 18a7 7 0 100-14 7 7 0 000 14z"/></svg><input type="search" class="tuc-input" id="fm-busca" name="q" placeholder="Name or tax ID"></div>
+      <label class="tuc-label" for="fm-search">Search customer</label>
+      <div class="tuc-input-group"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 21l-4.3-4.3M11 18a7 7 0 100-14 7 7 0 000 14z"/></svg><input type="search" class="tuc-input" id="fm-search" name="q" placeholder="Name or tax ID"></div>
     </div>
     <div class="demo-cell">
       <h4>Disabled</h4>
       <p>Native <code>disabled</code>; nothing else.</p>
-      <label class="tuc-label" for="fm-codigo">Code</label>
-      <input type="text" class="tuc-input" id="fm-codigo" name="codigo" value="CLI-00042" disabled>
+      <label class="tuc-label" for="fm-code">Code</label>
+      <input type="text" class="tuc-input" id="fm-code" name="code" value="CLI-00042" disabled>
     </div>
     <div class="demo-cell">
       <h4>Short list</h4>
       <p><code>data-tuc-select</code> with <code>data-search="false"</code>: no search box, and with the <code>aria-invalid</code> error.</p>
-      <label class="tuc-label" for="fm-uf">State</label>
-      <select id="fm-uf" name="uf" data-tuc-select data-search="false" required aria-invalid="true" aria-describedby="fm-uf-erro">
+      <label class="tuc-label" for="fm-state">State</label>
+      <select id="fm-state" name="state" data-tuc-select data-search="false" required aria-invalid="true" aria-describedby="fm-state-error">
         <option value="">Select</option><option>Oregon</option><option>Texas</option>
       </select>
-      <p class="tuc-error" id="fm-uf-erro">Choose a state.</p>
+      <p class="tuc-error" id="fm-state-error">Choose a state.</p>
     </div>
     <div class="demo-cell">
       <h4>Multiple choices</h4>
       <p>With <code>multiple</code> the choices become tags, and <code>getlist()</code> still receives one per option.</p>
-      <label class="tuc-label" for="fm-dias">Delivery days</label>
-      <select id="fm-dias" name="dias" data-tuc-select multiple>
+      <label class="tuc-label" for="fm-days">Delivery days</label>
+      <select id="fm-days" name="days" data-tuc-select multiple>
         <option selected>Monday</option><option>Tuesday</option><option selected>Wednesday</option><option>Thursday</option><option>Friday</option>
       </select>
     </div>
@@ -194,35 +194,35 @@
 <div class="demo">
   <div class="demo-grid">
     <div class="demo-cell">
-      <label class="tuc-label is-required" for="fm-cliente">Customer</label>
-      <select id="fm-cliente" name="cliente" data-tuc-select aria-invalid="true" aria-describedby="fm-cliente-erro">
+      <label class="tuc-label is-required" for="fm-customer">Customer</label>
+      <select id="fm-customer" name="customer" data-tuc-select aria-invalid="true" aria-describedby="fm-customer-error">
         <option value="">Select...</option><option>Corner Bakery</option><option>Two Wheels Garage</option>
       </select>
-      <p class="tuc-error" id="fm-cliente-erro">Choose the customer.</p>
+      <p class="tuc-error" id="fm-customer-error">Choose the customer.</p>
     </div>
     <div class="demo-cell">
-      <label class="tuc-label is-required" for="fm-venc">Due date</label>
-      <input type="text" id="fm-venc" name="vencimento" data-tuc-datepicker aria-invalid="true" aria-describedby="fm-venc-erro">
-      <p class="tuc-error" id="fm-venc-erro">The date must be after today.</p>
+      <label class="tuc-label is-required" for="fm-due">Due date</label>
+      <input type="text" id="fm-due" name="due_date" data-tuc-datepicker aria-invalid="true" aria-describedby="fm-due-error">
+      <p class="tuc-error" id="fm-due-error">The date must be after today.</p>
     </div>
     <div class="demo-cell">
       <label class="tuc-label is-required" for="fm-doc">CNPJ</label>
-      <input type="text" id="fm-doc" name="cnpj" data-tuc-mask="cnpj" value="11222333000100" aria-invalid="true" aria-describedby="fm-doc-erro">
-      <p class="tuc-error" id="fm-doc-erro">Invalid CNPJ.</p>
+      <input type="text" id="fm-doc" name="cnpj" data-tuc-mask="cnpj" value="11222333000100" aria-invalid="true" aria-describedby="fm-doc-error">
+      <p class="tuc-error" id="fm-doc-error">Invalid CNPJ.</p>
     </div>
     <div class="demo-cell">
-      <label class="tuc-label" for="fm-cor">Label color</label>
-      <input type="text" id="fm-cor" name="cor" value="#e11d48" data-tuc-color aria-invalid="true" aria-describedby="fm-cor-erro">
-      <p class="tuc-error" id="fm-cor-erro">This color is already in use.</p>
+      <label class="tuc-label" for="fm-color">Label color</label>
+      <input type="text" id="fm-color" name="color" value="#e11d48" data-tuc-color aria-invalid="true" aria-describedby="fm-color-error">
+      <p class="tuc-error" id="fm-color-error">This color is already in use.</p>
     </div>
     <div class="demo-cell">
-      <label class="tuc-choice"><input type="checkbox" class="tuc-check" name="termos" required aria-invalid="true" aria-describedby="fm-termos-erro"> I have read and accept the terms of use</label>
-      <p class="tuc-error" id="fm-termos-erro">Required to continue.</p>
+      <label class="tuc-choice"><input type="checkbox" class="tuc-check" name="terms" required aria-invalid="true" aria-describedby="fm-terms-error"> I have read and accept the terms of use</label>
+      <p class="tuc-error" id="fm-terms-error">Required to continue.</p>
     </div>
   </div>
 </div>
 
-<h2 id="uso">How to use</h2>
+<h2 id="usage">How to use</h2>
 <p class="lead">A label with <code>for</code>, and help and error tied to the field by <code>aria-describedby</code>. That is what makes the
    screen reader read the help and the error along with the field name.</p>
 
@@ -230,14 +230,14 @@
 &lt;input id="doc" name="doc" data-tuc-mask="cnpj" required aria-invalid="true" aria-describedby="doc-e"&gt;
 &lt;p class="tuc-error" id="doc-e"&gt;Invalid CNPJ.&lt;/p&gt;
 
-&lt;label class="tuc-label" for="plano"&gt;Plan&lt;/label&gt;
-&lt;select id="plano" name="plano" data-tuc-select aria-describedby="plano-h"&gt;
+&lt;label class="tuc-label" for="plan"&gt;Plan&lt;/label&gt;
+&lt;select id="plan" name="plan" data-tuc-select aria-describedby="plan-h"&gt;
   &lt;option&gt;Monthly&lt;/option&gt;
   &lt;option&gt;Yearly&lt;/option&gt;
 &lt;/select&gt;
-&lt;p class="tuc-hint" id="plano-h"&gt;You can change it later.&lt;/p&gt;
+&lt;p class="tuc-hint" id="plan-h"&gt;You can change it later.&lt;/p&gt;
 
-&lt;textarea class="tuc-input" name="obs" rows="3"&gt;&lt;/textarea&gt;</code></pre></div>
+&lt;textarea class="tuc-input" name="notes" rows="3"&gt;&lt;/textarea&gt;</code></pre></div>
 
 <p>The field components — date picker, mask, color picker — put on <code>.tuc-input</code> by themselves. Write the class on
    plain fields, so the whole form row has the same height.</p>
@@ -252,26 +252,26 @@
    With this snippet in an <code>{% include %}</code>, every field in the project gets the same label, help and error.</p>
 
 <h3>In the Django form</h3>
-<div class="tuc-prose doc-code"><pre><code>class ClienteForm(forms.ModelForm):
+<div class="tuc-prose doc-code"><pre><code>class CustomerForm(forms.ModelForm):
     class Meta:
-        model = Cliente
-        fields = ["razao", "email", "plano", "obs"]
+        model = Customer
+        fields = ["company", "email", "plan", "notes"]
         widgets = {
-            "razao": forms.TextInput(attrs={"class": "tuc-input"}),
+            "company": forms.TextInput(attrs={"class": "tuc-input"}),
             "email": forms.EmailInput(attrs={"class": "tuc-input"}),
-            "plano": forms.Select(attrs={"data-tuc-select": ""}),
-            "obs": forms.Textarea(attrs={"class": "tuc-input", "rows": 3}),
+            "plan": forms.Select(attrs={"data-tuc-select": ""}),
+            "notes": forms.Textarea(attrs={"class": "tuc-input", "rows": 3}),
         }</code></pre></div>
 
 <h3>In JavaScript</h3>
 <p>There is no component: to flag an error only the client finds, write the attribute, and remove it once it is fixed.</p>
-<div class="tuc-prose doc-code"><pre><code>const campo = document.querySelector('#email');
-campo.setAttribute('aria-invalid', 'true');
-campo.setAttribute('aria-describedby', 'email-e');
+<div class="tuc-prose doc-code"><pre><code>const field = document.querySelector('#email');
+field.setAttribute('aria-invalid', 'true');
+field.setAttribute('aria-describedby', 'email-e');
 // fixed:
-campo.removeAttribute('aria-invalid');</code></pre></div>
+field.removeAttribute('aria-invalid');</code></pre></div>
 
-<h2 id="erro">Why an attribute, and not a class</h2>
+<h2 id="error">Why an attribute, and not a class</h2>
 <p class="lead">A red class only serves those who can see it. <code>aria-invalid</code> serves the screen and the screen reader at the same
    time, which is why the two cannot drift apart.</p>
 

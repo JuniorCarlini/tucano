@@ -26,7 +26,7 @@ description: Accordion built on native <details> and <summary> — keyboard, sem
   </div>
 </div>
 
-<h2 id="exemplos">Examples</h2>
+<h2 id="examples">Examples</h2>
 <p class="lead">The same <code>&lt;details&gt;</code>, with one extra attribute or class.</p>
 
 <div class="demo">
@@ -34,7 +34,7 @@ description: Accordion built on native <details> and <summary> — keyboard, sem
     <div class="demo-cell">
       <h4>Several open</h4>
       <p>Without <code>data-single</code>, each item opens and closes on its own.</p>
-      <div class="tuc-accordion" data-tuc-accordion id="accordion-varios">
+      <div class="tuc-accordion" data-tuc-accordion id="accordion-multiple">
         <details open>
           <summary>Contract details</summary>
           <p>Number 2026-0142, valid for 12 months.</p>
@@ -52,7 +52,7 @@ description: Accordion built on native <details> and <summary> — keyboard, sem
     <div class="demo-cell">
       <h4>One at a time</h4>
       <p><code>data-single="true"</code> collapses the others when one opens.</p>
-      <div class="tuc-accordion" data-tuc-accordion data-single="true" id="accordion-unico">
+      <div class="tuc-accordion" data-tuc-accordion data-single="true" id="accordion-single">
         <details>
           <summary>Monthly plan</summary>
           <p>Billed on the 10th of every month, cancel anytime.</p>
@@ -70,14 +70,14 @@ description: Accordion built on native <details> and <summary> — keyboard, sem
     <div class="demo-cell">
       <h4>Real content inside</h4>
       <p>The height is measured by the browser, not guessed: forms, tables and images open the same way.</p>
-      <div class="tuc-accordion" data-tuc-accordion id="accordion-filtros">
+      <div class="tuc-accordion" data-tuc-accordion id="accordion-filters">
         <details>
           <summary>Report filters</summary>
           <div>
-            <label class="tuc-label" for="accordion-filtros-periodo">Period</label>
-            <input type="text" id="accordion-filtros-periodo" data-tuc-datepicker data-mode="range" placeholder="Pick a range">
-            <label class="tuc-label" for="accordion-filtros-uf" style="margin-top:12px">States</label>
-            <select id="accordion-filtros-uf" data-tuc-select multiple data-placeholder="All">
+            <label class="tuc-label" for="accordion-filters-period">Period</label>
+            <input type="text" id="accordion-filters-period" data-tuc-datepicker data-mode="range" placeholder="Pick a range">
+            <label class="tuc-label" for="accordion-filters-state" style="margin-top:12px">States</label>
+            <select id="accordion-filters-state" data-tuc-select multiple data-placeholder="All">
               <option value="sp">São Paulo</option><option value="rj">Rio de Janeiro</option>
               <option value="mg">Minas Gerais</option><option value="pr">Paraná</option>
             </select>
@@ -117,7 +117,7 @@ description: Accordion built on native <details> and <summary> — keyboard, sem
   </div>
 </div>
 
-<h2 id="uso">How to use</h2>
+<h2 id="usage">How to use</h2>
 <p class="lead">The HTML is the usual one. The <code>&lt;details&gt;</code> elements must be direct children of the marked element, and
    the <code>open</code> written in the template says which ones start open.</p>
 
@@ -142,10 +142,10 @@ description: Accordion built on native <details> and <summary> — keyboard, sem
 <h3>In the Django template</h3>
 <pre data-code="django">
 <div class="tuc-accordion" data-tuc-accordion data-single="true">
-  {% for pergunta in perguntas %}
+  {% for question in questions %}
     <details{% if forloop.first %} open{% endif %}>
-      <summary>{{ pergunta.titulo }}</summary>
-      {{ pergunta.resposta|linebreaks }}
+      <summary>{{ question.title }}</summary>
+      {{ question.answer|linebreaks }}
     </details>
   {% endfor %}
 </div>
@@ -162,7 +162,7 @@ faq.items;           // the <details>, in order
 faq.destroy();
 </pre>
 
-<h2 id="animacao">How it animates</h2>
+<h2 id="animation">How it animates</h2>
 <p class="lead">The content height is <code>auto</code>, and <code>auto</code> doesn't transition. On close, the browser also hides
    the content in the same frame in which <code>open</code> is removed.</p>
 
@@ -179,7 +179,7 @@ faq.destroy();
    On init, the component opens and closes each item in the same synchronous block — nothing gets painted — just to get that
    calculation out of the way. With <code>prefers-reduced-motion</code>, the transition drops to 1 ms.</p>
 
-<h2 id="teclado">Keyboard and accessibility</h2>
+<h2 id="keyboard">Keyboard and accessibility</h2>
 <p class="lead">Everything here comes from <code>&lt;details&gt;</code>: the <code>&lt;summary&gt;</code> is focusable, and the screen reader announces
    collapsed and expanded without any <code>aria-*</code> of ours.</p>
 

@@ -156,10 +156,10 @@ function toggleCode() {
     if (target.tagName === 'PRE') {
       const block = document.createDocumentFragment();
       for (const row of text.split('\n')) {
-        const par = document.createElement('p');
-        if (row) par.textContent = row;
-        else par.append(document.createElement('br'));
-        block.append(par);
+        const paragraph = document.createElement('p');
+        if (row) paragraph.textContent = row;
+        else paragraph.append(document.createElement('br'));
+        block.append(paragraph);
       }
       const first = block.firstChild;
       target.replaceWith(block);
@@ -305,24 +305,24 @@ const emptyCell = (tag) => {
 
 function insertRow(cell, after) {
   const row = cell.parentElement;
-  const nova = document.createElement('tr');
-  for (let i = 0; i < row.children.length; i++) nova.append(emptyCell('td'));
+  const newRow = document.createElement('tr');
+  for (let i = 0; i < row.children.length; i++) newRow.append(emptyCell('td'));
   // Linha acima do cabecalho vira corpo, nao outro cabecalho.
   const body = cell.closest('table').querySelector('tbody');
   if (row.parentElement.tagName === 'THEAD' && body) {
-    body.prepend(nova);
+    body.prepend(newRow);
   } else {
-    row.parentElement.insertBefore(nova, after ? row.nextSibling : row);
+    row.parentElement.insertBefore(newRow, after ? row.nextSibling : row);
   }
-  return nova.firstElementChild;
+  return newRow.firstElementChild;
 }
 
 function insertColumn(cell, after) {
   const i = [...cell.parentElement.children].indexOf(cell);
   for (const row of cell.closest('table').querySelectorAll('tr')) {
     const model = row.children[i];
-    const nova = emptyCell(model?.tagName === 'TH' ? 'th' : 'td');
-    row.insertBefore(nova, after ? model?.nextSibling : model);
+    const newCell = emptyCell(model?.tagName === 'TH' ? 'th' : 'td');
+    row.insertBefore(newCell, after ? model?.nextSibling : model);
   }
   return cell.parentElement.children[after ? i + 1 : i];
 }
@@ -379,18 +379,18 @@ function restoreOffset(block, howMany) {
   if (howMany == null) return;
   const step = document.createTreeWalker(block, NodeFilter.SHOW_TEXT);
   let counted = 0;
-  let no;
-  while ((no = step.nextNode())) {
-    if (counted + no.length >= howMany) {
+  let node;
+  while ((node = step.nextNode())) {
+    if (counted + node.length >= howMany) {
       const r = document.createRange();
-      r.setStart(no, howMany - counted);
+      r.setStart(node, howMany - counted);
       r.collapse(true);
       const sel = window.getSelection();
       sel.removeAllRanges();
       sel.addRange(r);
       return;
     }
-    counted += no.length;
+    counted += node.length;
   }
 }
 
@@ -542,10 +542,10 @@ export class Editor {
         if (!target && !e.shiftKey) {
           const body = cell.closest('table').querySelector('tbody') || cell.closest('table');
           const model = body.querySelector('tr') || cell.parentElement;
-          const nova = document.createElement('tr');
-          for (let i = 0; i < model.children.length; i++) nova.append(emptyCell('td'));
-          body.append(nova);
-          target = nova.firstElementChild;
+          const newRow = document.createElement('tr');
+          for (let i = 0; i < model.children.length; i++) newRow.append(emptyCell('td'));
+          body.append(newRow);
+          target = newRow.firstElementChild;
           this._sync();
         }
         focusCell(target);
@@ -591,7 +591,7 @@ export class Editor {
   }
 
   _markActive() {
-    const no = this._currentNode();
+    const node = this._currentNode();
     for (const b of this.toolbar.querySelectorAll('[data-action]')) {
       const action = b.dataset.action;
       const cmd = STATES[action];
@@ -601,8 +601,8 @@ export class Editor {
       let active = false;
       if (cmd) {
         try { active = document.queryCommandState(cmd); } catch { /* sem selecao */ }
-      } else if (no) {
-        active = !!no.closest?.(selector);
+      } else if (node) {
+        active = !!node.closest?.(selector);
       }
       b.setAttribute('aria-pressed', String(active));
       b.classList.toggle('is-active', active);
@@ -613,8 +613,8 @@ export class Editor {
   _currentCell() {
     const sel = window.getSelection();
     if (!sel?.anchorNode || !this.area.contains(sel.anchorNode)) return null;
-    const no = sel.anchorNode.nodeType === Node.ELEMENT_NODE ? sel.anchorNode : sel.anchorNode.parentElement;
-    const cell = no?.closest?.('th, td') ?? null;
+    const node = sel.anchorNode.nodeType === Node.ELEMENT_NODE ? sel.anchorNode : sel.anchorNode.parentElement;
+    const cell = node?.closest?.('th, td') ?? null;
     /*
      * A selecao sobrevive ao no que ela apontava: remover uma linha deixa o
      * cursor num elemento que ja saiu do documento, e a operacao seguinte

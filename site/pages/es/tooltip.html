@@ -17,7 +17,7 @@ description: Pista corta anclada a un elemento, que aparece con el puntero, con 
   </div>
 </div>
 
-<h2 id="exemplos">Ejemplos</h2>
+<h2 id="examples">Ejemplos</h2>
 <p class="lead">Lado y alineación son los de shadcn, y el valor predeterminado también: <code>top-center</code>.</p>
 
 <div class="demo">
@@ -54,7 +54,7 @@ description: Pista corta anclada a un elemento, que aparece con el puntero, con 
   </div>
 </div>
 
-<h2 id="uso">Cómo usar</h2>
+<h2 id="usage">Cómo usar</h2>
 <p class="lead">El texto va en el propio atributo, y se inicializa solo, incluso lo que llegue después por HTMX.</p>
 
 <pre data-code="html">
@@ -80,8 +80,8 @@ description: Pista corta anclada a un elemento, que aparece con el puntero, con 
 
 <h3>En la plantilla de Django</h3>
 <pre data-code="django">
-<span class="tuc-badge is-warning" data-tuc-tip="Vence el {{ contrato.vencimento|date:'d/m/Y' }}">
-  {{ contrato.get_status_display }}
+<span class="tuc-badge is-warning" data-tuc-tip="Vence el {{ contract.due_date|date:'d/m/Y' }}">
+  {{ contract.get_status_display }}
 </span>
 </pre>
 
@@ -90,7 +90,7 @@ description: Pista corta anclada a un elemento, que aparece con el puntero, con 
 
 <h3>En JavaScript</h3>
 <pre data-code="js">
-new Tucano.Tooltip('#exportar', {
+new Tucano.Tooltip('#export', {
   text: 'Genera el PDF',
   placement: 'right-center',
   delay: 350,         // al apuntar: evita parpadeos al pasar el ratón de refilón
@@ -100,16 +100,16 @@ new Tucano.Tooltip('#exportar', {
 });
 </pre>
 
-<h2 id="cor">Color</h2>
+<h2 id="color">Color</h2>
 <p class="lead">Dos variables, y la flecha lee las mismas: cambiar el color del globo no despega la punta. Vale para todos, en
    <code>.tuc-tip</code>, o para un solo caso, con <code>data-tip-class</code>.</p>
 
 <div class="demo">
   <div class="bar">
     <button type="button" class="tuc-btn is-outline is-sm" data-tuc-tip="Predeterminado: el inverso del tema">Predeterminado</button>
-    <button type="button" class="tuc-btn is-outline is-sm" id="tooltip-cor-destaque">Acento</button>
-    <button type="button" class="tuc-btn is-outline is-sm" id="tooltip-cor-perigo">Peligro</button>
-    <button type="button" class="tuc-btn is-outline is-sm" id="tooltip-cor-claro">Claro</button>
+    <button type="button" class="tuc-btn is-outline is-sm" id="tooltip-color-accent">Acento</button>
+    <button type="button" class="tuc-btn is-outline is-sm" id="tooltip-color-danger">Peligro</button>
+    <button type="button" class="tuc-btn is-outline is-sm" id="tooltip-color-light">Claro</button>
   </div>
 </div>
 
@@ -123,7 +123,7 @@ new Tucano.Tooltip('#exportar', {
 <button data-tuc-tip="Solo los administradores pueden eliminar" data-tip-class="tip-danger">Eliminar</button>
 </pre>
 
-<h2 id="comportamento">Cuándo aparece y cuándo desaparece</h2>
+<h2 id="behavior">Cuándo aparece y cuándo desaparece</h2>
 <p class="lead">Solo una pista queda abierta a la vez: abrir otra cierra la anterior.</p>
 
 <div class="tuc-table-wrap"><table class="tuc-table">
@@ -139,7 +139,7 @@ new Tucano.Tooltip('#exportar', {
   </tbody>
 </table></div>
 
-<h2 id="acessibilidade">Accesibilidad</h2>
+<h2 id="accessibility">Accesibilidad</h2>
 <p class="lead">El globo es un <code>role="tooltip"</code>, y el elemento apunta a él con <code>aria-describedby</code>: el
    lector de pantalla lee la pista junto con el botón, como su descripción, y no como un elemento perdido en la página.</p>
 
@@ -157,16 +157,16 @@ new Tucano.Tooltip('#exportar', {
     // La página de documentación no tiene CSS propio de componente, así que aquí las
     // dos variables van directo en el globo. En tu proyecto, usa la clase con
     // data-tip-class, como en el bloque de arriba.
-    const cores = [
-      ['#tooltip-cor-destaque', 'Cambiado con dos variables', 'var(--tuc-accent)', 'var(--tuc-accent-fg)'],
-      ['#tooltip-cor-perigo', 'Solo los administradores pueden eliminar', 'var(--tuc-danger-fill)', '#fff'],
-      ['#tooltip-cor-claro', 'Fondo claro con sombra', 'var(--tuc-bg)', 'var(--tuc-fg)'],
+    const colors = [
+      ['#tooltip-color-accent', 'Cambiado con dos variables', 'var(--tuc-accent)', 'var(--tuc-accent-fg)'],
+      ['#tooltip-color-danger', 'Solo los administradores pueden eliminar', 'var(--tuc-danger-fill)', '#fff'],
+      ['#tooltip-color-light', 'Fondo claro con sombra', 'var(--tuc-bg)', 'var(--tuc-fg)'],
     ];
-    for (const [alvo, text, fundo, texto] of cores) {
-      const dica = new Tucano.Tooltip(alvo, { text });
-      dica.panel.style.setProperty('--tuc-tip-bg', fundo);
-      dica.panel.style.setProperty('--tuc-tip-fg', texto);
-      if (alvo === '#tooltip-cor-claro') dica.panel.style.boxShadow = 'var(--tuc-shadow)';
+    for (const [target, text, background, color] of colors) {
+      const tip = new Tucano.Tooltip(target, { text });
+      tip.panel.style.setProperty('--tuc-tip-bg', background);
+      tip.panel.style.setProperty('--tuc-tip-fg', color);
+      if (target === '#tooltip-color-light') tip.panel.style.boxShadow = 'var(--tuc-shadow)';
     }
   }
 </script>

@@ -334,15 +334,15 @@ export class Mask {
    * Marca o campo. setCustomValidity faz o formulario do navegador barrar o
    * submit sozinho, sem o projeto escrever nada.
    *
-   * `aprovado` acende o verde (data-tuc-valid): so para valor preenchido e certo.
+   * `approved` acende o verde (data-tuc-valid): so para valor preenchido e certo.
    * Vazio fica neutro — obrigatoriedade e assunto do `required`, nao da mascara.
    */
-  _mark(ok, aprovado = false) {
+  _mark(ok, approved = false) {
     const msg = ok ? '' : (this.opts.errorText || this.preset?.error || 'Valor inválido');
     this.input.setCustomValidity?.(msg);
     this.input.classList.toggle('tuc-invalid', !ok);
     this.input.setAttribute('aria-invalid', ok ? 'false' : 'true');
-    this.input.toggleAttribute('data-tuc-valid', ok && aprovado);
+    this.input.toggleAttribute('data-tuc-valid', ok && approved);
   }
 
   _emit() {

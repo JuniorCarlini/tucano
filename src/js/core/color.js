@@ -118,11 +118,11 @@ export function hsvToHsl({ h, s, v }) {
  * cima da cor — o olho nao le luminosidade como media aritmetica dos canais.
  */
 export function luminance({ r, g, b }) {
-  const canal = (c) => {
+  const channel = (c) => {
     const s = c / 255;
     return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
   };
-  return 0.2126 * canal(r) + 0.7152 * canal(g) + 0.0722 * canal(b);
+  return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b);
 }
 
 /**

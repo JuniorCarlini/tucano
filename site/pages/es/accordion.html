@@ -26,7 +26,7 @@ description: Acordeón sobre <details> y <summary> nativos — teclado, semánti
   </div>
 </div>
 
-<h2 id="exemplos">Ejemplos</h2>
+<h2 id="examples">Ejemplos</h2>
 <p class="lead">El mismo <code>&lt;details&gt;</code>, con un atributo o una clase de más.</p>
 
 <div class="demo">
@@ -34,7 +34,7 @@ description: Acordeón sobre <details> y <summary> nativos — teclado, semánti
     <div class="demo-cell">
       <h4>Varios abiertos</h4>
       <p>Sin <code>data-single</code>, cada elemento abre y cierra por su cuenta.</p>
-      <div class="tuc-accordion" data-tuc-accordion id="accordion-varios">
+      <div class="tuc-accordion" data-tuc-accordion id="accordion-multiple">
         <details open>
           <summary>Datos del contrato</summary>
           <p>Número 2026-0142, vigencia de 12 meses.</p>
@@ -52,7 +52,7 @@ description: Acordeón sobre <details> y <summary> nativos — teclado, semánti
     <div class="demo-cell">
       <h4>Uno a la vez</h4>
       <p><code>data-single="true"</code> pliega los demás al abrir uno.</p>
-      <div class="tuc-accordion" data-tuc-accordion data-single="true" id="accordion-unico">
+      <div class="tuc-accordion" data-tuc-accordion data-single="true" id="accordion-single">
         <details>
           <summary>Plan mensual</summary>
           <p>Cobro cada día 10, cancela cuando quieras.</p>
@@ -70,14 +70,14 @@ description: Acordeón sobre <details> y <summary> nativos — teclado, semánti
     <div class="demo-cell">
       <h4>Contenido de verdad dentro</h4>
       <p>La altura la mide el navegador, no se adivina: formulario, tabla e imagen abren igual.</p>
-      <div class="tuc-accordion" data-tuc-accordion id="accordion-filtros">
+      <div class="tuc-accordion" data-tuc-accordion id="accordion-filters">
         <details>
           <summary>Filtros del informe</summary>
           <div>
-            <label class="tuc-label" for="accordion-filtros-periodo">Período</label>
-            <input type="text" id="accordion-filtros-periodo" data-tuc-datepicker data-mode="range" placeholder="Elige el intervalo">
-            <label class="tuc-label" for="accordion-filtros-uf" style="margin-top:12px">Estados</label>
-            <select id="accordion-filtros-uf" data-tuc-select multiple data-placeholder="Todos">
+            <label class="tuc-label" for="accordion-filters-period">Período</label>
+            <input type="text" id="accordion-filters-period" data-tuc-datepicker data-mode="range" placeholder="Elige el intervalo">
+            <label class="tuc-label" for="accordion-filters-state" style="margin-top:12px">Estados</label>
+            <select id="accordion-filters-state" data-tuc-select multiple data-placeholder="Todos">
               <option value="sp">São Paulo</option><option value="rj">Rio de Janeiro</option>
               <option value="mg">Minas Gerais</option><option value="pr">Paraná</option>
             </select>
@@ -117,7 +117,7 @@ description: Acordeón sobre <details> y <summary> nativos — teclado, semánti
   </div>
 </div>
 
-<h2 id="uso">Cómo usar</h2>
+<h2 id="usage">Cómo usar</h2>
 <p class="lead">El HTML es el de siempre. Los <code>&lt;details&gt;</code> deben ser hijos directos del elemento marcado, y el
    <code>open</code> escrito en la plantilla indica cuáles nacen abiertos.</p>
 
@@ -142,10 +142,10 @@ description: Acordeón sobre <details> y <summary> nativos — teclado, semánti
 <h3>En la plantilla de Django</h3>
 <pre data-code="django">
 <div class="tuc-accordion" data-tuc-accordion data-single="true">
-  {% for pergunta in perguntas %}
+  {% for question in questions %}
     <details{% if forloop.first %} open{% endif %}>
-      <summary>{{ pergunta.titulo }}</summary>
-      {{ pergunta.resposta|linebreaks }}
+      <summary>{{ question.title }}</summary>
+      {{ question.answer|linebreaks }}
     </details>
   {% endfor %}
 </div>
@@ -162,7 +162,7 @@ faq.items;           // los <details>, en orden
 faq.destroy();
 </pre>
 
-<h2 id="animacao">Cómo anima</h2>
+<h2 id="animation">Cómo anima</h2>
 <p class="lead">La altura del contenido es <code>auto</code>, y <code>auto</code> no tiene transición. Al cerrar, además, el navegador oculta
    el contenido en el mismo fotograma en que cae el <code>open</code>.</p>
 
@@ -179,7 +179,7 @@ faq.destroy();
    Al iniciar, el componente abre y cierra cada elemento en el mismo bloque síncrono — no llega a pintarse nada — solo para adelantar ese
    cálculo. Con <code>prefers-reduced-motion</code>, la transición baja a 1 ms.</p>
 
-<h2 id="teclado">Teclado y accesibilidad</h2>
+<h2 id="keyboard">Teclado y accesibilidad</h2>
 <p class="lead">Todo aquí viene del <code>&lt;details&gt;</code>: el <code>&lt;summary&gt;</code> es enfocable, y el lector de pantalla anuncia
    plegado y desplegado sin ningún <code>aria-*</code> nuestro.</p>
 

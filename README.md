@@ -52,9 +52,9 @@ Dois arquivos e nada mais — sem npm, sem build, sem escrever JavaScript:
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.33.1/dist/tucano.min.css">
 <script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.33.1/dist/tucano.min.js" defer></script>
 
-<input type="text" name="data" data-tuc-datepicker>
-<select name="uf" data-tuc-select><option>...</option></select>
-<input type="text" name="cor" value="#4f46e5" data-tuc-color>
+<input type="text" name="date" data-tuc-datepicker>
+<select name="state" data-tuc-select><option>...</option></select>
+<input type="text" name="color" value="#4f46e5" data-tuc-color>
 ```
 
 Funciona junto com o CDN do Tailwind sem conflito: o pacote **não** envia o
@@ -98,10 +98,10 @@ Todo `[data-tuc-datepicker]` é inicializado sozinho no load e depois de cada
 swap do HTMX.
 
 ```html
-<input type="text" name="data" data-tuc-datepicker>
-<input type="text" name="quando" data-tuc-datepicker data-time="true">
-<input type="text" name="periodo" data-tuc-datepicker data-mode="range">
-<input type="text" name="janela" data-tuc-datepicker data-mode="range" data-time="true">
+<input type="text" name="date" data-tuc-datepicker>
+<input type="text" name="when" data-tuc-datepicker data-time="true">
+<input type="text" name="period" data-tuc-datepicker data-mode="range">
+<input type="text" name="window" data-tuc-datepicker data-mode="range" data-time="true">
 ```
 
 Atributos disponíveis: `data-mode`, `data-time`, `data-seconds`,
@@ -112,7 +112,7 @@ Atributos disponíveis: `data-mode`, `data-time`, `data-seconds`,
 ### Por JavaScript
 
 ```js
-const dp = new Tucano.DatePicker('#entrega', {
+const dp = new Tucano.DatePicker('#delivery', {
   mode: 'range',
   time: true,
   minuteStep: 15,
@@ -180,7 +180,7 @@ valor, então `name`, `multiple` e `required` seguem funcionando e o Django rece
 exatamente o que receberia sem o componente — inclusive `getlist()` no múltiplo.
 
 ```html
-<select name="uf" data-tuc-select>
+<select name="state" data-tuc-select>
   <option value="">Selecione...</option>
   <option value="SP">São Paulo</option>
 </select>
@@ -191,7 +191,7 @@ exatamente o que receberia sem o componente — inclusive `getlist()` no múltip
 ```
 
 ```js
-const s = new Tucano.Select('#uf', { search: true, maxItems: 3 });
+const s = new Tucano.Select('#state', { search: true, maxItems: 3 });
 s.getValue();          // 'SP'  (array no mode multiple)
 s.setValue(['a','b']);
 s.refresh();           // releia as <option> depois de um swap do HTMX
@@ -223,13 +223,13 @@ como o X), `Home`/`End` vão às pontas.
 ## Color picker
 
 ```html
-<input type="text" name="cor" value="#4f46e5" data-tuc-color>
-<input type="text" name="marca" value="#0d9488" data-tuc-color data-alpha="false"
+<input type="text" name="color" value="#4f46e5" data-tuc-color>
+<input type="text" name="brand" value="#0d9488" data-tuc-color data-alpha="false"
        data-swatches="#0a0a0a,#ea580c,#16a34a">
 ```
 
 ```js
-const c = new Tucano.ColorPicker('#cor', { format: 'rgb', alpha: false });
+const c = new Tucano.ColorPicker('#color', { format: 'rgb', alpha: false });
 c.getValue();   // 'rgb(79, 70, 229)'
 c.getRgb();     // { r, g, b, a }
 ```
@@ -266,17 +266,17 @@ no submit, então o servidor recebe em `request.FILES` como sempre.
 repetir. O formulário posta só os ids devolvidos. Funciona também sem `<form>`.
 
 ```html
-<input type="file" name="anexos" multiple data-tuc-upload data-max-size="5mb">
+<input type="file" name="attachments" multiple data-tuc-upload data-max-size="5mb">
 
-<input type="file" name="fotos" multiple accept="image/*"
+<input type="file" name="photos" multiple accept="image/*"
        data-tuc-upload data-url="/upload/">
 ```
 
 ```python
 def upload_temp(request):
-    arquivo = request.FILES["file"]
-    temp = TempUpload.objects.create(arquivo=arquivo)
-    return JsonResponse({"id": str(temp.id), "url": temp.arquivo.url})
+    uploaded = request.FILES["file"]
+    temp = TempUpload.objects.create(file=uploaded)
+    return JsonResponse({"id": str(temp.id), "url": temp.file.url})
 ```
 
 | Atributo | Padrão | O que faz |
@@ -344,7 +344,7 @@ Tucano.toast('Salvo');
 Tucano.toast.error('Não foi possível salvar');
 Tucano.toast({
   type: 'success', title: 'Contrato excluído', text: 'Ainda dá para voltar atrás.',
-  action: { text: 'Desfazer', onClick: () => restaurar() },
+  action: { text: 'Desfazer', onClick: () => restore() },
   position: 'bottom-end', duration: null,
 });
 ```
@@ -361,7 +361,7 @@ vira o resultado **no mesmo cartão**, em vez de fechar um e abrir outro:
 
 ```js
 const t = Tucano.toast.loading('Enviando arquivo...');
-await enviar();
+await send();
 t.update({ type: 'success', text: 'Arquivo enviado' });
 
 // ou entregue a promessa e deixe os três estados por conta dela
@@ -415,12 +415,12 @@ Tucano.modal({
   sheet: true,        // no mobile sobe do rodapé
   actions: [
     { text: 'Cancelar', variant: 'outline' },
-    { text: 'Excluir', variant: 'danger', onClick: () => excluir() },
+    { text: 'Excluir', variant: 'danger', onClick: () => deleteContract() },
   ],
 });
 
 // confirmação como promessa; fechar por fora resolve false
-if (await Tucano.confirm({ title: 'Excluir contrato?' })) excluir();
+if (await Tucano.confirm({ title: 'Excluir contrato?' })) deleteContract();
 ```
 
 ## Baixar só o que se usa
@@ -481,7 +481,7 @@ Mostra o resultado enquanto se escreve, com tabela e bloco de código. O
 funcionam sem nada especial:
 
 ```html
-<textarea name="descricao" data-tuc-editor>{{ form.descricao.value|default:"" }}</textarea>
+<textarea name="description" data-tuc-editor>{{ form.description.value|default:"" }}</textarea>
 ```
 
 Colar entra sempre como texto puro — é o que evita o HTML do Word. E a saída
@@ -499,7 +499,7 @@ saída em `.tuc-prose` devolve a aparência que a pessoa viu ao escrever — sã
 mesmas regras de CSS da área de edição:
 
 ```html
-<div class="tuc-prose">{{ projeto.descricao|safe }}</div>
+<div class="tuc-prose">{{ project.description|safe }}</div>
 ```
 
 O código publicado é colorido pelo `init()`. O destacador não conhece linguagem
@@ -532,7 +532,7 @@ Para voltar ao comportamento antigo no date picker, `openOnFocus: true`.
 ```js
 Tucano.sanitize(html)   // aplica a peneira de tags do editor
 Tucano.highlight(code)  // devolve o código com marcação de cor
-Tucano.init(elemento)   // inicializa data-tuc-* num trecho novo de HTML
+Tucano.init(node)       // inicializa data-tuc-* num trecho novo de HTML
 ```
 
 Os três módulos que os componentes usam por dentro também saem prontos, porque
@@ -569,19 +569,19 @@ O `<table>` do template continua sendo a fonte da verdade, e a célula é livre.
 ```html
 <table data-tuc-table data-selectable class="is-striped">
   <thead><tr>
-    <th data-sort="text" data-field="cliente" style="width:38%">Cliente</th>
-    <th data-sort="number" data-field="valor" class="is-number">Valor</th>
+    <th data-sort="text" data-field="customer" style="width:38%">Cliente</th>
+    <th data-sort="number" data-field="amount" class="is-number">Valor</th>
     <th data-sort="none" class="tuc-table__actions">Ações</th>
   </tr></thead>
   <tbody>
     <tr data-id="{{ obj.pk }}">
       <td>
         <span class="tuc-table__user">
-          <span class="tuc-table__avatar"><img src="{{ obj.foto.url }}" alt=""></span>
-          <span>{{ obj.nome }}<span class="tuc-table__sub">{{ obj.doc }}</span></span>
+          <span class="tuc-table__avatar"><img src="{{ obj.photo.url }}" alt=""></span>
+          <span>{{ obj.name }}<span class="tuc-table__sub">{{ obj.doc }}</span></span>
         </span>
       </td>
-      <td class="is-number" data-sort-value="{{ obj.valor }}">{{ obj.valor|floatformat:2 }}</td>
+      <td class="is-number" data-sort-value="{{ obj.amount }}">{{ obj.amount|floatformat:2 }}</td>
       <td class="tuc-table__actions">
         <button class="tuc-btn is-outline is-icon is-sm">...</button>
       </td>
@@ -659,8 +659,8 @@ vinte etiquetas sólidas competem com o conteúdo e a tabela vira um semáforo.
 <input id="doc" name="doc" data-tuc-mask="cnpj" aria-invalid="true" aria-describedby="doc-e">
 <p class="tuc-error" id="doc-e">CNPJ inválido.</p>
 
-<label class="tuc-label" for="plano">Plano</label>
-<select class="tuc-input" id="plano" name="plano"><option>Mensal</option><option>Anual</option></select>
+<label class="tuc-label" for="plan">Plano</label>
+<select class="tuc-input" id="plan" name="plan"><option>Mensal</option><option>Anual</option></select>
 <p class="tuc-hint">Dá para trocar depois.</p>
 ```
 
@@ -687,13 +687,13 @@ este para a lista curta em que o Select com busca seria exagero.
 
 ```html
 <label class="tuc-choice">
-  <input type="checkbox" class="tuc-check" name="nf"> Nota fiscal por e-mail
+  <input type="checkbox" class="tuc-check" name="invoice"> Nota fiscal por e-mail
 </label>
 
 <fieldset class="tuc-choices">
   <legend>Entrega</legend>
   <label class="tuc-choice">
-    <input type="radio" class="tuc-radio" name="frete" value="normal" checked>
+    <input type="radio" class="tuc-radio" name="shipping" value="standard" checked>
     <span>Normal <span class="tuc-choice__hint">Até 7 dias úteis</span></span>
   </label>
 </fieldset>
@@ -746,10 +746,10 @@ new Tucano.Dropdown('#actions', {
   placement: 'bottom-start',    // as mesmas posições do tooltip
   items: [
     { label: 'Contrato' },
-    { text: 'Editar', shortcut: '⌘E', onClick: () => abrirEdicao() },
-    { text: 'Abrir', href: '/contratos/12/' },
+    { text: 'Editar', shortcut: '⌘E', onClick: () => editContract() },
+    { text: 'Abrir', href: '/contracts/12/' },
     { separator: true },
-    { text: 'Excluir', variant: 'danger', onClick: () => excluir() },
+    { text: 'Excluir', variant: 'danger', onClick: () => deleteContract() },
   ],
 });
 ```
@@ -785,8 +785,8 @@ do `Tab`, e dentro dela andam `←` `→` `Home` `End`, pulando aba desativada.
 | `onChange` | `null` | `(index, detail)` a cada troca |
 
 ```js
-const abas = new Tucano.Tabs('#cliente', { manual: true });
-abas.select(2);
+const tabs = new Tucano.Tabs('#customer', { manual: true });
+tabs.select(2);
 ```
 
 Cada troca dispara `tucano:change` no elemento, com `{ value, tab, panel, instance }`.
@@ -800,7 +800,7 @@ Cada troca dispara `tucano:change` no elemento, com `{ value, tab, panel, instan
     <p class="tuc-alert__title">Assinatura vence em 3 dias</p>
     <p>Renove para não perder o acesso.</p>
   </div>
-  <div class="tuc-alert__actions"><a class="tuc-btn is-outline is-sm" href="/assinatura/">Renovar</a></div>
+  <div class="tuc-alert__actions"><a class="tuc-btn is-outline is-sm" href="/subscription/">Renovar</a></div>
 </div>
 ```
 
@@ -863,7 +863,7 @@ uma correção num deles vale para o outro:
 
 ```js
 Tucano.drawer({ title: 'Filtros', side: 'right' })  // left | right | top | bottom
-  .content(formulario);
+  .content(form);
 ```
 
 Nas laterais o `size` é largura de coluna (18, 24 ou 34rem) e no celular ela
@@ -874,13 +874,13 @@ Com conteúdo do servidor, o `<dialog>` mora no template e o Tucano só abre,
 fecha e anima:
 
 ```html
-<dialog class="tuc-modal is-md" id="excluir">
+<dialog class="tuc-modal is-md" id="delete">
   <div class="tuc-modal__panel">
     <form method="post">{% csrf_token %} ... </form>
     <button data-tuc-modal-close>Cancelar</button>
   </div>
 </dialog>
-<button data-tuc-modal="#excluir">Excluir</button>
+<button data-tuc-modal="#delete">Excluir</button>
 ```
 
 ## Tooltip
@@ -919,9 +919,9 @@ envolve nem substitui o input — é comportamento puro.
 ```html
 <input name="cpf"       data-tuc-mask="cpf" data-validate="true">
 <input name="cnpj"      data-tuc-mask="cnpj">
-<input name="documento"  data-tuc-mask="cpf-cnpj">
-<input name="telefone"   data-tuc-mask="phone">
-<input name="valor"      data-tuc-mask="real">
+<input name="document"   data-tuc-mask="cpf-cnpj">
+<input name="phone"      data-tuc-mask="phone">
+<input name="amount"     data-tuc-mask="real">
 <input name="cep"       data-tuc-mask="cep">
 <input                  data-tuc-mask="##/##">   <!-- template livre -->
 ```
@@ -945,7 +945,7 @@ navegador barra o submit sozinho via `setCustomValidity` — sem escrever nada.
 
 ```html
 <input name="cpf" value="111.444.777-35" data-tuc-mask="cpf" data-tuc-reveal>
-<input type="password" name="senha" data-tuc-reveal>
+<input type="password" name="password" data-tuc-reveal>
 ```
 
 Nasce oculto quando já tem conteúdo, mostrando `•••.•••.•••-35`. O valor real
@@ -1039,23 +1039,23 @@ O input visível mostra a data no formato do locale; um `<input type="hidden">`
 com o mesmo `name` carrega o valor em ISO. É esse que chega no `request.POST`:
 
 ```html
-<input type="text" name="data_evento" data-tuc-datepicker data-time="true">
+<input type="text" name="event_date" data-tuc-datepicker data-time="true">
 ```
 
 ```
-POST  data_evento = 2026-12-25T09:30
+POST  event_date = 2026-12-25T09:30
 ```
 
 `DateField` e `DateTimeField` do Django fazem o parse disso sem configuração.
 Em modo `range` o valor sai como `2026-03-01,2026-03-15` — separe no form:
 
 ```python
-class ReservaForm(forms.Form):
-    periodo = forms.CharField()
+class BookingForm(forms.Form):
+    period = forms.CharField()
 
-    def clean_periodo(self):
-        inicio, _, fim = self.cleaned_data['periodo'].partition(',')
-        return date.fromisoformat(inicio), date.fromisoformat(fim)
+    def clean_period(self):
+        start, _, end = self.cleaned_data['period'].partition(',')
+        return date.fromisoformat(start), date.fromisoformat(end)
 ```
 
 ---

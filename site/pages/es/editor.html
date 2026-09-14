@@ -10,8 +10,8 @@ description: Editor que muestra el resultado mientras se escribe, con tabla, blo
    formulario guardando el HTML, así que <code>name</code>, <code>required</code> y el POST funcionan sin cambiar la view.</p>
 
 <div class="demo is-hero">
-  <label class="tuc-label" for="ed-descricao">Descripción del proyecto</label>
-  <textarea id="ed-descricao" name="descricao" data-tuc-editor data-placeholder="Escribe aquí…">&lt;h2&gt;Alcance del contrato&lt;/h2&gt;
+  <label class="tuc-label" for="ed-description">Descripción del proyecto</label>
+  <textarea id="ed-description" name="description" data-tuc-editor data-placeholder="Escribe aquí…">&lt;h2&gt;Alcance del contrato&lt;/h2&gt;
 &lt;p&gt;Relevamiento en terreno con &lt;strong&gt;informe fotográfico&lt;/strong&gt;, &lt;em&gt;medición de las unidades&lt;/em&gt; y &lt;u&gt;dictamen firmado&lt;/u&gt;.&lt;/p&gt;
 &lt;h3&gt;Etapas&lt;/h3&gt;
 &lt;ol&gt;&lt;li&gt;Inspección inicial&lt;/li&gt;&lt;li&gt;Medición&lt;/li&gt;&lt;li&gt;Emisión del dictamen&lt;/li&gt;&lt;/ol&gt;
@@ -22,10 +22,10 @@ description: Editor que muestra el resultado mientras se escribe, con tabla, blo
   &amp;lt;div data-tuc-toast&amp;gt;{{ m }}&amp;lt;/div&amp;gt;
 {% endfor %}&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Condiciones completas en &lt;a href="https://exemplo.com"&gt;nuestra política&lt;/a&gt;. Frase con &lt;code&gt;código&lt;/code&gt; en el medio.&lt;/p&gt;</textarea>
-  <div class="out" id="ed-descricao-valor"></div>
+  <div class="out" id="ed-description-value"></div>
 </div>
 
-<h2 id="exemplos">Ejemplos</h2>
+<h2 id="examples">Ejemplos</h2>
 <p class="lead">El mismo <code>&lt;textarea&gt;</code>, con atributos u opciones distintos.</p>
 
 <div class="demo">
@@ -33,44 +33,44 @@ description: Editor que muestra el resultado mientras se escribe, con tabla, blo
     <div class="demo-cell">
       <h4>Barra reducida</h4>
       <p><code>toolbar</code> elige los botones y el orden — aquí, solo lo que necesita un comentario.</p>
-      <textarea id="ed-comentario" name="comentario" aria-label="Comentario">&lt;p&gt;Aprobado con &lt;strong&gt;reservas&lt;/strong&gt;.&lt;/p&gt;</textarea>
+      <textarea id="ed-comment" name="comment" aria-label="Comentario">&lt;p&gt;Aprobado con &lt;strong&gt;reservas&lt;/strong&gt;.&lt;/p&gt;</textarea>
     </div>
     <div class="demo-cell">
       <h4>Vacío, más bajo</h4>
       <p><code>data-placeholder</code> y <code>data-min-height="5rem"</code>.</p>
-      <textarea id="ed-obs" name="observacoes" data-tuc-editor data-placeholder="Observaciones para el equipo…" data-min-height="5rem" aria-label="Observaciones"></textarea>
+      <textarea id="ed-notes" name="notes" data-tuc-editor data-placeholder="Observaciones para el equipo…" data-min-height="5rem" aria-label="Observaciones"></textarea>
     </div>
     <div class="demo-cell">
       <h4>Con error</h4>
       <p><code>aria-invalid="true"</code> en el textarea pinta el marco — Django 5 ya escribe el atributo.</p>
-      <textarea id="ed-erro" name="justificativa" data-tuc-editor data-min-height="5rem" aria-invalid="true" aria-describedby="ed-erro-msg" aria-label="Justificación"></textarea>
-      <p class="tuc-error" id="ed-erro-msg">Escribe la justificación.</p>
+      <textarea id="ed-error" name="justification" data-tuc-editor data-min-height="5rem" aria-invalid="true" aria-describedby="ed-error-msg" aria-label="Justificación"></textarea>
+      <p class="tuc-error" id="ed-error-msg">Escribe la justificación.</p>
     </div>
     <div class="demo-cell">
       <h4>El filtro, en vivo</h4>
       <p><code>Tucano.sanitize()</code> sobre un HTML con <code>onerror</code>, <code>javascript:</code> y <code>&lt;script&gt;</code>.</p>
-      <div class="out" id="ed-peneira-entrada"></div>
-      <div class="out" id="ed-peneira-saida"></div>
+      <div class="out" id="ed-sanitizer-input"></div>
+      <div class="out" id="ed-sanitizer-output"></div>
     </div>
   </div>
 </div>
 
-<h2 id="uso">Cómo usar</h2>
+<h2 id="usage">Cómo usar</h2>
 <p class="lead">Marca el <code>&lt;textarea&gt;</code> y se inicializa solo, incluso lo que llegue después por HTMX.
    El contenido inicial es el HTML guardado, y también pasa por el filtro — puede haber venido de la base de datos.</p>
 
 <pre data-code="django">
-<textarea name="descricao" data-tuc-editor>{{ form.descricao.value|default:"" }}</textarea>
+<textarea name="description" data-tuc-editor>{{ form.description.value|default:"" }}</textarea>
 </pre>
 
 <h3>En el formulario de Django</h3>
 <pre data-code="python">
-class ProjetoForm(forms.ModelForm):
+class ProjectForm(forms.ModelForm):
     class Meta:
-        model = Projeto
-        fields = ["descricao"]
+        model = Project
+        fields = ["description"]
         widgets = {
-            "descricao": forms.Textarea(attrs={
+            "description": forms.Textarea(attrs={
                 "data-tuc-editor": "",
                 "data-placeholder": "Describe el alcance...",
                 "data-min-height": "12rem",
@@ -81,7 +81,7 @@ class ProjetoForm(forms.ModelForm):
 <h3>En JavaScript</h3>
 <p>Para elegir la barra y el tamaño de la tabla, que no existen como atributo, o para leer y escribir el valor.</p>
 <pre data-code="js">
-const ed = new Tucano.Editor('#descricao', {
+const ed = new Tucano.Editor('#description', {
   toolbar: ['bold', 'italic', 'list', 'link', 'table'],
   table: { rows: 4, cols: 2 },     // filas contando el encabezado
 });
@@ -93,7 +93,7 @@ ed.inTable('rowBelow');          // operación en la celda donde está el cursor
 ed.destroy();                    // devuelve el textarea original
 </pre>
 
-<h2 id="barra">La barra</h2>
+<h2 id="toolbar">La barra</h2>
 <p class="lead">Un botón encendido indica que el cursor está dentro de ese formato — y que hacer clic de nuevo lo deshace. Los nombres
    de abajo son los que acepta la opción <code>toolbar</code>, en el orden por defecto.</p>
 
@@ -119,7 +119,7 @@ ed.destroy();                    // devuelve el textarea original
 
 <div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">El Ctrl+Z es el del navegador</p><p>El formato pasa por <code>execCommand</code>, que está obsoleto y se usa igual: es el único camino con soporte universal y el único que se integra con el deshacer nativo. Reimplementarlo a mano sería reimplementar el <code>Ctrl+Z</code> también. La excepción es quitar un bloque de código, que sale del historial solo en esa acción.</p></div></div>
 
-<h2 id="tabela">Tabla</h2>
+<h2 id="table">Tabla</h2>
 <p class="lead">El botón inserta una tabla con encabezado — una tabla de sistema casi siempre tiene uno, y sin él la primera
    fila de datos termina haciendo de título. Con el cursor en una celda, aparece una segunda barra solo para ella.</p>
 
@@ -141,7 +141,7 @@ ed.destroy();                    // devuelve el textarea original
 
 <div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Fuera del alcance</p><p>Combinar celdas y redimensionar columnas — es lo que convierte un editor en un proyecto aparte. Las columnas tienen ancho fijo a propósito: con ancho automático, el texto redimensionaría la columna con cada tecla y toda la fila bailaría.</p></div></div>
 
-<h2 id="codigo">Bloque de código</h2>
+<h2 id="code">Bloque de código</h2>
 <p class="lead">El mismo botón hace las dos cosas, según lo seleccionado: un fragmento dentro de una línea se vuelve
    <code>&lt;code&gt;</code> en medio de la frase; una selección que atraviesa líneas se vuelve <code>&lt;pre&gt;&lt;code&gt;</code>,
    que es el elemento que conserva saltos de línea y sangría. Con el cursor dentro, el botón lo deshace.</p>
@@ -160,16 +160,16 @@ ed.destroy();                    // devuelve el textarea original
    el resto, <code>javascript:</code> incluido, pierde el enlace y conserva el texto. Todo enlace guardado sale con
    <code>target="_blank"</code> y <code>rel="noopener noreferrer"</code>.</p>
 
-<h2 id="valor">Valor y formulario</h2>
+<h2 id="value">Valor y formulario</h2>
 <p class="lead">Quien guarda el valor es el <code>&lt;textarea&gt;</code>, oculto dentro del editor. Con cada cambio
    recibe el HTML filtrado y dispara los eventos nativos <code>input</code> y <code>change</code>.</p>
 
 <pre data-code="text">
-POST  descricao = <h2>Alcance del contrato</h2><p>Relevamiento con <strong>informe</strong>.</p>
+POST  description = <h2>Alcance del contrato</h2><p>Relevamiento con <strong>informe</strong>.</p>
 </pre>
 
 <pre data-code="js">
-document.querySelector('#descricao').addEventListener('change', (e) => {
+document.querySelector('#description').addEventListener('change', (e) => {
   e.target.value;   // el HTML que va en el POST
 });
 </pre>
@@ -195,7 +195,7 @@ document.querySelector('#descricao').addEventListener('change', (e) => {
 </table></div>
 
 <pre data-code="js">
-Tucano.sanitize('<p onclick="x()">Hola <img src=x onerror="roubar()"><b>tú</b></p>');
+Tucano.sanitize('<p onclick="x()">Hola <img src=x onerror="steal()"><b>tú</b></p>');
 // '<p>Hola <strong>tú</strong></p>'
 </pre>
 
@@ -207,19 +207,19 @@ import nh3
 TAGS = {"p", "br", "h2", "h3", "strong", "em", "u", "s", "ul", "ol", "li",
         "blockquote", "code", "pre", "a", "table", "thead", "tbody", "tr", "th", "td"}
 
-def limpar(html):
+def sanitize(html):
     return nh3.clean(html, tags=TAGS, attributes={"a": {"href"}},
                      url_schemes={"http", "https", "mailto", "tel"})
 </pre>
 <p class="tuc-hint">Un ejemplo con <code>nh3</code>; cualquier sanitizador con lista cerrada sirve. Para conservar la alineación, permite también el <code>style</code> con solo <code>text-align</code> en los bloques.</p>
 
-<h2 id="exibicao">Mostrar lo guardado</h2>
+<h2 id="display">Mostrar lo guardado</h2>
 <p class="lead">Lo que se guarda es HTML sin ninguna clase — a propósito, para servir a cualquier servidor y sobrevivir a
    un cambio de front. El precio es que, publicado, heredaría el estilo de tu página. Envolver la salida en
    <code>.tuc-prose</code> devuelve exactamente el aspecto que la persona vio al escribir.</p>
 
 <pre data-code="django">
-<div class="tuc-prose">{{ projeto.descricao|safe }}</div>
+<div class="tuc-prose">{{ project.description|safe }}</div>
 </pre>
 
 <div class="demo">
@@ -254,10 +254,10 @@ npm run build  # genera el dist</code></pre>
 
 <pre data-code="js">
 Tucano.highlight('const x = 1;');   // HTML con <span class="tuc-tok-..."> para colorear a mano
-Tucano.init(trecho);                // colorea y pone el copiar en HTML insertado por otro camino
+Tucano.init(fragment);                // colorea y pone el copiar en HTML insertado por otro camino
 </pre>
 
-<h2 id="teclado">Teclado y accesibilidad</h2>
+<h2 id="keyboard">Teclado y accesibilidad</h2>
 <p class="lead">El área es un <code>role="textbox"</code> con <code>aria-multiline</code>; la barra es un
    <code>role="toolbar"</code>, y cada botón tiene nombre y <code>aria-pressed</code> que acompaña el formato bajo el cursor.</p>
 
@@ -281,17 +281,17 @@ Tucano.init(trecho);                // colorea y pone el copiar en HTML insertad
 
 <script>
   // Barra reducida: toolbar es una opción de JS, no tiene atributo.
-  new Tucano.Editor('#ed-comentario', { toolbar: ['bold', 'italic', 'list', 'link'], minHeight: '5rem' });
+  new Tucano.Editor('#ed-comment', { toolbar: ['bold', 'italic', 'list', 'link'], minHeight: '5rem' });
 
   // El valor que va en el POST, leído del textarea en cada change.
-  const campo = document.getElementById('ed-descricao');
-  const valor = document.getElementById('ed-descricao-valor');
-  const mostrar = () => { valor.textContent = `POST descricao = ${campo.value}`; };
-  campo.addEventListener('change', mostrar);
-  mostrar();
+  const field = document.getElementById('ed-description');
+  const output = document.getElementById('ed-description-value');
+  const show = () => { output.textContent = `POST description = ${field.value}`; };
+  field.addEventListener('change', show);
+  show();
 
   // El filtro sobre un HTML hostil.
-  const hostil = '<p onclick="roubar()">Hola <img src=x onerror="roubar()"><b>tú</b>, <a href="javascript:roubar()">clic</a></p><script>roubar()<\/script>';
-  document.getElementById('ed-peneira-entrada').textContent = `entrada: ${hostil}`;
-  document.getElementById('ed-peneira-saida').textContent = `salida:  ${Tucano.sanitize(hostil)}`;
+  const hostile = '<p onclick="steal()">Hola <img src=x onerror="steal()"><b>tú</b>, <a href="javascript:steal()">clic</a></p><script>steal()<\/script>';
+  document.getElementById('ed-sanitizer-input').textContent = `entrada: ${hostile}`;
+  document.getElementById('ed-sanitizer-output').textContent = `salida:  ${Tucano.sanitize(hostile)}`;
 </script>

@@ -68,18 +68,18 @@ export function modal(optionsOrText, extra = {}) {
  */
 export function confirm(options = {}) {
   const { confirm: okLabel = 'Confirmar', cancel = 'Cancelar', ...rest } = options;
-  // O tom sai daqui, e nao de resto.tom, porque o padrao e perigo: lendo so o
+  // O tom sai daqui, e nao de rest.tone, porque o padrao e perigo: lendo so o
   // que veio de fora, um dialogo vermelho ganhava botao azul de confirmar.
   const tone = rest.tone ?? 'danger';
   return new Promise((resolve) => {
     let decided = false;
-    const responder = (v) => { decided = true; resolve(v); };
+    const answer = (v) => { decided = true; resolve(v); };
     new Modal({
       ...rest,
       tone,
       actions: [
-        { text: cancel, variant: 'outline', onClick: () => responder(false) },
-        { text: okLabel, variant: tone === 'danger' ? 'danger' : 'primary', onClick: () => responder(true) },
+        { text: cancel, variant: 'outline', onClick: () => answer(false) },
+        { text: okLabel, variant: tone === 'danger' ? 'danger' : 'primary', onClick: () => answer(true) },
       ],
       // Fechar pelo X, pelo Escape ou pelo fundo e uma recusa, nao um limbo:
       // sem isto a promessa ficaria pendente para sempre.

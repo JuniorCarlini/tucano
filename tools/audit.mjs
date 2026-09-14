@@ -21,10 +21,10 @@ import { promisify } from 'node:util';
 import { readFileSync, writeFileSync, unlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { exigirChrome } from './chrome.mjs';
+import { requireChrome } from './chrome.mjs';
 
 const exec = promisify(execFile);
-const CHROME = exigirChrome('audit');
+const CHROME = requireChrome('audit');
 
 /*
  * Alvos com altura propria: nao entram no padrao de controle, mas precisam ser
@@ -44,7 +44,7 @@ const INNER = {
  * pequeno.
  */
 const TARGETS = {
-  'campo de data': { sel: '#c-data', typable: true },
+  'campo de data': { sel: '#c-date', typable: true },
   'select': { sel: '.tuc-select', typable: true },
   'campo com máscara': { sel: '#c-mask', typable: true },
   'campo de cor': { sel: '.tuc-color-field', typable: true },
@@ -53,7 +53,7 @@ const TARGETS = {
   'botão padrão': { sel: '#c-btn' },
   'botão pequeno': { sel: '#c-btn-sm' },
   'botão grande': { sel: '#c-btn-lg' },
-  'botão de ícone': { sel: '#c-icone' },
+  'botão de ícone': { sel: '#c-icon' },
   'abas segmentadas': { sel: '#c-seg .tuc-tabs__list' },
   'página da paginação': { sel: '.tuc-pagination .tuc-btn:not(.tuc-pagination__edge)' },
 };
@@ -72,23 +72,23 @@ const EXPECTED = {
 const page = () => `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
 <style>${readFileSync('dist/tucano.css', 'utf8')}
 body{margin:0;padding:16px;font-family:system-ui,sans-serif}</style></head><body>
-<input data-tuc-datepicker id="c-data">
+<input data-tuc-datepicker id="c-date">
 <select data-tuc-select multiple id="c-select"><option value="a" selected>São Paulo</option><option value="b" selected>Rio</option><option value="c">Minas</option></select>
 <input data-tuc-mask="cpf-cnpj" id="c-mask">
-<input data-tuc-color id="c-cor">
+<input data-tuc-color id="c-color">
 <input type="text" class="tuc-input" id="c-input">
 <select class="tuc-input" id="c-native"><option>Um</option></select>
 <button class="tuc-btn is-primary" id="c-btn">Botão</button>
 <button class="tuc-btn is-outline is-sm" id="c-btn-sm">Pequeno</button>
 <button class="tuc-btn is-outline is-lg" id="c-btn-lg">Grande</button>
-<button class="tuc-btn is-ghost is-icon" id="c-icone">×</button>
+<button class="tuc-btn is-ghost is-icon" id="c-icon">×</button>
 <div data-tuc-pagination data-page="2" data-pages="9"></div>
 <div class="tuc-tabs is-segmented" data-tuc-tabs id="c-seg"><div class="tuc-tabs__list"><button class="tuc-tabs__tab" aria-selected="true">Todos</button><button class="tuc-tabs__tab">Pagos</button></div><div class="tuc-tabs__panel"></div><div class="tuc-tabs__panel" hidden></div></div>
 <label class="tuc-choice" data-align="caixa"><input type="checkbox" class="tuc-check"> Caixa</label>
 <label class="tuc-choice" data-align="opção"><input type="radio" class="tuc-radio"> Opção</label>
 <label class="tuc-choice" data-align="chave"><input type="checkbox" role="switch" class="tuc-switch"> Chave</label>
 <label class="tuc-choice" data-align="caixa com descrição"><input type="checkbox" class="tuc-check"><span>Caixa<span class="tuc-choice__hint">Uma descrição longa o bastante para quebrar em duas linhas numa tela estreita de celular</span></span></label>
-<pre id="resultado"></pre>
+<pre id="result"></pre>
 <script>${readFileSync('dist/tucano.js', 'utf8')}</script>
 <script>
 (function () {
@@ -123,9 +123,9 @@ body{margin:0;padding:16px;font-family:system-ui,sans-serif}</style></head><body
     });
     out.__align = align;
     out.__width = innerWidth;
-    document.getElementById('resultado').textContent = JSON.stringify(out);
+    document.getElementById('result').textContent = JSON.stringify(out);
   } catch (e) {
-    document.getElementById('resultado').textContent = JSON.stringify({ __error: String(e) });
+    document.getElementById('result').textContent = JSON.stringify({ __error: String(e) });
   }
 })();
 </script></body></html>`;
@@ -136,14 +136,14 @@ async function measure(width, file) {
     `--window-size=${width},900`, '--virtual-time-budget=3000',
     '--dump-dom', `file://${file}`,
   ], { maxBuffer: 40 * 1024 * 1024 });
-  const m = stdout.match(/<pre id="resultado">([\s\S]*?)<\/pre>/);
+  const m = stdout.match(/<pre id="result">([\s\S]*?)<\/pre>/);
   if (!m || !m[1].trim()) throw new Error('a página de medidas não produziu resultado');
   const data = JSON.parse(m[1].replace(/&quot;/g, '"').replace(/&amp;/g, '&'));
   if (data.__error) throw new Error(data.__error);
   return data;
 }
 
-const file = join(tmpdir(), `tucano-medidas-${process.pid}.html`);
+const file = join(tmpdir(), `tucano-measures-${process.pid}.html`);
 writeFileSync(file, page());
 
 let failures = 0;
@@ -216,7 +216,7 @@ body{margin:0;padding:16px;font-family:system-ui,sans-serif}</style></head><body
   <input data-tuc-datepicker><input data-tuc-mask="cpf-cnpj"><input data-tuc-color>
   <select data-tuc-select><option>Um</option></select>
 </div>
-<pre id="resultado"></pre>
+<pre id="result"></pre>
 <script>
 (function () {
   try {
@@ -238,14 +238,14 @@ body{margin:0;padding:16px;font-family:system-ui,sans-serif}</style></head><body
       });
       out[theme] = group;
     });
-    document.getElementById('resultado').textContent = JSON.stringify(out);
+    document.getElementById('result').textContent = JSON.stringify(out);
   } catch (e) {
-    document.getElementById('resultado').textContent = JSON.stringify({ __error: String(e) });
+    document.getElementById('result').textContent = JSON.stringify({ __error: String(e) });
   }
 })();
 </script></body></html>`;
 
-const waitFile = join(tmpdir(), `tucano-espera-${process.pid}.html`);
+const waitFile = join(tmpdir(), `tucano-wait-${process.pid}.html`);
 writeFileSync(waitFile, waitPage());
 try {
   const wait = await measure(1280, waitFile);

@@ -5,10 +5,10 @@
  */
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import { exigirChrome, BANDEIRAS } from './chrome.mjs';
+import { requireChrome, FLAGS } from './chrome.mjs';
 
-await promisify(execFile)(exigirChrome('og'), [
-  ...BANDEIRAS, '--window-size=1200,630',
+await promisify(execFile)(requireChrome('og'), [
+  ...FLAGS, '--window-size=1200,630',
   '--virtual-time-budget=4000', '--screenshot=og.png', 'tools/og.html',
 ]);
 console.log('og.png gerada — 1200x630');

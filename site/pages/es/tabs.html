@@ -10,7 +10,7 @@ description: Pestañas dibujadas en la plantilla, con los roles tab y tabpanel y
    "pestaña, 2 de 4", la conexión entre pestaña y panel y el teclado, en el que la lista es una sola parada del <code>Tab</code>.</p>
 
 <div class="demo is-hero">
-  <div class="tuc-tabs" data-tuc-tabs id="tabs-cliente">
+  <div class="tuc-tabs" data-tuc-tabs id="tabs-customer">
     <div class="tuc-tabs__list">
       <button class="tuc-tabs__tab" aria-selected="true">Datos</button>
       <button class="tuc-tabs__tab">Dirección</button>
@@ -19,14 +19,14 @@ description: Pestañas dibujadas en la plantilla, con los roles tab y tabpanel y
     </div>
     <div class="tuc-tabs__panel">
       <div class="demo-grid">
-        <div class="demo-cell"><label class="tuc-label" for="tabs-cliente-nome">Razón social</label><input type="text" class="tuc-input" id="tabs-cliente-nome" value="Tucano Comércio Ltda"></div>
-        <div class="demo-cell"><label class="tuc-label" for="tabs-cliente-doc">CNPJ (identificador fiscal brasileño, con su máscara)</label><input type="text" id="tabs-cliente-doc" data-tuc-mask="cnpj" value="11222333000181"></div>
+        <div class="demo-cell"><label class="tuc-label" for="tabs-customer-name">Razón social</label><input type="text" class="tuc-input" id="tabs-customer-name" value="Tucano Comércio Ltda"></div>
+        <div class="demo-cell"><label class="tuc-label" for="tabs-customer-doc">CNPJ (identificador fiscal brasileño, con su máscara)</label><input type="text" id="tabs-customer-doc" data-tuc-mask="cnpj" value="11222333000181"></div>
       </div>
     </div>
     <div class="tuc-tabs__panel" hidden>
       <div class="demo-grid">
-        <div class="demo-cell"><label class="tuc-label" for="tabs-cliente-cep">CEP (código postal brasileño)</label><input type="text" id="tabs-cliente-cep" data-tuc-mask="cep" value="01310100"></div>
-        <div class="demo-cell"><label class="tuc-label" for="tabs-cliente-cidade">Ciudad</label><input type="text" class="tuc-input" id="tabs-cliente-cidade" value="São Paulo"></div>
+        <div class="demo-cell"><label class="tuc-label" for="tabs-customer-zip">CEP (código postal brasileño)</label><input type="text" id="tabs-customer-zip" data-tuc-mask="cep" value="01310100"></div>
+        <div class="demo-cell"><label class="tuc-label" for="tabs-customer-city">Ciudad</label><input type="text" class="tuc-input" id="tabs-customer-city" value="São Paulo"></div>
       </div>
     </div>
     <div class="tuc-tabs__panel" hidden>
@@ -36,7 +36,7 @@ description: Pestañas dibujadas en la plantilla, con los roles tab y tabpanel y
   </div>
 </div>
 
-<h2 id="exemplos">Ejemplos</h2>
+<h2 id="examples">Ejemplos</h2>
 <p class="lead">El mismo marcado, con una clase o un atributo más.</p>
 
 <div class="demo">
@@ -44,7 +44,7 @@ description: Pestañas dibujadas en la plantilla, con los roles tab y tabpanel y
     <div class="demo-cell">
       <h4>Segmentadas</h4>
       <p><code>is-segmented</code> tiene la altura de un campo, para cambiar la vista de una lista junto a un filtro.</p>
-      <div class="tuc-tabs is-segmented" data-tuc-tabs id="tabs-segmentadas">
+      <div class="tuc-tabs is-segmented" data-tuc-tabs id="tabs-segmented">
         <div class="tuc-tabs__list">
           <button class="tuc-tabs__tab" aria-selected="true">Todos</button>
           <button class="tuc-tabs__tab">Pendientes</button>
@@ -59,14 +59,14 @@ description: Pestañas dibujadas en la plantilla, con los roles tab y tabpanel y
       <h4>Segmentadas junto a un campo</h4>
       <p>Borde y relleno suman la altura del control: la fila no se desalinea.</p>
       <div class="bar">
-        <div class="tuc-tabs is-segmented" data-tuc-tabs id="tabs-filtro">
+        <div class="tuc-tabs is-segmented" data-tuc-tabs id="tabs-filter">
           <div class="tuc-tabs__list">
             <button class="tuc-tabs__tab" aria-selected="true">Día</button>
             <button class="tuc-tabs__tab">Semana</button>
             <button class="tuc-tabs__tab">Mes</button>
           </div>
         </div>
-        <input type="search" class="tuc-input" id="tabs-filtro-busca" placeholder="Buscar..." aria-label="Buscar" style="width:auto;flex:1">
+        <input type="search" class="tuc-input" id="tabs-filter-search" placeholder="Buscar..." aria-label="Buscar" style="width:auto;flex:1">
       </div>
     </div>
     <div class="demo-cell">
@@ -87,7 +87,7 @@ description: Pestañas dibujadas en la plantilla, con los roles tab y tabpanel y
     <div class="demo-cell">
       <h4>Con icono y contador</h4>
       <p>El <code>svg</code> y la <code>.tuc-badge is-plain</code> dentro de la pestaña siguen su color.</p>
-      <div class="tuc-tabs" data-tuc-tabs id="tabs-icones">
+      <div class="tuc-tabs" data-tuc-tabs id="tabs-icons">
         <div class="tuc-tabs__list">
           <button class="tuc-tabs__tab" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/></svg>Panel</button>
           <button class="tuc-tabs__tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v16H4zM4 9h16M9 20V9"/></svg>Tareas <span class="tuc-badge is-plain">7</span></button>
@@ -101,7 +101,7 @@ description: Pestañas dibujadas en la plantilla, con los roles tab y tabpanel y
     <div class="demo-cell">
       <h4>Muchas pestañas</h4>
       <p>La lista se desplaza en horizontal en lugar de partirse en dos líneas; la pestaña enfocada con las flechas entra en pantalla.</p>
-      <div class="tuc-tabs" data-tuc-tabs id="tabs-meses">
+      <div class="tuc-tabs" data-tuc-tabs id="tabs-months">
         <div class="tuc-tabs__list">
           <button class="tuc-tabs__tab">Enero</button><button class="tuc-tabs__tab">Febrero</button>
           <button class="tuc-tabs__tab">Marzo</button><button class="tuc-tabs__tab">Abril</button>
@@ -117,7 +117,7 @@ description: Pestañas dibujadas en la plantilla, con los roles tab y tabpanel y
     <div class="demo-cell">
       <h4>Pestaña desactivada</h4>
       <p><code>disabled</code> o <code>aria-disabled="true"</code>: no se abre, y las flechas la saltan.</p>
-      <div class="tuc-tabs" data-tuc-tabs id="tabs-desativada">
+      <div class="tuc-tabs" data-tuc-tabs id="tabs-disabled">
         <div class="tuc-tabs__list">
           <button class="tuc-tabs__tab" aria-selected="true">Borrador</button>
           <button class="tuc-tabs__tab" aria-disabled="true">Revisión</button>
@@ -131,7 +131,7 @@ description: Pestañas dibujadas en la plantilla, con los roles tab y tabpanel y
   </div>
 </div>
 
-<h2 id="uso">Cómo usar</h2>
+<h2 id="usage">Cómo usar</h2>
 <p class="lead">Escribe las clases, <code>aria-selected="true"</code> en la pestaña inicial y <code>hidden</code> en los demás paneles. Las
    pestañas y los paneles se emparejan por orden: la tercera pestaña abre el tercer panel.</p>
 
@@ -160,11 +160,11 @@ description: Pestañas dibujadas en la plantilla, con los roles tab y tabpanel y
 <div class="tuc-tabs" data-tuc-tabs data-manual="true">
   <div class="tuc-tabs__list">
     <button class="tuc-tabs__tab" aria-selected="true">Resumen</button>
-    <button class="tuc-tabs__tab" hx-get="{% url 'cliente-faturas' cliente.pk %}"
-            hx-target="#faturas" hx-trigger="click once">Facturas</button>
+    <button class="tuc-tabs__tab" hx-get="{% url 'customer-invoices' customer.pk %}"
+            hx-target="#invoices" hx-trigger="click once">Facturas</button>
   </div>
-  <div class="tuc-tabs__panel">{% include "clientes/resumo.html" %}</div>
-  <div class="tuc-tabs__panel" id="faturas" hidden></div>
+  <div class="tuc-tabs__panel">{% include "customers/summary.html" %}</div>
+  <div class="tuc-tabs__panel" id="invoices" hidden></div>
 </div>
 </pre>
 
@@ -172,17 +172,17 @@ description: Pestañas dibujadas en la plantilla, con los roles tab y tabpanel y
 
 <h3>En JavaScript</h3>
 <pre data-code="js">
-const abas = new Tucano.Tabs('#cliente', {
+const tabs = new Tucano.Tabs('#customer', {
   selected: 1,        // índice de la pestaña inicial
   manual: true,
   onChange: (index, { tab, panel }) => console.log(index, tab.textContent),
 });
 
-abas.select(2);                     // abre la tercera; dispara onChange
-abas.select(0, { silent: true });   // abre sin disparar nada
-abas.index;                         // índice de la pestaña abierta, o -1
-abas.tabs;                          // las pestañas, en orden
-abas.panels;                        // los paneles, en orden
+tabs.select(2);                     // abre la tercera; dispara onChange
+tabs.select(0, { silent: true });   // abre sin disparar nada
+tabs.index;                         // índice de la pestaña abierta, o -1
+tabs.tabs;                          // las pestañas, en orden
+tabs.panels;                        // los paneles, en orden
 </pre>
 
 <p>Cada cambio — por la persona o por <code>select()</code> — dispara <code>tucano:change</code> en el elemento de las pestañas, y el evento
@@ -200,7 +200,7 @@ document.addEventListener('tucano:change', (e) => {
 <p>Las pestañas dentro de un panel son otro conjunto: el componente solo mira la lista y los paneles que son hijos directos de su
    elemento.</p>
 
-<h2 id="teclado">Teclado y accesibilidad</h2>
+<h2 id="keyboard">Teclado y accesibilidad</h2>
 <p class="lead">El teclado sigue el patrón de pestañas del ARIA APG. Toda la lista es una sola parada del <code>Tab</code> — si no, quien
    navega con teclado recorrería todas las pestañas antes de llegar al contenido de la abierta.</p>
 

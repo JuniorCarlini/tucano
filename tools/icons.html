@@ -9,11 +9,11 @@
      Abra por um servidor: são módulos ES. -->
 <script type="module">
 import { ICONS } from '../src/js/core/dom.js';
-for (const [nome, d] of Object.entries(ICONS)) {
+for (const [name, d] of Object.entries(ICONS)) {
   const fig = document.createElement('figure');
   fig.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2"
     stroke-linecap="round" stroke-linejoin="round"><path d="${d}"/></svg>
-    <figcaption>${nome}</figcaption>`;
+    <figcaption>${name}</figcaption>`;
   document.body.append(fig);
 }
 </script></body></html>

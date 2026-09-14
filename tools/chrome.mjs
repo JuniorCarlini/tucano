@@ -7,7 +7,7 @@
  */
 import { existsSync } from 'node:fs';
 
-const CANDIDATOS = [
+const CANDIDATES = [
   process.env.CHROME,
   '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
   '/Applications/Chromium.app/Contents/MacOS/Chromium',
@@ -18,15 +18,15 @@ const CANDIDATOS = [
   '/snap/bin/chromium',
 ];
 
-export const CHROME = CANDIDATOS.filter(Boolean).find((c) => existsSync(c));
+export const CHROME = CANDIDATES.filter(Boolean).find((c) => existsSync(c));
 
 /** Sai com uma mensagem util em vez de um ENOENT cru. */
-export function exigirChrome(quem) {
+export function requireChrome(caller) {
   if (CHROME) return CHROME;
-  console.error(`[${quem}] Chrome não encontrado. Defina CHROME=/caminho/do/chrome.`);
+  console.error(`[${caller}] Chrome não encontrado. Defina CHROME=/caminho/do/chrome.`);
   process.exit(1);
 }
 
 /* --no-sandbox porque em container o sandbox do Chrome nao sobe; --headless=new
    porque o antigo nao tem top layer, e sem ele <dialog> nao mede nada. */
-export const BANDEIRAS = ['--headless=new', '--disable-gpu', '--no-sandbox', '--hide-scrollbars'];
+export const FLAGS = ['--headless=new', '--disable-gpu', '--no-sandbox', '--hide-scrollbars'];

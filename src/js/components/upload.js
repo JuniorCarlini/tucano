@@ -24,8 +24,6 @@ const TEXTS = {
   zone: 'Arraste arquivos aqui ou clique para escolher',
   zoneOne: 'Arraste um arquivo aqui ou clique para escolher',
   drop: 'Solte para enviar',
-  uploading: 'Enviando...',
-  pronto: 'Enviado',
   cancel: 'Cancelar',
   remove: 'Remover',
   repeat: 'Tentar de novo',

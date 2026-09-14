@@ -56,14 +56,14 @@ export class Tooltip {
     node.setAttribute('aria-describedby', this.id);
     if (!node.hasAttribute('tabindex') && !FOCUSABLE.test(node.tagName)) node.tabIndex = 0;
 
-    const toque = () => window.matchMedia?.('(pointer: coarse)').matches;
+    const isTouch = () => window.matchMedia?.('(pointer: coarse)').matches;
 
     this._cleanups.push(
       on(node, 'pointerenter', (e) => { if (e.pointerType !== 'touch') this._schedule(true); }),
       on(node, 'pointerleave', (e) => { if (e.pointerType !== 'touch') this._schedule(false); }),
       on(node, 'focusin', () => this._show()),
       on(node, 'focusout', () => this._hide()),
-      on(node, 'click', () => { if (toque()) this.isOpen ? this._hide() : this._show(); }),
+      on(node, 'click', () => { if (isTouch()) this.isOpen ? this._hide() : this._show(); }),
       on(document, 'keydown', (e) => { if (e.key === 'Escape' && this.isOpen) this._hide(); }),
     );
 

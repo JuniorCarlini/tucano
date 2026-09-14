@@ -62,12 +62,12 @@ const RULES = [
   ['key',  new RegExp(`\\b(${WORDS})\\b`)],
 ];
 
-const COMBINADA = new RegExp(RULES.map(([, re]) => re.source).join('|'), 'g');
+const COMBINED = new RegExp(RULES.map(([, re]) => re.source).join('|'), 'g');
 
 /** Recebe codigo cru e devolve HTML com as marcacoes de cor. */
 export function highlight(code) {
   const text = escapeHtml(code ?? '');
-  return text.replace(COMBINADA, (whole, ...groups) => {
+  return text.replace(COMBINED, (whole, ...groups) => {
     const i = groups.findIndex((g) => g !== undefined);
     const className = RULES[i]?.[0];
     return className ? `<span class="tuc-tok-${className}">${whole}</span>` : whole;

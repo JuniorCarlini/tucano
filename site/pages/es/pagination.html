@@ -14,7 +14,7 @@ description: Paginación hecha para el Paginator de Django — enlaces con href 
   <div class="out" id="pagination-hero-log"></div>
 </div>
 
-<h2 id="exemplos">Ejemplos</h2>
+<h2 id="examples">Ejemplos</h2>
 <p class="lead">En esta página los clics no navegan: cada ejemplo cambia la página actual en el sitio, para que puedas probar.</p>
 
 <div class="demo">
@@ -22,7 +22,7 @@ description: Paginación hecha para el Paginator de Django — enlaces con href 
     <div class="demo-cell">
       <h4>Pocas páginas</h4>
       <p>Sin puntos suspensivos, y el extremo inactivo se aparta del camino.</p>
-      <div data-tuc-pagination data-page="1" data-pages="4" id="pagination-poucas"></div>
+      <div data-tuc-pagination data-page="1" data-pages="4" id="pagination-few"></div>
     </div>
     <div class="demo-cell">
       <h4>Vecindad mayor</h4>
@@ -37,28 +37,28 @@ description: Paginación hecha para el Paginator de Django — enlaces con href 
     <div class="demo-cell">
       <h4>Otros textos y parámetro</h4>
       <p><code>data-prev-text</code>, <code>data-next-text</code> y <code>data-param="p"</code> en la URL.</p>
-      <div data-tuc-pagination data-page="3" data-pages="8" data-prev-text="Volver" data-next-text="Avanzar" data-param="p" id="pagination-textos"></div>
+      <div data-tuc-pagination data-page="3" data-pages="8" data-prev-text="Volver" data-next-text="Avanzar" data-param="p" id="pagination-texts"></div>
     </div>
     <div class="demo-cell">
       <h4>Centrada</h4>
       <p><code>class="tuc-pagination is-center"</code> junto al <code>data-tuc-pagination</code>.</p>
-      <div class="tuc-pagination is-center" data-tuc-pagination data-page="2" data-pages="5" id="pagination-centro"></div>
+      <div class="tuc-pagination is-center" data-tuc-pagination data-page="2" data-pages="5" id="pagination-center"></div>
     </div>
     <div class="demo-cell">
       <h4>A la derecha</h4>
       <p><code>is-end</code>, para quedar bajo la columna de importes de una tabla.</p>
-      <div id="pagination-fim"></div>
+      <div id="pagination-end"></div>
     </div>
   </div>
 </div>
 
-<h2 id="uso">Cómo usar</h2>
+<h2 id="usage">Cómo usar</h2>
 <p class="lead">Con los números que el <code>Paginator</code> ya tiene. El elemento se reemplaza por la navegación al cargar y en cada
    <code>htmx:afterSwap</code>; con una sola página no se renderiza nada — no hay adónde ir.</p>
 
 <h3>En la plantilla de Django</h3>
 <pre data-code="django">
-{% for contrato in page_obj %}
+{% for contract in page_obj %}
   …
 {% endfor %}
 
@@ -70,14 +70,14 @@ description: Paginación hecha para el Paginator de Django — enlaces con href 
 <pre data-code="python">
 from django.core.paginator import Paginator
 
-def contratos(request):
-    qs = Contrato.objects.filter(cliente__nome__icontains=request.GET.get("q", "")).order_by("-criado_em")
+def contracts(request):
+    qs = Contract.objects.filter(customer__name__icontains=request.GET.get("q", "")).order_by("-created_at")
     page_obj = Paginator(qs, 25).get_page(request.GET.get("page"))
-    return render(request, "contratos/lista.html", {"page_obj": page_obj})
+    return render(request, "contracts/list.html", {"page_obj": page_obj})
 </pre>
 
-<p>En una página en <code>/contratos/?q=padaria&amp;sort=valor</code>, el enlace a la página 3 sale como
-   <code>/contratos/?q=padaria&amp;sort=valor&amp;page=3</code>: solo cambia el parámetro de la página. Eso es lo que mantiene la búsqueda y el orden
+<p>En una página en <code>/contracts/?q=padaria&amp;sort=amount</code>, el enlace a la página 3 sale como
+   <code>/contracts/?q=padaria&amp;sort=amount&amp;page=3</code>: solo cambia el parámetro de la página. Eso es lo que mantiene la búsqueda y el orden
    en pie al pasar de página, sin que la plantilla tenga que reconstruir la query string.</p>
 
 <div class="tuc-table-wrap"><table class="tuc-table">
@@ -106,19 +106,19 @@ const pag = new Tucano.Pagination({
   pages: 12,
   label: 'Paginación de los contratos', // aria-label de la navegación
   onChange: (page, p) => {            // con onChange, el clic no navega
-    carregar(page);
+    load(page);
     p.setPage(page);                  // redibuja con la nueva actual
   },
 });
-document.querySelector('#rodape').append(pag.node);
+document.querySelector('#footer').append(pag.node);
 
-pag.href(3);          // '/contratos/?q=padaria&page=3' — el enlace de una página
+pag.href(3);          // '/contracts/?q=padaria&page=3' — el enlace de una página
 pag.opts.pages = 15;
 pag.render();         // redibuja después de cambiar las opciones
 pag.destroy();        // quita el elemento
 
 // Solo el elemento, sin guardar la instancia
-document.querySelector('#rodape').append(Tucano.pagination({ page: 2, pages: 5 }));
+document.querySelector('#footer').append(Tucano.pagination({ page: 2, pages: 5 }));
 </pre>
 
 <p>La alineación es una clase en <code>.tuc-pagination</code>: desde JavaScript, <code>pag.node.classList.add('is-center')</code>, o
@@ -140,7 +140,7 @@ Tucano.pageWindow(10, 30, { around: 2 }); // [1, null, 8, 9, 10, 11, 12, null, 3
 <p>Un hueco de una sola página nunca se vuelve puntos suspensivos: mostrar el número ocupa el mismo espacio y da un destino más para
    hacer clic. Por eso, con la página 3 de 7, aparece el 2 en lugar de <code>…</code>.</p>
 
-<h2 id="por-que-links">Por qué enlaces, y no botones</h2>
+<h2 id="why-links">Por qué enlaces, y no botones</h2>
 <p class="lead">En una lista paginada por el servidor — el caso de todo CRUD de Django — el número de página vive en la URL. Cambiar los enlaces
    por <code>onclick</code> rompería de una vez el clic con el botón central, el botón atrás del navegador y la indexación.</p>
 
@@ -151,7 +151,7 @@ Tucano.pageWindow(10, 30, { around: 2 }); // [1, null, 8, 9, 10, 11, 12, null, 3
 <p>En el móvil (por debajo de <code>40rem</code>) las palabras de los extremos desaparecen y quedan las flechas: el espacio vale más para los números.
    Antes de que el script la arme, el elemento vacío ya reserva la altura de un control, para que el contenido de abajo no suba.</p>
 
-<h2 id="teclado">Teclado y accesibilidad</h2>
+<h2 id="keyboard">Teclado y accesibilidad</h2>
 <p class="lead">Son enlaces en un <code>&lt;nav&gt;</code>, y el teclado es el del navegador.</p>
 
 <div class="tuc-table-wrap"><table class="tuc-table">
@@ -182,9 +182,9 @@ Tucano.pageWindow(10, 30, { around: 2 }); // [1, null, 8, 9, 10, 11, 12, null, 3
   document.getElementById('pagination-hero').append(pagHero.node);
 
   // Alineación desde JavaScript: la clase va en el propio elemento de la navegación.
-  const pagFim = new Tucano.Pagination({ page: 2, pages: 5, onChange: (page, inst) => inst.setPage(page) });
-  pagFim.node.classList.add('is-end');
-  document.getElementById('pagination-fim').append(pagFim.node);
+  const pagEnd = new Tucano.Pagination({ page: 2, pages: 5, onChange: (page, inst) => inst.setPage(page) });
+  pagEnd.node.classList.add('is-end');
+  document.getElementById('pagination-end').append(pagEnd.node);
 
   // Los de data-tuc-pagination no tienen onChange: delegación en el documento, que no
   // depende de que la instancia ya exista cuando corre este script.

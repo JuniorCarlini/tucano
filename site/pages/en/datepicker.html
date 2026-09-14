@@ -12,19 +12,19 @@ description: Date picker with date, range, time and presets, masked typing and t
 <div class="demo is-hero">
   <div class="demo-grid">
     <div class="demo-cell">
-      <label class="tuc-label" for="dp-vencimento">Due date</label>
-      <input type="text" id="dp-vencimento" name="vencimento" data-tuc-datepicker>
-      <div class="out" id="dp-vencimento-out"></div>
+      <label class="tuc-label" for="dp-due">Due date</label>
+      <input type="text" id="dp-due" name="due_date" data-tuc-datepicker>
+      <div class="out" id="dp-due-out"></div>
     </div>
     <div class="demo-cell">
-      <label class="tuc-label" for="dp-periodo">Report period</label>
-      <input type="text" id="dp-periodo" name="periodo" data-tuc-datepicker data-mode="range">
-      <div class="out" id="dp-periodo-out"></div>
+      <label class="tuc-label" for="dp-period">Report period</label>
+      <input type="text" id="dp-period" name="period" data-tuc-datepicker data-mode="range">
+      <div class="out" id="dp-period-out"></div>
     </div>
   </div>
 </div>
 
-<h2 id="exemplos">Examples</h2>
+<h2 id="examples">Examples</h2>
 <p class="lead">The same <code>&lt;input&gt;</code> with different attributes. Below each field is the ISO value,
    which is what reaches the server.</p>
 
@@ -33,50 +33,50 @@ description: Date picker with date, range, time and presets, masked typing and t
     <div class="demo-cell">
       <h4>Date and time</h4>
       <p><code>data-time="true"</code> adds the hour and minute columns, in steps of 5.</p>
-      <input type="text" id="dp-hora" name="quando" data-tuc-datepicker data-time="true" aria-label="Date and time">
-      <div class="out" id="dp-hora-out"></div>
+      <input type="text" id="dp-time" name="when" data-tuc-datepicker data-time="true" aria-label="Date and time">
+      <div class="out" id="dp-time-out"></div>
     </div>
     <div class="demo-cell">
       <h4>Range with time</h4>
       <p>With time the panel doesn't close by itself: the Apply button confirms.</p>
-      <input type="text" id="dp-janela" name="janela" data-tuc-datepicker data-mode="range" data-time="true" aria-label="Maintenance window">
-      <div class="out" id="dp-janela-out"></div>
+      <input type="text" id="dp-window" name="window" data-tuc-datepicker data-mode="range" data-time="true" aria-label="Maintenance window">
+      <div class="out" id="dp-window-out"></div>
     </div>
     <div class="demo-cell">
       <h4>Every minute, with seconds</h4>
       <p><code>data-minute-step="1"</code> lists 00 to 59; <code>data-seconds="true"</code> adds the third column.</p>
-      <input type="text" id="dp-exato" name="exato" data-tuc-datepicker data-time="true" data-minute-step="1" data-seconds="true" aria-label="Exact time">
-      <div class="out" id="dp-exato-out"></div>
+      <input type="text" id="dp-exact" name="exact" data-tuc-datepicker data-time="true" data-minute-step="1" data-seconds="true" aria-label="Exact time">
+      <div class="out" id="dp-exact-out"></div>
     </div>
     <div class="demo-cell">
       <h4>Limits</h4>
       <p><code>data-min</code> and <code>data-max</code> in <code>yyyy-mm-dd</code>. Outside them the day is disabled.</p>
-      <input type="text" id="dp-limites" name="limites" data-tuc-datepicker data-min="2026-01-01" data-max="2026-12-31" aria-label="Date in 2026">
-      <div class="out" id="dp-limites-out"></div>
+      <input type="text" id="dp-limits" name="limits" data-tuc-datepicker data-min="2026-01-01" data-max="2026-12-31" aria-label="Date in 2026">
+      <div class="out" id="dp-limits-out"></div>
     </div>
     <div class="demo-cell">
       <h4>Weekdays only, from today</h4>
       <p><code>disabledDates</code> takes a function and doesn't exist as an attribute — it goes in JavaScript.</p>
-      <input type="text" id="dp-uteis" aria-label="Weekday">
-      <div class="out" id="dp-uteis-out"></div>
+      <input type="text" id="dp-weekdays" aria-label="Weekday">
+      <div class="out" id="dp-weekdays-out"></div>
     </div>
     <div class="demo-cell">
       <h4>Range presets</h4>
       <p><code>data-presets="true"</code> turns on Today, Last 7 days, This month and the others.</p>
-      <input type="text" id="dp-atalhos" name="atalhos" data-tuc-datepicker data-mode="range" data-presets="true" data-months="1" aria-label="Range with presets">
-      <div class="out" id="dp-atalhos-out"></div>
+      <input type="text" id="dp-presets" name="presets" data-tuc-datepicker data-mode="range" data-presets="true" data-months="1" aria-label="Range with presets">
+      <div class="out" id="dp-presets-out"></div>
     </div>
     <div class="demo-cell">
       <h4>Custom presets</h4>
       <p>A list of <code>{ label, value() }</code>, in JavaScript.</p>
-      <input type="text" id="dp-atalhos-proprios" aria-label="Range with custom presets">
-      <div class="out" id="dp-atalhos-proprios-out"></div>
+      <input type="text" id="dp-custom-presets" aria-label="Range with custom presets">
+      <div class="out" id="dp-custom-presets-out"></div>
     </div>
     <div class="demo-cell">
       <h4>Week number</h4>
       <p><code>data-week-numbers="true"</code> shows the ISO-8601 week on the left.</p>
-      <input type="text" id="dp-semana" name="semana" data-tuc-datepicker data-week-numbers="true" aria-label="Date with week">
-      <div class="out" id="dp-semana-out"></div>
+      <input type="text" id="dp-week" name="week" data-tuc-datepicker data-week-numbers="true" aria-label="Date with week">
+      <div class="out" id="dp-week-out"></div>
     </div>
     <div class="demo-cell">
       <h4>A specific locale</h4>
@@ -87,33 +87,33 @@ description: Date picker with date, range, time and presets, masked typing and t
     <div class="demo-cell">
       <h4>Custom format</h4>
       <p><code>data-format="dd.MM.yyyy"</code>. The mask follows the format by itself.</p>
-      <input type="text" id="dp-formato" name="formato" data-tuc-datepicker data-format="dd.MM.yyyy" aria-label="Date with dots">
-      <div class="out" id="dp-formato-out"></div>
+      <input type="text" id="dp-format" name="format" data-tuc-datepicker data-format="dd.MM.yyyy" aria-label="Date with dots">
+      <div class="out" id="dp-format-out"></div>
     </div>
     <div class="demo-cell">
       <h4>With an icon</h4>
       <p>The form's <code>.tuc-input-group</code>, with an SVG before the field.</p>
-      <div class="tuc-input-group"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z"/></svg><input type="text" id="dp-icone" name="entrega" data-tuc-datepicker aria-label="Delivery"></div>
-      <div class="out" id="dp-icone-out"></div>
+      <div class="tuc-input-group"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z"/></svg><input type="text" id="dp-icon" name="delivery" data-tuc-datepicker aria-label="Delivery"></div>
+      <div class="out" id="dp-icon-out"></div>
     </div>
     <div class="demo-cell">
       <h4>With an error</h4>
       <p><code>aria-invalid="true"</code> on the field — Django 5 already writes it.</p>
-      <input type="text" id="dp-erro" name="prazo" data-tuc-datepicker aria-invalid="true" aria-describedby="dp-erro-msg" aria-label="Deadline">
-      <p class="tuc-error" id="dp-erro-msg">The date must be after today.</p>
+      <input type="text" id="dp-error" name="deadline" data-tuc-datepicker aria-invalid="true" aria-describedby="dp-error-msg" aria-label="Deadline">
+      <p class="tuc-error" id="dp-error-msg">The date must be after today.</p>
     </div>
   </div>
 </div>
 
-<h2 id="uso">How to use</h2>
+<h2 id="usage">How to use</h2>
 <p class="lead">Mark the <code>&lt;input&gt;</code> and it initializes by itself on load and on every
    <code>htmx:afterSwap</code>. The component puts the <code>.tuc-input</code> class on the field, so you don't need to write it.</p>
 
 <pre data-code="html">
-<input type="text" name="data" data-tuc-datepicker>
-<input type="text" name="quando" data-tuc-datepicker data-time="true">
-<input type="text" name="periodo" data-tuc-datepicker data-mode="range">
-<input type="text" name="janela" data-tuc-datepicker data-mode="range" data-time="true">
+<input type="text" name="date" data-tuc-datepicker>
+<input type="text" name="when" data-tuc-datepicker data-time="true">
+<input type="text" name="period" data-tuc-datepicker data-mode="range">
+<input type="text" name="window" data-tuc-datepicker data-mode="range" data-time="true">
 </pre>
 
 <div class="tuc-table-wrap"><table class="tuc-table">
@@ -137,14 +137,14 @@ description: Date picker with date, range, time and presets, masked typing and t
 
 <h3>In the Django form</h3>
 <pre data-code="python">
-class EventoForm(forms.ModelForm):
+class EventForm(forms.ModelForm):
     class Meta:
-        model = Evento
-        fields = ["data", "inicio", "periodo"]
+        model = Event
+        fields = ["date", "start", "period"]
         widgets = {
-            "data": forms.TextInput(attrs={"data-tuc-datepicker": ""}),
-            "inicio": forms.TextInput(attrs={"data-tuc-datepicker": "", "data-time": "true"}),
-            "periodo": forms.TextInput(attrs={"data-tuc-datepicker": "", "data-mode": "range"}),
+            "date": forms.TextInput(attrs={"data-tuc-datepicker": ""}),
+            "start": forms.TextInput(attrs={"data-tuc-datepicker": "", "data-time": "true"}),
+            "period": forms.TextInput(attrs={"data-tuc-datepicker": "", "data-mode": "range"}),
         }
 </pre>
 <p>Don't use <code>type="date"</code> on the widget: it would turn on the browser's calendar on top of ours. The initial value can come
@@ -154,7 +154,7 @@ class EventoForm(forms.ModelForm):
 <p>For what doesn't fit in an attribute — <code>disabledDates</code>, custom presets, <code>openOnFocus</code>, <code>firstDayOfWeek</code>,
    <code>autoApply</code>, <code>clearable</code>, <code>onChange</code> — and to read and write the value.</p>
 <pre data-code="js">
-const dp = new Tucano.DatePicker('#entrega', {
+const dp = new Tucano.DatePicker('#delivery', {
   mode: 'range',
   time: true,
   minuteStep: 15,
@@ -172,36 +172,36 @@ dp.destroy();
 
 <pre data-code="js">
 // Custom presets: value() returns { start, end } and is called every time the panel opens.
-new Tucano.DatePicker('#competencia', {
+new Tucano.DatePicker('#period', {
   mode: 'range',
   presets: [
     { label: 'Next 7 days', value: () => {
-      const hoje = Tucano.dates.startOfDay(new Date());
-      return { start: hoje, end: Tucano.dates.addDays(hoje, 6) };
+      const today = Tucano.dates.startOfDay(new Date());
+      return { start: today, end: Tucano.dates.addDays(today, 6) };
     } },
   ],
 });
 </pre>
 
-<h2 id="valor">Value and form</h2>
+<h2 id="value">Value and form</h2>
 <p class="lead">The visible field shows the formatted date, such as <code>25/12/2026</code> in pt-BR; an <code>&lt;input type="hidden"&gt;</code> created next to it carries the
    <code>name</code> and the value in ISO. The server receives ISO and never the formatted text, which would change with the language of whoever filled it in.</p>
 
 <pre data-code="text">
-POST  data    = 2026-12-25
-POST  inicio  = 2026-12-25T09:30          # DateTimeField reads it directly
-POST  exato   = 2026-12-25T09:30:15       # with data-seconds
-POST  periodo = 2026-03-01,2026-03-15     # start and end, separated by a comma
+POST  date    = 2026-12-25
+POST  start   = 2026-12-25T09:30          # DateTimeField reads it directly
+POST  exact   = 2026-12-25T09:30:15       # with data-seconds
+POST  period  = 2026-03-01,2026-03-15     # start and end, separated by a comma
 </pre>
 
 <p><code>DateField</code> and <code>DateTimeField</code> parse this with no configuration. The range arrives in a single field; split it in <code>clean_</code>:</p>
 <pre data-code="python">
-class ReservaForm(forms.Form):
-    periodo = forms.CharField()
+class BookingForm(forms.Form):
+    period = forms.CharField()
 
-    def clean_periodo(self):
-        inicio, _, fim = self.cleaned_data["periodo"].partition(",")
-        return date.fromisoformat(inicio), date.fromisoformat(fim)
+    def clean_period(self):
+        start, _, end = self.cleaned_data["period"].partition(",")
+        return date.fromisoformat(start), date.fromisoformat(end)
 </pre>
 
 <p>To edit, send the value back in ISO in <code>value</code> — the component reads ISO and also the locale's format. With
@@ -211,7 +211,7 @@ class ReservaForm(forms.Form):
 <p>Every choice fires <code>tucano:change</code> on the visible field, and also the native <code>change</code>, so validation and
    <code>hx-trigger="change"</code> see the value.</p>
 <pre data-code="js">
-document.querySelector('#vencimento').addEventListener('tucano:change', (e) => {
+document.querySelector('#due_date').addEventListener('tucano:change', (e) => {
   e.detail.value;      // Date, or { start, end } for a range
   e.detail.iso;        // '2026-12-25' — the same text as the hidden field
   e.detail.instance;   // the DatePicker
@@ -220,7 +220,7 @@ document.querySelector('#vencimento').addEventListener('tucano:change', (e) => {
 
 <div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Here <code>e.target.name</code> is empty</p><p>The event comes from the visible field, and the <code>name</code> moved to the hidden one. Use <code>e.detail.iso</code>, or read the hidden field, which sits right after the visible one.</p></div></div>
 
-<h2 id="digitacao">Typing</h2>
+<h2 id="typing">Typing</h2>
 <p class="lead">The field has a mask taken from the display format itself, so it follows the locale with no configuration.
    You type only the digits; slash, colon and the range dash go in by themselves.</p>
 
@@ -245,7 +245,7 @@ document.querySelector('#vencimento').addEventListener('tucano:change', (e) => {
 
 <p>Clicking the month in the header switches to the month grid, and clicking the year, to the year grid — so a date of birth doesn't cost thirty clicks on the arrow.</p>
 
-<h2 id="celular">On mobile</h2>
+<h2 id="mobile">On mobile</h2>
 <p class="lead">The panel is the same as on desktop, adapted to touch: 16px text, larger cells, one month below the other for
    ranges and the presets in a strip that scrolls horizontally.</p>
 
@@ -261,7 +261,7 @@ native: true      // always the system picker — as an attribute, data-native="
 
 <div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Native mode doesn't change your field's <code>type</code></p><p>Switching to <code>type="date"</code> made every CSS rule written as <code>input[type=text]</code> stop matching, and the field turned into a raw browser input. Now a transparent native input sits on top, the size of the field, and the POST is still the hidden field's. Ranges never use native mode: there is no range picker in HTML.</p></div></div>
 
-<h2 id="teclado">Keyboard and accessibility</h2>
+<h2 id="keyboard">Keyboard and accessibility</h2>
 <p class="lead">The field announces that it opens a <code>dialog</code>, the grid is <code>role="grid"</code> and each day has
    <code>aria-selected</code> and its full name — "Friday, December 25, 2026". Arriving with <code>Tab</code> doesn't open the panel.</p>
 
@@ -292,20 +292,20 @@ native: true      // always the system picker — as an attribute, data-native="
 
 <script>
   // Options that take a function don't exist as attributes: these three fields are mounted here.
-  const hoje = Tucano.dates.startOfDay(new Date());
-  new Tucano.DatePicker('#dp-uteis', {
-    min: hoje,
+  const today = Tucano.dates.startOfDay(new Date());
+  new Tucano.DatePicker('#dp-weekdays', {
+    min: today,
     disabledDates: (d) => d.getDay() === 0 || d.getDay() === 6,
   });
-  new Tucano.DatePicker('#dp-atalhos-proprios', {
+  new Tucano.DatePicker('#dp-custom-presets', {
     mode: 'range',
     months: 1,
     presets: [
-      { label: 'Next 7 days', value: () => ({ start: hoje, end: Tucano.dates.addDays(hoje, 6) }) },
-      { label: 'Next 30 days', value: () => ({ start: hoje, end: Tucano.dates.addDays(hoje, 29) }) },
+      { label: 'Next 7 days', value: () => ({ start: today, end: Tucano.dates.addDays(today, 6) }) },
+      { label: 'Next 30 days', value: () => ({ start: today, end: Tucano.dates.addDays(today, 29) }) },
       { label: 'Next month', value: () => ({
-        start: new Date(hoje.getFullYear(), hoje.getMonth() + 1, 1),
-        end: new Date(hoje.getFullYear(), hoje.getMonth() + 2, 0),
+        start: new Date(today.getFullYear(), today.getMonth() + 1, 1),
+        end: new Date(today.getFullYear(), today.getMonth() + 2, 0),
       }) },
     ],
   });

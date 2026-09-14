@@ -25,14 +25,14 @@
     "apiWhat": "What for"
   },
   "groups": {
-    "Começar": "Get started",
-    "Campos": "Fields",
-    "Ações": "Actions",
-    "Avisos": "Feedback",
-    "Diálogos": "Dialogs",
-    "Navegação": "Navigation",
-    "Dados": "Data",
-    "Guias": "Guides"
+    "get-started": "Get started",
+    "fields": "Fields",
+    "actions": "Actions",
+    "feedback": "Feedback",
+    "dialogs": "Dialogs",
+    "navigation": "Navigation",
+    "data": "Data",
+    "guides": "Guides"
   },
   "items": {
     "index": { "title": "Home and installation" },

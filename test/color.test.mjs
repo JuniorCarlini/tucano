@@ -34,9 +34,9 @@ test('ida e volta hex → hsv → hex nao perde a cor', () => {
 
 test('rgbToHsv e hsvToRgb sao inversas', () => {
   const rgb = { r: 79, g: 70, b: 229 };
-  const volta = hsvToRgb(rgbToHsv(rgb));
+  const back = hsvToRgb(rgbToHsv(rgb));
   for (const c of ['r', 'g', 'b']) {
-    assert.ok(Math.abs(volta[c] - rgb[c]) <= 1, `${c}: ${volta[c]} ≈ ${rgb[c]}`);
+    assert.ok(Math.abs(back[c] - rgb[c]) <= 1, `${c}: ${back[c]} ≈ ${rgb[c]}`);
   }
 });
 

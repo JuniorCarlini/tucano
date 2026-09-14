@@ -11,9 +11,9 @@
 import { readFileSync, existsSync } from 'node:fs';
 
 const nav = JSON.parse(readFileSync('site/nav.json', 'utf8'));
-const pastas = ['', 'en/', 'es/'];
+const folders = ['', 'en/', 'es/'];
 
-export const paginas = pastas.flatMap((pasta) => nav
+export const pages = folders.flatMap((folder) => nav
   .flatMap((g) => g.items)
-  .map((i) => `${pasta}${i.slug === 'index' ? 'index.html' : `${i.slug}/index.html`}`)
-  .filter((arq) => existsSync(arq)));
+  .map((i) => `${folder}${i.slug === 'index' ? 'index.html' : `${i.slug}/index.html`}`)
+  .filter((file) => existsSync(file)));

@@ -35,10 +35,10 @@ const EQUIVALENTS = { B: 'STRONG', I: 'EM' };
 const ALIGNMENTS = new Set(['left', 'center', 'right', 'justify']);
 const ALIGNABLE = new Set(['P', 'H2', 'H3', 'LI', 'BLOCKQUOTE', 'TD', 'TH']);
 
-function copyAlignment(de, para) {
-  if (!ALIGNABLE.has(para.tagName)) return;
-  const value = (de.style?.textAlign || '').toLowerCase();
-  if (ALIGNMENTS.has(value)) para.setAttribute('style', `text-align: ${value}`);
+function copyAlignment(source, target) {
+  if (!ALIGNABLE.has(target.tagName)) return;
+  const value = (source.style?.textAlign || '').toLowerCase();
+  if (ALIGNMENTS.has(value)) target.setAttribute('style', `text-align: ${value}`);
 }
 
 function safeUrl(url) {
@@ -46,8 +46,8 @@ function safeUrl(url) {
   return /^(https?:|mailto:|tel:|#|\/)/i.test(plain) ? plain : '';
 }
 
-function clearNode(no, destination, doc) {
-  for (const child of [...no.childNodes]) {
+function clearNode(node, destination, doc) {
+  for (const child of [...node.childNodes]) {
     if (child.nodeType === Node.TEXT_NODE) {
       destination.append(doc.createTextNode(child.nodeValue));
       continue;

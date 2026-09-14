@@ -67,7 +67,7 @@ O elemento nativo continua dono do valor: name, required e getlist() do Django s
    revertidas sem motivo, cada uma com o defeito que a motivou. Para usar a Tucano num projeto, ele não é
    necessário — o <code>llms.txt</code> é.</p>
 
-<h2 id="regras">O que a IA não deve fazer</h2>
+<h2 id="rules">O que a IA não deve fazer</h2>
 <p class="lead">São as regras que fecham o <code>llms.txt</code>. Cada uma existe porque é o erro que um modelo comete
    quando deduz em vez de ler.</p>
 
@@ -91,7 +91,7 @@ O elemento nativo continua dono do valor: name, required e getlist() do Django s
     <tr><td>Escrever validação de CPF, formatação de moeda ou de data à mão</td><td><code>Tucano.mask</code>, <code>Tucano.dates</code> e <code>Tucano.color</code></td><td>São os mesmos módulos que os componentes usam, expostos como API: <code>validateCpfCnpj</code>, <code>applyCurrency</code>, <code>format</code>, <code>parseUserInput</code>, <code>isDark</code></td></tr>
     <tr><td>Montar um aviso flutuante próprio para o retorno do servidor</td><td>As <code>messages</code> do Django em <code>&lt;div data-tuc-toast&gt;</code>, ou o cabeçalho <code>HX-Trigger</code> com <code>tucano:toast</code></td><td>O toast já cuida de pilha, pausa no foco e das regiões que o leitor de tela anuncia; o evento do HTMX é escutado sozinho</td></tr>
     <tr><td>Publicar o que veio do editor com <code>|safe</code> direto</td><td>Sanitizar no servidor antes</td><td>A peneira do editor protege o editor, não a publicação</td></tr>
-    <tr><td>Esperar que HTML inserido por <code>fetch</code> ou <code>innerHTML</code> se inicialize sozinho</td><td>Chamar <code>Tucano.init(no)</code> no trecho novo</td><td>O automático cobre o load e cada <code>htmx:afterSwap</code>; outro caminho de inserção a biblioteca não vê</td></tr>
+    <tr><td>Esperar que HTML inserido por <code>fetch</code> ou <code>innerHTML</code> se inicialize sozinho</td><td>Chamar <code>Tucano.init(node)</code> no trecho novo</td><td>O automático cobre o load e cada <code>htmx:afterSwap</code>; outro caminho de inserção a biblioteca não vê</td></tr>
     <tr><td>Remover <code>data-tuc-ready</code></td><td>Deixar o atributo</td><td>É ele que impede o autoInit de montar o mesmo campo duas vezes</td></tr>
   </tbody>
 </table></div>

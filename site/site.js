@@ -9,29 +9,29 @@
 
   /* Tema: a classe .dark no <html>, lembrada entre paginas. Os rotulos vem do
      proprio botao, que o gerador escreve no idioma da pagina. */
-  const rotular = () => {
+  const updateLabels = () => {
     const dark = root.classList.contains('dark');
-    document.querySelectorAll('[data-tema]').forEach((b) =>
+    document.querySelectorAll('[data-theme-toggle]').forEach((b) =>
       b.setAttribute('aria-label', dark ? b.dataset.labelLight : b.dataset.labelDark));
   };
-  document.querySelectorAll('[data-tema]').forEach((b) => b.addEventListener('click', () => {
+  document.querySelectorAll('[data-theme-toggle]').forEach((b) => b.addEventListener('click', () => {
     root.classList.toggle('dark');
-    try { localStorage.setItem('tucano-tema', root.classList.contains('dark') ? 'dark' : 'light'); } catch {}
-    rotular();
+    try { localStorage.setItem('tucano-theme', root.classList.contains('dark') ? 'dark' : 'light'); } catch {}
+    updateLabels();
   }));
-  rotular();
+  updateLabels();
 
   /* Menu do celular: a barra lateral vira o painel que o botao abre. */
-  const lateral = document.getElementById('side');
+  const sidebar = document.getElementById('side');
   const menu = document.getElementById('menu');
   const ICON_MENU = 'M3 6h18M3 12h18M3 18h18';
-  const abrir = (sim) => {
-    lateral.classList.toggle('is-open', sim);
-    menu.setAttribute('aria-expanded', String(sim));
-    menu.replaceChildren(Tucano.icon(sim ? Tucano.ICON_X : ICON_MENU, 16));
+  const setOpen = (open) => {
+    sidebar.classList.toggle('is-open', open);
+    menu.setAttribute('aria-expanded', String(open));
+    menu.replaceChildren(Tucano.icon(open ? Tucano.ICON_X : ICON_MENU, 16));
   };
-  menu?.addEventListener('click', () => abrir(!lateral.classList.contains('is-open')));
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && lateral.classList.contains('is-open')) abrir(false); });
+  menu?.addEventListener('click', () => setOpen(!sidebar.classList.contains('is-open')));
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && sidebar.classList.contains('is-open')) setOpen(false); });
 
   /*
    * Link para a propria pagina — o item atual do menu, a marca no inicio — so
@@ -42,10 +42,10 @@
   document.addEventListener('click', (e) => {
     const a = e.target.closest('a[href]');
     if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || a.target === '_blank') return;
-    const destino = new URL(a.href, location.href);
-    if (destino.origin !== location.origin || destino.pathname !== location.pathname || destino.search !== location.search || destino.hash) return;
+    const target = new URL(a.href, location.href);
+    if (target.origin !== location.origin || target.pathname !== location.pathname || target.search !== location.search || target.hash) return;
     e.preventDefault();
-    if (lateral?.classList.contains('is-open')) abrir(false);
+    if (sidebar?.classList.contains('is-open')) setOpen(false);
     scrollTo({ top: 0, behavior: 'smooth' });
   });
 

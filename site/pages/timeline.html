@@ -11,7 +11,7 @@ description: Histórico em ordem sobre <ol> — andamento de pedido, histórico 
 <div class="demo is-hero">
   <div class="demo-grid">
     <div class="demo-cell">
-      <ol class="tuc-timeline" id="timeline-pedido">
+      <ol class="tuc-timeline" id="timeline-order">
         <li class="tuc-timeline__item is-success is-filled">
           <div class="tuc-timeline__head">
             <p class="tuc-timeline__title">Pedido confirmado</p>
@@ -51,7 +51,7 @@ description: Histórico em ordem sobre <ol> — andamento de pedido, histórico 
   </div>
 </div>
 
-<h2 id="exemplos">Exemplos</h2>
+<h2 id="examples">Exemplos</h2>
 <p class="lead">Tudo abaixo é a mesma lista, com tom, preenchimento, ícone e etiqueta trocados.</p>
 
 <div class="demo">
@@ -148,7 +148,7 @@ description: Histórico em ordem sobre <ol> — andamento de pedido, histórico 
   </div>
 </div>
 
-<h2 id="uso">Como usar</h2>
+<h2 id="usage">Como usar</h2>
 <p class="lead">Não há JavaScript nem atributo <code>data-*</code>: escreva as classes e está pronto. Cada item tem um
    cabeçalho com título e hora, e um corpo opcional.</p>
 
@@ -184,23 +184,23 @@ description: Histórico em ordem sobre <ol> — andamento de pedido, histórico 
 <p>O tom costuma sair do tipo do evento. Um dicionário no modelo, ou um filtro, evita o <code>if</code> em cascata no
    template.</p>
 <pre data-code="python">
-class Evento(models.Model):
-    TONS = {"assinado": "is-success", "revisado": "is-warning", "cancelado": "is-danger"}
-    tipo = models.CharField(max_length=20)
-    titulo = models.CharField(max_length=120)
-    criado_em = models.DateTimeField(auto_now_add=True)
+class Event(models.Model):
+    TONES = {"signed": "is-success", "revised": "is-warning", "canceled": "is-danger"}
+    kind = models.CharField(max_length=20)
+    title = models.CharField(max_length=120)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     @property
-    def tom(self):
-        return self.TONS.get(self.tipo, "")
+    def tone(self):
+        return self.TONES.get(self.kind, "")
 </pre>
 <pre data-code="django">
 <ol class="tuc-timeline">
-  {% for evento in contrato.eventos.all %}
-  <li class="tuc-timeline__item {{ evento.tom }}{% if forloop.first %} is-filled{% endif %}">
+  {% for event in contract.events.all %}
+  <li class="tuc-timeline__item {{ event.tone }}{% if forloop.first %} is-filled{% endif %}">
     <div class="tuc-timeline__head">
-      <p class="tuc-timeline__title">{{ evento.titulo }}</p>
-      <time class="tuc-timeline__time" datetime="{{ evento.criado_em|date:'c' }}">{{ evento.criado_em|date:"d/m/Y H:i" }}</time>
+      <p class="tuc-timeline__title">{{ event.title }}</p>
+      <time class="tuc-timeline__time" datetime="{{ event.created_at|date:'c' }}">{{ event.created_at|date:"d/m/Y H:i" }}</time>
     </div>
   </li>
   {% endfor %}
@@ -211,14 +211,14 @@ class Evento(models.Model):
 <p>Três variáveis na própria lista controlam a conta do ponto e do trilho. A primeira linha do cabeçalho tem altura
    fixa pelo mesmo motivo do <code>.tuc-choice</code>: o centro do ponto não pode depender da fonte do projeto.</p>
 <pre data-code="css">
-.linha-grande {
+.timeline-large {
   --tuc-timeline-gutter: 2rem;   /* coluna do ponto; o ícone ocupa ela toda */
   --tuc-timeline-dot: 1rem;      /* diâmetro do ponto */
   --tuc-timeline-line: 2rem;     /* altura da primeira linha do cabeçalho */
 }
 </pre>
 
-<h2 id="acessibilidade">Acessibilidade</h2>
+<h2 id="accessibility">Acessibilidade</h2>
 <p class="lead">A estrutura faz o trabalho. <code>&lt;ol&gt;</code> dá a posição de cada item, <code>&lt;time datetime&gt;</code>
    dá a data em formato que a máquina lê, e ponto e trilho são pseudo-elementos, invisíveis para o leitor de tela.</p>
 

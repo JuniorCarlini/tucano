@@ -18,7 +18,7 @@ description: A status badge for a record — approved, overdue, draft — in fou
   </div>
 </div>
 
-<h2 id="exemplos">Examples</h2>
+<h2 id="examples">Examples</h2>
 <p class="lead">The tone carries the meaning; the weight stays with the text of the row.</p>
 
 <div class="demo">
@@ -61,7 +61,7 @@ description: A status badge for a record — approved, overdue, draft — in fou
   </div>
 </div>
 
-<h2 id="uso">How to use</h2>
+<h2 id="usage">How to use</h2>
 <pre data-code="html">
 <span class="tuc-badge is-success">Approved</span>
 <span class="tuc-badge is-warning">Under review</span>
@@ -75,21 +75,21 @@ description: A status badge for a record — approved, overdue, draft — in fou
 <p>The tone is a decision of the model, not of the template: that way it is the same in the list, in the detail page and in the email.</p>
 
 <pre data-code="python">
-class Contrato(models.Model):
+class Contract(models.Model):
     status = models.CharField(max_length=20, choices=Status.choices)
 
     @property
     def status_tone(self):
-        return {"pago": "success", "analise": "warning", "vencido": "danger"}.get(self.status, "")
+        return {"paid": "success", "review": "warning", "overdue": "danger"}.get(self.status, "")
 </pre>
 
 <pre data-code="django">
-<span class="tuc-badge {% if contrato.status_tone %}is-{{ contrato.status_tone }}{% endif %}">
-  {{ contrato.get_status_display }}
+<span class="tuc-badge {% if contract.status_tone %}is-{{ contract.status_tone }}{% endif %}">
+  {{ contract.get_status_display }}
 </span>
 </pre>
 
-<h2 id="cor">Why not filled</h2>
+<h2 id="color">Why not filled</h2>
 <p class="lead">Soft background with strong text. In a list of twenty rows, twenty solid badges compete with the content and the
    table turns into a traffic light.</p>
 

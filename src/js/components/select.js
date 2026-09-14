@@ -22,7 +22,7 @@ const DEFAULTS = {
   debounce: 300,
   cache: true,           // guarda o resultado de cada termo
   cacheSize: 60,
-  shortCircuit: false,   // ver _semChance()
+  shortCircuit: false,   // ver _noChance()
   loadingText: 'Buscando...',
   errorText: 'Falha ao buscar',
   onChange: null,

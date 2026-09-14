@@ -1,5 +1,6 @@
 [
   {
+    "id": "get-started",
     "group": "Começar",
     "items": [
       {
@@ -13,6 +14,7 @@
     ]
   },
   {
+    "id": "fields",
     "group": "Campos",
     "items": [
       {
@@ -58,6 +60,7 @@
     ]
   },
   {
+    "id": "actions",
     "group": "Ações",
     "items": [
       {
@@ -73,6 +76,7 @@
     ]
   },
   {
+    "id": "feedback",
     "group": "Avisos",
     "items": [
       {
@@ -103,6 +107,7 @@
     ]
   },
   {
+    "id": "dialogs",
     "group": "Diálogos",
     "items": [
       {
@@ -118,6 +123,7 @@
     ]
   },
   {
+    "id": "navigation",
     "group": "Navegação",
     "items": [
       {
@@ -143,6 +149,7 @@
     ]
   },
   {
+    "id": "data",
     "group": "Dados",
     "items": [
       {
@@ -158,6 +165,7 @@
     ]
   },
   {
+    "id": "guides",
     "group": "Guias",
     "items": [
       {

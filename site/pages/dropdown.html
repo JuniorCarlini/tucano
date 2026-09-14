@@ -10,15 +10,15 @@ description: Menu de ações ancorado num botão, escrito no template ou montado
 
 <div class="demo is-hero">
   <div class="bar">
-    <button type="button" class="tuc-btn is-outline" data-tuc-dropdown="#dropdown-acoes">
+    <button type="button" class="tuc-btn is-outline" data-tuc-dropdown="#dropdown-actions">
       Ações
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
     </button>
-    <div class="tuc-dropdown" id="dropdown-acoes" hidden>
+    <div class="tuc-dropdown" id="dropdown-actions" hidden>
       <div class="tuc-dropdown__label">Contrato</div>
       <button type="button" class="tuc-dropdown__item" onclick="Tucano.toast('Editar')"><span class="tuc-dropdown__text">Editar</span><span class="tuc-dropdown__shortcut">⌘E</span></button>
       <button type="button" class="tuc-dropdown__item" onclick="Tucano.toast('Duplicar')"><span class="tuc-dropdown__text">Duplicar</span><span class="tuc-dropdown__shortcut">⌘D</span></button>
-      <a class="tuc-dropdown__item" href="#uso"><span class="tuc-dropdown__text">Ver como usar</span></a>
+      <a class="tuc-dropdown__item" href="#usage"><span class="tuc-dropdown__text">Ver como usar</span></a>
       <hr class="tuc-dropdown__separator">
       <button type="button" class="tuc-dropdown__item" aria-disabled="true"><span class="tuc-dropdown__text">Arquivar</span></button>
       <button type="button" class="tuc-dropdown__item is-danger" onclick="Tucano.toast.error('Excluir')"><span class="tuc-dropdown__text">Excluir</span><span class="tuc-dropdown__shortcut">⌫</span></button>
@@ -28,7 +28,7 @@ description: Menu de ações ancorado num botão, escrito no template ou montado
   </div>
 </div>
 
-<h2 id="exemplos">Exemplos</h2>
+<h2 id="examples">Exemplos</h2>
 <p class="lead">O mesmo componente, com posição e conteúdo diferentes.</p>
 
 <div class="demo">
@@ -36,8 +36,8 @@ description: Menu de ações ancorado num botão, escrito no template ou montado
     <div class="demo-cell">
       <h4>Alinhado pela direita</h4>
       <p><code>data-placement="bottom-end"</code>: para o botão encostado na borda direita.</p>
-      <button type="button" class="tuc-btn is-outline" data-tuc-dropdown="#dropdown-direita" data-placement="bottom-end">Exportar</button>
-      <div class="tuc-dropdown" id="dropdown-direita" hidden>
+      <button type="button" class="tuc-btn is-outline" data-tuc-dropdown="#dropdown-right" data-placement="bottom-end">Exportar</button>
+      <div class="tuc-dropdown" id="dropdown-right" hidden>
         <button type="button" class="tuc-dropdown__item" onclick="Tucano.toast('PDF')"><span class="tuc-dropdown__text">PDF</span></button>
         <button type="button" class="tuc-dropdown__item" onclick="Tucano.toast('Planilha')"><span class="tuc-dropdown__text">Planilha</span></button>
         <button type="button" class="tuc-dropdown__item" onclick="Tucano.toast('CSV')"><span class="tuc-dropdown__text">CSV</span></button>
@@ -46,8 +46,8 @@ description: Menu de ações ancorado num botão, escrito no template ou montado
     <div class="demo-cell">
       <h4>Pelo lado</h4>
       <p><code>data-placement="right-start"</code> abre ao lado, como um submenu.</p>
-      <button type="button" class="tuc-btn is-outline" data-tuc-dropdown="#dropdown-lado" data-placement="right-start">Mover para</button>
-      <div class="tuc-dropdown" id="dropdown-lado" hidden>
+      <button type="button" class="tuc-btn is-outline" data-tuc-dropdown="#dropdown-side" data-placement="right-start">Mover para</button>
+      <div class="tuc-dropdown" id="dropdown-side" hidden>
         <button type="button" class="tuc-dropdown__item" onclick="Tucano.toast('Em andamento')"><span class="tuc-dropdown__text">Em andamento</span></button>
         <button type="button" class="tuc-dropdown__item" onclick="Tucano.toast('Concluídos')"><span class="tuc-dropdown__text">Concluídos</span></button>
       </div>
@@ -55,8 +55,8 @@ description: Menu de ações ancorado num botão, escrito no template ou montado
     <div class="demo-cell">
       <h4>Com ícones</h4>
       <p>O ícone vai em <code>.tuc-dropdown__icon</code> e fica esmaecido; no item de perigo, acompanha o vermelho.</p>
-      <button type="button" class="tuc-btn is-outline" data-tuc-dropdown="#dropdown-icones">Arquivo</button>
-      <div class="tuc-dropdown" id="dropdown-icones" hidden>
+      <button type="button" class="tuc-btn is-outline" data-tuc-dropdown="#dropdown-icons">Arquivo</button>
+      <div class="tuc-dropdown" id="dropdown-icons" hidden>
         <button type="button" class="tuc-dropdown__item" onclick="Tucano.toast('Renomear')"><span class="tuc-dropdown__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4z"/></svg></span><span class="tuc-dropdown__text">Renomear</span></button>
         <button type="button" class="tuc-dropdown__item" onclick="Tucano.toast('Baixar')"><span class="tuc-dropdown__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5M4 20h16"/></svg></span><span class="tuc-dropdown__text">Baixar</span></button>
         <hr class="tuc-dropdown__separator">
@@ -66,8 +66,8 @@ description: Menu de ações ancorado num botão, escrito no template ou montado
     <div class="demo-cell">
       <h4>Botão de ícone</h4>
       <p>O "mais ações" de uma linha de tabela. Sem texto visível, o <code>aria-label</code> é obrigatório.</p>
-      <button type="button" class="tuc-btn is-outline is-icon is-sm" aria-label="Mais ações" data-tuc-dropdown="#dropdown-mais" data-placement="bottom-end"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v.01M12 12v.01M12 19v.01"/></svg></button>
-      <div class="tuc-dropdown" id="dropdown-mais" hidden>
+      <button type="button" class="tuc-btn is-outline is-icon is-sm" aria-label="Mais ações" data-tuc-dropdown="#dropdown-more" data-placement="bottom-end"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v.01M12 12v.01M12 19v.01"/></svg></button>
+      <div class="tuc-dropdown" id="dropdown-more" hidden>
         <button type="button" class="tuc-dropdown__item" onclick="Tucano.toast('Duplicar')"><span class="tuc-dropdown__text">Duplicar</span></button>
         <button type="button" class="tuc-dropdown__item" onclick="Tucano.toast('Baixar PDF')"><span class="tuc-dropdown__text">Baixar PDF</span></button>
         <hr class="tuc-dropdown__separator">
@@ -82,20 +82,20 @@ description: Menu de ações ancorado num botão, escrito no template ou montado
    <code>bottom-start</code>. Quando o lado pedido não cabe e o oposto cabe melhor, o menu vira; e ele
    nunca vaza da tela, desliza para dentro.</p>
 
-<h2 id="uso">Como usar</h2>
+<h2 id="usage">Como usar</h2>
 <p class="lead">Um botão com <code>data-tuc-dropdown</code> apontando para o painel, e o painel logo abaixo, com
    <code>hidden</code>. Ele inicializa sozinho, inclusive o que chegar depois por HTMX.</p>
 
 <pre data-code="html">
-<button type="button" class="tuc-btn is-outline" data-tuc-dropdown="#acoes">Ações</button>
+<button type="button" class="tuc-btn is-outline" data-tuc-dropdown="#actions">Ações</button>
 
-<div class="tuc-dropdown" id="acoes" hidden>
+<div class="tuc-dropdown" id="actions" hidden>
   <div class="tuc-dropdown__label">Contrato</div>
   <button type="button" class="tuc-dropdown__item">
     <span class="tuc-dropdown__text">Editar</span>
     <span class="tuc-dropdown__shortcut">⌘E</span>
   </button>
-  <a class="tuc-dropdown__item" href="/contratos/12/">
+  <a class="tuc-dropdown__item" href="/contracts/12/">
     <span class="tuc-dropdown__text">Abrir</span>
   </a>
   <hr class="tuc-dropdown__separator">
@@ -130,17 +130,17 @@ description: Menu de ações ancorado num botão, escrito no template ou montado
 <p>As ações que dependem de permissão ficam de fora no servidor, e não escondidas no navegador. Numa listagem, o
    <code>id</code> do painel leva a chave da linha para cada menu apontar para o seu.</p>
 <pre data-code="django">
-{% for contrato in contratos %}
+{% for contract in contracts %}
   <button type="button" class="tuc-btn is-outline is-icon is-sm" aria-label="Ações"
-          data-tuc-dropdown="#acoes-{{ contrato.pk }}" data-placement="bottom-end">...</button>
+          data-tuc-dropdown="#actions-{{ contract.pk }}" data-placement="bottom-end">...</button>
 
-  <div class="tuc-dropdown" id="acoes-{{ contrato.pk }}" hidden>
-    <a class="tuc-dropdown__item" href="{% url 'contrato-editar' contrato.pk %}">
+  <div class="tuc-dropdown" id="actions-{{ contract.pk }}" hidden>
+    <a class="tuc-dropdown__item" href="{% url 'contract-edit' contract.pk %}">
       <span class="tuc-dropdown__text">Editar</span>
     </a>
-    {% if perms.contratos.delete_contrato %}
+    {% if perms.contracts.delete_contract %}
       <hr class="tuc-dropdown__separator">
-      <a class="tuc-dropdown__item is-danger" href="{% url 'contrato-excluir' contrato.pk %}">
+      <a class="tuc-dropdown__item is-danger" href="{% url 'contract-delete' contract.pk %}">
         <span class="tuc-dropdown__text">Excluir</span>
       </a>
     {% endif %}
@@ -151,16 +151,16 @@ description: Menu de ações ancorado num botão, escrito no template ou montado
 <h3>Em JavaScript</h3>
 <p>Quando os itens são calculados na hora. O componente monta o painel, e cada item recebe o que fazer ao ser escolhido.</p>
 <pre data-code="js">
-const menu = new Tucano.Dropdown('#acoes', {
+const menu = new Tucano.Dropdown('#actions', {
   placement: 'bottom-end',
   items: [
     { label: 'Contrato' },
-    { text: 'Editar', icon: 'M12 20h9M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4z', shortcut: '⌘E', onClick: () => editar() },
-    { text: 'Duplicar', icon: Tucano.ICON_COPY, onClick: (dropdown) => duplicar() },
-    { text: 'Abrir', href: '/contratos/12/' },
+    { text: 'Editar', icon: 'M12 20h9M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4z', shortcut: '⌘E', onClick: () => editContract() },
+    { text: 'Duplicar', icon: Tucano.ICON_COPY, onClick: (dropdown) => duplicateContract() },
+    { text: 'Abrir', href: '/contracts/12/' },
     { text: 'Arquivar', disabled: true },
     { separator: true },
-    { text: 'Excluir', variant: 'danger', onClick: () => excluir() },
+    { text: 'Excluir', variant: 'danger', onClick: () => deleteContract() },
   ],
 });
 
@@ -188,7 +188,7 @@ menu.destroy();   // fecha e solta os listeners
 <p><code>closeOnPick: false</code> mantém o menu aberto depois da escolha, para itens que ligam e desligam
    alguma coisa.</p>
 
-<h2 id="teclado">Teclado e acessibilidade</h2>
+<h2 id="keyboard">Teclado e acessibilidade</h2>
 <p class="lead">O gatilho ganha <code>aria-haspopup="menu"</code> e <code>aria-expanded</code>, o painel é um
    <code>menu</code> e cada item um <code>menuitem</code>. Abrir leva o foco para dentro, e fechar o devolve ao gatilho.</p>
 
@@ -218,16 +218,16 @@ menu.destroy();   // fecha e solta os listeners
   {
     // O mesmo componente da versão escrita no template, montado por JavaScript
     // para mostrar item com ícone, atalho e variante.
-    const lapis = 'M12 20h9M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4z';
-    const lixeira = 'M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6';
+    const pencil = 'M12 20h9M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4z';
+    const trash = 'M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6';
     new Tucano.Dropdown('#dropdown-js', {
       items: [
         { label: 'Este contrato' },
-        { text: 'Editar', icon: lapis, shortcut: '⌘E', onClick: () => Tucano.toast('Editar') },
+        { text: 'Editar', icon: pencil, shortcut: '⌘E', onClick: () => Tucano.toast('Editar') },
         { text: 'Duplicar', icon: Tucano.ICON_COPY, shortcut: '⌘D', onClick: () => Tucano.toast('Duplicar') },
         { text: 'Arquivar', disabled: true },
         { separator: true },
-        { text: 'Excluir', icon: lixeira, variant: 'danger', onClick: () => Tucano.toast.error('Excluir') },
+        { text: 'Excluir', icon: trash, variant: 'danger', onClick: () => Tucano.toast.error('Excluir') },
       ],
     });
   }

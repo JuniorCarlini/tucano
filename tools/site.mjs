@@ -22,7 +22,7 @@
  *
  * Coisas geradas, e nao escritas a mao, pelo mesmo motivo do llms.txt:
  *   - a tabela de API (<!-- api -->), do mesmo extrator da referencia
- *   - a grade de componentes do inicio (<!-- componentes -->), do nav.json
+ *   - a grade de componentes do inicio (<!-- components -->), do nav.json
  *   - os blocos de codigo: <pre data-code> vira .tuc-prose, e quem pinta e poe o
  *     copiar e o proprio destacador da biblioteca, em vez de <span> a mao
  *   - o changelog (<!-- changelog -->), do CHANGELOG.md, numa linha do tempo: a mesma nota
@@ -33,19 +33,19 @@
  */
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { gzipSync } from 'node:zlib';
-import { componentes } from './api.mjs';
+import { components } from './api.mjs';
 // As setas do anterior/proxima sao as mesmas da biblioteca, e nao um SVG a mais.
 import { ICON_CHEVRON_LEFT, ICON_CHEVRON_RIGHT } from '../src/js/core/dom.js';
 
 const OUT = (process.argv[2] || '.').replace(/\/+$/, '');
 const BASE_URL = 'https://juniorcarlini.github.io/tucano/';
-const versao = JSON.parse(readFileSync('package.json', 'utf8')).version;
-const kb = (arq) => Math.round(gzipSync(readFileSync(arq)).length / 1024);
-const tamanhos = { js: kb('dist/tucano.min.js'), css: kb('dist/tucano.min.css') };
+const version = JSON.parse(readFileSync('package.json', 'utf8')).version;
+const kb = (file) => Math.round(gzipSync(readFileSync(file)).length / 1024);
+const sizes = { js: kb('dist/tucano.min.js'), css: kb('dist/tucano.min.css') };
 
 const layout = readFileSync('site/layout.html', 'utf8');
 const nav = JSON.parse(readFileSync('site/nav.json', 'utf8'));
-const pacote = JSON.parse(readFileSync('package.json', 'utf8'));
+const pkg = JSON.parse(readFileSync('package.json', 'utf8'));
 
 const esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
@@ -56,13 +56,13 @@ const esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replac
  * site/i18n/<idioma>.json so traduz. Rotulo que falta no dicionario cai no
  * portugues, em vez de sair vazio.
  */
-const IDIOMAS = [
+const LANGUAGES = [
   { code: 'pt-BR', dir: '', short: 'PT', name: 'Português', ogLocale: 'pt_BR' },
   { code: 'en', dir: 'en', short: 'EN', name: 'English', ogLocale: 'en_US' },
   { code: 'es', dir: 'es', short: 'ES', name: 'Español', ogLocale: 'es_ES' },
 ];
 
-const UI_PT = {
+const DEFAULT_UI = {
   toggleTheme: 'Alternar tema',
   useLight: 'Usar tema claro',
   useDark: 'Usar tema escuro',
@@ -88,91 +88,92 @@ const UI_PT = {
   apiWhat: 'Para quê',
 };
 
-const dicionarios = new Map(IDIOMAS.map((l) => {
-  const arq = `site/i18n/${l.dir}.json`;
-  return [l.code, l.dir && existsSync(arq) ? JSON.parse(readFileSync(arq, 'utf8')) : {}];
+const dictionaries = new Map(LANGUAGES.map((l) => {
+  const file = `site/i18n/${l.dir}.json`;
+  return [l.code, l.dir && existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : {}];
 }));
-const ui = (lang, chave) => dicionarios.get(lang).ui?.[chave] ?? UI_PT[chave];
-const nomeGrupo = (lang, grupo) => dicionarios.get(lang).groups?.[grupo] ?? grupo;
-const itemNoIdioma = (lang, item) => ({ ...item, ...(dicionarios.get(lang).items?.[item.slug] ?? {}) });
+const ui = (lang, key) => dictionaries.get(lang).ui?.[key] ?? DEFAULT_UI[key];
+/* O dicionario traduz o grupo pelo id; o rotulo em portugues do nav.json e o padrao. */
+const groupName = (lang, group) => dictionaries.get(lang).groups?.[group.id] ?? group.group;
+const localizeItem = (lang, item) => ({ ...item, ...(dictionaries.get(lang).items?.[item.slug] ?? {}) });
 
 /* Caminho de uma pagina a partir da raiz do site: "", "select/", "en/", "en/select/". */
-const caminho = (lang, slug) => {
-  const { dir } = IDIOMAS.find((l) => l.code === lang);
+const pathFor = (lang, slug) => {
+  const { dir } = LANGUAGES.find((l) => l.code === lang);
   return `${dir ? `${dir}/` : ''}${slug === 'index' ? '' : `${slug}/`}`;
 };
 
 /* ---- paginas ---- */
 
-function lerPagina(arq) {
-  if (!existsSync(arq)) return null;
-  const src = readFileSync(arq, 'utf8');
+function readPage(file) {
+  if (!existsSync(file)) return null;
+  const src = readFileSync(file, 'utf8');
   const m = src.match(/^<!--\n([\s\S]*?)\n-->\n/);
-  if (!m) throw new Error(`[site] ${arq} sem o comentario de cabecalho`);
+  if (!m) throw new Error(`[site] ${file} sem o comentario de cabecalho`);
   const meta = {};
-  for (const linha of m[1].split('\n')) {
-    const i = linha.indexOf(':');
-    if (i > 0) meta[linha.slice(0, i).trim()] = linha.slice(i + 1).trim();
+  for (const line of m[1].split('\n')) {
+    const i = line.indexOf(':');
+    if (i > 0) meta[line.slice(0, i).trim()] = line.slice(i + 1).trim();
   }
-  if (!meta.title) throw new Error(`[site] ${arq} sem title`);
-  return { meta, corpo: src.slice(m[0].length) };
+  if (!meta.title) throw new Error(`[site] ${file} sem title`);
+  return { meta, body: src.slice(m[0].length) };
 }
 
-const itens = nav.flatMap((g) => g.items.map((i) => ({ ...i, group: g.group })));
+const items = nav.flatMap((g) => g.items.map((i) => ({ ...i, group: g.group })));
 
 /* idioma -> (slug -> pagina). So entra a pagina que existe naquele idioma. */
-const paginas = new Map(IDIOMAS.map((l) => {
-  const doIdioma = new Map();
-  for (const item of itens) {
-    const p = lerPagina(`site/pages/${l.dir ? `${l.dir}/` : ''}${item.slug}.html`);
-    if (p) doIdioma.set(item.slug, { ...itemNoIdioma(l.code, item), lang: l.code, ...p });
+const pages = new Map(LANGUAGES.map((l) => {
+  const langPages = new Map();
+  for (const item of items) {
+    const p = readPage(`site/pages/${l.dir ? `${l.dir}/` : ''}${item.slug}.html`);
+    if (p) langPages.set(item.slug, { ...localizeItem(l.code, item), lang: l.code, ...p });
   }
-  return [l.code, doIdioma];
+  return [l.code, langPages];
 }));
-const ordem = (lang) => itens.filter((i) => paginas.get(lang).has(i.slug)).map((i) => i.slug);
+const order = (lang) => items.filter((i) => pages.get(lang).has(i.slug)).map((i) => i.slug);
 
 /* Caminho de uma pagina para outra do mesmo idioma, relativo: funciona no Pages,
    no CDN e aberto direto do disco, sem depender de onde o site foi publicado. */
-const acima = (slug) => (slug === 'index' ? '' : '../');
-const link = (de, para) => (acima(de) + (para === 'index' ? '' : `${para}/`)) || './';
+const up = (slug) => (slug === 'index' ? '' : '../');
+const link = (from, to) => (up(from) + (to === 'index' ? '' : `${to}/`)) || './';
 
 /* ---- partes geradas ---- */
 
-function codigos(html) {
-  return html.replace(/<pre data-code(?:="\w+")?>\n?([\s\S]*?)<\/pre>/g, (_, bruto) => {
-    const linhas = bruto.replace(/\s+$/, '').split('\n');
-    const recuo = Math.min(...linhas.filter((l) => l.trim()).map((l) => l.match(/^ */)[0].length));
-    const texto = linhas.map((l) => l.slice(recuo)).join('\n');
-    return `<div class="tuc-prose doc-code"><pre><code>${esc(texto)}</code></pre></div>`;
+function codeBlocks(html) {
+  return html.replace(/<pre data-code(?:="\w+")?>\n?([\s\S]*?)<\/pre>/g, (_, raw) => {
+    const lines = raw.replace(/\s+$/, '').split('\n');
+    const indent = Math.min(...lines.filter((l) => l.trim()).map((l) => l.match(/^ */)[0].length));
+    const text = lines.map((l) => l.slice(indent)).join('\n');
+    return `<div class="tuc-prose doc-code"><pre><code>${esc(text)}</code></pre></div>`;
   });
 }
 
-function api(nome, lang) {
-  const c = componentes.find((x) => x.nome === nome);
-  if (!c) throw new Error(`[site] componente "${nome}" nao existe em src/js/components`);
-  const lista = (xs) => xs.map((x) => `<code>${esc(x)}</code>`).join(' ');
-  const t = (chave) => esc(ui(lang, chave));
-  const partes = [`<p class="lead">${t('apiLead')}</p>`];
-  if (c.seletores.length || c.classe) {
-    partes.push(`<div class="api-line"><span>${t('apiMarkup')}</span><div>${lista(c.seletores)}</div></div>`);
-    partes.push(`<div class="api-line"><span>${t('apiInJs')}</span><div><code>new Tucano.${esc(c.classe)}(${c.argumentos})</code>${
-      c.atalhos.length ? ` ${lista(c.atalhos.map((a) => `Tucano.${a}()`))}` : ''}</div></div>`);
+function api(name, lang) {
+  const c = components.find((x) => x.name === name);
+  if (!c) throw new Error(`[site] componente "${name}" nao existe em src/js/components`);
+  const list = (xs) => xs.map((x) => `<code>${esc(x)}</code>`).join(' ');
+  const t = (key) => esc(ui(lang, key));
+  const parts = [`<p class="lead">${t('apiLead')}</p>`];
+  if (c.selectors.length || c.className) {
+    parts.push(`<div class="api-line"><span>${t('apiMarkup')}</span><div>${list(c.selectors)}</div></div>`);
+    parts.push(`<div class="api-line"><span>${t('apiInJs')}</span><div><code>new Tucano.${esc(c.className)}(${c.args})</code>${
+      c.shortcuts.length ? ` ${list(c.shortcuts.map((a) => `Tucano.${a}()`))}` : ''}</div></div>`);
   }
-  if (c.atributos.length) partes.push(`<div class="api-line"><span>${t('apiAttributes')}</span><div>${lista(c.atributos)}</div></div>`);
-  if (c.metodos.length) partes.push(`<div class="api-line"><span>${t('apiMethods')}</span><div>${lista(c.metodos)}</div></div>`);
-  if (c.eventos.length) partes.push(`<div class="api-line"><span>${t('apiEvents')}</span><div>${lista(c.eventos)}</div></div>`);
-  if (c.opcoes.length) {
-    partes.push(`<h3>${t('apiOptions')}</h3>`);
+  if (c.attributes.length) parts.push(`<div class="api-line"><span>${t('apiAttributes')}</span><div>${list(c.attributes)}</div></div>`);
+  if (c.methods.length) parts.push(`<div class="api-line"><span>${t('apiMethods')}</span><div>${list(c.methods)}</div></div>`);
+  if (c.events.length) parts.push(`<div class="api-line"><span>${t('apiEvents')}</span><div>${list(c.events)}</div></div>`);
+  if (c.options.length) {
+    parts.push(`<h3>${t('apiOptions')}</h3>`);
     // As notas saem dos comentarios do codigo, que sao em portugues: fora dele,
     // uma frase avisa em vez de a coluna parecer um descuido.
-    if (ui(lang, 'apiNotesNote')) partes.push(`<p>${t('apiNotesNote')}</p>`);
-    partes.push(`<div class="tuc-table-wrap"><table class="tuc-table"><thead><tr><th style="width:26%">${t('apiOption')}</th><th style="width:22%">${t('apiDefault')}</th><th>${t('apiWhat')}</th></tr></thead><tbody>`);
-    for (const o of c.opcoes) {
-      partes.push(`<tr><td><code>${esc(o.nome)}</code></td><td><code>${esc(o.padrao)}</code></td><td>${esc(o.nota)}</td></tr>`);
+    if (ui(lang, 'apiNotesNote')) parts.push(`<p>${t('apiNotesNote')}</p>`);
+    parts.push(`<div class="tuc-table-wrap"><table class="tuc-table"><thead><tr><th style="width:26%">${t('apiOption')}</th><th style="width:22%">${t('apiDefault')}</th><th>${t('apiWhat')}</th></tr></thead><tbody>`);
+    for (const o of c.options) {
+      parts.push(`<tr><td><code>${esc(o.name)}</code></td><td><code>${esc(o.defaultValue)}</code></td><td>${esc(o.note)}</td></tr>`);
     }
-    partes.push('</tbody></table></div>');
+    parts.push('</tbody></table></div>');
   }
-  return partes.join('\n');
+  return parts.join('\n');
 }
 
 /*
@@ -191,62 +192,62 @@ function changelog(md) {
   const slug = (t) => t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
     .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
-  /* Arquivo -> [{ titulo, grupos: [{ nome, itens }] }]. Item sem grupo cai num grupo sem nome. */
-  const versoes = [];
-  let versao = null, grupo = null;
-  for (const linha of md.split('\n')) {
-    if (linha.startsWith('## ')) { versao = { titulo: linha.slice(3).trim(), grupos: [] }; versoes.push(versao); grupo = null; continue; }
-    if (!versao) continue;
-    if (linha.startsWith('### ')) { grupo = { nome: linha.slice(4).trim(), itens: [] }; versao.grupos.push(grupo); continue; }
-    if (linha.startsWith('- ')) {
-      if (!grupo) { grupo = { nome: '', itens: [] }; versao.grupos.push(grupo); }
-      grupo.itens.push(linha.slice(2).trim());
-    } else if (/^\s+\S/.test(linha) && grupo?.itens.length) {
-      grupo.itens[grupo.itens.length - 1] += ` ${linha.trim()}`;
+  /* Arquivo -> [{ title, groups: [{ name, items }] }]. Item sem grupo cai num grupo sem nome. */
+  const releases = [];
+  let release = null, group = null;
+  for (const line of md.split('\n')) {
+    if (line.startsWith('## ')) { release = { title: line.slice(3).trim(), groups: [] }; releases.push(release); group = null; continue; }
+    if (!release) continue;
+    if (line.startsWith('### ')) { group = { name: line.slice(4).trim(), items: [] }; release.groups.push(group); continue; }
+    if (line.startsWith('- ')) {
+      if (!group) { group = { name: '', items: [] }; release.groups.push(group); }
+      group.items.push(line.slice(2).trim());
+    } else if (/^\s+\S/.test(line) && group?.items.length) {
+      group.items[group.items.length - 1] += ` ${line.trim()}`;
     }
   }
 
-  const lista = (itens, classe) => `<ul class="${classe}">${itens.map((i) => `<li>${inline(i)}</li>`).join('')}</ul>`;
-  const primeiraPublicada = versoes.findIndex((v) => /^\d/.test(v.titulo));
+  const list = (entries, className) => `<ul class="${className}">${entries.map((i) => `<li>${inline(i)}</li>`).join('')}</ul>`;
+  const firstReleased = releases.findIndex((v) => /^\d/.test(v.title));
 
-  const itens = versoes.map((v, i) => {
-    const [numero, data] = v.titulo.split(' — ');
-    const publicada = /^\d/.test(numero);
-    const atual = i === primeiraPublicada;
-    const tom = publicada ? (atual ? ' is-accent is-filled' : '') : ' is-accent';
-    const [ano, mes, dia] = (data || '').split('-');
-    const cabeca = [
+  const entries = releases.map((v, i) => {
+    const [number, date] = v.title.split(' — ');
+    const released = /^\d/.test(number);
+    const current = i === firstReleased;
+    const tone = released ? (current ? ' is-accent is-filled' : '') : ' is-accent';
+    const [year, month, day] = (date || '').split('-');
+    const head = [
       // Id com "v" na frente: um id que comeca com numero vale como ancora, mas nao
       // como seletor CSS — #0-31-0 quebra querySelector.
-      `<h2 class="tuc-timeline__title" id="${slug(publicada ? `v${numero}` : numero)}">${inline(numero)}</h2>`,
-      data ? `<time class="tuc-timeline__time" datetime="${data}">${dia}/${mes}/${ano}</time>` : '',
+      `<h2 class="tuc-timeline__title" id="${slug(released ? `v${number}` : number)}">${inline(number)}</h2>`,
+      date ? `<time class="tuc-timeline__time" datetime="${date}">${day}/${month}/${year}</time>` : '',
     ].join('');
-    const corpo = v.grupos.map((g) => `<div class="release__group">${
-      g.nome ? `<h3 class="release__heading">${inline(g.nome)}</h3>` : ''}${lista(g.itens, 'release__list')}</div>`).join('');
-    return `<li class="tuc-timeline__item${tom}"><div class="tuc-timeline__head">${cabeca}</div><div class="tuc-timeline__body">${corpo}</div></li>`;
+    const body = v.groups.map((g) => `<div class="release__group">${
+      g.name ? `<h3 class="release__heading">${inline(g.name)}</h3>` : ''}${list(g.items, 'release__list')}</div>`).join('');
+    return `<li class="tuc-timeline__item${tone}"><div class="tuc-timeline__head">${head}</div><div class="tuc-timeline__body">${body}</div></li>`;
   });
-  return `<ol class="tuc-timeline changelog">\n${itens.join('\n')}\n</ol>`;
+  return `<ol class="tuc-timeline changelog">\n${entries.join('\n')}\n</ol>`;
 }
 
-function grade(de, lang) {
-  return nav.filter((g) => g.group !== 'Começar').map((g) => `
-  <h3>${esc(nomeGrupo(lang, g.group))}</h3>
-  <div class="cards">${g.items.map((cru) => {
-    const i = itemNoIdioma(lang, cru);
-    const pronto = paginas.get(lang).has(i.slug);
-    const miolo = `<b>${esc(i.title)}</b><span>${esc(i.desc || '')}</span>`;
-    return pronto
-      ? `<a class="link-card" href="${link(de, i.slug)}">${miolo}</a>`
-      : `<div class="link-card is-soon" aria-disabled="true">${miolo}<span class="tuc-badge is-plain">${esc(ui(lang, 'soon'))}</span></div>`;
+function grid(from, lang) {
+  return nav.filter((g) => g.id !== 'get-started').map((g) => `
+  <h3>${esc(groupName(lang, g))}</h3>
+  <div class="cards">${g.items.map((raw) => {
+    const i = localizeItem(lang, raw);
+    const ready = pages.get(lang).has(i.slug);
+    const inner = `<b>${esc(i.title)}</b><span>${esc(i.desc || '')}</span>`;
+    return ready
+      ? `<a class="link-card" href="${link(from, i.slug)}">${inner}</a>`
+      : `<div class="link-card is-soon" aria-disabled="true">${inner}<span class="tuc-badge is-plain">${esc(ui(lang, 'soon'))}</span></div>`;
   }).join('')}</div>`).join('\n');
 }
 
-function menu(de, lang) {
-  return nav.map((g) => `<div class="tuc-menu__section">${esc(nomeGrupo(lang, g.group))}</div>\n${g.items.map((cru) => {
-    const i = itemNoIdioma(lang, cru);
-    if (!paginas.get(lang).has(i.slug)) return `    <span class="tuc-menu__item is-soon" aria-disabled="true">${esc(i.title)}</span>`;
-    const atual = i.slug === de;
-    return `    <a class="tuc-menu__item${atual ? ' is-active' : ''}" href="${link(de, i.slug)}"${atual ? ' aria-current="page"' : ''}>${esc(i.title)}</a>`;
+function menu(from, lang) {
+  return nav.map((g) => `<div class="tuc-menu__section">${esc(groupName(lang, g))}</div>\n${g.items.map((raw) => {
+    const i = localizeItem(lang, raw);
+    if (!pages.get(lang).has(i.slug)) return `    <span class="tuc-menu__item is-soon" aria-disabled="true">${esc(i.title)}</span>`;
+    const current = i.slug === from;
+    return `    <a class="tuc-menu__item${current ? ' is-active' : ''}" href="${link(from, i.slug)}"${current ? ' aria-current="page"' : ''}>${esc(i.title)}</a>`;
   }).join('\n')}`).join('\n');
 }
 
@@ -255,19 +256,19 @@ function menu(de, lang) {
  * aqui ocupava a largura toda com o nome encostado num canto — era o segundo
  * desenho de botao que a pagina de vitrine nao pode ter.
  */
-function paginador(de, lang) {
-  const seq = ordem(lang);
-  const i = seq.indexOf(de);
-  const ant = seq[i - 1], prox = seq[i + 1];
-  const seta = (d) => `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"/></svg>`;
-  const botao = (slug, lado) => {
+function pager(from, lang) {
+  const seq = order(lang);
+  const i = seq.indexOf(from);
+  const prev = seq[i - 1], next = seq[i + 1];
+  const arrow = (d) => `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"/></svg>`;
+  const button = (slug, side) => {
     if (!slug) return '';
-    const titulo = esc(paginas.get(lang).get(slug).title);
-    const rotulo = `${esc(ui(lang, lado === 'prev' ? 'prevPage' : 'nextPage'))}: ${titulo}`;
-    const miolo = lado === 'prev' ? `${seta(ICON_CHEVRON_LEFT)}${titulo}` : `${titulo}${seta(ICON_CHEVRON_RIGHT)}`;
-    return `<a class="tuc-btn is-outline is-lg pager__${lado}" href="${link(de, slug)}" aria-label="${rotulo}">${miolo}</a>`;
+    const title = esc(pages.get(lang).get(slug).title);
+    const label = `${esc(ui(lang, side === 'prev' ? 'prevPage' : 'nextPage'))}: ${title}`;
+    const inner = side === 'prev' ? `${arrow(ICON_CHEVRON_LEFT)}${title}` : `${title}${arrow(ICON_CHEVRON_RIGHT)}`;
+    return `<a class="tuc-btn is-outline is-lg pager__${side}" href="${link(from, slug)}" aria-label="${label}">${inner}</a>`;
   };
-  return `<nav class="pager" aria-label="${esc(ui(lang, 'docsPager'))}">${botao(ant, 'prev')}${botao(prox, 'next')}</nav>`;
+  return `<nav class="pager" aria-label="${esc(ui(lang, 'docsPager'))}">${button(prev, 'prev')}${button(next, 'next')}</nav>`;
 }
 
 /*
@@ -275,21 +276,21 @@ function paginador(de, lang) {
  * link para a mesma pagina em cada idioma. Sai duas vezes (barra lateral e barra
  * do celular), com ids diferentes. Pagina sem traducao leva ao inicio do idioma.
  */
-const ICONE_IDIOMA = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>';
+const LANGUAGE_ICON = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>';
 
-function seletorDeIdioma(slug, lang, raiz, id) {
-  const atual = IDIOMAS.find((l) => l.code === lang);
+function languageSwitch(slug, lang, root, id) {
+  const current = LANGUAGES.find((l) => l.code === lang);
   // Idioma sem nenhuma pagina fica fora: o link levaria a um 404.
-  const itensMenu = IDIOMAS.filter((l) => paginas.get(l.code).size).map((l) => {
-    const destino = paginas.get(l.code).has(slug) ? slug : 'index';
-    const marcado = l.code === lang ? ' aria-current="true"' : '';
+  const menuItems = LANGUAGES.filter((l) => pages.get(l.code).size).map((l) => {
+    const target = pages.get(l.code).has(slug) ? slug : 'index';
+    const marked = l.code === lang ? ' aria-current="true"' : '';
     // `|| './'`: do inicio em portugues para ele mesmo o caminho e vazio, e
     // href="" e fragil — depende de o navegador tratar como a propria pagina.
-    const href = `${raiz}${caminho(l.code, destino)}` || './';
-    return `<a class="tuc-dropdown__item" href="${href}" hreflang="${l.code}" lang="${l.code}"${marcado}><span class="tuc-dropdown__text">${esc(l.name)}</span></a>`;
+    const href = `${root}${pathFor(l.code, target)}` || './';
+    return `<a class="tuc-dropdown__item" href="${href}" hreflang="${l.code}" lang="${l.code}"${marked}><span class="tuc-dropdown__text">${esc(l.name)}</span></a>`;
   }).join('');
-  return `<button class="tuc-btn is-outline is-sm" data-tuc-dropdown="#${id}" data-placement="bottom-end" aria-label="${esc(ui(lang, 'language'))}: ${esc(atual.name)}">${ICONE_IDIOMA}${atual.short}</button>`
-    + `<div class="tuc-dropdown" id="${id}" hidden>${itensMenu}</div>`;
+  return `<button class="tuc-btn is-outline is-sm" data-tuc-dropdown="#${id}" data-placement="bottom-end" aria-label="${esc(ui(lang, 'language'))}: ${esc(current.name)}">${LANGUAGE_ICON}${current.short}</button>`
+    + `<div class="tuc-dropdown" id="${id}" hidden>${menuItems}</div>`;
 }
 
 /* ---- busca: titulo, dados estruturados, hreflang e sitemap ---- */
@@ -300,7 +301,7 @@ function seletorDeIdioma(slug, lang, raiz, id) {
  * ninguem digita antes de conhece-la. O <h1> continua curto; so o <title> leva
  * o contexto.
  */
-const TITULOS = {
+const TITLES = {
   'pt-BR': {
     index: 'Tucano — componentes JS para Django, Laravel, Rails e HTMX',
     changelog: 'Changelog da Tucano — o que mudou em cada versão',
@@ -310,7 +311,7 @@ const TITULOS = {
     theme: 'Tema da Tucano — tokens CSS, tema escuro e cor de destaque',
     keyboard: 'Teclado e acessibilidade nos componentes da Tucano',
     ai: 'Tucano para agentes de IA — llms.txt e AGENTS.md',
-    componente: (t) => `${t} — JavaScript puro para Django, Laravel e Rails`,
+    component: (t) => `${t} — JavaScript puro para Django, Laravel e Rails`,
   },
   en: {
     index: 'Tucano — JS components for Django, Laravel, Rails and HTMX',
@@ -319,7 +320,7 @@ const TITULOS = {
     theme: 'Tucano theme — CSS tokens, dark mode and accent color',
     keyboard: 'Keyboard and accessibility in Tucano components',
     ai: 'Tucano for AI agents — llms.txt and AGENTS.md',
-    componente: (t) => `${t} — plain JavaScript for Django, Laravel and Rails`,
+    component: (t) => `${t} — plain JavaScript for Django, Laravel and Rails`,
   },
   es: {
     index: 'Tucano — componentes JS para Django, Laravel, Rails y HTMX',
@@ -328,17 +329,17 @@ const TITULOS = {
     theme: 'Tema de Tucano — tokens CSS, modo oscuro y color de acento',
     keyboard: 'Teclado y accesibilidad en los componentes de Tucano',
     ai: 'Tucano para agentes de IA — llms.txt y AGENTS.md',
-    componente: (t) => `${t} — JavaScript puro para Django, Laravel y Rails`,
+    component: (t) => `${t} — JavaScript puro para Django, Laravel y Rails`,
   },
 };
 
-function tituloDaPagina(slug, p) {
-  const t = TITULOS[p.lang];
+function pageTitle(slug, p) {
+  const t = TITLES[p.lang];
   if (typeof t[slug] === 'string') return t[slug];
   // A marca so entra quando cabe: o Google corta perto de 60 caracteres, e o que
   // precisa aparecer e o nome da pagina e para quem ela serve. "Tucano" continua
   // no og:site_name e no JSON-LD.
-  const base = t.componente(p.meta.title);
+  const base = t.component(p.meta.title);
   return base.length + ' | Tucano'.length <= 60 ? `${base} | Tucano` : base;
 }
 
@@ -349,47 +350,47 @@ function tituloDaPagina(slug, p) {
  * tecnico, com a trilha de volta ao inicio do idioma. Nada de data: o CI regera
  * o site e exige a arvore limpa, e uma data mudaria a cada build.
  */
-function jsonld(slug, p, titulo, canonical) {
+function jsonld(slug, p, title, canonical) {
   const site = { '@id': `${BASE_URL}#website` };
   const software = { '@id': `${BASE_URL}#software` };
-  const autor = { '@type': 'Person', name: pacote.author, url: 'https://github.com/JuniorCarlini' };
-  const inicioDoIdioma = BASE_URL + caminho(p.lang, 'index');
-  let grafo;
+  const author = { '@type': 'Person', name: pkg.author, url: 'https://github.com/JuniorCarlini' };
+  const langHome = BASE_URL + pathFor(p.lang, 'index');
+  let graph;
   if (slug === 'index' && p.lang === 'pt-BR') {
-    grafo = [
-      { '@type': 'WebSite', ...site, name: 'Tucano', url: BASE_URL, inLanguage: IDIOMAS.map((l) => l.code), description: p.meta.description, publisher: autor },
+    graph = [
+      { '@type': 'WebSite', ...site, name: 'Tucano', url: BASE_URL, inLanguage: LANGUAGES.map((l) => l.code), description: p.meta.description, publisher: author },
       {
         '@type': 'SoftwareSourceCode', ...software, name: 'Tucano', url: BASE_URL,
         description: p.meta.description, codeRepository: 'https://github.com/JuniorCarlini/tucano',
-        programmingLanguage: ['JavaScript', 'CSS'], runtimePlatform: 'Navegador', version: versao,
-        license: 'https://opensource.org/licenses/MIT', author: autor,
+        programmingLanguage: ['JavaScript', 'CSS'], runtimePlatform: 'Navegador', version,
+        license: 'https://opensource.org/licenses/MIT', author,
         // Os do package.json sao do npm; aqui entram os back-ends com que a
         // biblioteca funciona igual, que e o que se procura antes de conhece-la.
-        keywords: [...pacote.keywords, 'laravel', 'rails', 'flask', 'fastapi', 'php', 'ruby', 'python', 'server-side rendering'].join(', '),
+        keywords: [...pkg.keywords, 'laravel', 'rails', 'flask', 'fastapi', 'php', 'ruby', 'python', 'server-side rendering'].join(', '),
       },
     ];
   } else if (slug === 'index') {
-    grafo = [{
-      '@type': 'WebPage', name: titulo, description: p.meta.description, url: canonical,
+    graph = [{
+      '@type': 'WebPage', name: title, description: p.meta.description, url: canonical,
       inLanguage: p.lang, isPartOf: site, about: software, image: `${BASE_URL}og.png`,
     }];
   } else {
-    grafo = [
+    graph = [
       {
-        '@type': 'TechArticle', headline: titulo, name: p.meta.title, description: p.meta.description,
-        url: canonical, inLanguage: p.lang, image: `${BASE_URL}og.png`, author: autor,
+        '@type': 'TechArticle', headline: title, name: p.meta.title, description: p.meta.description,
+        url: canonical, inLanguage: p.lang, image: `${BASE_URL}og.png`, author,
         isPartOf: site, about: software,
       },
       {
         '@type': 'BreadcrumbList', itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Tucano', item: inicioDoIdioma },
+          { '@type': 'ListItem', position: 1, name: 'Tucano', item: langHome },
           { '@type': 'ListItem', position: 2, name: p.meta.title, item: canonical },
         ],
       },
     ];
   }
   // `<` escapado: um texto com </script> fecharia o bloco no meio.
-  const json = JSON.stringify({ '@context': 'https://schema.org', '@graph': grafo }).replace(/</g, '\\u003c');
+  const json = JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }).replace(/</g, '\\u003c');
   return `<script type="application/ld+json">${json}</script>`;
 }
 
@@ -399,86 +400,86 @@ function jsonld(slug, p, titulo, canonical) {
  * inclusive ela mesma, e o x-default aponta o portugues.
  */
 function hreflang(slug) {
-  const versoes = IDIOMAS.filter((l) => paginas.get(l.code).has(slug));
-  if (versoes.length < 2) return '';
+  const versions = LANGUAGES.filter((l) => pages.get(l.code).has(slug));
+  if (versions.length < 2) return '';
   return [
-    ...versoes.map((l) => `<link rel="alternate" hreflang="${l.code}" href="${BASE_URL}${caminho(l.code, slug)}">`),
-    `<link rel="alternate" hreflang="x-default" href="${BASE_URL}${caminho('pt-BR', slug)}">`,
+    ...versions.map((l) => `<link rel="alternate" hreflang="${l.code}" href="${BASE_URL}${pathFor(l.code, slug)}">`),
+    `<link rel="alternate" hreflang="x-default" href="${BASE_URL}${pathFor('pt-BR', slug)}">`,
   ].join('\n');
 }
 
 /* Sitemap: sem ele o buscador so acha as paginas seguindo links. */
 function sitemap() {
-  const urls = IDIOMAS.flatMap((l) => ordem(l.code).map((slug) => `  <url><loc>${BASE_URL}${caminho(l.code, slug)}</loc></url>`));
+  const urls = LANGUAGES.flatMap((l) => order(l.code).map((slug) => `  <url><loc>${BASE_URL}${pathFor(l.code, slug)}</loc></url>`));
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>\n`;
 }
 
 /* ---- escrita ---- */
 
-const profundidadeDeOut = OUT === '.' ? 0 : OUT.split('/').length;
-let escritas = 0;
+const outDepth = OUT === '.' ? 0 : OUT.split('/').length;
+let written = 0;
 
-for (const idioma of IDIOMAS) {
-  const lang = idioma.code;
-  for (const [slug, p] of paginas.get(lang)) {
-    const rota = caminho(lang, slug);
-    const raiz = '../'.repeat(profundidadeDeOut + rota.split('/').filter(Boolean).length);
+for (const language of LANGUAGES) {
+  const lang = language.code;
+  for (const [slug, p] of pages.get(lang)) {
+    const route = pathFor(lang, slug);
+    const root = '../'.repeat(outDepth + route.split('/').filter(Boolean).length);
 
     const scripts = [];
-    let corpo = p.corpo.replace(/<script>([\s\S]*?)<\/script>\s*/g, (m) => { scripts.push(m.trim()); return ''; });
-    corpo = corpo
-      .replaceAll('{{version}}', versao)
-      .replaceAll('{{kb-js}}', String(tamanhos.js))
-      .replaceAll('{{kb-css}}', String(tamanhos.css))
-      .replaceAll('{{root}}', raiz);
-    corpo = codigos(corpo);
-    corpo = corpo.replace(/<!-- api -->/g, () => api(p.meta.component, lang));
-    corpo = corpo.replace(/<!-- componentes -->/g, () => grade(slug, lang));
+    let body = p.body.replace(/<script>([\s\S]*?)<\/script>\s*/g, (m) => { scripts.push(m.trim()); return ''; });
+    body = body
+      .replaceAll('{{version}}', version)
+      .replaceAll('{{kb-js}}', String(sizes.js))
+      .replaceAll('{{kb-css}}', String(sizes.css))
+      .replaceAll('{{root}}', root);
+    body = codeBlocks(body);
+    body = body.replace(/<!-- api -->/g, () => api(p.meta.component, lang));
+    body = body.replace(/<!-- components -->/g, () => grid(slug, lang));
     // Cada idioma le as notas no proprio idioma; sem o arquivo, cai no portugues
     // em vez de a pagina sair vazia.
-    corpo = corpo.replace(/<!-- changelog -->/g, () => {
-      const traduzido = idioma.dir ? `CHANGELOG.${idioma.dir}.md` : 'CHANGELOG.md';
-      return changelog(readFileSync(existsSync(traduzido) ? traduzido : 'CHANGELOG.md', 'utf8'));
+    body = body.replace(/<!-- changelog -->/g, () => {
+      const translated = language.dir ? `CHANGELOG.${language.dir}.md` : 'CHANGELOG.md';
+      return changelog(readFileSync(existsSync(translated) ? translated : 'CHANGELOG.md', 'utf8'));
     });
 
-    const titulo = tituloDaPagina(slug, p);
-    const canonical = BASE_URL + rota;
+    const title = pageTitle(slug, p);
+    const canonical = BASE_URL + route;
     const html = layout
-      .replaceAll('{{title}}', esc(titulo))
+      .replaceAll('{{title}}', esc(title))
       .replaceAll('{{description}}', esc(p.meta.description || ''))
       .replaceAll('{{canonical}}', canonical)
       .replaceAll('{{lang}}', lang)
-      .replaceAll('{{og-locale}}', idioma.ogLocale)
+      .replaceAll('{{og-locale}}', language.ogLocale)
       .replaceAll('{{og-image-alt}}', esc(ui(lang, 'imageAlt')))
       .replaceAll('{{og-type}}', slug === 'index' ? 'website' : 'article')
       .replace('{{hreflang}}', () => hreflang(slug))
-      .replace('{{jsonld}}', () => jsonld(slug, p, titulo, canonical))
+      .replace('{{jsonld}}', () => jsonld(slug, p, title, canonical))
       .replaceAll('{{ui-toggle-theme}}', esc(ui(lang, 'toggleTheme')))
       .replaceAll('{{ui-use-light}}', esc(ui(lang, 'useLight')))
       .replaceAll('{{ui-use-dark}}', esc(ui(lang, 'useDark')))
       .replaceAll('{{ui-open-menu}}', esc(ui(lang, 'openMenu')))
       .replaceAll('{{ui-docs-nav}}', esc(ui(lang, 'docsNav')))
       .replaceAll('{{ui-llms}}', esc(ui(lang, 'llms')))
-      .replace('{{lang-switch-top}}', () => seletorDeIdioma(slug, lang, raiz, 'idiomas-topo'))
-      .replace('{{lang-switch-side}}', () => seletorDeIdioma(slug, lang, raiz, 'idiomas-lateral'))
-      .replaceAll('{{root}}', raiz)
+      .replace('{{lang-switch-top}}', () => languageSwitch(slug, lang, root, 'languages-top'))
+      .replace('{{lang-switch-side}}', () => languageSwitch(slug, lang, root, 'languages-side'))
+      .replaceAll('{{root}}', root)
       .replaceAll('{{home}}', link(slug, 'index'))
-      .replaceAll('{{version}}', versao)
-      .replaceAll('{{kb-total}}', String(tamanhos.js + tamanhos.css))
+      .replaceAll('{{version}}', version)
+      .replaceAll('{{kb-total}}', String(sizes.js + sizes.css))
       .replace('{{nav}}', () => menu(slug, lang))
-      .replace('{{pager}}', () => paginador(slug, lang))
+      .replace('{{pager}}', () => pager(slug, lang))
       .replace('{{scripts}}', () => scripts.join('\n'))
-      .replace('{{content}}', () => corpo);   // por ultimo: o conteudo traz {{ }} de template Django
+      .replace('{{content}}', () => body);   // por ultimo: o conteudo traz {{ }} de template Django
 
-    const pasta = `${OUT}/${rota}`.replace(/\/+$/, '');
-    mkdirSync(pasta, { recursive: true });
-    writeFileSync(`${pasta}/index.html`, html);
-    escritas++;
+    const folder = `${OUT}/${route}`.replace(/\/+$/, '');
+    mkdirSync(folder, { recursive: true });
+    writeFileSync(`${folder}/index.html`, html);
+    written++;
   }
 }
 
 mkdirSync(OUT, { recursive: true });
 writeFileSync(`${OUT}/sitemap.xml`, sitemap());
 
-const porIdioma = IDIOMAS.map((l) => `${l.short} ${paginas.get(l.code).size}`).join(', ');
-console.log(`site: ${escritas} página(s) (${porIdioma}) e sitemap.xml em ${OUT}/ · ${itens.length - paginas.get('pt-BR').size} ainda sem conteúdo`);
+const perLanguage = LANGUAGES.map((l) => `${l.short} ${pages.get(l.code).size}`).join(', ');
+console.log(`site: ${written} página(s) (${perLanguage}) e sitemap.xml em ${OUT}/ · ${items.length - pages.get('pt-BR').size} ainda sem conteúdo`);

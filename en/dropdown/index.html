@@ -41,7 +41,7 @@
 <link rel="stylesheet" href="../../site/site.css?v=0.33.1">
 <!-- O tema e aplicado antes do primeiro quadro: sem isto a pagina piscava clara
      para quem escolheu o escuro. -->
-<script>try{if(localStorage.getItem("tucano-tema")==="dark")document.documentElement.classList.add("dark")}catch{}</script>
+<script>try{if(localStorage.getItem("tucano-theme")==="dark")document.documentElement.classList.add("dark")}catch{}</script>
 </head>
 <body>
 
@@ -49,8 +49,8 @@
   <a class="brand" href="../"><img class="brand__logo logo-light" src="../../site/assets/logo-light.svg" width="26" height="24" alt=""><img class="brand__logo logo-dark" src="../../site/assets/logo-dark.svg" width="26" height="24" alt=""><b>Tucano</b></a>
   <span class="tuc-badge is-plain ver">v0.33.1</span>
   <div class="topbar__actions">
-    <button class="tuc-btn is-outline is-sm" data-tuc-dropdown="#idiomas-topo" data-placement="bottom-end" aria-label="Language: English"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>EN</button><div class="tuc-dropdown" id="idiomas-topo" hidden><a class="tuc-dropdown__item" href="../../dropdown/" hreflang="pt-BR" lang="pt-BR"><span class="tuc-dropdown__text">Português</span></a><a class="tuc-dropdown__item" href="../../en/dropdown/" hreflang="en" lang="en" aria-current="true"><span class="tuc-dropdown__text">English</span></a><a class="tuc-dropdown__item" href="../../es/dropdown/" hreflang="es" lang="es"><span class="tuc-dropdown__text">Español</span></a></div>
-    <button class="tuc-btn is-outline is-icon is-sm" data-tema data-label-light="Use light theme" data-label-dark="Use dark theme" aria-label="Toggle theme"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
+    <button class="tuc-btn is-outline is-sm" data-tuc-dropdown="#languages-top" data-placement="bottom-end" aria-label="Language: English"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>EN</button><div class="tuc-dropdown" id="languages-top" hidden><a class="tuc-dropdown__item" href="../../dropdown/" hreflang="pt-BR" lang="pt-BR"><span class="tuc-dropdown__text">Português</span></a><a class="tuc-dropdown__item" href="../../en/dropdown/" hreflang="en" lang="en" aria-current="true"><span class="tuc-dropdown__text">English</span></a><a class="tuc-dropdown__item" href="../../es/dropdown/" hreflang="es" lang="es"><span class="tuc-dropdown__text">Español</span></a></div>
+    <button class="tuc-btn is-outline is-icon is-sm" data-theme-toggle data-label-light="Use light theme" data-label-dark="Use dark theme" aria-label="Toggle theme"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
     <button class="tuc-btn is-outline is-icon is-sm" id="menu" aria-label="Open menu" aria-expanded="false" aria-controls="side"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
   </div>
 </header>
@@ -59,8 +59,8 @@
   <div class="side__head">
     <a class="brand" href="../"><img class="brand__logo logo-light" src="../../site/assets/logo-light.svg" width="26" height="24" alt=""><img class="brand__logo logo-dark" src="../../site/assets/logo-dark.svg" width="26" height="24" alt=""><b>Tucano</b></a>
     <div class="side__tools">
-      <button class="tuc-btn is-outline is-sm" data-tuc-dropdown="#idiomas-lateral" data-placement="bottom-end" aria-label="Language: English"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>EN</button><div class="tuc-dropdown" id="idiomas-lateral" hidden><a class="tuc-dropdown__item" href="../../dropdown/" hreflang="pt-BR" lang="pt-BR"><span class="tuc-dropdown__text">Português</span></a><a class="tuc-dropdown__item" href="../../en/dropdown/" hreflang="en" lang="en" aria-current="true"><span class="tuc-dropdown__text">English</span></a><a class="tuc-dropdown__item" href="../../es/dropdown/" hreflang="es" lang="es"><span class="tuc-dropdown__text">Español</span></a></div>
-      <button class="tuc-btn is-outline is-icon is-sm" data-tema data-label-light="Use light theme" data-label-dark="Use dark theme" aria-label="Toggle theme"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
+      <button class="tuc-btn is-outline is-sm" data-tuc-dropdown="#languages-side" data-placement="bottom-end" aria-label="Language: English"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>EN</button><div class="tuc-dropdown" id="languages-side" hidden><a class="tuc-dropdown__item" href="../../dropdown/" hreflang="pt-BR" lang="pt-BR"><span class="tuc-dropdown__text">Português</span></a><a class="tuc-dropdown__item" href="../../en/dropdown/" hreflang="en" lang="en" aria-current="true"><span class="tuc-dropdown__text">English</span></a><a class="tuc-dropdown__item" href="../../es/dropdown/" hreflang="es" lang="es"><span class="tuc-dropdown__text">Español</span></a></div>
+      <button class="tuc-btn is-outline is-icon is-sm" data-theme-toggle data-label-light="Use light theme" data-label-dark="Use dark theme" aria-label="Toggle theme"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
     </div>
   </div>
   <span class="tuc-badge is-plain ver">v0.33.1 · 51 KB</span>
@@ -114,15 +114,15 @@
 
 <div class="demo is-hero">
   <div class="bar">
-    <button type="button" class="tuc-btn is-outline" data-tuc-dropdown="#dropdown-acoes">
+    <button type="button" class="tuc-btn is-outline" data-tuc-dropdown="#dropdown-actions">
       Actions
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
     </button>
-    <div class="tuc-dropdown" id="dropdown-acoes" hidden>
+    <div class="tuc-dropdown" id="dropdown-actions" hidden>
       <div class="tuc-dropdown__label">Contract</div>
       <button type="button" class="tuc-dropdown__item" onclick="Tucano.toast('Edit')"><span class="tuc-dropdown__text">Edit</span><span class="tuc-dropdown__shortcut">⌘E</span></button>
       <button type="button" class="tuc-dropdown__item" onclick="Tucano.toast('Duplicate')"><span class="tuc-dropdown__text">Duplicate</span><span class="tuc-dropdown__shortcut">⌘D</span></button>
-      <a class="tuc-dropdown__item" href="#uso"><span class="tuc-dropdown__text">See how to use</span></a>
+      <a class="tuc-dropdown__item" href="#usage"><span class="tuc-dropdown__text">See how to use</span></a>
       <hr class="tuc-dropdown__separator">
       <button type="button" class="tuc-dropdown__item" aria-disabled="true"><span class="tuc-dropdown__text">Archive</span></button>
       <button type="button" class="tuc-dropdown__item is-danger" onclick="Tucano.toast.error('Delete')"><span class="tuc-dropdown__text">Delete</span><span class="tuc-dropdown__shortcut">⌫</span></button>
@@ -132,7 +132,7 @@
   </div>
 </div>
 
-<h2 id="exemplos">Examples</h2>
+<h2 id="examples">Examples</h2>
 <p class="lead">The same component, with different positions and content.</p>
 
 <div class="demo">
@@ -140,8 +140,8 @@
     <div class="demo-cell">
       <h4>Right-aligned</h4>
       <p><code>data-placement="bottom-end"</code>: for a button pushed against the right edge.</p>
-      <button type="button" class="tuc-btn is-outline" data-tuc-dropdown="#dropdown-direita" data-placement="bottom-end">Export</button>
-      <div class="tuc-dropdown" id="dropdown-direita" hidden>
+      <button type="button" class="tuc-btn is-outline" data-tuc-dropdown="#dropdown-right" data-placement="bottom-end">Export</button>
+      <div class="tuc-dropdown" id="dropdown-right" hidden>
         <button type="button" class="tuc-dropdown__item" onclick="Tucano.toast('PDF')"><span class="tuc-dropdown__text">PDF</span></button>
         <button type="button" class="tuc-dropdown__item" onclick="Tucano.toast('Spreadsheet')"><span class="tuc-dropdown__text">Spreadsheet</span></button>
         <button type="button" class="tuc-dropdown__item" onclick="Tucano.toast('CSV')"><span class="tuc-dropdown__text">CSV</span></button>
@@ -150,8 +150,8 @@
     <div class="demo-cell">
       <h4>To the side</h4>
       <p><code>data-placement="right-start"</code> opens alongside, like a submenu.</p>
-      <button type="button" class="tuc-btn is-outline" data-tuc-dropdown="#dropdown-lado" data-placement="right-start">Move to</button>
-      <div class="tuc-dropdown" id="dropdown-lado" hidden>
+      <button type="button" class="tuc-btn is-outline" data-tuc-dropdown="#dropdown-side" data-placement="right-start">Move to</button>
+      <div class="tuc-dropdown" id="dropdown-side" hidden>
         <button type="button" class="tuc-dropdown__item" onclick="Tucano.toast('In progress')"><span class="tuc-dropdown__text">In progress</span></button>
         <button type="button" class="tuc-dropdown__item" onclick="Tucano.toast('Done')"><span class="tuc-dropdown__text">Done</span></button>
       </div>
@@ -159,8 +159,8 @@
     <div class="demo-cell">
       <h4>With icons</h4>
       <p>The icon goes in <code>.tuc-dropdown__icon</code> and is muted; on the danger item, it follows the red.</p>
-      <button type="button" class="tuc-btn is-outline" data-tuc-dropdown="#dropdown-icones">File</button>
-      <div class="tuc-dropdown" id="dropdown-icones" hidden>
+      <button type="button" class="tuc-btn is-outline" data-tuc-dropdown="#dropdown-icons">File</button>
+      <div class="tuc-dropdown" id="dropdown-icons" hidden>
         <button type="button" class="tuc-dropdown__item" onclick="Tucano.toast('Rename')"><span class="tuc-dropdown__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4z"/></svg></span><span class="tuc-dropdown__text">Rename</span></button>
         <button type="button" class="tuc-dropdown__item" onclick="Tucano.toast('Download')"><span class="tuc-dropdown__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5M4 20h16"/></svg></span><span class="tuc-dropdown__text">Download</span></button>
         <hr class="tuc-dropdown__separator">
@@ -170,8 +170,8 @@
     <div class="demo-cell">
       <h4>Icon button</h4>
       <p>The "more actions" of a table row. With no visible text, <code>aria-label</code> is required.</p>
-      <button type="button" class="tuc-btn is-outline is-icon is-sm" aria-label="More actions" data-tuc-dropdown="#dropdown-mais" data-placement="bottom-end"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v.01M12 12v.01M12 19v.01"/></svg></button>
-      <div class="tuc-dropdown" id="dropdown-mais" hidden>
+      <button type="button" class="tuc-btn is-outline is-icon is-sm" aria-label="More actions" data-tuc-dropdown="#dropdown-more" data-placement="bottom-end"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v.01M12 12v.01M12 19v.01"/></svg></button>
+      <div class="tuc-dropdown" id="dropdown-more" hidden>
         <button type="button" class="tuc-dropdown__item" onclick="Tucano.toast('Duplicate')"><span class="tuc-dropdown__text">Duplicate</span></button>
         <button type="button" class="tuc-dropdown__item" onclick="Tucano.toast('Download PDF')"><span class="tuc-dropdown__text">Download PDF</span></button>
         <hr class="tuc-dropdown__separator">
@@ -186,19 +186,19 @@
    <code>bottom-start</code>. When the requested side doesn't fit and the opposite one fits better, the menu flips; and it
    never spills off the screen, it slides back inside.</p>
 
-<h2 id="uso">How to use</h2>
+<h2 id="usage">How to use</h2>
 <p class="lead">A button with <code>data-tuc-dropdown</code> pointing to the panel, and the panel right below it, with
    <code>hidden</code>. It initializes on its own, including whatever arrives later through HTMX.</p>
 
-<div class="tuc-prose doc-code"><pre><code>&lt;button type="button" class="tuc-btn is-outline" data-tuc-dropdown="#acoes"&gt;Actions&lt;/button&gt;
+<div class="tuc-prose doc-code"><pre><code>&lt;button type="button" class="tuc-btn is-outline" data-tuc-dropdown="#actions"&gt;Actions&lt;/button&gt;
 
-&lt;div class="tuc-dropdown" id="acoes" hidden&gt;
+&lt;div class="tuc-dropdown" id="actions" hidden&gt;
   &lt;div class="tuc-dropdown__label"&gt;Contract&lt;/div&gt;
   &lt;button type="button" class="tuc-dropdown__item"&gt;
     &lt;span class="tuc-dropdown__text"&gt;Edit&lt;/span&gt;
     &lt;span class="tuc-dropdown__shortcut"&gt;⌘E&lt;/span&gt;
   &lt;/button&gt;
-  &lt;a class="tuc-dropdown__item" href="/contratos/12/"&gt;
+  &lt;a class="tuc-dropdown__item" href="/contracts/12/"&gt;
     &lt;span class="tuc-dropdown__text"&gt;Open&lt;/span&gt;
   &lt;/a&gt;
   &lt;hr class="tuc-dropdown__separator"&gt;
@@ -231,17 +231,17 @@
 <h3>In a Django template</h3>
 <p>Actions that depend on permissions are left out on the server, not hidden in the browser. In a list, the panel's
    <code>id</code> carries the row's key so each menu points to its own.</p>
-<div class="tuc-prose doc-code"><pre><code>{% for contrato in contratos %}
+<div class="tuc-prose doc-code"><pre><code>{% for contract in contracts %}
   &lt;button type="button" class="tuc-btn is-outline is-icon is-sm" aria-label="Actions"
-          data-tuc-dropdown="#acoes-{{ contrato.pk }}" data-placement="bottom-end"&gt;...&lt;/button&gt;
+          data-tuc-dropdown="#actions-{{ contract.pk }}" data-placement="bottom-end"&gt;...&lt;/button&gt;
 
-  &lt;div class="tuc-dropdown" id="acoes-{{ contrato.pk }}" hidden&gt;
-    &lt;a class="tuc-dropdown__item" href="{% url 'contrato-editar' contrato.pk %}"&gt;
+  &lt;div class="tuc-dropdown" id="actions-{{ contract.pk }}" hidden&gt;
+    &lt;a class="tuc-dropdown__item" href="{% url 'contract-edit' contract.pk %}"&gt;
       &lt;span class="tuc-dropdown__text"&gt;Edit&lt;/span&gt;
     &lt;/a&gt;
-    {% if perms.contratos.delete_contrato %}
+    {% if perms.contracts.delete_contract %}
       &lt;hr class="tuc-dropdown__separator"&gt;
-      &lt;a class="tuc-dropdown__item is-danger" href="{% url 'contrato-excluir' contrato.pk %}"&gt;
+      &lt;a class="tuc-dropdown__item is-danger" href="{% url 'contract-delete' contract.pk %}"&gt;
         &lt;span class="tuc-dropdown__text"&gt;Delete&lt;/span&gt;
       &lt;/a&gt;
     {% endif %}
@@ -250,16 +250,16 @@
 
 <h3>In JavaScript</h3>
 <p>For when the items are computed on the fly. The component builds the panel, and each item gets what to do when it's picked.</p>
-<div class="tuc-prose doc-code"><pre><code>const menu = new Tucano.Dropdown('#acoes', {
+<div class="tuc-prose doc-code"><pre><code>const menu = new Tucano.Dropdown('#actions', {
   placement: 'bottom-end',
   items: [
     { label: 'Contract' },
-    { text: 'Edit', icon: 'M12 20h9M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4z', shortcut: '⌘E', onClick: () =&gt; editar() },
-    { text: 'Duplicate', icon: Tucano.ICON_COPY, onClick: (dropdown) =&gt; duplicar() },
-    { text: 'Open', href: '/contratos/12/' },
+    { text: 'Edit', icon: 'M12 20h9M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4z', shortcut: '⌘E', onClick: () =&gt; editContract() },
+    { text: 'Duplicate', icon: Tucano.ICON_COPY, onClick: (dropdown) =&gt; duplicateContract() },
+    { text: 'Open', href: '/contracts/12/' },
     { text: 'Archive', disabled: true },
     { separator: true },
-    { text: 'Delete', variant: 'danger', onClick: () =&gt; excluir() },
+    { text: 'Delete', variant: 'danger', onClick: () =&gt; deleteContract() },
   ],
 });
 
@@ -286,7 +286,7 @@ menu.destroy();   // closes and removes the listeners</code></pre></div>
 <p><code>closeOnPick: false</code> keeps the menu open after a pick, for items that toggle something
    on and off.</p>
 
-<h2 id="teclado">Keyboard and accessibility</h2>
+<h2 id="keyboard">Keyboard and accessibility</h2>
 <p class="lead">The trigger gets <code>aria-haspopup="menu"</code> and <code>aria-expanded</code>, the panel is a
    <code>menu</code> and each item a <code>menuitem</code>. Opening moves focus inside, and closing returns it to the trigger.</p>
 
@@ -334,16 +334,16 @@ menu.destroy();   // closes and removes the listeners</code></pre></div>
   {
     // The same component as the version written in the template, built with JavaScript
     // to show an item with an icon, a shortcut and a variant.
-    const lapis = 'M12 20h9M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4z';
-    const lixeira = 'M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6';
+    const pencil = 'M12 20h9M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4z';
+    const trash = 'M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6';
     new Tucano.Dropdown('#dropdown-js', {
       items: [
         { label: 'This contract' },
-        { text: 'Edit', icon: lapis, shortcut: '⌘E', onClick: () => Tucano.toast('Edit') },
+        { text: 'Edit', icon: pencil, shortcut: '⌘E', onClick: () => Tucano.toast('Edit') },
         { text: 'Duplicate', icon: Tucano.ICON_COPY, shortcut: '⌘D', onClick: () => Tucano.toast('Duplicate') },
         { text: 'Archive', disabled: true },
         { separator: true },
-        { text: 'Delete', icon: lixeira, variant: 'danger', onClick: () => Tucano.toast.error('Delete') },
+        { text: 'Delete', icon: trash, variant: 'danger', onClick: () => Tucano.toast.error('Delete') },
       ],
     });
   }

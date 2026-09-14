@@ -226,13 +226,13 @@ export class Table {
 
   _afterPick(tr, marked) {
     tr.classList.toggle('is-selected', marked);
-    const todas = this.rows.map((r) => r.querySelector('.tuc-table__check')).filter(Boolean);
-    const marcadas = todas.filter((c) => c.checked);
+    const checkboxes = this.rows.map((r) => r.querySelector('.tuc-table__check')).filter(Boolean);
+    const checkedBoxes = checkboxes.filter((c) => c.checked);
     if (this.checkAll) {
-      this.checkAll.checked = marcadas.length === todas.length && todas.length > 0;
+      this.checkAll.checked = checkedBoxes.length === checkboxes.length && checkboxes.length > 0;
       // Estado misto: nem tudo, nem nada. Sem isto o cabecalho mente sobre a
       // selecao assim que uma linha e desmarcada.
-      this.checkAll.indeterminate = marcadas.length > 0 && marcadas.length < todas.length;
+      this.checkAll.indeterminate = checkedBoxes.length > 0 && checkedBoxes.length < checkboxes.length;
     }
     const detail = { selected: this.getSelected(), row: tr };
     this.node.dispatchEvent(new CustomEvent('tuc:select', { bubbles: true, detail: detail }));

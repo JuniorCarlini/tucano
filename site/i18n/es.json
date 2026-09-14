@@ -25,14 +25,14 @@
     "apiWhat": "Para qué"
   },
   "groups": {
-    "Começar": "Empezar",
-    "Campos": "Campos",
-    "Ações": "Acciones",
-    "Avisos": "Avisos",
-    "Diálogos": "Diálogos",
-    "Navegação": "Navegación",
-    "Dados": "Datos",
-    "Guias": "Guías"
+    "get-started": "Empezar",
+    "fields": "Campos",
+    "actions": "Acciones",
+    "feedback": "Avisos",
+    "dialogs": "Diálogos",
+    "navigation": "Navegación",
+    "data": "Datos",
+    "guides": "Guías"
   },
   "items": {
     "index": { "title": "Inicio e instalación" },

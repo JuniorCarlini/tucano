@@ -15,7 +15,7 @@ description: A persistent alert on the page, in four tones, with a title and act
   <div class="tuc-alert is-danger" style="margin-bottom:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM15 9l-6 6M9 9l6 6"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Contract locked for editing</p><p>There's a disputed charge. Contact the billing team.</p></div></div>
 </div>
 
-<h2 id="exemplos">Examples</h2>
+<h2 id="examples">Examples</h2>
 <p class="lead">The parts are optional: title, icon and actions go in only when they're needed.</p>
 
 <div class="demo">
@@ -38,13 +38,13 @@ description: A persistent alert on the page, in four tones, with a title and act
     <div class="demo-cell">
       <h4>Shows up later</h4>
       <p>The response to a submit gets <code>role="alert"</code> and is announced right away.</p>
-      <button type="button" class="tuc-btn is-outline is-sm" id="alert-enviar">Submit form</button>
-      <div id="alert-resposta"></div>
+      <button type="button" class="tuc-btn is-outline is-sm" id="alert-send">Submit form</button>
+      <div id="alert-response"></div>
     </div>
   </div>
 </div>
 
-<h2 id="uso">How to use</h2>
+<h2 id="usage">How to use</h2>
 <p class="lead">A <code>.tuc-alert</code> with the tone, the icon as the first child and the text in <code>.tuc-alert__body</code>.</p>
 
 <pre data-code="html">
@@ -55,7 +55,7 @@ description: A persistent alert on the page, in four tones, with a title and act
     <p>Renew so you don't lose access.</p>
   </div>
   <div class="tuc-alert__actions">
-    <a class="tuc-btn is-outline is-sm" href="/assinatura/">Renew</a>
+    <a class="tuc-btn is-outline is-sm" href="/subscription/">Renew</a>
   </div>
 </div>
 </pre>
@@ -83,7 +83,7 @@ description: A persistent alert on the page, in four tones, with a title and act
   <div class="tuc-alert is-danger">
     <div class="tuc-alert__body">
       <p class="tuc-alert__title">Couldn't save</p>
-      {% for erro in form.non_field_errors %}<p>{{ erro }}</p>{% endfor %}
+      {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
     </div>
   </div>
 {% endif %}
@@ -97,7 +97,7 @@ description: A persistent alert on the page, in four tones, with a title and act
 
 <p>The <code>debug</code> level becomes <code>is-debug</code>, which has no rule, so the alert stays neutral.</p>
 
-<h2 id="acessibilidade">Accessibility</h2>
+<h2 id="accessibility">Accessibility</h2>
 <p class="lead"><code>role="alert"</code> only on an alert that appears after the page loads: the response to a submit, an HTMX swap.</p>
 
 <div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Why not on all of them</p><p>An alert that's already in the HTML is read along with the page. With <code>role="alert"</code> it would interrupt the screen reader for nothing, and on a page with three alerts, three times. What arrives later needs the role precisely to interrupt: without it, the submit response shows up on screen and no screen reader user ever finds out.</p></div></div>
@@ -105,13 +105,13 @@ description: A persistent alert on the page, in four tones, with a title and act
 <pre data-code="django">
 {# partial HTMX response: shows up later, so it interrupts #}
 <div class="tuc-alert is-success" role="alert">
-  <div class="tuc-alert__body"><p>Proposal sent to {{ cliente.email }}.</p></div>
+  <div class="tuc-alert__body"><p>Proposal sent to {{ customer.email }}.</p></div>
 </div>
 </pre>
 
 <p>The icon gets <code>aria-hidden="true"</code>: the text is what says what happened, and the tone can't be the only cue.</p>
 
-<h2 id="cor">Color</h2>
+<h2 id="color">Color</h2>
 <p class="lead">The background is a light tint of the tone over <code>--tuc-bg</code>, not the transparent <code>-soft</code> from the
    tokens: over a colored card or an image, the transparent one would leave the text without guaranteed contrast.</p>
 
@@ -137,8 +137,8 @@ description: A persistent alert on the page, in four tones, with a title and act
 <script>
   // An alert that arrives later, like the response to a submit: this one gets role="alert".
   document.addEventListener('click', (e) => {
-    if (!e.target.closest('#alert-enviar')) return;
-    document.getElementById('alert-resposta').innerHTML =
+    if (!e.target.closest('#alert-send')) return;
+    document.getElementById('alert-response').innerHTML =
       '<div class="tuc-alert is-success" role="alert" style="margin:12px 0 0">' +
       '<div class="tuc-alert__body"><p>Proposal sent at ' +
       new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) + '.</p></div></div>';

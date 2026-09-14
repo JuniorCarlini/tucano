@@ -120,13 +120,13 @@ export function applyCurrency(digits, { decimals = 2, locale = 'pt-BR', currency
 
 /** Digito verificador por soma ponderada, modulo 11. */
 function mod11Digit(values, startWeight) {
-  let soma = 0;
-  let peso = startWeight;
+  let sum = 0;
+  let weight = startWeight;
   for (const v of values) {
-    soma += v * peso;
-    peso = peso === 2 ? 9 : peso - 1;
+    sum += v * weight;
+    weight = weight === 2 ? 9 : weight - 1;
   }
-  const rest = soma % 11;
+  const rest = sum % 11;
   return rest < 2 ? 0 : 11 - rest;
 }
 
@@ -216,7 +216,7 @@ const DISPLAY_TEMPLATES = {
   card: '#### #### #### ####',
 };
 
-const PONTO = '\u2022';
+const DOT = '\u2022';
 
 /**
  * Esconde o conteudo. Os separadores ficam, para a forma continuar
@@ -238,9 +238,9 @@ export function maskMiddle(text, visible = 2, mode = 'end') {
   const show = mode === 'all' ? 0 : visible;
   let seen = 0;
   return [...s].map((c) => {
-    if (!alphanumeric(c)) return mode === 'all' ? PONTO : c;
+    if (!alphanumeric(c)) return mode === 'all' ? DOT : c;
     seen++;
-    return seen > total - show ? c : PONTO;
+    return seen > total - show ? c : DOT;
   }).join('');
 }
 
@@ -251,9 +251,9 @@ export function maskMiddle(text, visible = 2, mode = 'end') {
  */
 export function maskEmail(value) {
   const s = String(value ?? '');
-  const arroba = s.lastIndexOf('@');
-  if (arroba < 1) return maskMiddle(s, 0, 'all');
-  const local = s.slice(0, arroba);
-  const domain = s.slice(arroba);
-  return local[0] + PONTO.repeat(Math.max(local.length - 1, 1)) + domain;
+  const atSign = s.lastIndexOf('@');
+  if (atSign < 1) return maskMiddle(s, 0, 'all');
+  const local = s.slice(0, atSign);
+  const domain = s.slice(atSign);
+  return local[0] + DOT.repeat(Math.max(local.length - 1, 1)) + domain;
 }

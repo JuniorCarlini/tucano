@@ -10,7 +10,7 @@ description: Tabs drawn in the template, with the tab and tabpanel roles and the
    "tab, 2 of 4", the link between tab and panel, and the keyboard, where the whole list is a single <code>Tab</code> stop.</p>
 
 <div class="demo is-hero">
-  <div class="tuc-tabs" data-tuc-tabs id="tabs-cliente">
+  <div class="tuc-tabs" data-tuc-tabs id="tabs-customer">
     <div class="tuc-tabs__list">
       <button class="tuc-tabs__tab" aria-selected="true">Details</button>
       <button class="tuc-tabs__tab">Address</button>
@@ -19,14 +19,14 @@ description: Tabs drawn in the template, with the tab and tabpanel roles and the
     </div>
     <div class="tuc-tabs__panel">
       <div class="demo-grid">
-        <div class="demo-cell"><label class="tuc-label" for="tabs-cliente-nome">Company name</label><input type="text" class="tuc-input" id="tabs-cliente-nome" value="Tucano Comércio Ltda"></div>
-        <div class="demo-cell"><label class="tuc-label" for="tabs-cliente-doc">CNPJ (Brazilian company ID, with its mask)</label><input type="text" id="tabs-cliente-doc" data-tuc-mask="cnpj" value="11222333000181"></div>
+        <div class="demo-cell"><label class="tuc-label" for="tabs-customer-name">Company name</label><input type="text" class="tuc-input" id="tabs-customer-name" value="Tucano Comércio Ltda"></div>
+        <div class="demo-cell"><label class="tuc-label" for="tabs-customer-doc">CNPJ (Brazilian company ID, with its mask)</label><input type="text" id="tabs-customer-doc" data-tuc-mask="cnpj" value="11222333000181"></div>
       </div>
     </div>
     <div class="tuc-tabs__panel" hidden>
       <div class="demo-grid">
-        <div class="demo-cell"><label class="tuc-label" for="tabs-cliente-cep">CEP (Brazilian postal code)</label><input type="text" id="tabs-cliente-cep" data-tuc-mask="cep" value="01310100"></div>
-        <div class="demo-cell"><label class="tuc-label" for="tabs-cliente-cidade">City</label><input type="text" class="tuc-input" id="tabs-cliente-cidade" value="São Paulo"></div>
+        <div class="demo-cell"><label class="tuc-label" for="tabs-customer-zip">CEP (Brazilian postal code)</label><input type="text" id="tabs-customer-zip" data-tuc-mask="cep" value="01310100"></div>
+        <div class="demo-cell"><label class="tuc-label" for="tabs-customer-city">City</label><input type="text" class="tuc-input" id="tabs-customer-city" value="São Paulo"></div>
       </div>
     </div>
     <div class="tuc-tabs__panel" hidden>
@@ -36,7 +36,7 @@ description: Tabs drawn in the template, with the tab and tabpanel roles and the
   </div>
 </div>
 
-<h2 id="exemplos">Examples</h2>
+<h2 id="examples">Examples</h2>
 <p class="lead">The same markup, with one more class or attribute.</p>
 
 <div class="demo">
@@ -44,7 +44,7 @@ description: Tabs drawn in the template, with the tab and tabpanel roles and the
     <div class="demo-cell">
       <h4>Segmented</h4>
       <p><code>is-segmented</code> is the height of a field, for switching a list's view next to a filter.</p>
-      <div class="tuc-tabs is-segmented" data-tuc-tabs id="tabs-segmentadas">
+      <div class="tuc-tabs is-segmented" data-tuc-tabs id="tabs-segmented">
         <div class="tuc-tabs__list">
           <button class="tuc-tabs__tab" aria-selected="true">All</button>
           <button class="tuc-tabs__tab">Pending</button>
@@ -59,14 +59,14 @@ description: Tabs drawn in the template, with the tab and tabpanel roles and the
       <h4>Segmented next to a field</h4>
       <p>Border and padding add up to the control's height: the row stays aligned.</p>
       <div class="bar">
-        <div class="tuc-tabs is-segmented" data-tuc-tabs id="tabs-filtro">
+        <div class="tuc-tabs is-segmented" data-tuc-tabs id="tabs-filter">
           <div class="tuc-tabs__list">
             <button class="tuc-tabs__tab" aria-selected="true">Day</button>
             <button class="tuc-tabs__tab">Week</button>
             <button class="tuc-tabs__tab">Month</button>
           </div>
         </div>
-        <input type="search" class="tuc-input" id="tabs-filtro-busca" placeholder="Search..." aria-label="Search" style="width:auto;flex:1">
+        <input type="search" class="tuc-input" id="tabs-filter-search" placeholder="Search..." aria-label="Search" style="width:auto;flex:1">
       </div>
     </div>
     <div class="demo-cell">
@@ -87,7 +87,7 @@ description: Tabs drawn in the template, with the tab and tabpanel roles and the
     <div class="demo-cell">
       <h4>With icon and counter</h4>
       <p>The <code>svg</code> and the <code>.tuc-badge is-plain</code> inside the tab follow its color.</p>
-      <div class="tuc-tabs" data-tuc-tabs id="tabs-icones">
+      <div class="tuc-tabs" data-tuc-tabs id="tabs-icons">
         <div class="tuc-tabs__list">
           <button class="tuc-tabs__tab" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/></svg>Dashboard</button>
           <button class="tuc-tabs__tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v16H4zM4 9h16M9 20V9"/></svg>Tasks <span class="tuc-badge is-plain">7</span></button>
@@ -101,7 +101,7 @@ description: Tabs drawn in the template, with the tab and tabpanel roles and the
     <div class="demo-cell">
       <h4>Many tabs</h4>
       <p>The list scrolls horizontally instead of wrapping onto two lines; the tab focused with the arrows scrolls into view.</p>
-      <div class="tuc-tabs" data-tuc-tabs id="tabs-meses">
+      <div class="tuc-tabs" data-tuc-tabs id="tabs-months">
         <div class="tuc-tabs__list">
           <button class="tuc-tabs__tab">January</button><button class="tuc-tabs__tab">February</button>
           <button class="tuc-tabs__tab">March</button><button class="tuc-tabs__tab">April</button>
@@ -117,7 +117,7 @@ description: Tabs drawn in the template, with the tab and tabpanel roles and the
     <div class="demo-cell">
       <h4>Disabled tab</h4>
       <p><code>disabled</code> or <code>aria-disabled="true"</code>: it doesn't open, and the arrows skip it.</p>
-      <div class="tuc-tabs" data-tuc-tabs id="tabs-desativada">
+      <div class="tuc-tabs" data-tuc-tabs id="tabs-disabled">
         <div class="tuc-tabs__list">
           <button class="tuc-tabs__tab" aria-selected="true">Draft</button>
           <button class="tuc-tabs__tab" aria-disabled="true">Review</button>
@@ -131,7 +131,7 @@ description: Tabs drawn in the template, with the tab and tabpanel roles and the
   </div>
 </div>
 
-<h2 id="uso">How to use</h2>
+<h2 id="usage">How to use</h2>
 <p class="lead">Write the classes, <code>aria-selected="true"</code> on the initial tab and <code>hidden</code> on the other panels. Tabs
    and panels are matched by order: the third tab opens the third panel.</p>
 
@@ -160,11 +160,11 @@ description: Tabs drawn in the template, with the tab and tabpanel roles and the
 <div class="tuc-tabs" data-tuc-tabs data-manual="true">
   <div class="tuc-tabs__list">
     <button class="tuc-tabs__tab" aria-selected="true">Summary</button>
-    <button class="tuc-tabs__tab" hx-get="{% url 'cliente-faturas' cliente.pk %}"
-            hx-target="#faturas" hx-trigger="click once">Invoices</button>
+    <button class="tuc-tabs__tab" hx-get="{% url 'customer-invoices' customer.pk %}"
+            hx-target="#invoices" hx-trigger="click once">Invoices</button>
   </div>
-  <div class="tuc-tabs__panel">{% include "clientes/resumo.html" %}</div>
-  <div class="tuc-tabs__panel" id="faturas" hidden></div>
+  <div class="tuc-tabs__panel">{% include "customers/summary.html" %}</div>
+  <div class="tuc-tabs__panel" id="invoices" hidden></div>
 </div>
 </pre>
 
@@ -172,17 +172,17 @@ description: Tabs drawn in the template, with the tab and tabpanel roles and the
 
 <h3>In JavaScript</h3>
 <pre data-code="js">
-const abas = new Tucano.Tabs('#cliente', {
+const tabs = new Tucano.Tabs('#customer', {
   selected: 1,        // index of the initial tab
   manual: true,
   onChange: (index, { tab, panel }) => console.log(index, tab.textContent),
 });
 
-abas.select(2);                     // opens the third; fires onChange
-abas.select(0, { silent: true });   // opens without firing anything
-abas.index;                         // index of the open tab, or -1
-abas.tabs;                          // the tabs, in order
-abas.panels;                        // the panels, in order
+tabs.select(2);                     // opens the third; fires onChange
+tabs.select(0, { silent: true });   // opens without firing anything
+tabs.index;                         // index of the open tab, or -1
+tabs.tabs;                          // the tabs, in order
+tabs.panels;                        // the panels, in order
 </pre>
 
 <p>Every switch — by the person or by <code>select()</code> — fires <code>tucano:change</code> on the tabs element, and the event
@@ -200,7 +200,7 @@ document.addEventListener('tucano:change', (e) => {
 <p>Tabs inside a panel are a separate set: the component only looks at the list and the panels that are direct children of its
    element.</p>
 
-<h2 id="teclado">Keyboard and accessibility</h2>
+<h2 id="keyboard">Keyboard and accessibility</h2>
 <p class="lead">The keyboard follows the ARIA APG tabs pattern. The whole list is a single <code>Tab</code> stop — otherwise keyboard
    users would pass through every tab before reaching the content of the open one.</p>
 

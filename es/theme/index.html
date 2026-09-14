@@ -41,7 +41,7 @@
 <link rel="stylesheet" href="../../site/site.css?v=0.33.1">
 <!-- O tema e aplicado antes do primeiro quadro: sem isto a pagina piscava clara
      para quem escolheu o escuro. -->
-<script>try{if(localStorage.getItem("tucano-tema")==="dark")document.documentElement.classList.add("dark")}catch{}</script>
+<script>try{if(localStorage.getItem("tucano-theme")==="dark")document.documentElement.classList.add("dark")}catch{}</script>
 </head>
 <body>
 
@@ -49,8 +49,8 @@
   <a class="brand" href="../"><img class="brand__logo logo-light" src="../../site/assets/logo-light.svg" width="26" height="24" alt=""><img class="brand__logo logo-dark" src="../../site/assets/logo-dark.svg" width="26" height="24" alt=""><b>Tucano</b></a>
   <span class="tuc-badge is-plain ver">v0.33.1</span>
   <div class="topbar__actions">
-    <button class="tuc-btn is-outline is-sm" data-tuc-dropdown="#idiomas-topo" data-placement="bottom-end" aria-label="Idioma: Español"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>ES</button><div class="tuc-dropdown" id="idiomas-topo" hidden><a class="tuc-dropdown__item" href="../../theme/" hreflang="pt-BR" lang="pt-BR"><span class="tuc-dropdown__text">Português</span></a><a class="tuc-dropdown__item" href="../../en/theme/" hreflang="en" lang="en"><span class="tuc-dropdown__text">English</span></a><a class="tuc-dropdown__item" href="../../es/theme/" hreflang="es" lang="es" aria-current="true"><span class="tuc-dropdown__text">Español</span></a></div>
-    <button class="tuc-btn is-outline is-icon is-sm" data-tema data-label-light="Usar tema claro" data-label-dark="Usar tema oscuro" aria-label="Cambiar tema"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
+    <button class="tuc-btn is-outline is-sm" data-tuc-dropdown="#languages-top" data-placement="bottom-end" aria-label="Idioma: Español"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>ES</button><div class="tuc-dropdown" id="languages-top" hidden><a class="tuc-dropdown__item" href="../../theme/" hreflang="pt-BR" lang="pt-BR"><span class="tuc-dropdown__text">Português</span></a><a class="tuc-dropdown__item" href="../../en/theme/" hreflang="en" lang="en"><span class="tuc-dropdown__text">English</span></a><a class="tuc-dropdown__item" href="../../es/theme/" hreflang="es" lang="es" aria-current="true"><span class="tuc-dropdown__text">Español</span></a></div>
+    <button class="tuc-btn is-outline is-icon is-sm" data-theme-toggle data-label-light="Usar tema claro" data-label-dark="Usar tema oscuro" aria-label="Cambiar tema"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
     <button class="tuc-btn is-outline is-icon is-sm" id="menu" aria-label="Abrir menú" aria-expanded="false" aria-controls="side"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
   </div>
 </header>
@@ -59,8 +59,8 @@
   <div class="side__head">
     <a class="brand" href="../"><img class="brand__logo logo-light" src="../../site/assets/logo-light.svg" width="26" height="24" alt=""><img class="brand__logo logo-dark" src="../../site/assets/logo-dark.svg" width="26" height="24" alt=""><b>Tucano</b></a>
     <div class="side__tools">
-      <button class="tuc-btn is-outline is-sm" data-tuc-dropdown="#idiomas-lateral" data-placement="bottom-end" aria-label="Idioma: Español"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>ES</button><div class="tuc-dropdown" id="idiomas-lateral" hidden><a class="tuc-dropdown__item" href="../../theme/" hreflang="pt-BR" lang="pt-BR"><span class="tuc-dropdown__text">Português</span></a><a class="tuc-dropdown__item" href="../../en/theme/" hreflang="en" lang="en"><span class="tuc-dropdown__text">English</span></a><a class="tuc-dropdown__item" href="../../es/theme/" hreflang="es" lang="es" aria-current="true"><span class="tuc-dropdown__text">Español</span></a></div>
-      <button class="tuc-btn is-outline is-icon is-sm" data-tema data-label-light="Usar tema claro" data-label-dark="Usar tema oscuro" aria-label="Cambiar tema"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
+      <button class="tuc-btn is-outline is-sm" data-tuc-dropdown="#languages-side" data-placement="bottom-end" aria-label="Idioma: Español"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>ES</button><div class="tuc-dropdown" id="languages-side" hidden><a class="tuc-dropdown__item" href="../../theme/" hreflang="pt-BR" lang="pt-BR"><span class="tuc-dropdown__text">Português</span></a><a class="tuc-dropdown__item" href="../../en/theme/" hreflang="en" lang="en"><span class="tuc-dropdown__text">English</span></a><a class="tuc-dropdown__item" href="../../es/theme/" hreflang="es" lang="es" aria-current="true"><span class="tuc-dropdown__text">Español</span></a></div>
+      <button class="tuc-btn is-outline is-icon is-sm" data-theme-toggle data-label-light="Usar tema claro" data-label-dark="Usar tema oscuro" aria-label="Cambiar tema"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
     </div>
   </div>
   <span class="tuc-badge is-plain ver">v0.33.1 · 51 KB</span>
@@ -113,8 +113,8 @@
    nada: ningún valor de color, radio, borde o altura está escrito a mano en el CSS de los componentes.</p>
 
 <div class="demo is-hero">
-  <p class="tuc-label" id="theme-amostras-rotulo">Color de acento de esta página</p>
-  <div class="bar" id="theme-amostras" role="group" aria-labelledby="theme-amostras-rotulo">
+  <p class="tuc-label" id="theme-swatches-label">Color de acento de esta página</p>
+  <div class="bar" id="theme-swatches" role="group" aria-labelledby="theme-swatches-label">
     <button type="button" class="tuc-btn is-outline is-sm" aria-pressed="true" data-accent="#FF7501"><span aria-hidden="true" style="width:14px;height:14px;border-radius:50%;background:#FF7501"></span>Naranja tucán</button>
     <button type="button" class="tuc-btn is-outline is-sm" aria-pressed="false" data-accent="#4f46e5" data-hover="#4338ca" data-fg="#ffffff" data-text="#4338ca" data-text-dark="#818cf8"><span aria-hidden="true" style="width:14px;height:14px;border-radius:50%;background:#4f46e5"></span>Índigo</button>
     <button type="button" class="tuc-btn is-outline is-sm" aria-pressed="false" data-accent="#0f766e" data-hover="#115e59" data-fg="#ffffff" data-text="#0f766e" data-text-dark="#2dd4bf"><span aria-hidden="true" style="width:14px;height:14px;border-radius:50%;background:#0f766e"></span>Verde azulado</button>
@@ -131,7 +131,7 @@
       </div>
       <div class="bar" style="margin-top:16px">
         <label class="tuc-choice"><input type="checkbox" class="tuc-check" checked> Factura</label>
-        <label class="tuc-choice"><input type="radio" class="tuc-radio" name="theme-frete" checked> Exprés</label>
+        <label class="tuc-choice"><input type="radio" class="tuc-radio" name="theme-shipping" checked> Exprés</label>
         <label class="tuc-choice"><input type="checkbox" role="switch" class="tuc-switch" checked> Avisos</label>
       </div>
       <div class="tuc-tabs is-segmented" data-tuc-tabs style="margin-top:16px">
@@ -150,11 +150,11 @@
       <select id="theme-tags" name="tags" data-tuc-select multiple>
         <option selected>Django</option><option selected>HTMX</option><option>Tailwind</option>
       </select>
-      <label class="tuc-label" for="theme-data" style="margin-top:14px">Vencimiento</label>
-      <input type="text" id="theme-data" data-tuc-datepicker>
+      <label class="tuc-label" for="theme-date" style="margin-top:14px">Vencimiento</label>
+      <input type="text" id="theme-date" data-tuc-datepicker>
       <nav class="tuc-menu" aria-label="Menú de ejemplo" style="margin-top:14px">
         <a class="tuc-menu__item is-active" href="#tokens" aria-current="true">Facturación</a>
-        <a class="tuc-menu__item" href="#escuro">Informes</a>
+        <a class="tuc-menu__item" href="#dark">Informes</a>
       </nav>
     </div>
   </div>
@@ -176,7 +176,7 @@
   --tuc-accent-text: #818cf8;     /* en oscuro, un tono más claro para tener contraste */
 }</code></pre></div>
 
-<h2 id="destaque">El acento y el texto sobre él</h2>
+<h2 id="accent">El acento y el texto sobre él</h2>
 <p class="lead">El acento por defecto es neutro: negro en el tema claro y casi blanco en el oscuro. El color es de tu
    proyecto — el paquete no impone una marca, y combina con cualquiera hasta que lo cambies. El naranja que ves en esta
    documentación es el color del sitio, definido de la misma forma en que definirías el tuyo.</p>
@@ -307,7 +307,7 @@
 </table></div>
 <p>La entrada y la salida usan curvas distintas a propósito: usar la misma curva en las dos hace que la salida parezca perezosa.</p>
 
-<h2 id="escuro">Modo oscuro</h2>
+<h2 id="dark">Modo oscuro</h2>
 <p class="lead">El modo oscuro sigue la clase <code>.dark</code> en el <code>&lt;html&gt;</code>, la convención de Tailwind y del admin
    moderno de Django. <code>data-theme="dark"</code> también vale.</p>
 
@@ -323,7 +323,7 @@
 <p>El modo oscuro también pone <code>color-scheme: dark</code>, que hace que el navegador dibuje la barra de desplazamiento y los campos nativos en
    tono oscuro — solo dentro de los componentes, para no imponer el esquema de colores a toda la página.</p>
 
-<h2 id="escopo">Alcance por contenedor</h2>
+<h2 id="scope">Alcance por contenedor</h2>
 <p class="lead">Como son variables, el alcance lo decides tú: en <code>:root</code> valen para toda la página, y declaradas en un
    contenedor valen solo dentro de él. Es la forma de tener un panel con color propio, o una franja oscura en una página clara.</p>
 
@@ -332,12 +332,12 @@
     <div class="demo-cell">
       <h4>Acento solo en este bloque</h4>
       <p>Las variables van en el propio contenedor.</p>
-      <div id="theme-verde" style="--tuc-accent:#0f766e;--tuc-accent-hover:#115e59;--tuc-accent-fg:#ffffff;--tuc-accent-soft:color-mix(in oklab, #0f766e 12%, transparent);--tuc-accent-ring:color-mix(in oklab, #0f766e 35%, transparent)">
+      <div id="theme-green" style="--tuc-accent:#0f766e;--tuc-accent-hover:#115e59;--tuc-accent-fg:#ffffff;--tuc-accent-soft:color-mix(in oklab, #0f766e 12%, transparent);--tuc-accent-ring:color-mix(in oklab, #0f766e 35%, transparent)">
         <div class="bar">
           <button type="button" class="tuc-btn is-primary">Aprobar</button>
           <label class="tuc-choice"><input type="checkbox" role="switch" class="tuc-switch" checked> Activo</label>
         </div>
-        <select id="theme-verde-select" data-tuc-select multiple aria-label="Sucursales" style="margin-top:12px">
+        <select id="theme-green-select" data-tuc-select multiple aria-label="Sucursales" style="margin-top:12px">
           <option selected>Sede central</option><option selected>Sucursal Sur</option><option>Sucursal Norte</option>
         </select>
       </div>
@@ -345,7 +345,7 @@
     <div class="demo-cell">
       <h4>Oscuro solo en este bloque</h4>
       <p><code>.dark</code> en un contenedor, con fondo propio.</p>
-      <div class="dark" id="theme-escuro" style="padding:18px;border-radius:12px;background:var(--tuc-bg);color:var(--tuc-fg);--tuc-success-soft:color-mix(in oklab, var(--tuc-success) 12%, transparent);--tuc-warning-soft:color-mix(in oklab, var(--tuc-warning) 14%, transparent);--tuc-danger-soft:color-mix(in oklab, var(--tuc-danger) 12%, transparent);--tuc-info-soft:color-mix(in oklab, var(--tuc-info) 12%, transparent)">
+      <div class="dark" id="theme-dark" style="padding:18px;border-radius:12px;background:var(--tuc-bg);color:var(--tuc-fg);--tuc-success-soft:color-mix(in oklab, var(--tuc-success) 12%, transparent);--tuc-warning-soft:color-mix(in oklab, var(--tuc-warning) 14%, transparent);--tuc-danger-soft:color-mix(in oklab, var(--tuc-danger) 12%, transparent);--tuc-info-soft:color-mix(in oklab, var(--tuc-info) 12%, transparent)">
         <div class="bar">
           <span class="tuc-badge is-success">Pagado</span>
           <span class="tuc-badge is-warning">Pendiente</span>
@@ -363,7 +363,7 @@
 
 <div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">En el contenedor, vuelve a declarar los tokens derivados</p><p><code>--tuc-accent-soft</code>, <code>--tuc-accent-ring</code> y los <code>-soft</code> de los tonos se calculan a partir de otro token donde fueron declarados, en <code>:root</code> — y bajan a los hijos ya calculados. En la raíz, cambiar <code>--tuc-accent</code> lo recalcula todo; en un contenedor, el fondo suave seguiría con el color anterior. Por eso los dos bloques de arriba repiten el cálculo junto.</p></div></div>
 
-<div class="tuc-prose doc-code"><pre><code>.painel-verde {
+<div class="tuc-prose doc-code"><pre><code>.panel-green {
   --tuc-accent: #0f766e;
   --tuc-accent-hover: #115e59;
   --tuc-accent-fg: #ffffff;
@@ -371,12 +371,12 @@
   --tuc-accent-soft: color-mix(in oklab, var(--tuc-accent) 12%, transparent);
   --tuc-accent-ring: color-mix(in oklab, var(--tuc-accent) 35%, transparent);
 }
-.dark .painel-verde {
+.dark .panel-green {
   --tuc-accent-text: #2dd4bf;     /* texto de acento legible sobre fondo oscuro */
 }
 
 /* .dark en un contenedor: los tonos cambian, y su fondo suave hay que rehacerlo ahí */
-.faixa.dark {
+.band.dark {
   background: var(--tuc-bg);
   --tuc-success-soft: color-mix(in oklab, var(--tuc-success) 12%, transparent);
   --tuc-warning-soft: color-mix(in oklab, var(--tuc-warning) 14%, transparent);
@@ -388,7 +388,7 @@
    <code>&lt;body&gt;</code> y no hereda sus variables. Para esos, declara el tema en <code>:root</code>, o usa
    <code>appendTo</code> donde el componente lo ofrezca.</p>
 
-<h2 id="compacto">Diseño compacto</h2>
+<h2 id="compact">Diseño compacto</h2>
 <p class="lead">Por debajo de <code>40rem</code> (640px) el diseño se vuelve compacto. El mismo punto de corte vale para el CSS y para el
    JavaScript del date picker, y es por ancho — no por <code>pointer: coarse</code> —, porque un portátil con pantalla
    táctil no debería recibir comportamiento de móvil.</p>
@@ -418,24 +418,24 @@
   // Cambia el acento de toda la página: una hoja de estilo en el <head> con los
   // tokens. El naranja vuelve quitando la hoja, y no repitiendo los valores — así
   // vale el naranja del site.css, en los dos temas.
-  const folha = document.createElement('style');
+  const sheet = document.createElement('style');
   // El texto de acento del bloque verde cambia con el tema, y un atributo style no tiene
   // forma de decir "en oscuro": va en una hoja, como en el ejemplo de CSS de la página.
-  const escopo = document.createElement('style');
-  escopo.textContent = '#theme-verde{--tuc-accent-text:#0f766e}:root.dark #theme-verde{--tuc-accent-text:#2dd4bf}';
-  document.head.append(escopo, folha);
-  const amostras = document.getElementById('theme-amostras');
-  amostras.addEventListener('click', (e) => {
+  const scope = document.createElement('style');
+  scope.textContent = '#theme-green{--tuc-accent-text:#0f766e}:root.dark #theme-green{--tuc-accent-text:#2dd4bf}';
+  document.head.append(scope, sheet);
+  const swatches = document.getElementById('theme-swatches');
+  swatches.addEventListener('click', (e) => {
     const b = e.target.closest('[data-accent]');
     if (!b) return;
-    for (const n of amostras.querySelectorAll('[data-accent]')) n.setAttribute('aria-pressed', String(n === b));
+    for (const n of swatches.querySelectorAll('[data-accent]')) n.setAttribute('aria-pressed', String(n === b));
     const d = b.dataset;
-    if (!d.hover) { folha.textContent = ''; return; }
+    if (!d.hover) { sheet.textContent = ''; return; }
     // Cada muestra trae su propio color de texto encima del acento.
     // .dark entra junto porque el paquete y el site.css redefinen el acento ahí, y
     // el bloque oscuro de la demo de alcance también debe acompañar. Mismo peso que
     // ellos, y esta hoja viene después; el .dark solo al final cambia solo el texto.
-    folha.textContent = `:root,.dark{--accent:${d.accent};--tuc-accent:${d.accent};--tuc-accent-hover:${d.hover};`
+    sheet.textContent = `:root,.dark{--accent:${d.accent};--tuc-accent:${d.accent};--tuc-accent-hover:${d.hover};`
       + `--tuc-accent-fg:${d.fg};--tuc-accent-text:${d.text};--tuc-thumb:#ffffff}`
       + `.dark{--tuc-accent-text:${d.textDark}}`;
   });

@@ -90,8 +90,8 @@ export class Dialog {
   }
 
   /** Conteudo livre no corpo: um form do Django, uma tabela, o que for. */
-  content(no) {
-    this.body?.replaceChildren(...(Array.isArray(no) ? no : [no]).filter(Boolean));
+  content(node) {
+    this.body?.replaceChildren(...(Array.isArray(node) ? node : [node]).filter(Boolean));
     return this;
   }
 

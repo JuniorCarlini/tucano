@@ -27,8 +27,8 @@ description: A modal built on the native <dialog>, with top layer, trapped focus
       <button type="button" class="tuc-btn is-ghost is-icon is-sm tuc-modal__close" aria-label="Close" data-tuc-modal-close><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
     </div>
     <div class="tuc-modal__body">
-      <label class="tuc-label" for="modal-template-nome">Name</label>
-      <input type="text" class="tuc-input" id="modal-template-nome" value="Emma Carter">
+      <label class="tuc-label" for="modal-template-name">Name</label>
+      <input type="text" class="tuc-input" id="modal-template-name" value="Emma Carter">
     </div>
     <div class="tuc-modal__footer">
       <button type="button" class="tuc-btn is-outline" data-tuc-modal-close>Cancel</button>
@@ -37,7 +37,7 @@ description: A modal built on the native <dialog>, with top layer, trapped focus
   </div>
 </dialog>
 
-<h2 id="exemplos">Examples</h2>
+<h2 id="examples">Examples</h2>
 <p class="lead">Every example below is the same <code>Tucano.modal()</code> with different options.</p>
 
 <div class="demo">
@@ -96,20 +96,20 @@ description: A modal built on the native <dialog>, with top layer, trapped focus
       <h4>Free content</h4>
       <p><code>content(node)</code> puts any element in the body, which scrolls when it gets taller than the screen.</p>
       <div class="bar">
-        <button class="tuc-btn is-outline is-sm" onclick="modalFormulario()">With a form</button>
+        <button class="tuc-btn is-outline is-sm" onclick="modalForm()">With a form</button>
       </div>
     </div>
     <div class="demo-cell">
       <h4>Action that doesn't close</h4>
       <p><code>closes: false</code> on an action keeps the modal open after the click.</p>
       <div class="bar">
-        <button class="tuc-btn is-outline is-sm" onclick="modalEtapas()">Step-by-step wizard</button>
+        <button class="tuc-btn is-outline is-sm" onclick="modalSteps()">Step-by-step wizard</button>
       </div>
     </div>
   </div>
 </div>
 
-<h2 id="uso">How to use</h2>
+<h2 id="usage">How to use</h2>
 <p class="lead">There are two ways. From JavaScript, the modal is built on the spot, goes into <code>&lt;body&gt;</code> when it
    opens and leaves when it closes. From the template, the <code>&lt;dialog&gt;</code> is already on the page and the component only opens, closes and animates it.</p>
 
@@ -123,7 +123,7 @@ Tucano.modal({
   sheet: true,        // slides up from the bottom on mobile
   actions: [
     { text: 'Cancel', variant: 'outline' },
-    { text: 'Delete', variant: 'danger', onClick: () => excluir() },
+    { text: 'Delete', variant: 'danger', onClick: () => deleteContract() },
   ],
   onClose: (reason, modal) => console.log(reason),
 });
@@ -136,7 +136,7 @@ Tucano.modal('File uploaded.');
    use the class:</p>
 <pre data-code="js">
 const m = new Tucano.Modal({ title: 'New contact', size: 'lg' });
-m.content(formulario);   // any node, or an array of nodes
+m.content(form);         // any node, or an array of nodes
 m.open();
 m.close();               // animates out and calls onClose(reason)
 </pre>
@@ -146,7 +146,7 @@ m.close();               // animates out and calls onClose(reason)
    code keeps reading top to bottom:</p>
 <pre data-code="js">
 if (await Tucano.confirm({ title: 'Delete contract?', text: 'This action cannot be undone.', confirm: 'Delete' })) {
-  excluir();
+  deleteContract();
 }
 </pre>
 
@@ -181,12 +181,12 @@ if (await Tucano.confirm({ title: 'Delete contract?', text: 'This action cannot 
    <code>htmx:afterSwap</code>; opening doesn't insert it and closing doesn't remove it, because the node belongs to whoever wrote the HTML.</p>
 
 <pre data-code="django">
-<dialog class="tuc-modal is-md" id="excluir" aria-labelledby="excluir-titulo">
-  <form class="tuc-modal__panel" method="post" action="{% url 'contrato-excluir' contrato.pk %}">
+<dialog class="tuc-modal is-md" id="delete" aria-labelledby="delete-title">
+  <form class="tuc-modal__panel" method="post" action="{% url 'contract-delete' contract.pk %}">
     {% csrf_token %}
     <div class="tuc-modal__top">
       <div class="tuc-modal__header">
-        <h2 class="tuc-modal__title" id="excluir-titulo">Delete contract?</h2>
+        <h2 class="tuc-modal__title" id="delete-title">Delete contract?</h2>
         <p class="tuc-modal__text">This action cannot be undone.</p>
       </div>
       <button type="button" class="tuc-btn is-ghost is-icon is-sm tuc-modal__close" aria-label="Close" data-tuc-modal-close>…</button>
@@ -198,7 +198,7 @@ if (await Tucano.confirm({ title: 'Delete contract?', text: 'This action cannot 
   </form>
 </dialog>
 
-<button class="tuc-btn is-outline" data-tuc-modal="#excluir">Delete</button>
+<button class="tuc-btn is-outline" data-tuc-modal="#delete">Delete</button>
 </pre>
 
 <div class="tuc-table-wrap"><table class="tuc-table">
@@ -221,7 +221,7 @@ if (await Tucano.confirm({ title: 'Delete contract?', text: 'This action cannot 
 <h3>Confirm before submitting a form</h3>
 <p>For a delete form that is already on the page, <code>confirm()</code> intercepts the submit and lets it through only on a yes:</p>
 <pre data-code="js">
-document.querySelector('#excluir-contrato').addEventListener('submit', async (e) => {
+document.querySelector('#delete-contract').addEventListener('submit', async (e) => {
   e.preventDefault();
   const ok = await Tucano.confirm({ title: 'Delete contract?', confirm: 'Delete' });
   if (ok) e.target.submit();
@@ -230,7 +230,7 @@ document.querySelector('#excluir-contrato').addEventListener('submit', async (e)
 
 <div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">A closed &lt;dialog&gt; must go back to display: none — and the library already does that</p><p>The modal rule declares <code>display: grid</code>, which beats the browser stylesheet. Without <code>.tuc-modal:not([open]) { display: none }</code>, a <code>&lt;dialog&gt;</code> sitting in the template would stay rendered, fixed and transparent over the whole page: nothing shows, and no click works. That's why it doesn't need <code>hidden</code>.</p></div></div>
 
-<h2 id="tons">Tones and glow</h2>
+<h2 id="tones">Tones and glow</h2>
 <p class="lead">The backdrop isn't just dark: a radial glow behind the box separates the dialog from what is underneath, and the blur takes the
    page out of focus. The tone changes the color of that glow and of the aura around the box — not the color of the buttons, which is still
    each action's choice.</p>
@@ -245,7 +245,7 @@ document.querySelector('#excluir-contrato').addEventListener('submit', async (e)
   </tbody>
 </table></div>
 
-<h2 id="tamanhos">Sizes</h2>
+<h2 id="sizes">Sizes</h2>
 <p class="lead">The box takes the available width up to the size's limit, and the body scrolls when the content gets taller than the screen.</p>
 
 <div class="tuc-table-wrap"><table class="tuc-table">
@@ -262,7 +262,7 @@ document.querySelector('#excluir-contrato').addEventListener('submit', async (e)
    loses its bottom corners, sits against the bottom edge and respects the iPhone safe area. It is optional because not every modal wants
    to become a drawer on mobile.</p>
 
-<h2 id="teclado">Keyboard and accessibility</h2>
+<h2 id="keyboard">Keyboard and accessibility</h2>
 <p class="lead"><code>showModal()</code> puts the dialog in the <i>top layer</i> and makes the rest of the page inert: focus can't escape
    behind it, and on close it goes back to whoever opened it. None of that is our JavaScript — it is the native element.</p>
 
@@ -299,10 +299,10 @@ document.querySelector('#excluir-contrato').addEventListener('submit', async (e)
 
 <script>
   // Free content: the body receives a node built here.
-  function modalFormulario() {
-    const corpo = document.createElement('div');
-    corpo.innerHTML = '<label class="tuc-label" for="modal-form-nome">Name</label>'
-      + '<input type="text" class="tuc-input" id="modal-form-nome" placeholder="Full name">'
+  function modalForm() {
+    const body = document.createElement('div');
+    body.innerHTML = '<label class="tuc-label" for="modal-form-name">Name</label>'
+      + '<input type="text" class="tuc-input" id="modal-form-name" placeholder="Full name">'
       + '<label class="tuc-label" for="modal-form-email" style="margin-top:12px">Email</label>'
       + '<input type="email" class="tuc-input" id="modal-form-email" placeholder="name@company.com">';
     new Tucano.Modal({
@@ -312,16 +312,16 @@ document.querySelector('#excluir-contrato').addEventListener('submit', async (e)
         { text: 'Cancel' },
         { text: 'Save', variant: 'primary', onClick: () => Tucano.toast.success('Contact saved') },
       ],
-    }).content(corpo).open();
+    }).content(body).open();
   }
 
   // closes: false keeps the modal open; the body is swapped at each step.
-  function modalEtapas() {
-    const etapas = ['Choose the plan.', 'Enter the billing details.', 'Review and confirm.'];
-    let atual = 0;
-    const texto = () => {
+  function modalSteps() {
+    const steps = ['Choose the plan.', 'Enter the billing details.', 'Review and confirm.'];
+    let current = 0;
+    const stepText = () => {
       const p = document.createElement('p');
-      p.textContent = `Step ${atual + 1} of ${etapas.length}: ${etapas[atual]}`;
+      p.textContent = `Step ${current + 1} of ${steps.length}: ${steps[current]}`;
       return p;
     };
     const m = new Tucano.Modal({
@@ -329,11 +329,11 @@ document.querySelector('#excluir-contrato').addEventListener('submit', async (e)
       actions: [
         { text: 'Cancel' },
         { text: 'Next step', variant: 'primary', closes: false, onClick: (modal) => {
-          if (atual < etapas.length - 1) { atual++; modal.content(texto()); }
+          if (current < steps.length - 1) { current++; modal.content(stepText()); }
           else { modal.close('action'); Tucano.toast.success('Subscription complete'); }
         } },
       ],
     });
-    m.content(texto()).open();
+    m.content(stepText()).open();
   }
 </script>

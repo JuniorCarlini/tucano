@@ -28,8 +28,8 @@ description: Ready-made components for the HTML you already write: date picker, 
   <form class="preview" onsubmit="return false">
     <p class="preview__title">New invoice</p>
     <div class="field">
-      <label class="tuc-label is-required" for="p-cliente">Customer</label>
-      <select id="p-cliente" data-tuc-select data-search="false" data-placeholder="Choose a customer...">
+      <label class="tuc-label is-required" for="p-customer">Customer</label>
+      <select id="p-customer" data-tuc-select data-search="false" data-placeholder="Choose a customer...">
         <option value=""></option>
         <option>Corner Bakery</option><option>Two Wheels Garage</option>
         <option>Wellness Clinic</option><option>Main Street Market</option>
@@ -38,12 +38,12 @@ description: Ready-made components for the HTML you already write: date picker, 
     </div>
     <div class="row">
       <div>
-        <label class="tuc-label is-required" for="p-valor">Amount</label>
-        <input type="text" id="p-valor" data-tuc-mask="currency" data-currency="USD" value="1250.00">
+        <label class="tuc-label is-required" for="p-amount">Amount</label>
+        <input type="text" id="p-amount" data-tuc-mask="currency" data-currency="USD" value="1250.00">
       </div>
       <div>
-        <label class="tuc-label is-required" for="p-venc">Due date</label>
-        <input type="text" id="p-venc" placeholder="mm/dd/yyyy">
+        <label class="tuc-label is-required" for="p-due">Due date</label>
+        <input type="text" id="p-due" placeholder="mm/dd/yyyy">
       </div>
     </div>
     <div class="field" style="margin-top:14px">
@@ -121,12 +121,12 @@ import 'tucano/css';
 <h2 id="components">Components</h2>
 <p class="lead">Each one has its own page with examples, the Django way, keyboard support and the full API. For an AI
    assistant, point it to the <a href="{{root}}llms.txt"><code>llms.txt</code></a> reference.</p>
-<!-- componentes -->
+<!-- components -->
 
 <script>
   // O calendario desta demonstracao nasce por JS, e nao por data-tuc-datepicker,
   // so para desligar o botao "Limpar": ele ainda e texto fixo em portugues, e numa
   // pagina em ingles apareceria assim que o calendario abrisse. Meses, dias da
   // semana e formato ja seguem o lang="en" da pagina.
-  new Tucano.DatePicker('#p-venc', { clearable: false });
+  new Tucano.DatePicker('#p-due', { clearable: false });
 </script>

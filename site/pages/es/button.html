@@ -18,7 +18,7 @@ description: El botón de la biblioteca, solo con clases — variantes, tamaños
   </div>
 </div>
 
-<h2 id="exemplos">Ejemplos</h2>
+<h2 id="examples">Ejemplos</h2>
 <p class="lead">Variante, tamaño y estado son clases y atributos que se combinan.</p>
 
 <div class="demo">
@@ -45,7 +45,7 @@ description: El botón de la biblioteca, solo con clases — variantes, tamaños
       <h4>Ocupado</h4>
       <p><code>aria-busy="true"</code> con <code>.tuc-spinner</code>. Haz clic en "Guardar" para ver el cambio.</p>
       <div class="bar">
-        <button type="button" class="tuc-btn is-primary" id="bt-salvar">Guardar</button>
+        <button type="button" class="tuc-btn is-primary" id="bt-save">Guardar</button>
         <button type="button" class="tuc-btn is-outline is-sm" aria-busy="true" disabled><span class="tuc-spinner"></span> Enviando</button>
       </div>
     </div>
@@ -54,9 +54,9 @@ description: El botón de la biblioteca, solo con clases — variantes, tamaños
       <p><code>disabled</code> no recibe clic ni foco; <code>aria-disabled="true"</code> sigue siendo enfocable y anunciado.</p>
       <div class="bar">
         <button type="button" class="tuc-btn is-primary" disabled>Aprobar</button>
-        <button type="button" class="tuc-btn is-outline" aria-disabled="true" id="bt-exportar">Exportar</button>
+        <button type="button" class="tuc-btn is-outline" aria-disabled="true" id="bt-export">Exportar</button>
       </div>
-      <div class="out" id="bt-exportar-msg"></div>
+      <div class="out" id="bt-export-msg"></div>
     </div>
     <div class="demo-cell">
       <h4>Ancho completo</h4>
@@ -73,7 +73,7 @@ description: El botón de la biblioteca, solo con clases — variantes, tamaños
   </div>
 </div>
 
-<h2 id="uso">Cómo usar</h2>
+<h2 id="usage">Cómo usar</h2>
 <p class="lead"><code>tuc-btn</code> y una variante. Sin variante el botón queda transparente, sin borde — la base de
    la que parten las variantes.</p>
 
@@ -83,7 +83,7 @@ description: El botón de la biblioteca, solo con clases — variantes, tamaños
 <button type="button" class="tuc-btn is-ghost is-icon" aria-label="Cerrar">
   <svg>...</svg>
 </button>
-<a class="tuc-btn is-link" href="/ajuda/">Más información</a>
+<a class="tuc-btn is-link" href="/help/">Más información</a>
 </pre>
 
 <h3>En el formulario de Django</h3>
@@ -92,7 +92,7 @@ description: El botón de la biblioteca, solo con clases — variantes, tamaños
 <form method="post">
   {% csrf_token %}
   {{ form }}
-  <a class="tuc-btn is-outline" href="{% url 'clientes' %}">Cancelar</a>
+  <a class="tuc-btn is-outline" href="{% url 'customers' %}">Cancelar</a>
   <button type="submit" class="tuc-btn is-primary">Guardar</button>
 </form>
 </pre>
@@ -100,7 +100,7 @@ description: El botón de la biblioteca, solo con clases — variantes, tamaños
 <h3>En JavaScript</h3>
 <p>No hay componente que instanciar. Lo que se hace en código es cambiar el estado — por ejemplo, ocupado durante un envío:</p>
 <pre data-code="js">
-const btn = document.querySelector('#salvar');
+const btn = document.querySelector('#save');
 btn.setAttribute('aria-busy', 'true');
 btn.disabled = true;               // impide el segundo clic
 btn.prepend(Object.assign(document.createElement('span'), { className: 'tuc-spinner' }));
@@ -111,7 +111,7 @@ btn.disabled = false;
 btn.querySelector('.tuc-spinner').remove();
 </pre>
 
-<h2 id="variantes">Variantes y cuándo usarlas</h2>
+<h2 id="variants">Variantes y cuándo usarlas</h2>
 <p class="lead">Una acción principal por área. Las demás ceden peso visual, y la destructiva se distingue por el color.</p>
 
 <div class="tuc-table-wrap"><table class="tuc-table">
@@ -129,7 +129,7 @@ btn.querySelector('.tuc-spinner').remove();
 
 <div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Botón y campo tienen la misma altura</p><p>Los dos salen de <code>--tuc-control-height</code> — 38px, o 44px en el diseño compacto, donde el área táctil necesita ser mayor. Radio y borde vienen de <code>--tuc-radius-md</code> y <code>--tuc-border-width</code>. Un botón junto a un select queda alineado sin ajustes.</p></div></div>
 
-<h2 id="estados">Ocupado y desactivado</h2>
+<h2 id="states">Ocupado y desactivado</h2>
 <p class="lead">Los dos impiden la acción, pero dicen cosas distintas, y por eso se ven distintos.</p>
 
 <pre data-code="html">
@@ -148,7 +148,7 @@ btn.querySelector('.tuc-spinner').remove();
    Al pulsarlo, el botón se encoge un poco: en un toque, sin hover, el color por sí solo no confirma que el dedo acertó
    el objetivo. Con <code>prefers-reduced-motion</code> ese movimiento desaparece.</p>
 
-<h2 id="teclado">Teclado y accesibilidad</h2>
+<h2 id="keyboard">Teclado y accesibilidad</h2>
 <p class="lead">Es el <code>&lt;button&gt;</code> del navegador: foco, <code>Enter</code> y <code>Espacio</code> vienen gratis.
    Lo que le toca a la plantilla es elegir el elemento correcto y darle nombre a lo que no tiene texto.</p>
 
@@ -188,21 +188,21 @@ btn.querySelector('.tuc-spinner').remove();
 
 <script>
   // Ocupado de mentira: la página es estática, así que la espera es un setTimeout.
-  const salvar = document.getElementById('bt-salvar');
-  salvar.addEventListener('click', () => {
-    salvar.setAttribute('aria-busy', 'true');
-    salvar.disabled = true;
-    salvar.replaceChildren(Object.assign(document.createElement('span'), { className: 'tuc-spinner' }), ' Guardando');
+  const saveButton = document.getElementById('bt-save');
+  saveButton.addEventListener('click', () => {
+    saveButton.setAttribute('aria-busy', 'true');
+    saveButton.disabled = true;
+    saveButton.replaceChildren(Object.assign(document.createElement('span'), { className: 'tuc-spinner' }), ' Guardando');
     setTimeout(() => {
-      salvar.removeAttribute('aria-busy');
-      salvar.disabled = false;
-      salvar.textContent = 'Guardar';
+      saveButton.removeAttribute('aria-busy');
+      saveButton.disabled = false;
+      saveButton.textContent = 'Guardar';
       Tucano.toast.success('Guardado');
     }, 1500);
   });
 
   // aria-disabled deja pasar el clic: quien usa el atributo decide qué hacer con él.
-  document.getElementById('bt-exportar').addEventListener('click', () => {
-    document.getElementById('bt-exportar-msg').textContent = 'Clic recibido — el manejador decidió no exportar.';
+  document.getElementById('bt-export').addEventListener('click', () => {
+    document.getElementById('bt-export-msg').textContent = 'Clic recibido — el manejador decidió no exportar.';
   });
 </script>

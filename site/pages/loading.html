@@ -13,7 +13,7 @@ description: Spinner para a ação que a pessoa espera e esqueleto para o conte�
       <h4>Spinner</h4>
       <p>Clique em salvar: o botão fica ocupado por dois segundos.</p>
       <div class="bar">
-        <button type="button" class="tuc-btn is-primary" id="loading-salvar">Salvar</button>
+        <button type="button" class="tuc-btn is-primary" id="loading-save">Salvar</button>
         <span class="tuc-spinner"></span>
         <span class="tuc-spinner is-lg"></span>
       </div>
@@ -32,7 +32,7 @@ description: Spinner para a ação que a pessoa espera e esqueleto para o conte�
   </div>
 </div>
 
-<h2 id="exemplos">Exemplos</h2>
+<h2 id="examples">Exemplos</h2>
 <p class="lead">O spinner mede em <code>em</code> e pinta com <code>currentColor</code>, então acompanha o lugar onde está sem variante nenhuma.</p>
 
 <div class="demo">
@@ -75,7 +75,7 @@ description: Spinner para a ação que a pessoa espera e esqueleto para o conte�
   </div>
 </div>
 
-<h2 id="uso">Como usar</h2>
+<h2 id="usage">Como usar</h2>
 <pre data-code="html">
 <button class="tuc-btn is-primary" aria-busy="true" disabled>
   <span class="tuc-spinner"></span> Salvando
@@ -97,7 +97,7 @@ description: Spinner para a ação que a pessoa espera e esqueleto para o conte�
    spinner, ele aparece e some sem uma linha de JavaScript.</p>
 
 <pre data-code="django">
-<button class="tuc-btn is-primary" hx-post="{% url 'contrato-salvar' contrato.pk %}" hx-disabled-elt="this">
+<button class="tuc-btn is-primary" hx-post="{% url 'contract-save' contract.pk %}" hx-disabled-elt="this">
   <span class="tuc-spinner htmx-indicator"></span> Salvar
 </button>
 </pre>
@@ -106,13 +106,13 @@ description: Spinner para a ação que a pessoa espera e esqueleto para o conte�
    ela substitui o esqueleto no mesmo espaço, e nada pula.</p>
 
 <pre data-code="django">
-<div hx-get="{% url 'clientes-tabela' %}" hx-trigger="load" hx-swap="outerHTML">
+<div hx-get="{% url 'customers-table' %}" hx-trigger="load" hx-swap="outerHTML">
   <span class="tuc-skeleton" style="width:60%"></span>
   <span class="tuc-skeleton" style="width:80%; margin-top:8px"></span>
 </div>
 </pre>
 
-<h2 id="acessibilidade">Acessibilidade</h2>
+<h2 id="accessibility">Acessibilidade</h2>
 <p class="lead">O texto diz o que está acontecendo, e o spinner confirma. "Salvando" ao lado do spinner é anunciado; um
    spinner sozinho é um círculo girando para quem não vê.</p>
 
@@ -137,15 +137,15 @@ description: Spinner para a ação que a pessoa espera e esqueleto para o conte�
 <script>
   // Botão que fica ocupado: aria-busy e disabled juntos, e o spinner no lugar do ícone.
   document.addEventListener('click', (e) => {
-    const botao = e.target.closest('#loading-salvar');
-    if (!botao || botao.getAttribute('aria-busy') === 'true') return;
-    botao.setAttribute('aria-busy', 'true');
-    botao.disabled = true;
-    botao.innerHTML = '<span class="tuc-spinner"></span> Salvando';
+    const button = e.target.closest('#loading-save');
+    if (!button || button.getAttribute('aria-busy') === 'true') return;
+    button.setAttribute('aria-busy', 'true');
+    button.disabled = true;
+    button.innerHTML = '<span class="tuc-spinner"></span> Salvando';
     setTimeout(() => {
-      botao.removeAttribute('aria-busy');
-      botao.disabled = false;
-      botao.textContent = 'Salvar';
+      button.removeAttribute('aria-busy');
+      button.disabled = false;
+      button.textContent = 'Salvar';
       Tucano.toast.success('Salvo');
     }, 2000);
   });

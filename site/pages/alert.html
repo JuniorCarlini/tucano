@@ -14,7 +14,7 @@ description: Aviso fixo na página, em quatro tons, com título e ações: para 
   <div class="tuc-alert is-danger" style="margin-bottom:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM15 9l-6 6M9 9l6 6"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Contrato bloqueado para edição</p><p>Há uma cobrança em disputa. Fale com o financeiro.</p></div></div>
 </div>
 
-<h2 id="exemplos">Exemplos</h2>
+<h2 id="examples">Exemplos</h2>
 <p class="lead">As peças são opcionais: título, ícone e ações entram só quando fazem falta.</p>
 
 <div class="demo">
@@ -37,13 +37,13 @@ description: Aviso fixo na página, em quatro tons, com título e ações: para 
     <div class="demo-cell">
       <h4>Aparece depois</h4>
       <p>A resposta de um envio leva <code>role="alert"</code> e é anunciada na hora.</p>
-      <button type="button" class="tuc-btn is-outline is-sm" id="alert-enviar">Enviar formulário</button>
-      <div id="alert-resposta"></div>
+      <button type="button" class="tuc-btn is-outline is-sm" id="alert-send">Enviar formulário</button>
+      <div id="alert-response"></div>
     </div>
   </div>
 </div>
 
-<h2 id="uso">Como usar</h2>
+<h2 id="usage">Como usar</h2>
 <p class="lead">Um <code>.tuc-alert</code> com o tom, o ícone como primeiro filho e o texto em <code>.tuc-alert__body</code>.</p>
 
 <pre data-code="html">
@@ -54,7 +54,7 @@ description: Aviso fixo na página, em quatro tons, com título e ações: para 
     <p>Renove para não perder o acesso.</p>
   </div>
   <div class="tuc-alert__actions">
-    <a class="tuc-btn is-outline is-sm" href="/assinatura/">Renovar</a>
+    <a class="tuc-btn is-outline is-sm" href="/subscription/">Renovar</a>
   </div>
 </div>
 </pre>
@@ -82,7 +82,7 @@ description: Aviso fixo na página, em quatro tons, com título e ações: para 
   <div class="tuc-alert is-danger">
     <div class="tuc-alert__body">
       <p class="tuc-alert__title">Não foi possível salvar</p>
-      {% for erro in form.non_field_errors %}<p>{{ erro }}</p>{% endfor %}
+      {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
     </div>
   </div>
 {% endif %}
@@ -96,7 +96,7 @@ description: Aviso fixo na página, em quatro tons, com título e ações: para 
 
 <p>O nível <code>debug</code> vira <code>is-debug</code>, que não tem regra, e o aviso fica neutro.</p>
 
-<h2 id="acessibilidade">Acessibilidade</h2>
+<h2 id="accessibility">Acessibilidade</h2>
 <p class="lead"><code>role="alert"</code> só no aviso que aparece depois do carregamento: a resposta de um envio, um swap do HTMX.</p>
 
 <div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Por que não em todos</p><p>O aviso que já vem no HTML é lido junto com a página. Com <code>role="alert"</code> ele interromperia o leitor de tela à toa, e numa página com três avisos, três vezes. O que chega depois precisa do papel justamente para interromper: sem ele, a resposta do envio aparece na tela e ninguém que usa leitor de tela fica sabendo.</p></div></div>
@@ -104,13 +104,13 @@ description: Aviso fixo na página, em quatro tons, com título e ações: para 
 <pre data-code="django">
 {# resposta parcial do HTMX: aparece depois, então interrompe #}
 <div class="tuc-alert is-success" role="alert">
-  <div class="tuc-alert__body"><p>Proposta enviada para {{ cliente.email }}.</p></div>
+  <div class="tuc-alert__body"><p>Proposta enviada para {{ customer.email }}.</p></div>
 </div>
 </pre>
 
 <p>O ícone leva <code>aria-hidden="true"</code>: quem diz o que aconteceu é o texto, e o tom não pode ser a única pista.</p>
 
-<h2 id="cor">Cor</h2>
+<h2 id="color">Cor</h2>
 <p class="lead">O fundo é uma tintura leve do tom sobre <code>--tuc-bg</code>, e não o <code>-soft</code> transparente dos
    tokens: sobre um card colorido ou uma imagem, o transparente deixaria o texto sem contraste garantido.</p>
 
@@ -136,8 +136,8 @@ description: Aviso fixo na página, em quatro tons, com título e ações: para 
 <script>
   // Um aviso que chega depois, como a resposta de um envio: este leva role="alert".
   document.addEventListener('click', (e) => {
-    if (!e.target.closest('#alert-enviar')) return;
-    document.getElementById('alert-resposta').innerHTML =
+    if (!e.target.closest('#alert-send')) return;
+    document.getElementById('alert-response').innerHTML =
       '<div class="tuc-alert is-success" role="alert" style="margin:12px 0 0">' +
       '<div class="tuc-alert__body"><p>Proposta enviada às ' +
       new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) + '.</p></div></div>';

@@ -18,7 +18,7 @@ description: Aviso passageiro num canto da tela, com carregando que vira resulta
   </div>
 </div>
 
-<h2 id="exemplos">Exemplos</h2>
+<h2 id="examples">Exemplos</h2>
 <p class="lead">Cada tipo tem cor, ícone e tempo próprios. O erro fica mais tempo porque a pessoa precisa ler e,
    muitas vezes, agir; o carregando não fecha sozinho, porque quem o encerra é o fim da operação.</p>
 
@@ -67,7 +67,7 @@ description: Aviso passageiro num canto da tela, com carregando que vira resulta
 <p>No toast o vermelho é o tipo <code>error</code>. Nas classes do aviso e da etiqueta, o mesmo tom se chama
    <code>is-danger</code>.</p>
 
-<h2 id="uso">Como usar</h2>
+<h2 id="usage">Como usar</h2>
 <p class="lead">Não há nada para marcar no HTML: o toast é chamado quando algo acontece. O container de cada posição é
    criado na primeira vez que é usado.</p>
 
@@ -80,7 +80,7 @@ Tucano.toast({
   type: 'success',
   title: 'Contrato excluído',
   text: 'Ainda dá para voltar atrás.',
-  action: { text: 'Desfazer', onClick: (t) => restaurar() },
+  action: { text: 'Desfazer', onClick: (t) => restore() },
   position: 'bottom-end',
   duration: null,       // não fecha sozinho
   closable: true,       // o X
@@ -100,7 +100,7 @@ t.close();
 t.node.addEventListener('tucano:toast-closed', () => console.log('fechou'));
 </pre>
 
-<h2 id="carregando">Carregando e promessa</h2>
+<h2 id="loading">Carregando e promessa</h2>
 <p class="lead">O toast de <code>loading</code> vira o resultado no mesmo cartão, em vez de fechar um e abrir outro:
    a pilha não se reorganiza e o olho não perde de vista o aviso que já estava lendo.</p>
 
@@ -108,20 +108,20 @@ t.node.addEventListener('tucano:toast-closed', () => console.log('fechou'));
   <div class="bar">
     <button type="button" class="tuc-btn is-outline" id="toast-manual">Salvar, com update()</button>
     <button type="button" class="tuc-btn is-outline" onclick="Tucano.toast.promise(new Promise((ok) => setTimeout(() => ok(3), 2000)), { loading: 'Enviando arquivos...', success: (n) => n + ' arquivos enviados' })">Promessa que dá certo</button>
-    <button type="button" class="tuc-btn is-outline" onclick="Tucano.toast.promise(new Promise((_, falha) => setTimeout(() => falha(new Error('tempo esgotado')), 2000)), { loading: 'Enviando arquivos...', error: (e) => 'Falhou: ' + e.message }).catch(() => {})">Promessa que falha</button>
+    <button type="button" class="tuc-btn is-outline" onclick="Tucano.toast.promise(new Promise((_, fail) => setTimeout(() => fail(new Error('tempo esgotado')), 2000)), { loading: 'Enviando arquivos...', error: (e) => 'Falhou: ' + e.message }).catch(() => {})">Promessa que falha</button>
   </div>
 </div>
 
 <pre data-code="js">
 // Controle manual: guarde a instância e troque o que precisar.
 const t = Tucano.toast.loading('Salvando contrato...');
-await salvar();
+await save();
 t.update({ type: 'success', text: 'Contrato salvo' });
 
 // Ou entregue a promessa e deixe os três estados por conta dela.
 Tucano.toast.promise(fetch(url), {
   loading: 'Enviando...',
-  success: (resposta) => `Enviado (${resposta.status})`,
+  success: (response) => `Enviado (${response.status})`,
   error: 'Não deu para enviar',
   position: 'top-center',       // o resto vale para o toast
 });
@@ -138,7 +138,7 @@ Tucano.toast.promise(fetch(url), {
 
 <div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">null quer dizer "não fecha", e não "use o padrão"</p><p>O padrão do tempo é resolvido com <code>in</code>, e não com <code>??</code>. O <code>null</code> do carregando é um valor: com <code>??</code> ele cairia nos 4 segundos de padrão, e o toast sumiria no meio da operação.</p></div></div>
 
-<h2 id="posicoes">Posições</h2>
+<h2 id="positions">Posições</h2>
 <p class="lead">Seis cantos e centros, com <code>bottom-end</code> de padrão. Cada posição tem a própria pilha.</p>
 
 <div class="demo">
@@ -171,14 +171,14 @@ Tucano.toast.promise(fetch(url), {
 
 <pre data-code="python">
 messages.success(request, "Contrato salvo")
-return redirect("contratos")
+return redirect("contracts")
 </pre>
 
 <div class="demo">
   <div class="bar">
     <button type="button" class="tuc-btn is-outline" id="toast-django">Simular a mensagem do redirect</button>
   </div>
-  <div id="toast-django-alvo"></div>
+  <div id="toast-django-target"></div>
 </div>
 
 <div class="tuc-table-wrap"><table class="tuc-table">
@@ -202,7 +202,7 @@ return redirect("contratos")
 <pre data-code="python">
 import json
 
-def salvar(request, pk):
+def save(request, pk):
     ...
     return HttpResponse(headers={
         "HX-Trigger": json.dumps({
@@ -230,7 +230,7 @@ document.body.dispatchEvent(new CustomEvent('tucano:toast', {
 <p>Pelo CDN, o <code>listenForEvents()</code> é ligado junto com a inicialização. Importando de <code>tucano</code> pelo
    npm nada roda sozinho: chame <code>listenForEvents()</code>, ou importe <code>tucano/auto</code>.</p>
 
-<h2 id="acessibilidade">Acessibilidade</h2>
+<h2 id="accessibility">Acessibilidade</h2>
 <p class="lead">O toast não rouba o foco: ele avisa sem tirar a pessoa do que estava fazendo. Quem anuncia é o leitor de tela.</p>
 
 <div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">A região é criada antes da mensagem</p><p>O <code>aria-live</code> fica no container, e não no toast. Uma região viva precisa existir no DOM antes de o conteúdo chegar; criada junto com a mensagem, o leitor de tela não anuncia. Erro fala numa região <code>assertive</code> e o resto numa <code>polite</code>, e as duas dividem o mesmo palco: posicionadas cada uma por conta, viravam duas pilhas paralelas na tela e o limite contava em dobro.</p></div></div>
@@ -255,9 +255,9 @@ document.body.dispatchEvent(new CustomEvent('tucano:toast', {
     }
     // O mesmo HTML que o laço de messages escreve, entregue ao init().
     if (e.target.closest('#toast-django')) {
-      const alvo = document.getElementById('toast-django-alvo');
-      alvo.innerHTML = '<div data-tuc-toast data-type="success">Contrato salvo</div>';
-      Tucano.init(alvo);
+      const target = document.getElementById('toast-django-target');
+      target.innerHTML = '<div data-tuc-toast data-type="success">Contrato salvo</div>';
+      Tucano.init(target);
     }
     // O que o HTMX faz ao ler o HX-Trigger da resposta.
     if (e.target.closest('#toast-htmx')) {

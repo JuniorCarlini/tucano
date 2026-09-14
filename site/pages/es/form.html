@@ -11,30 +11,30 @@ description: Etiqueta, texto de ayuda, mensaje de error y el campo que no pasó 
 <div class="demo is-hero">
   <div class="demo-grid">
     <div class="demo-cell">
-      <label class="tuc-label is-required" for="fm-razao">Razón social</label>
-      <input type="text" class="tuc-input" id="fm-razao" name="razao" value="Tucano Comercial S.L." required aria-describedby="fm-razao-ajuda">
-      <p class="tuc-hint" id="fm-razao-ajuda">Tal como figura en el registro fiscal.</p>
+      <label class="tuc-label is-required" for="fm-company">Razón social</label>
+      <input type="text" class="tuc-input" id="fm-company" name="company" value="Tucano Comercial S.L." required aria-describedby="fm-company-help">
+      <p class="tuc-hint" id="fm-company-help">Tal como figura en el registro fiscal.</p>
     </div>
     <div class="demo-cell">
       <label class="tuc-label is-required" for="fm-email">Correo de facturación</label>
-      <input type="email" class="tuc-input" id="fm-email" name="email" value="facturacion@" required aria-invalid="true" aria-describedby="fm-email-erro">
-      <p class="tuc-error" id="fm-email-erro">Escribe un correo completo.</p>
+      <input type="email" class="tuc-input" id="fm-email" name="email" value="facturacion@" required aria-invalid="true" aria-describedby="fm-email-error">
+      <p class="tuc-error" id="fm-email-error">Escribe un correo completo.</p>
     </div>
     <div class="demo-cell">
-      <label class="tuc-label" for="fm-plano">Plan</label>
-      <select id="fm-plano" name="plano" data-tuc-select data-search="false" aria-describedby="fm-plano-ajuda">
+      <label class="tuc-label" for="fm-plan">Plan</label>
+      <select id="fm-plan" name="plan" data-tuc-select data-search="false" aria-describedby="fm-plan-help">
         <option>Mensual</option><option>Trimestral</option><option>Anual</option>
       </select>
-      <p class="tuc-hint" id="fm-plano-ajuda">Puedes cambiarlo después, sin penalización.</p>
+      <p class="tuc-hint" id="fm-plan-help">Puedes cambiarlo después, sin penalización.</p>
     </div>
     <div class="demo-cell">
-      <label class="tuc-label" for="fm-obs">Observaciones</label>
-      <textarea class="tuc-input" id="fm-obs" name="obs" rows="3" placeholder="Visible solo para el equipo"></textarea>
+      <label class="tuc-label" for="fm-notes">Observaciones</label>
+      <textarea class="tuc-input" id="fm-notes" name="notes" rows="3" placeholder="Visible solo para el equipo"></textarea>
     </div>
   </div>
 </div>
 
-<h2 id="exemplos">Ejemplos</h2>
+<h2 id="examples">Ejemplos</h2>
 <p class="lead">Las mismas cuatro clases en situaciones distintas.</p>
 
 <div class="demo">
@@ -42,41 +42,41 @@ description: Etiqueta, texto de ayuda, mensaje de error y el campo que no pasó 
     <div class="demo-cell">
       <h4>Obligatorio</h4>
       <p><code>is-required</code> en la etiqueta pone el asterisco; el <code>required</code> va en el campo.</p>
-      <label class="tuc-label is-required" for="fm-nome">Nombre</label>
-      <input type="text" class="tuc-input" id="fm-nome" name="nome" required>
+      <label class="tuc-label is-required" for="fm-name">Nombre</label>
+      <input type="text" class="tuc-input" id="fm-name" name="name" required>
     </div>
     <div class="demo-cell">
       <h4>Validación del navegador</h4>
       <p>Se pinta con <code>:user-invalid</code>, solo después de tocar el campo. Escribe algo sin <code>@</code> y sal.</p>
-      <label class="tuc-label" for="fm-contato">Correo</label>
-      <input type="email" class="tuc-input" id="fm-contato" name="contato" required placeholder="nombre@empresa.com">
+      <label class="tuc-label" for="fm-contact">Correo</label>
+      <input type="email" class="tuc-input" id="fm-contact" name="contact" required placeholder="nombre@empresa.com">
     </div>
     <div class="demo-cell">
       <h4>Con icono</h4>
       <p><code>.tuc-input-group</code> con un SVG antes del campo.</p>
-      <label class="tuc-label" for="fm-busca">Buscar cliente</label>
-      <div class="tuc-input-group"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 21l-4.3-4.3M11 18a7 7 0 100-14 7 7 0 000 14z"/></svg><input type="search" class="tuc-input" id="fm-busca" name="q" placeholder="Nombre o identificación fiscal"></div>
+      <label class="tuc-label" for="fm-search">Buscar cliente</label>
+      <div class="tuc-input-group"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 21l-4.3-4.3M11 18a7 7 0 100-14 7 7 0 000 14z"/></svg><input type="search" class="tuc-input" id="fm-search" name="q" placeholder="Nombre o identificación fiscal"></div>
     </div>
     <div class="demo-cell">
       <h4>Desactivado</h4>
       <p><code>disabled</code> nativo; nada más.</p>
-      <label class="tuc-label" for="fm-codigo">Código</label>
-      <input type="text" class="tuc-input" id="fm-codigo" name="codigo" value="CLI-00042" disabled>
+      <label class="tuc-label" for="fm-code">Código</label>
+      <input type="text" class="tuc-input" id="fm-code" name="code" value="CLI-00042" disabled>
     </div>
     <div class="demo-cell">
       <h4>Lista corta</h4>
       <p><code>data-tuc-select</code> con <code>data-search="false"</code>: sin campo de búsqueda, y con el error de <code>aria-invalid</code>.</p>
-      <label class="tuc-label" for="fm-uf">Provincia</label>
-      <select id="fm-uf" name="uf" data-tuc-select data-search="false" required aria-invalid="true" aria-describedby="fm-uf-erro">
+      <label class="tuc-label" for="fm-state">Provincia</label>
+      <select id="fm-state" name="state" data-tuc-select data-search="false" required aria-invalid="true" aria-describedby="fm-state-error">
         <option value="">Selecciona</option><option>Córdoba</option><option>Mendoza</option>
       </select>
-      <p class="tuc-error" id="fm-uf-erro">Elige una provincia.</p>
+      <p class="tuc-error" id="fm-state-error">Elige una provincia.</p>
     </div>
     <div class="demo-cell">
       <h4>Varias opciones</h4>
       <p>Con <code>multiple</code> las elecciones se vuelven etiquetas, y <code>getlist()</code> sigue recibiendo una por opción.</p>
-      <label class="tuc-label" for="fm-dias">Días de entrega</label>
-      <select id="fm-dias" name="dias" data-tuc-select multiple>
+      <label class="tuc-label" for="fm-days">Días de entrega</label>
+      <select id="fm-days" name="days" data-tuc-select multiple>
         <option selected>Lunes</option><option>Martes</option><option selected>Miércoles</option><option>Jueves</option><option>Viernes</option>
       </select>
     </div>
@@ -90,35 +90,35 @@ description: Etiqueta, texto de ayuda, mensaje de error y el campo que no pasó 
 <div class="demo">
   <div class="demo-grid">
     <div class="demo-cell">
-      <label class="tuc-label is-required" for="fm-cliente">Cliente</label>
-      <select id="fm-cliente" name="cliente" data-tuc-select aria-invalid="true" aria-describedby="fm-cliente-erro">
+      <label class="tuc-label is-required" for="fm-customer">Cliente</label>
+      <select id="fm-customer" name="customer" data-tuc-select aria-invalid="true" aria-describedby="fm-customer-error">
         <option value="">Selecciona...</option><option>Panadería El Horno</option><option>Taller Dos Ruedas</option>
       </select>
-      <p class="tuc-error" id="fm-cliente-erro">Elige el cliente.</p>
+      <p class="tuc-error" id="fm-customer-error">Elige el cliente.</p>
     </div>
     <div class="demo-cell">
-      <label class="tuc-label is-required" for="fm-venc">Vencimiento</label>
-      <input type="text" id="fm-venc" name="vencimento" data-tuc-datepicker aria-invalid="true" aria-describedby="fm-venc-erro">
-      <p class="tuc-error" id="fm-venc-erro">La fecha tiene que ser posterior a hoy.</p>
+      <label class="tuc-label is-required" for="fm-due">Vencimiento</label>
+      <input type="text" id="fm-due" name="due_date" data-tuc-datepicker aria-invalid="true" aria-describedby="fm-due-error">
+      <p class="tuc-error" id="fm-due-error">La fecha tiene que ser posterior a hoy.</p>
     </div>
     <div class="demo-cell">
       <label class="tuc-label is-required" for="fm-doc">CNPJ</label>
-      <input type="text" id="fm-doc" name="cnpj" data-tuc-mask="cnpj" value="11222333000100" aria-invalid="true" aria-describedby="fm-doc-erro">
-      <p class="tuc-error" id="fm-doc-erro">CNPJ no válido.</p>
+      <input type="text" id="fm-doc" name="cnpj" data-tuc-mask="cnpj" value="11222333000100" aria-invalid="true" aria-describedby="fm-doc-error">
+      <p class="tuc-error" id="fm-doc-error">CNPJ no válido.</p>
     </div>
     <div class="demo-cell">
-      <label class="tuc-label" for="fm-cor">Color de la etiqueta</label>
-      <input type="text" id="fm-cor" name="cor" value="#e11d48" data-tuc-color aria-invalid="true" aria-describedby="fm-cor-erro">
-      <p class="tuc-error" id="fm-cor-erro">Ese color ya está en uso.</p>
+      <label class="tuc-label" for="fm-color">Color de la etiqueta</label>
+      <input type="text" id="fm-color" name="color" value="#e11d48" data-tuc-color aria-invalid="true" aria-describedby="fm-color-error">
+      <p class="tuc-error" id="fm-color-error">Ese color ya está en uso.</p>
     </div>
     <div class="demo-cell">
-      <label class="tuc-choice"><input type="checkbox" class="tuc-check" name="termos" required aria-invalid="true" aria-describedby="fm-termos-erro"> He leído y acepto los términos de uso</label>
-      <p class="tuc-error" id="fm-termos-erro">Obligatorio para continuar.</p>
+      <label class="tuc-choice"><input type="checkbox" class="tuc-check" name="terms" required aria-invalid="true" aria-describedby="fm-terms-error"> He leído y acepto los términos de uso</label>
+      <p class="tuc-error" id="fm-terms-error">Obligatorio para continuar.</p>
     </div>
   </div>
 </div>
 
-<h2 id="uso">Cómo usar</h2>
+<h2 id="usage">Cómo usar</h2>
 <p class="lead">Etiqueta con <code>for</code>, y ayuda y error unidos al campo con <code>aria-describedby</code>. Eso es lo que hace que el
    lector de pantalla lea la ayuda y el error junto con el nombre del campo.</p>
 
@@ -127,14 +127,14 @@ description: Etiqueta, texto de ayuda, mensaje de error y el campo que no pasó 
 <input id="doc" name="doc" data-tuc-mask="cnpj" required aria-invalid="true" aria-describedby="doc-e">
 <p class="tuc-error" id="doc-e">CNPJ no válido.</p>
 
-<label class="tuc-label" for="plano">Plan</label>
-<select id="plano" name="plano" data-tuc-select aria-describedby="plano-h">
+<label class="tuc-label" for="plan">Plan</label>
+<select id="plan" name="plan" data-tuc-select aria-describedby="plan-h">
   <option>Mensual</option>
   <option>Anual</option>
 </select>
-<p class="tuc-hint" id="plano-h">Puedes cambiarlo después.</p>
+<p class="tuc-hint" id="plan-h">Puedes cambiarlo después.</p>
 
-<textarea class="tuc-input" name="obs" rows="3"></textarea>
+<textarea class="tuc-input" name="notes" rows="3"></textarea>
 </pre>
 
 <p>Los componentes de campo — date picker, máscara, color picker — se ponen la <code>.tuc-input</code> solos. Escribe la clase en los
@@ -153,29 +153,29 @@ description: Etiqueta, texto de ayuda, mensaje de error y el campo que no pasó 
 
 <h3>En el formulario de Django</h3>
 <pre data-code="python">
-class ClienteForm(forms.ModelForm):
+class CustomerForm(forms.ModelForm):
     class Meta:
-        model = Cliente
-        fields = ["razao", "email", "plano", "obs"]
+        model = Customer
+        fields = ["company", "email", "plan", "notes"]
         widgets = {
-            "razao": forms.TextInput(attrs={"class": "tuc-input"}),
+            "company": forms.TextInput(attrs={"class": "tuc-input"}),
             "email": forms.EmailInput(attrs={"class": "tuc-input"}),
-            "plano": forms.Select(attrs={"data-tuc-select": ""}),
-            "obs": forms.Textarea(attrs={"class": "tuc-input", "rows": 3}),
+            "plan": forms.Select(attrs={"data-tuc-select": ""}),
+            "notes": forms.Textarea(attrs={"class": "tuc-input", "rows": 3}),
         }
 </pre>
 
 <h3>En JavaScript</h3>
 <p>No hay componente: para marcar un error que solo descubre el cliente, escribe el atributo, y bórralo cuando se corrija.</p>
 <pre data-code="js">
-const campo = document.querySelector('#email');
-campo.setAttribute('aria-invalid', 'true');
-campo.setAttribute('aria-describedby', 'email-e');
+const field = document.querySelector('#email');
+field.setAttribute('aria-invalid', 'true');
+field.setAttribute('aria-describedby', 'email-e');
 // corregido:
-campo.removeAttribute('aria-invalid');
+field.removeAttribute('aria-invalid');
 </pre>
 
-<h2 id="erro">Por qué un atributo, y no una clase</h2>
+<h2 id="error">Por qué un atributo, y no una clase</h2>
 <p class="lead">Una clase roja solo sirve a quien ve. <code>aria-invalid</code> sirve a la pantalla y al lector de pantalla al mismo
    tiempo, y por eso los dos no pueden divergir.</p>
 

@@ -9,8 +9,8 @@ description: Every Tucano --tuc-* token with its light and dark values, dark mod
    to recompile: no color, radius, border or height value is hard-coded in the components' CSS.</p>
 
 <div class="demo is-hero">
-  <p class="tuc-label" id="theme-amostras-rotulo">Accent color for this page</p>
-  <div class="bar" id="theme-amostras" role="group" aria-labelledby="theme-amostras-rotulo">
+  <p class="tuc-label" id="theme-swatches-label">Accent color for this page</p>
+  <div class="bar" id="theme-swatches" role="group" aria-labelledby="theme-swatches-label">
     <button type="button" class="tuc-btn is-outline is-sm" aria-pressed="true" data-accent="#FF7501"><span aria-hidden="true" style="width:14px;height:14px;border-radius:50%;background:#FF7501"></span>Toucan orange</button>
     <button type="button" class="tuc-btn is-outline is-sm" aria-pressed="false" data-accent="#4f46e5" data-hover="#4338ca" data-fg="#ffffff" data-text="#4338ca" data-text-dark="#818cf8"><span aria-hidden="true" style="width:14px;height:14px;border-radius:50%;background:#4f46e5"></span>Indigo</button>
     <button type="button" class="tuc-btn is-outline is-sm" aria-pressed="false" data-accent="#0f766e" data-hover="#115e59" data-fg="#ffffff" data-text="#0f766e" data-text-dark="#2dd4bf"><span aria-hidden="true" style="width:14px;height:14px;border-radius:50%;background:#0f766e"></span>Teal</button>
@@ -27,7 +27,7 @@ description: Every Tucano --tuc-* token with its light and dark values, dark mod
       </div>
       <div class="bar" style="margin-top:16px">
         <label class="tuc-choice"><input type="checkbox" class="tuc-check" checked> Invoice</label>
-        <label class="tuc-choice"><input type="radio" class="tuc-radio" name="theme-frete" checked> Express</label>
+        <label class="tuc-choice"><input type="radio" class="tuc-radio" name="theme-shipping" checked> Express</label>
         <label class="tuc-choice"><input type="checkbox" role="switch" class="tuc-switch" checked> Notifications</label>
       </div>
       <div class="tuc-tabs is-segmented" data-tuc-tabs style="margin-top:16px">
@@ -46,11 +46,11 @@ description: Every Tucano --tuc-* token with its light and dark values, dark mod
       <select id="theme-tags" name="tags" data-tuc-select multiple>
         <option selected>Django</option><option selected>HTMX</option><option>Tailwind</option>
       </select>
-      <label class="tuc-label" for="theme-data" style="margin-top:14px">Due date</label>
-      <input type="text" id="theme-data" data-tuc-datepicker>
+      <label class="tuc-label" for="theme-date" style="margin-top:14px">Due date</label>
+      <input type="text" id="theme-date" data-tuc-datepicker>
       <nav class="tuc-menu" aria-label="Sample menu" style="margin-top:14px">
         <a class="tuc-menu__item is-active" href="#tokens" aria-current="true">Billing</a>
-        <a class="tuc-menu__item" href="#escuro">Reports</a>
+        <a class="tuc-menu__item" href="#dark">Reports</a>
       </nav>
     </div>
   </div>
@@ -74,7 +74,7 @@ description: Every Tucano --tuc-* token with its light and dark values, dark mod
 }
 </pre>
 
-<h2 id="destaque">The accent and the text on it</h2>
+<h2 id="accent">The accent and the text on it</h2>
 <p class="lead">The default accent is neutral: black in light mode and near-white in dark mode. The color belongs to your
    project — the package doesn't impose a brand, and it fits any brand until you change it. The orange you see in this
    documentation is the site's color, set the same way you would set yours.</p>
@@ -206,7 +206,7 @@ description: Every Tucano --tuc-* token with its light and dark values, dark mod
 </table></div>
 <p>Entry and exit use different curves on purpose: using the same curve for both makes the exit feel sluggish.</p>
 
-<h2 id="escuro">Dark mode</h2>
+<h2 id="dark">Dark mode</h2>
 <p class="lead">Dark mode follows the <code>.dark</code> class on <code>&lt;html&gt;</code>, the convention of Tailwind and of Django's
    modern admin. <code>data-theme="dark"</code> works too.</p>
 
@@ -226,7 +226,7 @@ description: Every Tucano --tuc-* token with its light and dark values, dark mod
 <p>Dark mode also sets <code>color-scheme: dark</code>, which makes the browser draw scrollbars and native fields in a
    dark tone — only inside the components, so it doesn't force the color scheme on the whole page.</p>
 
-<h2 id="escopo">Scoping by container</h2>
+<h2 id="scope">Scoping by container</h2>
 <p class="lead">Since they are variables, the scope is up to you: in <code>:root</code> they apply to the whole page, and declared on a
    container they apply only inside it. That's how you get a panel with its own color, or a dark band on a light page.</p>
 
@@ -235,12 +235,12 @@ description: Every Tucano --tuc-* token with its light and dark values, dark mod
     <div class="demo-cell">
       <h4>Accent only in this block</h4>
       <p>The variables go on the container itself.</p>
-      <div id="theme-verde" style="--tuc-accent:#0f766e;--tuc-accent-hover:#115e59;--tuc-accent-fg:#ffffff;--tuc-accent-soft:color-mix(in oklab, #0f766e 12%, transparent);--tuc-accent-ring:color-mix(in oklab, #0f766e 35%, transparent)">
+      <div id="theme-green" style="--tuc-accent:#0f766e;--tuc-accent-hover:#115e59;--tuc-accent-fg:#ffffff;--tuc-accent-soft:color-mix(in oklab, #0f766e 12%, transparent);--tuc-accent-ring:color-mix(in oklab, #0f766e 35%, transparent)">
         <div class="bar">
           <button type="button" class="tuc-btn is-primary">Approve</button>
           <label class="tuc-choice"><input type="checkbox" role="switch" class="tuc-switch" checked> Active</label>
         </div>
-        <select id="theme-verde-select" data-tuc-select multiple aria-label="Branches" style="margin-top:12px">
+        <select id="theme-green-select" data-tuc-select multiple aria-label="Branches" style="margin-top:12px">
           <option selected>Headquarters</option><option selected>South branch</option><option>North branch</option>
         </select>
       </div>
@@ -248,7 +248,7 @@ description: Every Tucano --tuc-* token with its light and dark values, dark mod
     <div class="demo-cell">
       <h4>Dark only in this block</h4>
       <p><code>.dark</code> on a container, with its own background.</p>
-      <div class="dark" id="theme-escuro" style="padding:18px;border-radius:12px;background:var(--tuc-bg);color:var(--tuc-fg);--tuc-success-soft:color-mix(in oklab, var(--tuc-success) 12%, transparent);--tuc-warning-soft:color-mix(in oklab, var(--tuc-warning) 14%, transparent);--tuc-danger-soft:color-mix(in oklab, var(--tuc-danger) 12%, transparent);--tuc-info-soft:color-mix(in oklab, var(--tuc-info) 12%, transparent)">
+      <div class="dark" id="theme-dark" style="padding:18px;border-radius:12px;background:var(--tuc-bg);color:var(--tuc-fg);--tuc-success-soft:color-mix(in oklab, var(--tuc-success) 12%, transparent);--tuc-warning-soft:color-mix(in oklab, var(--tuc-warning) 14%, transparent);--tuc-danger-soft:color-mix(in oklab, var(--tuc-danger) 12%, transparent);--tuc-info-soft:color-mix(in oklab, var(--tuc-info) 12%, transparent)">
         <div class="bar">
           <span class="tuc-badge is-success">Paid</span>
           <span class="tuc-badge is-warning">Pending</span>
@@ -267,7 +267,7 @@ description: Every Tucano --tuc-* token with its light and dark values, dark mod
 <div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">On a container, redeclare the derived tokens</p><p><code>--tuc-accent-soft</code>, <code>--tuc-accent-ring</code> and the tones' <code>-soft</code> tokens are computed from another token where they were declared, in <code>:root</code> — and are inherited by children already computed. At the root, changing <code>--tuc-accent</code> recomputes everything; on a container, the soft background would stay in the old color. That's why both blocks above repeat the calculation along with it.</p></div></div>
 
 <pre data-code="css">
-.painel-verde {
+.panel-green {
   --tuc-accent: #0f766e;
   --tuc-accent-hover: #115e59;
   --tuc-accent-fg: #ffffff;
@@ -275,12 +275,12 @@ description: Every Tucano --tuc-* token with its light and dark values, dark mod
   --tuc-accent-soft: color-mix(in oklab, var(--tuc-accent) 12%, transparent);
   --tuc-accent-ring: color-mix(in oklab, var(--tuc-accent) 35%, transparent);
 }
-.dark .painel-verde {
+.dark .panel-green {
   --tuc-accent-text: #2dd4bf;     /* accent text readable on a dark background */
 }
 
 /* .dark on a container: the tones change, and their soft background has to be redone there */
-.faixa.dark {
+.band.dark {
   background: var(--tuc-bg);
   --tuc-success-soft: color-mix(in oklab, var(--tuc-success) 12%, transparent);
   --tuc-warning-soft: color-mix(in oklab, var(--tuc-warning) 14%, transparent);
@@ -293,7 +293,7 @@ description: Every Tucano --tuc-* token with its light and dark values, dark mod
    <code>&lt;body&gt;</code> and doesn't inherit its variables. For those, declare the theme in <code>:root</code>, or use
    <code>appendTo</code> where the component offers it.</p>
 
-<h2 id="compacto">Compact layout</h2>
+<h2 id="compact">Compact layout</h2>
 <p class="lead">Below <code>40rem</code> (640px) the layout becomes compact. The same breakpoint applies to the CSS and to the
    date picker's JavaScript, and it's based on width — not on <code>pointer: coarse</code> —, because a laptop with a
    touchscreen shouldn't get phone behavior.</p>
@@ -316,24 +316,24 @@ description: Every Tucano --tuc-* token with its light and dark values, dark mod
   // Changes the accent for the whole page: a stylesheet in <head> with the
   // tokens. Orange comes back by removing the sheet, not by repeating the values —
   // so the orange from site.css applies, in both themes.
-  const folha = document.createElement('style');
+  const sheet = document.createElement('style');
   // The green block's accent text changes with the theme, and a style attribute has
   // no way to say "in dark mode": it goes in a sheet, like the page's CSS example.
-  const escopo = document.createElement('style');
-  escopo.textContent = '#theme-verde{--tuc-accent-text:#0f766e}:root.dark #theme-verde{--tuc-accent-text:#2dd4bf}';
-  document.head.append(escopo, folha);
-  const amostras = document.getElementById('theme-amostras');
-  amostras.addEventListener('click', (e) => {
+  const scope = document.createElement('style');
+  scope.textContent = '#theme-green{--tuc-accent-text:#0f766e}:root.dark #theme-green{--tuc-accent-text:#2dd4bf}';
+  document.head.append(scope, sheet);
+  const swatches = document.getElementById('theme-swatches');
+  swatches.addEventListener('click', (e) => {
     const b = e.target.closest('[data-accent]');
     if (!b) return;
-    for (const n of amostras.querySelectorAll('[data-accent]')) n.setAttribute('aria-pressed', String(n === b));
+    for (const n of swatches.querySelectorAll('[data-accent]')) n.setAttribute('aria-pressed', String(n === b));
     const d = b.dataset;
-    if (!d.hover) { folha.textContent = ''; return; }
+    if (!d.hover) { sheet.textContent = ''; return; }
     // Each swatch brings its own text color for the top of the accent.
     // .dark goes along because the package and site.css redefine the accent there,
     // and the scope demo's dark block must follow too. Same specificity as theirs,
     // and this sheet comes later; the lone .dark at the end only changes the text.
-    folha.textContent = `:root,.dark{--accent:${d.accent};--tuc-accent:${d.accent};--tuc-accent-hover:${d.hover};`
+    sheet.textContent = `:root,.dark{--accent:${d.accent};--tuc-accent:${d.accent};--tuc-accent-hover:${d.hover};`
       + `--tuc-accent-fg:${d.fg};--tuc-accent-text:${d.text};--tuc-thumb:#ffffff}`
       + `.dark{--tuc-accent-text:${d.textDark}}`;
   });

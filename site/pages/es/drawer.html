@@ -11,23 +11,23 @@ description: Panel lateral (off-canvas) sobre el <dialog> nativo, que entra por 
 
 <div class="demo is-hero">
   <div class="bar">
-    <button class="tuc-btn is-primary" data-tuc-drawer="#drawer-filtros">Filtros</button>
+    <button class="tuc-btn is-primary" data-tuc-drawer="#drawer-filters">Filtros</button>
     <button class="tuc-btn is-outline" onclick="Tucano.drawer({title:'Contrato 2026-0142', text:'Panadería El Horno · vence el 10/10/2026', side:'right', size:'lg', actions:[{text:'Cerrar'},{text:'Emitir duplicado', variant:'primary', onClick:()=>Tucano.toast.success('Duplicado emitido')}]})">Detalle de un registro</button>
   </div>
 </div>
 
-<dialog class="tuc-drawer is-right is-md" id="drawer-filtros" aria-labelledby="drawer-filtros-title">
+<dialog class="tuc-drawer is-right is-md" id="drawer-filters" aria-labelledby="drawer-filters-title">
   <div class="tuc-drawer__panel">
     <div class="tuc-drawer__top">
       <div class="tuc-drawer__header">
-        <p class="tuc-drawer__title" id="drawer-filtros-title">Filtros</p>
+        <p class="tuc-drawer__title" id="drawer-filters-title">Filtros</p>
         <p class="tuc-drawer__text">Afina la lista de contratos.</p>
       </div>
       <button type="button" class="tuc-btn is-ghost is-icon is-sm tuc-drawer__close" aria-label="Cerrar" data-tuc-drawer-close><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
     </div>
     <div class="tuc-drawer__body">
-      <label class="tuc-label" for="drawer-filtros-busca">Cliente</label>
-      <input type="search" class="tuc-input" id="drawer-filtros-busca" placeholder="Nombre o ID fiscal">
+      <label class="tuc-label" for="drawer-filters-search">Cliente</label>
+      <input type="search" class="tuc-input" id="drawer-filters-search" placeholder="Nombre o ID fiscal">
       <p class="tuc-label" style="margin-top:16px">Estado</p>
       <div class="tuc-choices">
         <label class="tuc-choice"><input type="checkbox" class="tuc-check" checked><span>Pendientes</span></label>
@@ -42,7 +42,7 @@ description: Panel lateral (off-canvas) sobre el <dialog> nativo, que entra por 
   </div>
 </dialog>
 
-<h2 id="exemplos">Ejemplos</h2>
+<h2 id="examples">Ejemplos</h2>
 <p class="lead">Todos los de abajo son el mismo <code>Tucano.drawer()</code> con opciones distintas.</p>
 
 <div class="demo">
@@ -87,7 +87,7 @@ description: Panel lateral (off-canvas) sobre el <dialog> nativo, que entra por 
       <h4>Contenido libre</h4>
       <p><code>content(nodo)</code> rellena el cuerpo, que se desplaza cuando el contenido supera la altura.</p>
       <div class="bar">
-        <button class="tuc-btn is-outline is-sm" onclick="drawerHistorico()">Historial largo</button>
+        <button class="tuc-btn is-outline is-sm" onclick="drawerHistory()">Historial largo</button>
       </div>
     </div>
     <div class="demo-cell">
@@ -97,7 +97,7 @@ description: Panel lateral (off-canvas) sobre el <dialog> nativo, que entra por 
   </div>
 </div>
 
-<h2 id="uso">Cómo usar</h2>
+<h2 id="usage">Cómo usar</h2>
 <p class="lead">Los mismos dos caminos del modal. Desde JavaScript el panel se monta en el momento y sale del DOM al cerrarse; desde la
    plantilla ya está en la página, y el componente solo lo abre, lo cierra y lo anima.</p>
 
@@ -111,29 +111,29 @@ Tucano.drawer({
   tone: 'default',    // default | danger | success | warning
   actions: [
     { text: 'Limpiar', variant: 'ghost' },
-    { text: 'Aplicar', variant: 'primary', onClick: (gaveta) => aplicar() },
+    { text: 'Aplicar', variant: 'primary', onClick: (drawer) => apply() },
   ],
-}).content(formulario);
+}).content(form);
 
 // Montado antes, abierto después
-const g = new Tucano.Drawer({ title: 'Carrito', side: 'right' });
-g.content(lista).open();
-g.close();
+const drawer = new Tucano.Drawer({ title: 'Carrito', side: 'right' });
+drawer.content(list).open();
+drawer.close();
 </pre>
 
 <p><code>actions</code> sigue las mismas reglas del modal: <code>text</code>, <code>variant</code> (predeterminado <code>outline</code>),
-   <code>onClick</code>, que recibe la instancia, y <code>closes: false</code> para mantenerlo abierto. <code>onClose(reason, gaveta)</code>
+   <code>onClick</code>, que recibe la instancia, y <code>closes: false</code> para mantenerlo abierto. <code>onClose(reason, drawer)</code>
    recibe <code>'button'</code>, <code>'action'</code>, <code>'escape'</code>, <code>'backdrop'</code> o <code>'api'</code>.</p>
 
 <h3>En la plantilla de Django</h3>
 <p>El caso típico es el formulario de filtros de una lista: lo renderiza el servidor, con los valores que llegaron en
    <code>request.GET</code>, y el panel solo lo oculta hasta que alguien lo pida.</p>
 <pre data-code="django">
-<dialog class="tuc-drawer is-right is-md" id="filtros" aria-labelledby="filtros-titulo">
+<dialog class="tuc-drawer is-right is-md" id="filters" aria-labelledby="filters-title">
   <form class="tuc-drawer__panel" method="get">
     <div class="tuc-drawer__top">
       <div class="tuc-drawer__header">
-        <h2 class="tuc-drawer__title" id="filtros-titulo">Filtros</h2>
+        <h2 class="tuc-drawer__title" id="filters-title">Filtros</h2>
       </div>
       <button type="button" class="tuc-btn is-ghost is-icon is-sm tuc-drawer__close" aria-label="Cerrar" data-tuc-drawer-close>…</button>
     </div>
@@ -147,7 +147,7 @@ g.close();
   </form>
 </dialog>
 
-<button class="tuc-btn is-outline" data-tuc-drawer="#filtros">Filtros</button>
+<button class="tuc-btn is-outline" data-tuc-drawer="#filters">Filtros</button>
 </pre>
 
 <div class="tuc-table-wrap"><table class="tuc-table">
@@ -165,7 +165,7 @@ g.close();
    <code>__text</code>, <code>__close</code>, <code>__body</code> y <code>__footer</code>. En la plantilla, escribe la X y el
    <code>aria-labelledby</code>: desde JavaScript los dos salen listos, a mano no.</p>
 
-<h2 id="lados">Lados y tamaños</h2>
+<h2 id="sides">Lados y tamaños</h2>
 <p class="lead">La caja se estira en el eje del borde en el que se apoya — en los laterales ocupa toda la altura, arriba y abajo todo el
    ancho — y el borde de la caja queda solo del lado que toca la página.</p>
 
@@ -194,7 +194,7 @@ g.close();
 
 <div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">El brillo nace del borde</p><p>En el modal la luz viene del centro de la pantalla. En el panel lateral sale del lado en el que se apoya, y la elipse es mayor: al nacer en el borde, solo la mitad queda en pantalla. Centrada, la luz apuntaría al medio de la página mientras el panel entra por el lateral.</p></div></div>
 
-<h2 id="teclado">Teclado y accesibilidad</h2>
+<h2 id="keyboard">Teclado y accesibilidad</h2>
 <p class="lead">Es un <code>&lt;dialog&gt;</code> abierto con <code>showModal()</code>, igual que el modal: la página de detrás queda inerte, el
    foco no escapa y vuelve a quien lo abrió al cerrarse.</p>
 
@@ -217,19 +217,19 @@ g.close();
 
 <script>
   // Contenido libre: una lista lo bastante larga para que el cuerpo se desplace.
-  function drawerHistorico() {
-    const lista = document.createElement('ol');
-    lista.className = 'tuc-timeline';
-    const eventos = ['Contrato creado', 'Enviado para firma', 'Firmado por el cliente', 'Primer cobro emitido',
+  function drawerHistory() {
+    const list = document.createElement('ol');
+    list.className = 'tuc-timeline';
+    const events = ['Contrato creado', 'Enviado para firma', 'Firmado por el cliente', 'Primer cobro emitido',
       'Pago confirmado', 'Reajuste aplicado', 'Segundo cobro emitido', 'Pago confirmado',
       'Dirección de facturación modificada', 'Tercer cobro emitido', 'Pago atrasado', 'Pago confirmado'];
-    for (const [i, ev] of eventos.entries()) {
+    for (const [i, ev] of events.entries()) {
       const item = document.createElement('li');
       item.className = 'tuc-timeline__item';
       item.innerHTML = `<div class="tuc-timeline__head"><p class="tuc-timeline__title"></p><time class="tuc-timeline__time">${String(i + 1).padStart(2, '0')}/2026</time></div>`;
       item.querySelector('.tuc-timeline__title').textContent = ev;
-      lista.append(item);
+      list.append(item);
     }
-    new Tucano.Drawer({ title: 'Historial', text: 'Contrato 2026-0142', side: 'right' }).content(lista).open();
+    new Tucano.Drawer({ title: 'Historial', text: 'Contrato 2026-0142', side: 'right' }).content(list).open();
   }
 </script>

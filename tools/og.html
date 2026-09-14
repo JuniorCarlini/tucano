@@ -52,7 +52,7 @@
       </div>
     </div>
     <div class="right">
-      <div class="anchor" id="campo">
+      <div class="anchor" id="field">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z"/></svg>
         <span>08/09/2026 — 19/09/2026</span>
       </div>
@@ -63,14 +63,14 @@
 <script src="../dist/tucano.js"></script>
 <script>
   // Usa o componente de verdade: a imagem mostra o que a lib realmente desenha.
-  const alvo = document.createElement('input');
-  alvo.type = 'text';
-  document.getElementById('campo').appendChild(alvo);
-  alvo.style.cssText = 'position:absolute;inset:0;opacity:0;pointer-events:none';
-  const dp = new Tucano.DatePicker(alvo, { mode: 'range', months: 1, native: false, openOnFocus: false });
+  const target = document.createElement('input');
+  target.type = 'text';
+  document.getElementById('field').appendChild(target);
+  target.style.cssText = 'position:absolute;inset:0;opacity:0;pointer-events:none';
+  const dp = new Tucano.DatePicker(target, { mode: 'range', months: 1, native: false, openOnFocus: false });
   dp.setValue({ start: '2026-09-08', end: '2026-09-19' }, { silent: true });
   dp.open();
   dp.panel.classList.add('is-open');
-  window.__pronto = true;
+  window.__ready = true;
 </script>
 </body></html>

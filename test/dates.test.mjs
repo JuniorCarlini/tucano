@@ -12,7 +12,7 @@ import {
   toISODateTime, withTime,
 } from '../src/js/core/dates.js';
 
-const d = (a, m, dia, h = 0, min = 0) => new Date(a, m - 1, dia, h, min);
+const d = (a, m, day, h = 0, min = 0) => new Date(a, m - 1, day, h, min);
 
 test('startOfDay zera a hora sem mudar o dia', () => {
   const x = startOfDay(d(2026, 9, 7, 15, 30));
@@ -73,10 +73,10 @@ test('withTime cola a hora de um Date no dia de outro', () => {
 });
 
 test('buildMonthGrid entrega semanas completas', () => {
-  const grade = buildMonthGrid(2026, 8, 0);      // setembro/2026
-  assert.equal(grade.length % 7, 0, 'multiplo de 7');
-  assert.ok(grade.some((c) => c.date.getMonth() === 8), 'tem dias do proprio mes');
-  assert.ok(grade.some((c) => c.outside), 'tem dias de fora, para fechar a semana');
+  const grid = buildMonthGrid(2026, 8, 0);      // setembro/2026
+  assert.equal(grid.length % 7, 0, 'multiplo de 7');
+  assert.ok(grid.some((c) => c.date.getMonth() === 8), 'tem dias do proprio mes');
+  assert.ok(grid.some((c) => c.outside), 'tem dias de fora, para fechar a semana');
 });
 
 test('toISODate e toISODateTime usam a hora local, nao UTC', () => {

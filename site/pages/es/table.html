@@ -12,16 +12,16 @@ description: Tabla renderizada por el servidor, con ordenación por enlace (?sor
 <div class="demo is-hero">
   <form id="table-form">
     <div class="bar" style="margin:0 0 14px">
-      <button type="button" class="tuc-btn is-outline" id="table-aprovar" disabled>Aprobar seleccionados</button>
-      <span class="tuc-hint" id="table-saida">Ninguna fila marcada.</span>
+      <button type="button" class="tuc-btn is-outline" id="table-approve" disabled>Aprobar seleccionados</button>
+      <span class="tuc-hint" id="table-output">Ninguna fila marcada.</span>
     </div>
-    <table id="table-contratos" data-tuc-table data-selectable data-sort-mode="client">
+    <table id="table-contracts" data-tuc-table data-selectable data-sort-mode="client">
       <thead>
         <tr>
-          <th data-sort="text" data-field="cliente" style="width:38%">Cliente</th>
+          <th data-sort="text" data-field="customer" style="width:38%">Cliente</th>
           <th data-sort="text" data-field="status">Estado</th>
-          <th data-sort="date" data-field="vencimento">Vencimiento</th>
-          <th data-sort="number" data-field="valor" class="is-number">Importe</th>
+          <th data-sort="date" data-field="due_date">Vencimiento</th>
+          <th data-sort="number" data-field="amount" class="is-number">Importe</th>
           <th data-sort="none" class="tuc-table__actions">Acciones</th>
         </tr>
       </thead>
@@ -57,10 +57,10 @@ description: Tabla renderizada por el servidor, con ordenación por enlace (?sor
       </tbody>
     </table>
   </form>
-  <p class="tuc-hint">Esta demostración ordena en pantalla (<code>data-sort-mode="client"</code>) porque no hay servidor detrás. En una lista paginada, lo predeterminado es el servidor — mira <a href="#ordenacao">Ordenación</a>.</p>
+  <p class="tuc-hint">Esta demostración ordena en pantalla (<code>data-sort-mode="client"</code>) porque no hay servidor detrás. En una lista paginada, lo predeterminado es el servidor — mira <a href="#sorting">Ordenación</a>.</p>
 </div>
 
-<h2 id="exemplos">Ejemplos</h2>
+<h2 id="examples">Ejemplos</h2>
 <p class="lead">Las variantes son clases en la propia tabla. Por defecto las filas se separan con un borde inferior, y
    no con cebra: en una lista de treinta filas la cebra se vuelve ruido. Quien quiera cebra, que la pida.</p>
 
@@ -147,7 +147,7 @@ description: Tabla renderizada por el servidor, con ordenación por enlace (?sor
   </div>
 </div>
 
-<h2 id="uso">Cómo usar</h2>
+<h2 id="usage">Cómo usar</h2>
 <p class="lead">Marca la <code>&lt;table&gt;</code> con <code>data-tuc-table</code> y se inicializa sola, incluida la
    que llegue después por HTMX. En cada columna ordenable, <code>data-sort</code> indica el tipo y
    <code>data-field</code> indica el nombre que va en la URL.</p>
@@ -155,8 +155,8 @@ description: Tabla renderizada por el servidor, con ordenación por enlace (?sor
 <pre data-code="html">
 <table data-tuc-table data-selectable>
   <thead><tr>
-    <th data-sort="text" data-field="cliente" style="width:38%">Cliente</th>
-    <th data-sort="number" data-field="valor" class="is-number">Importe</th>
+    <th data-sort="text" data-field="customer" style="width:38%">Cliente</th>
+    <th data-sort="number" data-field="amount" class="is-number">Importe</th>
     <th data-sort="none" class="tuc-table__actions">Acciones</th>
   </tr></thead>
   <tbody>
@@ -177,9 +177,9 @@ description: Tabla renderizada por el servidor, con ordenación por enlace (?sor
 <pre data-code="django">
 <table data-tuc-table data-selectable>
   <thead><tr>
-    <th data-sort="text" data-field="cliente" style="width:38%">Cliente</th>
+    <th data-sort="text" data-field="customer" style="width:38%">Cliente</th>
     <th data-sort="text" data-field="status">Estado</th>
-    <th data-sort="number" data-field="valor" class="is-number">Importe</th>
+    <th data-sort="number" data-field="amount" class="is-number">Importe</th>
     <th data-sort="none" class="tuc-table__actions">Acciones</th>
   </tr></thead>
   <tbody>
@@ -187,14 +187,14 @@ description: Tabla renderizada por el servidor, con ordenación por enlace (?sor
     <tr data-id="{{ obj.pk }}">
       <td>
         <span class="tuc-table__user">
-          <span class="tuc-table__avatar"><img src="{{ obj.foto.url }}" alt=""></span>
-          <span>{{ obj.nome }}<span class="tuc-table__sub">{{ obj.email }}</span></span>
+          <span class="tuc-table__avatar"><img src="{{ obj.photo.url }}" alt=""></span>
+          <span>{{ obj.name }}<span class="tuc-table__sub">{{ obj.email }}</span></span>
         </span>
       </td>
       <td><span class="tuc-badge is-success">{{ obj.get_status_display }}</span></td>
-      <td class="is-number" data-sort-value="{{ obj.valor }}" data-tuc-format="real">{{ obj.valor }}</td>
+      <td class="is-number" data-sort-value="{{ obj.amount }}" data-tuc-format="real">{{ obj.amount }}</td>
       <td class="tuc-table__actions">
-        <a class="tuc-btn is-outline is-icon is-sm" href="{% url 'contrato-editar' obj.pk %}" aria-label="Editar">...</a>
+        <a class="tuc-btn is-outline is-icon is-sm" href="{% url 'contract-edit' obj.pk %}" aria-label="Editar">...</a>
       </td>
     </tr>
     {% empty %}
@@ -209,14 +209,14 @@ description: Tabla renderizada por el servidor, con ordenación por enlace (?sor
 <h3>En JavaScript</h3>
 <p>Para pasar <code>onSort</code> y <code>onSelect</code>, que no existen como atributo, o para leer la selección.</p>
 <pre data-code="js">
-const t = new Tucano.Table('#contratos', { selectable: true, sortMode: 'client' });
+const t = new Tucano.Table('#contracts', { selectable: true, sortMode: 'client' });
 t.getSelected();          // ['12', '15'] — los data-id marcados
 t.clearSelection();
 t.sort(2, 'desc', 'number');
 t.destroy();              // suelta los listeners
 </pre>
 
-<h2 id="ordenacao">Ordenación</h2>
+<h2 id="sorting">Ordenación</h2>
 <p class="lead">Ordenar es trabajo del servidor, y eso es lo predeterminado. En una lista paginada, reordenar las veinte filas que
    están en pantalla produce un orden falso: el mayor importe real puede estar en la página 7, y la tabla pasa a mentir
    con cara de verdad. Quien sabe ordenar el conjunto entero es la base de datos.</p>
@@ -228,11 +228,11 @@ t.destroy();              // suelta los listeners
    página 7 con otro orden mostraría un trozo del medio de una lista que nadie vio.</p>
 
 <div class="demo">
-  <div class="tuc-table-wrap"><table class="tuc-table" id="table-servidor">
+  <div class="tuc-table-wrap"><table class="tuc-table" id="table-server">
     <thead><tr>
-      <th data-sort="text" data-field="cliente">Cliente</th>
-      <th data-sort="date" data-field="vencimento">Vencimiento</th>
-      <th data-sort="number" data-field="valor" class="is-number">Importe</th>
+      <th data-sort="text" data-field="customer">Cliente</th>
+      <th data-sort="date" data-field="due_date">Vencimiento</th>
+      <th data-sort="number" data-field="amount" class="is-number">Importe</th>
     </tr></thead>
     <tbody>
       <tr><td>Estudio Aurora</td><td data-sort-value="2026-10-05">05/10/2026</td><td class="is-number" data-sort-value="2300">R$ 2.300,00</td></tr>
@@ -240,7 +240,7 @@ t.destroy();              // suelta los listeners
       <tr><td>Clínica Bienestar</td><td data-sort-value="2026-12-01">01/12/2026</td><td class="is-number" data-sort-value="9150">R$ 9.150,00</td></tr>
     </tbody>
   </table></div>
-  <div class="out" id="table-servidor-out"></div>
+  <div class="out" id="table-server-out"></div>
   <p class="tuc-hint">Aquí los encabezados son los enlaces del modo servidor — pasa el puntero para ver el <code>href</code>. Un <code>onSort</code> cancela la navegación y simula la respuesta; en tu proyecto el clic carga la página ordenada.</p>
 </div>
 
@@ -252,16 +252,16 @@ t.destroy();              // suelta los listeners
 <pre data-code="python">
 from django.core.paginator import Paginator
 
-ORDENS = {"cliente": "nome", "status": "status", "valor": "valor"}
+ORDERS = {"customer": "name", "status": "status", "amount": "amount"}
 
-def contratos(request):
-    campo = ORDENS.get(request.GET.get("sort"), "nome")
+def contracts(request):
+    field = ORDERS.get(request.GET.get("sort"), "name")
     if request.GET.get("dir") == "desc":
-        campo = f"-{campo}"
+        field = f"-{field}"
     # "pk" desempata: sin un orden total, la misma fila puede aparecer en dos páginas.
-    qs = Contrato.objects.order_by(campo, "pk")
+    qs = Contract.objects.order_by(field, "pk")
     page_obj = Paginator(qs, 20).get_page(request.GET.get("page"))
-    return render(request, "contratos/lista.html", {"page_obj": page_obj})
+    return render(request, "contracts/list.html", {"page_obj": page_obj})
 </pre>
 
 <pre data-code="django">
@@ -311,9 +311,9 @@ def contratos(request):
 <p>Para decidir la navegación por tu cuenta, pasa <code>onSort</code>: con él definido, el clic se cancela y quien lo
    escribió toma el control. El evento <code>tuc:sort</code> se dispara igualmente, antes de la navegación.</p>
 <pre data-code="js">
-new Tucano.Table('#contratos', {
+new Tucano.Table('#contracts', {
   onSort: ({ column, field, direction }, table) => {
-    htmx.ajax('GET', `?sort=${field}&dir=${direction}`, '#lista');
+    htmx.ajax('GET', `?sort=${field}&dir=${direction}`, '#list');
   },
 });
 </pre>
@@ -328,13 +328,13 @@ new Tucano.Table('#contratos', {
   </tbody>
 </table></div>
 
-<h2 id="selecao">Selección múltiple</h2>
+<h2 id="selection">Selección múltiple</h2>
 <p class="lead">La selección sigue siendo un formulario. Con <code>data-selectable</code>, cada fila recibe un
    <code>&lt;input type="checkbox" name="selected"&gt;</code> de verdad con su <code>data-id</code> como valor —
    en Django llega como <code>request.POST.getlist("selected")</code>, sin JavaScript de por medio.</p>
 
 <pre data-code="django">
-<form method="post" action="{% url 'contratos-aprovar' %}">
+<form method="post" action="{% url 'contracts-approve' %}">
   {% csrf_token %}
   <table data-tuc-table data-selectable>...</table>
   <button class="tuc-btn is-primary">Aprobar seleccionados</button>
@@ -345,10 +345,10 @@ new Tucano.Table('#contratos', {
 from django.views.decorators.http import require_POST
 
 @require_POST
-def aprovar(request):
+def approve(request):
     ids = request.POST.getlist("selected")
-    Contrato.objects.filter(pk__in=ids).update(status="aprovado")
-    return redirect("contratos")
+    Contract.objects.filter(pk__in=ids).update(status="approved")
+    return redirect("contracts")
 </pre>
 
 <div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Un botón de acción dentro del formulario lleva type="button"</p><p>Un <code>&lt;button&gt;</code> sin tipo dentro de un <code>&lt;form&gt;</code> envía el formulario. En la columna de acciones, escribe <code>type="button"</code> o usa <code>&lt;a&gt;</code>; si no, "Editar" se convierte en "Aprobar seleccionados".</p></div></div>
@@ -357,7 +357,7 @@ def aprovar(request):
    Cada cambio dispara <code>tuc:select</code> en la tabla, con los valores marcados — los mismos que el formulario
    enviaría.</p>
 <pre data-code="js">
-document.querySelector('#contratos').addEventListener('tuc:select', (e) => {
+document.querySelector('#contracts').addEventListener('tuc:select', (e) => {
   e.detail.selected;   // ['1', '3']
   e.detail.row;        // la <tr> que cambió
 });
@@ -372,7 +372,7 @@ document.querySelector('#contratos').addEventListener('tuc:select', (e) => {
   </tbody>
 </table></div>
 
-<h2 id="celula">La celda es libre</h2>
+<h2 id="cell">La celda es libre</h2>
 <p class="lead">Dentro del <code>&lt;td&gt;</code> cabe lo que quieras. Lo que ofrece la biblioteca son las disposiciones que
    aparecen en todo listado, para que nadie tenga que reinventar la alineación de un avatar junto a un nombre.</p>
 
@@ -394,7 +394,7 @@ document.querySelector('#contratos').addEventListener('tuc:select', (e) => {
 
 <div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Si es clicable, tiene aspecto de botón</p><p>La columna de acciones usa los botones del sistema con contorno, y no iconos sueltos: sin borde y sin fondo, un icono se lee como decoración desactivada. El desplazamiento horizontal queda en el <code>.tuc-table-wrap</code>, que el script crea si no existe — una <code>&lt;table&gt;</code> con <code>overflow</code> pierde el comportamiento de tabla.</p></div></div>
 
-<h2 id="teclado">Teclado y accesibilidad</h2>
+<h2 id="keyboard">Teclado y accesibilidad</h2>
 <p class="lead">Todo lo que la tabla añade es elemento nativo: enlace, botón y casilla. Por eso cada uno ya
    está en el recorrido del <code>Tab</code> y responde a las teclas de siempre.</p>
 
@@ -417,14 +417,14 @@ document.querySelector('#contratos').addEventListener('tuc:select', (e) => {
 
 <script>
   // Botones de acción: un toast en lugar de navegar, porque aquí no hay adónde ir.
-  const MAIS_ITENS = [
+  const MORE_ITEMS = [
     { text: 'Duplicar', onClick: () => Tucano.toast.info('Contrato duplicado') },
     { text: 'Descargar PDF', onClick: () => Tucano.toast.info('PDF generado') },
     { separator: true },
     { text: 'Eliminar', variant: 'danger', onClick: () => Tucano.toast.error('Contrato eliminado') },
   ];
   document.querySelectorAll('[data-table-more]').forEach((b) =>
-    new Tucano.Dropdown(b, { placement: 'bottom-end', items: MAIS_ITENS }));
+    new Tucano.Dropdown(b, { placement: 'bottom-end', items: MORE_ITEMS }));
   document.addEventListener('click', (e) => {
     if (e.target.closest('[data-table-edit]')) Tucano.toast.info('Abriría la edición del contrato');
   });
@@ -432,32 +432,32 @@ document.querySelector('#contratos').addEventListener('tuc:select', (e) => {
 
   // Selección: muestra lo que enviaría el POST y habilita la acción en bloque. La instancia
   // solo existe después del DOMContentLoaded, así que se lee dentro de los eventos.
-  const tabela = document.getElementById('table-contratos');
-  const aprovar = document.getElementById('table-aprovar');
-  const saida = document.getElementById('table-saida');
-  const mostrar = (ids) => {
-    aprovar.disabled = ids.length === 0;
-    saida.textContent = ids.length
+  const table = document.getElementById('table-contracts');
+  const approve = document.getElementById('table-approve');
+  const output = document.getElementById('table-output');
+  const show = (ids) => {
+    approve.disabled = ids.length === 0;
+    output.textContent = ids.length
       ? `${ids.length} marcada${ids.length > 1 ? 's' : ''} — el POST enviaría selected=${ids.join('&selected=')}`
       : 'Ninguna fila marcada.';
   };
-  tabela.addEventListener('tuc:select', (e) => mostrar(e.detail.selected));
-  aprovar.addEventListener('click', () => {
-    const t = tabela._tucano;
+  table.addEventListener('tuc:select', (e) => show(e.detail.selected));
+  approve.addEventListener('click', () => {
+    const t = table._tucano;
     Tucano.toast.success(`${t.getSelected().length} contrato(s) aprobado(s)`);
     t.clearSelection();
-    mostrar([]);
+    show([]);
   });
 
   // Modo servidor: el <a> del encabezado es real. El onSort cancela la navegación y
   // hace el papel del servidor, que devolvería la página ya ordenada y la flecha marcada.
-  const saidaServidor = document.getElementById('table-servidor-out');
-  new Tucano.Table('#table-servidor', {
+  const serverOutput = document.getElementById('table-server-out');
+  new Tucano.Table('#table-server', {
     onSort: ({ column, field, direction }, t) => {
       for (const s of t.sortable) s.th.setAttribute('aria-sort', 'none');
       t.sortable.find((s) => s.index === column).th.setAttribute('aria-sort', direction === 'asc' ? 'ascending' : 'descending');
       t.sort(column, direction, t.sortable.find((s) => s.index === column).type);
-      saidaServidor.textContent = `GET ?sort=${field}&dir=${direction} → el servidor responde con la página 1 en este orden`;
+      serverOutput.textContent = `GET ?sort=${field}&dir=${direction} → el servidor responde con la página 1 en este orden`;
     },
   });
 </script>

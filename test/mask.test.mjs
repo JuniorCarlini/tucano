@@ -43,9 +43,9 @@ test('capacity conta quantos caracteres o gabarito aceita', () => {
 });
 
 test('pickTemplate escolhe pelo tamanho — e essa e a base do CPF/CNPJ', () => {
-  const dois = ['###.###.###-##', '**.***.***/****-##'];
-  assert.equal(pickTemplate('12345678901', dois), dois[0]);
-  assert.equal(pickTemplate('12345678000199', dois), dois[1]);
+  const two = ['###.###.###-##', '**.***.***/****-##'];
+  assert.equal(pickTemplate('12345678901', two), two[0]);
+  assert.equal(pickTemplate('12345678000199', two), two[1]);
 });
 
 test('placeholderFromTemplate: com dois gabaritos vale o primeiro', () => {

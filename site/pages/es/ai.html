@@ -69,7 +69,7 @@ El elemento nativo sigue siendo el dueño del valor: name, required y el getlist
    revertirse sin motivo, cada una con el defecto que la motivó. Para usar Tucano en un proyecto no hace
    falta — el <code>llms.txt</code>, sí.</p>
 
-<h2 id="regras">Lo que la IA no debe hacer</h2>
+<h2 id="rules">Lo que la IA no debe hacer</h2>
 <p class="lead">Son las reglas que cierran el <code>llms.txt</code>. Cada una existe porque es el error que comete un modelo
    cuando deduce en lugar de leer.</p>
 
@@ -93,7 +93,7 @@ El elemento nativo sigue siendo el dueño del valor: name, required y el getlist
     <tr><td>Escribir a mano la validación de CPF o el formato de moneda o de fecha</td><td><code>Tucano.mask</code>, <code>Tucano.dates</code> y <code>Tucano.color</code></td><td>Son los mismos módulos que usan los componentes, expuestos como API: <code>validateCpfCnpj</code>, <code>applyCurrency</code>, <code>format</code>, <code>parseUserInput</code>, <code>isDark</code></td></tr>
     <tr><td>Montar un aviso flotante propio para la respuesta del servidor</td><td>Los <code>messages</code> de Django en <code>&lt;div data-tuc-toast&gt;</code>, o la cabecera <code>HX-Trigger</code> con <code>tucano:toast</code></td><td>El toast ya se encarga de apilar, pausar con el foco y de las regiones que anuncia el lector de pantalla; el evento de HTMX se escucha solo</td></tr>
     <tr><td>Publicar lo que salió del editor directamente con <code>|safe</code></td><td>Sanearlo antes en el servidor</td><td>El filtro del editor protege el editor, no la publicación</td></tr>
-    <tr><td>Esperar que el HTML insertado por <code>fetch</code> o <code>innerHTML</code> se inicialice solo</td><td>Llamar a <code>Tucano.init(nodo)</code> sobre el fragmento nuevo</td><td>Lo automático cubre la carga y cada <code>htmx:afterSwap</code>; otro camino de inserción la biblioteca no lo ve</td></tr>
+    <tr><td>Esperar que el HTML insertado por <code>fetch</code> o <code>innerHTML</code> se inicialice solo</td><td>Llamar a <code>Tucano.init(node)</code> sobre el fragmento nuevo</td><td>Lo automático cubre la carga y cada <code>htmx:afterSwap</code>; otro camino de inserción la biblioteca no lo ve</td></tr>
     <tr><td>Quitar <code>data-tuc-ready</code></td><td>Dejar el atributo</td><td>Es lo que impide que autoInit monte el mismo campo dos veces</td></tr>
   </tbody>
 </table></div>

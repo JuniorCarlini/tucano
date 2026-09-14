@@ -26,8 +26,8 @@ description: Modal sobre o <dialog> nativo, com top layer, foco preso e Esc, ton
       <button type="button" class="tuc-btn is-ghost is-icon is-sm tuc-modal__close" aria-label="Fechar" data-tuc-modal-close><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
     </div>
     <div class="tuc-modal__body">
-      <label class="tuc-label" for="modal-template-nome">Nome</label>
-      <input type="text" class="tuc-input" id="modal-template-nome" value="Marina Duarte">
+      <label class="tuc-label" for="modal-template-name">Nome</label>
+      <input type="text" class="tuc-input" id="modal-template-name" value="Marina Duarte">
     </div>
     <div class="tuc-modal__footer">
       <button type="button" class="tuc-btn is-outline" data-tuc-modal-close>Cancelar</button>
@@ -36,7 +36,7 @@ description: Modal sobre o <dialog> nativo, com top layer, foco preso e Esc, ton
   </div>
 </dialog>
 
-<h2 id="exemplos">Exemplos</h2>
+<h2 id="examples">Exemplos</h2>
 <p class="lead">Todos abaixo são o mesmo <code>Tucano.modal()</code> com opções diferentes.</p>
 
 <div class="demo">
@@ -95,20 +95,20 @@ description: Modal sobre o <dialog> nativo, com top layer, foco preso e Esc, ton
       <h4>Conteúdo livre</h4>
       <p><code>content(nó)</code> põe qualquer elemento no corpo, que rola quando passa da altura.</p>
       <div class="bar">
-        <button class="tuc-btn is-outline is-sm" onclick="modalFormulario()">Com formulário</button>
+        <button class="tuc-btn is-outline is-sm" onclick="modalForm()">Com formulário</button>
       </div>
     </div>
     <div class="demo-cell">
       <h4>Ação que não fecha</h4>
       <p><code>closes: false</code> numa ação mantém o modal aberto depois do clique.</p>
       <div class="bar">
-        <button class="tuc-btn is-outline is-sm" onclick="modalEtapas()">Assistente em etapas</button>
+        <button class="tuc-btn is-outline is-sm" onclick="modalSteps()">Assistente em etapas</button>
       </div>
     </div>
   </div>
 </div>
 
-<h2 id="uso">Como usar</h2>
+<h2 id="usage">Como usar</h2>
 <p class="lead">Há dois caminhos. Pelo JavaScript, o modal é montado na hora, entra no <code>&lt;body&gt;</code> ao abrir e sai
    ao fechar. Pelo template, o <code>&lt;dialog&gt;</code> já está na página e o componente só abre, fecha e anima.</p>
 
@@ -122,7 +122,7 @@ Tucano.modal({
   sheet: true,        // no celular sobe do rodapé
   actions: [
     { text: 'Cancelar', variant: 'outline' },
-    { text: 'Excluir', variant: 'danger', onClick: () => excluir() },
+    { text: 'Excluir', variant: 'danger', onClick: () => deleteContract() },
   ],
   onClose: (reason, modal) => console.log(reason),
 });
@@ -135,7 +135,7 @@ Tucano.modal('Arquivo enviado.');
    use a classe:</p>
 <pre data-code="js">
 const m = new Tucano.Modal({ title: 'Novo contato', size: 'lg' });
-m.content(formulario);   // qualquer nó, ou um array de nós
+m.content(form);         // qualquer nó, ou um array de nós
 m.open();
 m.close();               // anima a saída e chama onClose(reason)
 </pre>
@@ -145,7 +145,7 @@ m.close();               // anima a saída e chama onClose(reason)
    código continua lendo de cima para baixo:</p>
 <pre data-code="js">
 if (await Tucano.confirm({ title: 'Excluir contrato?', text: 'Esta ação não pode ser desfeita.', confirm: 'Excluir' })) {
-  excluir();
+  deleteContract();
 }
 </pre>
 
@@ -180,12 +180,12 @@ if (await Tucano.confirm({ title: 'Excluir contrato?', text: 'Esta ação não p
    <code>htmx:afterSwap</code>; abrir não o insere e fechar não o remove, porque o nó é de quem escreveu o HTML.</p>
 
 <pre data-code="django">
-<dialog class="tuc-modal is-md" id="excluir" aria-labelledby="excluir-titulo">
-  <form class="tuc-modal__panel" method="post" action="{% url 'contrato-excluir' contrato.pk %}">
+<dialog class="tuc-modal is-md" id="delete" aria-labelledby="delete-title">
+  <form class="tuc-modal__panel" method="post" action="{% url 'contract-delete' contract.pk %}">
     {% csrf_token %}
     <div class="tuc-modal__top">
       <div class="tuc-modal__header">
-        <h2 class="tuc-modal__title" id="excluir-titulo">Excluir contrato?</h2>
+        <h2 class="tuc-modal__title" id="delete-title">Excluir contrato?</h2>
         <p class="tuc-modal__text">Esta ação não pode ser desfeita.</p>
       </div>
       <button type="button" class="tuc-btn is-ghost is-icon is-sm tuc-modal__close" aria-label="Fechar" data-tuc-modal-close>…</button>
@@ -197,7 +197,7 @@ if (await Tucano.confirm({ title: 'Excluir contrato?', text: 'Esta ação não p
   </form>
 </dialog>
 
-<button class="tuc-btn is-outline" data-tuc-modal="#excluir">Excluir</button>
+<button class="tuc-btn is-outline" data-tuc-modal="#delete">Excluir</button>
 </pre>
 
 <div class="tuc-table-wrap"><table class="tuc-table">
@@ -220,7 +220,7 @@ if (await Tucano.confirm({ title: 'Excluir contrato?', text: 'Esta ação não p
 <h3>Confirmar antes de enviar um formulário</h3>
 <p>Para um formulário de exclusão que já existe na página, o <code>confirm()</code> intercepta o envio e deixa passar só com o sim:</p>
 <pre data-code="js">
-document.querySelector('#excluir-contrato').addEventListener('submit', async (e) => {
+document.querySelector('#delete-contract').addEventListener('submit', async (e) => {
   e.preventDefault();
   const ok = await Tucano.confirm({ title: 'Excluir contrato?', confirm: 'Excluir' });
   if (ok) e.target.submit();
@@ -229,7 +229,7 @@ document.querySelector('#excluir-contrato').addEventListener('submit', async (e)
 
 <div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">O &lt;dialog&gt; fechado precisa voltar a display: none — e a biblioteca já faz isso</p><p>A regra do modal declara <code>display: grid</code>, que vence a folha do navegador. Sem <code>.tuc-modal:not([open]) { display: none }</code>, um <code>&lt;dialog&gt;</code> parado no template ficaria renderizado, fixo e transparente sobre a página inteira: nada aparece, e nenhum clique funciona. Por isso ele não precisa de <code>hidden</code>.</p></div></div>
 
-<h2 id="tons">Tons e brilho</h2>
+<h2 id="tones">Tons e brilho</h2>
 <p class="lead">O fundo não é só escuro: um brilho radial atrás da caixa separa o diálogo do que ficou embaixo, e o desfoque tira a
    página do foco. O tom troca a cor desse brilho e da aura em volta da caixa — não a cor dos botões, que continua sendo
    escolha de cada ação.</p>
@@ -244,7 +244,7 @@ document.querySelector('#excluir-contrato').addEventListener('submit', async (e)
   </tbody>
 </table></div>
 
-<h2 id="tamanhos">Tamanhos</h2>
+<h2 id="sizes">Tamanhos</h2>
 <p class="lead">A caixa ocupa a largura disponível até o limite do tamanho, e o corpo rola quando o conteúdo passa da altura da tela.</p>
 
 <div class="tuc-table-wrap"><table class="tuc-table">
@@ -261,7 +261,7 @@ document.querySelector('#excluir-contrato').addEventListener('submit', async (e)
    perde as bordas de baixo, encosta no rodapé e respeita a área segura do iPhone. É opcional porque nem todo modal quer
    virar gaveta no celular.</p>
 
-<h2 id="teclado">Teclado e acessibilidade</h2>
+<h2 id="keyboard">Teclado e acessibilidade</h2>
 <p class="lead">O <code>showModal()</code> põe o diálogo na <i>top layer</i> e deixa o resto da página inerte: o foco não escapa
    para trás dele, e ao fechar volta para quem abriu. Nada disso é JavaScript nosso — é o elemento nativo.</p>
 
@@ -298,10 +298,10 @@ document.querySelector('#excluir-contrato').addEventListener('submit', async (e)
 
 <script>
   // Conteúdo livre: o corpo recebe um nó montado aqui.
-  function modalFormulario() {
-    const corpo = document.createElement('div');
-    corpo.innerHTML = '<label class="tuc-label" for="modal-form-nome">Nome</label>'
-      + '<input type="text" class="tuc-input" id="modal-form-nome" placeholder="Nome completo">'
+  function modalForm() {
+    const body = document.createElement('div');
+    body.innerHTML = '<label class="tuc-label" for="modal-form-name">Nome</label>'
+      + '<input type="text" class="tuc-input" id="modal-form-name" placeholder="Nome completo">'
       + '<label class="tuc-label" for="modal-form-email" style="margin-top:12px">E-mail</label>'
       + '<input type="email" class="tuc-input" id="modal-form-email" placeholder="nome@empresa.com.br">';
     new Tucano.Modal({
@@ -311,16 +311,16 @@ document.querySelector('#excluir-contrato').addEventListener('submit', async (e)
         { text: 'Cancelar' },
         { text: 'Salvar', variant: 'primary', onClick: () => Tucano.toast.success('Contato salvo') },
       ],
-    }).content(corpo).open();
+    }).content(body).open();
   }
 
   // closes: false mantém o modal aberto; o corpo é trocado a cada etapa.
-  function modalEtapas() {
-    const etapas = ['Escolha o plano.', 'Informe os dados de cobrança.', 'Revise e confirme.'];
-    let atual = 0;
-    const texto = () => {
+  function modalSteps() {
+    const steps = ['Escolha o plano.', 'Informe os dados de cobrança.', 'Revise e confirme.'];
+    let current = 0;
+    const stepText = () => {
       const p = document.createElement('p');
-      p.textContent = `Etapa ${atual + 1} de ${etapas.length}: ${etapas[atual]}`;
+      p.textContent = `Etapa ${current + 1} de ${steps.length}: ${steps[current]}`;
       return p;
     };
     const m = new Tucano.Modal({
@@ -328,11 +328,11 @@ document.querySelector('#excluir-contrato').addEventListener('submit', async (e)
       actions: [
         { text: 'Cancelar' },
         { text: 'Próxima etapa', variant: 'primary', closes: false, onClick: (modal) => {
-          if (atual < etapas.length - 1) { atual++; modal.content(texto()); }
+          if (current < steps.length - 1) { current++; modal.content(stepText()); }
           else { modal.close('action'); Tucano.toast.success('Assinatura concluída'); }
         } },
       ],
     });
-    m.content(texto()).open();
+    m.content(stepText()).open();
   }
 </script>

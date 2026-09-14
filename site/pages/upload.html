@@ -11,20 +11,20 @@ description: Upload com arrastar e soltar, miniatura, limite de tipo, tamanho e 
 <div class="demo is-hero">
   <div class="demo-grid">
     <div class="demo-cell">
-      <label class="tuc-label" for="up-anexos">No formulário — vai no submit</label>
-      <input type="file" id="up-anexos" name="anexos" multiple data-tuc-upload data-max-size="5mb">
-      <div class="out" id="up-anexos-out"></div>
+      <label class="tuc-label" for="up-attachments">No formulário — vai no submit</label>
+      <input type="file" id="up-attachments" name="attachments" multiple data-tuc-upload data-max-size="5mb">
+      <div class="out" id="up-attachments-out"></div>
     </div>
     <div class="demo-cell">
-      <label class="tuc-label" for="up-fotos">Direto — barra por arquivo</label>
-      <input type="file" id="up-fotos" name="fotos" multiple accept="image/*" data-tuc-upload data-url="demo:upload" data-max-size="5mb">
-      <div class="out" id="up-fotos-post"></div>
+      <label class="tuc-label" for="up-photos">Direto — barra por arquivo</label>
+      <input type="file" id="up-photos" name="photos" multiple accept="image/*" data-tuc-upload data-url="demo:upload" data-max-size="5mb">
+      <div class="out" id="up-photos-post"></div>
     </div>
   </div>
   <p class="tuc-hint">Nesta página o envio direto é simulado no navegador; no seu projeto ele vai para o <code>data-url</code>.</p>
 </div>
 
-<h2 id="exemplos">Exemplos</h2>
+<h2 id="examples">Exemplos</h2>
 <p class="lead">Tudo abaixo é o mesmo <code>&lt;input type="file"&gt;</code> com atributos diferentes.</p>
 
 <div class="demo">
@@ -32,47 +32,47 @@ description: Upload com arrastar e soltar, miniatura, limite de tipo, tamanho e 
     <div class="demo-cell">
       <h4>Só imagem, no máximo 2</h4>
       <p><code>accept</code>, <code>data-max-files</code> e <code>data-max-size</code>. A dica embaixo da zona sai desses três.</p>
-      <input type="file" id="up-capa" name="capa" accept="image/png,image/jpeg" multiple data-tuc-upload data-max-files="2" data-max-size="2mb" aria-label="Capa">
-      <div class="out" id="up-capa-out"></div>
+      <input type="file" id="up-cover" name="cover" accept="image/png,image/jpeg" multiple data-tuc-upload data-max-files="2" data-max-size="2mb" aria-label="Capa">
+      <div class="out" id="up-cover-out"></div>
     </div>
     <div class="demo-cell">
       <h4>Um arquivo só</h4>
       <p>Sem <code>multiple</code>, escolher outro troca o anterior em vez de somar.</p>
-      <input type="file" id="up-contrato" name="contrato" accept=".pdf" data-tuc-upload aria-label="Contrato">
-      <div class="out" id="up-contrato-out"></div>
+      <input type="file" id="up-contract" name="contract" accept=".pdf" data-tuc-upload aria-label="Contrato">
+      <div class="out" id="up-contract-out"></div>
     </div>
     <div class="demo-cell">
       <h4>Servidor que falha</h4>
       <p>Resposta fora de 2xx vira erro no item, com "Tentar de novo" e "Remover".</p>
-      <input type="file" id="up-falha" name="falha" multiple data-tuc-upload data-url="demo:erro" aria-label="Arquivos">
+      <input type="file" id="up-failure" name="failure" multiple data-tuc-upload data-url="demo:error" aria-label="Arquivos">
     </div>
     <div class="demo-cell">
       <h4>Enviar quando pedir</h4>
       <p><code>autoUpload: false</code> segura os arquivos até <code>uploadAll()</code>.</p>
-      <input type="file" id="up-manual" name="lote" multiple aria-label="Lote">
+      <input type="file" id="up-manual" name="batch" multiple aria-label="Lote">
       <div class="bar" style="margin-top:10px">
-        <button type="button" class="tuc-btn is-outline is-sm" id="up-manual-enviar">Enviar agora</button>
+        <button type="button" class="tuc-btn is-outline is-sm" id="up-manual-send">Enviar agora</button>
       </div>
     </div>
     <div class="demo-cell">
       <h4>Com erro</h4>
       <p><code>aria-invalid="true"</code> no input nativo pinta a zona — o Django 5 já escreve o atributo.</p>
-      <input type="file" id="up-erro" name="comprovante" data-tuc-upload aria-invalid="true" aria-describedby="up-erro-msg" aria-label="Comprovante">
-      <p class="tuc-error" id="up-erro-msg">Envie o comprovante.</p>
+      <input type="file" id="up-error" name="receipt" data-tuc-upload aria-invalid="true" aria-describedby="up-error-msg" aria-label="Comprovante">
+      <p class="tuc-error" id="up-error-msg">Envie o comprovante.</p>
     </div>
   </div>
 </div>
 
-<h2 id="uso">Como usar</h2>
+<h2 id="usage">Como usar</h2>
 <p class="lead">Marque o <code>&lt;input type="file"&gt;</code> e ele inicializa sozinho, inclusive o que chegar depois por
    HTMX. O que decide o modo é a presença de <code>data-url</code>.</p>
 
 <pre data-code="django">
 <!-- No formulário: nada muda na sua view -->
-<input type="file" name="anexos" multiple data-tuc-upload data-max-size="5mb">
+<input type="file" name="attachments" multiple data-tuc-upload data-max-size="5mb">
 
 <!-- Direto: sobe na hora, o formulário posta os ids -->
-<input type="file" name="fotos" multiple accept="image/*"
+<input type="file" name="photos" multiple accept="image/*"
        data-tuc-upload data-url="{% url 'upload-temp' %}">
 </pre>
 
@@ -83,19 +83,19 @@ description: Upload com arrastar e soltar, miniatura, limite de tipo, tamanho e 
 class MultipleFileInput(forms.FileInput):
     allow_multiple_selected = True
 
-class ChamadoForm(forms.Form):
-    contrato = forms.FileField(
+class TicketForm(forms.Form):
+    contract = forms.FileField(
         widget=forms.FileInput(attrs={"data-tuc-upload": "", "accept": ".pdf", "data-max-size": "10mb"}),
     )
-    anexos = forms.FileField(
+    attachments = forms.FileField(
         required=False,
         widget=MultipleFileInput(attrs={"data-tuc-upload": "", "multiple": True, "data-max-files": "5"}),
     )
 
-def abrir_chamado(request):
-    form = ChamadoForm(request.POST, request.FILES)
+def open_ticket(request):
+    form = TicketForm(request.POST, request.FILES)
     if form.is_valid():
-        for arquivo in request.FILES.getlist("anexos"):
+        for uploaded in request.FILES.getlist("attachments"):
             ...
 </pre>
 <pre data-code="django">
@@ -109,12 +109,12 @@ def abrir_chamado(request):
 <h3>Em JavaScript</h3>
 <p>Para opções que não existem como atributo — campos extras, cabeçalhos, textos, <code>onError</code> — ou para ler a lista.</p>
 <pre data-code="js">
-const up = new Tucano.Upload('#fotos', {
+const up = new Tucano.Upload('#photos', {
   url: '/upload/temp/',
   maxSize: '5mb',
   maxFiles: 10,
-  extraData: { pasta: 'obras' },        // vai junto no FormData de cada arquivo
-  onError: (erro, arquivo) => console.warn(arquivo.name, erro.message),
+  extraData: { folder: 'obras' },        // vai junto no FormData de cada arquivo
+  onError: (error, file) => console.warn(file.name, error.message),
 });
 
 up.getValue();    // ids devolvidos pelo servidor; File[] no modo formulário
@@ -124,7 +124,7 @@ up.clear();
 up.destroy();
 </pre>
 
-<h2 id="modos">Os dois modos</h2>
+<h2 id="modes">Os dois modos</h2>
 <p class="lead">A diferença não é só técnica: muda onde o upload vive, e o que o servidor precisa ter.</p>
 
 <div class="tuc-table-wrap"><table class="tuc-table">
@@ -144,18 +144,18 @@ up.destroy();
 
 <div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Arrastado também vai no submit</p><p>No modo formulário, o que foi solto na zona é escrito de volta no <code>input.files</code> nativo — a única forma de fazer isso é por <code>DataTransfer</code>. Assim o arquivo arrastado chega em <code>request.FILES</code> igual ao escolhido pela janela.</p></div></div>
 
-<h2 id="direto">Upload direto</h2>
+<h2 id="direct">Upload direto</h2>
 <p class="lead">Cada arquivo vai num POST próprio para o <code>data-url</code>, e o endpoint devolve JSON com um id. O
    componente guarda esse id e, no lugar do arquivo, o formulário posta os ids.</p>
 
 <pre data-code="python">
 @require_POST
 def upload_temp(request):
-    arquivo = request.FILES["file"]          # data-field-name muda o "file"
-    temp = TempUpload.objects.create(arquivo=arquivo)
-    return JsonResponse({"id": str(temp.id), "url": temp.arquivo.url})
+    uploaded = request.FILES["file"]         # data-field-name muda o "file"
+    temp = TempUpload.objects.create(file=uploaded)
+    return JsonResponse({"id": str(temp.id), "url": temp.file.url})
 
-def excluir_temp(request, pk):               # data-delete-url="/upload/temp/"
+def delete_temp(request, pk):                # data-delete-url="/upload/temp/"
     if request.method == "DELETE":
         TempUpload.objects.filter(pk=pk).delete()
     return HttpResponse(status=204)
@@ -164,7 +164,7 @@ def excluir_temp(request, pk):               # data-delete-url="/upload/temp/"
 <pre data-code="python">
 urlpatterns = [
     path("upload/temp/", upload_temp, name="upload-temp"),
-    path("upload/temp/<uuid:pk>/", excluir_temp),
+    path("upload/temp/<uuid:pk>/", delete_temp),
 ]
 </pre>
 
@@ -189,7 +189,7 @@ urlpatterns = [
    de forma confiável entre navegadores. Cancelar aborta a requisição e tira o item da lista; resposta fora de
    2xx ou falha de rede deixam o item em erro, com a mensagem no lugar do tamanho.</p>
 
-<h2 id="validacao">Tipo, tamanho e quantidade</h2>
+<h2 id="validation">Tipo, tamanho e quantidade</h2>
 <p class="lead"><code>accept</code> e <code>multiple</code> são os atributos nativos do input, e o componente respeita os
    dois. O <code>accept</code> filtra a janela do sistema <em>e</em> é conferido de novo ao arrastar, onde o sistema não filtra.</p>
 
@@ -221,19 +221,19 @@ urlpatterns = [
 
 <p>A dica embaixo da zona é montada desses três — <code>image/png, image/jpeg · até 2 MB · no máximo 2 arquivos</code> —,
    então não precisa ser escrita de novo. Arquivo recusado não entra na lista: aparece um aviso com o nome e o
-   motivo, que some em 5 segundos, e <code>onError(erro, arquivo)</code> é chamado. Imagem aceita ganha miniatura.</p>
+   motivo, que some em 5 segundos, e <code>onError(error, file)</code> é chamado. Imagem aceita ganha miniatura.</p>
 
-<h2 id="valor">Valor e formulário</h2>
+<h2 id="value">Valor e formulário</h2>
 <p class="lead">O que chega no servidor é o que chegaria sem o componente, em cada modo.</p>
 
 <pre data-code="text">
 # No formulário: os arquivos, no mesmo POST do resto
-FILES  anexos = relatorio.pdf      # request.FILES.getlist("anexos")
-FILES  anexos = planta.png
+FILES  attachments = relatorio.pdf   # request.FILES.getlist("attachments")
+FILES  attachments = planta.png
 
 # Direto: o endpoint recebeu um POST por arquivo, e o formulário posta os ids
-POST   fotos  = 3f2a9c...          # request.POST.getlist("fotos")
-POST   fotos  = 8b41e0...
+POST   photos      = 3f2a9c...       # request.POST.getlist("photos")
+POST   photos      = 8b41e0...
 </pre>
 
 <p>No modo direto o <code>name</code> sai do input de arquivo e vai para um <code>&lt;input type="hidden"&gt;</code> por
@@ -242,14 +242,14 @@ POST   fotos  = 8b41e0...
 <p>Cada mudança na lista dispara <code>tucano:change</code> no próprio input, e o <code>onChange</code> recebe os mesmos dados.</p>
 
 <pre data-code="js">
-document.querySelector('#fotos').addEventListener('tucano:change', (e) => {
+document.querySelector('#photos').addEventListener('tucano:change', (e) => {
   e.detail.value;      // ids prontos no modo direto; File[] no formulário
   e.detail.files;      // cada um com status: 'pending' | 'uploading' | 'ready' | 'error'
   e.detail.instance;   // o Upload
 });
 </pre>
 
-<h2 id="teclado">Teclado e acessibilidade</h2>
+<h2 id="keyboard">Teclado e acessibilidade</h2>
 <p class="lead">A zona é um <code>role="button"</code> focável, descrito pela dica de tipo e tamanho. O input nativo sai da
    vista, mas não do formulário.</p>
 
@@ -279,25 +279,25 @@ document.querySelector('#fotos').addEventListener('tucano:change', (e) => {
   const XHR = window.XMLHttpRequest;
   let seq = 0;
   window.XMLHttpRequest = class extends XHR {
-    open(method, url, ...resto) {
+    open(method, url, ...rest) {
       this._demo = String(url).startsWith('demo:') ? String(url).slice(5) : null;
-      if (!this._demo) return super.open(method, url, ...resto);
+      if (!this._demo) return super.open(method, url, ...rest);
     }
     setRequestHeader(k, v) { if (!this._demo) super.setRequestHeader(k, v); }
-    send(corpo) {
-      if (!this._demo) return super.send(corpo);
-      const arquivo = [...corpo.values()].find((v) => v instanceof File);
-      const total = arquivo?.size || 1;
-      const falha = this._demo === 'erro';
-      let enviado = 0;
+    send(body) {
+      if (!this._demo) return super.send(body);
+      const file = [...body.values()].find((v) => v instanceof File);
+      const total = file?.size || 1;
+      const failed = this._demo === 'error';
+      let sent = 0;
       this._timer = setInterval(() => {
-        enviado = Math.min(total, enviado + total / 14);
-        this.upload.dispatchEvent(new ProgressEvent('progress', { lengthComputable: true, loaded: enviado, total }));
-        if (enviado < total * (falha ? 0.6 : 1)) return;
+        sent = Math.min(total, sent + total / 14);
+        this.upload.dispatchEvent(new ProgressEvent('progress', { lengthComputable: true, loaded: sent, total }));
+        if (sent < total * (failed ? 0.6 : 1)) return;
         clearInterval(this._timer);
         seq++;
-        Object.defineProperty(this, 'status', { value: falha ? 500 : 200 });
-        Object.defineProperty(this, 'response', { value: falha ? null : { id: `tmp-${seq}`, url: `/media/tmp/${arquivo.name}` } });
+        Object.defineProperty(this, 'status', { value: failed ? 500 : 200 });
+        Object.defineProperty(this, 'response', { value: failed ? null : { id: `tmp-${seq}`, url: `/media/tmp/${file.name}` } });
         this.dispatchEvent(new ProgressEvent('load'));
       }, 140);
     }
@@ -309,11 +309,11 @@ document.querySelector('#fotos').addEventListener('tucano:change', (e) => {
   };
 
   // O que o formulario postaria no modo direto: os hidden com os ids.
-  document.getElementById('up-fotos').addEventListener('tucano:change', (e) => {
-    document.getElementById('up-fotos-post').textContent =
-      e.detail.value.map((id) => `POST fotos = ${id}`).join(' · ');
+  document.getElementById('up-photos').addEventListener('tucano:change', (e) => {
+    document.getElementById('up-photos-post').textContent =
+      e.detail.value.map((id) => `POST photos = ${id}`).join(' · ');
   });
 
-  const lote = new Tucano.Upload('#up-manual', { url: 'demo:upload', autoUpload: false });
-  document.getElementById('up-manual-enviar').addEventListener('click', () => lote.uploadAll());
+  const batch = new Tucano.Upload('#up-manual', { url: 'demo:upload', autoUpload: false });
+  document.getElementById('up-manual-send').addEventListener('click', () => batch.uploadAll());
 </script>

@@ -17,7 +17,7 @@ description: Short hint anchored to an element, shown on pointer, keyboard focus
   </div>
 </div>
 
-<h2 id="exemplos">Examples</h2>
+<h2 id="examples">Examples</h2>
 <p class="lead">Side and alignment are the same as shadcn's, and so is the default: <code>top-center</code>.</p>
 
 <div class="demo">
@@ -54,7 +54,7 @@ description: Short hint anchored to an element, shown on pointer, keyboard focus
   </div>
 </div>
 
-<h2 id="uso">How to use</h2>
+<h2 id="usage">How to use</h2>
 <p class="lead">The text goes in the attribute itself, and it initializes on its own, including whatever arrives later through HTMX.</p>
 
 <pre data-code="html">
@@ -80,8 +80,8 @@ description: Short hint anchored to an element, shown on pointer, keyboard focus
 
 <h3>In a Django template</h3>
 <pre data-code="django">
-<span class="tuc-badge is-warning" data-tuc-tip="Due on {{ contrato.vencimento|date:'d/m/Y' }}">
-  {{ contrato.get_status_display }}
+<span class="tuc-badge is-warning" data-tuc-tip="Due on {{ contract.due_date|date:'d/m/Y' }}">
+  {{ contract.get_status_display }}
 </span>
 </pre>
 
@@ -90,7 +90,7 @@ description: Short hint anchored to an element, shown on pointer, keyboard focus
 
 <h3>In JavaScript</h3>
 <pre data-code="js">
-new Tucano.Tooltip('#exportar', {
+new Tucano.Tooltip('#export', {
   text: 'Generates the PDF',
   placement: 'right-center',
   delay: 350,         // on hover: avoids flicker when the mouse just brushes past
@@ -100,16 +100,16 @@ new Tucano.Tooltip('#exportar', {
 });
 </pre>
 
-<h2 id="cor">Color</h2>
+<h2 id="color">Color</h2>
 <p class="lead">Two variables, and the arrow reads the same ones: changing the bubble's color doesn't detach the tip. Set them for all tooltips, on
    <code>.tuc-tip</code>, or for a single case, with <code>data-tip-class</code>.</p>
 
 <div class="demo">
   <div class="bar">
     <button type="button" class="tuc-btn is-outline is-sm" data-tuc-tip="Default: the inverse of the theme">Default</button>
-    <button type="button" class="tuc-btn is-outline is-sm" id="tooltip-cor-destaque">Accent</button>
-    <button type="button" class="tuc-btn is-outline is-sm" id="tooltip-cor-perigo">Danger</button>
-    <button type="button" class="tuc-btn is-outline is-sm" id="tooltip-cor-claro">Light</button>
+    <button type="button" class="tuc-btn is-outline is-sm" id="tooltip-color-accent">Accent</button>
+    <button type="button" class="tuc-btn is-outline is-sm" id="tooltip-color-danger">Danger</button>
+    <button type="button" class="tuc-btn is-outline is-sm" id="tooltip-color-light">Light</button>
   </div>
 </div>
 
@@ -123,7 +123,7 @@ new Tucano.Tooltip('#exportar', {
 <button data-tuc-tip="Only administrators can delete" data-tip-class="tip-danger">Delete</button>
 </pre>
 
-<h2 id="comportamento">When it shows and when it hides</h2>
+<h2 id="behavior">When it shows and when it hides</h2>
 <p class="lead">Only one hint stays open at a time: opening another closes the previous one.</p>
 
 <div class="tuc-table-wrap"><table class="tuc-table">
@@ -139,7 +139,7 @@ new Tucano.Tooltip('#exportar', {
   </tbody>
 </table></div>
 
-<h2 id="acessibilidade">Accessibility</h2>
+<h2 id="accessibility">Accessibility</h2>
 <p class="lead">The bubble is a <code>role="tooltip"</code>, and the element points to it with <code>aria-describedby</code>: the
    screen reader reads the hint along with the button, as its description, and not as a stray element on the page.</p>
 
@@ -157,16 +157,16 @@ new Tucano.Tooltip('#exportar', {
     // The documentation page has no component-specific CSS of its own, so here the
     // two variables go straight on the bubble. In your project, use the class with
     // data-tip-class, as in the block above.
-    const cores = [
-      ['#tooltip-cor-destaque', 'Changed with two variables', 'var(--tuc-accent)', 'var(--tuc-accent-fg)'],
-      ['#tooltip-cor-perigo', 'Only administrators can delete', 'var(--tuc-danger-fill)', '#fff'],
-      ['#tooltip-cor-claro', 'Light background with shadow', 'var(--tuc-bg)', 'var(--tuc-fg)'],
+    const colors = [
+      ['#tooltip-color-accent', 'Changed with two variables', 'var(--tuc-accent)', 'var(--tuc-accent-fg)'],
+      ['#tooltip-color-danger', 'Only administrators can delete', 'var(--tuc-danger-fill)', '#fff'],
+      ['#tooltip-color-light', 'Light background with shadow', 'var(--tuc-bg)', 'var(--tuc-fg)'],
     ];
-    for (const [alvo, text, fundo, texto] of cores) {
-      const dica = new Tucano.Tooltip(alvo, { text });
-      dica.panel.style.setProperty('--tuc-tip-bg', fundo);
-      dica.panel.style.setProperty('--tuc-tip-fg', texto);
-      if (alvo === '#tooltip-cor-claro') dica.panel.style.boxShadow = 'var(--tuc-shadow)';
+    for (const [target, text, background, color] of colors) {
+      const tip = new Tucano.Tooltip(target, { text });
+      tip.panel.style.setProperty('--tuc-tip-bg', background);
+      tip.panel.style.setProperty('--tuc-tip-fg', color);
+      if (target === '#tooltip-color-light') tip.panel.style.boxShadow = 'var(--tuc-shadow)';
     }
   }
 </script>

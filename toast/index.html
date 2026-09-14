@@ -41,7 +41,7 @@
 <link rel="stylesheet" href="../site/site.css?v=0.33.1">
 <!-- O tema e aplicado antes do primeiro quadro: sem isto a pagina piscava clara
      para quem escolheu o escuro. -->
-<script>try{if(localStorage.getItem("tucano-tema")==="dark")document.documentElement.classList.add("dark")}catch{}</script>
+<script>try{if(localStorage.getItem("tucano-theme")==="dark")document.documentElement.classList.add("dark")}catch{}</script>
 </head>
 <body>
 
@@ -49,8 +49,8 @@
   <a class="brand" href="../"><img class="brand__logo logo-light" src="../site/assets/logo-light.svg" width="26" height="24" alt=""><img class="brand__logo logo-dark" src="../site/assets/logo-dark.svg" width="26" height="24" alt=""><b>Tucano</b></a>
   <span class="tuc-badge is-plain ver">v0.33.1</span>
   <div class="topbar__actions">
-    <button class="tuc-btn is-outline is-sm" data-tuc-dropdown="#idiomas-topo" data-placement="bottom-end" aria-label="Idioma: Português"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>PT</button><div class="tuc-dropdown" id="idiomas-topo" hidden><a class="tuc-dropdown__item" href="../toast/" hreflang="pt-BR" lang="pt-BR" aria-current="true"><span class="tuc-dropdown__text">Português</span></a><a class="tuc-dropdown__item" href="../en/toast/" hreflang="en" lang="en"><span class="tuc-dropdown__text">English</span></a><a class="tuc-dropdown__item" href="../es/toast/" hreflang="es" lang="es"><span class="tuc-dropdown__text">Español</span></a></div>
-    <button class="tuc-btn is-outline is-icon is-sm" data-tema data-label-light="Usar tema claro" data-label-dark="Usar tema escuro" aria-label="Alternar tema"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
+    <button class="tuc-btn is-outline is-sm" data-tuc-dropdown="#languages-top" data-placement="bottom-end" aria-label="Idioma: Português"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>PT</button><div class="tuc-dropdown" id="languages-top" hidden><a class="tuc-dropdown__item" href="../toast/" hreflang="pt-BR" lang="pt-BR" aria-current="true"><span class="tuc-dropdown__text">Português</span></a><a class="tuc-dropdown__item" href="../en/toast/" hreflang="en" lang="en"><span class="tuc-dropdown__text">English</span></a><a class="tuc-dropdown__item" href="../es/toast/" hreflang="es" lang="es"><span class="tuc-dropdown__text">Español</span></a></div>
+    <button class="tuc-btn is-outline is-icon is-sm" data-theme-toggle data-label-light="Usar tema claro" data-label-dark="Usar tema escuro" aria-label="Alternar tema"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
     <button class="tuc-btn is-outline is-icon is-sm" id="menu" aria-label="Abrir menu" aria-expanded="false" aria-controls="side"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
   </div>
 </header>
@@ -59,8 +59,8 @@
   <div class="side__head">
     <a class="brand" href="../"><img class="brand__logo logo-light" src="../site/assets/logo-light.svg" width="26" height="24" alt=""><img class="brand__logo logo-dark" src="../site/assets/logo-dark.svg" width="26" height="24" alt=""><b>Tucano</b></a>
     <div class="side__tools">
-      <button class="tuc-btn is-outline is-sm" data-tuc-dropdown="#idiomas-lateral" data-placement="bottom-end" aria-label="Idioma: Português"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>PT</button><div class="tuc-dropdown" id="idiomas-lateral" hidden><a class="tuc-dropdown__item" href="../toast/" hreflang="pt-BR" lang="pt-BR" aria-current="true"><span class="tuc-dropdown__text">Português</span></a><a class="tuc-dropdown__item" href="../en/toast/" hreflang="en" lang="en"><span class="tuc-dropdown__text">English</span></a><a class="tuc-dropdown__item" href="../es/toast/" hreflang="es" lang="es"><span class="tuc-dropdown__text">Español</span></a></div>
-      <button class="tuc-btn is-outline is-icon is-sm" data-tema data-label-light="Usar tema claro" data-label-dark="Usar tema escuro" aria-label="Alternar tema"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
+      <button class="tuc-btn is-outline is-sm" data-tuc-dropdown="#languages-side" data-placement="bottom-end" aria-label="Idioma: Português"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>PT</button><div class="tuc-dropdown" id="languages-side" hidden><a class="tuc-dropdown__item" href="../toast/" hreflang="pt-BR" lang="pt-BR" aria-current="true"><span class="tuc-dropdown__text">Português</span></a><a class="tuc-dropdown__item" href="../en/toast/" hreflang="en" lang="en"><span class="tuc-dropdown__text">English</span></a><a class="tuc-dropdown__item" href="../es/toast/" hreflang="es" lang="es"><span class="tuc-dropdown__text">Español</span></a></div>
+      <button class="tuc-btn is-outline is-icon is-sm" data-theme-toggle data-label-light="Usar tema claro" data-label-dark="Usar tema escuro" aria-label="Alternar tema"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
     </div>
   </div>
   <span class="tuc-badge is-plain ver">v0.33.1 · 51 KB</span>
@@ -122,7 +122,7 @@
   </div>
 </div>
 
-<h2 id="exemplos">Exemplos</h2>
+<h2 id="examples">Exemplos</h2>
 <p class="lead">Cada tipo tem cor, ícone e tempo próprios. O erro fica mais tempo porque a pessoa precisa ler e,
    muitas vezes, agir; o carregando não fecha sozinho, porque quem o encerra é o fim da operação.</p>
 
@@ -171,7 +171,7 @@
 <p>No toast o vermelho é o tipo <code>error</code>. Nas classes do aviso e da etiqueta, o mesmo tom se chama
    <code>is-danger</code>.</p>
 
-<h2 id="uso">Como usar</h2>
+<h2 id="usage">Como usar</h2>
 <p class="lead">Não há nada para marcar no HTML: o toast é chamado quando algo acontece. O container de cada posição é
    criado na primeira vez que é usado.</p>
 
@@ -183,7 +183,7 @@ Tucano.toast({
   type: 'success',
   title: 'Contrato excluído',
   text: 'Ainda dá para voltar atrás.',
-  action: { text: 'Desfazer', onClick: (t) =&gt; restaurar() },
+  action: { text: 'Desfazer', onClick: (t) =&gt; restore() },
   position: 'bottom-end',
   duration: null,       // não fecha sozinho
   closable: true,       // o X
@@ -200,7 +200,7 @@ t.close();
 // O evento sai do próprio cartão depois que ele deixa a tela; não borbulha.
 t.node.addEventListener('tucano:toast-closed', () =&gt; console.log('fechou'));</code></pre></div>
 
-<h2 id="carregando">Carregando e promessa</h2>
+<h2 id="loading">Carregando e promessa</h2>
 <p class="lead">O toast de <code>loading</code> vira o resultado no mesmo cartão, em vez de fechar um e abrir outro:
    a pilha não se reorganiza e o olho não perde de vista o aviso que já estava lendo.</p>
 
@@ -208,19 +208,19 @@ t.node.addEventListener('tucano:toast-closed', () =&gt; console.log('fechou'));<
   <div class="bar">
     <button type="button" class="tuc-btn is-outline" id="toast-manual">Salvar, com update()</button>
     <button type="button" class="tuc-btn is-outline" onclick="Tucano.toast.promise(new Promise((ok) => setTimeout(() => ok(3), 2000)), { loading: 'Enviando arquivos...', success: (n) => n + ' arquivos enviados' })">Promessa que dá certo</button>
-    <button type="button" class="tuc-btn is-outline" onclick="Tucano.toast.promise(new Promise((_, falha) => setTimeout(() => falha(new Error('tempo esgotado')), 2000)), { loading: 'Enviando arquivos...', error: (e) => 'Falhou: ' + e.message }).catch(() => {})">Promessa que falha</button>
+    <button type="button" class="tuc-btn is-outline" onclick="Tucano.toast.promise(new Promise((_, fail) => setTimeout(() => fail(new Error('tempo esgotado')), 2000)), { loading: 'Enviando arquivos...', error: (e) => 'Falhou: ' + e.message }).catch(() => {})">Promessa que falha</button>
   </div>
 </div>
 
 <div class="tuc-prose doc-code"><pre><code>// Controle manual: guarde a instância e troque o que precisar.
 const t = Tucano.toast.loading('Salvando contrato...');
-await salvar();
+await save();
 t.update({ type: 'success', text: 'Contrato salvo' });
 
 // Ou entregue a promessa e deixe os três estados por conta dela.
 Tucano.toast.promise(fetch(url), {
   loading: 'Enviando...',
-  success: (resposta) =&gt; `Enviado (${resposta.status})`,
+  success: (response) =&gt; `Enviado (${response.status})`,
   error: 'Não deu para enviar',
   position: 'top-center',       // o resto vale para o toast
 });</code></pre></div>
@@ -236,7 +236,7 @@ Tucano.toast.promise(fetch(url), {
 
 <div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">null quer dizer "não fecha", e não "use o padrão"</p><p>O padrão do tempo é resolvido com <code>in</code>, e não com <code>??</code>. O <code>null</code> do carregando é um valor: com <code>??</code> ele cairia nos 4 segundos de padrão, e o toast sumiria no meio da operação.</p></div></div>
 
-<h2 id="posicoes">Posições</h2>
+<h2 id="positions">Posições</h2>
 <p class="lead">Seis cantos e centros, com <code>bottom-end</code> de padrão. Cada posição tem a própria pilha.</p>
 
 <div class="demo">
@@ -266,13 +266,13 @@ Tucano.toast.promise(fetch(url), {
 {% endfor %}</code></pre></div>
 
 <div class="tuc-prose doc-code"><pre><code>messages.success(request, "Contrato salvo")
-return redirect("contratos")</code></pre></div>
+return redirect("contracts")</code></pre></div>
 
 <div class="demo">
   <div class="bar">
     <button type="button" class="tuc-btn is-outline" id="toast-django">Simular a mensagem do redirect</button>
   </div>
-  <div id="toast-django-alvo"></div>
+  <div id="toast-django-target"></div>
 </div>
 
 <div class="tuc-table-wrap"><table class="tuc-table">
@@ -295,7 +295,7 @@ return redirect("contratos")</code></pre></div>
 
 <div class="tuc-prose doc-code"><pre><code>import json
 
-def salvar(request, pk):
+def save(request, pk):
     ...
     return HttpResponse(headers={
         "HX-Trigger": json.dumps({
@@ -320,7 +320,7 @@ def salvar(request, pk):
 <p>Pelo CDN, o <code>listenForEvents()</code> é ligado junto com a inicialização. Importando de <code>tucano</code> pelo
    npm nada roda sozinho: chame <code>listenForEvents()</code>, ou importe <code>tucano/auto</code>.</p>
 
-<h2 id="acessibilidade">Acessibilidade</h2>
+<h2 id="accessibility">Acessibilidade</h2>
 <p class="lead">O toast não rouba o foco: ele avisa sem tirar a pessoa do que estava fazendo. Quem anuncia é o leitor de tela.</p>
 
 <div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">A região é criada antes da mensagem</p><p>O <code>aria-live</code> fica no container, e não no toast. Uma região viva precisa existir no DOM antes de o conteúdo chegar; criada junto com a mensagem, o leitor de tela não anuncia. Erro fala numa região <code>assertive</code> e o resto numa <code>polite</code>, e as duas dividem o mesmo palco: posicionadas cada uma por conta, viravam duas pilhas paralelas na tela e o limite contava em dobro.</p></div></div>
@@ -368,9 +368,9 @@ def salvar(request, pk):
     }
     // O mesmo HTML que o laço de messages escreve, entregue ao init().
     if (e.target.closest('#toast-django')) {
-      const alvo = document.getElementById('toast-django-alvo');
-      alvo.innerHTML = '<div data-tuc-toast data-type="success">Contrato salvo</div>';
-      Tucano.init(alvo);
+      const target = document.getElementById('toast-django-target');
+      target.innerHTML = '<div data-tuc-toast data-type="success">Contrato salvo</div>';
+      Tucano.init(target);
     }
     // O que o HTMX faz ao ler o HX-Trigger da resposta.
     if (e.target.closest('#toast-htmx')) {

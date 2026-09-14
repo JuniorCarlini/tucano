@@ -140,9 +140,9 @@ export class Pagination {
     this.opts.page = Math.min(Math.max(1, page), this.opts.pages);
     // Redesenhar troca os links; quem estava no teclado perdia o foco para o
     // comeco da pagina. Volta para a pagina atual.
-    const tinhaFoco = this.node.contains(document.activeElement);
+    const hadFocus = this.node.contains(document.activeElement);
     this.render();
-    if (tinhaFoco) this.node.querySelector('[aria-current="page"]')?.focus();
+    if (hadFocus) this.node.querySelector('[aria-current="page"]')?.focus();
     return this;
   }
 

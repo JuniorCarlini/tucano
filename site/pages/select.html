@@ -11,8 +11,8 @@ description: Select com busca, múltiplo com tags, grupos, limite e busca no ser
 <div class="demo is-hero">
   <div class="demo-grid">
     <div class="demo-cell">
-      <label class="tuc-label" for="s-estado">Estado</label>
-      <select id="s-estado" name="estado" data-tuc-select>
+      <label class="tuc-label" for="s-state">Estado</label>
+      <select id="s-state" name="state" data-tuc-select>
         <option value="">Selecione o estado...</option>
         <option value="AC">Acre</option><option value="AL">Alagoas</option>
         <option value="AM">Amazonas</option><option value="BA">Bahia</option>
@@ -22,7 +22,7 @@ description: Select com busca, múltiplo com tags, grupos, limite e busca no ser
         <option value="RS">Rio Grande do Sul</option><option value="SC">Santa Catarina</option>
         <option value="SP">São Paulo</option>
       </select>
-      <div class="out" id="s-estado-out"></div>
+      <div class="out" id="s-state-out"></div>
     </div>
     <div class="demo-cell">
       <label class="tuc-label" for="s-stack">Tecnologias</label>
@@ -37,7 +37,7 @@ description: Select com busca, múltiplo com tags, grupos, limite e busca no ser
   </div>
 </div>
 
-<h2 id="exemplos">Exemplos</h2>
+<h2 id="examples">Exemplos</h2>
 <p class="lead">Tudo abaixo é o mesmo <code>&lt;select&gt;</code> com atributos diferentes.</p>
 
 <div class="demo">
@@ -45,7 +45,7 @@ description: Select com busca, múltiplo com tags, grupos, limite e busca no ser
     <div class="demo-cell">
       <h4>Grupos e opção desativada</h4>
       <p><code>&lt;optgroup&gt;</code> vira título de grupo; <code>disabled</code> é respeitado.</p>
-      <select id="s-plano" name="plano" data-tuc-select aria-label="Plano">
+      <select id="s-plan" name="plan" data-tuc-select aria-label="Plano">
         <option value="">Escolha um plano...</option>
         <optgroup label="Mensal">
           <option value="m-basic">Básico — R$ 49</option>
@@ -61,7 +61,7 @@ description: Select com busca, múltiplo com tags, grupos, limite e busca no ser
     <div class="demo-cell">
       <h4>Limite de escolhas</h4>
       <p><code>data-max-items="3"</code> para no terceiro.</p>
-      <select id="s-times" name="times" data-tuc-select multiple data-max-items="3" data-placeholder="Até 3 equipes..." aria-label="Equipes">
+      <select id="s-teams" name="teams" data-tuc-select multiple data-max-items="3" data-placeholder="Até 3 equipes..." aria-label="Equipes">
         <option value="a">Comercial</option><option value="b">Financeiro</option>
         <option value="c">Jurídico</option><option value="d">Operações</option>
         <option value="e">Suporte</option><option value="f">Tecnologia</option>
@@ -70,7 +70,7 @@ description: Select com busca, múltiplo com tags, grupos, limite e busca no ser
     <div class="demo-cell">
       <h4>Tags em várias linhas</h4>
       <p><code>data-wrap-tags="true"</code> deixa o campo crescer em vez de rolar.</p>
-      <select id="s-wrap" name="cidades" data-tuc-select multiple data-wrap-tags="true" aria-label="Cidades">
+      <select id="s-wrap" name="cities" data-tuc-select multiple data-wrap-tags="true" aria-label="Cidades">
         <option selected>São Paulo</option><option selected>Rio de Janeiro</option>
         <option selected>Belo Horizonte</option><option selected>Curitiba</option>
         <option>Porto Alegre</option><option>Recife</option>
@@ -79,20 +79,20 @@ description: Select com busca, múltiplo com tags, grupos, limite e busca no ser
     <div class="demo-cell">
       <h4>Com erro</h4>
       <p><code>aria-invalid="true"</code> no nativo — o Django 5 já escreve.</p>
-      <select id="s-erro" name="uf" data-tuc-select aria-invalid="true" aria-describedby="s-erro-msg" aria-label="Estado">
+      <select id="s-error" name="state" data-tuc-select aria-invalid="true" aria-describedby="s-error-msg" aria-label="Estado">
         <option value="">Selecione...</option><option>São Paulo</option><option>Paraná</option>
       </select>
-      <p class="tuc-error" id="s-erro-msg">Escolha um estado.</p>
+      <p class="tuc-error" id="s-error-msg">Escolha um estado.</p>
     </div>
   </div>
 </div>
 
-<h2 id="uso">Como usar</h2>
+<h2 id="usage">Como usar</h2>
 <p class="lead">Marque o <code>&lt;select&gt;</code> e ele inicializa sozinho, inclusive o que chegar depois por HTMX.
    A primeira <code>&lt;option value=""&gt;</code> vira o texto de espera, e não uma opção.</p>
 
 <pre data-code="html">
-<select name="uf" data-tuc-select>
+<select name="state" data-tuc-select>
   <option value="">Selecione...</option>
   <option value="SP">São Paulo</option>
 </select>
@@ -104,12 +104,12 @@ description: Select com busca, múltiplo com tags, grupos, limite e busca no ser
 
 <h3>No formulário do Django</h3>
 <pre data-code="python">
-class ClienteForm(forms.ModelForm):
+class CustomerForm(forms.ModelForm):
     class Meta:
-        model = Cliente
-        fields = ["uf", "tags"]
+        model = Customer
+        fields = ["state", "tags"]
         widgets = {
-            "uf": forms.Select(attrs={"data-tuc-select": ""}),
+            "state": forms.Select(attrs={"data-tuc-select": ""}),
             "tags": forms.SelectMultiple(attrs={"data-tuc-select": "", "data-max-items": "3"}),
         }
 </pre>
@@ -117,41 +117,41 @@ class ClienteForm(forms.ModelForm):
 <h3>Em JavaScript</h3>
 <p>Para opções que não existem como atributo, ou para ler e escrever o valor.</p>
 <pre data-code="js">
-const s = new Tucano.Select('#uf', { search: true, maxItems: 3 });
+const s = new Tucano.Select('#state', { search: true, maxItems: 3 });
 s.getValue();            // 'SP' — um array no múltiplo
 s.setValue(['SP', 'PR']);
 s.refresh();             // relê as <option> depois de trocá-las por HTMX
 </pre>
 
-<h2 id="servidor">Busca no servidor</h2>
+<h2 id="server">Busca no servidor</h2>
 <p class="lead">Para listas grandes demais para vir inteiras na página. A cada digitação o componente pergunta
    ao servidor, em vez de filtrar o que já está carregado.</p>
 
 <div class="demo">
   <div class="demo-grid">
     <div class="demo-cell">
-      <label class="tuc-label" for="s-cliente">Cliente</label>
-      <select id="s-cliente" name="cliente" data-placeholder="Digite o nome do cliente..."></select>
-      <div class="out" id="s-cliente-out"></div>
+      <label class="tuc-label" for="s-customer">Cliente</label>
+      <select id="s-customer" name="customer" data-placeholder="Digite o nome do cliente..."></select>
+      <div class="out" id="s-customer-out"></div>
     </div>
     <div class="demo-cell">
-      <label class="tuc-label" for="s-clientes">Clientes, múltiplo</label>
-      <select id="s-clientes" name="clientes" multiple data-placeholder="Buscar clientes..."></select>
-      <div class="out" id="s-clientes-out"></div>
+      <label class="tuc-label" for="s-customers">Clientes, múltiplo</label>
+      <select id="s-customers" name="customers" multiple data-placeholder="Buscar clientes..."></select>
+      <div class="out" id="s-customers-out"></div>
     </div>
   </div>
   <p class="tuc-hint">Nesta página a resposta é simulada com 400 ms de espera; no seu projeto ela vem do <code>data-url</code>.</p>
 </div>
 
 <pre data-code="django">
-<select name="cliente" data-tuc-select data-url="{% url 'api-clientes' %}"></select>
+<select name="customer" data-tuc-select data-url="{% url 'api-customers' %}"></select>
 </pre>
 
 <pre data-code="python">
-def clientes(request):
+def customers(request):
     q = request.GET.get("q", "")
-    qs = Cliente.objects.filter(nome__icontains=q)[:20]
-    return JsonResponse([{"value": c.pk, "label": c.nome} for c in qs], safe=False)
+    qs = Customer.objects.filter(name__icontains=q)[:20]
+    return JsonResponse([{"value": c.pk, "label": c.name} for c in qs], safe=False)
 </pre>
 
 <div class="tuc-table-wrap"><table class="tuc-table">
@@ -170,26 +170,26 @@ def clientes(request):
 
 <div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Por que JSON, e não HTMX, aqui</p><p>A lista vive dentro do painel que o componente redesenha. Se o HTMX também escrevesse ali, seriam dois donos do mesmo DOM. E para uma lista de opções JSON é o contrato certo: HTML teria de ser reinterpretado de volta em objetos.</p></div></div>
 
-<h2 id="valor">Valor e formulário</h2>
+<h2 id="value">Valor e formulário</h2>
 <p class="lead">Quem guarda o valor é o <code>&lt;select&gt;</code> nativo, escondido ao lado do controle. O Django recebe
    exatamente o que receberia sem o componente.</p>
 
 <pre data-code="text">
-POST  uf   = SP
-POST  tags = django     # request.POST.getlist("tags")
-POST  tags = htmx
+POST  state = SP
+POST  tags  = django    # request.POST.getlist("tags")
+POST  tags  = htmx
 </pre>
 
 <p>Cada escolha dispara <code>tucano:change</code> no próprio <code>&lt;select&gt;</code>, e também o <code>change</code> nativo — então o <code>hx-trigger="change"</code> do HTMX funciona sem ajuste.</p>
 
 <pre data-code="js">
-document.querySelector('#uf').addEventListener('tucano:change', (e) => {
+document.querySelector('#state').addEventListener('tucano:change', (e) => {
   e.detail.value;      // 'SP', ou um array no múltiplo
   e.detail.instance;   // o Select
 });
 </pre>
 
-<h2 id="teclado">Teclado e acessibilidade</h2>
+<h2 id="keyboard">Teclado e acessibilidade</h2>
 <p class="lead">O controle é um <code>combobox</code> com <code>listbox</code>, e anuncia aberto, fechado e a opção ativa.
    Chegar de <code>Tab</code> não abre o painel — é a regra do <code>&lt;select&gt;</code> nativo.</p>
 
@@ -214,14 +214,14 @@ document.querySelector('#uf').addEventListener('tucano:change', (e) => {
 <script>
   // Busca no servidor simulada: a página de docs é estática, então a resposta sai
   // de uma lista local, com espera de rede de mentira.
-  const CLIENTES = ['Padaria Pão Quente', 'Oficina Duas Rodas', 'Clínica Bem-Estar', 'Mercado São João',
+  const CUSTOMERS = ['Padaria Pão Quente', 'Oficina Duas Rodas', 'Clínica Bem-Estar', 'Mercado São João',
     'Estúdio Aurora', 'Tucano Comércio', 'Auto Peças Silva', 'Construtora Horizonte', 'Farmácia Central',
     'Livraria Página 12', 'Academia Movimento', 'Pet Shop Amigo Fiel'];
-  const buscar = (termo) => new Promise((ok) => setTimeout(() => {
-    const q = termo.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
-    ok(CLIENTES.map((nome, i) => ({ value: String(i + 1), label: nome }))
+  const search = (term) => new Promise((ok) => setTimeout(() => {
+    const q = term.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+    ok(CUSTOMERS.map((name, i) => ({ value: String(i + 1), label: name }))
       .filter((c) => c.label.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().includes(q)));
   }, 400));
-  new Tucano.Select('#s-cliente', { loadOptions: buscar });
-  new Tucano.Select('#s-clientes', { loadOptions: buscar });
+  new Tucano.Select('#s-customer', { loadOptions: search });
+  new Tucano.Select('#s-customers', { loadOptions: search });
 </script>

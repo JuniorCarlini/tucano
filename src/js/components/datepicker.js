@@ -774,15 +774,15 @@ export class DatePicker {
     const isEnd = this.isRange && isSameDay(date, rEnd);
     const inRange = this.isRange && rStart && rEnd
       && compareDay(date, rStart) > 0 && compareDay(date, rEnd) < 0;
-    const distintas = rStart && rEnd && !isSameDay(rStart, rEnd);
+    const distinct = rStart && rEnd && !isSameDay(rStart, rEnd);
 
     const classes = ['tuc-dp__day'];
     if (outside) classes.push('is-outside');
     if (this._isDisabled(date)) classes.push('is-disabled');
     if (isSameDay(date, new Date())) classes.push('is-today');
     if (isStart || isEnd) classes.push('is-selected');
-    if (isStart && distintas) classes.push('is-start');
-    if (isEnd && distintas) classes.push('is-end');
+    if (isStart && distinct) classes.push('is-start');
+    if (isEnd && distinct) classes.push('is-end');
     if (inRange) classes.push('is-in-range');
     // So a ponta sob o cursor e "preview"; o tom da faixa vem de .is-picking.
     if (this.pendingRange && isEnd) classes.push('is-preview');

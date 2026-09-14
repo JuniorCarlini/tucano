@@ -10,28 +10,28 @@ description: Lista de navegação só com classes — item, ícone, contador, se
 <div class="demo is-hero">
   <div class="demo-grid">
     <div class="demo-cell">
-      <nav class="tuc-menu" aria-label="Painel" data-tuc-accordion data-demo-menu id="menu-painel">
-        <a class="tuc-menu__item" href="#menu-relatorios"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h13M3 12h9M3 18h9M16 16l2 2 4-4"/></svg></span>Relatórios</a>
-        <a class="tuc-menu__item" href="#menu-faturamento"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20M17 6H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></span>Faturamento</a>
+      <nav class="tuc-menu" aria-label="Painel" data-tuc-accordion data-demo-menu id="menu-dashboard">
+        <a class="tuc-menu__item" href="#menu-reports"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h13M3 12h9M3 18h9M16 16l2 2 4-4"/></svg></span>Relatórios</a>
+        <a class="tuc-menu__item" href="#menu-billing"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20M17 6H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></span>Faturamento</a>
         <details open>
           <summary class="tuc-menu__item"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM12 6v6l4 2"/></svg></span>Desempenho</summary>
           <div class="tuc-menu__sub">
-            <a class="tuc-menu__item" href="#menu-equipe">Por equipe</a>
-            <a class="tuc-menu__item is-active" href="#menu-periodo" aria-current="page">Por período</a>
-            <a class="tuc-menu__item" href="#menu-produto">Por produto</a>
+            <a class="tuc-menu__item" href="#menu-team">Por equipe</a>
+            <a class="tuc-menu__item is-active" href="#menu-period" aria-current="page">Por período</a>
+            <a class="tuc-menu__item" href="#menu-product">Por produto</a>
           </div>
         </details>
         <details>
           <summary class="tuc-menu__item"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/></svg></span>Integrações</summary>
           <div class="tuc-menu__sub">
             <a class="tuc-menu__item" href="#menu-webhooks">Webhooks</a>
-            <a class="tuc-menu__item" href="#menu-chaves">Chaves de API</a>
+            <a class="tuc-menu__item" href="#menu-keys">Chaves de API</a>
           </div>
         </details>
         <hr class="tuc-menu__separator">
         <div class="tuc-menu__section">Cadastros</div>
-        <a class="tuc-menu__item" href="#menu-clientes"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.9M16 3.1a4 4 0 010 7.8"/></svg></span>Clientes</a>
-        <a class="tuc-menu__item" href="#menu-produtos"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/></svg></span>Produtos<span class="tuc-badge is-plain tuc-menu__count">12</span></a>
+        <a class="tuc-menu__item" href="#menu-customers"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.9M16 3.1a4 4 0 010 7.8"/></svg></span>Clientes</a>
+        <a class="tuc-menu__item" href="#menu-products"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/></svg></span>Produtos<span class="tuc-badge is-plain tuc-menu__count">12</span></a>
       </nav>
     </div>
     <div class="demo-cell">
@@ -41,58 +41,58 @@ description: Lista de navegação só com classes — item, ícone, contador, se
       <h4>No celular, dentro de uma gaveta</h4>
       <p>A mesma lista numa gaveta pela esquerda — o padrão de menu de sistema em tela pequena.</p>
       <div class="bar">
-        <button class="tuc-btn is-outline" data-tuc-drawer="#menu-gaveta">Abrir o menu</button>
+        <button class="tuc-btn is-outline" data-tuc-drawer="#menu-drawer">Abrir o menu</button>
       </div>
     </div>
   </div>
 </div>
 
-<dialog class="tuc-drawer is-left is-sm" id="menu-gaveta" aria-labelledby="menu-gaveta-title">
+<dialog class="tuc-drawer is-left is-sm" id="menu-drawer" aria-labelledby="menu-drawer-title">
   <div class="tuc-drawer__panel">
     <div class="tuc-drawer__top">
       <div class="tuc-drawer__header">
-        <p class="tuc-drawer__title" id="menu-gaveta-title">Painel</p>
+        <p class="tuc-drawer__title" id="menu-drawer-title">Painel</p>
       </div>
       <button type="button" class="tuc-btn is-ghost is-icon is-sm tuc-drawer__close" aria-label="Fechar" data-tuc-drawer-close><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
     </div>
     <div class="tuc-drawer__body">
-      <nav class="tuc-menu" aria-label="Painel" data-tuc-accordion data-demo-menu id="menu-gaveta-nav">
-        <a class="tuc-menu__item" href="#menu-g-relatorios"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h13M3 12h9M3 18h9M16 16l2 2 4-4"/></svg></span>Relatórios</a>
-        <a class="tuc-menu__item is-active" href="#menu-g-faturamento" aria-current="page"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20M17 6H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></span>Faturamento</a>
+      <nav class="tuc-menu" aria-label="Painel" data-tuc-accordion data-demo-menu id="menu-drawer-nav">
+        <a class="tuc-menu__item" href="#menu-g-reports"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h13M3 12h9M3 18h9M16 16l2 2 4-4"/></svg></span>Relatórios</a>
+        <a class="tuc-menu__item is-active" href="#menu-g-billing" aria-current="page"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20M17 6H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></span>Faturamento</a>
         <details>
           <summary class="tuc-menu__item"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM12 6v6l4 2"/></svg></span>Desempenho</summary>
           <div class="tuc-menu__sub">
-            <a class="tuc-menu__item" href="#menu-g-equipe">Por equipe</a>
-            <a class="tuc-menu__item" href="#menu-g-periodo">Por período</a>
-            <a class="tuc-menu__item" href="#menu-g-unidades">Unidades</a>
+            <a class="tuc-menu__item" href="#menu-g-team">Por equipe</a>
+            <a class="tuc-menu__item" href="#menu-g-period">Por período</a>
+            <a class="tuc-menu__item" href="#menu-g-branches">Unidades</a>
           </div>
         </details>
         <hr class="tuc-menu__separator">
         <div class="tuc-menu__section">Cadastros</div>
-        <a class="tuc-menu__item" href="#menu-g-clientes"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.9M16 3.1a4 4 0 010 7.8"/></svg></span>Clientes</a>
-        <a class="tuc-menu__item" href="#menu-g-produtos"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/></svg></span>Produtos<span class="tuc-badge is-plain tuc-menu__count">12</span></a>
-        <a class="tuc-menu__item" href="#menu-g-contratos"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6M16 13H8M16 17H8"/></svg></span>Contratos</a>
-        <a class="tuc-menu__item" href="#menu-g-fornecedores"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 3h15v13H1zM16 8h4l3 3v5h-7zM5.5 21a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM18.5 21a2.5 2.5 0 100-5 2.5 2.5 0 000 5z"/></svg></span>Fornecedores</a>
-        <a class="tuc-menu__item" href="#menu-g-categorias"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.6 13.4l-7.2 7.2a2 2 0 01-2.8 0L2 12V2h10l8.6 8.6a2 2 0 010 2.8zM7 7h.01"/></svg></span>Categorias</a>
+        <a class="tuc-menu__item" href="#menu-g-customers"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.9M16 3.1a4 4 0 010 7.8"/></svg></span>Clientes</a>
+        <a class="tuc-menu__item" href="#menu-g-products"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/></svg></span>Produtos<span class="tuc-badge is-plain tuc-menu__count">12</span></a>
+        <a class="tuc-menu__item" href="#menu-g-contracts"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6M16 13H8M16 17H8"/></svg></span>Contratos</a>
+        <a class="tuc-menu__item" href="#menu-g-suppliers"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 3h15v13H1zM16 8h4l3 3v5h-7zM5.5 21a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM18.5 21a2.5 2.5 0 100-5 2.5 2.5 0 000 5z"/></svg></span>Fornecedores</a>
+        <a class="tuc-menu__item" href="#menu-g-categories"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.6 13.4l-7.2 7.2a2 2 0 01-2.8 0L2 12V2h10l8.6 8.6a2 2 0 010 2.8zM7 7h.01"/></svg></span>Categorias</a>
         <hr class="tuc-menu__separator">
         <div class="tuc-menu__section">Financeiro</div>
-        <a class="tuc-menu__item" href="#menu-g-pagar"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></span>Contas a pagar<span class="tuc-badge is-plain tuc-menu__count">5</span></a>
-        <a class="tuc-menu__item" href="#menu-g-receber"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M19 12l-7 7-7-7"/></svg></span>Contas a receber</a>
-        <a class="tuc-menu__item" href="#menu-g-conciliacao"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 1l4 4-4 4M3 11V9a4 4 0 014-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 01-4 4H3"/></svg></span>Conciliação</a>
-        <a class="tuc-menu__item" href="#menu-g-notas"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 2v20l3-2 3 2 3-2 3 2 3-2 1 .7V2l-1 .7-3-2-3 2-3-2-3 2-3-2zM8 8h8M8 12h8M8 16h5"/></svg></span>Notas fiscais</a>
+        <a class="tuc-menu__item" href="#menu-g-payable"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></span>Contas a pagar<span class="tuc-badge is-plain tuc-menu__count">5</span></a>
+        <a class="tuc-menu__item" href="#menu-g-receivable"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M19 12l-7 7-7-7"/></svg></span>Contas a receber</a>
+        <a class="tuc-menu__item" href="#menu-g-reconciliation"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 1l4 4-4 4M3 11V9a4 4 0 014-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 01-4 4H3"/></svg></span>Conciliação</a>
+        <a class="tuc-menu__item" href="#menu-g-invoices"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 2v20l3-2 3 2 3-2 3 2 3-2 1 .7V2l-1 .7-3-2-3 2-3-2-3 2-3-2zM8 8h8M8 12h8M8 16h5"/></svg></span>Notas fiscais</a>
         <hr class="tuc-menu__separator">
         <div class="tuc-menu__section">Configurações</div>
-        <a class="tuc-menu__item" href="#menu-g-usuarios"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"/></svg></span>Usuários</a>
-        <a class="tuc-menu__item" href="#menu-g-permissoes"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>Permissões</a>
-        <a class="tuc-menu__item" href="#menu-g-integracoes"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 007.5.5l3-3a5 5 0 00-7-7l-1.7 1.7M14 11a5 5 0 00-7.5-.5l-3 3a5 5 0 007 7l1.7-1.7"/></svg></span>Integrações</a>
-        <a class="tuc-menu__item" href="#menu-g-aparencia"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM12 2v20"/></svg></span>Aparência</a>
-        <a class="tuc-menu__item" href="#menu-g-conta"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 4h22v16H1zM1 10h22"/></svg></span>Faturamento da conta</a>
+        <a class="tuc-menu__item" href="#menu-g-users"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"/></svg></span>Usuários</a>
+        <a class="tuc-menu__item" href="#menu-g-permissions"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>Permissões</a>
+        <a class="tuc-menu__item" href="#menu-g-integrations"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 007.5.5l3-3a5 5 0 00-7-7l-1.7 1.7M14 11a5 5 0 00-7.5-.5l-3 3a5 5 0 007 7l1.7-1.7"/></svg></span>Integrações</a>
+        <a class="tuc-menu__item" href="#menu-g-appearance"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM12 2v20"/></svg></span>Aparência</a>
+        <a class="tuc-menu__item" href="#menu-g-account"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 4h22v16H1zM1 10h22"/></svg></span>Faturamento da conta</a>
       </nav>
     </div>
   </div>
 </dialog>
 
-<h2 id="exemplos">Exemplos</h2>
+<h2 id="examples">Exemplos</h2>
 <p class="lead">As peças do menu, uma de cada vez.</p>
 
 <div class="demo">
@@ -100,45 +100,45 @@ description: Lista de navegação só com classes — item, ícone, contador, se
     <div class="demo-cell">
       <h4>Itens e item atual</h4>
       <p><code>is-active</code> marca a página em que a pessoa está.</p>
-      <nav class="tuc-menu" aria-label="Exemplo de itens" data-demo-menu id="menu-itens">
-        <a class="tuc-menu__item is-active" href="#menu-itens-inicio" aria-current="page">Início</a>
-        <a class="tuc-menu__item" href="#menu-itens-contratos">Contratos</a>
-        <a class="tuc-menu__item" href="#menu-itens-cobrancas">Cobranças</a>
+      <nav class="tuc-menu" aria-label="Exemplo de itens" data-demo-menu id="menu-items">
+        <a class="tuc-menu__item is-active" href="#menu-items-home" aria-current="page">Início</a>
+        <a class="tuc-menu__item" href="#menu-items-contracts">Contratos</a>
+        <a class="tuc-menu__item" href="#menu-items-invoices">Cobranças</a>
       </nav>
     </div>
     <div class="demo-cell">
       <h4>Ícone e contador</h4>
       <p><code>__icon</code> à esquerda; <code>__count</code> é a <code>.tuc-badge is-plain</code>, empurrada para a direita.</p>
-      <nav class="tuc-menu" aria-label="Exemplo com ícone" data-demo-menu id="menu-icones">
-        <a class="tuc-menu__item is-active" href="#menu-icones-caixa" aria-current="page"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-6l-2 3h-4l-2-3H2M5.5 5.1L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.5-6.9A2 2 0 0016.8 4H7.2a2 2 0 00-1.7 1.1z"/></svg></span>Caixa de entrada<span class="tuc-badge is-plain tuc-menu__count">24</span></a>
-        <a class="tuc-menu__item" href="#menu-icones-enviados"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></span>Enviados</a>
-        <a class="tuc-menu__item" href="#menu-icones-arquivo"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8v13H3V8M1 3h22v5H1zM10 12h4"/></svg></span>Arquivo<span class="tuc-badge is-plain tuc-menu__count">1.204</span></a>
+      <nav class="tuc-menu" aria-label="Exemplo com ícone" data-demo-menu id="menu-icons">
+        <a class="tuc-menu__item is-active" href="#menu-icons-inbox" aria-current="page"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-6l-2 3h-4l-2-3H2M5.5 5.1L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.5-6.9A2 2 0 0016.8 4H7.2a2 2 0 00-1.7 1.1z"/></svg></span>Caixa de entrada<span class="tuc-badge is-plain tuc-menu__count">24</span></a>
+        <a class="tuc-menu__item" href="#menu-icons-sent"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></span>Enviados</a>
+        <a class="tuc-menu__item" href="#menu-icons-archive"><span class="tuc-menu__icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8v13H3V8M1 3h22v5H1zM10 12h4"/></svg></span>Arquivo<span class="tuc-badge is-plain tuc-menu__count">1.204</span></a>
       </nav>
     </div>
     <div class="demo-cell">
       <h4>Seções e separador</h4>
       <p><code>__section</code> é o rótulo de um bloco; <code>__separator</code>, uma linha entre blocos.</p>
-      <nav class="tuc-menu" aria-label="Exemplo com seções" data-demo-menu id="menu-secoes">
+      <nav class="tuc-menu" aria-label="Exemplo com seções" data-demo-menu id="menu-sections">
         <div class="tuc-menu__section">Vendas</div>
-        <a class="tuc-menu__item is-active" href="#menu-secoes-pedidos" aria-current="page">Pedidos</a>
-        <a class="tuc-menu__item" href="#menu-secoes-orcamentos">Orçamentos</a>
+        <a class="tuc-menu__item is-active" href="#menu-sections-orders" aria-current="page">Pedidos</a>
+        <a class="tuc-menu__item" href="#menu-sections-quotes">Orçamentos</a>
         <hr class="tuc-menu__separator">
         <div class="tuc-menu__section">Estoque</div>
-        <a class="tuc-menu__item" href="#menu-secoes-produtos">Produtos</a>
-        <a class="tuc-menu__item" href="#menu-secoes-entradas">Entradas</a>
+        <a class="tuc-menu__item" href="#menu-sections-products">Produtos</a>
+        <a class="tuc-menu__item" href="#menu-sections-receipts">Entradas</a>
       </nav>
     </div>
     <div class="demo-cell">
       <h4>Submenu</h4>
       <p>Um <code>&lt;details&gt;</code> com <code>__sub</code>; a seta aponta para a direita fechado e para baixo aberto.</p>
       <nav class="tuc-menu" aria-label="Exemplo com submenu" data-tuc-accordion data-demo-menu id="menu-sub">
-        <a class="tuc-menu__item" href="#menu-sub-inicio">Início</a>
+        <a class="tuc-menu__item" href="#menu-sub-home">Início</a>
         <details open>
           <summary class="tuc-menu__item">Configurações</summary>
           <div class="tuc-menu__sub">
-            <a class="tuc-menu__item is-active" href="#menu-sub-perfil" aria-current="page">Perfil</a>
-            <a class="tuc-menu__item" href="#menu-sub-equipe">Equipe</a>
-            <a class="tuc-menu__item" href="#menu-sub-cobranca">Cobrança</a>
+            <a class="tuc-menu__item is-active" href="#menu-sub-profile" aria-current="page">Perfil</a>
+            <a class="tuc-menu__item" href="#menu-sub-team">Equipe</a>
+            <a class="tuc-menu__item" href="#menu-sub-billing">Cobrança</a>
           </div>
         </details>
       </nav>
@@ -146,7 +146,7 @@ description: Lista de navegação só com classes — item, ícone, contador, se
   </div>
 </div>
 
-<h2 id="uso">Como usar</h2>
+<h2 id="usage">Como usar</h2>
 <p class="lead">Um <code>&lt;nav&gt;</code> com a classe e links dentro. O <code>data-tuc-accordion</code> no <code>&lt;nav&gt;</code>
    só é preciso quando há submenu: é ele que anima os <code>&lt;details&gt;</code>.</p>
 
@@ -154,12 +154,12 @@ description: Lista de navegação só com classes — item, ícone, contador, se
 <nav class="tuc-menu" aria-label="Principal" data-tuc-accordion>
 
   <!-- item simples -->
-  <a class="tuc-menu__item" href="/faturamento/">
+  <a class="tuc-menu__item" href="/billing/">
     <span class="tuc-menu__icon"><svg>…</svg></span>Faturamento
   </a>
 
   <!-- item com contador -->
-  <a class="tuc-menu__item" href="/produtos/">
+  <a class="tuc-menu__item" href="/products/">
     <span class="tuc-menu__icon"><svg>…</svg></span>Produtos
     <span class="tuc-badge is-plain tuc-menu__count">12</span>
   </a>
@@ -170,32 +170,32 @@ description: Lista de navegação só com classes — item, ícone, contador, se
       <span class="tuc-menu__icon"><svg>…</svg></span>Desempenho
     </summary>
     <div class="tuc-menu__sub">
-      <a class="tuc-menu__item is-active" href="/desempenho/periodo/" aria-current="page">Por período</a>
-      <a class="tuc-menu__item" href="/desempenho/unidades/">Unidades</a>
+      <a class="tuc-menu__item is-active" href="/performance/period/" aria-current="page">Por período</a>
+      <a class="tuc-menu__item" href="/performance/branches/">Unidades</a>
     </div>
   </details>
 
   <hr class="tuc-menu__separator">
   <div class="tuc-menu__section">Cadastros</div>
-  <a class="tuc-menu__item" href="/clientes/">Clientes</a>
+  <a class="tuc-menu__item" href="/customers/">Clientes</a>
 </nav>
 </pre>
 
 <h3>No template do Django</h3>
 <p>O item atual sai da rota resolvida. Escreva o menu uma vez num <code>include</code> e ele marca a página certa em todas:</p>
 <pre data-code="django">
-{% with rota=request.resolver_match.url_name %}
+{% with route=request.resolver_match.url_name %}
 <nav class="tuc-menu" aria-label="Principal" data-tuc-accordion>
-  <a class="tuc-menu__item{% if rota == 'contrato-listar' %} is-active{% endif %}"
-     href="{% url 'contrato-listar' %}"{% if rota == 'contrato-listar' %} aria-current="page"{% endif %}>
+  <a class="tuc-menu__item{% if route == 'contract-list' %} is-active{% endif %}"
+     href="{% url 'contract-list' %}"{% if route == 'contract-list' %} aria-current="page"{% endif %}>
     Contratos
   </a>
 
-  <details{% if rota|slice:":11" == 'desempenho-' %} open{% endif %}>
+  <details{% if route|slice:":12" == 'performance-' %} open{% endif %}>
     <summary class="tuc-menu__item">Desempenho</summary>
     <div class="tuc-menu__sub">
-      <a class="tuc-menu__item{% if rota == 'desempenho-periodo' %} is-active{% endif %}"
-         href="{% url 'desempenho-periodo' %}">Por período</a>
+      <a class="tuc-menu__item{% if route == 'performance-period' %} is-active{% endif %}"
+         href="{% url 'performance-period' %}">Por período</a>
     </div>
   </details>
 </nav>
@@ -208,11 +208,11 @@ description: Lista de navegação só com classes — item, ícone, contador, se
 <p>O menu não sabe onde mora. No desktop, ponha-o numa coluna fixa; no celular, o mesmo <code>include</code> vai dentro de uma
    gaveta pela esquerda:</p>
 <pre data-code="django">
-<dialog class="tuc-drawer is-left is-sm" id="menu-principal" aria-labelledby="menu-principal-titulo">
+<dialog class="tuc-drawer is-left is-sm" id="menu-main" aria-labelledby="menu-main-title">
   <div class="tuc-drawer__panel">
     <div class="tuc-drawer__top">
       <div class="tuc-drawer__header">
-        <h2 class="tuc-drawer__title" id="menu-principal-titulo">Painel</h2>
+        <h2 class="tuc-drawer__title" id="menu-main-title">Painel</h2>
       </div>
       <button type="button" class="tuc-btn is-ghost is-icon is-sm tuc-drawer__close" aria-label="Fechar" data-tuc-drawer-close>…</button>
     </div>
@@ -222,7 +222,7 @@ description: Lista de navegação só com classes — item, ícone, contador, se
   </div>
 </dialog>
 
-<button class="tuc-btn is-outline is-icon" aria-label="Abrir menu" data-tuc-drawer="#menu-principal">…</button>
+<button class="tuc-btn is-outline is-icon" aria-label="Abrir menu" data-tuc-drawer="#menu-main">…</button>
 </pre>
 
 <p>Na coluna fixa do desktop, faça dela uma coluna flex com altura, com a marca em cima e o menu embaixo. O
@@ -249,7 +249,7 @@ description: Lista de navegação só com classes — item, ícone, contador, se
 
 <div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">O item atual leva três pistas</p><p>No primeiro nível, cor de destaque, fundo e peso — nenhuma depende só da cor. Dentro do submenu o atual é uma pílula neutra com o ponto aceso: a cor de destaque fica com o nível de cima, e dois itens laranja na mesma coluna diriam menos.</p></div></div>
 
-<h2 id="teclado">Teclado e acessibilidade</h2>
+<h2 id="keyboard">Teclado e acessibilidade</h2>
 <p class="lead">São links e <code>&lt;details&gt;</code>, e o teclado é o deles: nada a aprender, nada a implementar.</p>
 
 <div class="tuc-table-wrap"><table class="tuc-table">

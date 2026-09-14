@@ -658,7 +658,7 @@ abrir algo — a página injeta `transition: none` onde o estado final importa.
 
 **`tools/examples.mjs` — os 126 exemplos da documentação, em todas as páginas do site.** Os de HTML são
 colados no documento e têm que montar; os de JS não são executados (citam
-`#entrega` e `formulario`, que não existem) e sim conferidos nome por nome
+`#delivery` e `form`, que não existem) e sim conferidos nome por nome
 contra o código: `Tucano.x` existe? o método existe no protótipo? cada chave de
 opção é lida por alguém, inclusive dentro de `actions` e `items`?
 

@@ -41,7 +41,7 @@
 <link rel="stylesheet" href="../../site/site.css?v=0.33.1">
 <!-- O tema e aplicado antes do primeiro quadro: sem isto a pagina piscava clara
      para quem escolheu o escuro. -->
-<script>try{if(localStorage.getItem("tucano-tema")==="dark")document.documentElement.classList.add("dark")}catch{}</script>
+<script>try{if(localStorage.getItem("tucano-theme")==="dark")document.documentElement.classList.add("dark")}catch{}</script>
 </head>
 <body>
 
@@ -49,8 +49,8 @@
   <a class="brand" href="../"><img class="brand__logo logo-light" src="../../site/assets/logo-light.svg" width="26" height="24" alt=""><img class="brand__logo logo-dark" src="../../site/assets/logo-dark.svg" width="26" height="24" alt=""><b>Tucano</b></a>
   <span class="tuc-badge is-plain ver">v0.33.1</span>
   <div class="topbar__actions">
-    <button class="tuc-btn is-outline is-sm" data-tuc-dropdown="#idiomas-topo" data-placement="bottom-end" aria-label="Idioma: Español"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>ES</button><div class="tuc-dropdown" id="idiomas-topo" hidden><a class="tuc-dropdown__item" href="../../pagination/" hreflang="pt-BR" lang="pt-BR"><span class="tuc-dropdown__text">Português</span></a><a class="tuc-dropdown__item" href="../../en/pagination/" hreflang="en" lang="en"><span class="tuc-dropdown__text">English</span></a><a class="tuc-dropdown__item" href="../../es/pagination/" hreflang="es" lang="es" aria-current="true"><span class="tuc-dropdown__text">Español</span></a></div>
-    <button class="tuc-btn is-outline is-icon is-sm" data-tema data-label-light="Usar tema claro" data-label-dark="Usar tema oscuro" aria-label="Cambiar tema"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
+    <button class="tuc-btn is-outline is-sm" data-tuc-dropdown="#languages-top" data-placement="bottom-end" aria-label="Idioma: Español"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>ES</button><div class="tuc-dropdown" id="languages-top" hidden><a class="tuc-dropdown__item" href="../../pagination/" hreflang="pt-BR" lang="pt-BR"><span class="tuc-dropdown__text">Português</span></a><a class="tuc-dropdown__item" href="../../en/pagination/" hreflang="en" lang="en"><span class="tuc-dropdown__text">English</span></a><a class="tuc-dropdown__item" href="../../es/pagination/" hreflang="es" lang="es" aria-current="true"><span class="tuc-dropdown__text">Español</span></a></div>
+    <button class="tuc-btn is-outline is-icon is-sm" data-theme-toggle data-label-light="Usar tema claro" data-label-dark="Usar tema oscuro" aria-label="Cambiar tema"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
     <button class="tuc-btn is-outline is-icon is-sm" id="menu" aria-label="Abrir menú" aria-expanded="false" aria-controls="side"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
   </div>
 </header>
@@ -59,8 +59,8 @@
   <div class="side__head">
     <a class="brand" href="../"><img class="brand__logo logo-light" src="../../site/assets/logo-light.svg" width="26" height="24" alt=""><img class="brand__logo logo-dark" src="../../site/assets/logo-dark.svg" width="26" height="24" alt=""><b>Tucano</b></a>
     <div class="side__tools">
-      <button class="tuc-btn is-outline is-sm" data-tuc-dropdown="#idiomas-lateral" data-placement="bottom-end" aria-label="Idioma: Español"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>ES</button><div class="tuc-dropdown" id="idiomas-lateral" hidden><a class="tuc-dropdown__item" href="../../pagination/" hreflang="pt-BR" lang="pt-BR"><span class="tuc-dropdown__text">Português</span></a><a class="tuc-dropdown__item" href="../../en/pagination/" hreflang="en" lang="en"><span class="tuc-dropdown__text">English</span></a><a class="tuc-dropdown__item" href="../../es/pagination/" hreflang="es" lang="es" aria-current="true"><span class="tuc-dropdown__text">Español</span></a></div>
-      <button class="tuc-btn is-outline is-icon is-sm" data-tema data-label-light="Usar tema claro" data-label-dark="Usar tema oscuro" aria-label="Cambiar tema"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
+      <button class="tuc-btn is-outline is-sm" data-tuc-dropdown="#languages-side" data-placement="bottom-end" aria-label="Idioma: Español"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>ES</button><div class="tuc-dropdown" id="languages-side" hidden><a class="tuc-dropdown__item" href="../../pagination/" hreflang="pt-BR" lang="pt-BR"><span class="tuc-dropdown__text">Português</span></a><a class="tuc-dropdown__item" href="../../en/pagination/" hreflang="en" lang="en"><span class="tuc-dropdown__text">English</span></a><a class="tuc-dropdown__item" href="../../es/pagination/" hreflang="es" lang="es" aria-current="true"><span class="tuc-dropdown__text">Español</span></a></div>
+      <button class="tuc-btn is-outline is-icon is-sm" data-theme-toggle data-label-light="Usar tema claro" data-label-dark="Usar tema oscuro" aria-label="Cambiar tema"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
     </div>
   </div>
   <span class="tuc-badge is-plain ver">v0.33.1 · 51 KB</span>
@@ -117,7 +117,7 @@
   <div class="out" id="pagination-hero-log"></div>
 </div>
 
-<h2 id="exemplos">Ejemplos</h2>
+<h2 id="examples">Ejemplos</h2>
 <p class="lead">En esta página los clics no navegan: cada ejemplo cambia la página actual en el sitio, para que puedas probar.</p>
 
 <div class="demo">
@@ -125,7 +125,7 @@
     <div class="demo-cell">
       <h4>Pocas páginas</h4>
       <p>Sin puntos suspensivos, y el extremo inactivo se aparta del camino.</p>
-      <div data-tuc-pagination data-page="1" data-pages="4" id="pagination-poucas"></div>
+      <div data-tuc-pagination data-page="1" data-pages="4" id="pagination-few"></div>
     </div>
     <div class="demo-cell">
       <h4>Vecindad mayor</h4>
@@ -140,27 +140,27 @@
     <div class="demo-cell">
       <h4>Otros textos y parámetro</h4>
       <p><code>data-prev-text</code>, <code>data-next-text</code> y <code>data-param="p"</code> en la URL.</p>
-      <div data-tuc-pagination data-page="3" data-pages="8" data-prev-text="Volver" data-next-text="Avanzar" data-param="p" id="pagination-textos"></div>
+      <div data-tuc-pagination data-page="3" data-pages="8" data-prev-text="Volver" data-next-text="Avanzar" data-param="p" id="pagination-texts"></div>
     </div>
     <div class="demo-cell">
       <h4>Centrada</h4>
       <p><code>class="tuc-pagination is-center"</code> junto al <code>data-tuc-pagination</code>.</p>
-      <div class="tuc-pagination is-center" data-tuc-pagination data-page="2" data-pages="5" id="pagination-centro"></div>
+      <div class="tuc-pagination is-center" data-tuc-pagination data-page="2" data-pages="5" id="pagination-center"></div>
     </div>
     <div class="demo-cell">
       <h4>A la derecha</h4>
       <p><code>is-end</code>, para quedar bajo la columna de importes de una tabla.</p>
-      <div id="pagination-fim"></div>
+      <div id="pagination-end"></div>
     </div>
   </div>
 </div>
 
-<h2 id="uso">Cómo usar</h2>
+<h2 id="usage">Cómo usar</h2>
 <p class="lead">Con los números que el <code>Paginator</code> ya tiene. El elemento se reemplaza por la navegación al cargar y en cada
    <code>htmx:afterSwap</code>; con una sola página no se renderiza nada — no hay adónde ir.</p>
 
 <h3>En la plantilla de Django</h3>
-<div class="tuc-prose doc-code"><pre><code>{% for contrato in page_obj %}
+<div class="tuc-prose doc-code"><pre><code>{% for contract in page_obj %}
   …
 {% endfor %}
 
@@ -170,13 +170,13 @@
 
 <div class="tuc-prose doc-code"><pre><code>from django.core.paginator import Paginator
 
-def contratos(request):
-    qs = Contrato.objects.filter(cliente__nome__icontains=request.GET.get("q", "")).order_by("-criado_em")
+def contracts(request):
+    qs = Contract.objects.filter(customer__name__icontains=request.GET.get("q", "")).order_by("-created_at")
     page_obj = Paginator(qs, 25).get_page(request.GET.get("page"))
-    return render(request, "contratos/lista.html", {"page_obj": page_obj})</code></pre></div>
+    return render(request, "contracts/list.html", {"page_obj": page_obj})</code></pre></div>
 
-<p>En una página en <code>/contratos/?q=padaria&amp;sort=valor</code>, el enlace a la página 3 sale como
-   <code>/contratos/?q=padaria&amp;sort=valor&amp;page=3</code>: solo cambia el parámetro de la página. Eso es lo que mantiene la búsqueda y el orden
+<p>En una página en <code>/contracts/?q=padaria&amp;sort=amount</code>, el enlace a la página 3 sale como
+   <code>/contracts/?q=padaria&amp;sort=amount&amp;page=3</code>: solo cambia el parámetro de la página. Eso es lo que mantiene la búsqueda y el orden
    en pie al pasar de página, sin que la plantilla tenga que reconstruir la query string.</p>
 
 <div class="tuc-table-wrap"><table class="tuc-table">
@@ -204,19 +204,19 @@ def contratos(request):
   pages: 12,
   label: 'Paginación de los contratos', // aria-label de la navegación
   onChange: (page, p) =&gt; {            // con onChange, el clic no navega
-    carregar(page);
+    load(page);
     p.setPage(page);                  // redibuja con la nueva actual
   },
 });
-document.querySelector('#rodape').append(pag.node);
+document.querySelector('#footer').append(pag.node);
 
-pag.href(3);          // '/contratos/?q=padaria&amp;page=3' — el enlace de una página
+pag.href(3);          // '/contracts/?q=padaria&amp;page=3' — el enlace de una página
 pag.opts.pages = 15;
 pag.render();         // redibuja después de cambiar las opciones
 pag.destroy();        // quita el elemento
 
 // Solo el elemento, sin guardar la instancia
-document.querySelector('#rodape').append(Tucano.pagination({ page: 2, pages: 5 }));</code></pre></div>
+document.querySelector('#footer').append(Tucano.pagination({ page: 2, pages: 5 }));</code></pre></div>
 
 <p>La alineación es una clase en <code>.tuc-pagination</code>: desde JavaScript, <code>pag.node.classList.add('is-center')</code>, o
    <code>is-end</code>. En la plantilla el elemento marcado recibe la navegación dentro, así que escribe la clase junto al atributo:</p>
@@ -233,7 +233,7 @@ Tucano.pageWindow(10, 30, { around: 2 }); // [1, null, 8, 9, 10, 11, 12, null, 3
 <p>Un hueco de una sola página nunca se vuelve puntos suspensivos: mostrar el número ocupa el mismo espacio y da un destino más para
    hacer clic. Por eso, con la página 3 de 7, aparece el 2 en lugar de <code>…</code>.</p>
 
-<h2 id="por-que-links">Por qué enlaces, y no botones</h2>
+<h2 id="why-links">Por qué enlaces, y no botones</h2>
 <p class="lead">En una lista paginada por el servidor — el caso de todo CRUD de Django — el número de página vive en la URL. Cambiar los enlaces
    por <code>onclick</code> rompería de una vez el clic con el botón central, el botón atrás del navegador y la indexación.</p>
 
@@ -244,7 +244,7 @@ Tucano.pageWindow(10, 30, { around: 2 }); // [1, null, 8, 9, 10, 11, 12, null, 3
 <p>En el móvil (por debajo de <code>40rem</code>) las palabras de los extremos desaparecen y quedan las flechas: el espacio vale más para los números.
    Antes de que el script la arme, el elemento vacío ya reserva la altura de un control, para que el contenido de abajo no suba.</p>
 
-<h2 id="teclado">Teclado y accesibilidad</h2>
+<h2 id="keyboard">Teclado y accesibilidad</h2>
 <p class="lead">Son enlaces en un <code>&lt;nav&gt;</code>, y el teclado es el del navegador.</p>
 
 <div class="tuc-table-wrap"><table class="tuc-table">
@@ -299,9 +299,9 @@ Tucano.pageWindow(10, 30, { around: 2 }); // [1, null, 8, 9, 10, 11, 12, null, 3
   document.getElementById('pagination-hero').append(pagHero.node);
 
   // Alineación desde JavaScript: la clase va en el propio elemento de la navegación.
-  const pagFim = new Tucano.Pagination({ page: 2, pages: 5, onChange: (page, inst) => inst.setPage(page) });
-  pagFim.node.classList.add('is-end');
-  document.getElementById('pagination-fim').append(pagFim.node);
+  const pagEnd = new Tucano.Pagination({ page: 2, pages: 5, onChange: (page, inst) => inst.setPage(page) });
+  pagEnd.node.classList.add('is-end');
+  document.getElementById('pagination-end').append(pagEnd.node);
 
   // Los de data-tuc-pagination no tienen onChange: delegación en el documento, que no
   // depende de que la instancia ya exista cuando corre este script.

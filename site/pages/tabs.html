@@ -9,7 +9,7 @@ description: Abas desenhadas no template, com os papéis de tab e tabpanel e o t
    "aba, 2 de 4", a ligação entre aba e painel e o teclado, em que a lista é uma parada só do <code>Tab</code>.</p>
 
 <div class="demo is-hero">
-  <div class="tuc-tabs" data-tuc-tabs id="tabs-cliente">
+  <div class="tuc-tabs" data-tuc-tabs id="tabs-customer">
     <div class="tuc-tabs__list">
       <button class="tuc-tabs__tab" aria-selected="true">Dados</button>
       <button class="tuc-tabs__tab">Endereço</button>
@@ -18,14 +18,14 @@ description: Abas desenhadas no template, com os papéis de tab e tabpanel e o t
     </div>
     <div class="tuc-tabs__panel">
       <div class="demo-grid">
-        <div class="demo-cell"><label class="tuc-label" for="tabs-cliente-nome">Razão social</label><input type="text" class="tuc-input" id="tabs-cliente-nome" value="Tucano Comércio Ltda"></div>
-        <div class="demo-cell"><label class="tuc-label" for="tabs-cliente-doc">CNPJ</label><input type="text" id="tabs-cliente-doc" data-tuc-mask="cnpj" value="11222333000181"></div>
+        <div class="demo-cell"><label class="tuc-label" for="tabs-customer-name">Razão social</label><input type="text" class="tuc-input" id="tabs-customer-name" value="Tucano Comércio Ltda"></div>
+        <div class="demo-cell"><label class="tuc-label" for="tabs-customer-doc">CNPJ</label><input type="text" id="tabs-customer-doc" data-tuc-mask="cnpj" value="11222333000181"></div>
       </div>
     </div>
     <div class="tuc-tabs__panel" hidden>
       <div class="demo-grid">
-        <div class="demo-cell"><label class="tuc-label" for="tabs-cliente-cep">CEP</label><input type="text" id="tabs-cliente-cep" data-tuc-mask="cep" value="01310100"></div>
-        <div class="demo-cell"><label class="tuc-label" for="tabs-cliente-cidade">Cidade</label><input type="text" class="tuc-input" id="tabs-cliente-cidade" value="São Paulo"></div>
+        <div class="demo-cell"><label class="tuc-label" for="tabs-customer-zip">CEP</label><input type="text" id="tabs-customer-zip" data-tuc-mask="cep" value="01310100"></div>
+        <div class="demo-cell"><label class="tuc-label" for="tabs-customer-city">Cidade</label><input type="text" class="tuc-input" id="tabs-customer-city" value="São Paulo"></div>
       </div>
     </div>
     <div class="tuc-tabs__panel" hidden>
@@ -35,7 +35,7 @@ description: Abas desenhadas no template, com os papéis de tab e tabpanel e o t
   </div>
 </div>
 
-<h2 id="exemplos">Exemplos</h2>
+<h2 id="examples">Exemplos</h2>
 <p class="lead">A mesma marcação, com uma classe ou um atributo a mais.</p>
 
 <div class="demo">
@@ -43,7 +43,7 @@ description: Abas desenhadas no template, com os papéis de tab e tabpanel e o t
     <div class="demo-cell">
       <h4>Segmentadas</h4>
       <p><code>is-segmented</code> tem a altura de um campo, para trocar a visão de uma lista ao lado de um filtro.</p>
-      <div class="tuc-tabs is-segmented" data-tuc-tabs id="tabs-segmentadas">
+      <div class="tuc-tabs is-segmented" data-tuc-tabs id="tabs-segmented">
         <div class="tuc-tabs__list">
           <button class="tuc-tabs__tab" aria-selected="true">Todos</button>
           <button class="tuc-tabs__tab">Pendentes</button>
@@ -58,14 +58,14 @@ description: Abas desenhadas no template, com os papéis de tab e tabpanel e o t
       <h4>Segmentadas ao lado de um campo</h4>
       <p>Borda e respiro somam a altura do controle: a linha não desalinha.</p>
       <div class="bar">
-        <div class="tuc-tabs is-segmented" data-tuc-tabs id="tabs-filtro">
+        <div class="tuc-tabs is-segmented" data-tuc-tabs id="tabs-filter">
           <div class="tuc-tabs__list">
             <button class="tuc-tabs__tab" aria-selected="true">Dia</button>
             <button class="tuc-tabs__tab">Semana</button>
             <button class="tuc-tabs__tab">Mês</button>
           </div>
         </div>
-        <input type="search" class="tuc-input" id="tabs-filtro-busca" placeholder="Buscar..." aria-label="Buscar" style="width:auto;flex:1">
+        <input type="search" class="tuc-input" id="tabs-filter-search" placeholder="Buscar..." aria-label="Buscar" style="width:auto;flex:1">
       </div>
     </div>
     <div class="demo-cell">
@@ -86,7 +86,7 @@ description: Abas desenhadas no template, com os papéis de tab e tabpanel e o t
     <div class="demo-cell">
       <h4>Com ícone e contador</h4>
       <p>O <code>svg</code> e a <code>.tuc-badge is-plain</code> dentro da aba seguem a cor dela.</p>
-      <div class="tuc-tabs" data-tuc-tabs id="tabs-icones">
+      <div class="tuc-tabs" data-tuc-tabs id="tabs-icons">
         <div class="tuc-tabs__list">
           <button class="tuc-tabs__tab" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/></svg>Painel</button>
           <button class="tuc-tabs__tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v16H4zM4 9h16M9 20V9"/></svg>Tarefas <span class="tuc-badge is-plain">7</span></button>
@@ -100,7 +100,7 @@ description: Abas desenhadas no template, com os papéis de tab e tabpanel e o t
     <div class="demo-cell">
       <h4>Muitas abas</h4>
       <p>A lista rola na horizontal em vez de quebrar em duas linhas; a aba focada pelas setas entra na tela.</p>
-      <div class="tuc-tabs" data-tuc-tabs id="tabs-meses">
+      <div class="tuc-tabs" data-tuc-tabs id="tabs-months">
         <div class="tuc-tabs__list">
           <button class="tuc-tabs__tab">Janeiro</button><button class="tuc-tabs__tab">Fevereiro</button>
           <button class="tuc-tabs__tab">Março</button><button class="tuc-tabs__tab">Abril</button>
@@ -116,7 +116,7 @@ description: Abas desenhadas no template, com os papéis de tab e tabpanel e o t
     <div class="demo-cell">
       <h4>Aba desativada</h4>
       <p><code>disabled</code> ou <code>aria-disabled="true"</code>: não abre, e as setas pulam por ela.</p>
-      <div class="tuc-tabs" data-tuc-tabs id="tabs-desativada">
+      <div class="tuc-tabs" data-tuc-tabs id="tabs-disabled">
         <div class="tuc-tabs__list">
           <button class="tuc-tabs__tab" aria-selected="true">Rascunho</button>
           <button class="tuc-tabs__tab" aria-disabled="true">Revisão</button>
@@ -130,7 +130,7 @@ description: Abas desenhadas no template, com os papéis de tab e tabpanel e o t
   </div>
 </div>
 
-<h2 id="uso">Como usar</h2>
+<h2 id="usage">Como usar</h2>
 <p class="lead">Escreva as classes, <code>aria-selected="true"</code> na aba inicial e <code>hidden</code> nos outros painéis. As
    abas e os painéis casam pela ordem: a terceira aba abre o terceiro painel.</p>
 
@@ -159,11 +159,11 @@ description: Abas desenhadas no template, com os papéis de tab e tabpanel e o t
 <div class="tuc-tabs" data-tuc-tabs data-manual="true">
   <div class="tuc-tabs__list">
     <button class="tuc-tabs__tab" aria-selected="true">Resumo</button>
-    <button class="tuc-tabs__tab" hx-get="{% url 'cliente-faturas' cliente.pk %}"
-            hx-target="#faturas" hx-trigger="click once">Faturas</button>
+    <button class="tuc-tabs__tab" hx-get="{% url 'customer-invoices' customer.pk %}"
+            hx-target="#invoices" hx-trigger="click once">Faturas</button>
   </div>
-  <div class="tuc-tabs__panel">{% include "clientes/resumo.html" %}</div>
-  <div class="tuc-tabs__panel" id="faturas" hidden></div>
+  <div class="tuc-tabs__panel">{% include "customers/summary.html" %}</div>
+  <div class="tuc-tabs__panel" id="invoices" hidden></div>
 </div>
 </pre>
 
@@ -171,17 +171,17 @@ description: Abas desenhadas no template, com os papéis de tab e tabpanel e o t
 
 <h3>Em JavaScript</h3>
 <pre data-code="js">
-const abas = new Tucano.Tabs('#cliente', {
+const tabs = new Tucano.Tabs('#customer', {
   selected: 1,        // índice da aba inicial
   manual: true,
   onChange: (index, { tab, panel }) => console.log(index, tab.textContent),
 });
 
-abas.select(2);                     // abre a terceira; dispara onChange
-abas.select(0, { silent: true });   // abre sem disparar nada
-abas.index;                         // índice da aba aberta, ou -1
-abas.tabs;                          // as abas, na ordem
-abas.panels;                        // os painéis, na ordem
+tabs.select(2);                     // abre a terceira; dispara onChange
+tabs.select(0, { silent: true });   // abre sem disparar nada
+tabs.index;                         // índice da aba aberta, ou -1
+tabs.tabs;                          // as abas, na ordem
+tabs.panels;                        // os painéis, na ordem
 </pre>
 
 <p>Cada troca — pela pessoa ou por <code>select()</code> — dispara <code>tucano:change</code> no elemento das abas, e o evento
@@ -199,7 +199,7 @@ document.addEventListener('tucano:change', (e) => {
 <p>Abas dentro de um painel são outro conjunto: o componente só olha a lista e os painéis que são filhos diretos do seu
    elemento.</p>
 
-<h2 id="teclado">Teclado e acessibilidade</h2>
+<h2 id="keyboard">Teclado e acessibilidade</h2>
 <p class="lead">O teclado segue o padrão de abas do ARIA APG. A lista inteira é uma parada só do <code>Tab</code> — senão quem
    navega por teclado atravessaria todas as abas antes de chegar ao conteúdo da aberta.</p>
 

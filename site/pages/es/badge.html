@@ -18,7 +18,7 @@ description: Etiqueta de estado de un registro — aprobado, vencido, borrador �
   </div>
 </div>
 
-<h2 id="exemplos">Ejemplos</h2>
+<h2 id="examples">Ejemplos</h2>
 <p class="lead">El tono lleva el significado; el peso queda en el texto de la fila.</p>
 
 <div class="demo">
@@ -61,7 +61,7 @@ description: Etiqueta de estado de un registro — aprobado, vencido, borrador �
   </div>
 </div>
 
-<h2 id="uso">Cómo usar</h2>
+<h2 id="usage">Cómo usar</h2>
 <pre data-code="html">
 <span class="tuc-badge is-success">Aprobado</span>
 <span class="tuc-badge is-warning">En revisión</span>
@@ -75,21 +75,21 @@ description: Etiqueta de estado de un registro — aprobado, vencido, borrador �
 <p>El tono es una decisión del modelo, no de la plantilla: así es el mismo en el listado, en el detalle y en el correo.</p>
 
 <pre data-code="python">
-class Contrato(models.Model):
+class Contract(models.Model):
     status = models.CharField(max_length=20, choices=Status.choices)
 
     @property
     def status_tone(self):
-        return {"pago": "success", "analise": "warning", "vencido": "danger"}.get(self.status, "")
+        return {"paid": "success", "review": "warning", "overdue": "danger"}.get(self.status, "")
 </pre>
 
 <pre data-code="django">
-<span class="tuc-badge {% if contrato.status_tone %}is-{{ contrato.status_tone }}{% endif %}">
-  {{ contrato.get_status_display }}
+<span class="tuc-badge {% if contract.status_tone %}is-{{ contract.status_tone }}{% endif %}">
+  {{ contract.get_status_display }}
 </span>
 </pre>
 
-<h2 id="cor">Por qué no rellena</h2>
+<h2 id="color">Por qué no rellena</h2>
 <p class="lead">Fondo suave con texto fuerte. En una lista de veinte filas, veinte etiquetas sólidas compiten con el contenido y la
    tabla se convierte en un semáforo.</p>
 

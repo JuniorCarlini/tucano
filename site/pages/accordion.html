@@ -25,7 +25,7 @@ description: Acordeão sobre <details> e <summary> nativos — teclado, semânti
   </div>
 </div>
 
-<h2 id="exemplos">Exemplos</h2>
+<h2 id="examples">Exemplos</h2>
 <p class="lead">O mesmo <code>&lt;details&gt;</code>, com um atributo ou uma classe a mais.</p>
 
 <div class="demo">
@@ -33,7 +33,7 @@ description: Acordeão sobre <details> e <summary> nativos — teclado, semânti
     <div class="demo-cell">
       <h4>Vários abertos</h4>
       <p>Sem <code>data-single</code>, cada item abre e fecha por conta própria.</p>
-      <div class="tuc-accordion" data-tuc-accordion id="accordion-varios">
+      <div class="tuc-accordion" data-tuc-accordion id="accordion-multiple">
         <details open>
           <summary>Dados do contrato</summary>
           <p>Número 2026-0142, vigência de 12 meses.</p>
@@ -51,7 +51,7 @@ description: Acordeão sobre <details> e <summary> nativos — teclado, semânti
     <div class="demo-cell">
       <h4>Um de cada vez</h4>
       <p><code>data-single="true"</code> recolhe os outros ao abrir um.</p>
-      <div class="tuc-accordion" data-tuc-accordion data-single="true" id="accordion-unico">
+      <div class="tuc-accordion" data-tuc-accordion data-single="true" id="accordion-single">
         <details>
           <summary>Plano mensal</summary>
           <p>Cobrança todo dia 10, cancele quando quiser.</p>
@@ -69,14 +69,14 @@ description: Acordeão sobre <details> e <summary> nativos — teclado, semânti
     <div class="demo-cell">
       <h4>Conteúdo de verdade dentro</h4>
       <p>A altura é medida pelo navegador, não chutada: formulário, tabela e imagem abrem igual.</p>
-      <div class="tuc-accordion" data-tuc-accordion id="accordion-filtros">
+      <div class="tuc-accordion" data-tuc-accordion id="accordion-filters">
         <details>
           <summary>Filtros do relatório</summary>
           <div>
-            <label class="tuc-label" for="accordion-filtros-periodo">Período</label>
-            <input type="text" id="accordion-filtros-periodo" data-tuc-datepicker data-mode="range" placeholder="Escolha o intervalo">
-            <label class="tuc-label" for="accordion-filtros-uf" style="margin-top:12px">Estados</label>
-            <select id="accordion-filtros-uf" data-tuc-select multiple data-placeholder="Todos">
+            <label class="tuc-label" for="accordion-filters-period">Período</label>
+            <input type="text" id="accordion-filters-period" data-tuc-datepicker data-mode="range" placeholder="Escolha o intervalo">
+            <label class="tuc-label" for="accordion-filters-state" style="margin-top:12px">Estados</label>
+            <select id="accordion-filters-state" data-tuc-select multiple data-placeholder="Todos">
               <option value="sp">São Paulo</option><option value="rj">Rio de Janeiro</option>
               <option value="mg">Minas Gerais</option><option value="pr">Paraná</option>
             </select>
@@ -116,7 +116,7 @@ description: Acordeão sobre <details> e <summary> nativos — teclado, semânti
   </div>
 </div>
 
-<h2 id="uso">Como usar</h2>
+<h2 id="usage">Como usar</h2>
 <p class="lead">O HTML é o de sempre. Os <code>&lt;details&gt;</code> precisam ser filhos diretos do elemento marcado, e o
    <code>open</code> escrito no template diz quais nascem abertos.</p>
 
@@ -141,10 +141,10 @@ description: Acordeão sobre <details> e <summary> nativos — teclado, semânti
 <h3>No template do Django</h3>
 <pre data-code="django">
 <div class="tuc-accordion" data-tuc-accordion data-single="true">
-  {% for pergunta in perguntas %}
+  {% for question in questions %}
     <details{% if forloop.first %} open{% endif %}>
-      <summary>{{ pergunta.titulo }}</summary>
-      {{ pergunta.resposta|linebreaks }}
+      <summary>{{ question.title }}</summary>
+      {{ question.answer|linebreaks }}
     </details>
   {% endfor %}
 </div>
@@ -161,7 +161,7 @@ faq.items;           // os <details>, na ordem
 faq.destroy();
 </pre>
 
-<h2 id="animacao">Como anima</h2>
+<h2 id="animation">Como anima</h2>
 <p class="lead">A altura do conteúdo é <code>auto</code>, e <code>auto</code> não transiciona. Ao fechar, o navegador ainda some
    com o conteúdo no mesmo quadro em que o <code>open</code> cai.</p>
 
@@ -178,7 +178,7 @@ faq.destroy();
    Ao iniciar, o componente abre e fecha cada item no mesmo bloco síncrono — nada chega a pintar — só para adiantar esse
    cálculo. Com <code>prefers-reduced-motion</code>, a transição cai para 1 ms.</p>
 
-<h2 id="teclado">Teclado e acessibilidade</h2>
+<h2 id="keyboard">Teclado e acessibilidade</h2>
 <p class="lead">Tudo aqui vem do <code>&lt;details&gt;</code>: o <code>&lt;summary&gt;</code> é focável, e o leitor de tela anuncia
    recolhido e expandido sem nenhum <code>aria-*</code> nosso.</p>
 

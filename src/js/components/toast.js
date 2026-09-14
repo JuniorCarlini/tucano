@@ -141,7 +141,7 @@ export class Toast {
     this._build();
   }
 
-  /** Os filhos do toast. Sai do _montar para que atualizar() reaproveite. */
+  /** Os filhos do toast. Sai do _build para que update() reaproveite. */
   _content() {
     const { type, title, text, closable, action } = this.opts;
     return [
@@ -356,10 +356,10 @@ export function autoInit(scope = document) {
      * primeira palavra dava tipo "destaque", e o toast saia sem cor nem icone.
      * Vale a primeira palavra que for um tipo conhecido.
      */
-    const palavras = (d.type || 'info').trim().split(/\s+/).map((w) => DJANGO_MAP[w] ?? w);
-    const tipo = palavras.find((w) => w in DURATION) ?? palavras[0];
+    const words = (d.type || 'info').trim().split(/\s+/).map((w) => DJANGO_MAP[w] ?? w);
+    const type = words.find((w) => w in DURATION) ?? words[0];
     out.push(toast({
-      type: tipo,
+      type,
       title: d.title || undefined,
       text: (d.text ?? node.textContent).trim(),
       duration: d.duration === 'false' ? null : (d.duration ? +d.duration : undefined),

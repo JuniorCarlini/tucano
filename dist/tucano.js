@@ -1279,14 +1279,14 @@ var Tucano = (() => {
       const isStart = this.isRange ? isSameDay(date, rStart) : isSameDay(date, this.start);
       const isEnd = this.isRange && isSameDay(date, rEnd);
       const inRange = this.isRange && rStart && rEnd && compareDay(date, rStart) > 0 && compareDay(date, rEnd) < 0;
-      const distintas = rStart && rEnd && !isSameDay(rStart, rEnd);
+      const distinct = rStart && rEnd && !isSameDay(rStart, rEnd);
       const classes = ["tuc-dp__day"];
       if (outside) classes.push("is-outside");
       if (this._isDisabled(date)) classes.push("is-disabled");
       if (isSameDay(date, /* @__PURE__ */ new Date())) classes.push("is-today");
       if (isStart || isEnd) classes.push("is-selected");
-      if (isStart && distintas) classes.push("is-start");
-      if (isEnd && distintas) classes.push("is-end");
+      if (isStart && distinct) classes.push("is-start");
+      if (isEnd && distinct) classes.push("is-end");
       if (inRange) classes.push("is-in-range");
       if (this.pendingRange && isEnd) classes.push("is-preview");
       return classes;
@@ -1642,7 +1642,7 @@ var Tucano = (() => {
     // guarda o resultado de cada termo
     cacheSize: 60,
     shortCircuit: false,
-    // ver _semChance()
+    // ver _noChance()
     loadingText: "Buscando...",
     errorText: "Falha ao buscar",
     onChange: null
@@ -2334,11 +2334,11 @@ var Tucano = (() => {
     return { h, s: l === 0 || l === 1 ? 0 : (v - l) / Math.min(l, 1 - l), l };
   }
   function luminance({ r, g, b }) {
-    const canal = (c) => {
+    const channel = (c) => {
       const s = c / 255;
       return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
     };
-    return 0.2126 * canal(r) + 0.7152 * canal(g) + 0.0722 * canal(b);
+    return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b);
   }
   function isDark(color) {
     const hsva = typeof color === "string" ? parseColor(color) : color;
@@ -2807,8 +2807,6 @@ var Tucano = (() => {
     zone: "Arraste arquivos aqui ou clique para escolher",
     zoneOne: "Arraste um arquivo aqui ou clique para escolher",
     drop: "Solte para enviar",
-    uploading: "Enviando...",
-    pronto: "Enviado",
     cancel: "Cancelar",
     remove: "Remover",
     repeat: "Tentar de novo",
@@ -3265,13 +3263,13 @@ var Tucano = (() => {
     });
   }
   function mod11Digit(values, startWeight) {
-    let soma = 0;
-    let peso = startWeight;
+    let sum = 0;
+    let weight = startWeight;
     for (const v of values) {
-      soma += v * peso;
-      peso = peso === 2 ? 9 : peso - 1;
+      sum += v * weight;
+      weight = weight === 2 ? 9 : weight - 1;
     }
-    const rest = soma % 11;
+    const rest = sum % 11;
     return rest < 2 ? 0 : 11 - rest;
   }
   function validateCPF(value) {
@@ -3330,7 +3328,7 @@ var Tucano = (() => {
     cep: "#####-###",
     card: "#### #### #### ####"
   };
-  var PONTO = "\u2022";
+  var DOT = "\u2022";
   function maskMiddle(text, visible = 2, mode = "end") {
     const s = String(text ?? "");
     if (!s) return s;
@@ -3340,18 +3338,18 @@ var Tucano = (() => {
     const show = mode === "all" ? 0 : visible;
     let seen = 0;
     return [...s].map((c) => {
-      if (!alphanumeric(c)) return mode === "all" ? PONTO : c;
+      if (!alphanumeric(c)) return mode === "all" ? DOT : c;
       seen++;
-      return seen > total - show ? c : PONTO;
+      return seen > total - show ? c : DOT;
     }).join("");
   }
   function maskEmail(value) {
     const s = String(value ?? "");
-    const arroba = s.lastIndexOf("@");
-    if (arroba < 1) return maskMiddle(s, 0, "all");
-    const local = s.slice(0, arroba);
-    const domain = s.slice(arroba);
-    return local[0] + PONTO.repeat(Math.max(local.length - 1, 1)) + domain;
+    const atSign = s.lastIndexOf("@");
+    if (atSign < 1) return maskMiddle(s, 0, "all");
+    const local = s.slice(0, atSign);
+    const domain = s.slice(atSign);
+    return local[0] + DOT.repeat(Math.max(local.length - 1, 1)) + domain;
   }
 
   // src/js/components/mask.js
@@ -3634,15 +3632,15 @@ var Tucano = (() => {
      * Marca o campo. setCustomValidity faz o formulario do navegador barrar o
      * submit sozinho, sem o projeto escrever nada.
      *
-     * `aprovado` acende o verde (data-tuc-valid): so para valor preenchido e certo.
+     * `approved` acende o verde (data-tuc-valid): so para valor preenchido e certo.
      * Vazio fica neutro — obrigatoriedade e assunto do `required`, nao da mascara.
      */
-    _mark(ok, aprovado = false) {
+    _mark(ok, approved = false) {
       const msg = ok ? "" : this.opts.errorText || this.preset?.error || "Valor inv\xE1lido";
       this.input.setCustomValidity?.(msg);
       this.input.classList.toggle("tuc-invalid", !ok);
       this.input.setAttribute("aria-invalid", ok ? "false" : "true");
-      this.input.toggleAttribute("data-tuc-valid", ok && aprovado);
+      this.input.toggleAttribute("data-tuc-valid", ok && approved);
     }
     _emit() {
       const detail = { value: this.input.value, raw: this.getRaw(), number: this.getNumber(), instance: this };
@@ -3775,7 +3773,7 @@ var Tucano = (() => {
       this._cleanups = [];
       this._build();
     }
-    /** Os filhos do toast. Sai do _montar para que atualizar() reaproveite. */
+    /** Os filhos do toast. Sai do _build para que update() reaproveite. */
     _content() {
       const { type, title, text, closable, action } = this.opts;
       return [
@@ -3933,10 +3931,10 @@ var Tucano = (() => {
     for (const node of scope.querySelectorAll("[data-tuc-toast]:not([data-tuc-ready])")) {
       node.setAttribute("data-tuc-ready", "");
       const d = node.dataset;
-      const palavras = (d.type || "info").trim().split(/\s+/).map((w) => DJANGO_MAP[w] ?? w);
-      const tipo = palavras.find((w) => w in DURATION) ?? palavras[0];
+      const words = (d.type || "info").trim().split(/\s+/).map((w) => DJANGO_MAP[w] ?? w);
+      const type = words.find((w) => w in DURATION) ?? words[0];
       out.push(toast({
-        type: tipo,
+        type,
         title: d.title || void 0,
         text: (d.text ?? node.textContent).trim(),
         duration: d.duration === "false" ? null : d.duration ? +d.duration : void 0,
@@ -3993,7 +3991,7 @@ var Tucano = (() => {
       ]);
       node.setAttribute("aria-describedby", this.id);
       if (!node.hasAttribute("tabindex") && !FOCUSABLE.test(node.tagName)) node.tabIndex = 0;
-      const toque = () => window.matchMedia?.("(pointer: coarse)").matches;
+      const isTouch = () => window.matchMedia?.("(pointer: coarse)").matches;
       this._cleanups.push(
         on(node, "pointerenter", (e) => {
           if (e.pointerType !== "touch") this._schedule(true);
@@ -4004,7 +4002,7 @@ var Tucano = (() => {
         on(node, "focusin", () => this._show()),
         on(node, "focusout", () => this._hide()),
         on(node, "click", () => {
-          if (toque()) this.isOpen ? this._hide() : this._show();
+          if (isTouch()) this.isOpen ? this._hide() : this._show();
         }),
         on(document, "keydown", (e) => {
           if (e.key === "Escape" && this.isOpen) this._hide();
@@ -4128,8 +4126,8 @@ var Tucano = (() => {
       return this;
     }
     /** Conteudo livre no corpo: um form do Django, uma tabela, o que for. */
-    content(no) {
-      this.body?.replaceChildren(...(Array.isArray(no) ? no : [no]).filter(Boolean));
+    content(node) {
+      this.body?.replaceChildren(...(Array.isArray(node) ? node : [node]).filter(Boolean));
       return this;
     }
     _wire() {
@@ -4229,7 +4227,7 @@ var Tucano = (() => {
     const tone = rest.tone ?? "danger";
     return new Promise((resolve) => {
       let decided = false;
-      const responder = (v) => {
+      const answer = (v) => {
         decided = true;
         resolve(v);
       };
@@ -4237,8 +4235,8 @@ var Tucano = (() => {
         ...rest,
         tone,
         actions: [
-          { text: cancel, variant: "outline", onClick: () => responder(false) },
-          { text: okLabel, variant: tone === "danger" ? "danger" : "primary", onClick: () => responder(true) }
+          { text: cancel, variant: "outline", onClick: () => answer(false) },
+          { text: okLabel, variant: tone === "danger" ? "danger" : "primary", onClick: () => answer(true) }
         ],
         // Fechar pelo X, pelo Escape ou pelo fundo e uma recusa, nao um limbo:
         // sem isto a promessa ficaria pendente para sempre.
@@ -4878,11 +4876,11 @@ var Tucano = (() => {
     }
     _afterPick(tr, marked) {
       tr.classList.toggle("is-selected", marked);
-      const todas = this.rows.map((r) => r.querySelector(".tuc-table__check")).filter(Boolean);
-      const marcadas = todas.filter((c) => c.checked);
+      const checkboxes = this.rows.map((r) => r.querySelector(".tuc-table__check")).filter(Boolean);
+      const checkedBoxes = checkboxes.filter((c) => c.checked);
       if (this.checkAll) {
-        this.checkAll.checked = marcadas.length === todas.length && todas.length > 0;
-        this.checkAll.indeterminate = marcadas.length > 0 && marcadas.length < todas.length;
+        this.checkAll.checked = checkedBoxes.length === checkboxes.length && checkboxes.length > 0;
+        this.checkAll.indeterminate = checkedBoxes.length > 0 && checkedBoxes.length < checkboxes.length;
       }
       const detail = { selected: this.getSelected(), row: tr };
       this.node.dispatchEvent(new CustomEvent("tuc:select", { bubbles: true, detail }));
@@ -5033,9 +5031,9 @@ var Tucano = (() => {
     /** Troca a página mostrada como atual — para quem navega sem recarregar. */
     setPage(page) {
       this.opts.page = Math.min(Math.max(1, page), this.opts.pages);
-      const tinhaFoco = this.node.contains(document.activeElement);
+      const hadFocus = this.node.contains(document.activeElement);
       this.render();
-      if (tinhaFoco) this.node.querySelector('[aria-current="page"]')?.focus();
+      if (hadFocus) this.node.querySelector('[aria-current="page"]')?.focus();
       return this;
     }
     destroy() {
@@ -5099,17 +5097,17 @@ var Tucano = (() => {
   var EQUIVALENTS = { B: "STRONG", I: "EM" };
   var ALIGNMENTS = /* @__PURE__ */ new Set(["left", "center", "right", "justify"]);
   var ALIGNABLE = /* @__PURE__ */ new Set(["P", "H2", "H3", "LI", "BLOCKQUOTE", "TD", "TH"]);
-  function copyAlignment(de, para) {
-    if (!ALIGNABLE.has(para.tagName)) return;
-    const value = (de.style?.textAlign || "").toLowerCase();
-    if (ALIGNMENTS.has(value)) para.setAttribute("style", `text-align: ${value}`);
+  function copyAlignment(source, target) {
+    if (!ALIGNABLE.has(target.tagName)) return;
+    const value = (source.style?.textAlign || "").toLowerCase();
+    if (ALIGNMENTS.has(value)) target.setAttribute("style", `text-align: ${value}`);
   }
   function safeUrl(url) {
     const plain = (url || "").trim();
     return /^(https?:|mailto:|tel:|#|\/)/i.test(plain) ? plain : "";
   }
-  function clearNode(no, destination, doc) {
-    for (const child of [...no.childNodes]) {
+  function clearNode(node, destination, doc) {
+    for (const child of [...node.childNodes]) {
       if (child.nodeType === Node.TEXT_NODE) {
         destination.append(doc.createTextNode(child.nodeValue));
         continue;
@@ -5279,10 +5277,10 @@ var Tucano = (() => {
      */
     ["key", new RegExp(`\\b(${WORDS})\\b`)]
   ];
-  var COMBINADA = new RegExp(RULES.map(([, re]) => re.source).join("|"), "g");
+  var COMBINED = new RegExp(RULES.map(([, re]) => re.source).join("|"), "g");
   function highlight(code) {
     const text = escapeHtml(code ?? "");
-    return text.replace(COMBINADA, (whole, ...groups) => {
+    return text.replace(COMBINED, (whole, ...groups) => {
       const i = groups.findIndex((g) => g !== void 0);
       const className = RULES[i]?.[0];
       return className ? `<span class="tuc-tok-${className}">${whole}</span>` : whole;
@@ -5446,10 +5444,10 @@ var Tucano = (() => {
       if (target.tagName === "PRE") {
         const block = document.createDocumentFragment();
         for (const row of text2.split("\n")) {
-          const par = document.createElement("p");
-          if (row) par.textContent = row;
-          else par.append(document.createElement("br"));
-          block.append(par);
+          const paragraph = document.createElement("p");
+          if (row) paragraph.textContent = row;
+          else paragraph.append(document.createElement("br"));
+          block.append(paragraph);
         }
         const first = block.firstChild;
         target.replaceWith(block);
@@ -5548,22 +5546,22 @@ var Tucano = (() => {
   };
   function insertRow(cell, after) {
     const row = cell.parentElement;
-    const nova = document.createElement("tr");
-    for (let i = 0; i < row.children.length; i++) nova.append(emptyCell("td"));
+    const newRow = document.createElement("tr");
+    for (let i = 0; i < row.children.length; i++) newRow.append(emptyCell("td"));
     const body = cell.closest("table").querySelector("tbody");
     if (row.parentElement.tagName === "THEAD" && body) {
-      body.prepend(nova);
+      body.prepend(newRow);
     } else {
-      row.parentElement.insertBefore(nova, after ? row.nextSibling : row);
+      row.parentElement.insertBefore(newRow, after ? row.nextSibling : row);
     }
-    return nova.firstElementChild;
+    return newRow.firstElementChild;
   }
   function insertColumn(cell, after) {
     const i = [...cell.parentElement.children].indexOf(cell);
     for (const row of cell.closest("table").querySelectorAll("tr")) {
       const model = row.children[i];
-      const nova = emptyCell(model?.tagName === "TH" ? "th" : "td");
-      row.insertBefore(nova, after ? model?.nextSibling : model);
+      const newCell = emptyCell(model?.tagName === "TH" ? "th" : "td");
+      row.insertBefore(newCell, after ? model?.nextSibling : model);
     }
     return cell.parentElement.children[after ? i + 1 : i];
   }
@@ -5610,18 +5608,18 @@ var Tucano = (() => {
     if (howMany == null) return;
     const step = document.createTreeWalker(block, NodeFilter.SHOW_TEXT);
     let counted = 0;
-    let no;
-    while (no = step.nextNode()) {
-      if (counted + no.length >= howMany) {
+    let node;
+    while (node = step.nextNode()) {
+      if (counted + node.length >= howMany) {
         const r = document.createRange();
-        r.setStart(no, howMany - counted);
+        r.setStart(node, howMany - counted);
         r.collapse(true);
         const sel = window.getSelection();
         sel.removeAllRanges();
         sel.addRange(r);
         return;
       }
-      counted += no.length;
+      counted += node.length;
     }
   }
   var Editor = class {
@@ -5761,10 +5759,10 @@ var Tucano = (() => {
           if (!target && !e.shiftKey) {
             const body = cell.closest("table").querySelector("tbody") || cell.closest("table");
             const model = body.querySelector("tr") || cell.parentElement;
-            const nova = document.createElement("tr");
-            for (let i = 0; i < model.children.length; i++) nova.append(emptyCell("td"));
-            body.append(nova);
-            target = nova.firstElementChild;
+            const newRow = document.createElement("tr");
+            for (let i = 0; i < model.children.length; i++) newRow.append(emptyCell("td"));
+            body.append(newRow);
+            target = newRow.firstElementChild;
             this._sync();
           }
           focusCell(target);
@@ -5805,7 +5803,7 @@ var Tucano = (() => {
       return sel.anchorNode.nodeType === Node.ELEMENT_NODE ? sel.anchorNode : sel.anchorNode.parentElement;
     }
     _markActive() {
-      const no = this._currentNode();
+      const node = this._currentNode();
       for (const b of this.toolbar.querySelectorAll("[data-action]")) {
         const action = b.dataset.action;
         const cmd = STATES[action];
@@ -5817,8 +5815,8 @@ var Tucano = (() => {
             active = document.queryCommandState(cmd);
           } catch {
           }
-        } else if (no) {
-          active = !!no.closest?.(selector);
+        } else if (node) {
+          active = !!node.closest?.(selector);
         }
         b.setAttribute("aria-pressed", String(active));
         b.classList.toggle("is-active", active);
@@ -5828,8 +5826,8 @@ var Tucano = (() => {
     _currentCell() {
       const sel = window.getSelection();
       if (!sel?.anchorNode || !this.area.contains(sel.anchorNode)) return null;
-      const no = sel.anchorNode.nodeType === Node.ELEMENT_NODE ? sel.anchorNode : sel.anchorNode.parentElement;
-      const cell = no?.closest?.("th, td") ?? null;
+      const node = sel.anchorNode.nodeType === Node.ELEMENT_NODE ? sel.anchorNode : sel.anchorNode.parentElement;
+      const cell = node?.closest?.("th, td") ?? null;
       return cell && this.area.contains(cell) ? cell : null;
     }
     _syncTableBar() {
