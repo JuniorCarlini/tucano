@@ -308,6 +308,14 @@
 
 &lt;button class="tuc-btn is-outline is-icon" aria-label="Abrir menu" data-tuc-drawer="#menu-principal"&gt;…&lt;/button&gt;</code></pre></div>
 
+<p>Na coluna fixa do desktop, faça dela uma coluna flex com altura, com a marca em cima e o menu embaixo. O
+   <code>.tuc-menu</code> ocupa o que sobra e rola sozinho quando a lista passa da tela — a marca continua parada no
+   topo. Na gaveta quem rola é o corpo dela, e não é preciso nada.</p>
+<div class="tuc-prose doc-code"><pre><code>&lt;aside style="display: flex; flex-direction: column; height: 100vh; position: sticky; top: 0"&gt;
+  &lt;a href="/"&gt;Minha marca&lt;/a&gt;
+  &lt;nav class="tuc-menu" aria-label="Painel"&gt;…&lt;/nav&gt;
+&lt;/aside&gt;</code></pre></div>
+
 <h2 id="submenu">Submenu</h2>
 <p class="lead">O item que abre e revela filhos é um <code>&lt;details&gt;</code>, e a abertura reaproveita o
    <a href="../accordion/">acordeão</a>: a animação, o teclado e o funcionamento sem JavaScript já vêm prontos. O menu cuida só

@@ -209,6 +209,16 @@ description: Lista de navegação só com classes — item, ícone, contador, se
 <button class="tuc-btn is-outline is-icon" aria-label="Abrir menu" data-tuc-drawer="#menu-principal">…</button>
 </pre>
 
+<p>Na coluna fixa do desktop, faça dela uma coluna flex com altura, com a marca em cima e o menu embaixo. O
+   <code>.tuc-menu</code> ocupa o que sobra e rola sozinho quando a lista passa da tela — a marca continua parada no
+   topo. Na gaveta quem rola é o corpo dela, e não é preciso nada.</p>
+<pre data-code="html">
+<aside style="display: flex; flex-direction: column; height: 100vh; position: sticky; top: 0">
+  <a href="/">Minha marca</a>
+  <nav class="tuc-menu" aria-label="Painel">…</nav>
+</aside>
+</pre>
+
 <h2 id="submenu">Submenu</h2>
 <p class="lead">O item que abre e revela filhos é um <code>&lt;details&gt;</code>, e a abertura reaproveita o
    <a href="../accordion/">acordeão</a>: a animação, o teclado e o funcionamento sem JavaScript já vêm prontos. O menu cuida só

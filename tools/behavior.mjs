@@ -399,6 +399,32 @@ body{margin:0;padding:16px;font-family:system-ui}
     if (!document.querySelector('.tuc-drawer.is-right.is-lg .tuc-drawer__panel')) throw new Error('classes');
     g.close(); limpar();
   });
+  t('gaveta com conteúdo longo cabe na tela e rola no corpo', function () {
+    // A grade do <dialog> crescia com o conteúdo: o painel ficava com a altura da
+    // lista, passava da tela e o corpo, que devia rolar, nunca ficava menor que ela.
+    limpar();
+    var lista = document.createElement('nav');
+    lista.className = 'tuc-menu';
+    for (var i = 0; i < 60; i++) { var a = document.createElement('a'); a.className = 'tuc-menu__item'; a.href = '#'; a.textContent = 'Item ' + i; lista.append(a); }
+    var g = Tucano.drawer({ title: 'Menu', side: 'left' });
+    g.content(lista); g.open();
+    var painel = document.querySelector('.tuc-drawer__panel'), corpo = document.querySelector('.tuc-drawer__body');
+    if (painel.getBoundingClientRect().height > innerHeight + 1) throw new Error('painel passou da tela: ' + Math.round(painel.getBoundingClientRect().height) + 'px em ' + innerHeight);
+    if (corpo.scrollHeight <= corpo.clientHeight) throw new Error('corpo não rola');
+    g.close(); limpar();
+  });
+  t('menu numa coluna de altura fixa rola, em vez de vazar', function () {
+    var coluna = document.createElement('div');
+    coluna.style.cssText = 'display:flex;flex-direction:column;height:200px';
+    var menu = document.createElement('nav');
+    menu.className = 'tuc-menu';
+    for (var i = 0; i < 30; i++) { var a = document.createElement('a'); a.className = 'tuc-menu__item'; a.href = '#'; a.textContent = 'Item ' + i; menu.append(a); }
+    coluna.append(menu); document.body.append(coluna);
+    var alto = menu.getBoundingClientRect().height, rola = menu.scrollHeight > menu.clientHeight;
+    coluna.remove();
+    if (alto > 201) throw new Error('menu vazou da coluna: ' + Math.round(alto) + 'px');
+    if (!rola) throw new Error('menu não rola');
+  });
   t('toast aparece na posição pedida', function () {
     var x = Tucano.toast({ type: 'success', text: 'ok', position: 'bottom-end' });
     if (!document.querySelector('.tuc-toasts.is-bottom-end .tuc-toast.is-success')) throw new Error('posição ou tom');
