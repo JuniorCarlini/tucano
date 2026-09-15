@@ -521,7 +521,9 @@ funcionam sem nada especial:
 <textarea name="description" data-tuc-editor>{{ form.description.value|default:"" }}</textarea>
 ```
 
-Colar entra sempre como texto puro — é o que evita o HTML do Word. E a saída
+Colar e arrastar entram sempre como texto puro — é o que evita o HTML do Word.
+Editor vazio vale `''`, e não um parágrafo em branco, então `required` funciona;
+e endereço de link sem esquema ganha `https://`. E a saída
 passa por uma peneira de tags a cada leitura: sobrevivem parágrafo, título,
 negrito, itálico, sublinhado, listas, citação, código, link e tabela. Atributo
 nenhum passa, exceto o `href` com destino aceitável.

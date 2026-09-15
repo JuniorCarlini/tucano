@@ -86,7 +86,7 @@ const ed = new Tucano.Editor('#description', {
   table: { rows: 4, cols: 2 },     // rows including the header
 });
 
-ed.getValue();                   // HTML, already sanitized
+ed.getValue();                   // HTML, already sanitized; '' when empty
 ed.setValue('<p>New text</p>');  // sanitizes, highlights code and updates the textarea
 ed.apply('bold');                // same as the toolbar button
 ed.inTable('rowBelow');          // operation on the cell where the cursor is
@@ -115,7 +115,7 @@ ed.destroy();                    // gives back the original textarea
 <p>The toolbar stays on a single line and scrolls when it does not fit, instead of wrapping onto two: that way the height does not change and anyone
    looking for a button knows it has not moved to another row. The button names are in Portuguese by default; <code>Tucano.setTexts({ editor })</code> replaces them.</p>
 
-<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Pasting always comes in as plain text</p><p>That is what keeps out the HTML from Word and Google Docs, with layout tables and inline styles, which is where homemade editors break first. You lose the source formatting and gain a document that is still yours.</p></div></div>
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Pasting and dropping always come in as plain text</p><p>That is what keeps out the HTML from Word and Google Docs, and from another page dragged in, with layout tables and inline styles, which is where homemade editors break first. You lose the source formatting and gain a document that is still yours.</p></div></div>
 
 <div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Ctrl+Z is the browser's</p><p>Formatting goes through <code>execCommand</code>, which is deprecated and used anyway: it is the only path with universal support and the only one that integrates with native undo. Reimplementing it by hand would mean reimplementing <code>Ctrl+Z</code> too. The exception is removing a code block, which leaves the history for that one action.</p></div></div>
 
@@ -157,7 +157,8 @@ ed.destroy();                    // gives back the original textarea
 <p>Select the text and use the button or <code>Ctrl/Cmd+K</code>. <code>Enter</code> in the field confirms. With the cursor
    on an existing link, the box opens with its address and gains "Remover" (remove). Only addresses starting with
    <code>http:</code>, <code>https:</code>, <code>mailto:</code>, <code>tel:</code>, <code>#</code> or <code>/</code> get through —
-   everything else, <code>javascript:</code> included, loses the link and keeps the text. Every saved link comes out with
+   everything else, <code>javascript:</code> and <code>//other-site.com</code> included, loses the link and keeps the text.
+   An address typed without a scheme, such as <code>example.com</code>, gets <code>https://</code> in front. Every saved link comes out with
    <code>target="_blank"</code> and <code>rel="noopener noreferrer"</code>.</p>
 
 <h2 id="value">Value and form</h2>
@@ -176,6 +177,10 @@ document.querySelector('#description').addEventListener('change', (e) => {
 
 <p>The editor does not fire <code>tucano:change</code>: the value is form text, and the textarea's native events already
    serve HTMX's <code>hx-trigger="change"</code> and validation.</p>
+
+<p>An empty editor is empty: the textarea gets <code>''</code>, not a blank paragraph — so <code>required</code> blocks
+   the submit, and the browser's warning moves focus to the area. The form's <code>reset</code> brings the editor back
+   to its original content.</p>
 
 <h3>The sanitizer</h3>
 <p>The output goes through a closed list of tags on every read, not just on what was typed: the browser is

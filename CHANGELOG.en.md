@@ -8,6 +8,11 @@ in your project.
 
 ### Before upgrading
 
+- The value of an empty editor changed from `<p><br></p>` to `''`, in
+  `getValue()` and in the `<textarea>` that goes in the POST. Code that detected
+  emptiness by comparing to `<p><br></p>`, in JavaScript or on the server, now
+  gets an empty string — and a `required` field now blocks the submit, as it
+  should.
 - With the script loaded with `defer`, auto-init now waits for
   `DOMContentLoaded` instead of running the moment the script executes. That is
   what leaves room to call `Tucano.setTexts()` before the components mount. A
@@ -155,6 +160,32 @@ in your project.
 - The calendar grid had no `role="row"`, and the region that announces the
   month change was recreated on every render, so screen readers didn't announce
   it.
+- Dragging a passage from another page into the editor brought its HTML along —
+  heading, color, style and `<img>`, which the browser even downloaded. Dropping
+  now comes in as plain text, like pasting.
+- The editor's sanitizer accepted `//site.com` and `/\site.com` as local paths,
+  so the saved link pointed to another domain.
+- Editor link box: a typed `javascript:` became a clickable link in the area
+  (the saved value was clean); an address without a scheme, such as
+  `example.com`, silently vanished on save and now gets `https://`; and changing
+  the address with the cursor inside the link split it in two.
+- `Enter` and pasting inside an editor code block lost the line breaks on
+  repaint, and the lines merged into one.
+- `Tab` in an editor table moved only one cell and never left an empty cell. It
+  now walks through all of them and adds a row at the last one.
+- The editor's `placeholder` never showed.
+- `required` on the editor didn't work: untouched, it blocked the submit without
+  showing where; cleared, it posted `<p><br></p>` and passed. And the form's
+  `reset` didn't bring the editor back to its original content.
+- A table inserted in the editor landed inside the cursor's paragraph, left an
+  extra `<p></p>` in the value, and the next `Ctrl+Z` undid the text and kept
+  the table.
+- Selecting bold text outside the editor lit up the Bold button of every editor
+  on the page.
+- A list applied to a paragraph left `<p></p>` before and after it in the saved
+  value.
+- The editor's `destroy()` left `_tucano` and the class on the textarea, and the
+  scheduled repaint still ran.
 
 ## 0.33.1 — 2026-09-14
 

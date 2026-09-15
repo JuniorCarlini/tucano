@@ -1015,7 +1015,8 @@ input.tuc-input.tuc-input:is([data-tuc-valid], [data-validate]:not([data-tuc-mas
 textarea.tuc-editor__value[hidden] {
   display: none;
 }
-.tuc-editor__area:empty::before, .tuc-editor__area > p:only-child:empty::before {
+.tuc-editor__area.is-empty::before {
+  position: absolute;
   content: attr(data-placeholder);
   color: var(--tuc-subtle);
   pointer-events: none;
@@ -1166,9 +1167,6 @@ textarea.tuc-editor__value[hidden] {
   font-size: var(--tuc-text);
   line-height: 1.65;
   color: var(--tuc-fg);
-}
-.tuc-prose pre {
-  overflow-x: auto;
 }
 .tuc-prose__block {
   position: relative;

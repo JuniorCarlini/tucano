@@ -8,6 +8,10 @@ cambios en tu proyecto.
 
 ### Antes de actualizar
 
+- El valor de un editor vacío pasó de `<p><br></p>` a `''`, en `getValue()` y en
+  el `<textarea>` que va en el POST. Quien reconocía el vacío comparando con
+  `<p><br></p>`, en JavaScript o en el servidor, pasa a recibir una cadena vacía
+  — y un campo `required` ahora bloquea el envío, como debía.
 - Con el script cargado con `defer`, la inicialización automática ahora espera
   a `DOMContentLoaded`, en lugar de ejecutarse en el instante en que corre el
   script. Es lo que da tiempo a llamar a `Tucano.setTexts()` antes de que los
@@ -159,6 +163,33 @@ cambios en tu proyecto.
 - La cuadrícula del calendario no tenía `role="row"`, y la región que anuncia el
   cambio de mes se recreaba en cada render, así que el lector de pantalla no la
   anunciaba.
+- Arrastrar un fragmento de otra página dentro del editor traía el HTML consigo —
+  título, color, estilo e `<img>`, que el navegador llegaba a descargar. Soltar
+  ahora entra como texto plano, como pegar.
+- El filtro del editor aceptaba `//sitio.com` y `/\sitio.com` como ruta local, y
+  el enlace guardado apuntaba a otro dominio.
+- Caja de enlace del editor: un `javascript:` escrito se volvía un enlace
+  clicable en el área (el valor guardado salía limpio); una dirección sin
+  esquema, como `ejemplo.com`, desaparecía en silencio al guardar y ahora recibe
+  `https://`; y cambiar la dirección con el cursor dentro del enlace lo partía
+  en dos.
+- `Enter` y pegar dentro de un bloque de código del editor perdían los saltos de
+  línea al repintar, y las líneas se juntaban en una sola.
+- `Tab` en una tabla del editor avanzaba una sola celda y no salía de una celda
+  vacía. Ahora las recorre todas y crea una fila en la última.
+- El `placeholder` del editor nunca aparecía.
+- `required` en el editor no funcionaba: sin tocar, bloqueaba el envío sin
+  mostrar dónde; vaciado, enviaba `<p><br></p>` y pasaba. Y el `reset` del
+  formulario no devolvía el editor al contenido original.
+- Una tabla insertada en el editor quedaba dentro del párrafo del cursor, dejaba
+  un `<p></p>` de más en el valor, y el siguiente `Ctrl+Z` deshacía el texto y
+  dejaba la tabla.
+- Seleccionar texto en negrita fuera del editor encendía el botón de negrita de
+  todos los editores de la página.
+- Una lista aplicada a un párrafo dejaba `<p></p>` antes y después de ella en el
+  valor guardado.
+- `destroy()` del editor dejaba `_tucano` y la clase en el textarea, y el
+  repintado programado seguía corriendo.
 
 ## 0.33.1 — 2026-09-14
 

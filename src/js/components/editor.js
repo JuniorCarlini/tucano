@@ -1,5 +1,5 @@
 import { el, escapeHtml, icon, omitUndefined, on } from '../core/dom.js';
-import { sanitize } from '../core/sanitize.js';
+import { sanitize, safeUrl } from '../core/sanitize.js';
 import { Modal } from './modal.js';
 import { highlight } from '../core/highlight.js';
 import { EDITOR_TEXTS as T } from '../core/texts.js';
@@ -76,35 +76,37 @@ const COMMANDS = {
   right:    () => document.execCommand('justifyRight'),
   justify: () => document.execCommand('justifyFull'),
   code:     () => toggleCode(),
+  table:    (ed) => insertTable(ed),
+  link:     (ed) => ed._askForLink(),
 };
 
-/* Estado que o proprio navegador informa. */
+/*
+ * Quando o botao acende.
+ *
+ * O valor e um comando ou um seletor. queryCommandState cobre negrito, lista e
+ * alinhamento, e para ai; para o resto — "o cursor esta dentro de uma
+ * citacao?" — a pergunta e feita ao elemento em volta do cursor. Um mapa so
+ * serve aos dois porque cada valor so casa do seu lado: nao existe elemento
+ * <insertorderedlist>, e o comando 'h2' nao existe. Sem o lado do DOM metade da
+ * barra ficava apagada mesmo com o cursor dentro do bloco que ela aplica.
+ */
 const STATES = {
   bold: 'bold', italic: 'italic', underline: 'underline',
   list: 'insertUnorderedList', numbered: 'insertOrderedList',
   left: 'justifyLeft', center: 'justifyCenter',
   right: 'justifyRight', justify: 'justifyFull',
-};
-
-/*
- * Estado que so o DOM sabe.
- *
- * Nao existe comando que responda "o cursor esta dentro de uma citacao?" —
- * queryCommandState cobre negrito, lista e alinhamento, e para ai. Para o resto
- * a pergunta e feita ao elemento em volta do cursor. Sem isto metade da barra
- * ficava apagada mesmo com o cursor dentro do bloco que ela aplica, e nao havia
- * como saber que clicar de novo desfaz.
- */
-const ANCESTORS = {
-  title: 'h2',
-  subheading: 'h3',
-  quote: 'blockquote',
-  code: 'pre, code',
-  link: 'a',
-  table: 'table',
+  title: 'h2', subheading: 'h3', quote: 'blockquote',
+  code: 'pre, code', link: 'a', table: 'table',
 };
 
 const SHORTCUTS = { b: 'bold', i: 'italic', u: 'underline', k: 'link' };
+
+/** Troca a selecao do documento por este intervalo. */
+function select(range) {
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+}
 
 /*
  * O execCommand nao tem comando de codigo, entao a marcacao e montada aqui —
@@ -132,8 +134,7 @@ function toggleCode() {
      */
     r.setStartBefore(target);
     r.setEndAfter(target);
-    sel.removeAllRanges();
-    sel.addRange(r);
+    select(r);
     /*
      * O bloco e trocado direto no DOM, e nao por execCommand.
      *
@@ -160,8 +161,7 @@ function toggleCode() {
         const pos = document.createRange();
         pos.selectNodeContents(first);
         pos.collapse(true);
-        sel.removeAllRanges();
-        sel.addRange(pos);
+        select(pos);
       }
       return;
     }
@@ -198,27 +198,6 @@ function toggleBlock(tag) {
 }
 
 /*
- * A tabela e montada aqui, e nao pelo execCommand — que nao insere tabela em
- * navegador nenhum. Vai com cabecalho porque tabela de sistema quase sempre
- * tem um, e sem ele a primeira linha de dados acaba servindo de titulo.
- */
-function buildTable(rows, cols) {
-  const table = document.createElement('table');
-  const thead = document.createElement('thead');
-  const header = document.createElement('tr');
-  for (let c = 0; c < cols; c++) header.append(emptyCell('th'));
-  thead.append(header);
-  const tbody = document.createElement('tbody');
-  for (let l = 0; l < rows - 1; l++) {
-    const tr = document.createElement('tr');
-    for (let c = 0; c < cols; c++) tr.append(emptyCell('td'));
-    tbody.append(tr);
-  }
-  table.append(thead, tbody);
-  return table;
-}
-
-/*
  * Cada tabela mora numa caixa que rola na horizontal, para a tabela larga nao
  * espremer as colunas. A caixa e so exibicao: e uma <div>, que a peneira
  * dissolve, entao o valor salvo continua sem ela.
@@ -243,6 +222,36 @@ function wrapTables(area) {
     table.before(box);
     box.append(table);
   }
+}
+
+/*
+ * A tabela vai por insertHTML, e nao montada no DOM — que o execCommand nao
+ * tem comando de tabela em navegador nenhum. Assim ela entra no desfazer
+ * nativo, e o navegador fecha o paragrafo em volta antes de inserir: posta
+ * pelo DOM, ela ia parar dentro do <p> do cursor, e o Ctrl+Z seguinte desfazia
+ * o texto de antes e deixava a tabela.
+ *
+ * Vai com cabecalho porque tabela de sistema quase sempre tem um, e sem ele a
+ * primeira linha de dados acaba servindo de titulo.
+ */
+function insertTable(ed) {
+  const { rows, cols } = ed.opts.table;
+  const row = (tag) => `<tr>${`<${tag}><br></${tag}>`.repeat(cols)}</tr>`;
+  /*
+   * Com o cursor dentro de uma celula, a nova tabela nasce depois da atual, e
+   * nao dentro dela. Tabela aninhada quase nunca e o que se queria, e desfazer
+   * isso pelo editor e trabalhoso.
+   */
+  const inside = ed._currentCell()?.closest('table');
+  if (inside) {
+    const r = document.createRange();
+    r.setStartAfter(inside.closest(`.${SCROLL}`) || inside);
+    select(r);
+  }
+  // Um paragrafo depois da tabela: sem ele nao ha onde continuar escrevendo
+  // quando ela e a ultima coisa do texto. O cursor fica nele, e dali acha a tabela.
+  document.execCommand('insertHTML', false, `<table><thead>${row('th')}</thead><tbody>${row('td').repeat(rows - 1)}</tbody></table><p><br></p>`);
+  focusCell(ed._currentNode()?.closest('p')?.previousElementSibling?.querySelector('th'));
 }
 
 /** Proxima celula na ordem de leitura, ou nada se for a ultima. */
@@ -342,9 +351,7 @@ function focusCell(cell) {
   const r = document.createRange();
   r.selectNodeContents(cell);
   r.collapse(true);
-  const s = window.getSelection();
-  s.removeAllRanges();
-  s.addRange(r);
+  select(r);
 }
 
 /*
@@ -373,9 +380,7 @@ function restoreOffset(block, howMany) {
       const r = document.createRange();
       r.setStart(node, howMany - counted);
       r.collapse(true);
-      const sel = window.getSelection();
-      sel.removeAllRanges();
-      sel.addRange(r);
+      select(r);
       return;
     }
     counted += node.length;
@@ -459,24 +464,45 @@ export class Editor {
 
     this._cleanups.push(
       on(this.area, 'input', () => { wrapTables(this.area); this._sync(); this._schedulePaint(); }),
-      on(this.area, 'blur', () => this._sync()),
       on(this.area, 'paste', (e) => this._paste(e)),
+      /*
+       * Arrastar para dentro entra como texto puro, pelo mesmo motivo de colar:
+       * soltar um trecho de outra pagina trazia fonte, cor, <h1> e <img> — que a
+       * peneira tirava do valor, mas nao da tela, e a imagem ainda era baixada.
+       */
+      on(this.area, 'beforeinput', (e) => {
+        if (e.inputType !== 'insertFromDrop') return;
+        e.preventDefault();
+        const [target] = e.getTargetRanges();
+        const r = document.createRange();
+        r.setStart(target.startContainer, target.startOffset);
+        select(r);
+        document.execCommand('insertText', false, e.dataTransfer.getData('text/plain'));
+      }),
       on(this.area, 'keydown', (e) => this._onKey(e)),
-      on(this.area, 'keyup', () => this._markActive()),
-      on(this.area, 'mouseup', () => this._markActive()),
       // selectionchange e global: e o unico evento que pega o cursor mudando
       // de lugar por qualquer caminho, inclusive clique fora e volta.
       on(document, 'selectionchange', () => {
         // Guarda a ultima selecao feita dentro da area: quem chega a barra pelo
-        // Tab tira o foco dali, e o comando precisa de onde aplicar.
+        // Tab tira o foco dali, e o comando precisa de onde aplicar. Com o foco
+        // na barra o estado fica como estava, para o botao nao se apagar sob
+        // quem esta nele.
         const sel = window.getSelection();
         if (sel?.rangeCount && this.area.contains(sel.anchorNode)) this._range = sel.getRangeAt(0).cloneRange();
+        else if (this.root.contains(document.activeElement)) return;
         this._syncTableBar();
         this._markActive();
       }),
+      // O reset do formulario volta o textarea ao valor de origem; a area vai junto.
+      // Adiado porque o evento chega antes de o navegador trocar o valor.
+      on(field.form ?? field, 'reset', () => setTimeout(() => this.setValue(field.value))),
+      // Campo obrigatorio vazio: o textarea escondido nao recebe foco, e o
+      // navegador barrava o envio sem mostrar onde. O foco vai para a area.
+      on(field, 'invalid', () => this.area.focus()),
     );
 
     this._paint();
+    this.area.classList.toggle('is-empty', !this.getValue());
     field._tucano = this;
     this.area._tucano = this;
   }
@@ -488,8 +514,13 @@ export class Editor {
    */
   _paint() {
     for (const code of this.area.querySelectorAll('pre > code')) {
-      const raw = code.textContent;
-      const painted = highlight(raw);
+      /*
+       * Enter e colar dentro do bloco escrevem <br>, e textContent nao ve <br>:
+       * a repintura seguinte juntava as linhas numa so. A quebra vira "\n"
+       * antes, que e como o <pre> guarda linha.
+       */
+      for (const br of code.querySelectorAll('br')) br.replaceWith('\n');
+      const painted = highlight(code.textContent);
       if (code.innerHTML === painted) continue;
       const where = offsetInBlock(code);
       code.innerHTML = painted;
@@ -499,7 +530,8 @@ export class Editor {
 
   /* O textarea escondido e a fonte da verdade para o formulario. */
   _sync() {
-    const plain = sanitize(this.area.innerHTML);
+    const plain = this.getValue();
+    this.area.classList.toggle('is-empty', !plain);
     if (this.field.value === plain) return;
     this.field.value = plain;
     this.field.dispatchEvent(new Event('input', { bubbles: true }));
@@ -519,25 +551,25 @@ export class Editor {
   }
 
   _onKey(e) {
-    if (e.key === 'Tab') {
-      const cell = window.getSelection()?.anchorNode?.parentElement?.closest?.('th, td');
-      if (cell) {
-        e.preventDefault();
-        let target = nextCell(cell, e.shiftKey);
-        // Tab na ultima celula acrescenta uma linha: e como se preenche tabela
-        // sem tirar as maos do teclado.
-        if (!target && !e.shiftKey) {
-          const body = cell.closest('table').querySelector('tbody') || cell.closest('table');
-          const model = body.querySelector('tr') || cell.parentElement;
-          const newRow = document.createElement('tr');
-          for (let i = 0; i < model.children.length; i++) newRow.append(emptyCell('td'));
-          body.append(newRow);
-          target = newRow.firstElementChild;
-          this._sync();
-        }
-        focusCell(target);
-        return;
+    const cell = e.key === 'Tab' && this._currentCell();
+    if (cell) {
+      /*
+       * A celula vem de _currentCell, e nao do pai do no da selecao: numa
+       * celula vazia, e logo depois de o Tab pular para outra, a selecao aponta
+       * a propria celula, cujo pai e a linha — e o segundo Tab saia do editor.
+       */
+      let target = nextCell(cell, e.shiftKey);
+      // Shift+Tab na primeira celula sai do editor, como em qualquer campo.
+      if (!target && e.shiftKey) return;
+      e.preventDefault();
+      // Tab na ultima celula acrescenta uma linha: e como se preenche tabela
+      // sem tirar as maos do teclado.
+      if (!target) {
+        target = insertRow(cell, 1);
+        this._sync();
       }
+      focusCell(target);
+      return;
     }
     const t = e.key.toLowerCase();
     if ((e.metaKey || e.ctrlKey) && SHORTCUTS[t]) {
@@ -546,7 +578,6 @@ export class Editor {
     }
   }
 
-  /* Botao aceso quando o cursor esta dentro daquela formatacao. */
   /*
    * Foco sem arrastar a pagina.
    *
@@ -563,11 +594,7 @@ export class Editor {
     this.area.focus({ preventScroll: true });
     // Pelo mouse a selecao nunca sai da area; pelo teclado ela ficou para tras
     // quando o foco foi para o botao. Devolve a ultima que estava aqui dentro.
-    const sel = window.getSelection();
-    if (this._range && sel && !this.area.contains(sel.anchorNode)) {
-      sel.removeAllRanges();
-      sel.addRange(this._range);
-    }
+    if (this._range && !this.area.contains(window.getSelection()?.anchorNode)) select(this._range);
   }
 
   /* Elemento em volta do cursor, dentro da area. */
@@ -577,21 +604,17 @@ export class Editor {
     return sel.anchorNode.nodeType === Node.ELEMENT_NODE ? sel.anchorNode : sel.anchorNode.parentElement;
   }
 
+  /* Botao aceso quando o cursor esta dentro daquela formatacao. */
   _markActive() {
+    // Fora da area nada acende: antes, selecionar negrito em qualquer lugar da
+    // pagina acendia o negrito de todos os editores.
     const node = this._currentNode();
     for (const b of this.toolbar.querySelectorAll('[data-action]')) {
-      const action = b.dataset.action;
-      const cmd = STATES[action];
-      const selector = ANCESTORS[action];
-      if (!cmd && !selector) continue;
-
+      const state = STATES[b.dataset.action];
+      if (!state) continue;
       let active = false;
-      if (cmd) {
-        try { active = document.queryCommandState(cmd); } catch { /* sem selecao */ }
-      } else if (node) {
-        active = !!node.closest?.(selector);
-      }
-      b.setAttribute('aria-pressed', String(active));
+      try { active = !!node && (!!node.closest(state) || document.queryCommandState(state)); } catch { /* sem selecao */ }
+      b.setAttribute('aria-pressed', active);
       b.classList.toggle('is-active', active);
     }
   }
@@ -609,8 +632,7 @@ export class Editor {
   }
 
   _syncTableBar() {
-    const inside = !!this._currentCell();
-    if (this.tableBar.hidden !== !inside) this.tableBar.hidden = !inside;
+    this.tableBar.hidden = !this._currentCell();
   }
 
   /** Operacao de tabela na celula onde o cursor esta. */
@@ -628,51 +650,7 @@ export class Editor {
 
   apply(name) {
     this._focus();
-    if (name === 'table') {
-      const { rows, cols } = this.opts.table;
-      const table = buildTable(rows, cols);
-      const sel = window.getSelection();
-
-      /*
-       * Com o cursor dentro de uma celula, a nova tabela nasce depois da
-       * atual, e nao dentro dela. Tabela aninhada quase nunca e o que se
-       * queria, e desfazer isso pelo editor e trabalhoso — o clique certo e
-       * dificil de acertar entre duas molduras encaixadas.
-       */
-      const inside = this._currentCell()?.closest('table');
-      if (inside) {
-        // Depois da caixa da tabela atual, e nao dentro dela.
-        (inside.closest(`.${SCROLL}`) || inside).after(table);
-        const p = document.createElement('p');
-        p.append(document.createElement('br'));
-        table.after(p);
-        // Antes do cursor: mover a tabela para a caixa desfaria a selecao.
-        wrapTables(this.area);
-        focusCell(table.querySelector('th'));
-        this._sync();
-        return this;
-      }
-
-      if (sel?.rangeCount) {
-        const range = sel.getRangeAt(0);
-        range.deleteContents();
-        range.insertNode(table);
-        // Um paragrafo depois da tabela: sem ele nao ha onde continuar
-        // escrevendo quando ela e a ultima coisa do texto.
-        const p = document.createElement('p');
-        p.append(document.createElement('br'));
-        table.after(p);
-        wrapTables(this.area);
-        focusCell(table.querySelector('th'));
-      }
-      this._sync();
-      return this;
-    }
-    if (name === 'link') {
-      this._askForLink();
-      return this;
-    }
-    COMMANDS[name]?.();
+    COMMANDS[name]?.(this);
     this._sync();
     this._markActive();
     this._paint();
@@ -699,14 +677,6 @@ export class Editor {
       value: existing?.getAttribute('href') ?? 'https://',
     });
 
-    const restoreSelection = () => {
-      this.area.focus({ preventScroll: true });
-      if (!mark) return;
-      const s = window.getSelection();
-      s.removeAllRanges();
-      s.addRange(mark);
-    };
-
     /*
      * O que fazer fica anotado no clique e so acontece quando o dialogo fecha.
      *
@@ -731,27 +701,29 @@ export class Editor {
       actions,
       onClose: () => {
         if (!decided) return;
-        {
-          if (decided === 'remove') {
-            /*
-             * O unlink exige uma selecao que abranja o link inteiro: com o
-             * cursor apenas dentro dele o comando nao faz nada. Por isso a
-             * ancora e selecionada antes, em vez de devolver a marca guardada.
-             */
-            this.area.focus({ preventScroll: true });
-            const r = document.createRange();
-            r.selectNodeContents(existing);
-            const sel2 = window.getSelection();
-            sel2.removeAllRanges();
-            sel2.addRange(r);
-            document.execCommand('unlink');
-          } else {
-            restoreSelection();
-            if (decided !== 'https://') document.execCommand('createLink', false, decided);
-          }
-          this._sync();
-          this._markActive();
+        this.area.focus({ preventScroll: true });
+        /*
+         * Link que ja existe e selecionado inteiro, para remover e para trocar
+         * o endereco. Com o cursor so dentro dele o unlink nao faz nada, e o
+         * createLink escrevia o endereco como texto novo no meio, partindo o
+         * link em dois.
+         */
+        let range = mark;
+        if (existing) {
+          range = document.createRange();
+          range.selectNodeContents(existing);
         }
+        if (range) select(range);
+        if (decided === 'remove') {
+          document.execCommand('unlink');
+        } else {
+          // Sem esquema e endereco da web: "exemplo.com" virava um link relativo
+          // na tela, que a peneira descartava calada ao salvar.
+          const url = safeUrl(/^([a-z][\w+.-]*:|[#/])/i.test(decided) ? decided : `https://${decided}`);
+          if (url && url !== 'https://') document.execCommand('createLink', false, url);
+        }
+        this._sync();
+        this._markActive();
       },
     });
     dialog.content(field);
@@ -767,7 +739,13 @@ export class Editor {
     return this;
   }
 
-  getValue() { return sanitize(this.area.innerHTML); }
+  getValue() {
+    const html = sanitize(this.area.innerHTML);
+    // Editor vazio vale vazio: com o paragrafo em branco, `required` aceitava o
+    // campo e o servidor recebia marcacao sem texto.
+    return html === '<p><br></p>' ? '' : html;
+  }
+
   setValue(html) {
     this.area.innerHTML = sanitize(html) || '<p><br></p>';
     wrapTables(this.area);
@@ -777,10 +755,12 @@ export class Editor {
   }
 
   destroy() {
+    clearTimeout(this._brush);
     this._cleanups.forEach((fn) => fn());
     this.field.hidden = false;
-    this.root.parentNode?.insertBefore(this.field, this.root);
-    this.root.remove();
+    this.field.classList.remove('tuc-editor__value');
+    this.root.replaceWith(this.field);
+    delete this.field._tucano;
   }
 }
 

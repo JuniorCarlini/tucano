@@ -24,6 +24,8 @@ const ALLOWED = new Set([
 /* Tag que so existe para agrupar: o conteudo sobe e ela some. */
 const TRANSPARENT = new Set(['DIV', 'SPAN', 'FONT', 'SECTION', 'ARTICLE', 'MAIN']);
 
+const BLOCKS = 'p, h2, h3, ul, ol, blockquote, pre, table';
+
 const EQUIVALENTS = { B: 'STRONG', I: 'EM' };
 
 /*
@@ -41,9 +43,14 @@ function copyAlignment(source, target) {
   if (ALIGNMENTS.has(value)) target.setAttribute('style', `text-align: ${value}`);
 }
 
-function safeUrl(url) {
+/*
+ * Destino aceitavel de link. A barra so vale seguida de outra coisa que nao
+ * barra: `//site.com` e `/\\site.com` sao enderecos de outro dominio disfarcados
+ * de caminho, e passavam como se fossem locais.
+ */
+export function safeUrl(url) {
   const plain = (url || '').trim();
-  return /^(https?:|mailto:|tel:|#|\/)/i.test(plain) ? plain : '';
+  return /^(https?:|mailto:|tel:|#|\/(?![/\\]))/i.test(plain) ? plain : '';
 }
 
 function clearNode(node, destination, doc) {
@@ -59,7 +66,13 @@ function clearNode(node, destination, doc) {
     // Script e style nao viram texto: o conteudo deles nao e para ser lido.
     if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'IFRAME' || tag === 'OBJECT') continue;
 
-    if (TRANSPARENT.has(tag) || !ALLOWED.has(tag)) {
+    /*
+     * Paragrafo com bloco dentro se dissolve, e paragrafo vazio some. E o que o
+     * Chrome faz ao aplicar lista num <p>: poe a lista dentro dele, e o valor
+     * saia com um <p></p> antes e outro depois a cada vez.
+     */
+    if (tag === 'P' && !child.firstChild) continue;
+    if (TRANSPARENT.has(tag) || !ALLOWED.has(tag) || (tag === 'P' && child.querySelector(BLOCKS))) {
       clearNode(child, destination, doc);
       continue;
     }

@@ -51,6 +51,8 @@ const page = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
   <button class="tuc-tabs__tab" disabled>C</button><button class="tuc-tabs__tab">D</button></div>
   <div class="tuc-tabs__panel">a</div><div class="tuc-tabs__panel" hidden>b</div>
   <div class="tuc-tabs__panel" hidden>c</div><div class="tuc-tabs__panel" hidden>d</div></div>
+<p id="kbold"><b>negrito fora do editor</b></p>
+<form id="kedForm" onsubmit="window.__kedSubmits++; return false"><textarea id="ked2" name="body" data-tuc-editor required>&lt;p&gt;original&lt;/p&gt;</textarea><button id="kedSubmit">enviar</button></form>
 <script>${readFileSync('dist/tucano.js', 'utf8')}</script>
 <script>
   /* Monta um date picker novo em #dpbox e registra o que ele emite. Cada caso
@@ -308,6 +310,139 @@ await testCase('barra do editor aplica o comando pelo teclado, no texto selecion
   await typeText(' ');
   const html = await evaluate(`document.getElementById('ked').closest('.tuc-editor').querySelector('.tuc-editor__area').innerHTML`);
   return /<(b|strong)>/.test(html) ? null : `negrito não aplicado: ${html}`;
+});
+
+/* Editor: conteudo e cursor de partida. `where` recebe a area e devolve [no, offset]. */
+const ED = (id) => `document.getElementById('${id}')._tucano`;
+const edStart = (id, html, where) => evaluate(`(() => { const e = ${ED(id)}; e.setValue(${JSON.stringify(html)}); e.area.focus();
+  const [node, offset] = (${where})(e.area); const r = document.createRange(); r.setStart(node, offset); r.collapse(true);
+  const s = getSelection(); s.removeAllRanges(); s.addRange(r); return true; })()`);
+const edSelectAll = (id, html) => evaluate(`(() => { const e = ${ED(id)}; e.setValue(${JSON.stringify(html)}); e.area.focus();
+  const r = document.createRange(); r.selectNodeContents(e.area.querySelector('p'));
+  const s = getSelection(); s.removeAllRanges(); s.addRange(r); return true; })()`);
+async function waitFor(expression, ms = 2000) {
+  for (const end = Date.now() + ms; Date.now() < end; await wait(20)) if (await evaluate(expression)) return true;
+  return false;
+}
+/*
+ * Abre a caixa de link, troca o endereco e confirma com Enter de verdade. O
+ * endereco nao vai por typeText: ele manda o codigo do caractere como tecla, e
+ * "." (46) chega como Delete e "(" (40) como seta para baixo.
+ */
+async function linkDialog(id, url) {
+  const open = `document.querySelector('dialog.tuc-modal:not(#kmodal)[open] input')`;
+  await evaluate(`void ${ED(id)}.apply('link')`);
+  if (!await waitFor(`!!${open}`)) throw new Error('a caixa de link não abriu');
+  await evaluate(`(() => { const i = ${open}; i.focus(); i.value = ${JSON.stringify(url)};
+    i.dispatchEvent(new Event('input', { bubbles: true })); })()`);
+  await press('Enter');
+  await waitFor(`!document.querySelector('dialog.tuc-modal:not(#kmodal)')`);
+  await wait(50);
+}
+
+await testCase('soltar HTML arrastado no editor entra como texto puro', async () => {
+  // Colar já era texto puro; arrastar trazia <h1>, estilo e <img> para a tela.
+  await evaluate(`void ${ED('ked')}.setValue('<p>alvo</p>')`);
+  const p = await evaluate(`(() => { const n = ${ED('ked')}.area.querySelector('p'); n.scrollIntoView({ block: 'nearest' });
+    const b = n.getBoundingClientRect(); return [b.x + b.width - 2, b.y + b.height / 2]; })()`);
+  const data = { items: [
+    { mimeType: 'text/html', data: '<h1 style="color:red">Título</h1><img src="data:," onerror="window.__dropped=1">' },
+    { mimeType: 'text/plain', data: 'Título' },
+  ], dragOperationsMask: 1 };
+  for (const type of ['dragEnter', 'dragOver', 'drop']) await cdp('Input.dispatchDragEvent', { type, x: p[0], y: p[1], data });
+  await wait(100);
+  const html = await evaluate(`${ED('ked')}.area.innerHTML`);
+  if (!html.includes('Título')) return `o texto não entrou: ${html}`;
+  return /<(h1|img|span|font)|style=/.test(html) ? `entrou HTML: ${html}` : null;
+});
+
+await testCase('Enter e colar dentro do bloco de código mantêm as quebras depois da repintura', async () => {
+  // A repintura lia textContent, que não vê <br>, e juntava as linhas numa só.
+  await edStart('ked', '<pre><code>ab</code></pre><p>x</p>', "(a) => { const c = a.querySelector('code'); return [c, c.childNodes.length]; }");
+  await press('Enter');
+  await typeText('cd');
+  await evaluate(`document.execCommand('insertText', false, ${JSON.stringify('\nef')})`);
+  await wait(400);
+  const text = await evaluate(`${ED('ked')}.area.querySelector('code').textContent`);
+  return text === 'ab\ncd\nef' ? null : `bloco ficou ${JSON.stringify(text)}`;
+});
+
+await testCase('Tab anda por todas as células, inclusive vazias, e cria linha na última', async () => {
+  // Pegava a célula pelo pai do nó da seleção: numa célula vazia isso é a linha, e o Tab saía do editor.
+  await edStart('ked', '<table><thead><tr><th><br></th><th><br></th></tr></thead><tbody><tr><td><br></td><td><br></td></tr></tbody></table>',
+    "(a) => [a.querySelector('th'), 0]");
+  const index = `(() => { const e = ${ED('ked')}; const c = e._currentCell(); return c ? [...e.area.querySelectorAll('th, td')].indexOf(c) : -1; })()`;
+  const seen = [];
+  for (let i = 0; i < 4; i++) { await press('Tab'); seen.push(await evaluate(index)); }
+  const rows = await evaluate(`${ED('ked')}.area.querySelectorAll('tr').length`);
+  return seen.join() === '1,2,3,4' && rows === 3 ? null : `células ${seen.join()}, ${rows} linhas`;
+});
+
+await testCase('inserir tabela no fim de um parágrafo não a aninha no <p>, e desfazer tira só a tabela', async () => {
+  await edStart('ked', '<p>abc</p>', "(a) => [a.querySelector('p').firstChild, 3]");
+  await evaluate(`void ${ED('ked')}.apply('table')`);
+  await wait(50);
+  const r = await evaluate(`(() => { const e = ${ED('ked')}; return [!!e.area.querySelector('p table'), e.getValue()]; })()`);
+  if (r[0]) return 'a tabela ficou dentro do <p>';
+  if (!r[1].startsWith('<p>abc</p><table>') || r[1].includes('<p></p>')) return `valor: ${r[1]}`;
+  await evaluate(`document.execCommand('undo')`);
+  await wait(50);
+  const u = await evaluate(`(() => { const a = ${ED('ked')}.area; return [a.querySelectorAll('table').length, a.textContent]; })()`);
+  return u[0] === 0 && u[1].includes('abc') ? null : `depois de desfazer: ${u[0]} tabela(s), texto "${u[1]}"`;
+});
+
+await testCase('caixa de link: javascript: digitado não vira link na área', async () => {
+  // O valor salvo saía limpo, mas a área ficava com um <a href="javascript:…"> clicável.
+  await edSelectAll('ked', '<p>texto</p>');
+  await linkDialog('ked', 'javascript:alert(1)');
+  const html = await evaluate(`${ED('ked')}.area.innerHTML`);
+  return html.includes('<a') ? `virou link: ${html}` : null;
+});
+
+await testCase('caixa de link: endereço sem esquema ganha https://', async () => {
+  // "exemplo.com" virava link relativo, que a peneira descartava calada ao salvar.
+  await edSelectAll('ked', '<p>texto</p>');
+  await linkDialog('ked', 'exemplo.com');
+  const v = await evaluate(`document.getElementById('ked').value`);
+  return v.includes('href="https://exemplo.com"') ? null : `valor: ${v}`;
+});
+
+await testCase('caixa de link: trocar o endereço com o cursor dentro não parte o link', async () => {
+  await edStart('ked', '<p>clique <a href="https://a.com">aqui</a> fim</p>', "(a) => [a.querySelector('a').firstChild, 2]");
+  await linkDialog('ked', 'https://b.com');
+  const v = await evaluate(`document.getElementById('ked').value`);
+  return (v.match(/<a /g) || []).length === 1 && /href="https:\/\/b\.com"[^>]*>aqui<\/a>/.test(v) ? null : `valor: ${v}`;
+});
+
+await testCase('negrito selecionado fora do editor não acende o botão do editor', async () => {
+  await evaluate(`(() => { document.activeElement?.blur(); const r = document.createRange();
+    r.selectNodeContents(document.querySelector('#kbold b')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); })()`);
+  await wait(50);
+  const r = await evaluate(`document.getElementById('ked').closest('.tuc-editor').querySelector('[data-action="bold"]').getAttribute('aria-pressed')`);
+  return r === 'false' ? null : `aria-pressed="${r}"`;
+});
+
+await testCase('editor obrigatório vazio barra o envio e leva o foco à área; com texto, envia', async () => {
+  // Esvaziado, postava <p><br></p> e passava; e o textarea escondido não recebia o foco do aviso.
+  await evaluate(`(() => { window.__kedSubmits = 0; ${ED('ked2')}.setValue(''); })()`);
+  await clickOn(`document.getElementById('kedSubmit')`);
+  await wait(50);
+  const r = await evaluate(`[window.__kedSubmits, document.getElementById('ked2').value, document.activeElement === ${ED('ked2')}.area]`);
+  if (r[0]) return `enviou vazio, com valor ${JSON.stringify(r[1])}`;
+  if (!r[2]) return 'o foco não foi para a área';
+  await evaluate(`void ${ED('ked2')}.setValue('<p>ok</p>')`);
+  await clickOn(`document.getElementById('kedSubmit')`);
+  await wait(50);
+  const n = await evaluate('window.__kedSubmits');
+  return n === 1 ? null : `com texto, ${n} envio(s)`;
+});
+
+await testCase('reset do formulário devolve o editor ao conteúdo de origem', async () => {
+  const r = await evaluate(`(async () => { const e = ${ED('ked2')}; e.setValue('<p>mudado</p>');
+    document.getElementById('kedForm').reset();
+    await new Promise((ok) => setTimeout(ok, 30));
+    return [document.getElementById('ked2').value, e.area.innerHTML]; })()`);
+  return r[0] === '<p>original</p>' && r[1].includes('original') && !r[1].includes('mudado') ? null : JSON.stringify(r);
 });
 
 await testCase('↓ no campo de data abre o calendário e leva o foco ao dia', async () => {

@@ -242,7 +242,9 @@ O <textarea> continua dono do valor: name, required e o POST funcionam sem nada
 especial. Guarda HTML sanitizado. Barra com negrito, italico, sublinhado, dois
 titulos, listas, alinhamento nos quatro tipos, citacao, codigo, link e tabela.
 
-Colar entra como texto puro. A saida passa por peneira de tags a cada leitura —
+Colar e arrastar entram como texto puro. Editor vazio vale '' (e nao <p><br></p>),
+entao required barra o envio; link sem esquema ganha https://.
+A saida passa por peneira de tags a cada leitura —
 sobrevivem p, h2, h3, strong, em, u, s, ul, ol, li, blockquote, code, pre, a e
 tabela; atributo nenhum passa, exceto href com destino aceitavel e text-align.
 Ainda assim, sanitize no servidor antes de renderizar para o publico.

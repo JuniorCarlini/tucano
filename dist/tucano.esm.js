@@ -2368,8 +2368,8 @@ function hasNextPage(raws, items, pageParam) {
   if (raws && typeof raws === "object" && "next" in raws) return !!raws.next;
   return items.length > 0;
 }
-function readOptions(select) {
-  return [...select.options].filter((o) => o.value !== "").map((o) => ({
+function readOptions(select2) {
+  return [...select2.options].filter((o) => o.value !== "").map((o) => ({
     value: o.value,
     label: o.textContent.trim(),
     disabled: o.disabled,
@@ -2382,8 +2382,8 @@ function readOptions(select) {
 function normalize(s) {
   return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
 }
-function firstEmptyLabel(select) {
-  const o = [...select.options].find((x) => x.value === "");
+function firstEmptyLabel(select2) {
+  const o = [...select2.options].find((x) => x.value === "");
   return o ? o.textContent.trim() : null;
 }
 function autoInit2(scope = document) {
@@ -5292,6 +5292,7 @@ var ALLOWED = /* @__PURE__ */ new Set([
   "TD"
 ]);
 var TRANSPARENT = /* @__PURE__ */ new Set(["DIV", "SPAN", "FONT", "SECTION", "ARTICLE", "MAIN"]);
+var BLOCKS = "p, h2, h3, ul, ol, blockquote, pre, table";
 var EQUIVALENTS = { B: "STRONG", I: "EM" };
 var ALIGNMENTS = /* @__PURE__ */ new Set(["left", "center", "right", "justify"]);
 var ALIGNABLE = /* @__PURE__ */ new Set(["P", "H2", "H3", "LI", "BLOCKQUOTE", "TD", "TH"]);
@@ -5302,7 +5303,7 @@ function copyAlignment(source, target) {
 }
 function safeUrl(url) {
   const plain = (url || "").trim();
-  return /^(https?:|mailto:|tel:|#|\/)/i.test(plain) ? plain : "";
+  return /^(https?:|mailto:|tel:|#|\/(?![/\\]))/i.test(plain) ? plain : "";
 }
 function clearNode(node, destination, doc) {
   for (const child of [...node.childNodes]) {
@@ -5313,7 +5314,8 @@ function clearNode(node, destination, doc) {
     if (child.nodeType !== Node.ELEMENT_NODE) continue;
     const tag = child.tagName;
     if (tag === "SCRIPT" || tag === "STYLE" || tag === "IFRAME" || tag === "OBJECT") continue;
-    if (TRANSPARENT.has(tag) || !ALLOWED.has(tag)) {
+    if (tag === "P" && !child.firstChild) continue;
+    if (TRANSPARENT.has(tag) || !ALLOWED.has(tag) || tag === "P" && child.querySelector(BLOCKS)) {
       clearNode(child, destination, doc);
       continue;
     }
@@ -5578,7 +5580,9 @@ var COMMANDS = {
   center: () => document.execCommand("justifyCenter"),
   right: () => document.execCommand("justifyRight"),
   justify: () => document.execCommand("justifyFull"),
-  code: () => toggleCode()
+  code: () => toggleCode(),
+  table: (ed) => insertTable(ed),
+  link: (ed) => ed._askForLink()
 };
 var STATES = {
   bold: "bold",
@@ -5589,9 +5593,7 @@ var STATES = {
   left: "justifyLeft",
   center: "justifyCenter",
   right: "justifyRight",
-  justify: "justifyFull"
-};
-var ANCESTORS = {
+  justify: "justifyFull",
   title: "h2",
   subheading: "h3",
   quote: "blockquote",
@@ -5600,6 +5602,11 @@ var ANCESTORS = {
   table: "table"
 };
 var SHORTCUTS = { b: "bold", i: "italic", u: "underline", k: "link" };
+function select(range) {
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+}
 function toggleCode() {
   const sel = window.getSelection();
   if (!sel?.rangeCount) return;
@@ -5611,8 +5618,7 @@ function toggleCode() {
     const r = document.createRange();
     r.setStartBefore(target);
     r.setEndAfter(target);
-    sel.removeAllRanges();
-    sel.addRange(r);
+    select(r);
     if (target.tagName === "PRE") {
       const block = document.createDocumentFragment();
       for (const row of text2.split("\n")) {
@@ -5627,8 +5633,7 @@ function toggleCode() {
         const pos = document.createRange();
         pos.selectNodeContents(first);
         pos.collapse(true);
-        sel.removeAllRanges();
-        sel.addRange(pos);
+        select(pos);
       }
       return;
     }
@@ -5648,21 +5653,6 @@ function toggleBlock(tag) {
   const current = document.queryCommandValue("formatBlock")?.toUpperCase();
   document.execCommand("formatBlock", false, current === tag ? "P" : tag);
 }
-function buildTable(rows, cols) {
-  const table = document.createElement("table");
-  const thead = document.createElement("thead");
-  const header = document.createElement("tr");
-  for (let c = 0; c < cols; c++) header.append(emptyCell("th"));
-  thead.append(header);
-  const tbody = document.createElement("tbody");
-  for (let l = 0; l < rows - 1; l++) {
-    const tr = document.createElement("tr");
-    for (let c = 0; c < cols; c++) tr.append(emptyCell("td"));
-    tbody.append(tr);
-  }
-  table.append(thead, tbody);
-  return table;
-}
 var SCROLL = "tuc-editor__scroll";
 function wrapTables(area) {
   for (const box of area.querySelectorAll(`.${SCROLL}`)) {
@@ -5678,6 +5668,18 @@ function wrapTables(area) {
     table.before(box);
     box.append(table);
   }
+}
+function insertTable(ed) {
+  const { rows, cols } = ed.opts.table;
+  const row = (tag) => `<tr>${`<${tag}><br></${tag}>`.repeat(cols)}</tr>`;
+  const inside = ed._currentCell()?.closest("table");
+  if (inside) {
+    const r = document.createRange();
+    r.setStartAfter(inside.closest(`.${SCROLL}`) || inside);
+    select(r);
+  }
+  document.execCommand("insertHTML", false, `<table><thead>${row("th")}</thead><tbody>${row("td").repeat(rows - 1)}</tbody></table><p><br></p>`);
+  focusCell(ed._currentNode()?.closest("p")?.previousElementSibling?.querySelector("th"));
 }
 function nextCell(cell, back) {
   const table = cell.closest("table");
@@ -5755,9 +5757,7 @@ function focusCell(cell) {
   const r = document.createRange();
   r.selectNodeContents(cell);
   r.collapse(true);
-  const s = window.getSelection();
-  s.removeAllRanges();
-  s.addRange(r);
+  select(r);
 }
 function offsetInBlock(block) {
   const sel = window.getSelection();
@@ -5777,9 +5777,7 @@ function restoreOffset(block, howMany) {
       const r = document.createRange();
       r.setStart(node, howMany - counted);
       r.collapse(true);
-      const sel = window.getSelection();
-      sel.removeAllRanges();
-      sel.addRange(r);
+      select(r);
       return;
     }
     counted += node.length;
@@ -5862,21 +5860,40 @@ var Editor = class {
         this._sync();
         this._schedulePaint();
       }),
-      on(this.area, "blur", () => this._sync()),
       on(this.area, "paste", (e) => this._paste(e)),
+      /*
+       * Arrastar para dentro entra como texto puro, pelo mesmo motivo de colar:
+       * soltar um trecho de outra pagina trazia fonte, cor, <h1> e <img> — que a
+       * peneira tirava do valor, mas nao da tela, e a imagem ainda era baixada.
+       */
+      on(this.area, "beforeinput", (e) => {
+        if (e.inputType !== "insertFromDrop") return;
+        e.preventDefault();
+        const [target] = e.getTargetRanges();
+        const r = document.createRange();
+        r.setStart(target.startContainer, target.startOffset);
+        select(r);
+        document.execCommand("insertText", false, e.dataTransfer.getData("text/plain"));
+      }),
       on(this.area, "keydown", (e) => this._onKey(e)),
-      on(this.area, "keyup", () => this._markActive()),
-      on(this.area, "mouseup", () => this._markActive()),
       // selectionchange e global: e o unico evento que pega o cursor mudando
       // de lugar por qualquer caminho, inclusive clique fora e volta.
       on(document, "selectionchange", () => {
         const sel = window.getSelection();
         if (sel?.rangeCount && this.area.contains(sel.anchorNode)) this._range = sel.getRangeAt(0).cloneRange();
+        else if (this.root.contains(document.activeElement)) return;
         this._syncTableBar();
         this._markActive();
-      })
+      }),
+      // O reset do formulario volta o textarea ao valor de origem; a area vai junto.
+      // Adiado porque o evento chega antes de o navegador trocar o valor.
+      on(field.form ?? field, "reset", () => setTimeout(() => this.setValue(field.value))),
+      // Campo obrigatorio vazio: o textarea escondido nao recebe foco, e o
+      // navegador barrava o envio sem mostrar onde. O foco vai para a area.
+      on(field, "invalid", () => this.area.focus())
     );
     this._paint();
+    this.area.classList.toggle("is-empty", !this.getValue());
     field._tucano = this;
     this.area._tucano = this;
   }
@@ -5887,8 +5904,8 @@ var Editor = class {
    */
   _paint() {
     for (const code of this.area.querySelectorAll("pre > code")) {
-      const raw = code.textContent;
-      const painted = highlight(raw);
+      for (const br of code.querySelectorAll("br")) br.replaceWith("\n");
+      const painted = highlight(code.textContent);
       if (code.innerHTML === painted) continue;
       const where = offsetInBlock(code);
       code.innerHTML = painted;
@@ -5897,7 +5914,8 @@ var Editor = class {
   }
   /* O textarea escondido e a fonte da verdade para o formulario. */
   _sync() {
-    const plain = sanitize(this.area.innerHTML);
+    const plain = this.getValue();
+    this.area.classList.toggle("is-empty", !plain);
     if (this.field.value === plain) return;
     this.field.value = plain;
     this.field.dispatchEvent(new Event("input", { bubbles: true }));
@@ -5913,23 +5931,17 @@ var Editor = class {
     document.execCommand("insertText", false, e.clipboardData.getData("text/plain"));
   }
   _onKey(e) {
-    if (e.key === "Tab") {
-      const cell = window.getSelection()?.anchorNode?.parentElement?.closest?.("th, td");
-      if (cell) {
-        e.preventDefault();
-        let target = nextCell(cell, e.shiftKey);
-        if (!target && !e.shiftKey) {
-          const body = cell.closest("table").querySelector("tbody") || cell.closest("table");
-          const model = body.querySelector("tr") || cell.parentElement;
-          const newRow = document.createElement("tr");
-          for (let i = 0; i < model.children.length; i++) newRow.append(emptyCell("td"));
-          body.append(newRow);
-          target = newRow.firstElementChild;
-          this._sync();
-        }
-        focusCell(target);
-        return;
+    const cell = e.key === "Tab" && this._currentCell();
+    if (cell) {
+      let target = nextCell(cell, e.shiftKey);
+      if (!target && e.shiftKey) return;
+      e.preventDefault();
+      if (!target) {
+        target = insertRow(cell, 1);
+        this._sync();
       }
+      focusCell(target);
+      return;
     }
     const t = e.key.toLowerCase();
     if ((e.metaKey || e.ctrlKey) && SHORTCUTS[t]) {
@@ -5937,7 +5949,6 @@ var Editor = class {
       this.apply(SHORTCUTS[t]);
     }
   }
-  /* Botao aceso quando o cursor esta dentro daquela formatacao. */
   /*
    * Foco sem arrastar a pagina.
    *
@@ -5952,11 +5963,7 @@ var Editor = class {
    */
   _focus() {
     this.area.focus({ preventScroll: true });
-    const sel = window.getSelection();
-    if (this._range && sel && !this.area.contains(sel.anchorNode)) {
-      sel.removeAllRanges();
-      sel.addRange(this._range);
-    }
+    if (this._range && !this.area.contains(window.getSelection()?.anchorNode)) select(this._range);
   }
   /* Elemento em volta do cursor, dentro da area. */
   _currentNode() {
@@ -5964,23 +5971,18 @@ var Editor = class {
     if (!sel?.anchorNode || !this.area.contains(sel.anchorNode)) return null;
     return sel.anchorNode.nodeType === Node.ELEMENT_NODE ? sel.anchorNode : sel.anchorNode.parentElement;
   }
+  /* Botao aceso quando o cursor esta dentro daquela formatacao. */
   _markActive() {
     const node = this._currentNode();
     for (const b of this.toolbar.querySelectorAll("[data-action]")) {
-      const action = b.dataset.action;
-      const cmd = STATES[action];
-      const selector = ANCESTORS[action];
-      if (!cmd && !selector) continue;
+      const state = STATES[b.dataset.action];
+      if (!state) continue;
       let active = false;
-      if (cmd) {
-        try {
-          active = document.queryCommandState(cmd);
-        } catch {
-        }
-      } else if (node) {
-        active = !!node.closest?.(selector);
+      try {
+        active = !!node && (!!node.closest(state) || document.queryCommandState(state));
+      } catch {
       }
-      b.setAttribute("aria-pressed", String(active));
+      b.setAttribute("aria-pressed", active);
       b.classList.toggle("is-active", active);
     }
   }
@@ -5990,8 +5992,7 @@ var Editor = class {
     return cell && this.area.contains(cell) ? cell : null;
   }
   _syncTableBar() {
-    const inside = !!this._currentCell();
-    if (this.tableBar.hidden !== !inside) this.tableBar.hidden = !inside;
+    this.tableBar.hidden = !this._currentCell();
   }
   /** Operacao de tabela na celula onde o cursor esta. */
   inTable(name) {
@@ -6007,39 +6008,7 @@ var Editor = class {
   }
   apply(name) {
     this._focus();
-    if (name === "table") {
-      const { rows, cols } = this.opts.table;
-      const table = buildTable(rows, cols);
-      const sel = window.getSelection();
-      const inside = this._currentCell()?.closest("table");
-      if (inside) {
-        (inside.closest(`.${SCROLL}`) || inside).after(table);
-        const p = document.createElement("p");
-        p.append(document.createElement("br"));
-        table.after(p);
-        wrapTables(this.area);
-        focusCell(table.querySelector("th"));
-        this._sync();
-        return this;
-      }
-      if (sel?.rangeCount) {
-        const range = sel.getRangeAt(0);
-        range.deleteContents();
-        range.insertNode(table);
-        const p = document.createElement("p");
-        p.append(document.createElement("br"));
-        table.after(p);
-        wrapTables(this.area);
-        focusCell(table.querySelector("th"));
-      }
-      this._sync();
-      return this;
-    }
-    if (name === "link") {
-      this._askForLink();
-      return this;
-    }
-    COMMANDS[name]?.();
+    COMMANDS[name]?.(this);
     this._sync();
     this._markActive();
     this._paint();
@@ -6063,13 +6032,6 @@ var Editor = class {
       placeholder: "https://",
       value: existing?.getAttribute("href") ?? "https://"
     });
-    const restoreSelection = () => {
-      this.area.focus({ preventScroll: true });
-      if (!mark) return;
-      const s = window.getSelection();
-      s.removeAllRanges();
-      s.addRange(mark);
-    };
     let decided = null;
     const actions = [{ text: EDITOR_TEXTS.cancel, variant: "outline" }];
     if (existing) {
@@ -6090,22 +6052,21 @@ var Editor = class {
       actions,
       onClose: () => {
         if (!decided) return;
-        {
-          if (decided === "remove") {
-            this.area.focus({ preventScroll: true });
-            const r = document.createRange();
-            r.selectNodeContents(existing);
-            const sel2 = window.getSelection();
-            sel2.removeAllRanges();
-            sel2.addRange(r);
-            document.execCommand("unlink");
-          } else {
-            restoreSelection();
-            if (decided !== "https://") document.execCommand("createLink", false, decided);
-          }
-          this._sync();
-          this._markActive();
+        this.area.focus({ preventScroll: true });
+        let range = mark;
+        if (existing) {
+          range = document.createRange();
+          range.selectNodeContents(existing);
         }
+        if (range) select(range);
+        if (decided === "remove") {
+          document.execCommand("unlink");
+        } else {
+          const url = safeUrl(/^([a-z][\w+.-]*:|[#/])/i.test(decided) ? decided : `https://${decided}`);
+          if (url && url !== "https://") document.execCommand("createLink", false, url);
+        }
+        this._sync();
+        this._markActive();
       }
     });
     dialog.content(field);
@@ -6120,7 +6081,8 @@ var Editor = class {
     return this;
   }
   getValue() {
-    return sanitize(this.area.innerHTML);
+    const html = sanitize(this.area.innerHTML);
+    return html === "<p><br></p>" ? "" : html;
   }
   setValue(html) {
     this.area.innerHTML = sanitize(html) || "<p><br></p>";
@@ -6130,10 +6092,12 @@ var Editor = class {
     return this;
   }
   destroy() {
+    clearTimeout(this._brush);
     this._cleanups.forEach((fn) => fn());
     this.field.hidden = false;
-    this.root.parentNode?.insertBefore(this.field, this.root);
-    this.root.remove();
+    this.field.classList.remove("tuc-editor__value");
+    this.root.replaceWith(this.field);
+    delete this.field._tucano;
   }
 };
 function autoInit16(scope = document) {

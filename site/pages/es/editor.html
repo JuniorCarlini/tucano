@@ -86,7 +86,7 @@ const ed = new Tucano.Editor('#description', {
   table: { rows: 4, cols: 2 },     // filas contando el encabezado
 });
 
-ed.getValue();                   // HTML ya filtrado
+ed.getValue();                   // HTML ya filtrado; '' si está vacío
 ed.setValue('<p>Texto nuevo</p>');  // filtra, colorea el código y actualiza el textarea
 ed.apply('bold');                // lo mismo que el botón de la barra
 ed.inTable('rowBelow');          // operación en la celda donde está el cursor
@@ -115,7 +115,7 @@ ed.destroy();                    // devuelve el textarea original
 <p>La barra queda en una sola línea y se desplaza cuando no cabe, en lugar de partirse en dos: así la altura no cambia y quien
    busca un botón sabe que no cambió de fila. Los nombres de los botones están en portugués por defecto; <code>Tucano.setTexts({ editor })</code> los reemplaza.</p>
 
-<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Pegar siempre entra como texto plano</p><p>Es lo que evita el HTML de Word y de Google Docs, con tablas de maquetación y estilos incrustados, que es donde un editor casero se rompe primero. Pierdes el formato de origen y ganas un documento que sigue siendo tuyo.</p></div></div>
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Pegar y soltar siempre entran como texto plano</p><p>Es lo que evita el HTML de Word y de Google Docs, y el de otra página arrastrado adentro, con tablas de maquetación y estilos incrustados, que es donde un editor casero se rompe primero. Pierdes el formato de origen y ganas un documento que sigue siendo tuyo.</p></div></div>
 
 <div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">El Ctrl+Z es el del navegador</p><p>El formato pasa por <code>execCommand</code>, que está obsoleto y se usa igual: es el único camino con soporte universal y el único que se integra con el deshacer nativo. Reimplementarlo a mano sería reimplementar el <code>Ctrl+Z</code> también. La excepción es quitar un bloque de código, que sale del historial solo en esa acción.</p></div></div>
 
@@ -157,7 +157,8 @@ ed.destroy();                    // devuelve el textarea original
 <p>Selecciona el texto y usa el botón o <code>Ctrl/Cmd+K</code>. <code>Enter</code> en el campo confirma. Con el cursor
    en un enlace existente, la caja se abre con su dirección y suma "Remover" (quitar). Solo pasan direcciones que empiezan con
    <code>http:</code>, <code>https:</code>, <code>mailto:</code>, <code>tel:</code>, <code>#</code> o <code>/</code> —
-   el resto, <code>javascript:</code> incluido, pierde el enlace y conserva el texto. Todo enlace guardado sale con
+   el resto, <code>javascript:</code> y <code>//otro-sitio.com</code> incluidos, pierde el enlace y conserva el texto.
+   Una dirección escrita sin esquema, como <code>ejemplo.com</code>, recibe <code>https://</code> adelante. Todo enlace guardado sale con
    <code>target="_blank"</code> y <code>rel="noopener noreferrer"</code>.</p>
 
 <h2 id="value">Valor y formulario</h2>
@@ -176,6 +177,10 @@ document.querySelector('#description').addEventListener('change', (e) => {
 
 <p>El editor no dispara <code>tucano:change</code>: el valor es texto de formulario, y los eventos nativos del textarea ya
    sirven al <code>hx-trigger="change"</code> de HTMX y a la validación.</p>
+
+<p>Un editor vacío vale vacío: el textarea recibe <code>''</code>, y no un párrafo en blanco — así <code>required</code>
+   bloquea el envío, y el aviso del navegador lleva el foco al área. El <code>reset</code> del formulario devuelve el
+   editor al contenido original.</p>
 
 <h3>El filtro</h3>
 <p>La salida pasa por una lista cerrada de etiquetas en cada lectura, y no solo en lo que se escribió: el navegador tiene

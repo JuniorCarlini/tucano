@@ -85,7 +85,7 @@ const ed = new Tucano.Editor('#description', {
   table: { rows: 4, cols: 2 },     // linhas contando o cabeçalho
 });
 
-ed.getValue();                   // HTML já peneirado
+ed.getValue();                   // HTML já peneirado; '' se vazio
 ed.setValue('<p>Texto novo</p>');  // peneira, pinta o código e atualiza o textarea
 ed.apply('bold');                // o mesmo que o botão da barra
 ed.inTable('rowBelow');          // operação na célula onde está o cursor
@@ -114,7 +114,7 @@ ed.destroy();                    // devolve o textarea original
 <p>A barra fica numa linha só e rola quando não cabe, em vez de quebrar em duas: assim a altura não muda e quem
    procura um botão sabe que ele não trocou de fileira.</p>
 
-<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Colar entra sempre como texto puro</p><p>É o que evita o HTML do Word e do Google Docs, com tabelas de layout e estilos embutidos, que é onde editor caseiro quebra primeiro. Você perde a formatação da origem e ganha um documento que continua sendo o seu.</p></div></div>
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Colar e arrastar entram sempre como texto puro</p><p>É o que evita o HTML do Word e do Google Docs, e o de outra página arrastado para dentro, com tabelas de layout e estilos embutidos, que é onde editor caseiro quebra primeiro. Você perde a formatação da origem e ganha um documento que continua sendo o seu.</p></div></div>
 
 <div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">O Ctrl+Z é o do navegador</p><p>A formatação passa por <code>execCommand</code>, que está deprecado e é usado assim mesmo: é o único caminho com suporte universal e o único que se integra ao desfazer nativo. Reimplementar à mão seria reimplementar o <code>Ctrl+Z</code> junto. A exceção é tirar um bloco de código, que sai do histórico nessa ação só.</p></div></div>
 
@@ -156,7 +156,8 @@ ed.destroy();                    // devolve o textarea original
 <p>Selecione o texto e use o botão ou <code>Ctrl/Cmd+K</code>. <code>Enter</code> no campo confirma. Com o cursor
    num link existente, a caixa abre com o endereço dele e ganha "Remover". Só passa endereço que começa com
    <code>http:</code>, <code>https:</code>, <code>mailto:</code>, <code>tel:</code>, <code>#</code> ou <code>/</code> —
-   o resto, <code>javascript:</code> incluído, perde o link e mantém o texto. Todo link salvo sai com
+   o resto, <code>javascript:</code> e <code>//outro-site.com</code> incluídos, perde o link e mantém o texto.
+   Endereço digitado sem esquema, como <code>exemplo.com</code>, ganha <code>https://</code> na frente. Todo link salvo sai com
    <code>target="_blank"</code> e <code>rel="noopener noreferrer"</code>.</p>
 
 <h2 id="value">Valor e formulário</h2>
@@ -175,6 +176,10 @@ document.querySelector('#description').addEventListener('change', (e) => {
 
 <p>O editor não dispara <code>tucano:change</code>: o valor é texto de formulário, e os eventos nativos do textarea já
    servem ao <code>hx-trigger="change"</code> do HTMX e à validação.</p>
+
+<p>Editor vazio vale vazio: o textarea recebe <code>''</code>, e não um parágrafo em branco — então <code>required</code>
+   barra o envio, e o aviso do navegador leva o foco à área. O <code>reset</code> do formulário devolve o editor ao
+   conteúdo de origem.</p>
 
 <h3>A peneira</h3>
 <p>A saída passa por uma lista fechada de tags a cada leitura, e não só no que foi digitado: o navegador tem

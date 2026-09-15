@@ -170,6 +170,42 @@ body{margin:0;padding:16px;font-family:system-ui}
     var ta = document.getElementById('ed');
     if (!ta.isConnected) throw new Error('o textarea sumiu');
   });
+  t('peneira recusa endereço de outro domínio disfarçado de caminho', function () {
+    // Duas barras, ou barra e barra invertida, passavam pela regra do caminho local.
+    // fromCharCode e nao a barra invertida: este codigo mora num template literal.
+    var bs = String.fromCharCode(92);
+    ['//evil.com/x', '/' + bs + 'evil.com'].forEach(function (href) {
+      var out = Tucano.sanitize('<p><a href="' + href + '">x</a></p>');
+      if (out.indexOf('href') >= 0) throw new Error(href + ' passou: ' + out);
+    });
+    if (Tucano.sanitize('<p><a href="/local">x</a></p>').indexOf('href="/local"') < 0) throw new Error('o caminho local caiu');
+  });
+  t('peneira dissolve parágrafo com lista dentro e tira parágrafo vazio', function () {
+    // Lista aplicada num <p> saía como <p></p><ul>…</ul><p></p> no valor.
+    var out = Tucano.sanitize('<p><ul><li>a</li></ul></p><p></p><p>b</p>');
+    if (out !== '<ul><li>a</li></ul><p>b</p>') throw new Error(out);
+  });
+  t('editor vazio vale vazio e mostra o placeholder; destroy devolve o textarea limpo', function () {
+    // A área vazia guarda <p><br></p>: o :empty nunca casava e o valor postado era a marcação.
+    var box = document.createElement('div');
+    box.innerHTML = '<textarea></textarea>';
+    document.body.append(box);
+    var ta = box.querySelector('textarea');
+    var ed = new Tucano.Editor(ta, { placeholder: 'Escreva aqui' });
+    try {
+      if (ed.getValue() !== '') throw new Error('getValue do vazio: ' + ed.getValue());
+      if (getComputedStyle(ed.area, '::before').content.indexOf('Escreva aqui') < 0) throw new Error('placeholder não aparece');
+      ed.setValue('<p>oi</p>');
+      if (ed.area.classList.contains('is-empty')) throw new Error('is-empty com texto');
+      ed.setValue('');
+      if (ta.value !== '') throw new Error('textarea do vazio: ' + ta.value);
+      if (!ed.area.classList.contains('is-empty')) throw new Error('sem is-empty depois de esvaziar');
+    } finally {
+      ed.destroy();
+      box.remove();
+    }
+    if (ta._tucano || ta.classList.contains('tuc-editor__value')) throw new Error('destroy deixou _tucano ou a classe no textarea');
+  });
   t('acordeão abre e fecha', function () {
     var i = document.getElementById('ac')._tucano;
     svg('.tuc-accordion__arrow');

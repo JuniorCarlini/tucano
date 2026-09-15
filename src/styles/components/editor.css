@@ -60,8 +60,13 @@
 /* O textarea guarda o valor e nao aparece; [hidden] sozinho perderia peso. */
 textarea.tuc-editor__value[hidden] { display: none; }
 
-.tuc-editor__area:empty::before,
-.tuc-editor__area > p:only-child:empty::before {
+/*
+ * is-empty vem do JS: a area vazia guarda um <p><br></p>, que :empty nao casa.
+ * O ::before e da propria area, porque attr() le o elemento dono do
+ * pseudo; absoluto e sem deslocamento, fica onde o texto comecaria.
+ */
+.tuc-editor__area.is-empty::before {
+  position: absolute;
   content: attr(data-placeholder);
   color: var(--tuc-subtle);
   pointer-events: none;
@@ -276,7 +281,6 @@ textarea.tuc-editor__value[hidden] { display: none; }
   line-height: 1.65;
   color: var(--tuc-fg);
 }
-.tuc-prose pre { overflow-x: auto; }
 
 /* ---------------------------------------------------------------- *
  * Copiar o bloco de codigo                                         *

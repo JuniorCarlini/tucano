@@ -182,7 +182,9 @@ ninguém garante que veio daqui. A documentação diz para sanitizar de novo no
 servidor, e ela não deve deixar de dizer.
 
 **Colar entra sempre como texto puro.** É o que evita o HTML do Word e do Google
-Docs, com tabelas de layout e estilos embutidos.
+Docs, com tabelas de layout e estilos embutidos. Soltar algo arrastado também:
+pelo `beforeinput` de `insertFromDrop`, senão o `<img>` de outra página era
+baixado e o HTML ficava na tela, embora a peneira o tirasse do valor.
 
 **`execCommand` está deprecado e é usado assim mesmo.** É o único caminho com
 suporte universal e, sobretudo, o único que se integra ao desfazer nativo.
@@ -697,7 +699,7 @@ de um defeito que passou batido.
 dependência). `dates`, `mask`, `color` e `pageWindow` são entrada e saída sem
 DOM. Inclui `sanitize`, que é peça de segurança.
 
-**`tools/behavior.mjs` — 82 comportamentos no Chrome sem cabeça.** Abrir, fechar,
+**`tools/behavior.mjs` — 85 comportamentos no Chrome sem cabeça.** Abrir, fechar,
 ordenar, marcar, emitir evento, e os textos: português sem `setTexts`, troca
 global, opção da instância vencendo e restauração no fim. Armadilha registrada no cabeçalho do arquivo:
 transição não avança ali, então nunca leia opacidade ou posição logo depois de
@@ -709,11 +711,12 @@ colados no documento e têm que montar; os de JS não são executados (citam
 contra o código: `Tucano.x` existe? o método existe no protótipo? cada chave de
 opção é lida por alguém, inclusive dentro de `actions` e `items`?
 
-**`tools/keyboard.mjs` — 36 caminhos de teclado real**, pelo protocolo de
+**`tools/keyboard.mjs` — 46 caminhos de teclado real**, pelo protocolo de
 depuração do Chrome: `Backspace` e `Delete` na máscara e no select, as setas nas abas, o
 `↓` que leva o foco ao dia no date picker, a data digitada que emite e o `Escape`
 que a descarta, o Aplicar que segura a escolha, o painel que reabre em menos de
-200 ms, a barra do editor pelo teclado, o
+200 ms, a barra do editor pelo teclado, e no editor o soltar, o `Tab` na
+tabela, a caixa de link, o `required` e o `reset`, o
 `Escape` de um painel dentro de modal (que fechava o modal junto: o `cancel` do
 `<dialog>` é ação padrão da tecla, e `stopPropagation` não o impede) e o foco
 que o `Escape` devolve à amostra do color picker.
