@@ -531,6 +531,95 @@ testCase('Escape no color picker devolve o foco à amostra', async () => {
   return r[1] ? null : `o foco foi para ${r[2]}`;
 });
 
+testCase('Enter na amostra do color picker leva o foco ao painel, e o Tab anda por dentro', async () => {
+  // O painel mora no fim do <body>: com o foco na amostra, o Tab saía do campo,
+  // o painel fechava e área, trilhas e valor ficavam fora do alcance do teclado.
+  const c = `document.getElementById('color')._tucano`;
+  await evaluate(`${c}.swatch.focus()`);
+  await press('Enter');
+  const opened = await evaluate(`[${c}.isOpen, document.activeElement === ${c}.area]`);
+  await press('Tab');
+  const tabbed = await evaluate(`[${c}.isOpen, ${c}.panel.contains(document.activeElement)]`);
+  await press('Escape');
+  await wait(250);
+  if (!opened[0]) return 'o Enter não abriu o painel';
+  if (!opened[1]) return 'o foco ficou fora do painel';
+  return tabbed[0] && tabbed[1] ? null : 'o Tab saiu do painel e ele fechou';
+});
+
+/* Abre o painel de #color com a cor dada e devolve o centro da área, já posicionada. */
+async function openColorArea(value) {
+  await evaluate(`void document.getElementById('color')._tucano.setValue('${value}', { silent: true })`);
+  await evaluate(`void document.getElementById('color')._tucano.open()`);
+  await wait(50);
+  await centerOf(`document.getElementById('color')._tucano.area`);
+  await wait(50);
+  return centerOf(`document.getElementById('color')._tucano.area`);
+}
+
+testCase('arrastar a área do color picker emite um change nativo só, ao soltar', async () => {
+  // Com o change nativo a cada movimento, um hx-trigger="change" mandava uma
+  // requisição por pixel arrastado.
+  const [x, y] = await openColorArea('#4f46e5');
+  await evaluate(`(() => { window.__cn = { change: 0, tucano: 0 }; const i = document.getElementById('color');
+    i.addEventListener('change', () => __cn.change++); i.addEventListener('tucano:change', () => __cn.tucano++); })()`);
+  await tab().mouse.move(x, y);
+  await tab().mouse.down();
+  await tab().mouse.move(x + 60, y + 40, { steps: 10 });
+  const during = await evaluate(`({ ...__cn })`);
+  await tab().mouse.up();
+  const after = await evaluate(`({ ...__cn })`);
+  await evaluate(`void document.getElementById('color')._tucano.close()`);
+  await wait(250);
+  if (during.change) return `${during.change} change nativo(s) durante o arrasto`;
+  if (during.tucano < 2) return `tucano:change só ${during.tucano} vez(es) durante o arrasto`;
+  return after.change === 1 ? null : `${after.change} change nativo(s) ao soltar`;
+});
+
+testCase('botão direito na área do color picker não muda a cor', async () => {
+  const [x, y] = await openColorArea('#4f46e5');
+  await tab().mouse.click(x + 50, y + 30, { button: 'right' });
+  const value = await evaluate(`document.getElementById('color').value`);
+  await evaluate(`void document.getElementById('color')._tucano.close()`);
+  await wait(250);
+  return value === '#4f46e5' ? null : `a cor mudou para ${value}`;
+});
+
+testCase('Home e End nas trilhas do color picker vão aos extremos', async () => {
+  const c = `document.getElementById('color')._tucano`;
+  await openColorArea('#4f46e5');
+  await evaluate(`${c}.alpha.root.focus()`);
+  await press('Home');
+  const low = await evaluate(`${c}.hsva.a`);
+  await press('End');
+  const high = await evaluate(`${c}.hsva.a`);
+  await evaluate(`${c}.hue.root.focus()`);
+  await press('Home');
+  const hue = await evaluate(`${c}.hue.root.getAttribute('aria-valuenow')`);
+  await evaluate(`void ${c}.close()`);
+  await wait(250);
+  return low === 0 && high === 1 && hue === '0' ? null : `opacidade ${low} → ${high}, matiz ${hue}`;
+});
+
+testCase('reset do formulário devolve a cor ao color picker', async () => {
+  // O reset volta o texto sem disparar change: a amostra e a instância seguiam
+  // com a cor antiga, e o próximo envio mandava de novo a cor descartada.
+  const r = await evaluate(`(async () => {
+    const f = document.createElement('form');
+    f.innerHTML = '<input data-tuc-color value="#4f46e5">';
+    document.body.append(f);
+    Tucano.init(f);
+    const c = f.querySelector('input')._tucano;
+    c.setValue('#000000');
+    f.reset();
+    await new Promise((ok) => setTimeout(ok, 30));
+    const out = [c.getValue(), c.swatch.style.getPropertyValue('--color')];
+    c.destroy(); f.remove();
+    return out;
+  })()`);
+  return r[0] === '#4f46e5' && r[1] === '#4f46e5' ? null : `depois do reset: ${r.join(' / ')}`;
+});
+
 testCase('reabrir um modal logo depois de fechar deixa ele aberto', async () => {
   // O open() não cancelava o fechamento agendado, e o modal reaberto fechava sozinho.
   const r = await evaluate(`(async () => {

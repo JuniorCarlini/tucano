@@ -65,3 +65,29 @@ test('hsvToHsl mantem o matiz', () => {
   const hsv = parseColor('#16a34a');
   assert.ok(Math.abs(hsvToHsl(hsv).h - hsv.h) < 1);
 });
+
+test('parseColor le alfa em porcentagem, a barra e hsl com unidade', () => {
+  // O alfa `50%` virava NaN e o campo recebia `#ff0000NaN`; em hsl() o `%` era
+  // apagado antes, e `/ 50%` virava 50, preso em 1 — a opacidade sumia calada.
+  assert.equal(formatColor(parseColor('rgb(255 0 0 / 50%)')), '#ff000080');
+  assert.equal(formatColor(parseColor('rgba(255, 0, 0, 50%)')), '#ff000080');
+  assert.equal(formatColor(parseColor('hsl(120 100% 50% / 50%)')), '#00ff0080');
+  assert.equal(formatColor(parseColor('hsl(120deg 100% 50%)')), '#00ff00');
+  assert.equal(formatColor(parseColor('hsl(0.5turn 100% 50%)')), '#00ffff');
+  assert.equal(formatColor(parseColor('rgb(100%, 0%, 0%)')), '#ff0000');
+  assert.equal(formatColor(parseColor('hsl(120, 100, 50)')), '#00ff00', 'sem % continua valendo');
+});
+
+test('parseColor prende o que passa da faixa e recusa lixo', () => {
+  // Sem clamp, `hsl(120, 200%, 50%)` saia `#-7f17f-7f` direto para o formulario.
+  assert.equal(formatColor(parseColor('hsl(120, 200%, 50%)')), '#00ff00');
+  assert.equal(formatColor(parseColor('hsl(120, 100%, 150%)')), '#ffffff');
+  assert.equal(parseColor('rgb(255, 0, 0, abc)'), null);
+  assert.equal(parseColor('hsl(abc, 10%, 10%)'), null);
+  assert.equal(parseColor('rgb(10 20)'), null);
+});
+
+test('formatColor nao devolve hsl(360) nem hex com alfa ff', () => {
+  assert.equal(formatColor(parseColor('#de1617'), 'hsl'), 'hsl(0, 82%, 48%)');
+  assert.equal(formatColor({ h: 0, s: 1, v: 1, a: 0.999 }), '#ff0000');
+});

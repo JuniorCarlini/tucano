@@ -1020,6 +1020,87 @@ body{margin:0;padding:16px;font-family:system-ui}
     if (Tucano.getTexts().datepicker.clear !== 'Limpar') throw new Error('getTexts devolveu o objeto de verdade');
     compare(readTexts(), ptTexts);
   });
+  /* Color picker: cada caso monta o próprio campo num <form> e sai limpo. */
+  function colorBox(html) {
+    var box = document.createElement('form');
+    box.innerHTML = html;
+    document.body.append(box);
+    Tucano.init(box);
+    return box;
+  }
+  t('color picker: sem opacidade, o alfa do valor inicial sai', function () {
+    // O construtor lia o valor sem passar pelo setValue, e #ff000080 ficava
+    // no campo com a trilha de opacidade escondida.
+    var box = colorBox('<input data-tuc-color data-alpha="false" value="#ff000080">');
+    var value = box.querySelector('input').value;
+    box.querySelector('input')._tucano.destroy(); box.remove();
+    if (value !== '#ff0000') throw new Error(value);
+  });
+  t('color picker: campo desativado ou só leitura não abre', function () {
+    var box = colorBox('<input data-tuc-color disabled><input data-tuc-color readonly>'
+      + '<fieldset disabled><input data-tuc-color></fieldset>');
+    var opened = [].map.call(box.querySelectorAll('input[data-tuc-color]'), function (i) {
+      i._tucano.open(); var o = i._tucano.isOpen; i._tucano.destroy(); return o;
+    });
+    box.remove();
+    if (opened.indexOf(true) >= 0) throw new Error('abriu: ' + opened.join(','));
+  });
+  t('color picker: segunda instância substitui a primeira, e o init volta depois do destroy', function () {
+    var box = colorBox('<input data-tuc-color value="#123456">');
+    var i = box.querySelector('input');
+    new Tucano.ColorPicker(i);
+    var fields = box.querySelectorAll('.tuc-color-field').length;
+    i._tucano.destroy();
+    var after = box.querySelectorAll('.tuc-color-field').length;
+    var again = Tucano.init(box).colorpickers.length;
+    i._tucano.destroy(); box.remove();
+    if (fields !== 1) throw new Error(fields + ' envoltórios');
+    if (after !== 0) throw new Error('destroy deixou ' + after + ' envoltório(s)');
+    if (again !== 1) throw new Error('o init depois do destroy pulou o campo');
+  });
+  t('color picker: data-swatches com rgb() e amostra marcada pelo alfa', function () {
+    var box = colorBox('<input data-tuc-color data-swatches="rgb(255, 0, 0),#00ff0080,#00ff00" value="#00ff00">');
+    var c = box.querySelector('input')._tucano;
+    c.open();
+    var names = function (sel) { return [].map.call(c.panel.querySelectorAll(sel), function (b) { return b.getAttribute('aria-label'); }).join('|'); };
+    var labels = names('.tuc-colorpicker__swatchbtn'), selected = names('.is-selected');
+    c.destroy(); box.remove();
+    if (labels !== 'rgb(255, 0, 0)|#00ff0080|#00ff00') throw new Error('amostras: ' + labels);
+    if (selected !== '#00ff00') throw new Error('marcada: ' + selected);
+  });
+  t('color picker: cinza e preto guardam a matiz', function () {
+    var box = colorBox('<input data-tuc-color value="#0284c7">');
+    var c = box.querySelector('input')._tucano;
+    c.setValue('#808080'); var gray = Math.round(c.hsva.h);
+    c.setValue('#000000'); var black = Math.round(c.hsva.h);
+    c.destroy(); box.remove();
+    if (gray !== 200 || black !== 200) throw new Error('matiz ' + gray + ' / ' + black);
+  });
+  t('color picker: texto inválido no campo do painel volta ao valor', function () {
+    // O change sai com o foco ainda no campo, e o _paint pula campo focado.
+    var box = colorBox('<input data-tuc-color value="#4f46e5">');
+    var c = box.querySelector('input')._tucano;
+    c.open(); c.hexField.focus(); c.hexField.value = '#12';
+    c.hexField.dispatchEvent(new Event('change', { bubbles: true }));
+    var shown = c.hexField.value;
+    c.destroy(); box.remove();
+    if (shown !== '#4f46e5') throw new Error('o campo mostra ' + shown);
+  });
+  t('color picker: digitar no campo não repete o change, e tecla na borda não emite', function () {
+    var box = colorBox('<input data-tuc-color value="#ffffff">');
+    var i = box.querySelector('input'), c = i._tucano, n = { change: 0, tucano: 0 };
+    i.addEventListener('change', function () { n.change++; });
+    i.addEventListener('tucano:change', function () { n.tucano++; });
+    i.value = '#FF0000';
+    i.dispatchEvent(new Event('change', { bubbles: true }));
+    var typed = n.change + '/' + n.tucano + ' ' + i.value;
+    c.setValue('#ffffff', { silent: true }); c.open(); n.tucano = 0;
+    c.area.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }));
+    var edge = n.tucano;
+    c.destroy(); box.remove();
+    if (typed !== '1/1 #ff0000') throw new Error('digitado: change/tucano:change ' + typed);
+    if (edge !== 0) throw new Error('a tecla na borda emitiu ' + edge + ' vez(es)');
+  });
   t('init é idempotente: rodar de novo não duplica nada', function () {
     var before = document.querySelectorAll('.tuc-editor__toolbar').length;
     Tucano.init(document);

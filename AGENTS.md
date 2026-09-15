@@ -10,10 +10,11 @@ a API completa. Este arquivo é sobre trabalhar *no* código da Tucano.
 
 ```bash
 npm install          # só para desenvolver; quem consome não precisa de build
-npm run build        # gera dist/ (JS via esbuild, CSS via Tailwind CLI)
+npm run build        # gera dist/ (JS via esbuild, CSS via tools/css.mjs)
 npm run serve        # build + servidor local na porta 4322
 npm run build:og     # regera og.png a partir de tools/og.html
 node tools/site.mjs preview   # gera o site numa pasta de prévia, fora do git
+node tools/site-check.mjs     # busca e playground do site servido, nos três motores (SHOTS=pasta para capturas)
 npx playwright install chromium firefox webkit   # uma vez: os navegadores dos testes
 npm test             # build e todos os testes; comportamento e teclado nos três motores
 npm run test:webkit  # comportamento e teclado só no WebKit (também :chromium e :firefox)
@@ -32,6 +33,8 @@ envelheceram uma vez, e a página chegou a anunciar 15 KB com o arquivo em 27.
 `<slug>/index.html` na raiz — que é de onde o GitHub Pages publica — e monta
 sozinho a tabela de API (do mesmo extrator do `llms.txt`), a grade de
 componentes do início, o changelog em linha do tempo e os blocos de código.
+Gera também o `search.json` de cada idioma (índice da busca), os ids dos `h2` e
+`h3` que não tinham e o manifesto de opções do playground.
 Editar um `index.html` gerado é trabalho perdido no próximo build.
 `dist/` **é versionado** de propósito: é ele que o CDN serve e o que faz o uso
 estático funcionar sem build.
@@ -48,10 +51,11 @@ src/styles/core/      base (reset) e tokens
 src/styles/components/  um arquivo por componente; os que são só classe
                       (botão, etiqueta, campo) também moram aqui
 site/                 fonte do site de documentação (layout, nav, css, js, pages/)
-tools/                build (reference, site, stamp, og) e verificação (behavior,
+tools/                build (types, reference, site, stamp, og) e verificação (behavior,
                       keyboard, examples, consistency, audit); browsers abre o
                       navegador pelo Playwright para todos eles
 test/                 funções puras, com node --test
+test/types/           uso tipado (usage.ts por import, script.js com checkJs), com tsc
 ```
 
 Modal e gaveta compartilham `core/dialog.js`: top layer, foco preso, Escape e
@@ -522,6 +526,17 @@ já ter fixado aquela versão. A saída é subir a próxima. A ordem é sempre b
 conferir → commit → tag → push → publish, e nada entra entre a tag e o publish.
 Antes de publicar, compare o que a tag contém com o que o `HEAD` contém.
 
+**Quem publica no npm é o workflow `release.yml`, e não um `npm publish` local.**
+Empurrar a tag `vX.Y.Z` basta: o workflow confere que a tag bate com o
+`package.json`, roda `npm test` e `npm run audit` nos três navegadores, exige a
+árvore limpa depois do build, publica no npm pelo trusted publishing (OIDC, sem
+token e sem código de dois fatores, com provenance) e só então cria o release com
+a anotação da tag. Versão com hífen sai na dist-tag `next`. Rodar de novo pelo
+Actions pula o que já estiver publicado. O publish manual caía na publicação em
+espera da conta e precisava de aprovação; é por isso que ele deixou de ser o
+caminho. A configuração do trusted publisher no npmjs.com (usuário JuniorCarlini,
+repositório tucano, workflow `release.yml`) é feita uma vez pelo dono.
+
 **Caixa, opção e chave são o `<input>` nativo com o desenho trocado — e o
 rótulo se defende do CSS de `label`.** Nada de JavaScript nem de elemento
 substituto: `name`, `required`, estado misto e o anúncio do leitor de tela têm
@@ -592,6 +607,36 @@ um card, e o `th,td` global vazava para as tabelas de demonstração. Ao
 documentar algo novo, use a peça; se ela não servir, o problema é da peça. O selo
 da versão é procurado pelo `stamp.mjs` com a classe exata
 `tuc-badge is-plain ver`: mudou a marcação, muda a expressão junto.
+
+**A busca do site é um índice gerado, baixado só quando alguém abre a busca.**
+`tools/site.mjs` escreve `search.json` na raiz de cada idioma: título, descrição,
+grupo e introdução de cada página, e de cada `h2`/`h3` o título, a âncora e o
+começo do texto — sem código, `<script>`, `<dialog>` de exemplo nem SVG. Na seção
+de API entram os nomes de opção, atributo, método e evento no lugar da prosa. O
+build imprime o tamanho; está perto de 48 KB (17 KB com gzip) por idioma, e o
+teto combinado é 60 KB. Texto maior por seção custa em todo idioma de uma vez: mexa
+em `INTRO_CHARS` e `SECTION_CHARS` olhando o número. O diálogo é o `Tucano.Modal`
+(o campo no lugar do título, a lista no corpo) e a lista é o `.tuc-menu`; o
+teclado segue o combobox do ARIA APG, com `aria-activedescendant`. A comparação
+dobra acento e caixa dos dois lados, e o `<mark>` volta ao texto original por um
+mapa de posições — marcar sobre o texto dobrado perderia o acento na tela. Os
+rótulos são chaves `search*` do `DEFAULT_UI`, escritas como `data-search-*` no
+`<body>`.
+
+**O playground não tem lista de opções escrita à mão.** `PLAYGROUND`, no
+`site.mjs`, diz só quais opções de cada componente viram controle; nome, padrão,
+valores aceitos (lidos do comentário, `'a' | 'b'`) e atributo `data-*` saem do
+`tools/api.mjs`, e opção que sumiu do código, padrão ilegível ou atributo que o
+`autoInit` não lê quebram o build. O manifesto vai na própria página, num
+`<script type="application/json">`; `site/playground.js` só apresenta e guarda
+a marcação de exemplo e os textos de demonstração dos três idiomas. A cada troca
+a instância anterior é destruída com `destroy()` antes de a próxima nascer — o
+teste confere que nenhum painel sobra no `<body>`. Na paginação e na tabela em
+modo servidor a prévia passa `onChange`/`onSort`, que cancelam a navegação; na
+tabela em modo `client` não, porque `onSort` definido toma a ordenação para si.
+Uma página que precisa de script próprio o declara com
+`<script src="{{root}}site/x.js?v={{version}}">`: o gerador leva esse script,
+como os inline, para depois do `dist/tucano.js`.
 
 **Toda mudança que quem usa percebe entra no `CHANGELOG.md`, em "Ainda não
 publicado" — e na mesma hora em `CHANGELOG.en.md` ("Unreleased") e
@@ -697,12 +742,31 @@ bug contra build antigo. Confirme o código carregado, não só o arquivo em dis
 
 ## Testes
 
-`npm test` compila e roda cinco coisas, nesta ordem. Cada uma existe por causa
+`npm test` compila e roda seis coisas, nesta ordem. Cada uma existe por causa
 de um defeito que passou batido.
 
-**`test/*.test.mjs` — 53 testes das funções puras** (`node --test`, sem
+**`test/*.test.mjs` — 56 testes das funções puras** (`node --test`, sem
 dependência). `dates`, `mask`, `color` e `pageWindow` são entrada e saída sem
 DOM. Inclui `sanitize`, que é peça de segurança.
+
+**`test:types` — os tipos que o pacote entrega.** O código não tem TypeScript;
+`dist/tucano.d.ts` é gerado por `tools/types.mjs` no build, logo depois do JS, e
+não se edita à mão. O que dá para ler do código é lido: opções e o comentário de
+cada uma (pelo `tools/api.mjs`), métodos e getters do protótipo de verdade,
+exports do `index.js`, eventos `tucano:*`, grupos e chaves do `texts.js`, nomes de
+`FORMATS`, ferramentas do editor, motivos de fechar. O que o código não diz — os
+valores de `mode`, o que `getValue()` devolve, a assinatura de um callback, o
+`detail` de um evento, o parâmetro de um texto em função — mora nas tabelas do
+topo do `types.mjs`. A regra: opção, método, getter, evento, export, texto em
+função ou utilitário que existe no código sem entrada na tabela, ou entrada para
+algo que saiu do código, derruba o build com a lista do que falta. Por isso
+opção nova, método novo ou evento novo pedem a linha correspondente ali; o erro
+diz qual. O `test:types` roda `types.mjs --check` (falha se o d.ts commitado
+ficou velho) e o `tsc --strict` em `test/types/`: `usage.ts` importa `tucano`
+pelo `exports` do package.json, e `script.js` usa o global `Tucano` como quem
+vem do CDN. Cada `@ts-expect-error` ali (opção inexistente, `mode` errado, chave
+de `setTexts` que não existe, propriedade que o `detail` não tem) é o que impede
+um tipo de virar `any` calado: sem o erro esperado, o `tsc` acusa a diretiva.
 
 **Os testes de navegador rodam pelo Playwright, num lugar só: `tools/browsers.mjs`.**
 Ele abre Chromium, Firefox ou WebKit com viewport 1280×900, `pt-BR`, fuso
@@ -732,7 +796,7 @@ dados vazios (colar é testado chamando o handler com o texto); e se a barra de
 rolagem ocupa espaço depende do motor e do sistema, então o teste do diálogo mede
 a barra em vez de supor que ela não existe.
 
-**`tools/behavior.mjs` — 85 comportamentos, nos três navegadores.** Abrir, fechar,
+**`tools/behavior.mjs` — 92 comportamentos, nos três navegadores.** Abrir, fechar,
 ordenar, marcar, emitir evento, e os textos: português sem `setTexts`, troca
 global, opção da instância vencendo e restauração no fim. A página roda sozinha
 e escreve o resultado em `<pre id="result">`; o teste espera esse bloco ser
@@ -745,7 +809,7 @@ colados no documento e têm que montar; os de JS não são executados (citam
 contra o código: `Tucano.x` existe? o método existe no protótipo? cada chave de
 opção é lida por alguém, inclusive dentro de `actions` e `items`?
 
-**`tools/keyboard.mjs` — 46 caminhos de teclado e mouse reais, nos três
+**`tools/keyboard.mjs` — 51 caminhos de teclado e mouse reais, nos três
 navegadores**, pelo `page.keyboard` e `page.mouse` do Playwright: `Backspace` e `Delete` na máscara e no select, as setas nas abas, o
 `↓` que leva o foco ao dia no date picker, a data digitada que emite e o `Escape`
 que a descarta, o Aplicar que segura a escolha, o painel que reabre em menos de
@@ -766,6 +830,18 @@ de procurar, e por isso deixou passar `--matiz`, `nextId('cor')`, o sufixo
 `-dica` e os motivos `'foco'`/`'solto'`; a 5c olha justamente as strings que são
 nome — custom property, prefixo de `nextId`, motivo de `onDismiss` e sufixo de
 id — e acusou os sete antes da correção.
+
+**`tools/site-check.mjs` — busca e playground do site, nos três navegadores.**
+Fica fora do `npm test` porque precisa do site servido (`npm run serve`, ou
+`SITE_URL=` para outro endereço). Com teclado e mouse reais: `/` e Ctrl+K abrem,
+"sensivel" acha "sensível", ↓/↑/Enter levam à âncora, Esc devolve o foco; no
+playground, trocar de componente e de opção recria a prévia sem erro no console,
+sem painel sobrando no `<body>`, com o código acompanhando, e o copiar leva o
+código gerado. Também em inglês, em espanhol e em 390px. Com `SHOTS=pasta` salva
+capturas nos dois temas. Duas expectativas erradas custaram uma rodada: o painel
+do date picker só nasce no primeiro abrir (contar antes dá zero), e ir a uma
+âncora da mesma página leva o foco para o `<body>` — o que se confere é que ele
+não fica preso no diálogo fechado.
 
 `npm run audit` continua à parte: mede geometria dos campos nos dois temas.
 

@@ -67,6 +67,15 @@ cambios en tu proyecto.
   `Date`. Un texto en otro formato caía en `new Date(texto)`, que lee
   `07/09/2026` como 9 de julio, y ahora devuelve `null`. Para lo que la persona
   escribe, use `Tucano.dates.parseUserInput()`.
+- En el color picker, el `change` nativo sale una sola vez, cuando termina el
+  arrastre en el área o en las barras, como en el `<input type="range">`. El
+  `tucano:change` y el `onChange` siguen saliendo en cada movimiento. Antes el
+  nativo salía en cada píxel, y un `hx-trigger="change"` enviaba una petición
+  por movimiento del ratón; quien usaba el `change` para una vista previa en vivo
+  pasa a escuchar el `tucano:change`.
+- El tono del color picker se detiene en 360 con el teclado, en lugar de dar la
+  vuelta a 0: `→` al final de la barra ya no hace nada. `Home` y `End` van a
+  los extremos.
 
 ### Nuevo
 
@@ -88,6 +97,13 @@ cambios en tu proyecto.
   predeterminado, sin diccionarios de idiomas en el paquete, y
   `Tucano.getTexts()` devuelve los textos actuales. El nombre del día que el
   lector de pantalla lee en el calendario ahora viene del idioma de la página.
+- Tipos de TypeScript en el paquete, en `dist/tucano.d.ts`, generados a partir
+  del código en cada build y sin ningún peso en el bundle.
+  `import { DatePicker } from 'tucano'` y el `Tucano` global del `<script>` (con
+  `checkJs`) pasan a tener autocompletado y verificación de opciones, métodos, lo
+  que `getValue()` devuelve en cada modo, el `detail` de los eventos
+  `tucano:*`, los grupos y claves de `Tucano.setTexts()` y las utilidades
+  `Tucano.mask`, `Tucano.dates` y `Tucano.color`.
 
 ### Corregido
 
@@ -200,6 +216,40 @@ cambios en tu proyecto.
   quitaba.
 - En Firefox, cambiar la dirección de un enlace con el cursor dentro dejaba un
   `<a>` vacío delante del enlace, en el valor guardado.
+- El panel del color picker no se alcanzaba con el teclado: con el foco en la
+  muestra, el siguiente `Tab` salía del campo y el panel se cerraba. Abierto con
+  `↓`, o con `Enter` y `Espacio` en la muestra, el foco ahora entra en el área de
+  color, y el `Tab` recorre el panel por dentro. Las barras ganaron `Home` y
+  `End`.
+- `Tucano.color.parseColor()` y el color picker grababan basura a partir de
+  colores CSS válidos: un alfa en porcentaje, como `rgb(255 0 0 / 50%)`, salía
+  `#ff0000NaN`, y `hsl(120, 200%, 50%)` salía `#-7f17f-7f`. Ahora `rgb()` y
+  `hsl()` leen `%`, la barra del alfa, `deg` y `turn`, cada parte se limita a su
+  rango, y lo que no es número rechaza el color.
+- `Tucano.color.formatColor()` devolvía `hsl(360, …)` para un tono cerca del
+  final, que al releerse pasaba a 0, y `#rrggbbff` para opacidad de 0,998 en
+  adelante.
+- Escribir un color en el campo del color picker disparaba el `change` nativo
+  dos veces — con HTMX, dos peticiones —, y una tecla en el borde del área
+  emitía otra vez el mismo valor.
+- `form.reset()` dejaba la muestra y la instancia del color picker con el color
+  anterior.
+- Un color picker desactivado, de solo lectura o dentro de un
+  `<fieldset disabled>` abría el panel y dejaba cambiar el color.
+- Con `alpha: false`, un valor inicial con opacidad, como `#ff000080`, quedaba
+  en el campo del color picker con la barra de opacidad oculta.
+- `destroy()` del color picker dejaba `data-tuc-ready`, y `Tucano.init` no
+  volvía a montar el campo. Y `new ColorPicker` dos veces en el mismo campo
+  anidaba un control dentro del otro, con dos muestras: la segunda ahora
+  reemplaza a la primera.
+- Paleta del color picker: `data-swatches` con `rgb(255, 0, 0)` se partía en las
+  comas y daba tres muestras rotas; la marca ignoraba la opacidad, y
+  `#00ff0080` y `#00ff00` se encendían juntas; y el aumento al pasar el ratón no
+  se animaba.
+- Color picker: un texto inválido en el campo del panel se quedaba ahí después
+  de confirmar, falseando el valor; el botón derecho en el área cambiaba el color
+  junto con el menú contextual; y gris o negro con `setValue()` o escritos
+  llevaban el área al rojo, en lugar de mantener el tono.
 
 ## 0.33.1 — 2026-09-14
 

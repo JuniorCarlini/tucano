@@ -2532,8 +2532,10 @@ var Tucano = (() => {
   }
   function rgbToHex({ r, g, b }, a = 1) {
     const base = `#${hex2(r)}${hex2(g)}${hex2(b)}`;
-    return a >= 1 ? base : base + hex2(Math.round(a * 255));
+    const alpha = Math.round(a * 255);
+    return alpha < 255 ? base + hex2(alpha) : base;
   }
+  var num = (t, scale) => t.endsWith("%") ? t.slice(0, -1) / 100 * scale : Number(t);
   function parseColor(input) {
     if (!input) return null;
     const text = String(input).trim().toLowerCase();
@@ -2550,22 +2552,15 @@ var Tucano = (() => {
       } else return null;
       return { ...rgbToHsv({ r, g, b }), a };
     }
-    const rgb = /^rgba?\(([^)]+)\)$/.exec(text);
-    if (rgb) {
-      const p = rgb[1].split(/[\s,/]+/).filter(Boolean).map(Number);
-      if (p.length < 3 || p.slice(0, 3).some(Number.isNaN)) return null;
-      return {
-        ...rgbToHsv({ r: clamp(p[0], 0, 255), g: clamp(p[1], 0, 255), b: clamp(p[2], 0, 255) }),
-        a: p[3] === void 0 ? 1 : clamp(p[3], 0, 1)
-      };
-    }
-    const hsl = /^hsla?\(([^)]+)\)$/.exec(text);
-    if (hsl) {
-      const p = hsl[1].replace(/%/g, "").split(/[\s,/]+/).filter(Boolean).map(Number);
-      if (p.length < 3 || p.slice(0, 3).some(Number.isNaN)) return null;
-      return { ...hslToHsv(p[0], p[1] / 100, p[2] / 100), a: p[3] === void 0 ? 1 : clamp(p[3], 0, 1) };
-    }
-    return null;
+    const fn = /^(rgb|hsl)a?\(([^)]+)\)$/.exec(text);
+    if (!fn) return null;
+    const p = fn[2].split(/[\s,/]+/).filter(Boolean);
+    if (p.length < 3) return null;
+    const pct = (t) => clamp(num(t.endsWith("%") ? t : `${t}%`, 1), 0, 1);
+    const unit = /^(.+?)(deg|turn)?$/.exec(p[0]);
+    const color = fn[1] === "rgb" ? rgbToHsv({ r: clamp(num(p[0], 255), 0, 255), g: clamp(num(p[1], 255), 0, 255), b: clamp(num(p[2], 255), 0, 255) }) : hslToHsv(unit[1] * (unit[2] === "turn" ? 360 : 1), pct(p[1]), pct(p[2]));
+    color.a = p[3] === void 0 ? 1 : clamp(num(p[3], 1), 0, 1);
+    return Object.values(color).some(Number.isNaN) ? null : color;
   }
   function hslToHsv(h, s, l) {
     const v = l + s * Math.min(l, 1 - l);
@@ -2579,7 +2574,7 @@ var Tucano = (() => {
     }
     if (format3 === "hsl") {
       const { h, s, l } = hsvToHsl(hsva);
-      const hs = `${Math.round(h)}, ${Math.round(s * 100)}%, ${Math.round(l * 100)}%`;
+      const hs = `${Math.round(h) % 360}, ${Math.round(s * 100)}%, ${Math.round(l * 100)}%`;
       return a >= 1 ? `hsl(${hs})` : `hsla(${hs}, ${a})`;
     }
     return rgbToHex({ r, g, b }, hsva.a);
@@ -2630,19 +2625,23 @@ var Tucano = (() => {
     appendTo: void 0,
     onChange: null
   };
-  var ColorPicker = class {
+  var ColorPicker = class _ColorPicker {
     constructor(target, options = {}) {
       const node = typeof target === "string" ? document.querySelector(target) : target;
       if (!node) throw new Error("[ColorPicker] elemento alvo nao encontrado");
+      if (node._tucano instanceof _ColorPicker) {
+        const ready = node.hasAttribute("data-tuc-ready");
+        node._tucano.destroy();
+        node.toggleAttribute("data-tuc-ready", ready);
+      }
       this.opts = { ...DEFAULTS3, ...omitUndefined(options) };
       this.input = node;
       this.id = nextId("color");
       this.isOpen = false;
       this._cleanups = [];
-      this._dragging = null;
-      this.hsva = parseColor(node.value) || parseColor(this.opts.value) || { h: 243, s: 0.7, v: 0.9, a: 1 };
+      this.hsva = { h: 243, s: 0.7, v: 0.9, a: 1 };
       this._build();
-      this._syncInput();
+      this.setValue(node.value, { silent: true }) || this.setValue(this.opts.value, { silent: true }) || this._syncInput();
       node._tucano = this;
     }
     /* ---------------------------------------------------------------- *
@@ -2657,14 +2656,18 @@ var Tucano = (() => {
     setValue(value, { silent = false } = {}) {
       const color = parseColor(value);
       if (!color) return false;
-      this.hsva = this.opts.alpha ? color : { ...color, a: 1 };
-      this._syncInput();
-      if (this.isOpen) this._paint();
-      if (!silent) this._emit();
+      const { h, s } = this.hsva;
+      this.hsva = {
+        h: color.s && color.v ? color.h : h,
+        s: color.v ? color.s : s,
+        v: color.v,
+        a: this.opts.alpha ? color.a : 1
+      };
+      this._commit(silent);
       return true;
     }
     open() {
-      if (this.isOpen) return;
+      if (this.isOpen || this.input.matches(":disabled, [readonly]")) return;
       this.isOpen = true;
       this._paint();
       this.popover = new Popover(this.field, this.panel, {
@@ -2702,38 +2705,29 @@ var Tucano = (() => {
       this.input.classList.remove("tuc-color-field__value");
       this.field.replaceWith(this.input);
       this.panel.remove();
+      this.input.removeAttribute("data-tuc-ready");
       delete this.input._tucano;
     }
     /* ---------------------------------------------------------------- *
      * Construcao                                                        *
      * ---------------------------------------------------------------- */
     _build() {
+      const openInto = () => {
+        this.open();
+        if (this.isOpen) this.area.focus();
+      };
       this.swatch = el("button", {
         type: "button",
         class: "tuc-color-field__swatch",
         "aria-label": COLORPICKER_TEXTS.pick,
         "aria-haspopup": "dialog",
         "aria-expanded": "false",
-        onclick: () => this.toggle(),
-        // Enter e Espaco o navegador ja converte em clique num <button>; a seta
-        // para baixo e a que falta, e e a mesma dos outros campos.
-        onkeydown: (e) => {
-          if (e.key === "ArrowDown" && !this.isOpen) {
-            e.preventDefault();
-            this.open();
-          }
-        }
+        onclick: (e) => this.isOpen || e.detail ? this.toggle() : openInto()
       });
       this.field = el("div", { class: "tuc-color-field" });
       this.input.replaceWith(this.field);
       this.input.classList.add("tuc-color-field__value");
       this.field.append(this.swatch, this.input);
-      this._cleanups.push(on(this.field, "mousedown", (e) => {
-        if (e.target === this.field) {
-          e.preventDefault();
-          this.input.focus();
-        }
-      }));
       this.area = el("div", {
         class: "tuc-colorpicker__area",
         tabindex: 0,
@@ -2753,7 +2747,8 @@ var Tucano = (() => {
       const fieldRow = el("div", { class: "tuc-colorpicker__row" }, [
         this.preview,
         this.hexField,
-        supportsEyeDropper() ? el("button", {
+        // O conta-gotas ainda e so do Chrome e do Edge: esta checagem continua valendo.
+        "EyeDropper" in window ? el("button", {
           type: "button",
           class: "tuc-btn is-outline is-icon is-sm tuc-colorpicker__pick",
           "aria-label": COLORPICKER_TEXTS.eyeDropper,
@@ -2768,32 +2763,48 @@ var Tucano = (() => {
         id: this.id
       }, [this.area, tracks, fieldRow, this.opts.swatches ? this._buildSwatches() : null]);
       this._cleanups.push(
-        this._dragHandler(this.area, (x, y) => {
-          this.hsva = { ...this.hsva, s: x, v: 1 - y };
-          this._commit();
-        }),
-        on(this.area, "keydown", (e) => this._areaKeys(e)),
-        on(this.input, "change", () => {
-          if (this._emitting) return;
-          if (!this.setValue(this.input.value)) this._syncInput();
+        // Clicar em qualquer parte do controle leva o cursor ao valor.
+        on(this.field, "mousedown", (e) => {
+          if (e.target === this.field) {
+            e.preventDefault();
+            this.input.focus();
+          }
         }),
         /*
          * Abrir no foco do campo de texto atrapalhava duas vezes: o painel subia
          * so de tabular por um formulario, e cobria o proprio campo de quem
-         * queria digitar o hex. O gatilho e a amostra ao lado, que e <button> e
-         * ja responde a Enter e Espaco por conta do navegador. Aqui fica so a
-         * seta para baixo, igual a do campo de data.
+         * queria digitar o hex. O gatilho e a amostra, que e <button> e ja
+         * responde a Enter e Espaco. Aqui fica so a seta para baixo, igual a do
+         * campo de data, ouvida no envolucro para valer na amostra e no campo.
          */
-        on(this.input, "keydown", (e) => {
+        on(this.field, "keydown", (e) => {
           if (e.key === "ArrowDown" && !this.isOpen) {
             e.preventDefault();
-            this.open();
+            openInto();
           }
         }),
+        ...this._dragHandler(this.area, (x, y) => {
+          this.hsva = { ...this.hsva, s: x, v: 1 - y };
+          this._commit(false, false);
+        }),
+        on(this.area, "keydown", (e) => this._areaKeys(e)),
+        on(this.input, "change", () => {
+          if (this._emitting) return;
+          if (!this.setValue(this.input.value, { silent: true })) return this._syncInput();
+          this._emit(false);
+        }),
+        // Sempre reescrito: o foco ainda esta no campo quando o change sai, e o
+        // _paint pula campo focado — texto invalido ficava la, mentindo o valor.
         on(this.hexField, "change", () => {
-          if (!this.setValue(this.hexField.value)) this._paint();
+          this.setValue(this.hexField.value);
+          this.hexField.value = this.getValue();
         })
       );
+      if (this.input.form) {
+        this._cleanups.push(on(this.input.form, "reset", () => setTimeout(() => {
+          this.setValue(this.input.value, { silent: true }) || this._syncInput();
+        })));
+      }
     }
     _buildSlider(type, label, max) {
       const thumb = el("span", { class: "tuc-colorpicker__thumb" });
@@ -2805,18 +2816,19 @@ var Tucano = (() => {
         "aria-valuemin": "0",
         "aria-valuemax": String(max)
       }, [el("span", { class: "tuc-colorpicker__track" }), thumb]);
+      const hue = type === "hue";
+      const set = (x, native) => {
+        this.hsva = hue ? { ...this.hsva, h: x * 360 } : { ...this.hsva, a: x };
+        this._commit(false, native);
+      };
       this._cleanups.push(
-        this._dragHandler(root, (x) => {
-          this.hsva = type === "hue" ? { ...this.hsva, h: x * 360 } : { ...this.hsva, a: x };
-          this._commit();
-        }),
+        ...this._dragHandler(root, (x) => set(x, false)),
         on(root, "keydown", (e) => {
-          const step = e.shiftKey ? 10 : 1;
-          const delta = { ArrowLeft: -1, ArrowDown: -1, ArrowRight: 1, ArrowUp: 1 }[e.key];
+          const step = (e.shiftKey ? 10 : 1) / (hue ? 360 : 100);
+          const delta = { ArrowLeft: -step, ArrowDown: -step, ArrowRight: step, ArrowUp: step, Home: -1, End: 1 }[e.key];
           if (!delta) return;
           e.preventDefault();
-          this.hsva = type === "hue" ? { ...this.hsva, h: (this.hsva.h + delta * step + 360) % 360 } : { ...this.hsva, a: clamp(this.hsva.a + delta * step / 100, 0, 1) };
-          this._commit();
+          set(clamp((hue ? this.hsva.h / 360 : this.hsva.a) + delta, 0, 1));
         })
       );
       return { root, thumb };
@@ -2825,42 +2837,56 @@ var Tucano = (() => {
       return el(
         "div",
         { class: "tuc-colorpicker__swatches" },
-        this.opts.swatches.map((color) => el("button", {
-          type: "button",
-          class: "tuc-colorpicker__swatchbtn",
-          style: `--color: ${color}`,
-          "aria-label": color,
-          title: color,
-          dataset: { color: normalize2(color) },
-          onclick: () => {
-            this.setValue(color);
-          }
-        }))
+        this.opts.swatches.map((color) => {
+          const parsed = parseColor(color);
+          return el("button", {
+            type: "button",
+            class: "tuc-colorpicker__swatchbtn",
+            style: `--color: ${color}`,
+            "aria-label": color,
+            title: color,
+            // Comparada com o alfa: `#00ff0080` marcado como a cor `#00ff00` indicava a amostra errada.
+            dataset: { color: parsed && formatColor(this.opts.alpha ? parsed : { ...parsed, a: 1 }) },
+            onclick: () => {
+              this.setValue(color);
+            }
+          });
+        })
       );
     }
     /**
      * Arrasto normalizado em [0,1]. Usa pointer capture para o gesto continuar
      * valendo quando o cursor sai do elemento — sem isso o thumb "gruda" na borda.
+     * O navegador solta a captura sozinho no pointerup e no pointercancel, e
+     * avisa com `lostpointercapture`.
      */
     _dragHandler(node, onMove) {
-      const applyPointer = (e) => {
+      let start;
+      const apply2 = (e) => {
         const r = node.getBoundingClientRect();
         onMove(clamp((e.clientX - r.left) / r.width, 0, 1), clamp((e.clientY - r.top) / r.height, 0, 1));
       };
-      const down = (e) => {
-        e.preventDefault();
-        node.setPointerCapture(e.pointerId);
-        node.focus();
-        applyPointer(e);
-      };
-      const move = (e) => {
-        if (node.hasPointerCapture(e.pointerId)) applyPointer(e);
-      };
-      const up = (e) => {
-        if (node.hasPointerCapture(e.pointerId)) node.releasePointerCapture(e.pointerId);
-      };
-      const offs = [on(node, "pointerdown", down), on(node, "pointermove", move), on(node, "pointerup", up)];
-      return () => offs.forEach((f) => f());
+      return [
+        on(node, "pointerdown", (e) => {
+          if (e.button) return;
+          e.preventDefault();
+          node.setPointerCapture(e.pointerId);
+          node.focus();
+          start = this.input.value;
+          apply2(e);
+        }),
+        on(node, "pointermove", (e) => {
+          if (node.hasPointerCapture(e.pointerId)) apply2(e);
+        }),
+        /*
+         * O change nativo sai uma vez, ao soltar, como no <input type="range">; o
+         * tucano:change continua a cada movimento. Com o nativo a cada pixel, um
+         * `hx-trigger="change"` mandava uma requisicao por movimento do mouse.
+         */
+        on(node, "lostpointercapture", () => {
+          if (this.input.value !== start) this._change();
+        })
+      ];
     }
     _areaKeys(e) {
       const step = (e.shiftKey ? 10 : 2) / 100;
@@ -2890,10 +2916,16 @@ var Tucano = (() => {
     /* ---------------------------------------------------------------- *
      * Render                                                            *
      * ---------------------------------------------------------------- */
-    _commit() {
+    /**
+     * Grava no campo, repinta e emite — mas so quando o texto mudou. Tecla na
+     * borda da area e movimento abaixo de um degrau de cor emitiam o mesmo valor
+     * de novo. `native` falso segura o change nativo (arrasto e texto digitado).
+     */
+    _commit(silent, native = true) {
+      const before = this.input.value;
       this._syncInput();
-      this._paint();
-      this._emit();
+      if (this.isOpen) this._paint();
+      if (!silent && this.input.value !== before) this._emit(native);
     }
     _syncInput() {
       const value = this.getValue();
@@ -2905,11 +2937,13 @@ var Tucano = (() => {
       const { h, s, v, a } = this.hsva;
       const pure = rgbToHex(hsvToRgb({ h, s: 1, v: 1 }));
       const solid = rgbToHex(hsvToRgb(this.hsva));
+      const thumb = this.area.firstElementChild;
+      const value = this.getValue();
       this.area.style.setProperty("--hue", pure);
-      this.area.firstElementChild.style.left = `${s * 100}%`;
-      this.area.firstElementChild.style.top = `${(1 - v) * 100}%`;
-      this.area.firstElementChild.style.setProperty("--color", solid);
-      this.area.firstElementChild.classList.toggle("is-dark", isDark(this.hsva));
+      thumb.style.left = `${s * 100}%`;
+      thumb.style.top = `${(1 - v) * 100}%`;
+      thumb.style.setProperty("--color", solid);
+      thumb.classList.toggle("is-dark", isDark(this.hsva));
       this.hue.thumb.style.left = `${h / 360 * 100}%`;
       this.hue.thumb.style.setProperty("--color", pure);
       this.hue.root.setAttribute("aria-valuenow", String(Math.round(h)));
@@ -2919,33 +2953,30 @@ var Tucano = (() => {
         this.alpha.thumb.style.setProperty("--color", solid);
         this.alpha.root.setAttribute("aria-valuenow", a.toFixed(2));
       }
-      this.preview.style.setProperty("--color", formatColor(this.hsva, "rgb"));
-      const current = rgbToHex(hsvToRgb(this.hsva));
+      this.preview.style.setProperty("--color", value);
+      const current = formatColor(this.hsva);
       for (const btn of this.panel.querySelectorAll(".tuc-colorpicker__swatchbtn")) {
         btn.classList.toggle("is-selected", btn.dataset.color === current);
       }
-      if (document.activeElement !== this.hexField) this.hexField.value = this.getValue();
+      if (document.activeElement !== this.hexField) this.hexField.value = value;
     }
-    _emit() {
+    _emit(native = true) {
       const value = this.getValue();
       const detail = { value, rgb: this.getRgb(), hsva: { ...this.hsva }, instance: this };
+      this.opts.onChange?.(value, detail);
+      this.input.dispatchEvent(new CustomEvent("tucano:change", { detail, bubbles: true }));
+      if (native) this._change();
+    }
+    /** 'change' nativo para validacao de formulario e HTMX enxergarem o valor. */
+    _change() {
       this._emitting = true;
       try {
-        this.opts.onChange?.(value, detail);
-        this.input.dispatchEvent(new CustomEvent("tucano:change", { detail, bubbles: true }));
         this.input.dispatchEvent(new Event("change", { bubbles: true }));
       } finally {
         this._emitting = false;
       }
     }
   };
-  function normalize2(color) {
-    const p = parseColor(color);
-    return p ? rgbToHex(hsvToRgb(p)) : String(color).toLowerCase();
-  }
-  function supportsEyeDropper() {
-    return "EyeDropper" in window;
-  }
   function autoInit3(scope = document) {
     const out = [];
     for (const node of scope.querySelectorAll("[data-tuc-color]:not([data-tuc-ready])")) {
@@ -2954,7 +2985,8 @@ var Tucano = (() => {
       out.push(new ColorPicker(node, {
         format: d.format || void 0,
         alpha: d.alpha === "false" ? false : void 0,
-        swatches: d.swatches === "false" ? false : d.swatches ? d.swatches.split(/\s*,\s*/) : void 0,
+        // Virgula dentro de parenteses nao separa: `rgb(255, 0, 0)` virava tres amostras quebradas.
+        swatches: d.swatches === "false" ? false : d.swatches ? d.swatches.split(/\s*,\s*(?![^(]*\))/) : void 0,
         placement: d.placement || void 0
       }));
     }

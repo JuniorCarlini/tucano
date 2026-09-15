@@ -133,7 +133,9 @@ c.destroy();
    <code>rgb()</code>, <code>rgba()</code>, <code>hsl()</code> and <code>hsla()</code>. The text is read on commit — leaving the field or
    <code>Enter</code> — and text that is not a color reverts to the current value, instead of clearing the color.</p>
 
-<p>Every change fires <code>tucano:change</code> on the field, plus the native <code>change</code>, for validation and HTMX.</p>
+<p>Every change fires <code>tucano:change</code> on the field, plus the native <code>change</code>, for validation and HTMX.
+   While dragging, as with <code>&lt;input type="range"&gt;</code>, <code>tucano:change</code> fires on every move and the
+   native <code>change</code> only once, on release.</p>
 <pre data-code="js">
 document.querySelector('#color').addEventListener('tucano:change', (e) => {
   e.detail.value;      // '#4f46e5'
@@ -157,11 +159,12 @@ document.querySelector('#color').addEventListener('tucano:change', (e) => {
 <div class="tuc-table-wrap"><table class="tuc-table">
   <thead><tr><th>Key</th><th>Where</th><th>Action</th></tr></thead>
   <tbody>
-    <tr><td><code>Enter</code> <code>Space</code></td><td>Swatch</td><td>Opens and closes the panel</td></tr>
-    <tr><td><code>↓</code></td><td>Swatch or field</td><td>Opens the panel</td></tr>
+    <tr><td><code>Enter</code> <code>Space</code></td><td>Swatch</td><td>Opens the panel with focus on the area, and closes it</td></tr>
+    <tr><td><code>↓</code></td><td>Swatch or field</td><td>Opens the panel with focus on the area</td></tr>
     <tr><td><code>←</code> <code>→</code></td><td>Area</td><td>Saturation, in 2% steps; with <code>Shift</code>, in steps of 10</td></tr>
     <tr><td><code>↑</code> <code>↓</code></td><td>Area</td><td>Brightness, in the same steps</td></tr>
     <tr><td><code>←</code> <code>→</code> <code>↑</code> <code>↓</code></td><td>Tracks</td><td>Hue by 1 degree, opacity by 1%; with <code>Shift</code>, in steps of 10</td></tr>
+    <tr><td><code>Home</code> <code>End</code></td><td>Tracks</td><td>Minimum and maximum</td></tr>
     <tr><td><code>Esc</code></td><td>Panel</td><td>Closes and returns focus to the swatch</td></tr>
   </tbody>
 </table></div>

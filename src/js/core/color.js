@@ -44,8 +44,13 @@ export function rgbToHsv({ r, g, b }) {
 
 export function rgbToHex({ r, g, b }, a = 1) {
   const base = `#${hex2(r)}${hex2(g)}${hex2(b)}`;
-  return a >= 1 ? base : base + hex2(Math.round(a * 255));
+  // Compara depois de arredondar: com `a >= 1`, 0.999 saia `#rrggbbff`.
+  const alpha = Math.round(a * 255);
+  return alpha < 255 ? base + hex2(alpha) : base;
 }
+
+/* Numero CSS: com `%`, fracao de `scale`; sem, o numero puro. */
+const num = (t, scale) => (t.endsWith('%') ? (t.slice(0, -1) / 100) * scale : Number(t));
 
 /**
  * Le hex (#rgb, #rgba, #rrggbb, #rrggbbaa), rgb()/rgba() e hsl()/hsla().
@@ -69,22 +74,22 @@ export function parseColor(input) {
     return { ...rgbToHsv({ r, g, b }), a };
   }
 
-  const rgb = /^rgba?\(([^)]+)\)$/.exec(text);
-  if (rgb) {
-    const p = rgb[1].split(/[\s,/]+/).filter(Boolean).map(Number);
-    if (p.length < 3 || p.slice(0, 3).some(Number.isNaN)) return null;
-    return { ...rgbToHsv({ r: clamp(p[0], 0, 255), g: clamp(p[1], 0, 255), b: clamp(p[2], 0, 255) }),
-             a: p[3] === undefined ? 1 : clamp(p[3], 0, 1) };
-  }
-
-  const hsl = /^hsla?\(([^)]+)\)$/.exec(text);
-  if (hsl) {
-    const p = hsl[1].replace(/%/g, '').split(/[\s,/]+/).filter(Boolean).map(Number);
-    if (p.length < 3 || p.slice(0, 3).some(Number.isNaN)) return null;
-    return { ...hslToHsv(p[0], p[1] / 100, p[2] / 100), a: p[3] === undefined ? 1 : clamp(p[3], 0, 1) };
-  }
-
-  return null;
+  /*
+   * rgb() e hsl() na sintaxe com virgula e na com espaco e `/`. Cada parte passa
+   * por clamp e o NaN recusa a cor inteira: o alfa `50%` virava NaN e o valor
+   * saia `#ff0000NaN`, e `hsl(120, 200%, 50%)` saia `#-7f17f-7f`.
+   */
+  const fn = /^(rgb|hsl)a?\(([^)]+)\)$/.exec(text);
+  if (!fn) return null;
+  const p = fn[2].split(/[\s,/]+/).filter(Boolean);
+  if (p.length < 3) return null;
+  const pct = (t) => clamp(num(t.endsWith('%') ? t : `${t}%`, 1), 0, 1);
+  const unit = /^(.+?)(deg|turn)?$/.exec(p[0]);
+  const color = fn[1] === 'rgb'
+    ? rgbToHsv({ r: clamp(num(p[0], 255), 0, 255), g: clamp(num(p[1], 255), 0, 255), b: clamp(num(p[2], 255), 0, 255) })
+    : hslToHsv(unit[1] * (unit[2] === 'turn' ? 360 : 1), pct(p[1]), pct(p[2]));
+  color.a = p[3] === undefined ? 1 : clamp(num(p[3], 1), 0, 1);
+  return Object.values(color).some(Number.isNaN) ? null : color;
 }
 
 function hslToHsv(h, s, l) {
@@ -102,7 +107,8 @@ export function formatColor(hsva, format = 'hex') {
   }
   if (format === 'hsl') {
     const { h, s, l } = hsvToHsl(hsva);
-    const hs = `${Math.round(h)}, ${Math.round(s * 100)}%, ${Math.round(l * 100)}%`;
+    // `% 360`: matiz 359,6 arredondava para `hsl(360, …)`, que relido virava 0.
+    const hs = `${Math.round(h) % 360}, ${Math.round(s * 100)}%, ${Math.round(l * 100)}%`;
     return a >= 1 ? `hsl(${hs})` : `hsla(${hs}, ${a})`;
   }
   return rgbToHex({ r, g, b }, hsva.a);

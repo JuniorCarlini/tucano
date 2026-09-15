@@ -88,6 +88,24 @@ import { DatePicker } from 'tucano';
 import 'tucano/css';
 ```
 
+### TypeScript
+
+Os tipos vêm no pacote, em `dist/tucano.d.ts`: nada a instalar à parte e nenhum
+byte a mais no bundle. Opções, métodos, o que `getValue()` devolve, o `detail`
+dos eventos `tucano:*`, as chaves de `Tucano.setTexts()` e os utilitários
+aparecem no autocomplete e são conferidos.
+
+```ts
+import { DatePicker } from 'tucano';
+
+const period = new DatePicker('#period', { mode: 'range' });
+period.getValue();   // { start: Date | null, end: Date | null }
+```
+
+Com o `<script>` do CDN e `checkJs`, o global `Tucano` também sai tipado:
+instale o pacote como dependência de desenvolvimento e ponha
+`/// <reference types="tucano" />` no topo do script.
+
 ---
 
 ## Uso
@@ -280,6 +298,9 @@ c.getRgb();     // { r, g, b, a }
 
 Aceita `#rgb`, `#rgba`, `#rrggbb`, `#rrggbbaa`, `rgb()`, `rgba()`, `hsl()` e
 `hsla()` na entrada. Texto inválido não zera a cor — volta para o valor atual.
+No arrasto, como no `<input type="range">`, o `tucano:change` sai a cada
+movimento e o `change` nativo uma vez só, ao soltar. Aberto pelo teclado (`↓`,
+ou `Enter`/`Espaço` na amostra), o painel recebe o foco na área de cor.
 Onde o navegador oferece a API `EyeDropper`, aparece um conta-gotas para capturar
 cor da tela.
 
@@ -477,7 +498,7 @@ import { DatePicker, Select } from 'tucano';   // 14,5 KB em vez de 39
 | só o select | 5,9 KB |
 | só o toast | 2,7 KB |
 | date picker + select | 14,5 KB |
-| tudo | 38,7 KB |
+| tudo | 39,0 KB |
 
 Não é linear porque o núcleo — posicionamento, datas, utilidades de DOM — é
 compartilhado: o primeiro componente paga por ele e os seguintes saem mais

@@ -132,7 +132,9 @@ c.destroy();
    <code>rgb()</code>, <code>rgba()</code>, <code>hsl()</code> e <code>hsla()</code>. O texto é lido ao confirmar — sair do campo ou
    <code>Enter</code> — e texto que não é cor volta para o valor atual, em vez de zerar a cor.</p>
 
-<p>Cada mudança dispara <code>tucano:change</code> no campo, e também o <code>change</code> nativo, para validação e HTMX.</p>
+<p>Cada mudança dispara <code>tucano:change</code> no campo, e também o <code>change</code> nativo, para validação e HTMX.
+   No arrasto, como no <code>&lt;input type="range"&gt;</code>, o <code>tucano:change</code> sai a cada movimento e o
+   <code>change</code> nativo uma vez só, ao soltar.</p>
 <pre data-code="js">
 document.querySelector('#color').addEventListener('tucano:change', (e) => {
   e.detail.value;      // '#4f46e5'
@@ -156,11 +158,12 @@ document.querySelector('#color').addEventListener('tucano:change', (e) => {
 <div class="tuc-table-wrap"><table class="tuc-table">
   <thead><tr><th>Tecla</th><th>Onde</th><th>Ação</th></tr></thead>
   <tbody>
-    <tr><td><code>Enter</code> <code>Espaço</code></td><td>Amostra</td><td>Abre e fecha o painel</td></tr>
-    <tr><td><code>↓</code></td><td>Amostra ou campo</td><td>Abre o painel</td></tr>
+    <tr><td><code>Enter</code> <code>Espaço</code></td><td>Amostra</td><td>Abre o painel com o foco na área, e fecha</td></tr>
+    <tr><td><code>↓</code></td><td>Amostra ou campo</td><td>Abre o painel com o foco na área</td></tr>
     <tr><td><code>←</code> <code>→</code></td><td>Área</td><td>Saturação, de 2 em 2%; com <code>Shift</code>, de 10 em 10</td></tr>
     <tr><td><code>↑</code> <code>↓</code></td><td>Área</td><td>Brilho, no mesmo passo</td></tr>
     <tr><td><code>←</code> <code>→</code> <code>↑</code> <code>↓</code></td><td>Trilhas</td><td>Matiz de 1 em 1 grau, opacidade de 1 em 1%; com <code>Shift</code>, de 10 em 10</td></tr>
+    <tr><td><code>Home</code> <code>End</code></td><td>Trilhas</td><td>Mínimo e máximo</td></tr>
     <tr><td><code>Esc</code></td><td>Painel</td><td>Fecha e devolve o foco à amostra</td></tr>
   </tbody>
 </table></div>

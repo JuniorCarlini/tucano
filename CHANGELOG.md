@@ -65,6 +65,13 @@ projeto.
   `Date`. Texto em outro formato caía em `new Date(texto)`, que lê
   `07/09/2026` como 9 de julho, e agora devolve `null`. Para o que a pessoa
   digita, use `Tucano.dates.parseUserInput()`.
+- No color picker, o `change` nativo sai uma vez só, quando termina o arrasto na
+  área ou nas trilhas, como no `<input type="range">`. O `tucano:change` e o
+  `onChange` continuam a cada movimento. Antes o nativo saía a cada pixel, e um
+  `hx-trigger="change"` mandava uma requisição por movimento do mouse; quem usava
+  o `change` para prévia ao vivo passa a ouvir o `tucano:change`.
+- A matiz do color picker para em 360 pelo teclado, em vez de dar a volta para
+  0: `→` no fim da trilha não faz mais nada. `Home` e `End` vão aos extremos.
 
 ### Novo
 
@@ -85,6 +92,12 @@ projeto.
   vencendo. O português segue como padrão, sem dicionário de idiomas no pacote,
   e `Tucano.getTexts()` devolve os textos atuais. O nome do dia que o leitor de
   tela lê no calendário passou a vir do idioma da página.
+- Tipos de TypeScript no pacote, em `dist/tucano.d.ts`, gerados do código a
+  cada build e sem peso nenhum no bundle. `import { DatePicker } from 'tucano'`
+  e o `Tucano` global do `<script>` (com `checkJs`) passam a ter autocomplete e
+  conferência de opções, métodos, do que `getValue()` devolve em cada modo, do
+  `detail` dos eventos `tucano:*`, dos grupos e chaves de `Tucano.setTexts()` e
+  dos utilitários `Tucano.mask`, `Tucano.dates` e `Tucano.color`.
 
 ### Corrigido
 
@@ -190,6 +203,36 @@ projeto.
   removia.
 - No Firefox, trocar o endereço de um link com o cursor dentro dele deixava um
   `<a>` vazio na frente do link, no valor salvo.
+- O painel do color picker não era alcançável pelo teclado: com o foco na
+  amostra, o `Tab` seguinte saía do campo e o painel fechava. Aberto por `↓`, ou
+  por `Enter` e `Espaço` na amostra, o foco agora entra na área de cor, e o `Tab`
+  anda por dentro do painel. As trilhas ganharam `Home` e `End`.
+- `Tucano.color.parseColor()` e o color picker gravavam lixo a partir de cor
+  válida em CSS: alfa em porcentagem, como `rgb(255 0 0 / 50%)`, saía
+  `#ff0000NaN`, e `hsl(120, 200%, 50%)` saía `#-7f17f-7f`. Agora `rgb()` e
+  `hsl()` leem `%`, a barra do alfa, `deg` e `turn`, cada parte é presa à faixa,
+  e o que não é número recusa a cor.
+- `Tucano.color.formatColor()` devolvia `hsl(360, …)` para matiz perto do fim,
+  que relida virava 0, e `#rrggbbff` para opacidade de 0,998 para cima.
+- Digitar uma cor no campo do color picker disparava o `change` nativo duas
+  vezes — com HTMX, duas requisições —, e tecla na borda da área emitia de novo
+  o mesmo valor.
+- `form.reset()` deixava a amostra e a instância do color picker com a cor
+  antiga.
+- Color picker desativado, só de leitura ou dentro de `<fieldset disabled>`
+  abria o painel e deixava trocar a cor.
+- Com `alpha: false`, o valor inicial com opacidade, como `#ff000080`, ficava no
+  campo do color picker com a trilha de opacidade escondida.
+- `destroy()` do color picker deixava o `data-tuc-ready`, e o `Tucano.init` não
+  montava o campo de novo. E `new ColorPicker` duas vezes no mesmo campo aninhava
+  um controle no outro, com duas amostras: a segunda agora substitui a primeira.
+- Paleta do color picker: `data-swatches` com `rgb(255, 0, 0)` era partido nas
+  vírgulas e virava três amostras quebradas; a marcação ignorava a opacidade, e
+  `#00ff0080` e `#00ff00` acendiam juntas; e o aumento no hover não animava.
+- Color picker: texto inválido no campo do painel ficava lá depois de confirmar,
+  mentindo o valor; o botão direito na área mudava a cor junto com o menu de
+  contexto; e cinza ou preto pelo `setValue()` ou digitado pulava a área para o
+  vermelho, em vez de manter a matiz.
 
 ## 0.33.1 — 2026-09-14
 

@@ -66,6 +66,14 @@ in your project.
   and `Date`. Text in any other format fell back to `new Date(text)`, which
   reads `07/09/2026` as July 9, and now returns `null`. For what people type,
   use `Tucano.dates.parseUserInput()`.
+- In the color picker, the native `change` fires only once, when a drag on the
+  area or the tracks ends, as with `<input type="range">`. `tucano:change` and
+  `onChange` still fire on every move. Before, the native event fired on every
+  pixel, and an `hx-trigger="change"` sent one request per mouse move; code that
+  used `change` for a live preview should listen to `tucano:change` instead.
+- The color picker's hue stops at 360 with the keyboard instead of wrapping to
+  0: `→` at the end of the track no longer does anything. `Home` and `End` go
+  to the ends.
 
 ### New
 
@@ -86,6 +94,13 @@ in your project.
   still wins. Portuguese remains the default, with no language dictionaries in
   the package, and `Tucano.getTexts()` returns the current texts. The day name
   that screen readers read in the calendar now comes from the page language.
+- TypeScript types ship with the package, in `dist/tucano.d.ts`, generated from
+  the code on every build and adding nothing to the bundle.
+  `import { DatePicker } from 'tucano'` and the global `Tucano` from the
+  `<script>` tag (with `checkJs`) now get autocomplete and checking for options,
+  methods, what `getValue()` returns in each mode, the `detail` of `tucano:*`
+  events, the groups and keys of `Tucano.setTexts()`, and the `Tucano.mask`,
+  `Tucano.dates` and `Tucano.color` utilities.
 
 ### Fixed
 
@@ -196,6 +211,38 @@ in your project.
   remove it.
 - In Firefox, changing a link's address with the caret inside it left an empty
   `<a>` in front of the link in the saved value.
+- The color picker panel could not be reached with the keyboard: with focus on
+  the swatch, the next `Tab` left the field and the panel closed. Opened with
+  `↓`, or with `Enter` and `Space` on the swatch, focus now moves into the color
+  area, and `Tab` moves within the panel. The tracks gained `Home` and `End`.
+- `Tucano.color.parseColor()` and the color picker wrote garbage from valid CSS
+  colors: a percentage alpha, as in `rgb(255 0 0 / 50%)`, came out as
+  `#ff0000NaN`, and `hsl(120, 200%, 50%)` came out as `#-7f17f-7f`. `rgb()` and
+  `hsl()` now read `%`, the alpha slash, `deg` and `turn`, each part is clamped
+  to its range, and anything that is not a number rejects the color.
+- `Tucano.color.formatColor()` returned `hsl(360, …)` for a hue near the end,
+  which read back as 0, and `#rrggbbff` for opacity of 0.998 and up.
+- Typing a color into the color picker field fired the native `change` twice —
+  with HTMX, two requests — and a key at the edge of the area emitted the same
+  value again.
+- `form.reset()` left the color picker's swatch and instance with the old
+  color.
+- A disabled or read-only color picker, or one inside `<fieldset disabled>`,
+  opened the panel and let the color be changed.
+- With `alpha: false`, an initial value with opacity, such as `#ff000080`,
+  stayed in the color picker field with the opacity track hidden.
+- The color picker's `destroy()` left `data-tuc-ready`, so `Tucano.init` did not
+  mount the field again. And `new ColorPicker` twice on the same field nested
+  one control inside the other, with two swatches: the second now replaces the
+  first.
+- Color picker palette: `data-swatches` with `rgb(255, 0, 0)` was split at the
+  commas into three broken swatches; the selection mark ignored opacity, so
+  `#00ff0080` and `#00ff00` lit up together; and the hover growth did not
+  animate.
+- Color picker: invalid text in the panel field stayed there after committing,
+  misreporting the value; right-clicking the area changed the color along with
+  opening the context menu; and gray or black through `setValue()` or typing
+  jumped the area to red instead of keeping the hue.
 
 ## 0.33.1 — 2026-09-14
 

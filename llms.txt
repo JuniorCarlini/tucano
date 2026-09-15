@@ -99,6 +99,8 @@ data-placement.
 
 Aceita na entrada: #rgb, #rgba, #rrggbb, #rrggbbaa, rgb(), rgba(), hsl(), hsla().
 Texto inválido não zera a cor: volta para o valor atual.
+No arrasto, tucano:change sai a cada movimento e o change nativo uma vez, ao
+soltar: para prévia ao vivo, ouça tucano:change.
 
 ## Upload
 

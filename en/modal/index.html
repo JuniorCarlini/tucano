@@ -43,12 +43,15 @@
      para quem escolheu o escuro. -->
 <script>try{if(localStorage.getItem("tucano-theme")==="dark")document.documentElement.classList.add("dark")}catch{}</script>
 </head>
-<body>
+<!-- Rotulos e endereco do indice da busca, lidos pelo site.js: o gerador os
+     escreve no idioma da pagina, como os rotulos do botao de tema. -->
+<body data-search-index="../search.json" data-search-dialog="Search the documentation" data-search-placeholder="Search a component, option or topic" data-search-results="Search results" data-search-loading="Loading the index..." data-search-error="Could not load search." data-search-empty="No results for “{q}”." data-search-count="{n} result(s)." data-search-hint="↑ ↓ to navigate · Enter opens · Esc closes">
 
 <header class="topbar">
   <a class="brand" href="../"><img class="brand__logo logo-light" src="../../site/assets/logo-light.svg" width="26" height="24" alt=""><img class="brand__logo logo-dark" src="../../site/assets/logo-dark.svg" width="26" height="24" alt=""><b>Tucano</b></a>
   <span class="tuc-badge is-plain ver">v0.33.1</span>
   <div class="topbar__actions">
+    <button class="tuc-btn is-outline is-icon is-sm" data-search aria-label="Search" aria-haspopup="dialog" aria-keyshortcuts="/ Control+K Meta+K"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 19a8 8 0 100-16 8 8 0 000 16zM21 21l-4.35-4.35"/></svg></button>
     <button class="tuc-btn is-outline is-sm" data-tuc-dropdown="#languages-top" data-placement="bottom-end" aria-label="Language: English"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>EN</button><div class="tuc-dropdown" id="languages-top" hidden><a class="tuc-dropdown__item" href="../../modal/" hreflang="pt-BR" lang="pt-BR"><span class="tuc-dropdown__text">Português</span></a><a class="tuc-dropdown__item" href="../../en/modal/" hreflang="en" lang="en" aria-current="true"><span class="tuc-dropdown__text">English</span></a><a class="tuc-dropdown__item" href="../../es/modal/" hreflang="es" lang="es"><span class="tuc-dropdown__text">Español</span></a></div>
     <button class="tuc-btn is-outline is-icon is-sm" data-theme-toggle data-label-light="Use light theme" data-label-dark="Use dark theme" aria-label="Toggle theme"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
     <button class="tuc-btn is-outline is-icon is-sm" id="menu" aria-label="Open menu" aria-expanded="false" aria-controls="side"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
@@ -64,9 +67,11 @@
     </div>
   </div>
   <span class="tuc-badge is-plain ver">v0.33.1 · 52 KB</span>
+  <button class="tuc-btn is-outline search-trigger" data-search aria-haspopup="dialog" aria-keyshortcuts="/ Control+K Meta+K"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 19a8 8 0 100-16 8 8 0 000 16zM21 21l-4.35-4.35"/></svg>Search<kbd class="tuc-badge is-plain">/</kbd></button>
   <nav class="tuc-menu" aria-label="Documentation">
 <div class="tuc-menu__section">Get started</div>
     <a class="tuc-menu__item" href="../">Home and installation</a>
+    <a class="tuc-menu__item" href="../playground/">Playground</a>
     <a class="tuc-menu__item" href="../changelog/">Changelog</a>
 <div class="tuc-menu__section">Fields</div>
     <a class="tuc-menu__item" href="../form/">Form</a>
@@ -216,7 +221,7 @@
 <p class="lead">There are two ways. From JavaScript, the modal is built on the spot, goes into <code>&lt;body&gt;</code> when it
    opens and leaves when it closes. From the template, the <code>&lt;dialog&gt;</code> is already on the page and the component only opens, closes and animates it.</p>
 
-<h3>In JavaScript</h3>
+<h3 id="usage-in-javascript">In JavaScript</h3>
 <div class="tuc-prose doc-code"><pre><code>Tucano.modal({
   title: 'Delete contract',
   text: 'This action cannot be undone.',
@@ -240,7 +245,7 @@ m.content(form);         // any node, or an array of nodes
 m.open();
 m.close();               // animates out and calls onClose(reason)</code></pre></div>
 
-<h3>Confirmation</h3>
+<h3 id="usage-confirmation">Confirmation</h3>
 <p>The most common use of a modal in a CRUD app is asking before deleting. <code>Tucano.confirm()</code> returns a promise, and the
    code keeps reading top to bottom:</p>
 <div class="tuc-prose doc-code"><pre><code>if (await Tucano.confirm({ title: 'Delete contract?', text: 'This action cannot be undone.', confirm: 'Delete' })) {
@@ -260,7 +265,7 @@ m.close();               // animates out and calls onClose(reason)</code></pre><
 
 <div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Closing from outside is a no, not limbo</p><p>With the X, <code>Esc</code> or the backdrop, the promise resolves <code>false</code>. Without that it would stay pending forever, and the <code>await</code> would never return.</p></div></div>
 
-<h3>Actions</h3>
+<h3 id="usage-actions">Actions</h3>
 <p>Each item in <code>actions</code> becomes a <code>.tuc-btn</code> in the footer, in the order it was written.</p>
 <div class="tuc-table-wrap"><table class="tuc-table">
   <thead><tr><th>Key</th><th>Default</th><th>What for</th></tr></thead>
@@ -313,7 +318,7 @@ m.close();               // animates out and calls onClose(reason)</code></pre><
 
 <div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">In the template, the X and the dialog's name are up to you</p><p>From JavaScript, the close button and <code>aria-labelledby</code> come ready-made. In a hand-written <code>&lt;dialog&gt;</code>, write both: without the X the person depends on <code>Esc</code>, and without <code>aria-labelledby</code> the screen reader announces just "dialog".</p></div></div>
 
-<h3>Confirm before submitting a form</h3>
+<h3 id="template-confirm-before-submitting-a-form">Confirm before submitting a form</h3>
 <p>For a delete form that is already on the page, <code>confirm()</code> intercepts the submit and lets it through only on a yes:</p>
 <div class="tuc-prose doc-code"><pre><code>document.querySelector('#delete-contract').addEventListener('submit', async (e) =&gt; {
   e.preventDefault();

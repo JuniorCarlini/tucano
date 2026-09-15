@@ -133,7 +133,9 @@ c.destroy();
    <code>rgb()</code>, <code>rgba()</code>, <code>hsl()</code> y <code>hsla()</code>. El texto se lee al confirmar — salir del campo o
    <code>Enter</code> — y un texto que no es color vuelve al valor actual, en lugar de borrar el color.</p>
 
-<p>Cada cambio dispara <code>tucano:change</code> en el campo, y también el <code>change</code> nativo, para la validación y HTMX.</p>
+<p>Cada cambio dispara <code>tucano:change</code> en el campo, y también el <code>change</code> nativo, para la validación y HTMX.
+   Al arrastrar, como en el <code>&lt;input type="range"&gt;</code>, el <code>tucano:change</code> sale en cada movimiento y el
+   <code>change</code> nativo una sola vez, al soltar.</p>
 <pre data-code="js">
 document.querySelector('#color').addEventListener('tucano:change', (e) => {
   e.detail.value;      // '#4f46e5'
@@ -157,11 +159,12 @@ document.querySelector('#color').addEventListener('tucano:change', (e) => {
 <div class="tuc-table-wrap"><table class="tuc-table">
   <thead><tr><th>Tecla</th><th>Dónde</th><th>Acción</th></tr></thead>
   <tbody>
-    <tr><td><code>Enter</code> <code>Espacio</code></td><td>Muestra</td><td>Abre y cierra el panel</td></tr>
-    <tr><td><code>↓</code></td><td>Muestra o campo</td><td>Abre el panel</td></tr>
+    <tr><td><code>Enter</code> <code>Espacio</code></td><td>Muestra</td><td>Abre el panel con el foco en el área, y lo cierra</td></tr>
+    <tr><td><code>↓</code></td><td>Muestra o campo</td><td>Abre el panel con el foco en el área</td></tr>
     <tr><td><code>←</code> <code>→</code></td><td>Área</td><td>Saturación, de 2 en 2%; con <code>Shift</code>, de 10 en 10</td></tr>
     <tr><td><code>↑</code> <code>↓</code></td><td>Área</td><td>Brillo, con el mismo paso</td></tr>
     <tr><td><code>←</code> <code>→</code> <code>↑</code> <code>↓</code></td><td>Barras</td><td>Tono de 1 en 1 grado, opacidad de 1 en 1%; con <code>Shift</code>, de 10 en 10</td></tr>
+    <tr><td><code>Home</code> <code>End</code></td><td>Barras</td><td>Mínimo y máximo</td></tr>
     <tr><td><code>Esc</code></td><td>Panel</td><td>Cierra y devuelve el foco a la muestra</td></tr>
   </tbody>
 </table></div>
