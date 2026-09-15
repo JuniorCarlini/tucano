@@ -41,6 +41,7 @@
   "type": "module",
   "main": "./dist/tucano.js",
   "module": "./dist/tucano.esm.js",
+  "types": "./dist/tucano.d.ts",
   "sideEffects": [
     "./dist/*",
     "./src/js/index.js"
@@ -54,22 +55,27 @@
   ],
   "exports": {
     ".": {
+      "types": "./dist/tucano.d.ts",
       "import": "./dist/tucano.esm.js",
       "default": "./dist/tucano.js"
     },
     "./css": "./dist/tucano.css",
     "./package.json": "./package.json",
-    "./auto": "./src/js/auto.js"
+    "./auto": {
+      "types": "./dist/tucano.d.ts",
+      "default": "./src/js/auto.js"
+    }
   },
   "scripts": {
     "build:js": "esbuild src/js/auto.js --bundle --format=iife --global-name=Tucano --outfile=dist/tucano.js && esbuild src/js/index.js --bundle --format=esm --outfile=dist/tucano.esm.js",
     "build:js:min": "esbuild src/js/auto.js --bundle --format=iife --global-name=Tucano --minify --outfile=dist/tucano.min.js",
     "build:css": "node tools/css.mjs dist/tucano.css",
     "build:css:min": "node tools/css.mjs --minify dist/tucano.min.css",
-    "build": "npm run build:js && npm run build:js:min && npm run build:css && npm run build:css:min && node tools/reference.mjs && node tools/site.mjs && node tools/stamp.mjs",
+    "build": "npm run build:js && npm run build:js:min && node tools/types.mjs && npm run build:css && npm run build:css:min && node tools/reference.mjs && node tools/site.mjs && node tools/stamp.mjs",
     "build:og": "node tools/og.mjs",
-    "test": "npm run build && npm run test:unit && npm run test:behavior && npm run test:keyboard && npm run test:examples && npm run test:consistency",
+    "test": "npm run build && npm run test:unit && npm run test:types && npm run test:behavior && npm run test:keyboard && npm run test:examples && npm run test:consistency",
     "test:unit": "node --test test/*.test.mjs",
+    "test:types": "node tools/types.mjs --check && tsc -p test/types/tsconfig.json && tsc -p test/types/tsconfig.script.json",
     "test:behavior": "node tools/behavior.mjs",
     "test:keyboard": "node tools/keyboard.mjs",
     "test:chromium": "node tools/behavior.mjs --browsers=chromium && node tools/keyboard.mjs --browsers=chromium",
@@ -85,6 +91,7 @@
     "@tailwindcss/node": "^4.3.3",
     "esbuild": "^0.28.2",
     "playwright": "1.63.0",
-    "tailwindcss": "^4.3.3"
+    "tailwindcss": "^4.3.3",
+    "typescript": "7.0.2"
   }
 }
