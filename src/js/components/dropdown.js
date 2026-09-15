@@ -1,4 +1,4 @@
-import { el, icon, omitUndefined, on, openWithTransition } from '../core/dom.js';
+import { el, icon, omitUndefined, on } from '../core/dom.js';
 import { Popover } from '../core/popover.js';
 
 /*
@@ -35,12 +35,14 @@ export class Dropdown {
   }
 
   _build() {
-    this.panel = this.opts.panel ?? el('div', { class: 'tuc-dropdown', role: 'menu' },
-      (this.opts.items ?? []).map((i) => this._item(i)));
+    this.panel = this.opts.panel ?? el('div', {}, (this.opts.items ?? []).map((i) => this._item(i)));
     this.panel.classList.add('tuc-dropdown');
     this.panel.setAttribute('role', 'menu');
     // Papel e tabindex dos itens aqui, e nao so no autoInit: um painel passado
-    // em JS ficava com itens que o leitor de tela nao anunciava como opcao.
+    // em JS ficava com itens que o leitor de tela nao anunciava como opcao. Vale
+    // tambem para os montados por _item. O tabindex -1 e de proposito: quem
+    // navega e a seta, nao o Tab — itens tabulaveis fariam o Tab sair do menu
+    // item a item.
     for (const item of this.panel.querySelectorAll('.tuc-dropdown__item')) {
       item.setAttribute('role', 'menuitem');
       item.setAttribute('tabindex', '-1');
@@ -82,15 +84,13 @@ export class Dropdown {
     children.push(el('span', { class: 'tuc-dropdown__text', text: data.text ?? '' }));
     if (data.shortcut) children.push(el('span', { class: 'tuc-dropdown__shortcut', text: data.shortcut }));
 
+    // el() pula null, undefined e false: o que nao se aplica simplesmente fica de fora.
     return el(tag, {
       class: `tuc-dropdown__item${data.variant ? ` is-${data.variant}` : ''}`,
-      role: 'menuitem',
-      // tabindex -1 de proposito: quem navega e a seta, nao o Tab. Deixar os
-      // itens tabulaveis faria o Tab sair do menu item a item.
-      tabindex: '-1',
-      ...(data.href ? { href: data.href } : { type: 'button' }),
-      ...(data.disabled ? { 'aria-disabled': 'true' } : {}),
-      ...(data.disabled ? {} : { onclick: () => data.onClick?.(this) }),
+      href: data.href,
+      type: data.href ? null : 'button',
+      'aria-disabled': data.disabled && 'true',
+      onclick: !data.disabled && (() => data.onClick?.(this)),
     }, children);
   }
 
@@ -114,7 +114,7 @@ export class Dropdown {
       ArrowUp: () => this._move(-1),
       Home: () => this._move(0, true),
       End: () => this._move(-1, true),
-      Escape: () => this.close(),
+      // Escape nao entra: com o menu aberto quem o trata e o Popover.
       Tab: () => this.close(),
     };
     const action = keys[e.key];
@@ -135,7 +135,6 @@ export class Dropdown {
       onDismiss: () => this.close(),
     });
     this.popover.show();
-    openWithTransition(this.panel);
     this._move(0, true);
     return this;
   }
@@ -144,7 +143,6 @@ export class Dropdown {
     if (!this.isOpen) return this;
     this.isOpen = false;
     this.trigger.setAttribute('aria-expanded', 'false');
-    this.panel.classList.remove('is-open');
     this.popover?.destroy();
     this.popover = null;
     // O foco volta para o gatilho: fechar um menu nao deveria largar quem

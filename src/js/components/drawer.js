@@ -6,7 +6,7 @@ import { DRAWER_TEXTS } from '../core/texts.js';
  * Gaveta (off-canvas): dialogo encostado numa borda.
  *
  * Divide com o modal a mecanica do <dialog> — top layer, foco preso, Escape,
- * devolver o foco a quem abriu —, que mora em core/dialogo.js. O que e proprio
+ * devolver o foco a quem abriu —, que mora em core/dialog.js. O que e proprio
  * daqui e a geometria e o movimento: a caixa ocupa o eixo inteiro da borda em
  * que encosta, e entra deslizando de fora em vez de crescer no lugar, porque e
  * assim que uma gaveta diz de onde veio.

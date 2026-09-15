@@ -1,4 +1,4 @@
-import { el, icon, ICON_CHECK, ICON_CHEVRONS_UP_DOWN, ICON_X, nextId, omitUndefined, on, openWithTransition } from '../core/dom.js';
+import { el, icon, ICON_CHECK, ICON_CHEVRONS_UP_DOWN, ICON_X, nextId, omitUndefined, on } from '../core/dom.js';
 import { Popover } from '../core/popover.js';
 import { SELECT_TEXTS as T } from '../core/texts.js';
 
@@ -80,7 +80,7 @@ export class Select {
    * ---------------------------------------------------------------- */
 
   getValue() {
-    const chosen = this.items.filter((i) => i.selected).map((i) => i.value);
+    const chosen = this._chosen().map((i) => i.value);
     return this.multiple ? chosen : (chosen[0] ?? null);
   }
 
@@ -123,7 +123,6 @@ export class Select {
       onDismiss: () => this.close(),
     });
     this.popover.show();
-    openWithTransition(this.menu);
     this.control.classList.add('is-open');
     this.control.setAttribute('aria-expanded', 'true');
     // A lista so existe no DOM com o painel aberto: fechado, o aria-controls
@@ -137,7 +136,6 @@ export class Select {
   close() {
     if (!this.isOpen) return;
     this.isOpen = false;
-    this.menu.classList.remove('is-open');
     this.control.classList.remove('is-open');
     this.control.setAttribute('aria-expanded', 'false');
     this.control.removeAttribute('aria-controls');
@@ -193,7 +191,7 @@ export class Select {
     }, [icon(ICON_X, 14)]);
 
     this.control = el('div', {
-      class: `tuc-select${this.multiple ? ' is-multiple' : ''}${this.opts.wrapTags ? ' is-wrap' : ''}`,
+      class: `tuc-select${this.opts.wrapTags ? ' is-wrap' : ''}`,
       role: 'combobox',
       'aria-haspopup': 'listbox',
       'aria-expanded': 'false',
@@ -260,7 +258,7 @@ export class Select {
         this.native.append(el('option', { value: item.value, text: item.label }));
       }
     }
-    const chosen = new Set(this.items.filter((i) => i.selected).map((i) => i.value));
+    const chosen = new Set(this._chosen().map((i) => i.value));
     for (const opt of this.native.options) opt.selected = chosen.has(opt.value);
     // Nada escolhido num select simples: volta para a <option value=""> para o
     // formulario postar vazio e o `required` do Django continuar valendo.
@@ -422,7 +420,7 @@ export class Select {
    * ---------------------------------------------------------------- */
 
   _renderControl() {
-    const chosen = this.items.filter((i) => i.selected);
+    const chosen = this._chosen();
     for (const n of [...this.values.children]) if (n !== this.search) n.remove();
 
     if (this.multiple) {
@@ -446,7 +444,6 @@ export class Select {
     this.search.placeholder = empty
       ? this.opts.placeholder
       : (this.isOpen && this.opts.search ? this.opts.searchPlaceholder : '');
-    this.control.classList.toggle('is-empty', empty);
     this.control.classList.toggle('has-value', chosen.length > 0);
     this.search.readOnly = !this.opts.search;
   }
@@ -534,7 +531,7 @@ export class Select {
   _toggleItem(item) {
     if (item.disabled) return;
     if (this.multiple) {
-      if (!item.selected && this.opts.maxItems && this.items.filter((i) => i.selected).length >= this.opts.maxItems) return;
+      if (!item.selected && this.opts.maxItems && this._chosen().length >= this.opts.maxItems) return;
       item.selected = !item.selected;
     } else {
       for (const i of this.items) i.selected = i === item;
@@ -579,11 +576,10 @@ export class Select {
       e.preventDefault();
       const item = visible[this.activeIndex];
       if (item) this._toggleItem(item);
-    } else if (e.key === 'Escape') {
-      if (this.isOpen) { e.preventDefault(); e.stopPropagation(); this.close(); this.control.focus?.(); }
     } else if (e.key === 'Backspace' && !this.search.value && this.multiple) {
       // Campo de busca vazio: apagar remove a ultima tag, como em qualquer editor de tags.
-      const chosen = this.items.filter((i) => i.selected);
+      // O Escape nao passa por aqui: com a lista aberta quem o trata e o Popover.
+      const chosen = this._chosen();
       if (chosen.length) this._toggleItem(chosen[chosen.length - 1]);
     } else if ((e.key === 'Backspace' || e.key === 'Delete') && !this.search.value && !this.multiple) {
       /*
@@ -616,18 +612,18 @@ export class Select {
 /* ------------------------------------------------------------------ */
 
 /**
- * Aceita a lista em varios formatos: [{value,label}], ["a","b"],
- * {results:[...]} do DRF, ou {id,text} do Select2 — para nao obrigar o
- * servidor a mudar so por causa daqui.
+ * Aceita os formatos documentados, e so eles: [{value,label}], ["a","b"],
+ * {results:[...]} do DRF e {id,text} do Select2 — para nao obrigar o servidor
+ * a mudar so por causa daqui.
  */
 function normalizeOptions(data) {
-  const list = Array.isArray(data) ? data : (data?.results ?? data?.items ?? data?.data ?? []);
+  const list = Array.isArray(data) ? data : (data?.results ?? []);
   return list.map((o) => {
     if (o == null) return null;
     if (typeof o !== 'object') return { value: String(o), label: String(o), disabled: false, group: null, selected: false, search: normalize(String(o)) };
-    const value = String(o.value ?? o.id ?? o.pk ?? '');
-    const label = String(o.label ?? o.text ?? o.name ?? o.name ?? value);
-    return { value, label, disabled: !!o.disabled, group: o.group ?? o.group ?? null, selected: false, search: normalize(`${label} ${value}`) };
+    const value = String(o.value ?? o.id ?? '');
+    const label = String(o.label ?? o.text ?? value);
+    return { value, label, disabled: !!o.disabled, group: o.group ?? null, selected: false, search: normalize(`${label} ${value}`) };
   }).filter((o) => o && o.value !== '');
 }
 
@@ -637,10 +633,7 @@ function normalizeOptions(data) {
  */
 function hasNextPage(raws, items, pageParam) {
   if (!pageParam) return false;
-  if (raws && typeof raws === 'object' && !Array.isArray(raws)) {
-    if ('next' in raws) return !!raws.next;
-    if ('has_more' in raws) return !!raws.has_more;
-  }
+  if (raws && typeof raws === 'object' && 'next' in raws) return !!raws.next;
   return items.length > 0;
 }
 

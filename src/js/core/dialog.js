@@ -59,9 +59,16 @@ export class Dialog {
   open() {
     if (this.isOpen) return this;
     this.isOpen = true;
+    // Reaberto durante a saida: o fechamento agendado fechava o dialogo recem-aberto
+    // logo depois. Cancelado aqui, ele nunca chegou a fechar, e o onClose nao roda.
+    if (this._exitTimer) {
+      clearTimeout(this._exitTimer);
+      this._exitTimer = null;
+      this.node.classList.remove('is-closing');
+    }
     reserveScrollbar();
     if (!this._adopted) document.body.append(this.node);
-    this.node.showModal();
+    if (!this.node.open) this.node.showModal();
     this._wire();
     // Reflow antes da classe: sem isto o navegador agrupa as duas mudancas e
     // a animacao de entrada nao chega a existir.
@@ -80,6 +87,7 @@ export class Dialog {
     this.node.classList.add('is-closing');
     clearTimeout(this._exitTimer);
     this._exitTimer = setTimeout(() => {
+      this._exitTimer = null;
       this.node.classList.remove('is-closing');
       // close() antes de remover: e o que devolve o foco a quem abriu.
       if (this.node.open) this.node.close();

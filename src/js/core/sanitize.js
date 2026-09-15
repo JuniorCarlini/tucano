@@ -88,11 +88,3 @@ export function sanitize(html) {
   clearNode(input, exit, doc);
   return exit.innerHTML;
 }
-
-/** Texto puro, para colar sem trazer a formatacao da origem. */
-export function textOnly(html) {
-  const doc = document.implementation.createHTMLDocument('');
-  const d = doc.createElement('div');
-  d.innerHTML = String(html ?? '');
-  return d.textContent || '';
-}

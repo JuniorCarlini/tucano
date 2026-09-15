@@ -11,8 +11,6 @@
 
 .tuc-table-wrap {
   @apply w-full overflow-x-auto;
-  /* Rolagem propria pede que a tabela nao encolha as colunas para caber. */
-  -webkit-overflow-scrolling: touch;
 }
 
 .tuc-table,

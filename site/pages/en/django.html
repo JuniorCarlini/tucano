@@ -337,7 +337,7 @@ def contracts(request):
     <tr data-id="{{ obj.pk }}">
       <td>{{ obj.name }}</td>
       <td>{{ obj.due_date|date:"d/m/Y" }}</td>
-      <td class="is-number" data-tuc-format="real">{{ obj.amount }}</td>
+      <td class="is-number" data-tuc-format="brl">{{ obj.amount }}</td>
     </tr>
     {% empty %}
     <tr><td colspan="3" class="tuc-table__empty">No contracts found.</td></tr>

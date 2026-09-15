@@ -1,5 +1,5 @@
 import { clamp, formatColor, hsvToRgb, isDark, parseColor, rgbToHex } from '../core/color.js';
-import { el, icon, ICON_PIPETTE, nextId, omitUndefined, on, openWithTransition } from '../core/dom.js';
+import { el, icon, ICON_PIPETTE, nextId, omitUndefined, on } from '../core/dom.js';
 import { Popover } from '../core/popover.js';
 import { COLORPICKER_TEXTS as T } from '../core/texts.js';
 
@@ -32,7 +32,7 @@ export class ColorPicker {
 
     this.opts = { ...DEFAULTS, ...omitUndefined(options) };
     this.input = node;
-    this.id = nextId('cor');
+    this.id = nextId('color');
     this.isOpen = false;
     this._cleanups = [];
     this._dragging = null;
@@ -74,17 +74,24 @@ export class ColorPicker {
       placement: this.opts.placement,
       appendTo: this.opts.appendTo,
       closeOnFocusOut: true,
-      onDismiss: () => this.close(),
+      /*
+       * No Escape o foco volta a amostra, como nos outros campos. Sem isto ele
+       * ficava no campo hex ou na area, que saem do DOM junto com o painel, e
+       * caia no <body>: o Tab seguinte recomecava do topo da pagina.
+       */
+      onDismiss: (reason) => {
+        const inside = this.panel.contains(document.activeElement);
+        this.close();
+        if (reason === 'escape' && inside) this.swatch.focus();
+      },
     });
     this.popover.show();
-    openWithTransition(this.panel);
     this.swatch.setAttribute('aria-expanded', 'true');
   }
 
   close() {
     if (!this.isOpen) return;
     this.isOpen = false;
-    this.panel.classList.remove('is-open');
     this.popover?.destroy();
     this.popover = null;
     this.swatch.setAttribute('aria-expanded', 'false');
@@ -187,9 +194,6 @@ export class ColorPicker {
       }),
       on(this.hexField, 'change', () => {
         if (!this.setValue(this.hexField.value)) this._paint();
-      }),
-      on(this.panel, 'keydown', (e) => {
-        if (e.key === 'Escape') { e.stopPropagation(); this.close(); this.swatch.focus(); }
       }),
     );
   }
@@ -301,7 +305,7 @@ export class ColorPicker {
     const pure = rgbToHex(hsvToRgb({ h, s: 1, v: 1 }));
     const solid = rgbToHex(hsvToRgb(this.hsva));
 
-    this.area.style.setProperty('--matiz', pure);
+    this.area.style.setProperty('--hue', pure);
     this.area.firstElementChild.style.left = `${s * 100}%`;
     this.area.firstElementChild.style.top = `${(1 - v) * 100}%`;
     this.area.firstElementChild.style.setProperty('--color', solid);
@@ -352,7 +356,8 @@ function normalize(color) {
 }
 
 function supportsEyeDropper() {
-  return typeof window !== 'undefined' && 'EyeDropper' in window;
+  // O conta-gotas ainda e so do Chrome e do Edge: esta checagem continua valendo.
+  return 'EyeDropper' in window;
 }
 
 

@@ -292,7 +292,7 @@
         &lt;/span&gt;
       &lt;/td&gt;
       &lt;td&gt;&lt;span class="tuc-badge is-success"&gt;{{ obj.get_status_display }}&lt;/span&gt;&lt;/td&gt;
-      &lt;td class="is-number" data-sort-value="{{ obj.amount }}" data-tuc-format="real"&gt;{{ obj.amount }}&lt;/td&gt;
+      &lt;td class="is-number" data-sort-value="{{ obj.amount }}" data-tuc-format="brl"&gt;{{ obj.amount }}&lt;/td&gt;
       &lt;td class="tuc-table__actions"&gt;
         &lt;a class="tuc-btn is-outline is-icon is-sm" href="{% url 'contract-edit' obj.pk %}" aria-label="Editar"&gt;...&lt;/a&gt;
       &lt;/td&gt;
@@ -398,7 +398,7 @@ def contracts(request):
   &lt;div data-tuc-pagination data-page="3" data-pages="12"&gt;&lt;/div&gt;
 &lt;/div&gt;</code></pre></div>
 <p>Para decidir a navegação por conta própria, passe <code>onSort</code>: com ele definido, o clique é cancelado e quem
-   escreveu assume. O evento <code>tuc:sort</code> sai de qualquer jeito, antes da navegação.</p>
+   escreveu assume. O evento <code>tucano:sort</code> sai de qualquer jeito, antes da navegação.</p>
 <div class="tuc-prose doc-code"><pre><code>new Tucano.Table('#contracts', {
   onSort: ({ column, field, direction }, table) =&gt; {
     htmx.ajax('GET', `?sort=${field}&amp;dir=${direction}`, '#list');
@@ -437,9 +437,9 @@ def approve(request):
 <div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Botão de ação dentro do formulário leva type="button"</p><p>Um <code>&lt;button&gt;</code> sem tipo dentro de <code>&lt;form&gt;</code> envia o formulário. Na coluna de ações, escreva <code>type="button"</code> ou use <code>&lt;a&gt;</code>, senão "Editar" vira "Aprovar selecionados".</p></div></div>
 
 <p>A caixa do cabeçalho marca e desmarca a página inteira e mostra o estado misto quando só parte está marcada.
-   Cada mudança dispara <code>tuc:select</code> na tabela, com os valores marcados — os mesmos que o formulário
+   Cada mudança dispara <code>tucano:select</code> na tabela, com os valores marcados — os mesmos que o formulário
    enviaria.</p>
-<div class="tuc-prose doc-code"><pre><code>document.querySelector('#contracts').addEventListener('tuc:select', (e) =&gt; {
+<div class="tuc-prose doc-code"><pre><code>document.querySelector('#contracts').addEventListener('tucano:select', (e) =&gt; {
   e.detail.selected;   // ['1', '3']
   e.detail.row;        // a &lt;tr&gt; que mudou
 });</code></pre></div>
@@ -466,7 +466,7 @@ def approve(request):
     <tr><td><code>.tuc-badge</code></td><td>Etiqueta de estado: <code>is-success</code>, <code>is-warning</code>, <code>is-danger</code>, <code>is-info</code>; sem tom fica neutra</td></tr>
     <tr><td><code>.tuc-table__actions</code></td><td>Coluna encostada à direita, sem quebra de linha, para os botões do sistema — <code>tuc-btn is-outline is-icon is-sm</code></td></tr>
     <tr><td><code>.is-number</code></td><td>Em <code>th</code> e <code>td</code>: alinha à direita com dígitos de largura fixa, para comparar valores com a vista</td></tr>
-    <tr><td><code>data-tuc-format="real"</code></td><td>Na célula de valor: o <code>12400.00</code> que o Django imprime vira <code>R$ 12.400,00</code>. Aceita ponto ou vírgula como decimal; <code>data-tuc-format="currency"</code> formata sem o símbolo</td></tr>
+    <tr><td><code>data-tuc-format="brl"</code></td><td>Na célula de valor: o <code>12400.00</code> que o Django imprime vira <code>R$ 12.400,00</code>. Aceita ponto ou vírgula como decimal; <code>data-tuc-format="currency"</code> formata sem o símbolo</td></tr>
     <tr><td><code>.tuc-table__empty</code></td><td>Célula única do estado vazio, centrada e com respiro</td></tr>
   </tbody>
 </table></div>
@@ -499,7 +499,7 @@ def approve(request):
 <div class="api-line"><span>Em JS</span><div><code>new Tucano.Table(alvo, opcoes)</code></div></div>
 <div class="api-line"><span>Atributos</span><div><code>data-dir-param</code> <code>data-select-name</code> <code>data-selectable</code> <code>data-sort-mode</code> <code>data-sort-param</code> <code>data-sortable</code></div></div>
 <div class="api-line"><span>Métodos</span><div><code>sort</code> <code>getSelected</code> <code>clearSelection</code> <code>destroy</code></div></div>
-<div class="api-line"><span>Eventos</span><div><code>tuc:sort</code> <code>tuc:select</code></div></div>
+<div class="api-line"><span>Eventos</span><div><code>tucano:sort</code> <code>tucano:select</code></div></div>
 <h3>Opções</h3>
 <div class="tuc-table-wrap"><table class="tuc-table"><thead><tr><th style="width:26%">Opção</th><th style="width:22%">Padrão</th><th>Para quê</th></tr></thead><tbody>
 <tr><td><code>sortable</code></td><td><code>true</code></td><td></td></tr>
@@ -545,7 +545,7 @@ def approve(request):
       ? `${ids.length} marcada${ids.length > 1 ? 's' : ''} — o POST enviaria selected=${ids.join('&selected=')}`
       : 'Nenhuma linha marcada.';
   };
-  table.addEventListener('tuc:select', (e) => show(e.detail.selected));
+  table.addEventListener('tucano:select', (e) => show(e.detail.selected));
   approve.addEventListener('click', () => {
     const t = table._tucano;
     Tucano.toast.success(`${t.getSelected().length} contrato(s) aprovado(s)`);

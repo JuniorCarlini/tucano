@@ -119,7 +119,7 @@ export class Tabs {
     const target = usable[next];
     target.focus();
     // A lista rola na horizontal quando nao cabe; a aba focada tem de aparecer.
-    target.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
+    target.scrollIntoView({ block: 'nearest', inline: 'nearest' });
     // No modo manual quem troca e o Enter ou o Espaco, que no <button> ja viram
     // clique sozinhos — nao ha tecla para tratar aqui.
     if (!this.opts.manual) this.select(this.tabs.indexOf(target));

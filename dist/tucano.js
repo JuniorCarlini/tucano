@@ -408,7 +408,7 @@ var Tucano = (() => {
   }
 
   // src/js/core/popover.js
-  var EXIT_MS = 170;
+  var EXIT_MS = 200;
   var Popover = class {
     constructor(anchor, panel, options = {}) {
       this.anchor = anchor;
@@ -416,7 +416,7 @@ var Tucano = (() => {
       this.placement = options.placement || "bottom-start";
       this.offset = options.offset ?? 8;
       this.padding = options.padding ?? 8;
-      this.appendTo = options.appendTo || this.anchor.closest?.("dialog[open]") || document.body;
+      this.appendTo = options.appendTo || this.anchor.closest("dialog[open]") || document.body;
       this.matchWidth = options.matchWidth || false;
       this.closeIfDetached = options.closeIfDetached || false;
       this.closeOnFocusOut = options.closeOnFocusOut || false;
@@ -452,8 +452,14 @@ var Tucano = (() => {
         on(document, "pointerdown", (e) => {
           if (!this.panel.contains(e.target) && !this.anchor.contains(e.target)) this.onDismiss("outside");
         }, true),
+        /*
+         * O Escape e so do painel. stopPropagation segura os ouvintes da pagina,
+         * mas nao o <dialog>: o cancel dele e acao padrao da tecla, e sem o
+         * preventDefault um select aberto num modal fechava o modal junto.
+         */
         on(document, "keydown", (e) => {
           if (e.key === "Escape") {
+            e.preventDefault();
             e.stopPropagation();
             this.onDismiss("escape");
           }
@@ -462,23 +468,23 @@ var Tucano = (() => {
       if (this.closeOnFocusOut) {
         this._cleanups.push(on(document, "focusin", (e) => {
           if (this.panel.contains(e.target) || this.anchor.contains(e.target)) return;
-          this.onDismiss("foco");
+          this.onDismiss("focus");
         }, true));
       }
-      if (typeof ResizeObserver !== "undefined") {
-        this._ro = new ResizeObserver(this._reposition);
-        this._ro.observe(this.panel);
-        this._ro.observe(this.anchor);
-      }
+      this._ro = new ResizeObserver(this._reposition);
+      this._ro.observe(this.panel);
+      this._ro.observe(this.anchor);
+      openWithTransition(this.panel);
     }
     /**
-     * `animar` mantem o painel no DOM pelo tempo da transicao de saida. Sem
+     * `animate` mantem o painel no DOM pelo tempo da transicao de saida. Sem
      * isso ele desaparece no mesmo quadro, e so a entrada tem movimento — o
      * fechamento fica seco em comparacao.
      */
     hide({ animate = true } = {}) {
       if (!this.open) return;
       this.open = false;
+      this.panel.classList.remove("is-open");
       this._cleanups.forEach((fn) => fn());
       this._cleanups = [];
       if (this._frame) {
@@ -510,7 +516,7 @@ var Tucano = (() => {
       const vw = document.documentElement.clientWidth;
       const vh = document.documentElement.clientHeight;
       if (this.closeIfDetached && (a.bottom < 0 || a.top > vh || a.right < 0 || a.left > vw)) {
-        this.onDismiss("solto");
+        this.onDismiss("detached");
         return;
       }
       const [side, align = "start"] = this.placement.split("-");
@@ -744,6 +750,7 @@ var Tucano = (() => {
   }
 
   // src/js/components/datepicker.js
+  var RANGE_SEPARATOR = /\s*[–—]\s*|\s+(?:-{1,2}|at[ée]|a)\s+/i;
   var DEFAULTS = {
     mode: "single",
     // 'single' | 'range'
@@ -773,14 +780,6 @@ var Tucano = (() => {
     appendTo: void 0,
     isoName: void 0,
     // name do input hidden com o valor ISO
-    /*
-     * Chegar de Tab nao abre o calendario. Quem tabula por um formulario para
-     * alcancar o botao de salvar nao deveria levar um painel na cara a cada
-     * campo, cobrindo o proximo — e era isso que fazia os paineis se empilharem.
-     * Abre com seta para baixo, com clique, ou com openOnFocus: true para quem
-     * prefere o comportamento antigo.
-     */
-    openOnFocus: false,
     // Painel proprio em todo lugar, por padrao: um so comportamento para
     // documentar, estilizar e testar. `true` liga o seletor do sistema no
     // celular, `'auto'` liga so onde o ponteiro e de toque.
@@ -801,7 +800,6 @@ var Tucano = (() => {
       this.opts.firstDayOfWeek = this.opts.firstDayOfWeek ?? this.L.firstDayOfWeek;
       this.isRange = this.opts.mode === "range";
       this.opts.months = this.opts.months ?? (this.isRange ? 2 : 1);
-      this.opts.presets = this.opts.presets ?? false;
       this.opts.autoApply = this.opts.autoApply ?? !this.opts.time;
       this.opts.min = parseISO(this.opts.min);
       this.opts.max = parseISO(this.opts.max);
@@ -874,7 +872,6 @@ var Tucano = (() => {
       this.popover.show();
       this._revealed = null;
       this._revealTimes();
-      openWithTransition(this.panel);
       this._releaseFocus = trapFocus(this.panel);
       this.input.setAttribute("aria-expanded", "true");
       this.input.setAttribute("aria-controls", this.id);
@@ -888,7 +885,6 @@ var Tucano = (() => {
         this._syncTarget();
       }
       this.isOpen = false;
-      this.panel.classList.remove("is-open");
       this.popover?.destroy();
       this.popover = null;
       this._releaseFocus?.();
@@ -918,7 +914,7 @@ var Tucano = (() => {
      * ---------------------------------------------------------------- */
     _buildPanel() {
       this.panel = el("div", {
-        class: `tuc-dp${this.isRange ? " is-range" : ""}${this.opts.time ? " is-timed" : ""}`,
+        class: "tuc-dp",
         role: "dialog",
         "aria-modal": "false",
         "aria-label": this.isRange ? DATEPICKER_TEXTS.dialogRange : DATEPICKER_TEXTS.dialog,
@@ -944,7 +940,7 @@ var Tucano = (() => {
       if (this.opts.native === false) return false;
       if (this.isRange) return false;
       if (this.opts.native === true) return true;
-      return typeof window !== "undefined" && !!window.matchMedia?.("(pointer: coarse)").matches;
+      return matchMedia("(pointer: coarse)").matches;
     }
     /**
      * Layout compacto: tela estreita E ponteiro de toque.
@@ -954,8 +950,7 @@ var Tucano = (() => {
      * digitacao numa janela estreita de desktop.
      */
     get _compact() {
-      if (typeof window === "undefined") return false;
-      return !!window.matchMedia?.("(max-width: 40rem) and (pointer: coarse)").matches;
+      return matchMedia("(max-width: 40rem) and (pointer: coarse)").matches;
     }
     _setupTarget() {
       if (this.native) return this._setupNative();
@@ -978,16 +973,8 @@ var Tucano = (() => {
       input.setAttribute("aria-haspopup", "dialog");
       input.setAttribute("aria-expanded", "false");
       if (!input.placeholder) input.placeholder = this._placeholder();
-      if (this.opts.isoName || input.name) {
-        const name = this.opts.isoName || input.name;
-        if (!this.opts.isoName && input.name) input.removeAttribute("name");
-        this.isoInput = el("input", { type: "hidden", name });
-        input.after(this.isoInput);
-      }
+      this._addIsoInput(input);
       this._cleanups.push(
-        on(input, "focus", () => {
-          if (this.opts.openOnFocus && !this._suppressOpen) this.open();
-        }),
         on(input, "click", () => {
           if (!this._suppressOpen && !this._compact) this.open();
         }),
@@ -1003,9 +990,6 @@ var Tucano = (() => {
           } else if (e.key === "Enter" && this.isOpen) {
             e.preventDefault();
             this._commitTyped();
-          } else if (e.key === "Escape" && this.isOpen) {
-            e.preventDefault();
-            this.close();
           }
         }),
         // Ignora o `change` que nos mesmos disparamos em _emit(); senao o texto
@@ -1026,9 +1010,16 @@ var Tucano = (() => {
       );
     }
     /**
-     * Modo nativo: o proprio input carrega o valor ISO e mantem o `name`, entao o
-     * que chega no servidor e identico ao do painel — nao precisa de hidden.
+     * Input hidden com ISO, depois de `after`: o visivel mostra o formato do
+     * locale, o Django recebe ISO. Leva o `isoName` ou toma o `name` do campo.
      */
+    _addIsoInput(after) {
+      const name = this.opts.isoName || this.input.name;
+      if (!name) return;
+      if (!this.opts.isoName) this.input.removeAttribute("name");
+      this.isoInput = el("input", { type: "hidden", name });
+      after.after(this.isoInput);
+    }
     /**
      * Modo nativo por sobreposicao.
      *
@@ -1059,12 +1050,7 @@ var Tucano = (() => {
       this.wrap = el("span", { class: "tuc-native-wrap" });
       input.replaceWith(this.wrap);
       this.wrap.append(input, this.overlay);
-      if (this.opts.isoName || input.name) {
-        const name = this.opts.isoName || input.name;
-        if (!this.opts.isoName && input.name) input.removeAttribute("name");
-        this.isoInput = el("input", { type: "hidden", name });
-        this.wrap.after(this.isoInput);
-      }
+      this._addIsoInput(this.wrap);
       this._cleanups.push(on(this.overlay, "change", () => {
         if (this._emitting) return;
         this.start = this._normalize(parseISO(this.overlay.value));
@@ -1078,7 +1064,7 @@ var Tucano = (() => {
       return this.opts.time ? toISODateTime(date, this.opts.seconds) : toISODate(date);
     }
     _readInitialValue() {
-      const raw = this.opts.value ?? (this.input ? this.input.value : null);
+      const raw = this.opts.value ?? this.input.value;
       if (!raw) return;
       if (this.isRange) {
         const iso = String(raw).match(/^\s*(\d{4}-\d{2}-\d{2}[T\d:.]*)\s*,\s*(\d{4}-\d{2}-\d{2}[T\d:.]*)\s*$/);
@@ -1088,7 +1074,7 @@ var Tucano = (() => {
           this._syncTarget();
           return;
         }
-        const [a, b] = String(raw).split(/\s*(?:–|—|-{1,2}|a[téa]?)\s*/i);
+        const [a, b] = String(raw).split(RANGE_SEPARATOR);
         this.start = this._normalize(parseUserInput(a, this.opts.locale)) || this._normalize(parseISO(a));
         this.end = this._normalize(parseUserInput(b, this.opts.locale)) || this._normalize(parseISO(b));
       } else {
@@ -1170,7 +1156,7 @@ var Tucano = (() => {
     _previewTyped() {
       const raw = this.input.value;
       if (this.isRange) {
-        const [a, b] = raw.split(/\s*—\s*/);
+        const [a, b] = raw.split(RANGE_SEPARATOR);
         const start = this._keepTime(parseUserInput(a, this.opts.locale), this.start);
         if (!start) return;
         this.start = start;
@@ -1214,13 +1200,12 @@ var Tucano = (() => {
       return this.isRange ? `${enc(this.start)}${this.end ? `,${enc(this.end)}` : ""}` : enc(this.start);
     }
     _syncTarget() {
-      if (this.input) this.input.value = this._displayValue();
+      this.input.value = this._displayValue();
       if (this.overlay) this.overlay.value = this._nativeValue();
       if (this.isoInput) this.isoInput.value = this._isoValue();
-      if (this.input && this._mask) this._maskDigits = this.input.value.replace(/\D/g, "");
+      if (this._mask) this._maskDigits = this.input.value.replace(/\D/g, "");
     }
     _commitTyped() {
-      if (!this.input) return;
       const raw = this.input.value.trim();
       if (raw === this._displayValue()) return;
       if (!raw) {
@@ -1228,7 +1213,7 @@ var Tucano = (() => {
         return;
       }
       if (this.isRange) {
-        const [a, b] = raw.split(/\s*(?:–|—|-{1,2}|at[ée]|a)\s*/i);
+        const [a, b] = raw.split(RANGE_SEPARATOR);
         const s = this._keepTime(parseUserInput(a, this.opts.locale), this.start);
         const e = this._keepTime(parseUserInput(b, this.opts.locale), this.end);
         if (s) this.setValue({ start: s, end: e });
@@ -1256,7 +1241,7 @@ var Tucano = (() => {
       try {
         this.opts.onChange?.(value, detail);
         this.input.dispatchEvent(new CustomEvent("tucano:change", { detail, bubbles: true }));
-        this.input?.dispatchEvent(new Event("change", { bubbles: true }));
+        this.input.dispatchEvent(new Event("change", { bubbles: true }));
       } finally {
         this._emitting = false;
       }
@@ -1848,7 +1833,7 @@ var Tucano = (() => {
      * API publica                                                       *
      * ---------------------------------------------------------------- */
     getValue() {
-      const chosen = this.items.filter((i) => i.selected).map((i) => i.value);
+      const chosen = this._chosen().map((i) => i.value);
       return this.multiple ? chosen : chosen[0] ?? null;
     }
     setValue(value, { silent = false } = {}) {
@@ -1889,7 +1874,6 @@ var Tucano = (() => {
         onDismiss: () => this.close()
       });
       this.popover.show();
-      openWithTransition(this.menu);
       this.control.classList.add("is-open");
       this.control.setAttribute("aria-expanded", "true");
       this.control.setAttribute("aria-controls", `${this.id}-list`);
@@ -1900,7 +1884,6 @@ var Tucano = (() => {
     close() {
       if (!this.isOpen) return;
       this.isOpen = false;
-      this.menu.classList.remove("is-open");
       this.control.classList.remove("is-open");
       this.control.setAttribute("aria-expanded", "false");
       this.control.removeAttribute("aria-controls");
@@ -1953,7 +1936,7 @@ var Tucano = (() => {
         }
       }, [icon(ICON_X, 14)]);
       this.control = el("div", {
-        class: `tuc-select${this.multiple ? " is-multiple" : ""}${this.opts.wrapTags ? " is-wrap" : ""}`,
+        class: `tuc-select${this.opts.wrapTags ? " is-wrap" : ""}`,
         role: "combobox",
         "aria-haspopup": "listbox",
         "aria-expanded": "false",
@@ -2017,7 +2000,7 @@ var Tucano = (() => {
           this.native.append(el("option", { value: item.value, text: item.label }));
         }
       }
-      const chosen = new Set(this.items.filter((i) => i.selected).map((i) => i.value));
+      const chosen = new Set(this._chosen().map((i) => i.value));
       for (const opt of this.native.options) opt.selected = chosen.has(opt.value);
       if (!this.multiple && !chosen.size) {
         const empty = [...this.native.options].find((o) => o.value === "");
@@ -2152,7 +2135,7 @@ var Tucano = (() => {
      * Render                                                            *
      * ---------------------------------------------------------------- */
     _renderControl() {
-      const chosen = this.items.filter((i) => i.selected);
+      const chosen = this._chosen();
       for (const n of [...this.values.children]) if (n !== this.search) n.remove();
       if (this.multiple) {
         for (const item of chosen) {
@@ -2178,7 +2161,6 @@ var Tucano = (() => {
       }
       const empty = !chosen.length && !this.query;
       this.search.placeholder = empty ? this.opts.placeholder : this.isOpen && this.opts.search ? this.opts.searchPlaceholder : "";
-      this.control.classList.toggle("is-empty", empty);
       this.control.classList.toggle("has-value", chosen.length > 0);
       this.search.readOnly = !this.opts.search;
     }
@@ -2265,7 +2247,7 @@ var Tucano = (() => {
     _toggleItem(item) {
       if (item.disabled) return;
       if (this.multiple) {
-        if (!item.selected && this.opts.maxItems && this.items.filter((i) => i.selected).length >= this.opts.maxItems) return;
+        if (!item.selected && this.opts.maxItems && this._chosen().length >= this.opts.maxItems) return;
         item.selected = !item.selected;
       } else {
         for (const i of this.items) i.selected = i === item;
@@ -2306,15 +2288,8 @@ var Tucano = (() => {
         e.preventDefault();
         const item = visible[this.activeIndex];
         if (item) this._toggleItem(item);
-      } else if (e.key === "Escape") {
-        if (this.isOpen) {
-          e.preventDefault();
-          e.stopPropagation();
-          this.close();
-          this.control.focus?.();
-        }
       } else if (e.key === "Backspace" && !this.search.value && this.multiple) {
-        const chosen = this.items.filter((i) => i.selected);
+        const chosen = this._chosen();
         if (chosen.length) this._toggleItem(chosen[chosen.length - 1]);
       } else if ((e.key === "Backspace" || e.key === "Delete") && !this.search.value && !this.multiple) {
         if (this.opts.clearable && this.getValue() !== null) {
@@ -2337,21 +2312,18 @@ var Tucano = (() => {
     }
   };
   function normalizeOptions(data) {
-    const list = Array.isArray(data) ? data : data?.results ?? data?.items ?? data?.data ?? [];
+    const list = Array.isArray(data) ? data : data?.results ?? [];
     return list.map((o) => {
       if (o == null) return null;
       if (typeof o !== "object") return { value: String(o), label: String(o), disabled: false, group: null, selected: false, search: normalize(String(o)) };
-      const value = String(o.value ?? o.id ?? o.pk ?? "");
-      const label = String(o.label ?? o.text ?? o.name ?? o.name ?? value);
-      return { value, label, disabled: !!o.disabled, group: o.group ?? o.group ?? null, selected: false, search: normalize(`${label} ${value}`) };
+      const value = String(o.value ?? o.id ?? "");
+      const label = String(o.label ?? o.text ?? value);
+      return { value, label, disabled: !!o.disabled, group: o.group ?? null, selected: false, search: normalize(`${label} ${value}`) };
     }).filter((o) => o && o.value !== "");
   }
   function hasNextPage(raws, items, pageParam) {
     if (!pageParam) return false;
-    if (raws && typeof raws === "object" && !Array.isArray(raws)) {
-      if ("next" in raws) return !!raws.next;
-      if ("has_more" in raws) return !!raws.has_more;
-    }
+    if (raws && typeof raws === "object" && "next" in raws) return !!raws.next;
     return items.length > 0;
   }
   function readOptions(select) {
@@ -2551,7 +2523,7 @@ var Tucano = (() => {
       if (!node) throw new Error("[ColorPicker] elemento alvo nao encontrado");
       this.opts = { ...DEFAULTS3, ...omitUndefined(options) };
       this.input = node;
-      this.id = nextId("cor");
+      this.id = nextId("color");
       this.isOpen = false;
       this._cleanups = [];
       this._dragging = null;
@@ -2586,16 +2558,23 @@ var Tucano = (() => {
         placement: this.opts.placement,
         appendTo: this.opts.appendTo,
         closeOnFocusOut: true,
-        onDismiss: () => this.close()
+        /*
+         * No Escape o foco volta a amostra, como nos outros campos. Sem isto ele
+         * ficava no campo hex ou na area, que saem do DOM junto com o painel, e
+         * caia no <body>: o Tab seguinte recomecava do topo da pagina.
+         */
+        onDismiss: (reason) => {
+          const inside = this.panel.contains(document.activeElement);
+          this.close();
+          if (reason === "escape" && inside) this.swatch.focus();
+        }
       });
       this.popover.show();
-      openWithTransition(this.panel);
       this.swatch.setAttribute("aria-expanded", "true");
     }
     close() {
       if (!this.isOpen) return;
       this.isOpen = false;
-      this.panel.classList.remove("is-open");
       this.popover?.destroy();
       this.popover = null;
       this.swatch.setAttribute("aria-expanded", "false");
@@ -2700,13 +2679,6 @@ var Tucano = (() => {
         }),
         on(this.hexField, "change", () => {
           if (!this.setValue(this.hexField.value)) this._paint();
-        }),
-        on(this.panel, "keydown", (e) => {
-          if (e.key === "Escape") {
-            e.stopPropagation();
-            this.close();
-            this.swatch.focus();
-          }
         })
       );
     }
@@ -2820,7 +2792,7 @@ var Tucano = (() => {
       const { h, s, v, a } = this.hsva;
       const pure = rgbToHex(hsvToRgb({ h, s: 1, v: 1 }));
       const solid = rgbToHex(hsvToRgb(this.hsva));
-      this.area.style.setProperty("--matiz", pure);
+      this.area.style.setProperty("--hue", pure);
       this.area.firstElementChild.style.left = `${s * 100}%`;
       this.area.firstElementChild.style.top = `${(1 - v) * 100}%`;
       this.area.firstElementChild.style.setProperty("--color", solid);
@@ -2859,7 +2831,7 @@ var Tucano = (() => {
     return p ? rgbToHex(hsvToRgb(p)) : String(color).toLowerCase();
   }
   function supportsEyeDropper() {
-    return typeof window !== "undefined" && "EyeDropper" in window;
+    return "EyeDropper" in window;
   }
   function autoInit3(scope = document) {
     const out = [];
@@ -2939,10 +2911,6 @@ var Tucano = (() => {
       xhr.send(data);
     });
     return { promise, abort: () => xhr.abort() };
-  }
-  var seq = 0;
-  function fileId() {
-    return `f${Date.now().toString(36)}${(seq++).toString(36)}`;
   }
 
   // src/js/components/upload.js
@@ -3047,11 +3015,11 @@ var Tucano = (() => {
         class: "tuc-upload__zone",
         role: "button",
         tabindex: 0,
-        "aria-describedby": `${this.id}-dica`
+        "aria-describedby": `${this.id}-hint`
       }, [
         el("span", { class: "tuc-upload__icon" }, [icon(ICON_UPLOAD, 20)]),
         el("span", { class: "tuc-upload__label", text: this.multiple ? this.t.zone : this.t.zoneOne }),
-        el("span", { class: "tuc-upload__hint", id: `${this.id}-dica`, text: this._hint() })
+        el("span", { class: "tuc-upload__hint", id: `${this.id}-hint`, text: this._hint() })
       ]);
       this.list = el("ul", { class: "tuc-upload__list" });
       this.root = el("div", { class: "tuc-upload", id: this.id }, [this.zone, this.list]);
@@ -3104,7 +3072,6 @@ var Tucano = (() => {
         }),
         on(this.root, "drop", (e) => {
           stop(e);
-          this._dragging = 0;
           this._stopDrag();
           this._add([...e.dataTransfer?.files || []]);
         })
@@ -3131,7 +3098,7 @@ var Tucano = (() => {
           continue;
         }
         const item = {
-          key: fileId(),
+          key: nextId("f"),
           file,
           state: "pending",
           progress: 0,
@@ -3157,33 +3124,34 @@ var Tucano = (() => {
     /**
      * No modo formulario o <input type="file"> precisa carregar os arquivos —
      * inclusive os que vieram por arrastar. DataTransfer e a unica forma de
-     * escrever em input.files.
+     * escrever em input.files, e todo navegador atual a aceita.
      */
     _syncNative() {
       if (this.direct) return;
-      try {
-        const dt = new DataTransfer();
-        for (const item of this.items) dt.items.add(item.file);
-        this.input.files = dt.files;
-      } catch {
+      const dt = new DataTransfer();
+      for (const item of this.items) dt.items.add(item.file);
+      this.input.files = dt.files;
+    }
+    /** Cabecalhos da instancia com o CSRF do Django, sem passar por cima de um que ja veio. */
+    _headers() {
+      const headers = { ...this.opts.headers };
+      if (this.opts.csrf && !headers["X-CSRFToken"]) {
+        const token = csrfToken();
+        if (token) headers["X-CSRFToken"] = token;
       }
+      return headers;
     }
     _upload(item) {
       item.state = "uploading";
       item.progress = 0;
       item.error = null;
       this._renderList();
-      const headers = { ...this.opts.headers };
-      if (this.opts.csrf && !headers["X-CSRFToken"]) {
-        const token = csrfToken();
-        if (token) headers["X-CSRFToken"] = token;
-      }
       const { promise, abort } = uploadFile({
         url: this.opts.url,
         file: item.file,
         field: this.opts.fieldName,
         extras: this.opts.extraData,
-        headers,
+        headers: this._headers(),
         method: this.opts.method,
         texts: this.t,
         onProgress: (fraction) => {
@@ -3220,12 +3188,7 @@ var Tucano = (() => {
       if (i >= 0) this.items.splice(i, 1);
       if (item.preview) URL.revokeObjectURL(item.preview);
       if (this.direct && this.opts.deleteUrl && item.serverId != null) {
-        const headers = { ...this.opts.headers };
-        if (this.opts.csrf) {
-          const t = csrfToken();
-          if (t) headers["X-CSRFToken"] = t;
-        }
-        fetch(`${this.opts.deleteUrl}${item.serverId}/`, { method: "DELETE", headers }).catch(() => {
+        fetch(`${this.opts.deleteUrl}${item.serverId}/`, { method: "DELETE", headers: this._headers() }).catch(() => {
         });
       }
       this._syncNative();
@@ -3287,7 +3250,6 @@ var Tucano = (() => {
         ]));
       }
       this._syncHidden();
-      this.root.classList.toggle("is-empty", !this.items.length);
     }
     _button(path, label, onClick) {
       return el("button", {
@@ -3413,10 +3375,12 @@ var Tucano = (() => {
     const n = chars.length;
     return list.find((g) => n <= capacity(g)) || list[list.length - 1];
   }
-  function applyCurrency(digits, { decimals = 2, locale = "pt-BR", currency = null } = {}) {
+  function applyCurrency(digits, options = {}) {
     const cleaned = String(digits).replace(/\D/g, "").replace(/^0+(?=\d)/, "");
     if (!cleaned) return "";
-    const n = Number(cleaned) / 10 ** decimals;
+    return formatNumber(Number(cleaned) / 10 ** (options.decimals ?? 2), options);
+  }
+  function formatNumber(n, { decimals = 2, locale = "pt-BR", currency = null } = {}) {
     return n.toLocaleString(locale, {
       minimumFractionDigits: decimals,
       maximumFractionDigits: decimals,
@@ -3461,16 +3425,10 @@ var Tucano = (() => {
   function format2(value, format3, options = {}) {
     const raw = String(value ?? "").trim();
     if (!raw) return "";
-    if (format3 === "currency" || format3 === "real") {
+    if (format3 === "currency" || format3 === "brl") {
       const n = typeof value === "number" ? value : Number(raw.replace(/\.(?=\d{3}\b)/g, "").replace(",", "."));
       if (!Number.isFinite(n)) return raw;
-      const { decimals = 2, locale = "pt-BR" } = options;
-      const currency = options.currency ?? (format3 === "real" ? "BRL" : null);
-      return n.toLocaleString(locale, {
-        minimumFractionDigits: decimals,
-        maximumFractionDigits: decimals,
-        ...currency ? { style: "currency", currency } : {}
-      });
+      return formatNumber(n, { ...options, currency: options.currency ?? (format3 === "brl" ? "BRL" : null) });
     }
     const templates = DISPLAY_TEMPLATES[format3] ?? format3;
     const all = [].concat(templates).join("");
@@ -3483,7 +3441,6 @@ var Tucano = (() => {
     cpf: "###.###.###-##",
     cnpj: "**.***.***/****-##",
     "cpf-cnpj": ["###.###.###-##", "**.***.***/****-##"],
-    document: ["###.###.###-##", "**.***.***/****-##"],
     phone: ["(##) ####-####", "(##) #####-####"],
     mobile: "(##) #####-####",
     cep: "#####-###",
@@ -3539,7 +3496,7 @@ var Tucano = (() => {
     time: { template: "##:##" },
     card: { template: "#### #### #### ####" },
     currency: { isCurrency: true },
-    real: { isCurrency: true, currency: "BRL" }
+    brl: { isCurrency: true, currency: "BRL" }
   };
   var DEFAULTS5 = {
     format: null,
@@ -3595,8 +3552,7 @@ var Tucano = (() => {
       }
       this._cleanups = [];
       this._wire();
-      if (node.value && !this.isCurrency && this.templates) this._format({ keepCursor: false });
-      else if (node.value && this.isCurrency) this._format({ keepCursor: false });
+      if (node.value && (this.isCurrency || this.templates)) this._format({ keepCursor: false });
       if (this.opts.reveal) this._buildEye();
       node._tucano = this;
     }
@@ -3913,6 +3869,7 @@ var Tucano = (() => {
     error: ICON_ALERT
   };
   var DURATION = { info: 4e3, success: 3500, warning: 6e3, error: 8e3, loading: null };
+  var durationFor = (type) => type in DURATION ? DURATION[type] : 4e3;
   var containers = /* @__PURE__ */ new Map();
   function container(position) {
     if (containers.has(position)) return containers.get(position);
@@ -3944,7 +3901,7 @@ var Tucano = (() => {
   var INDENT = 14;
   var VISIBLE = 3;
   var GAP = 12;
-  var seq2 = 0;
+  var seq = 0;
   function arrange(container2) {
     void container2.offsetHeight;
     if (!container2.offsetWidth) return;
@@ -3974,9 +3931,7 @@ var Tucano = (() => {
   var Toast = class {
     constructor(options = {}) {
       this.opts = { ...DEFAULTS6, ...omitUndefined(options) };
-      if (this.opts.duration === void 0) {
-        this.opts.duration = this.opts.type in DURATION ? DURATION[this.opts.type] : 4e3;
-      }
+      if (this.opts.duration === void 0) this.opts.duration = durationFor(this.opts.type);
       this.id = nextId("toast");
       this._cleanups = [];
       this._build();
@@ -4019,7 +3974,7 @@ var Tucano = (() => {
       this.opts = { ...this.opts, ...omitUndefined(options) };
       const { type } = this.opts;
       if (options.duration === void 0 && type !== previous) {
-        this.opts.duration = type in DURATION ? DURATION[type] : 4e3;
+        this.opts.duration = durationFor(type);
       }
       this.node.classList.replace(`is-${previous}`, `is-${type}`);
       this.node.replaceChildren(...this._content().filter(Boolean));
@@ -4046,7 +4001,7 @@ var Tucano = (() => {
         id: this.id
       }, this._content());
       this.node._tucano = this;
-      this.node.dataset.seq = String(++seq2);
+      this.node.dataset.seq = String(++seq);
       const target = container(this.opts.position);
       this.container = target;
       const region = target.querySelector(urgent ? ".is-urgent" : ".tuc-toasts__live:not(.is-urgent)");
@@ -4133,7 +4088,7 @@ var Tucano = (() => {
     );
     return promise;
   };
-  var DJANGO_MAP = { debug: "info", info: "info", success: "success", warning: "warning", error: "error" };
+  var DJANGO_MAP = { debug: "info" };
   function autoInit6(scope = document) {
     const out = [];
     for (const node of scope.querySelectorAll("[data-tuc-toast]:not([data-tuc-ready])")) {
@@ -4199,7 +4154,7 @@ var Tucano = (() => {
       ]);
       node.setAttribute("aria-describedby", this.id);
       if (!node.hasAttribute("tabindex") && !FOCUSABLE.test(node.tagName)) node.tabIndex = 0;
-      const isTouch = () => window.matchMedia?.("(pointer: coarse)").matches;
+      const isTouch = () => matchMedia("(pointer: coarse)").matches;
       this._cleanups.push(
         on(node, "pointerenter", (e) => {
           if (e.pointerType !== "touch") this._schedule(true);
@@ -4211,9 +4166,6 @@ var Tucano = (() => {
         on(node, "focusout", () => this._hide()),
         on(node, "click", () => {
           if (isTouch()) this.isOpen ? this._hide() : this._show();
-        }),
-        on(document, "keydown", (e) => {
-          if (e.key === "Escape" && this.isOpen) this._hide();
         })
       );
       node._tucano = this;
@@ -4244,14 +4196,12 @@ var Tucano = (() => {
         onDismiss: () => this._hide()
       });
       this.popover.show();
-      openWithTransition(this.panel);
     }
     _hide() {
       clearTimeout(this._timer);
       if (!this.isOpen) return;
       this.isOpen = false;
       if (isOpen === this) isOpen = null;
-      this.panel.classList.remove("is-open");
       this.popover?.destroy();
       this.popover = null;
     }
@@ -4309,9 +4259,14 @@ var Tucano = (() => {
     open() {
       if (this.isOpen) return this;
       this.isOpen = true;
+      if (this._exitTimer) {
+        clearTimeout(this._exitTimer);
+        this._exitTimer = null;
+        this.node.classList.remove("is-closing");
+      }
       reserveScrollbar();
       if (!this._adopted) document.body.append(this.node);
-      this.node.showModal();
+      if (!this.node.open) this.node.showModal();
       this._wire();
       void this.node.offsetHeight;
       this.node.classList.add("is-open");
@@ -4326,6 +4281,7 @@ var Tucano = (() => {
       this.node.classList.add("is-closing");
       clearTimeout(this._exitTimer);
       this._exitTimer = setTimeout(() => {
+        this._exitTimer = null;
         this.node.classList.remove("is-closing");
         if (this.node.open) this.node.close();
         if (!this._adopted) this.node.remove();
@@ -4645,10 +4601,7 @@ var Tucano = (() => {
       const onDone = (e) => {
         if (e.target === body && e.propertyName === "grid-template-rows") teardown();
       };
-      item._tucTeardown = () => {
-        teardown();
-        item.classList.remove("is-closing");
-      };
+      item._tucTeardown = teardown;
       body?.addEventListener("transitionend", onDone);
       item._tucExit = setTimeout(teardown, SAFETY_MS);
       return this;
@@ -4758,7 +4711,7 @@ var Tucano = (() => {
       e.preventDefault();
       const target = usable[next];
       target.focus();
-      target.scrollIntoView?.({ block: "nearest", inline: "nearest" });
+      target.scrollIntoView({ block: "nearest", inline: "nearest" });
       if (!this.opts.manual) this.select(this.tabs.indexOf(target));
     }
     _emit() {
@@ -4801,11 +4754,7 @@ var Tucano = (() => {
       this._build();
     }
     _build() {
-      this.panel = this.opts.panel ?? el(
-        "div",
-        { class: "tuc-dropdown", role: "menu" },
-        (this.opts.items ?? []).map((i) => this._item(i))
-      );
+      this.panel = this.opts.panel ?? el("div", {}, (this.opts.items ?? []).map((i) => this._item(i)));
       this.panel.classList.add("tuc-dropdown");
       this.panel.setAttribute("role", "menu");
       for (const item of this.panel.querySelectorAll(".tuc-dropdown__item")) {
@@ -4846,13 +4795,10 @@ var Tucano = (() => {
       if (data.shortcut) children.push(el("span", { class: "tuc-dropdown__shortcut", text: data.shortcut }));
       return el(tag, {
         class: `tuc-dropdown__item${data.variant ? ` is-${data.variant}` : ""}`,
-        role: "menuitem",
-        // tabindex -1 de proposito: quem navega e a seta, nao o Tab. Deixar os
-        // itens tabulaveis faria o Tab sair do menu item a item.
-        tabindex: "-1",
-        ...data.href ? { href: data.href } : { type: "button" },
-        ...data.disabled ? { "aria-disabled": "true" } : {},
-        ...data.disabled ? {} : { onclick: () => data.onClick?.(this) }
+        href: data.href,
+        type: data.href ? null : "button",
+        "aria-disabled": data.disabled && "true",
+        onclick: !data.disabled && (() => data.onClick?.(this))
       }, children);
     }
     get items() {
@@ -4873,7 +4819,7 @@ var Tucano = (() => {
         ArrowUp: () => this._move(-1),
         Home: () => this._move(0, true),
         End: () => this._move(-1, true),
-        Escape: () => this.close(),
+        // Escape nao entra: com o menu aberto quem o trata e o Popover.
         Tab: () => this.close()
       };
       const action = keys[e.key];
@@ -4893,7 +4839,6 @@ var Tucano = (() => {
         onDismiss: () => this.close()
       });
       this.popover.show();
-      openWithTransition(this.panel);
       this._move(0, true);
       return this;
     }
@@ -4901,7 +4846,6 @@ var Tucano = (() => {
       if (!this.isOpen) return this;
       this.isOpen = false;
       this.trigger.setAttribute("aria-expanded", "false");
-      this.panel.classList.remove("is-open");
       this.popover?.destroy();
       this.popover = null;
       if (this.panel.contains(document.activeElement)) {
@@ -4948,8 +4892,9 @@ var Tucano = (() => {
     // definido, intercepta o clique e cancela a navegacao
     onSelect: null
   };
+  var toNumber = (s) => parseFloat(s.replace(/[^\d,.-]/g, "").replace(/\./g, "").replace(",", ".") || 0);
   var COMPARE = {
-    number: (a, b) => parseFloat(a.replace(/[^\d,.-]/g, "").replace(/\./g, "").replace(",", ".") || 0) - parseFloat(b.replace(/[^\d,.-]/g, "").replace(/\./g, "").replace(",", ".") || 0),
+    number: (a, b) => toNumber(a) - toNumber(b),
     date: (a, b) => new Date(a).getTime() - new Date(b).getTime(),
     text: (a, b) => a.localeCompare(b, "pt-BR", { numeric: true, sensitivity: "base" })
   };
@@ -4959,7 +4904,6 @@ var Tucano = (() => {
       if (!this.node) throw new Error("[Table] elemento alvo nao encontrado");
       if (this.node.tagName !== "TABLE") throw new Error("[Table] o alvo precisa ser uma <table>");
       this.opts = { ...DEFAULTS13, ...omitUndefined(options) };
-      this.id = this.node.id || nextId("table");
       this._cleanups = [];
       this._build();
     }
@@ -5021,7 +4965,7 @@ var Tucano = (() => {
       const previous = th.getAttribute("aria-sort");
       const dir = previous === "ascending" ? "descending" : "ascending";
       const detail = { column: index, field, direction: dir === "ascending" ? "asc" : "desc" };
-      this.node.dispatchEvent(new CustomEvent("tuc:sort", { bubbles: true, detail }));
+      this.node.dispatchEvent(new CustomEvent("tucano:sort", { bubbles: true, detail }));
       if (this.opts.onSort) {
         e.preventDefault();
         this.opts.onSort(detail, this);
@@ -5092,7 +5036,7 @@ var Tucano = (() => {
         this.checkAll.indeterminate = checkedBoxes.length > 0 && checkedBoxes.length < checkboxes.length;
       }
       const detail = { selected: this.getSelected(), row: tr };
-      this.node.dispatchEvent(new CustomEvent("tuc:select", { bubbles: true, detail }));
+      this.node.dispatchEvent(new CustomEvent("tucano:select", { bubbles: true, detail }));
       this.opts.onSelect?.(detail, this);
     }
     /** Valores marcados — os mesmos que o formulário enviaria. */
@@ -5355,12 +5299,6 @@ var Tucano = (() => {
     clearNode(input, exit, doc);
     return exit.innerHTML;
   }
-  function textOnly(html) {
-    const doc = document.implementation.createHTMLDocument("");
-    const d = doc.createElement("div");
-    d.innerHTML = String(html ?? "");
-    return d.textContent || "";
-  }
 
   // src/js/core/highlight.js
   var WORDS = [
@@ -5425,7 +5363,6 @@ var Tucano = (() => {
     // SQL costuma vir em caixa alta, entao as duas formas entram
     "select",
     "SELECT",
-    "from",
     "FROM",
     "where",
     "WHERE",
@@ -5464,8 +5401,7 @@ var Tucano = (() => {
     "do",
     "then",
     "fn",
-    "func",
-    "let"
+    "func"
   ].join("|");
   var RULES = [
     // `//` so abre comentario se nao vier colado a `:` ou a uma letra: em
@@ -5932,8 +5868,7 @@ var Tucano = (() => {
     }
     _paste(e) {
       e.preventDefault();
-      const text = e.clipboardData?.getData("text/plain") ?? textOnly(e.clipboardData?.getData("text/html"));
-      document.execCommand("insertText", false, text);
+      document.execCommand("insertText", false, e.clipboardData.getData("text/plain"));
     }
     _onKey(e) {
       if (e.key === "Tab") {
@@ -6009,10 +5944,7 @@ var Tucano = (() => {
     }
     /** Celula onde o cursor esta, ou nada. */
     _currentCell() {
-      const sel = window.getSelection();
-      if (!sel?.anchorNode || !this.area.contains(sel.anchorNode)) return null;
-      const node = sel.anchorNode.nodeType === Node.ELEMENT_NODE ? sel.anchorNode : sel.anchorNode.parentElement;
-      const cell = node?.closest?.("th, td") ?? null;
+      const cell = this._currentNode()?.closest("th, td");
       return cell && this.area.contains(cell) ? cell : null;
     }
     _syncTableBar() {

@@ -1,4 +1,4 @@
-import { csrfToken, fileId, formatSize, isImage, matchesAccept, parseSize, uploadFile } from '../core/files.js';
+import { csrfToken, formatSize, isImage, matchesAccept, parseSize, uploadFile } from '../core/files.js';
 import { el, icon, ICON_ALERT, ICON_CHECK, ICON_FILE, ICON_RETRY, ICON_UPLOAD, ICON_X, nextId, omitUndefined, on } from '../core/dom.js';
 import { UPLOAD_TEXTS } from '../core/texts.js';
 
@@ -117,11 +117,11 @@ export class Upload {
       class: 'tuc-upload__zone',
       role: 'button',
       tabindex: 0,
-      'aria-describedby': `${this.id}-dica`,
+      'aria-describedby': `${this.id}-hint`,
     }, [
       el('span', { class: 'tuc-upload__icon' }, [icon(ICON_UPLOAD, 20)]),
       el('span', { class: 'tuc-upload__label', text: this.multiple ? this.t.zone : this.t.zoneOne }),
-      el('span', { class: 'tuc-upload__hint', id: `${this.id}-dica`, text: this._hint() }),
+      el('span', { class: 'tuc-upload__hint', id: `${this.id}-hint`, text: this._hint() }),
     ]);
 
     this.list = el('ul', { class: 'tuc-upload__list' });
@@ -171,7 +171,6 @@ export class Upload {
       }),
       on(this.root, 'drop', (e) => {
         stop(e);
-        this._dragging = 0;
         this._stopDrag();
         this._add([...(e.dataTransfer?.files || [])]);
       }),
@@ -200,7 +199,7 @@ export class Upload {
       if (error) { this._fail(error, file); continue; }
 
       const item = {
-        key: fileId(), file, state: 'pending', progress: 0,
+        key: nextId('f'), file, state: 'pending', progress: 0,
         preview: isImage(file) ? URL.createObjectURL(file) : null,
       };
       this.items.push(item);
@@ -226,17 +225,23 @@ export class Upload {
   /**
    * No modo formulario o <input type="file"> precisa carregar os arquivos —
    * inclusive os que vieram por arrastar. DataTransfer e a unica forma de
-   * escrever em input.files.
+   * escrever em input.files, e todo navegador atual a aceita.
    */
   _syncNative() {
     if (this.direct) return;
-    try {
-      const dt = new DataTransfer();
-      for (const item of this.items) dt.items.add(item.file);
-      this.input.files = dt.files;
-    } catch {
-      // Navegador sem DataTransfer editavel: o que veio pelo dialogo continua valendo.
+    const dt = new DataTransfer();
+    for (const item of this.items) dt.items.add(item.file);
+    this.input.files = dt.files;
+  }
+
+  /** Cabecalhos da instancia com o CSRF do Django, sem passar por cima de um que ja veio. */
+  _headers() {
+    const headers = { ...this.opts.headers };
+    if (this.opts.csrf && !headers['X-CSRFToken']) {
+      const token = csrfToken();
+      if (token) headers['X-CSRFToken'] = token;
     }
+    return headers;
   }
 
   _upload(item) {
@@ -245,18 +250,12 @@ export class Upload {
     item.error = null;
     this._renderList();
 
-    const headers = { ...this.opts.headers };
-    if (this.opts.csrf && !headers['X-CSRFToken']) {
-      const token = csrfToken();
-      if (token) headers['X-CSRFToken'] = token;
-    }
-
     const { promise, abort } = uploadFile({
       url: this.opts.url,
       file: item.file,
       field: this.opts.fieldName,
       extras: this.opts.extraData,
-      headers,
+      headers: this._headers(),
       method: this.opts.method,
       texts: this.t,
       onProgress: (fraction) => {
@@ -296,9 +295,7 @@ export class Upload {
     if (item.preview) URL.revokeObjectURL(item.preview);
 
     if (this.direct && this.opts.deleteUrl && item.serverId != null) {
-      const headers = { ...this.opts.headers };
-      if (this.opts.csrf) { const t = csrfToken(); if (t) headers['X-CSRFToken'] = t; }
-      fetch(`${this.opts.deleteUrl}${item.serverId}/`, { method: 'DELETE', headers }).catch(() => {});
+      fetch(`${this.opts.deleteUrl}${item.serverId}/`, { method: 'DELETE', headers: this._headers() }).catch(() => {});
     }
 
     this._syncNative();
@@ -378,7 +375,6 @@ export class Upload {
     }
 
     this._syncHidden();
-    this.root.classList.toggle('is-empty', !this.items.length);
   }
 
   _button(path, label, onClick) {

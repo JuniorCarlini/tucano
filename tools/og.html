@@ -67,7 +67,7 @@
   target.type = 'text';
   document.getElementById('field').appendChild(target);
   target.style.cssText = 'position:absolute;inset:0;opacity:0;pointer-events:none';
-  const dp = new Tucano.DatePicker(target, { mode: 'range', months: 1, native: false, openOnFocus: false });
+  const dp = new Tucano.DatePicker(target, { mode: 'range', months: 1, native: false });
   dp.setValue({ start: '2026-09-08', end: '2026-09-19' }, { silent: true });
   dp.open();
   dp.panel.classList.add('is-open');

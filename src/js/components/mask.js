@@ -31,7 +31,7 @@ export const FORMATS = {
   time: { template: '##:##' },
   card: { template: '#### #### #### ####' },
   currency: { isCurrency: true },
-  real: { isCurrency: true, currency: 'BRL' },
+  brl: { isCurrency: true, currency: 'BRL' },
 };
 
 const DEFAULTS = {
@@ -98,8 +98,7 @@ export class Mask {
 
     this._cleanups = [];
     this._wire();
-    if (node.value && !this.isCurrency && this.templates) this._format({ keepCursor: false });
-    else if (node.value && this.isCurrency) this._format({ keepCursor: false });
+    if (node.value && (this.isCurrency || this.templates)) this._format({ keepCursor: false });
     if (this.opts.reveal) this._buildEye();
     node._tucano = this;
   }

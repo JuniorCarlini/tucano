@@ -1975,8 +1975,7 @@ textarea.tuc-editor__value[hidden] {
   color: var(--tuc-danger);
 }
 .tuc-color-field__swatch, .tuc-colorpicker__preview, .tuc-colorpicker__slider.is-alpha .tuc-colorpicker__track {
-  --xadrez: linear-gradient(45deg, var(--tuc-ring) 25%, transparent 25%, transparent 75%, var(--tuc-ring) 75%),
-    linear-gradient(45deg, var(--tuc-ring) 25%, transparent 25%, transparent 75%, var(--tuc-ring) 75%);
+  background-image: linear-gradient(45deg, var(--tuc-ring) 25%, transparent 25%, transparent 75%, var(--tuc-ring) 75%), linear-gradient(45deg, var(--tuc-ring) 25%, transparent 25%, transparent 75%, var(--tuc-ring) 75%);
   background-size: 8px 8px;
   background-position: 0 0, 4px 4px;
 }
@@ -2062,7 +2061,7 @@ textarea.tuc-editor__value[hidden] {
   touch-action: none;
   border-radius: var(--tuc-radius);
   box-shadow: inset 0 0 0 1px var(--tuc-ring);
-  background: linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, transparent), var(--matiz, #f00);
+  background: linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, transparent), var(--hue, #f00);
 }
 .tuc-colorpicker__tracks {
   display: flex;
@@ -3093,7 +3092,6 @@ textarea.tuc-editor__value[hidden] {
 .tuc-table-wrap {
   width: 100%;
   overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
 }
 .tuc-table, table[data-tuc-table]:not([data-tuc-ready]) {
   width: 100%;

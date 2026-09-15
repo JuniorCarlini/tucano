@@ -103,14 +103,18 @@ export function pickTemplate(chars, templates) {
  * Moeda enche da direita para a esquerda: digitar 1 2 3 vira 1,23 e depois
  * 12,34. E como todo campo de valor se comporta, e o contrario do resto.
  */
-export function applyCurrency(digits, { decimals = 2, locale = 'pt-BR', currency = null } = {}) {
+export function applyCurrency(digits, options = {}) {
   const cleaned = String(digits).replace(/\D/g, '').replace(/^0+(?=\d)/, '');
   if (!cleaned) return '';
-  const n = Number(cleaned) / 10 ** decimals;
+  return formatNumber(Number(cleaned) / 10 ** (options.decimals ?? 2), options);
+}
+
+/** Numero com casas fixas, e com simbolo quando ha moeda. Um so lugar para digitar e para exibir. */
+function formatNumber(n, { decimals = 2, locale = 'pt-BR', currency = null } = {}) {
   return n.toLocaleString(locale, {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
-    ...(currency ? { style: 'currency', currency: currency } : {}),
+    ...(currency ? { style: 'currency', currency } : {}),
   });
 }
 
@@ -183,16 +187,10 @@ export function format(value, format, options = {}) {
   const raw = String(value ?? '').trim();
   if (!raw) return '';
 
-  if (format === 'currency' || format === 'real') {
+  if (format === 'currency' || format === 'brl') {
     const n = typeof value === 'number' ? value : Number(raw.replace(/\.(?=\d{3}\b)/g, '').replace(',', '.'));
     if (!Number.isFinite(n)) return raw;
-    const { decimals = 2, locale = 'pt-BR' } = options;
-    const currency = options.currency ?? (format === 'real' ? 'BRL' : null);
-    return n.toLocaleString(locale, {
-      minimumFractionDigits: decimals,
-      maximumFractionDigits: decimals,
-      ...(currency ? { style: 'currency', currency: currency } : {}),
-    });
+    return formatNumber(n, { ...options, currency: options.currency ?? (format === 'brl' ? 'BRL' : null) });
   }
 
   const templates = DISPLAY_TEMPLATES[format] ?? format;
@@ -209,7 +207,6 @@ const DISPLAY_TEMPLATES = {
   cpf: '###.###.###-##',
   cnpj: '**.***.***/****-##',
   'cpf-cnpj': ['###.###.###-##', '**.***.***/****-##'],
-  document: ['###.###.###-##', '**.***.***/****-##'],
   phone: ['(##) ####-####', '(##) #####-####'],
   mobile: '(##) #####-####',
   cep: '#####-###',

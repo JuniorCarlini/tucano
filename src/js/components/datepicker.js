@@ -3,9 +3,18 @@ import {
   format, getLocaleData, isSameDay, isSameMonth, isValid, localeDatePattern,
   parseISO, parseUserInput, startOfDay, toISODate, toISODateTime, withTime,
 } from '../core/dates.js';
-import { el, icon, ICON_CHEVRON_DOWN, ICON_CHEVRON_LEFT, ICON_CHEVRON_RIGHT, nextId, omitUndefined, on, openWithTransition } from '../core/dom.js';
+import { el, icon, ICON_CHEVRON_DOWN, ICON_CHEVRON_LEFT, ICON_CHEVRON_RIGHT, nextId, omitUndefined, on } from '../core/dom.js';
 import { Popover, trapFocus } from '../core/popover.js';
 import { DATEPICKER_TEXTS as T } from '../core/texts.js';
+
+/*
+ * Separador de periodo digitado: "–" e "—" com ou sem espaco; "-", "a" e "até"
+ * so entre espacos. Havia duas expressoes, e cada uma errava de um lado: uma
+ * aceitava "aa" e "aé" por acidente, e as duas cortavam no hifen de dentro da
+ * data — "25-12-2025 a 31-12-2025" virava 25 — 12. O "a" colado tambem partia
+ * o "AM" de um horario de 12 horas.
+ */
+const RANGE_SEPARATOR = /\s*[–—]\s*|\s+(?:-{1,2}|at[ée]|a)\s+/i;
 
 const DEFAULTS = {
   mode: 'single',        // 'single' | 'range'
@@ -26,14 +35,6 @@ const DEFAULTS = {
   placement: 'bottom-center',   // centralizado no campo; as bordas da tela ainda mandam
   appendTo: undefined,
   isoName: undefined,    // name do input hidden com o valor ISO
-  /*
-   * Chegar de Tab nao abre o calendario. Quem tabula por um formulario para
-   * alcancar o botao de salvar nao deveria levar um painel na cara a cada
-   * campo, cobrindo o proximo — e era isso que fazia os paineis se empilharem.
-   * Abre com seta para baixo, com clique, ou com openOnFocus: true para quem
-   * prefere o comportamento antigo.
-   */
-  openOnFocus: false,
   // Painel proprio em todo lugar, por padrao: um so comportamento para
   // documentar, estilizar e testar. `true` liga o seletor do sistema no
   // celular, `'auto'` liga so onde o ponteiro e de toque.
@@ -59,7 +60,6 @@ export class DatePicker {
     this.opts.firstDayOfWeek = this.opts.firstDayOfWeek ?? this.L.firstDayOfWeek;
     this.isRange = this.opts.mode === 'range';
     this.opts.months = this.opts.months ?? (this.isRange ? 2 : 1);
-    this.opts.presets = this.opts.presets ?? false;
     this.opts.autoApply = this.opts.autoApply ?? !this.opts.time;
     this.opts.min = parseISO(this.opts.min);
     this.opts.max = parseISO(this.opts.max);
@@ -144,7 +144,6 @@ export class DatePicker {
     // Agora que o painel esta no DOM as medidas valem — so aqui da para rolar.
     this._revealed = null;
     this._revealTimes();
-    openWithTransition(this.panel);
     this._releaseFocus = trapFocus(this.panel);
     this.input.setAttribute('aria-expanded', 'true');
     // So agora: o painel entra no DOM ao abrir, e um aria-controls apontando
@@ -158,7 +157,6 @@ export class DatePicker {
     // Range aberto pela metade e descartado: nao existe "meio intervalo".
     if (this.pendingRange) { this.pendingRange = false; this.end = null; this._syncTarget(); }
     this.isOpen = false;
-    this.panel.classList.remove('is-open');
     this.popover?.destroy();
     this.popover = null;
     this._releaseFocus?.();
@@ -196,7 +194,7 @@ export class DatePicker {
 
   _buildPanel() {
     this.panel = el('div', {
-      class: `tuc-dp${this.isRange ? ' is-range' : ''}${this.opts.time ? ' is-timed' : ''}`,
+      class: 'tuc-dp',
       role: 'dialog',
       'aria-modal': 'false',
       'aria-label': this.isRange ? T.dialogRange : T.dialog,
@@ -218,7 +216,7 @@ export class DatePicker {
     if (this.opts.native === false) return false;
     if (this.isRange) return false;
     if (this.opts.native === true) return true;
-    return typeof window !== 'undefined' && !!window.matchMedia?.('(pointer: coarse)').matches;
+    return matchMedia('(pointer: coarse)').matches;
   }
 
   /**
@@ -229,8 +227,7 @@ export class DatePicker {
    * digitacao numa janela estreita de desktop.
    */
   get _compact() {
-    if (typeof window === 'undefined') return false;
-    return !!window.matchMedia?.('(max-width: 40rem) and (pointer: coarse)').matches;
+    return matchMedia('(max-width: 40rem) and (pointer: coarse)').matches;
   }
 
   _setupTarget() {
@@ -268,17 +265,15 @@ export class DatePicker {
     input.setAttribute('aria-haspopup', 'dialog');
     input.setAttribute('aria-expanded', 'false');
     if (!input.placeholder) input.placeholder = this._placeholder();
+    this._addIsoInput(input);
 
-    // Input hidden com ISO: o visivel mostra o formato do locale, o Django recebe ISO.
-    if (this.opts.isoName || input.name) {
-      const name = this.opts.isoName || input.name;
-      if (!this.opts.isoName && input.name) input.removeAttribute('name');
-      this.isoInput = el('input', { type: 'hidden', name });
-      input.after(this.isoInput);
-    }
-
+    /*
+     * Chegar de Tab nao abre o calendario. Quem tabula por um formulario para
+     * alcancar o botao de salvar nao deveria levar um painel na cara a cada
+     * campo, cobrindo o proximo — e era isso que fazia os paineis se empilharem.
+     * Abre com seta para baixo, Espaco com o campo vazio, ou clique.
+     */
     this._cleanups.push(
-      on(input, 'focus', () => { if (this.opts.openOnFocus && !this._suppressOpen) this.open(); }),
       on(input, 'click', () => { if (!this._suppressOpen && !this._compact) this.open(); }),
       on(input, 'keydown', (e) => {
         if (e.key === 'ArrowDown' && !this.isOpen) { e.preventDefault(); this.open(); this._focusGrid(); }
@@ -293,8 +288,8 @@ export class DatePicker {
          * que ja existe.
          */
         else if (e.key === ' ' && !this.isOpen && !input.value) { e.preventDefault(); this.open(); this._focusGrid(); }
+        // O Escape nao passa por aqui: com o painel aberto quem o trata e o Popover.
         else if (e.key === 'Enter' && this.isOpen) { e.preventDefault(); this._commitTyped(); }
-        else if (e.key === 'Escape' && this.isOpen) { e.preventDefault(); this.close(); }
       }),
       // Ignora o `change` que nos mesmos disparamos em _emit(); senao o texto
       // ja formatado seria reinterpretado como digitacao e perderia a hora.
@@ -313,9 +308,17 @@ export class DatePicker {
   }
 
   /**
-   * Modo nativo: o proprio input carrega o valor ISO e mantem o `name`, entao o
-   * que chega no servidor e identico ao do painel — nao precisa de hidden.
+   * Input hidden com ISO, depois de `after`: o visivel mostra o formato do
+   * locale, o Django recebe ISO. Leva o `isoName` ou toma o `name` do campo.
    */
+  _addIsoInput(after) {
+    const name = this.opts.isoName || this.input.name;
+    if (!name) return;
+    if (!this.opts.isoName) this.input.removeAttribute('name');
+    this.isoInput = el('input', { type: 'hidden', name });
+    after.after(this.isoInput);
+  }
+
   /**
    * Modo nativo por sobreposicao.
    *
@@ -350,12 +353,7 @@ export class DatePicker {
     this.wrap.append(input, this.overlay);
 
     // O hidden com o `name` continua sendo quem posta, igual ao desktop.
-    if (this.opts.isoName || input.name) {
-      const name = this.opts.isoName || input.name;
-      if (!this.opts.isoName && input.name) input.removeAttribute('name');
-      this.isoInput = el('input', { type: 'hidden', name });
-      this.wrap.after(this.isoInput);
-    }
+    this._addIsoInput(this.wrap);
 
     this._cleanups.push(on(this.overlay, 'change', () => {
       if (this._emitting) return;
@@ -372,13 +370,13 @@ export class DatePicker {
   }
 
   _readInitialValue() {
-    const raw = this.opts.value ?? (this.input ? this.input.value : null);
+    const raw = this.opts.value ?? this.input.value;
     if (!raw) return;
     if (this.isRange) {
       /*
        * O par em ISO separado por virgula e o que o proprio componente posta — e
-       * o que o Django devolve ao campo quando o formulario volta com erro. O
-       * separador de digitacao aceita hifen, que corta a data ISO no meio:
+       * o que o Django devolve ao campo quando o formulario volta com erro. Ele
+       * vem antes do separador de digitacao, que ja cortou a data ISO no meio:
        * "2026-03-01,2026-03-15" virava 31/12/2025 — 01/03/2001, calado.
        */
       const iso = String(raw).match(/^\s*(\d{4}-\d{2}-\d{2}[T\d:.]*)\s*,\s*(\d{4}-\d{2}-\d{2}[T\d:.]*)\s*$/);
@@ -388,7 +386,7 @@ export class DatePicker {
         this._syncTarget();
         return;
       }
-      const [a, b] = String(raw).split(/\s*(?:–|—|-{1,2}|a[téa]?)\s*/i);
+      const [a, b] = String(raw).split(RANGE_SEPARATOR);
       this.start = this._normalize(parseUserInput(a, this.opts.locale)) || this._normalize(parseISO(a));
       this.end = this._normalize(parseUserInput(b, this.opts.locale)) || this._normalize(parseISO(b));
     } else {
@@ -482,7 +480,7 @@ export class DatePicker {
   _previewTyped() {
     const raw = this.input.value;
     if (this.isRange) {
-      const [a, b] = raw.split(/\s*—\s*/);
+      const [a, b] = raw.split(RANGE_SEPARATOR);
       const start = this._keepTime(parseUserInput(a, this.opts.locale), this.start);
       if (!start) return;
       this.start = start;
@@ -531,22 +529,21 @@ export class DatePicker {
   }
 
   _syncTarget() {
-    if (this.input) this.input.value = this._displayValue();
+    this.input.value = this._displayValue();
     // O overlay guarda o ISO: e dele que o seletor do sistema parte.
     if (this.overlay) this.overlay.value = this._nativeValue();
     if (this.isoInput) this.isoInput.value = this._isoValue();
     // Mantem o contador da mascara alinhado com o texto escrito por codigo.
-    if (this.input && this._mask) this._maskDigits = this.input.value.replace(/\D/g, '');
+    if (this._mask) this._maskDigits = this.input.value.replace(/\D/g, '');
   }
 
   _commitTyped() {
-    if (!this.input) return;
     const raw = this.input.value.trim();
     // Texto identico ao valor atual: nada a reinterpretar — e evita emitir de novo.
     if (raw === this._displayValue()) return;
     if (!raw) { this.clear(); return; }
     if (this.isRange) {
-      const [a, b] = raw.split(/\s*(?:–|—|-{1,2}|at[ée]|a)\s*/i);
+      const [a, b] = raw.split(RANGE_SEPARATOR);
       const s = this._keepTime(parseUserInput(a, this.opts.locale), this.start);
       const e = this._keepTime(parseUserInput(b, this.opts.locale), this.end);
       if (s) this.setValue({ start: s, end: e });
@@ -577,7 +574,7 @@ export class DatePicker {
       this.opts.onChange?.(value, detail);
       this.input.dispatchEvent(new CustomEvent('tucano:change', { detail, bubbles: true }));
       // 'change' nativo para que validacao de form e HTMX enxerguem o valor.
-      this.input?.dispatchEvent(new Event('change', { bubbles: true }));
+      this.input.dispatchEvent(new Event('change', { bubbles: true }));
     } finally {
       this._emitting = false;
     }
@@ -1040,8 +1037,6 @@ function buildPresets(option) {
     { label: T.thisYear, value: () => { const t = today(); return { start: new Date(t.getFullYear(), 0, 1), end: new Date(t.getFullYear(), 11, 31) }; } },
   ];
 }
-
-/** Remove chaves com valor undefined para que o spread nao apague defaults. */
 
 /**
  * Centraliza o item selecionado da coluna quando ele esta fora de vista.

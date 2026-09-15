@@ -63,7 +63,7 @@ export const ICON_INFO = 'M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20
 export const ICON_EYE = 'M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z M12 15a3 3 0 100-6 3 3 0 000 6z';
 export const ICON_EYE_OFF = 'M10.6 10.6a3 3 0 004.2 4.2 M9.4 5.2A9.7 9.7 0 0112 5c6.4 0 10 7 10 7a17 17 0 01-2.8 3.7 M6.6 6.6A17 17 0 002 12s3.6 7 10 7c1.7 0 3.2-.4 4.5-1 M2 2l20 20';
 
-/** O mapa existe para a galeria em tools/icones.html; componente importa a constante. */
+/** O mapa existe para a galeria em tools/icons.html; componente importa a constante. */
 export const ICONS = {
   chevronLeft: ICON_CHEVRON_LEFT,
   chevronRight: ICON_CHEVRON_RIGHT,

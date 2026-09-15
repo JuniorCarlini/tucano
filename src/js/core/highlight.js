@@ -26,12 +26,12 @@ const WORDS = [
     // shell
     'npm', 'git', 'cd', 'echo', 'sudo', 'pip', 'python', 'node',
     // SQL costuma vir em caixa alta, entao as duas formas entram
-    'select', 'SELECT', 'from', 'FROM', 'where', 'WHERE', 'join', 'JOIN',
+    'select', 'SELECT', 'FROM', 'where', 'WHERE', 'join', 'JOIN',
     'insert', 'INSERT', 'update', 'UPDATE', 'delete', 'DELETE', 'values', 'VALUES',
     'order', 'ORDER', 'group', 'GROUP', 'limit', 'LIMIT', 'having', 'HAVING',
     // marcadores que aparecem em varias linguagens
     'public', 'private', 'static', 'void', 'int', 'float', 'string', 'bool',
-    'struct', 'enum', 'interface', 'type', 'end', 'do', 'then', 'fn', 'func', 'let',
+    'struct', 'enum', 'interface', 'type', 'end', 'do', 'then', 'fn', 'func',
 ].join('|');
 
 /*

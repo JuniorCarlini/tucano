@@ -133,7 +133,7 @@ export class Accordion {
       if (e.target === body && e.propertyName === 'grid-template-rows') teardown();
     };
 
-    item._tucTeardown = () => { teardown(); item.classList.remove('is-closing'); };
+    item._tucTeardown = teardown;
     body?.addEventListener('transitionend', onDone);
     item._tucExit = setTimeout(teardown, SAFETY_MS);
     return this;

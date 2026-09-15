@@ -562,8 +562,6 @@ dentro de um `<form>`, e `Enter` num campo de texto envia o formulário — é o
 se espera depois de digitar a data. Ali quem abre é o `Espaço`, e só com o campo
 vazio, porque em modo com hora se digita `07/09/2026 14:30`.
 
-Para voltar ao comportamento antigo no date picker, `openOnFocus: true`.
-
 ## Utilitários
 
 ```js
@@ -958,13 +956,13 @@ envolve nem substitui o input — é comportamento puro.
 <input name="cnpj"      data-tuc-mask="cnpj">
 <input name="document"   data-tuc-mask="cpf-cnpj">
 <input name="phone"      data-tuc-mask="phone">
-<input name="amount"     data-tuc-mask="real">
+<input name="amount"     data-tuc-mask="brl">
 <input name="cep"       data-tuc-mask="cep">
 <input                  data-tuc-mask="##/##">   <!-- template livre -->
 ```
 
 Formatos: `cpf`, `cnpj`, `cnpj-numeric`, `cpf-cnpj`, `phone`, `mobile`,
-`cep`, `real`, `currency`, `data`, `time`, `card`. No gabarito livre, `#` é
+`cep`, `brl`, `currency`, `date`, `time`, `card`. No gabarito livre, `#` é
 dígito, `A` é letra e `*` aceita os dois.
 
 **CNPJ alfanumérico.** O formato novo mantém as 14 posições e a mesma máscara:
@@ -1027,7 +1025,7 @@ chegar ao navegador precisa ser escondido no servidor.
 
 ```html
 <span data-tuc-format="cpf">12345678901</span>      <!-- 123.456.789-01 -->
-<span data-tuc-format="real">1234.5</span>          <!-- R$ 1.234,50 -->
+<span data-tuc-format="brl">1234.5</span>          <!-- R$ 1.234,50 -->
 ```
 
 Pela API: `Tucano.mask.validateCPF()`, `validateCNPJ()`, `format(v, 'cpf')`.

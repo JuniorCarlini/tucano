@@ -1,4 +1,4 @@
-import { el, nextId, omitUndefined, on, openWithTransition } from '../core/dom.js';
+import { el, nextId, omitUndefined, on } from '../core/dom.js';
 import { Popover } from '../core/popover.js';
 
 const DEFAULTS = {
@@ -56,15 +56,15 @@ export class Tooltip {
     node.setAttribute('aria-describedby', this.id);
     if (!node.hasAttribute('tabindex') && !FOCUSABLE.test(node.tagName)) node.tabIndex = 0;
 
-    const isTouch = () => window.matchMedia?.('(pointer: coarse)').matches;
+    const isTouch = () => matchMedia('(pointer: coarse)').matches;
 
+    // O Escape da WCAG 1.4.13 e do Popover, que vive enquanto a dica esta aberta.
     this._cleanups.push(
       on(node, 'pointerenter', (e) => { if (e.pointerType !== 'touch') this._schedule(true); }),
       on(node, 'pointerleave', (e) => { if (e.pointerType !== 'touch') this._schedule(false); }),
       on(node, 'focusin', () => this._show()),
       on(node, 'focusout', () => this._hide()),
       on(node, 'click', () => { if (isTouch()) this.isOpen ? this._hide() : this._show(); }),
-      on(document, 'keydown', (e) => { if (e.key === 'Escape' && this.isOpen) this._hide(); }),
     );
 
     node._tucano = this;
@@ -97,7 +97,6 @@ export class Tooltip {
       onDismiss: () => this._hide(),
     });
     this.popover.show();
-    openWithTransition(this.panel);
   }
 
   _hide() {
@@ -105,7 +104,6 @@ export class Tooltip {
     if (!this.isOpen) return;
     this.isOpen = false;
     if (isOpen === this) isOpen = null;
-    this.panel.classList.remove('is-open');
     this.popover?.destroy();
     this.popover = null;
   }

@@ -25,6 +25,10 @@ const ICON = {
  */
 const DURATION = { info: 4000, success: 3500, warning: 6000, error: 8000, loading: null };
 
+// `in` e nao `??`: o null de carregando quer dizer "nao fecha sozinho", e com ??
+// ele cairia no padrao de 4s e o toast sumiria no meio da operacao.
+const durationFor = (type) => (type in DURATION ? DURATION[type] : 4000);
+
 const containers = new Map();
 
 /**
@@ -52,7 +56,7 @@ function container(position) {
     ]),
   ]);
   // O respiro sai daqui para o CSS porque a ponte de hover precisa cobrir
-  // exatamente o mesmo vao que arranjar() distribui — dois valores soltos
+  // exatamente o mesmo vao que arrange() distribui — dois valores soltos
   // divergiriam na primeira vez que alguem mexesse em um deles.
   node.style.setProperty('--tuc-toast-gap', `${GAP}px`);
   document.body.append(node);
@@ -132,11 +136,7 @@ function arrange(container) {
 export class Toast {
   constructor(options = {}) {
     this.opts = { ...DEFAULTS, ...omitUndefined(options) };
-    // `in` e nao `??`: o null de carregando quer dizer "nao fecha sozinho", e
-    // com ?? ele cairia no padrao de 4s e o toast sumiria no meio da operacao.
-    if (this.opts.duration === undefined) {
-      this.opts.duration = this.opts.type in DURATION ? DURATION[this.opts.type] : 4000;
-    }
+    if (this.opts.duration === undefined) this.opts.duration = durationFor(this.opts.type);
     this.id = nextId('toast');
     this._cleanups = [];
     this._build();
@@ -180,7 +180,7 @@ export class Toast {
     // Mudou de tipo sem duracao explicita: vale a do tipo novo. Sem isto o
     // carregando, que nao fecha sozinho, viraria um "salvo" eterno na tela.
     if (options.duration === undefined && type !== previous) {
-      this.opts.duration = type in DURATION ? DURATION[type] : 4000;
+      this.opts.duration = durationFor(type);
     }
 
     this.node.classList.replace(`is-${previous}`, `is-${type}`);
@@ -337,7 +337,8 @@ toast.promise = (promise, msgs = {}) => {
 };
 
 
-const DJANGO_MAP = { debug: 'info', info: 'info', success: 'success', warning: 'warning', error: 'error' };
+// Os outros niveis do Django ja tem o nome de um tipo; so o debug precisa de traducao.
+const DJANGO_MAP = { debug: 'info' };
 
 /**
  * Converte mensagens ja renderizadas em toast — a saida do framework de

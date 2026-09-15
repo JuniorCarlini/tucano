@@ -1,7 +1,9 @@
-import { on } from './dom.js';
+import { on, openWithTransition } from './dom.js';
 
-/** Espelha --tuc-duration-out do CSS; os dois precisam concordar. */
-const EXIT_MS = 170;
+/* Acima do --tuc-duration-out (170ms), como o EXIT_MS do dialog.js: igual a ele,
+   o painel saia do DOM no mesmo instante em que a animacao de saida terminaria,
+   e qualquer atraso de quadro cortava o fim. */
+const EXIT_MS = 200;
 
 /**
  * Posiciona um painel flutuante ancorado num elemento.
@@ -20,7 +22,7 @@ export class Popover {
      * esta na top layer, acima de tudo; um painel no body ficava atras dele, e o
      * select ou o calendario de um formulario em modal abria invisivel.
      */
-    this.appendTo = options.appendTo || this.anchor.closest?.('dialog[open]') || document.body;
+    this.appendTo = options.appendTo || this.anchor.closest('dialog[open]') || document.body;
     // Menu de select acompanha a largura do campo; calendario nao.
     this.matchWidth = options.matchWidth || false;
     /*
@@ -59,7 +61,7 @@ export class Popover {
     this._reposition();
 
     /*
-     * _reposition pode ter fechado o popover agora mesmo, quando fecharSeSolto
+     * _reposition pode ter fechado o popover agora mesmo, quando closeIfDetached
      * esta ligado e a ancora ja nasce fora da tela. Sem esta guarda os
      * listeners abaixo seriam registrados depois do hide, e o hide seguinte
      * sairia cedo por `!this.open` sem nunca remove-los.
@@ -79,8 +81,13 @@ export class Popover {
       on(document, 'pointerdown', (e) => {
         if (!this.panel.contains(e.target) && !this.anchor.contains(e.target)) this.onDismiss('outside');
       }, true),
+      /*
+       * O Escape e so do painel. stopPropagation segura os ouvintes da pagina,
+       * mas nao o <dialog>: o cancel dele e acao padrao da tecla, e sem o
+       * preventDefault um select aberto num modal fechava o modal junto.
+       */
       on(document, 'keydown', (e) => {
-        if (e.key === 'Escape') { e.stopPropagation(); this.onDismiss('escape'); }
+        if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); this.onDismiss('escape'); }
       }, true),
     );
 
@@ -104,25 +111,28 @@ export class Popover {
     if (this.closeOnFocusOut) {
       this._cleanups.push(on(document, 'focusin', (e) => {
         if (this.panel.contains(e.target) || this.anchor.contains(e.target)) return;
-        this.onDismiss('foco');
+        this.onDismiss('focus');
       }, true));
     }
 
-    if (typeof ResizeObserver !== 'undefined') {
-      this._ro = new ResizeObserver(this._reposition);
-      this._ro.observe(this.panel);
-      this._ro.observe(this.anchor);
-    }
+    this._ro = new ResizeObserver(this._reposition);
+    this._ro.observe(this.panel);
+    this._ro.observe(this.anchor);
+
+    // A entrada mora aqui, e nao em cada componente: um painel fechado ainda no
+    // _reposition acima nem chega a receber a classe.
+    openWithTransition(this.panel);
   }
 
   /**
-   * `animar` mantem o painel no DOM pelo tempo da transicao de saida. Sem
+   * `animate` mantem o painel no DOM pelo tempo da transicao de saida. Sem
    * isso ele desaparece no mesmo quadro, e so a entrada tem movimento — o
    * fechamento fica seco em comparacao.
    */
   hide({ animate = true } = {}) {
     if (!this.open) return;
     this.open = false;
+    this.panel.classList.remove('is-open');
     this._cleanups.forEach((fn) => fn());
     this._cleanups = [];
     if (this._frame) { cancelAnimationFrame(this._frame); this._frame = 0; }
@@ -159,7 +169,7 @@ export class Popover {
     const vh = document.documentElement.clientHeight;
 
     if (this.closeIfDetached && (a.bottom < 0 || a.top > vh || a.right < 0 || a.left > vw)) {
-      this.onDismiss('solto');
+      this.onDismiss('detached');
       return;
     }
 

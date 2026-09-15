@@ -121,7 +121,7 @@
     </div>
     <div class="demo-cell">
       <label class="tuc-label" for="mk-amount">Importe</label>
-      <input type="text" id="mk-amount" name="amount" data-tuc-mask="real">
+      <input type="text" id="mk-amount" name="amount" data-tuc-mask="brl">
       <div class="out" id="mk-amount-out"></div>
     </div>
   </div>
@@ -209,7 +209,7 @@
 <div class="tuc-prose doc-code"><pre><code>&lt;input name="cpf"      data-tuc-mask="cpf" data-validate="true"&gt;
 &lt;input name="document" data-tuc-mask="cpf-cnpj"&gt;
 &lt;input name="phone"    data-tuc-mask="phone"&gt;
-&lt;input name="amount"   data-tuc-mask="real"&gt;
+&lt;input name="amount"   data-tuc-mask="brl"&gt;
 &lt;input name="expiry"   data-tuc-mask="##/##"&gt;</code></pre></div>
 
 <div class="tuc-table-wrap"><table class="tuc-table">
@@ -265,7 +265,7 @@ def clean_credit_limit(self):
     return Decimal(text.replace(",", ".")) if text else None</code></pre></div>
 
 <h3>En JavaScript</h3>
-<div class="tuc-prose doc-code"><pre><code>const m = new Tucano.Mask('#amount', { format: 'real' });
+<div class="tuc-prose doc-code"><pre><code>const m = new Tucano.Mask('#amount', { format: 'brl' });
 m.getRaw();          // '123450' — sin puntuación
 m.getNumber();       // 1234.5 — solo en los formatos de moneda; en los demás, null
 m.setValue('99');    // da formato y dispara tucano:change
@@ -405,14 +405,14 @@ Tucano.mask.maskEmail('contato@empresa.com.br')        // 'c••••••@e
       <tr><td><code>data-tuc-format="cnpj"</code> · 12ABC34501DE35</td><td><span data-tuc-format="cnpj">12ABC34501DE35</span></td></tr>
       <tr><td><code>data-tuc-format="phone"</code> · 69999887766</td><td><span data-tuc-format="phone">69999887766</span></td></tr>
       <tr><td><code>data-tuc-format="cep"</code> · 69900000</td><td><span data-tuc-format="cep">69900000</span></td></tr>
-      <tr><td><code>data-tuc-format="real"</code> · 1234.5</td><td><span data-tuc-format="real">1234.5</span></td></tr>
+      <tr><td><code>data-tuc-format="brl"</code> · 1234.5</td><td><span data-tuc-format="brl">1234.5</span></td></tr>
       <tr><td><code>data-tuc-format="currency"</code> <code>data-decimals="3"</code> · 12.5</td><td><span data-tuc-format="currency" data-decimals="3">12.5</span></td></tr>
     </tbody>
   </table></div>
 </div>
 
 <div class="tuc-prose doc-code"><pre><code>&lt;span data-tuc-format="cpf"&gt;{{ customer.cpf }}&lt;/span&gt;
-&lt;span data-tuc-format="real"&gt;{{ order.total }}&lt;/span&gt;
+&lt;span data-tuc-format="brl"&gt;{{ order.total }}&lt;/span&gt;
 &lt;span data-tuc-format="phone" data-value="{{ customer.phone }}"&gt;&lt;/span&gt;</code></pre></div>
 
 <p>Acepta <code>cpf</code>, <code>cnpj</code>, <code>cpf-cnpj</code>, <code>phone</code>, <code>mobile</code>, <code>cep</code>,

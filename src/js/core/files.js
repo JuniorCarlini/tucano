@@ -57,7 +57,7 @@ export function csrfToken(name = 'csrftoken') {
  * Envia um arquivo com progresso. Usa XMLHttpRequest, e nao fetch: fetch
  * ainda nao reporta progresso de upload de forma confiavel entre navegadores.
  *
- * Devolve { promessa, abortar }.
+ * Devolve { promise, abort }.
  */
 export function uploadFile({ url, file, field = 'file', extras = {}, headers = {}, method = 'POST', texts = UPLOAD_TEXTS, onProgress }) {
   const xhr = new XMLHttpRequest();
@@ -86,9 +86,4 @@ export function uploadFile({ url, file, field = 'file', extras = {}, headers = {
     xhr.send(data);
   });
   return { promise, abort: () => xhr.abort() };
-}
-
-let seq = 0;
-export function fileId() {
-  return `f${Date.now().toString(36)}${(seq++).toString(36)}`;
 }

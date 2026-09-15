@@ -17,7 +17,7 @@ description: Máscara de CPF, CNPJ alfanumérico, telefone, CEP e moeda, com val
     </div>
     <div class="demo-cell">
       <label class="tuc-label" for="mk-amount">Valor</label>
-      <input type="text" id="mk-amount" name="amount" data-tuc-mask="real">
+      <input type="text" id="mk-amount" name="amount" data-tuc-mask="brl">
       <div class="out" id="mk-amount-out"></div>
     </div>
   </div>
@@ -106,7 +106,7 @@ description: Máscara de CPF, CNPJ alfanumérico, telefone, CEP e moeda, com val
 <input name="cpf"      data-tuc-mask="cpf" data-validate="true">
 <input name="document" data-tuc-mask="cpf-cnpj">
 <input name="phone"    data-tuc-mask="phone">
-<input name="amount"   data-tuc-mask="real">
+<input name="amount"   data-tuc-mask="brl">
 <input name="expiry"   data-tuc-mask="##/##">
 </pre>
 
@@ -168,7 +168,7 @@ class CustomerForm(forms.ModelForm):
 
 <h3>Em JavaScript</h3>
 <pre data-code="js">
-const m = new Tucano.Mask('#amount', { format: 'real' });
+const m = new Tucano.Mask('#amount', { format: 'brl' });
 m.getRaw();          // '123450' — sem pontuação
 m.getNumber();       // 1234.5 — só nos formatos de moeda; nos outros, null
 m.setValue('99');    // formata e dispara tucano:change
@@ -316,7 +316,7 @@ Tucano.mask.maskEmail('contato@empresa.com.br')        // 'c••••••@e
       <tr><td><code>data-tuc-format="cnpj"</code> · 12ABC34501DE35</td><td><span data-tuc-format="cnpj">12ABC34501DE35</span></td></tr>
       <tr><td><code>data-tuc-format="phone"</code> · 69999887766</td><td><span data-tuc-format="phone">69999887766</span></td></tr>
       <tr><td><code>data-tuc-format="cep"</code> · 69900000</td><td><span data-tuc-format="cep">69900000</span></td></tr>
-      <tr><td><code>data-tuc-format="real"</code> · 1234.5</td><td><span data-tuc-format="real">1234.5</span></td></tr>
+      <tr><td><code>data-tuc-format="brl"</code> · 1234.5</td><td><span data-tuc-format="brl">1234.5</span></td></tr>
       <tr><td><code>data-tuc-format="currency"</code> <code>data-decimals="3"</code> · 12.5</td><td><span data-tuc-format="currency" data-decimals="3">12.5</span></td></tr>
     </tbody>
   </table></div>
@@ -324,7 +324,7 @@ Tucano.mask.maskEmail('contato@empresa.com.br')        // 'c••••••@e
 
 <pre data-code="django">
 <span data-tuc-format="cpf">{{ customer.cpf }}</span>
-<span data-tuc-format="real">{{ order.total }}</span>
+<span data-tuc-format="brl">{{ order.total }}</span>
 <span data-tuc-format="phone" data-value="{{ customer.phone }}"></span>
 </pre>
 

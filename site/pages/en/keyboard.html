@@ -30,7 +30,7 @@ description: What each key does in every Tucano component — date picker, selec
 
 <div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">In the date field, Enter belongs to the form</p><p>The date picker is a text field inside a <code>&lt;form&gt;</code>, and <code>Enter</code> in a text field submits the form — which is what anyone expects after typing the date. Hijacking the key would silently break submission in every existing form, so there it's <code>Space</code> that opens. And only when the field is empty: in time mode you type <code>07/09/2026 14:30</code>, and the space is part of the typing. With the panel open, <code>Enter</code> confirms what was typed.</p></div></div>
 
-<p>If you prefer the old behavior in the date picker, turn on <code>openOnFocus: true</code>. Any panel that opened
+<p>Any panel that opened
    closes when focus leaves it, so tabbing through the page never leaves menus open behind you.</p>
 
 <h2 id="datepicker">Date picker</h2>

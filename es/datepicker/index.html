@@ -250,7 +250,7 @@
    en ISO o en el formato del idioma — el componente lee los dos.</p>
 
 <h3>En JavaScript</h3>
-<p>Para lo que no cabe en un atributo — <code>disabledDates</code>, atajos propios, <code>openOnFocus</code>, <code>firstDayOfWeek</code>,
+<p>Para lo que no cabe en un atributo — <code>disabledDates</code>, atajos propios, <code>firstDayOfWeek</code>,
    <code>autoApply</code>, <code>clearable</code>, <code>onChange</code> — y para leer y escribir el valor.</p>
 <div class="tuc-prose doc-code"><pre><code>const dp = new Tucano.DatePicker('#delivery', {
   mode: 'range',
@@ -369,7 +369,7 @@ native: true      // siempre el selector del sistema — como atributo, data-nat
   </tbody>
 </table></div>
 
-<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Por qué <code>Tab</code> no abre, y <code>Enter</code> tampoco</p><p>Quien tabula por un formulario hasta el botón de guardar no debería llevarse un calendario en la cara en cada campo, tapando el siguiente — era lo que apilaba paneles. Y este es un campo de texto dentro de un <code>&lt;form&gt;</code>: <code>Enter</code> ahí envía el formulario, que es lo que se espera después de escribir la fecha. Por eso quien abre es <code>Espacio</code>, y solo con el campo vacío, porque con hora se escribe <code>07/09/2026 14:30</code>. Quien prefiera el comportamiento anterior activa <code>openOnFocus: true</code>.</p></div></div>
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Por qué <code>Tab</code> no abre, y <code>Enter</code> tampoco</p><p>Quien tabula por un formulario hasta el botón de guardar no debería llevarse un calendario en la cara en cada campo, tapando el siguiente — era lo que apilaba paneles. Y este es un campo de texto dentro de un <code>&lt;form&gt;</code>: <code>Enter</code> ahí envía el formulario, que es lo que se espera después de escribir la fecha. Por eso quien abre es <code>Espacio</code>, y solo con el campo vacío, porque con hora se escribe <code>07/09/2026 14:30</code>.</p></div></div>
 
 <p>Un clic fuera cierra sin robar el foco de donde se hizo clic; un rango elegido a medias se descarta al cerrar, porque no
    existe medio intervalo. Con <code>prefers-reduced-motion</code> el panel solo se desvanece, sin deslizarse.</p>
@@ -402,7 +402,6 @@ native: true      // siempre el selector del sistema — como atributo, data-nat
 <tr><td><code>placement</code></td><td><code>'bottom-center'</code></td><td>centralizado no campo; as bordas da tela ainda mandam</td></tr>
 <tr><td><code>appendTo</code></td><td><code>undefined</code></td><td></td></tr>
 <tr><td><code>isoName</code></td><td><code>undefined</code></td><td>name do input hidden com o valor ISO</td></tr>
-<tr><td><code>openOnFocus</code></td><td><code>false</code></td><td></td></tr>
 <tr><td><code>native</code></td><td><code>false</code></td><td></td></tr>
 <tr><td><code>onChange</code></td><td><code>null</code></td><td></td></tr>
 <tr><td><code>onOpen</code></td><td><code>null</code></td><td></td></tr>

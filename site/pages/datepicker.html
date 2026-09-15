@@ -150,7 +150,7 @@ class EventForm(forms.ModelForm):
    em ISO ou no formato do idioma — o componente lê os dois.</p>
 
 <h3>Em JavaScript</h3>
-<p>Para o que não cabe em atributo — <code>disabledDates</code>, atalhos próprios, <code>openOnFocus</code>, <code>firstDayOfWeek</code>,
+<p>Para o que não cabe em atributo — <code>disabledDates</code>, atalhos próprios, <code>firstDayOfWeek</code>,
    <code>autoApply</code>, <code>clearable</code>, <code>onChange</code> — e para ler e escrever o valor.</p>
 <pre data-code="js">
 const dp = new Tucano.DatePicker('#delivery', {
@@ -281,7 +281,7 @@ native: true      // sempre o seletor do sistema — por atributo, data-native="
   </tbody>
 </table></div>
 
-<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Por que <code>Tab</code> não abre, e <code>Enter</code> também não</p><p>Quem tabula por um formulário até o botão de salvar não deveria levar um calendário na cara a cada campo, cobrindo o seguinte — era o que empilhava painéis. E este é um campo de texto dentro de um <code>&lt;form&gt;</code>: <code>Enter</code> ali envia o formulário, que é o que se espera depois de digitar a data. Por isso quem abre é o <code>Espaço</code>, e só com o campo vazio, porque com hora se digita <code>07/09/2026 14:30</code>. Quem prefere o comportamento antigo liga <code>openOnFocus: true</code>.</p></div></div>
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Por que <code>Tab</code> não abre, e <code>Enter</code> também não</p><p>Quem tabula por um formulário até o botão de salvar não deveria levar um calendário na cara a cada campo, cobrindo o seguinte — era o que empilhava painéis. E este é um campo de texto dentro de um <code>&lt;form&gt;</code>: <code>Enter</code> ali envia o formulário, que é o que se espera depois de digitar a data. Por isso quem abre é o <code>Espaço</code>, e só com o campo vazio, porque com hora se digita <code>07/09/2026 14:30</code>.</p></div></div>
 
 <p>Clique fora fecha sem roubar o foco de onde se clicou; um período escolhido pela metade é descartado ao fechar, porque não
    existe meio intervalo. Com <code>prefers-reduced-motion</code> o painel só esmaece, sem deslizar.</p>

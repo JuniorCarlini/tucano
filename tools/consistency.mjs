@@ -267,6 +267,35 @@ const htmlWithoutCode = html.replace(/<pre[\s\S]*?<\/pre>/g, '').replace(/<code>
   else ok('classes CSS: nenhum nome em português');
 }
 
+/*
+ * 5c. Nome em portugues dentro de string que e codigo.
+ *
+ * A checagem 5 tira toda string antes de procurar, e a 5b so olha classe. Por
+ * isso passaram `--matiz` e `--xadrez` (custom property), `nextId('cor')`, o
+ * sufixo de id `-dica` e os motivos `'foco'` e `'solto'` do Popover — nomes que
+ * alguem digita, escritos entre aspas. Aqui entram as formas em que uma string
+ * e nome: custom property, prefixo de nextId, motivo de onDismiss e sufixo de id
+ * montado por template.
+ */
+{
+  const WORDS = new Set(['foco', 'solto', 'dica', 'cor', 'matiz', 'xadrez', 'fundo', 'botao', 'borda',
+    'sombra', 'largura', 'altura', 'texto', 'valor', 'campo', 'lista', 'painel', 'titulo', 'rotulo', 'aberto']);
+  const walk = (p) => readdirSync(p, { withFileTypes: true })
+    .flatMap((e) => (e.isDirectory() ? walk(`${p}/${e.name}`) : [`${p}/${e.name}`]));
+  const findings = [];
+  for (const file of ['src/js', 'src/styles'].flatMap((d) => walk(d))) {
+    const src = readFileSync(file, 'utf8');
+    const names = [
+      ...[...src.matchAll(/--([a-z][\w-]*)/g)].map((m) => m[1]),
+      ...[...src.matchAll(/(?:nextId|onDismiss)\(\s*['"`]([\w-]+)['"`]/g)].map((m) => m[1]),
+      ...[...src.matchAll(/\$\{[^}]*\}-([a-z][\w-]*)`/g)].map((m) => m[1]),
+    ];
+    for (const n of names) if (n.split('-').some((w) => WORDS.has(w))) findings.push(`${file} (${n})`);
+  }
+  if (findings.length) fail(`nome em português dentro de string que é código: ${[...new Set(findings)].join(' ')}`);
+  else ok('custom properties, ids e motivos: nenhum nome em português');
+}
+
 /* 6. Opcao anunciada no README que o componente nao le, e o contrario. */
 {
   const readme = readFileSync('README.md', 'utf8');

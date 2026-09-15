@@ -127,11 +127,11 @@ navegador envia tudo num bloco e não reporta andamento.
 ## Máscaras
 
     <input name="cpf" data-tuc-mask="cpf" data-validate="true">
-    <input name="amount" data-tuc-mask="real">
+    <input name="amount" data-tuc-mask="brl">
     <input name="cpf" value="111.444.777-35" data-tuc-mask="cpf" data-tuc-reveal>
     <span data-tuc-format="cpf">12345678901</span>
 
-Formatos: cpf, cnpj, cnpj-numeric, cpf-cnpj, phone, mobile, cep, real,
+Formatos: cpf, cnpj, cnpj-numeric, cpf-cnpj, phone, mobile, cep, brl,
 currency, date, time, card. Gabarito livre aceita # (digito), A (letra) e *
 (ambos), ex.: data-tuc-mask="##/##".
 
@@ -438,8 +438,7 @@ explicito — seta para baixo, clique, Espaco, e no select tambem Enter.
 No campo de data o Enter fica de fora: e campo de texto dentro de <form>, e
 Enter ali envia o formulario. O Espaco abre, e so com o campo vazio, porque em
 modo com hora se digita "07/09/2026 14:30". No campo
-de cor o gatilho e a amostra ao lado, que e um <button> de verdade. Para voltar
-ao comportamento antigo no date picker: openOnFocus: true.
+de cor o gatilho e a amostra ao lado, que e um <button> de verdade.
 
 ## Abas
 
@@ -593,7 +592,7 @@ Atalhos: Tucano.modal(), Tucano.confirm(), Tucano.drawer(), Tucano.toast(),
 Tucano.pagination(), Tucano.sanitize(), Tucano.highlight(), Tucano.init(node),
 Tucano.setTexts(), Tucano.getTexts().
 
-Eventos proprios: tucano:change (campos), tuc:sort e tuc:select (tabela).
+Eventos proprios: tucano:change (campos), tucano:sort e tucano:select (tabela).
 
 ## Textos em outros idiomas
 
@@ -681,8 +680,8 @@ formatado). Ali use `e.detail.iso`, ou leia o hidden.
                     color picker → { value, rgb, hsva, instance }
                     mascara      → { value, raw, number, instance }
                     upload       → { value, files, instance }
-    tuc:sort        tabela       → { column, field, direction }   direction: 'asc'|'desc'
-    tuc:select      tabela       → { selected, row }              selected: array de data-id
+    tucano:sort     tabela       → { column, field, direction }   direction: 'asc'|'desc'
+    tucano:select   tabela       → { selected, row }              selected: array de data-id
     tucano:toast-closed  toast   → sem detail, disparado no proprio no do toast
 
 O `onChange` de cada componente recebe os mesmos dados: (value, detail).
@@ -739,7 +738,6 @@ Inventario extraido do codigo a cada build. Se algo nao esta aqui, nao existe.
     placement          = 'bottom-center'  — centralizado no campo; as bordas da tela ainda mandam…
     appendTo           = undefined
     isoName            = undefined  — name do input hidden com o valor ISO…
-    openOnFocus        = false
     native             = false
     onChange           = null
     onOpen             = null
@@ -881,7 +879,7 @@ Inventario extraido do codigo a cada build. Se algo nao esta aqui, nao existe.
     onSort             = null  — definido, intercepta o clique e cancela a navegacao…
     onSelect           = null
   metodos    sort getSelected clearSelection destroy
-  eventos    tuc:sort tuc:select
+  eventos    tucano:sort tucano:select
 
 ### Tabs
   marcacao   [data-tuc-tabs]
@@ -955,7 +953,7 @@ Inventario extraido do codigo a cada build. Se algo nao esta aqui, nao existe.
   Accordion ColorPicker DatePicker Drawer Dropdown Editor FORMATS ICON_CHECK ICON_COPY ICON_X Mask Modal Pagination Popover Select Table Tabs Toast Tooltip Upload autoFormat confirm drawer getTexts highlight icon listenForEvents modal pageWindow pagination sanitize setTexts toast
   Tucano.mask / .dates / .color   modulos utilitarios (ver seção Utilitários)
 
-  FORMATS (mascaras prontas): cpf cnpj cnpj-numeric cpf-cnpj phone mobile cep date time card currency real
+  FORMATS (mascaras prontas): cpf cnpj cnpj-numeric cpf-cnpj phone mobile cep date time card currency brl
 
 ### Textos (Tucano.setTexts)
 
@@ -1115,7 +1113,7 @@ sao nomes estaveis para o seu proprio CSS:
   `is-icon`, `is-sm`. Classe própria só para posicionar.
 - Não escreva o placeholder de um campo com máscara: ele sai do gabarito
   sozinho. `data-tuc-mask="cpf"` já nasce com `000.000.000-00`, e
-  `data-tuc-mask="real"` com `R$ 0,00`.
+  `data-tuc-mask="brl"` com `R$ 0,00`.
 - Sanitize no servidor antes de publicar o que veio do editor com `|safe`. A
   peneira do editor protege o editor, não a publicação.
 - O `<dialog>` do modal e da gaveta precisa do atributo `hidden`? Não — mas o

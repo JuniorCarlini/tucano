@@ -406,7 +406,7 @@ def contracts(request):
     &lt;tr data-id="{{ obj.pk }}"&gt;
       &lt;td&gt;{{ obj.name }}&lt;/td&gt;
       &lt;td&gt;{{ obj.due_date|date:"d/m/Y" }}&lt;/td&gt;
-      &lt;td class="is-number" data-tuc-format="real"&gt;{{ obj.amount }}&lt;/td&gt;
+      &lt;td class="is-number" data-tuc-format="brl"&gt;{{ obj.amount }}&lt;/td&gt;
     &lt;/tr&gt;
     {% empty %}
     &lt;tr&gt;&lt;td colspan="3" class="tuc-table__empty"&gt;Nenhum contrato encontrado.&lt;/td&gt;&lt;/tr&gt;

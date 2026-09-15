@@ -250,8 +250,9 @@ formulário até o botão de salvar não deveria levar um calendário na cara a 
 campo. Abrir é sempre explícito — `↓`, clique, e no select também `Enter` e
 `Espaço`, como no `<select>` nativo e no ARIA APG. O gatilho do color picker é a
 amostra ao lado, que é um `<button>` de verdade e por isso já responde a
-`Enter`/`Espaço` sem código nosso. `openOnFocus` continua existindo no date
-picker para quem quiser o comportamento antigo, agora com padrão `false`.
+`Enter`/`Espaço` sem código nosso. A opção `openOnFocus`, que guardava o
+comportamento antigo no date picker, saiu de vez: ninguém a documentava como
+recomendada, e ela só mantinha vivo o defeito que motivou esta regra.
 
 No campo de data o `Enter` fica de fora de propósito: é um campo de texto dentro
 de um `<form>`, e `Enter` num campo de texto envia o formulário. Sequestrar a
@@ -310,6 +311,13 @@ descarta quando ninguém importa. O mapa `ICONS` existe só para a galeria em
 **Helper compartilhado mora em `core/dom.js`.** `omitUndefined` existia copiado
 em doze componentes com dois nomes; `escapeHtml` em dois. Antes de escrever
 uma função utilitária num componente, procure em `dom.js`.
+
+Mas helper compartilhado para boilerplate de duas linhas não emagrece o pacote.
+A auditoria mediu: o gzip já comprime a repetição, e a função nova custa o
+próprio nome e a chamada. Extrair esse tipo de trecho só se justifica por
+manutenção — um lugar para corrigir —, nunca por peso. O que reduziu bytes de
+verdade foi tirar responsabilidade do componente: a entrada `is-open` morar no
+`Popover` em vez de em cinco componentes deu 34 bytes a menos com gzip.
 
 **Texto de interface mora em `core/texts.js`, nunca no componente.** Todo texto
 que um componente mostra ou anuncia — rótulo, placeholder, `aria-label`,
@@ -626,7 +634,9 @@ herdado. Token novo que deriva de outro vai nesse bloco.
 **Tempo de segurança fica acima do token.** A saída do diálogo removia o elemento
 aos 160 ms com `--tuc-duration-out` em 170 ms, e o fim da animação saía cortado.
 Número em JavaScript que espera uma transição do CSS fica acima dela, nunca igual
-nem abaixo.
+nem abaixo. O `EXIT_MS` do `core/popover.js` estava exatamente igual ao token
+(170 ms) e passou a 200, como o do `dialog.js`: igual não tem folga nenhuma para
+um quadro atrasado.
 
 ## Antes de dizer que está pronto
 
@@ -671,30 +681,37 @@ bug contra build antigo. Confirme o código carregado, não só o arquivo em dis
 `npm test` compila e roda cinco coisas, nesta ordem. Cada uma existe por causa
 de um defeito que passou batido.
 
-**`test/*.test.mjs` — 50 testes das funções puras** (`node --test`, sem
+**`test/*.test.mjs` — 52 testes das funções puras** (`node --test`, sem
 dependência). `dates`, `mask`, `color` e `pageWindow` são entrada e saída sem
 DOM. Inclui `sanitize`, que é peça de segurança.
 
-**`tools/behavior.mjs` — 71 comportamentos no Chrome sem cabeça.** Abrir, fechar,
+**`tools/behavior.mjs` — 72 comportamentos no Chrome sem cabeça.** Abrir, fechar,
 ordenar, marcar, emitir evento, e os textos: português sem `setTexts`, troca
 global, opção da instância vencendo e restauração no fim. Armadilha registrada no cabeçalho do arquivo:
 transição não avança ali, então nunca leia opacidade ou posição logo depois de
 abrir algo — a página injeta `transition: none` onde o estado final importa.
 
-**`tools/examples.mjs` — os 339 exemplos da documentação, em todas as páginas do site.** Os de HTML são
+**`tools/examples.mjs` — os 342 exemplos da documentação, em todas as páginas do site.** Os de HTML são
 colados no documento e têm que montar; os de JS não são executados (citam
 `#delivery` e `form`, que não existem) e sim conferidos nome por nome
 contra o código: `Tucano.x` existe? o método existe no protótipo? cada chave de
 opção é lida por alguém, inclusive dentro de `actions` e `items`?
 
-**`tools/keyboard.mjs` — 20 caminhos de teclado real**, pelo protocolo de
+**`tools/keyboard.mjs` — 23 caminhos de teclado real**, pelo protocolo de
 depuração do Chrome: `Backspace` e `Delete` na máscara e no select, as setas nas abas, o
-`↓` que leva o foco ao dia no date picker e a barra do editor pelo teclado.
+`↓` que leva o foco ao dia no date picker, a barra do editor pelo teclado, o
+`Escape` de um painel dentro de modal (que fechava o modal junto: o `cancel` do
+`<dialog>` é ação padrão da tecla, e `stopPropagation` não o impede) e o foco
+que o `Escape` devolve à amostra do color picker.
 Evento sintético não dispara a ação padrão, então só assim o caminho é o real.
 
 **`tools/consistency.mjs` — nome que existe em dois lugares e mudou só num.** As
-sete checagens saíram de defeitos reais, e cada uma foi testada reintroduzindo
-o defeito que a motivou.
+checagens saíram de defeitos reais, e cada uma foi testada reintroduzindo
+o defeito que a motivou. A de identificador em português tira as strings antes
+de procurar, e por isso deixou passar `--matiz`, `nextId('cor')`, o sufixo
+`-dica` e os motivos `'foco'`/`'solto'`; a 5c olha justamente as strings que são
+nome — custom property, prefixo de `nextId`, motivo de `onDismiss` e sufixo de
+id — e acusou os sete antes da correção.
 
 `npm run audit` continua à parte: mede geometria dos campos nos dois temas.
 

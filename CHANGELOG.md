@@ -14,6 +14,32 @@ projeto.
   Um script seu, também em `defer`, que lia `elemento._tucano` logo ao executar
   passa a encontrar `undefined`: leia dentro de um listener do
   `DOMContentLoaded`.
+- O formato de moeda em reais passou de `real` para `brl`, em inglês como os
+  outros nomes de código: `data-tuc-mask="brl"`, `data-tuc-format="brl"`,
+  `format: 'brl'` e `Tucano.FORMATS.brl`. `real` deixou de funcionar: o campo
+  fica sem máscara e o texto de exibição aparece cru.
+- `Tucano.mask.format(valor, 'document')`, apelido não documentado de
+  `'cpf-cnpj'`, foi removido. Use `'cpf-cnpj'`.
+- Os eventos da tabela ganharam o prefixo dos outros: `tuc:sort` agora é
+  `tucano:sort`, e `tuc:select` é `tucano:select`. Os nomes antigos não
+  disparam mais.
+- A opção `openOnFocus` do date picker foi removida. Ela existia só para manter
+  o comportamento antigo de abrir o calendário ao chegar de `Tab`; abrir
+  continua sendo `↓`, `Espaço` com o campo vazio ou clique.
+- A busca no servidor do select lê só os formatos de resposta documentados:
+  `[{value, label}]`, `["a", "b"]`, `{results: [...]}` do DRF e `{id, text}` do
+  Select2, com `next` para saber se há outra página. `{items}`, `{data}`, `pk`,
+  `name` e `has_more` deixaram de ser lidos: responda num dos formatos acima ou
+  use `loadOptions`.
+- Nomes em português que sobravam no código: o `Popover` passa ao `onDismiss`
+  os motivos `'focus'` e `'detached'` (eram `'foco'` e `'solto'`), e a custom
+  property da área do color picker é `--hue` (era `--matiz`).
+- Saíram classes de estado que nenhuma regra de CSS lia — `is-multiple` e
+  `is-empty` do select, `is-empty` do upload, `is-range` e `is-timed` do date
+  picker — e a propriedade `id` da instância de `Table`, que nada usava. Se o
+  seu projeto dependia delas, use `.tuc-select-native[multiple] + .tuc-select`,
+  `.tuc-select:not(.has-value)`, `instancia.isRange`, `instancia.opts.time` e o
+  `id` da própria `<table>`.
 
 ### Novo
 
@@ -48,6 +74,23 @@ projeto.
   "Próximo" e "Selecionar período" no date picker, "Limpar seleção" no select e
   "Saturação e brilho" no color picker. Quem compara esses textos, num teste do
   próprio projeto, precisa atualizar.
+- `Escape` num select, calendário ou color picker aberto dentro de um modal
+  fechava o modal junto. Agora fecha só o painel.
+- `Escape` no color picker deixava o foco no `<body>`, e o `Tab` seguinte
+  recomeçava do topo da página. O foco volta à amostra, como nos outros campos.
+- O xadrez atrás de cor translúcida — na amostra, na prévia e na trilha de
+  transparência do color picker — não aparecia.
+- Select, date picker, color picker, menu e dica saíam do DOM no instante exato
+  em que a animação de saída terminaria, e o fim podia sair cortado.
+- Período digitado no date picker: `25-12-2025 a 31-12-2025` era cortado nos
+  hífens da data, `aa` e `aé` valiam como separador, e o "AM" de um horário de
+  12 horas partia o texto. Os separadores agora são `a`, `até` e `-` entre
+  espaços, e `–` ou `—`.
+- Remover um arquivo no upload direto passava por cima do `X-CSRFToken`
+  informado em `headers`; o envio já o respeitava.
+- Reabrir um modal ou uma gaveta menos de 200 ms depois de fechar fazia o
+  diálogo fechar sozinho logo em seguida: o fechamento agendado não era
+  cancelado. Agora reabrir cancela o fechamento pendente.
 
 ## 0.33.1 — 2026-09-14
 

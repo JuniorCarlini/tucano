@@ -103,3 +103,16 @@ test('maskEmail preserva o dominio — e o que permite reconhecer a conta', () =
 test('format aplica um preset pelo nome', () => {
   assert.equal(format('12345678901', 'cpf'), '123.456.789-01');
 });
+
+test('format em brl e currency sai do mesmo formatador que a digitacao', () => {
+  assert.equal(format(1234.5, 'brl').replace(/\u00a0/g, ' '), 'R$ 1.234,50');
+  assert.equal(format('1.234,5', 'currency'), '1.234,50');
+  assert.equal(format('12400.00', 'brl').replace(/\u00a0/g, ' '), applyCurrency('1240000', { currency: 'BRL' }).replace(/\u00a0/g, ' '));
+});
+
+test('nome antigo nao e apelido: real e document voltam o texto como veio', () => {
+  // Nome errado sai de uma vez. Um valor que ninguem formata aparece cru, e isso
+  // e o que denuncia o nome velho na tela.
+  assert.equal(format('1234.5', 'real'), '1234.5');
+  assert.equal(format('12345678901', 'document'), '12345678901');
+});

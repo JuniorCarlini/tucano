@@ -4,7 +4,10 @@
 .tuc-color-field__swatch,
 .tuc-colorpicker__preview,
 .tuc-colorpicker__slider.is-alpha .tuc-colorpicker__track {
-  --xadrez:
+  /* A malha era uma custom property que regra nenhuma lia: a cor translucida
+     aparecia sobre o fundo liso, sem xadrez. Agora ela e o proprio fundo, e o
+     ::after pinta a cor por cima. */
+  background-image:
     linear-gradient(45deg, var(--tuc-ring) 25%, transparent 25%, transparent 75%, var(--tuc-ring) 75%),
     linear-gradient(45deg, var(--tuc-ring) 25%, transparent 25%, transparent 75%, var(--tuc-ring) 75%);
   background-size: 8px 8px;
@@ -98,7 +101,7 @@
   background:
     linear-gradient(to top, #000, transparent),
     linear-gradient(to right, #fff, transparent),
-    var(--matiz, #f00);
+    var(--hue, #f00);
 }
 
 /* ------------------------------------------------------------------ *

@@ -27,7 +27,7 @@ const page = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
 <style>${readFileSync('dist/tucano.css', 'utf8')}</style></head><body>
 <input id="cpf" data-tuc-mask="cpf">
 <input id="doc" data-tuc-mask="cpf-cnpj">
-<input id="amount" data-tuc-mask="real">
+<input id="amount" data-tuc-mask="brl">
 <input id="date" data-tuc-mask="date">
 <input id="dt" data-tuc-datepicker>
 <select id="state" data-tuc-select><option value="">Selecione...</option><option value="SP">São Paulo</option><option value="RJ">Rio de Janeiro</option></select>
@@ -38,6 +38,12 @@ const page = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
 <input id="revealPassword" type="password" name="token" data-tuc-reveal>
 <input id="revealToken" type="text" name="api_key" data-tuc-reveal="all">
 <textarea id="ked" data-tuc-editor></textarea>
+<input id="color" data-tuc-color value="#4f46e5">
+<dialog class="tuc-modal" id="kmodal"><div class="tuc-modal__panel">
+  <select id="mstate" data-tuc-select><option value="SP">São Paulo</option><option value="RJ">Rio de Janeiro</option></select>
+  <input id="mdate" data-tuc-datepicker>
+  <input id="mcolor" data-tuc-color value="#4f46e5">
+</div></dialog>
 <div class="tuc-tabs" data-tuc-tabs id="tabs"><div class="tuc-tabs__list">
   <button class="tuc-tabs__tab" aria-selected="true">A</button><button class="tuc-tabs__tab">B</button>
   <button class="tuc-tabs__tab" disabled>C</button><button class="tuc-tabs__tab">D</button></div>
@@ -357,8 +363,70 @@ await testCase('digitar num token com o olho, sem máscara, guarda o texto como 
   return r.posted === 'sk_live_9' ? null : `o formulário enviaria "${r.posted}"`;
 });
 
+await testCase('Escape num painel dentro de um modal fecha só o painel', async () => {
+  // O Popover parava a propagação do Escape, mas não a ação padrão: o <dialog>
+  // recebia o cancel e o modal fechava junto com o select, o calendário e a cor.
+  const modal = `document.getElementById('kmodal')._tucano`;
+  const panels = {
+    select: [`document.getElementById('mstate')._tucano.search.focus()`, `document.getElementById('mstate')._tucano`],
+    datepicker: [`document.getElementById('mdate').focus()`, `document.getElementById('mdate')._tucano`],
+    colorpicker: [`document.getElementById('mcolor')._tucano.swatch.focus()`, `document.getElementById('mcolor')._tucano`],
+  };
+  // `void`: open() e close() devolvem a instância, que o protocolo não serializa.
+  // Um modal que ficasse aberto por erro deixaria o resto da página inerte, e o
+  // caso seguinte falharia por causa deste.
+  for (const [name, [focus, instance]] of Object.entries(panels)) {
+    await evaluate(`void ${modal}.open()`);
+    await wait(50);
+    await evaluate(focus);
+    await press('ArrowDown');
+    const opened = await evaluate(`${instance}.isOpen`);
+    if (opened) await press('Escape');
+    const r = await evaluate(`[${instance}.isOpen, ${modal}.isOpen, document.getElementById('kmodal').open]`);
+    await evaluate(`void ${modal}.close()`);
+    // Espera o <dialog> fechar de fato, e não um tempo fixo: o close() só chega
+    // ao nativo depois da animação, e com a máquina ocupada (logo após o build)
+    // esse atraso passou dos 250ms e fechou o modal já reaberto pelo caso seguinte.
+    for (let i = 0; i < 100 && await evaluate(`document.getElementById('kmodal').open`); i++) await wait(20);
+    if (!opened) return `${name}: a seta não abriu o painel`;
+    if (r[0]) return `${name}: o Escape não fechou o painel`;
+    if (!r[1] || !r[2]) return `${name}: o Escape fechou o modal junto`;
+  }
+  return null;
+});
+
+await testCase('Escape no color picker devolve o foco à amostra', async () => {
+  // O painel sai do DOM ao fechar; com o foco no campo hex dentro dele, o foco
+  // caía no <body> e o Tab seguinte recomeçava do topo da página.
+  await evaluate(`document.getElementById('color')._tucano.swatch.focus()`);
+  await press('ArrowDown');
+  await evaluate(`document.getElementById('color')._tucano.hexField.focus()`);
+  await press('Escape');
+  await wait(250);
+  const r = await evaluate(`(() => { const c = document.getElementById('color')._tucano;
+    return [c.isOpen, document.activeElement === c.swatch, document.activeElement.tagName]; })()`);
+  if (r[0]) return 'o Escape não fechou o painel';
+  return r[1] ? null : `o foco foi para ${r[2]}`;
+});
+
+await testCase('reabrir um modal logo depois de fechar deixa ele aberto', async () => {
+  // O open() não cancelava o fechamento agendado, e o modal reaberto fechava sozinho.
+  const r = await evaluate(`(async () => {
+    const m = Tucano.modal({ title: 'Reaberto' });
+    m.close();
+    await new Promise((ok) => setTimeout(ok, 50));
+    m.open();
+    await new Promise((ok) => setTimeout(ok, 400));
+    const result = [m.isOpen, m.node.open, m.node.classList.contains('is-closing')];
+    m.close();
+    await new Promise((ok) => setTimeout(ok, 300));
+    return result; })()`);
+  if (!r[0] || !r[1]) return `isOpen ${r[0]}, <dialog> aberto ${r[1]}`;
+  return r[2] ? 'ficou com is-closing' : null;
+});
+
 ws.close();
 chrome.kill();
 unlinkSync(file);
-console.log(failures ? `\n${failures} falha(s) no teclado` : '\n20 caminhos de teclado verificados');
+console.log(failures ? `\n${failures} falha(s) no teclado` : '\n23 caminhos de teclado verificados');
 process.exit(failures ? 1 : 0);

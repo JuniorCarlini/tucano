@@ -1,4 +1,4 @@
-import { ICON_CHEVRONS_UP_DOWN, el, icon, nextId, omitUndefined, on } from '../core/dom.js';
+import { ICON_CHEVRONS_UP_DOWN, el, icon, omitUndefined, on } from '../core/dom.js';
 import { TABLE_TEXTS as T } from '../core/texts.js';
 
 /*
@@ -37,10 +37,12 @@ const DEFAULTS = {
   onSelect: null,
 };
 
+/* Numero escrito como no Brasil: "R$ 1.234,50" vira 1234.5. */
+const toNumber = (s) => parseFloat(s.replace(/[^\d,.-]/g, '').replace(/\./g, '').replace(',', '.') || 0);
+
 /* Comparadores por tipo declarado no cabecalho. */
 const COMPARE = {
-  number: (a, b) => parseFloat(a.replace(/[^\d,.-]/g, '').replace(/\./g, '').replace(',', '.') || 0)
-                  - parseFloat(b.replace(/[^\d,.-]/g, '').replace(/\./g, '').replace(',', '.') || 0),
+  number: (a, b) => toNumber(a) - toNumber(b),
   date: (a, b) => new Date(a).getTime() - new Date(b).getTime(),
   text: (a, b) => a.localeCompare(b, 'pt-BR', { numeric: true, sensitivity: 'base' }),
 };
@@ -52,7 +54,6 @@ export class Table {
     if (!this.node) throw new Error('[Table] elemento alvo nao encontrado');
     if (this.node.tagName !== 'TABLE') throw new Error('[Table] o alvo precisa ser uma <table>');
     this.opts = { ...DEFAULTS, ...omitUndefined(options) };
-    this.id = this.node.id || nextId('table');
     this._cleanups = [];
     this._build();
   }
@@ -144,7 +145,7 @@ export class Table {
     const dir = previous === 'ascending' ? 'descending' : 'ascending';
     const detail = { column: index, field, direction: dir === 'ascending' ? 'asc' : 'desc' };
 
-    this.node.dispatchEvent(new CustomEvent('tuc:sort', { bubbles: true, detail: detail }));
+    this.node.dispatchEvent(new CustomEvent('tucano:sort', { bubbles: true, detail: detail }));
 
     // Quem passou onSort assume a responsabilidade — e ai o link nao navega.
     if (this.opts.onSort) {
@@ -236,7 +237,7 @@ export class Table {
       this.checkAll.indeterminate = checkedBoxes.length > 0 && checkedBoxes.length < checkboxes.length;
     }
     const detail = { selected: this.getSelected(), row: tr };
-    this.node.dispatchEvent(new CustomEvent('tuc:select', { bubbles: true, detail: detail }));
+    this.node.dispatchEvent(new CustomEvent('tucano:select', { bubbles: true, detail: detail }));
     this.opts.onSelect?.(detail, this);
   }
 

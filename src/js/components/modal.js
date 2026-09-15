@@ -6,7 +6,7 @@ import { MODAL_TEXTS as T } from '../core/texts.js';
  * Modal: dialogo centrado na tela.
  *
  * A mecanica do <dialog> — top layer, foco preso, Escape, devolver o foco —
- * mora em core/dialogo.js, compartilhada com a gaveta. Aqui fica so o que e
+ * mora em core/dialog.js, compartilhada com a gaveta. Aqui fica so o que e
  * proprio do modal: a caixa no centro, e uma entrada que cresce em vez de
  * deslizar.
  */
@@ -65,7 +65,7 @@ export function modal(optionsOrText, extra = {}) {
 /**
  * Confirmacao que devolve promessa — o caso mais comum de modal num CRUD:
  *
- *   if (await Tucano.confirmar({ title: 'Excluir contrato?' })) excluir();
+ *   if (await Tucano.confirm({ title: 'Excluir contrato?' })) remove();
  */
 export function confirm(options = {}) {
   const { confirm: okLabel = T.confirm, cancel = T.cancel, ...rest } = options;

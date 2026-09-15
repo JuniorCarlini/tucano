@@ -1,5 +1,5 @@
 import { el, escapeHtml, icon, omitUndefined, on } from '../core/dom.js';
-import { sanitize, textOnly } from '../core/sanitize.js';
+import { sanitize } from '../core/sanitize.js';
 import { Modal } from './modal.js';
 import { highlight } from '../core/highlight.js';
 import { EDITOR_TEXTS as T } from '../core/texts.js';
@@ -514,9 +514,8 @@ export class Editor {
 
   _paste(e) {
     e.preventDefault();
-    const text = e.clipboardData?.getData('text/plain')
-      ?? textOnly(e.clipboardData?.getData('text/html'));
-    document.execCommand('insertText', false, text);
+    // getData devolve '' quando o formato nao existe, nunca null: o texto puro basta.
+    document.execCommand('insertText', false, e.clipboardData.getData('text/plain'));
   }
 
   _onKey(e) {
@@ -599,10 +598,7 @@ export class Editor {
 
   /** Celula onde o cursor esta, ou nada. */
   _currentCell() {
-    const sel = window.getSelection();
-    if (!sel?.anchorNode || !this.area.contains(sel.anchorNode)) return null;
-    const node = sel.anchorNode.nodeType === Node.ELEMENT_NODE ? sel.anchorNode : sel.anchorNode.parentElement;
-    const cell = node?.closest?.('th, td') ?? null;
+    const cell = this._currentNode()?.closest('th, td');
     /*
      * A selecao sobrevive ao no que ela apontava: remover uma linha deixa o
      * cursor num elemento que ja saiu do documento, e a operacao seguinte

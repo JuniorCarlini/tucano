@@ -34,7 +34,7 @@ body{margin:0;padding:16px;font-family:system-ui}
 <select data-tuc-select multiple id="s" name="uf"><option selected>SP</option><option>RJ</option></select>
 <input data-tuc-color id="c" value="#4f46e5">
 <input data-tuc-mask="cpf-cnpj" id="m" name="doc">
-<input data-tuc-mask="real" id="m2">
+<input data-tuc-mask="brl" id="m2">
 <input data-tuc-reveal type="password" id="rv" value="segredo">
 <input type="file" data-tuc-upload id="u">
 <textarea data-tuc-editor id="ed"><pre><code>const x = 1;</code></pre></textarea>
@@ -83,7 +83,38 @@ body{margin:0;padding:16px;font-family:system-ui}
   });
   t('datepicker período', function () {
     var i = document.getElementById('dr')._tucano;
-    i.open(); if (!document.querySelector('.tuc-dp.is-range')) throw new Error('sem is-range'); i.close();
+    // Lido no painel desta instância: a classe is-range saiu, porque CSS nenhum a lia.
+    i.open(); var months = i.panel.querySelectorAll('.tuc-dp__month').length; i.close();
+    if (!i.isRange || months !== 2) throw new Error('período com ' + months + ' mês(es)');
+  });
+  t('período digitado aceita a, até, travessão e hífen entre espaços — e só eles', function () {
+    // Eram duas expressões: uma aceitava "aa" por acidente, e as duas cortavam no
+    // hífen de dentro da data, então "25-12-2025 a 31-12-2025" virava 25 — 12.
+    var box = document.createElement('div');
+    box.innerHTML = '<input data-tuc-datepicker data-mode="range">';
+    document.body.append(box);
+    Tucano.init(box);
+    var field = box.querySelector('input'), i = field._tucano;
+    var day = function (d) { return d ? d.getDate() + '/' + (d.getMonth() + 1) : 'nada'; };
+    var cases = [
+      ['01/03/2026 a 15/03/2026', '1/3', '15/3'],
+      ['01/03/2026 até 15/03/2026', '1/3', '15/3'],
+      ['01/03/2026 - 15/03/2026', '1/3', '15/3'],
+      ['01/03/2026–15/03/2026', '1/3', '15/3'],
+      ['01/03/2026 — 15/03/2026', '1/3', '15/3'],
+      ['25-12-2025 a 31-12-2025', '25/12', '31/12'],
+      ['01/03/2026 aa 15/03/2026', '1/3', 'nada'],
+    ];
+    var wrong = [];
+    cases.forEach(function (c) {
+      i.clear({ silent: true });
+      field.value = c[0];
+      field.dispatchEvent(new Event('change', { bubbles: true }));
+      var got = day(i.start) + ' ' + day(i.end);
+      if (got !== c[1] + ' ' + c[2]) wrong.push('"' + c[0] + '" → ' + got);
+    });
+    box.remove();
+    if (wrong.length) throw new Error(wrong.join(' | '));
   });
   t('select lista, filtra e devolve array', function () {
     var i = document.getElementById('s')._tucano;
@@ -680,7 +711,7 @@ body{margin:0;padding:16px;font-family:system-ui}
   t('eventos trazem o formato documentado', function () {
     var seen = {};
     document.addEventListener('tucano:change', function (e) { seen.change = Object.keys(e.detail).join(','); });
-    document.addEventListener('tuc:sort', function (e) { seen.sort = Object.keys(e.detail).join(','); });
+    document.addEventListener('tucano:sort', function (e) { seen.sort = Object.keys(e.detail).join(','); });
     document.getElementById('c')._tucano.setValue('#000000');
     document.querySelector('#t .tuc-table__sortbtn').click();
     // Cada componente acrescenta o que so ele sabe: o color picker manda rgb e
