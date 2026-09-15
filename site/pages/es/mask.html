@@ -214,7 +214,7 @@ Tucano.mask.maskEmail('contato@empresa.com.br')        // 'c••••••@e
 
 <h2 id="sensitive">Campo sensible</h2>
 <p class="lead"><code>data-tuc-reveal</code> pone un ojo para mostrar y ocultar. Un campo que ya llega relleno nace oculto,
-   con solo el final visible; un campo vacío nace visible, porque quien escribe necesita ver.</p>
+   con solo el final visible; un campo vacío nace visible, porque quien escribe necesita ver. La contraseña es la excepción: nace siempre oculta.</p>
 
 <div class="demo">
   <div class="demo-grid is-3">
@@ -276,6 +276,34 @@ Tucano.mask.maskEmail('contato@empresa.com.br')        // 'c••••••@e
 <div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Con máscara, el oculto lleva el valor sin puntuación</p><p>En un campo con <code>data-tuc-mask</code> y <code>data-tuc-reveal</code>, lo que llega al servidor es <code>11144477735</code>, y no <code>111.444.777-35</code> — es el <code>getRaw()</code>. Sin máscara, va el texto tal como se escribió.</p></div></div>
 
 <div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Por qué nacer oculto, y por qué el correo es al revés</p><p>Capturas de pantalla, grabaciones de soporte, alguien mirando por encima del hombro: el dato completo aparecía sin que nadie lo pidiera. Nacer oculto es la diferencia entre exponer por defecto y exponer por elección. En el correo el dominio es lo que ayuda a reconocer la cuenta y la parte local es lo que identifica a la persona — dejar el final revelaría <code>om.br</code> y ocultaría lo útil. Sin <code>@</code>, lo oculta todo.</p></div></div>
+
+<h3 id="sensitive-text">Texto suelto en la pantalla</h3>
+<p>No todo dato sensible está en un campo: el CPF en la pantalla de un cliente, la tarjeta en una celda de tabla, la clave
+   de API en un párrafo. <code>data-tuc-reveal</code> vale en cualquier elemento, en los mismos modos, y junto con
+   <code>data-tuc-format</code>. El texto nace oculto, con el ojo al lado.</p>
+
+<div class="demo">
+  <div class="tuc-table-wrap"><table class="tuc-table">
+    <thead><tr><th>Cliente</th><th>CPF</th><th>Tarjeta</th><th>Correo</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Juan García</td>
+        <td><span id="mk-text-cpf" data-tuc-format="cpf" data-tuc-reveal>11144477735</span></td>
+        <td><span id="mk-text-card" data-tuc-reveal data-reveal-visible="4">4111 1111 1111 1234</span></td>
+        <td><span id="mk-text-email" data-tuc-reveal>juan.garcia@empresa.com</span></td>
+      </tr>
+    </tbody>
+  </table></div>
+  <p style="margin-top:16px">Clave de API: <span id="mk-text-key" data-tuc-reveal="all">sk_live_a1b2c3d4e5f6</span></p>
+</div>
+
+<pre data-code="django">
+<td><span data-tuc-format="cpf" data-tuc-reveal>{{ customer.cpf }}</span></td>
+<td><span data-tuc-reveal data-reveal-visible="4">{{ card.number }}</span></td>
+<p>Clave de API: <span data-tuc-reveal="all">{{ api_key }}</span></p>
+</pre>
+
+<div class="tuc-alert is-warning"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">En la pantalla, ocultar es solo visual</p><p>El valor completo sigue en el HTML: quien abre el código de la página lo ve. Sirve contra capturas, grabaciones y quien mira por encima del hombro. Si el dato no puede llegar al navegador, ocúltalo en el servidor y envía solo lo que puede aparecer, como los cuatro últimos dígitos de la tarjeta.</p></div></div>
 
 <h2 id="display">Solo para mostrar</h2>
 <p class="lead">Para lo que ya viene de la base de datos y no se edita, no hace falta un campo: <code>data-tuc-format</code> da formato al texto del

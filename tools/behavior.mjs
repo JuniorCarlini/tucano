@@ -367,6 +367,33 @@ body{margin:0;padding:16px;font-family:system-ui}
     if (!hidden) throw new Error('sem campo escondido');
     if (value !== '11144477735') throw new Error('escondido com "' + value + '"');
   });
+  t('dado sensível em texto solto nasce escondido e o olho mostra e esconde', function () {
+    // Fora de campo o reveal só desenhava o olho, e o texto continuava inteiro.
+    var box = document.createElement('div');
+    box.innerHTML = '<p><span id="revealText">4111 1111 1111 1234</span></p>'
+      + '<table><tr><td><span id="revealCpf" data-tuc-format="cpf" data-tuc-reveal>11144477735</span></td></tr></table>'
+      + '<p><span id="revealMail" data-tuc-reveal>joao.silva@empresa.com.br</span></p>';
+    box.querySelector('#revealText').setAttribute('data-tuc-reveal', '');
+    box.querySelector('#revealText').setAttribute('data-reveal-visible', '4');
+    document.body.append(box);
+    Tucano.init(box);
+    var card = document.getElementById('revealText'), cpf = document.getElementById('revealCpf'), mail = document.getElementById('revealMail');
+    var hiddenCard = card.textContent, hiddenCpf = cpf.textContent, hiddenMail = mail.textContent;
+    var eye = cpf.parentElement.querySelector('.tuc-reveal__eye');
+    var pressedBefore = eye && eye.getAttribute('aria-pressed');
+    if (eye) eye.click();
+    var shownCpf = cpf.textContent, pressedAfter = eye && eye.getAttribute('aria-pressed');
+    cpf._tucano.destroy();
+    var cell = box.querySelector('td');
+    var restoredWrapper = !!cell.querySelector('.tuc-reveal'), restored = cell.textContent;
+    box.remove();
+    if (hiddenCard !== '•••• •••• •••• 1234') throw new Error('cartão: "' + hiddenCard + '"');
+    if (hiddenCpf !== '•••.•••.•••-35') throw new Error('CPF formatado e escondido: "' + hiddenCpf + '"');
+    if (hiddenMail.indexOf('@empresa.com.br') < 0 || hiddenMail.indexOf('silva') >= 0) throw new Error('e-mail: "' + hiddenMail + '"');
+    if (!eye || pressedBefore !== 'false') throw new Error('olho ausente ou já marcado');
+    if (shownCpf !== '111.444.777-35' || pressedAfter !== 'true') throw new Error('o olho não mostrou: "' + shownCpf + '"');
+    if (restoredWrapper || restored !== '111.444.777-35') throw new Error('destroy não devolveu o texto: "' + restored + '"');
+  });
   t('abas ligam aba e painel pelos papéis', function () {
     var tabs = document.querySelectorAll('#tb .tuc-tabs__tab'), panels = document.querySelectorAll('#tb .tuc-tabs__panel');
     if (document.querySelector('#tb .tuc-tabs__list').getAttribute('role') !== 'tablist') throw new Error('sem tablist');

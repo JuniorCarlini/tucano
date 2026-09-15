@@ -2379,6 +2379,20 @@ textarea.tuc-editor__value[hidden] {
   cursor: default;
   font-variant-numeric: tabular-nums;
 }
+.tuc-reveal {
+  display: inline-flex;
+  max-width: 100%;
+  align-items: center;
+  gap: var(--spacing, 0.25rem);
+  vertical-align: middle;
+}
+.tuc-reveal.is-hidden > :first-child {
+  font-variant-numeric: tabular-nums;
+}
+.tuc-reveal__eye {
+  flex-shrink: 0;
+  margin-block: -0.375rem;
+}
 .tuc-toasts {
   pointer-events: none;
   position: fixed;

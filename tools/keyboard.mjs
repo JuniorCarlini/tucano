@@ -35,6 +35,8 @@ const page = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
 <select id="fixed" data-tuc-select data-clearable="false"><option value="SP">São Paulo</option><option value="RJ">Rio de Janeiro</option></select>
 <select id="searchable" data-tuc-select><option value="AC">Acre</option><option value="BA">Bahia</option><option value="MG">Minas Gerais</option><option value="PR">Paraná</option><option value="SC">Santa Catarina</option><option value="SP">São Paulo</option></select>
 <form id="resetForm"><select id="resetState" data-tuc-select><option value="SP" selected>São Paulo</option><option value="RJ">Rio de Janeiro</option></select></form>
+<input id="revealPassword" type="password" name="token" data-tuc-reveal>
+<input id="revealToken" type="text" name="api_key" data-tuc-reveal="all">
 <textarea id="ked" data-tuc-editor></textarea>
 <div class="tuc-tabs" data-tuc-tabs id="tabs"><div class="tuc-tabs__list">
   <button class="tuc-tabs__tab" aria-selected="true">A</button><button class="tuc-tabs__tab">B</button>
@@ -332,8 +334,31 @@ await testCase('reset do formulário volta o select e o que ele mostra', async (
     ? null : `nativo "${r[0]}", componente ${JSON.stringify(r[1])}, tela "${r[2]}"`;
 });
 
+await testCase('digitar numa senha com o olho não lança erro e não expõe o que se digita', async () => {
+  // Sem gabarito, cada tecla lançava "template is not iterable"; e a senha vazia
+  // nascia a mostra, em type="text", com teclado numérico no celular.
+  await evaluate(`(() => { window.__pageErrors = []; addEventListener('error', (e) => window.__pageErrors.push(e.message));
+    document.getElementById('revealPassword').focus(); })()`);
+  await typeText('sk_live_9');
+  const r = await evaluate(`(() => { const i = document.getElementById('revealPassword');
+    return { errors: window.__pageErrors, type: i.type, value: i.value, inputmode: i.getAttribute('inputmode') }; })()`);
+  if (r.errors.length) return `erro na página: ${r.errors[0]}`;
+  if (r.type !== 'password') return `o campo virou type="${r.type}"`;
+  if (r.value !== 'sk_live_9') return `o valor ficou "${r.value}"`;
+  return r.inputmode ? `inputmode "${r.inputmode}" num campo de senha` : null;
+});
+
+await testCase('digitar num token com o olho, sem máscara, guarda o texto como foi digitado', async () => {
+  await evaluate(`(() => { window.__pageErrors = []; document.getElementById('revealToken').focus(); })()`);
+  await typeText('sk_live_9');
+  const r = await evaluate(`(() => { const hidden = document.querySelector('input[type=hidden][name=api_key]');
+    return { errors: window.__pageErrors, posted: hidden && hidden.value }; })()`);
+  if (r.errors.length) return `erro na página: ${r.errors[0]}`;
+  return r.posted === 'sk_live_9' ? null : `o formulário enviaria "${r.posted}"`;
+});
+
 ws.close();
 chrome.kill();
 unlinkSync(file);
-console.log(failures ? `\n${failures} falha(s) no teclado` : '\n18 caminhos de teclado verificados');
+console.log(failures ? `\n${failures} falha(s) no teclado` : '\n20 caminhos de teclado verificados');
 process.exit(failures ? 1 : 0);

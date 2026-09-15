@@ -214,7 +214,7 @@ Tucano.mask.maskEmail('contato@empresa.com.br')        // 'c••••••@e
 
 <h2 id="sensitive">Sensitive field</h2>
 <p class="lead"><code>data-tuc-reveal</code> adds an eye to show and hide. A field that arrives already filled starts hidden,
-   with only the end visible; an empty field starts visible, because whoever is typing needs to see.</p>
+   with only the end visible; an empty field starts visible, because whoever is typing needs to see. Passwords are the exception: they always start hidden.</p>
 
 <div class="demo">
   <div class="demo-grid is-3">
@@ -276,6 +276,34 @@ Tucano.mask.maskEmail('contato@empresa.com.br')        // 'c••••••@e
 <div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">With a mask, the hidden field carries the value without punctuation</p><p>In a field with <code>data-tuc-mask</code> and <code>data-tuc-reveal</code>, what reaches the server is <code>11144477735</code>, not <code>111.444.777-35</code> — it's <code>getRaw()</code>. Without a mask, the text goes as it was typed.</p></div></div>
 
 <div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Why start hidden, and why email is the other way around</p><p>Screenshots, support recordings, someone looking over your shoulder: the full data showed up without anyone asking. Starting hidden is the difference between exposing by default and exposing by choice. In an email the domain is what helps recognize the account and the local part is what identifies the person — keeping the end would reveal <code>om.br</code> and hide the useful part. Without an <code>@</code>, it hides everything.</p></div></div>
+
+<h3 id="sensitive-text">Loose text on the page</h3>
+<p>Not all sensitive data lives in a field: the CPF on a customer screen, the card number in a table cell, the API key in a
+   paragraph. <code>data-tuc-reveal</code> works on any element, in the same modes, and together with
+   <code>data-tuc-format</code>. The text starts hidden, with the eye next to it.</p>
+
+<div class="demo">
+  <div class="tuc-table-wrap"><table class="tuc-table">
+    <thead><tr><th>Customer</th><th>CPF</th><th>Card</th><th>Email</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>John Smith</td>
+        <td><span id="mk-text-cpf" data-tuc-format="cpf" data-tuc-reveal>11144477735</span></td>
+        <td><span id="mk-text-card" data-tuc-reveal data-reveal-visible="4">4111 1111 1111 1234</span></td>
+        <td><span id="mk-text-email" data-tuc-reveal>john.smith@company.com</span></td>
+      </tr>
+    </tbody>
+  </table></div>
+  <p style="margin-top:16px">API key: <span id="mk-text-key" data-tuc-reveal="all">sk_live_a1b2c3d4e5f6</span></p>
+</div>
+
+<pre data-code="django">
+<td><span data-tuc-format="cpf" data-tuc-reveal>{{ customer.cpf }}</span></td>
+<td><span data-tuc-reveal data-reveal-visible="4">{{ card.number }}</span></td>
+<p>API key: <span data-tuc-reveal="all">{{ api_key }}</span></p>
+</pre>
+
+<div class="tuc-alert is-warning"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">On the page, hiding is visual only</p><p>The full value is still in the HTML: anyone who opens the page source sees it. It protects against screenshots, recordings and someone looking over your shoulder. If the data must not reach the browser, hide it on the server and send only what may be shown, such as the card's last four digits.</p></div></div>
 
 <h2 id="display">Display only</h2>
 <p class="lead">For what already comes from the database and isn't edited, you don't need a field: <code>data-tuc-format</code> formats the text of the

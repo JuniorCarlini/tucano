@@ -4,6 +4,27 @@ O que mudou em cada versão da Tucano, da mais nova para a mais antiga. Antes de
 atualizar, leia "Atenção ao atualizar": ali está o que pede mudança no seu
 projeto.
 
+## Ainda não publicado
+
+### Novo
+
+- `data-tuc-reveal` também em texto solto na tela, e não só em campo: um CPF
+  num perfil, o cartão numa célula de tabela, uma chave de API num parágrafo. O
+  texto aparece escondido, com o olho ao lado, nos mesmos modos (`end`,
+  `email`, `all`) e junto com `data-tuc-format`. É só visual: o valor inteiro
+  continua no HTML, então o que não pode chegar ao navegador precisa ser
+  escondido no servidor.
+
+### Corrigido
+
+- `data-tuc-reveal` num campo sem `data-tuc-mask`, como senha e token, lançava
+  erro a cada tecla digitada.
+- Campo de senha vazio com `data-tuc-reveal` nascia visível, trocado para
+  `type="text"`, e mostrava o que se digitava. Agora nasce sempre escondido.
+- Campo só com o olho recebia `inputmode="numeric"`, e o celular abria o
+  teclado de números para senha e token. E o campo de senha perdia o
+  `autocomplete` do navegador, o que atrapalhava o gerenciador de senhas.
+
 ## 0.33.1 — 2026-09-14
 
 ### Corrigido

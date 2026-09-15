@@ -4,6 +4,27 @@ What changed in each Tucano release, newest first. Check the "Before upgrading"
 section of each version first: that is where you will find what requires changes
 in your project.
 
+## Unreleased
+
+### New
+
+- `data-tuc-reveal` also works on loose text on the page, not only on fields: a
+  CPF on a profile, the card number in a table cell, an API key in a paragraph.
+  The text shows hidden, with the eye next to it, in the same modes (`end`,
+  `email`, `all`) and together with `data-tuc-format`. It is visual only: the
+  full value is still in the HTML, so anything that must not reach the browser
+  has to be hidden on the server.
+
+### Fixed
+
+- `data-tuc-reveal` on a field without `data-tuc-mask`, such as a password or
+  a token, threw an error on every keystroke.
+- An empty password field with `data-tuc-reveal` started visible, switched to
+  `type="text"`, and showed what was typed. It now always starts hidden.
+- A field with only the eye got `inputmode="numeric"`, so phones opened the
+  number keyboard for passwords and tokens. And the password field lost the
+  browser's `autocomplete`, which got in the way of password managers.
+
 ## 0.33.1 — 2026-09-14
 
 ### Fixed

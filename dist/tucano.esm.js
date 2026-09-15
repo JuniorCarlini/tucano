@@ -3328,6 +3328,12 @@ var Mask = class {
     this.opts = { ...DEFAULTS5, ...omitUndefined(options) };
     this.opts.locale = this.opts.locale || document.documentElement.lang || "pt-BR";
     this.input = node;
+    if (this.opts.reveal && !node.matches("input, textarea")) {
+      this._cleanups = [];
+      this._buildTextReveal();
+      node._tucano = this;
+      return;
+    }
     node.classList.add("tuc-input");
     const preset = FORMATS[this.opts.format];
     this.preset = preset || null;
@@ -3361,6 +3367,7 @@ var Mask = class {
    * ---------------------------------------------------------------- */
   /** Conteudo sem formatacao: so digitos, ou digitos e letras. */
   getRaw() {
+    if (this.textMode) return this.rawText;
     const text = this.rawValue ?? this.input.value;
     if (this.isCurrency) return text.replace(/\D/g, "");
     if (!this.templates) return text;
@@ -3387,7 +3394,10 @@ var Mask = class {
   destroy() {
     this._cleanups.forEach((fn) => fn());
     this._cleanups = [];
-    if (this.wrapper) {
+    if (this.wrapper && this.textMode) {
+      this.input.textContent = this.rawText;
+      this.wrapper.replaceWith(this.input);
+    } else if (this.wrapper) {
       if (this.rawValue != null) this.input.value = this.rawValue;
       if (this.realName) this.input.name = this.realName;
       this.input.readOnly = this.readOnlyOriginal ?? false;
@@ -3433,11 +3443,36 @@ var Mask = class {
       onclick: () => this._toggle()
     });
     this.wrapper.append(this.eye);
-    this.showing = !input.value;
+    this.showing = !this.password && !input.value;
     this._paintEye();
     this._cleanups.push(on(input, "input", () => {
       if (this.hidden) this.hidden.value = this.getRaw();
     }));
+  }
+  /**
+   * Dado sensivel fora de campo: o CPF num perfil, o cartao numa celula de
+   * tabela. O texto aparece escondido, com o olho ao lado, nos mesmos modos do
+   * campo. E so visual: o valor inteiro esta no HTML, entao o que nao pode chegar
+   * ao navegador tem de ser escondido no servidor.
+   */
+  _buildTextReveal() {
+    const node = this.input;
+    const raw = (node.dataset.value ?? node.textContent).trim();
+    const name = this.opts.format || node.dataset.tucFormat;
+    this.rawText = name ? format2(raw, name, { decimals: this.opts.decimals, currency: this.opts.currency ?? void 0, locale: this.opts.locale }) : raw;
+    node.setAttribute("data-tuc-formatted", "");
+    this.textMode = true;
+    this.wrapper = el("span", { class: "tuc-reveal" });
+    node.replaceWith(this.wrapper);
+    this.wrapper.append(node);
+    this.eye = el("button", {
+      type: "button",
+      class: "tuc-btn is-ghost is-icon is-sm tuc-reveal__eye",
+      onclick: () => this._toggle()
+    });
+    this.wrapper.append(this.eye);
+    this.showing = false;
+    this._paintEye();
   }
   /**
    * Modo de esconder. Escolhido pelo campo quando nao informado: `type=email`
@@ -3445,18 +3480,21 @@ var Mask = class {
    */
   _hiddenMode() {
     if (this.opts.revealMode) return this.opts.revealMode;
+    if (this.textMode) return this.rawText.includes("@") ? "email" : "end";
     if (this.input.type === "email") return "email";
     return "end";
   }
   _toggle() {
     this.showing = !this.showing;
     this._paintEye();
-    if (this.showing) this.input.focus();
+    if (this.showing && !this.textMode) this.input.focus();
   }
   _paintEye() {
     const input = this.input;
     const showing = this.showing;
-    if (this.password) {
+    if (this.textMode) {
+      input.textContent = showing ? this.rawText : maskMiddle(this.rawText, this.opts.revealVisible, this._hiddenMode());
+    } else if (this.password) {
       input.type = showing ? "text" : "password";
     } else {
       if (showing) {
@@ -3482,10 +3520,10 @@ var Mask = class {
    * ---------------------------------------------------------------- */
   _wire() {
     const input = this.input;
-    if (!input.getAttribute("inputmode")) {
+    if (!input.getAttribute("inputmode") && (this.isCurrency || this.templates)) {
       input.setAttribute("inputmode", this.isCurrency || !/[A*]/.test([].concat(this.templates).join("")) ? "numeric" : "text");
     }
-    input.setAttribute("autocomplete", input.getAttribute("autocomplete") || "off");
+    if (input.type !== "password") input.setAttribute("autocomplete", input.getAttribute("autocomplete") || "off");
     this._cleanups.push(
       on(input, "input", (e) => this._onType(e)),
       on(input, "blur", () => {
@@ -3533,6 +3571,7 @@ var Mask = class {
       if (keepCursor) input.setSelectionRange(text2.length, text2.length);
       return;
     }
+    if (!this.templates) return;
     const all = [].concat(this.templates).join("");
     let chars = [...clear(raw, all)];
     if (this.uppercase) chars = chars.map((c) => c.toUpperCase());

@@ -55,6 +55,15 @@ export class Mask {
     this.opts = { ...DEFAULTS, ...omitUndefined(options) };
     this.opts.locale = this.opts.locale || document.documentElement.lang || 'pt-BR';
     this.input = node;
+
+    // Texto solto na tela, e nao campo: so esconder e mostrar (ver _buildTextReveal).
+    if (this.opts.reveal && !node.matches('input, textarea')) {
+      this._cleanups = [];
+      this._buildTextReveal();
+      node._tucano = this;
+      return;
+    }
+
     // O componente e dono do proprio campo, entao ele veste a classe: quem
     // escreve o template nao deveria ter de lembrar disso, e sem ela o input
     // aparece com a caixa nativa do navegador ao lado dos nossos controles.
@@ -97,6 +106,7 @@ export class Mask {
 
   /** Conteudo sem formatacao: so digitos, ou digitos e letras. */
   getRaw() {
+    if (this.textMode) return this.rawText;
     const text = this.rawValue ?? this.input.value;
     if (this.isCurrency) return text.replace(/\D/g, '');
     if (!this.templates) return text;
@@ -129,7 +139,10 @@ export class Mask {
   destroy() {
     this._cleanups.forEach((fn) => fn());
     this._cleanups = [];
-    if (this.wrapper) {
+    if (this.wrapper && this.textMode) {
+      this.input.textContent = this.rawText;
+      this.wrapper.replaceWith(this.input);
+    } else if (this.wrapper) {
       if (this.rawValue != null) this.input.value = this.rawValue;
       if (this.realName) this.input.name = this.realName;
       this.input.readOnly = this.readOnlyOriginal ?? false;
@@ -182,8 +195,10 @@ export class Mask {
     });
     this.wrapper.append(this.eye);
 
-    // Vazio comeca a mostra; com conteudo, comeca escondido.
-    this.showing = !input.value;
+    // Vazio comeca a mostra, para quem digita ver; com conteudo, escondido. Senha
+    // comeca sempre escondida: a mostra ela virava type="text" e expunha o que se
+    // digitava.
+    this.showing = !this.password && !input.value;
     this._paintEye();
 
     this._cleanups.push(on(input, 'input', () => {
@@ -192,11 +207,43 @@ export class Mask {
   }
 
   /**
+   * Dado sensivel fora de campo: o CPF num perfil, o cartao numa celula de
+   * tabela. O texto aparece escondido, com o olho ao lado, nos mesmos modos do
+   * campo. E so visual: o valor inteiro esta no HTML, entao o que nao pode chegar
+   * ao navegador tem de ser escondido no servidor.
+   */
+  _buildTextReveal() {
+    const node = this.input;
+    const raw = (node.dataset.value ?? node.textContent).trim();
+    const name = this.opts.format || node.dataset.tucFormat;
+    // Formatado aqui, e nao pelo autoFormat: ele roda depois e formataria os pontos.
+    this.rawText = name
+      ? format(raw, name, { decimals: this.opts.decimals, currency: this.opts.currency ?? undefined, locale: this.opts.locale })
+      : raw;
+    node.setAttribute('data-tuc-formatted', '');
+    this.textMode = true;
+
+    this.wrapper = el('span', { class: 'tuc-reveal' });
+    node.replaceWith(this.wrapper);
+    this.wrapper.append(node);
+    this.eye = el('button', {
+      type: 'button',
+      class: 'tuc-btn is-ghost is-icon is-sm tuc-reveal__eye',
+      onclick: () => this._toggle(),
+    });
+    this.wrapper.append(this.eye);
+
+    this.showing = false;
+    this._paintEye();
+  }
+
+  /**
    * Modo de esconder. Escolhido pelo campo quando nao informado: `type=email`
    * guarda o dominio, o resto guarda o fim.
    */
   _hiddenMode() {
     if (this.opts.revealMode) return this.opts.revealMode;
+    if (this.textMode) return this.rawText.includes('@') ? 'email' : 'end';
     if (this.input.type === 'email') return 'email';
     return 'end';
   }
@@ -204,14 +251,16 @@ export class Mask {
   _toggle() {
     this.showing = !this.showing;
     this._paintEye();
-    if (this.showing) this.input.focus();
+    if (this.showing && !this.textMode) this.input.focus();
   }
 
   _paintEye() {
     const input = this.input;
     const showing = this.showing;
 
-    if (this.password) {
+    if (this.textMode) {
+      input.textContent = showing ? this.rawText : maskMiddle(this.rawText, this.opts.revealVisible, this._hiddenMode());
+    } else if (this.password) {
       input.type = showing ? 'text' : 'password';
     } else {
       if (showing) {
@@ -239,10 +288,14 @@ export class Mask {
 
   _wire() {
     const input = this.input;
-    if (!input.getAttribute('inputmode')) {
+    // So gabarito e moeda dizem qual teclado serve. Campo so com o olho — senha,
+    // token — ganhava teclado numerico no celular.
+    if (!input.getAttribute('inputmode') && (this.isCurrency || this.templates)) {
       input.setAttribute('inputmode', this.isCurrency || !/[A*]/.test([].concat(this.templates).join('')) ? 'numeric' : 'text');
     }
-    input.setAttribute('autocomplete', input.getAttribute('autocomplete') || 'off');
+    // Senha fica com o autocomplete do navegador: desligado, o gerenciador de
+    // senhas deixava de preencher.
+    if (input.type !== 'password') input.setAttribute('autocomplete', input.getAttribute('autocomplete') || 'off');
 
     this._cleanups.push(
       on(input, 'input', (e) => this._onType(e)),
@@ -295,6 +348,10 @@ export class Mask {
       if (keepCursor) input.setSelectionRange(text.length, text.length);
       return;
     }
+
+    // Campo so com o olho nao tem gabarito: nao ha o que formatar. Sem isto cada
+    // tecla lancava "template is not iterable".
+    if (!this.templates) return;
 
     const all = [].concat(this.templates).join('');
     let chars = [...clear(raw, all)];

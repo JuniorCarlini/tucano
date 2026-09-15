@@ -9,7 +9,7 @@ montam sozinhos. Os exemplos usam Django; em PHP e Rails, campo múltiplo precis
 de `name` terminado em `[]`, e o upload direto precisa do cabeçalho de CSRF do
 framework (`data-csrf="false"` e a opção `headers` do `new Upload`).
 
-**37 KB de JS + 14 KB de CSS** (minificado + gzip).
+**38 KB de JS + 14 KB de CSS** (minificado + gzip).
 
 **[Documentação e exemplos ao vivo →](https://juniorcarlini.github.io/tucano/)**
 
@@ -953,16 +953,17 @@ vai num `<input type="hidden">` com o mesmo `name`, então o servidor recebe o
 dado completo — o que fica escondido é só a tela. Print, gravação de suporte e
 quem olha por cima do ombro deixam de expor o dado por padrão.
 
-Em `type="password"` o olho apenas alterna o `type`, como se espera.
+Em `type="password"` o olho apenas alterna o `type`, como se espera, e a senha
+nasce sempre oculta, mesmo vazia.
 
 Funciona em qualquer campo, não só documento. O modo de esconder muda o que
 fica à mostra:
 
 | Modo | Quando | Resultado |
 | --- | --- | --- |
-| `fim` (padrão) | Documento, cartão, conta, telefone | `•••• •••• •••• 1234` |
+| `end` (padrão) | Documento, cartão, conta, telefone | `•••• •••• •••• 1234` |
 | `email` | Automático em `type="email"` | `j•••••••••@empresa.com.br` |
-| `tudo` | Senha, token, chave de API | `••••••••••••••••` |
+| `all` | Senha, token, chave de API | `••••••••••••••••` |
 
 ```html
 <input data-tuc-reveal data-reveal-visible="4">
@@ -973,6 +974,17 @@ fica à mostra:
 O e-mail esconde ao contrário do resto de propósito: o domínio reconhece a
 conta, a parte local identifica a pessoa. Guardar o fim revelaria `om.br` e
 esconderia o útil.
+
+Também vale em texto solto na tela, fora de campo — o CPF num perfil, o cartão
+numa tabela —, nos mesmos modos e junto com `data-tuc-format`:
+
+```html
+<td><span data-tuc-format="cpf" data-tuc-reveal>11144477735</span></td>
+<span data-tuc-reveal="all">sk_live_a1b2c3d4e5f6</span>
+```
+
+Na tela, esconder é só visual: o valor inteiro continua no HTML. O que não pode
+chegar ao navegador precisa ser escondido no servidor.
 
 ### Só para exibir
 

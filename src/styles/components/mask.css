@@ -37,5 +37,21 @@
   font-variant-numeric: tabular-nums;
 }
 
+/*
+ * Dado sensivel fora de campo: o texto e o olho na mesma linha, dentro de um
+ * paragrafo ou de uma celula. A margem negativa do botao impede que ele aumente
+ * a altura da linha de uma tabela so por estar ali.
+ */
+.tuc-reveal {
+  @apply inline-flex max-w-full items-center gap-1 align-middle;
+}
+.tuc-reveal.is-hidden > :first-child {
+  font-variant-numeric: tabular-nums;
+}
+.tuc-reveal__eye {
+  @apply shrink-0;
+  margin-block: -0.375rem;
+}
+
 /* O campo reprovado na validacao de documento e desenhado em form.css, junto
    com todo campo que reprovou. */
