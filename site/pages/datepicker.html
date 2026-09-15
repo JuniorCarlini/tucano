@@ -233,9 +233,9 @@ document.querySelector('#due_date').addEventListener('tucano:change', (e) => {
   </tbody>
 </table></div>
 
-<p>Com a máscara completa o calendário já pula para a data digitada e a marca, sem fechar. O valor se confirma ao sair do campo
-   ou com <code>Enter</code> enquanto o painel está aberto. Texto que não vira data volta ao valor anterior, e data fora de
-   <code>min</code>, <code>max</code> ou <code>disabledDates</code> não é aceita. Apagar em cima de um separador remove o dígito
+<p>Com a máscara completa o calendário já pula para a data digitada, sem fechar e sem mudar o valor. O valor se confirma ao sair do campo
+   ou com <code>Enter</code> enquanto o painel está aberto, que também fecha; <code>Esc</code> descarta o que foi digitado. Texto que não vira data volta ao valor anterior, e data fora de
+   <code>min</code>, <code>max</code> ou <code>disabledDates</code> não é aceita — nem puxada para o limite. Período sem um fim válido é recusado inteiro. Apagar em cima de um separador remove o dígito
    vizinho, em vez de travar.</p>
 
 <p>Formato com nome de mês (<code>MMMM</code>) ou <code>AM/PM</code> não tem como ser mascarado; ali o campo fica livre e vale a
@@ -269,22 +269,27 @@ native: true      // sempre o seletor do sistema — por atributo, data-native="
   <tbody>
     <tr><td><code>↓</code></td><td>Campo</td><td>Abre o calendário</td></tr>
     <tr><td><code>Espaço</code></td><td>Campo vazio</td><td>Abre o calendário</td></tr>
-    <tr><td><code>Enter</code></td><td>Campo, painel aberto</td><td>Confirma o que foi digitado</td></tr>
+    <tr><td><code>Enter</code></td><td>Campo, painel aberto</td><td>Confirma o que foi digitado e fecha</td></tr>
     <tr><td><code>←</code> <code>→</code></td><td>Grade</td><td>Dia anterior e seguinte</td></tr>
     <tr><td><code>↑</code> <code>↓</code></td><td>Grade</td><td>Mesmo dia na semana anterior e na seguinte</td></tr>
     <tr><td><code>PageUp</code> <code>PageDown</code></td><td>Grade</td><td>Mês anterior e seguinte; com <code>Shift</code>, ano</td></tr>
     <tr><td><code>Home</code> <code>End</code></td><td>Grade</td><td>Início e fim da semana</td></tr>
     <tr><td><code>Enter</code> <code>Espaço</code></td><td>Grade</td><td>Escolhe o dia</td></tr>
+    <tr><td><code>↑</code> <code>↓</code></td><td>Coluna de hora</td><td>Valor anterior e seguinte da coluna</td></tr>
+    <tr><td><code>Home</code> <code>End</code></td><td>Coluna de hora</td><td>Primeiro e último valor da coluna</td></tr>
+    <tr><td><code>Enter</code> <code>Espaço</code></td><td>Coluna de hora</td><td>Escolhe o valor</td></tr>
     <tr><td><code>Tab</code></td><td>Campo, painel aberto</td><td>Segue para o próximo campo e fecha o painel</td></tr>
-    <tr><td><code>Tab</code></td><td>Dentro do painel</td><td>Anda entre os controles sem sair do painel</td></tr>
-    <tr><td><code>Esc</code></td><td>Campo ou painel</td><td>Fecha e devolve o foco ao campo</td></tr>
+    <tr><td><code>Tab</code></td><td>Dentro do painel</td><td>Anda entre os controles sem sair do painel; cada coluna de hora é uma parada só</td></tr>
+    <tr><td><code>Esc</code></td><td>Campo ou painel</td><td>Fecha, descarta o que não foi confirmado e devolve o foco ao campo</td></tr>
   </tbody>
 </table></div>
 
 <div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Por que <code>Tab</code> não abre, e <code>Enter</code> também não</p><p>Quem tabula por um formulário até o botão de salvar não deveria levar um calendário na cara a cada campo, cobrindo o seguinte — era o que empilhava painéis. E este é um campo de texto dentro de um <code>&lt;form&gt;</code>: <code>Enter</code> ali envia o formulário, que é o que se espera depois de digitar a data. Por isso quem abre é o <code>Espaço</code>, e só com o campo vazio, porque com hora se digita <code>07/09/2026 14:30</code>.</p></div></div>
 
 <p>Clique fora fecha sem roubar o foco de onde se clicou; um período escolhido pela metade é descartado ao fechar, porque não
-   existe meio intervalo. Com <code>prefers-reduced-motion</code> o painel só esmaece, sem deslizar.</p>
+   existe meio intervalo, e o período que já estava escolhido volta. Com o botão Aplicar — o padrão com hora, ou
+   <code>autoApply: false</code> —, dia, hora e atalho ficam pendentes: só o Aplicar confirma e dispara <code>tucano:change</code>,
+   uma vez, e fechar com <code>Esc</code> ou clique fora descarta a escolha. Sem ele, cada escolha vale na hora. Com <code>prefers-reduced-motion</code> o painel só esmaece, sem deslizar.</p>
 
 <h2 id="api">API</h2>
 <!-- api -->

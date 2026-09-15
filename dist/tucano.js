@@ -235,6 +235,7 @@ var Tucano = (() => {
     return s.charAt(0).toUpperCase() + s.slice(1);
   }
   var pad = (n, len = 2) => String(n).padStart(len, "0");
+  var FORMAT_TOKENS = /'[^']*'|yyyy|yy|MMMM|MMM|MM|M|dd|d|EEEE|EEE|HH|H|hh|h|mm|m|ss|s|a/g;
   function format(date, pattern, locale = "pt-BR") {
     if (!isValid(date)) return "";
     const L = getLocaleData(locale);
@@ -260,9 +261,7 @@ var Tucano = (() => {
       s: () => String(date.getSeconds()),
       a: () => date.getHours() < 12 ? "AM" : "PM"
     };
-    const tokens = Object.keys(map).sort((a, b) => b.length - a.length);
-    const re = new RegExp(`'[^']*'|${tokens.join("|")}`, "g");
-    return pattern.replace(re, (t) => t.startsWith("'") ? t.slice(1, -1) : map[t]());
+    return pattern.replace(FORMAT_TOKENS, (t) => t.startsWith("'") ? t.slice(1, -1) : map[t]());
   }
   function toISODate(date) {
     return isValid(date) ? `${pad(date.getFullYear(), 4)}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}` : "";
@@ -276,11 +275,8 @@ var Tucano = (() => {
     if (!value) return null;
     if (value instanceof Date) return isValid(value) ? value : null;
     const m = /^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2}))?)?/.exec(String(value).trim());
-    if (m) {
-      const d2 = new Date(+m[1], +m[2] - 1, +m[3], +(m[4] || 0), +(m[5] || 0), +(m[6] || 0));
-      return isValid(d2) ? d2 : null;
-    }
-    const d = new Date(value);
+    if (!m) return null;
+    const d = new Date(+m[1], +m[2] - 1, +m[3], +(m[4] || 0), +(m[5] || 0), +(m[6] || 0));
     return isValid(d) ? d : null;
   }
   function parseUserInput(text, locale = "pt-BR", reference = /* @__PURE__ */ new Date()) {
@@ -409,6 +405,7 @@ var Tucano = (() => {
 
   // src/js/core/popover.js
   var EXIT_MS = 200;
+  var exitTimers = /* @__PURE__ */ new WeakMap();
   var Popover = class {
     constructor(anchor, panel, options = {}) {
       this.anchor = anchor;
@@ -436,7 +433,7 @@ var Tucano = (() => {
     show() {
       if (this.open) return;
       this.open = true;
-      clearTimeout(this._exitTimer);
+      clearTimeout(exitTimers.get(this.panel));
       this.panel.classList.remove("is-closing");
       this.panel.style.position = "absolute";
       this.panel.style.top = "0";
@@ -493,17 +490,17 @@ var Tucano = (() => {
       }
       this._ro?.disconnect();
       this._ro = null;
-      clearTimeout(this._exitTimer);
+      clearTimeout(exitTimers.get(this.panel));
       if (!animate) {
         this.panel.classList.remove("is-closing");
         this.panel.remove();
         return;
       }
       this.panel.classList.add("is-closing");
-      this._exitTimer = setTimeout(() => {
+      exitTimers.set(this.panel, setTimeout(() => {
         this.panel.classList.remove("is-closing");
         this.panel.remove();
-      }, EXIT_MS);
+      }, EXIT_MS));
     }
     destroy() {
       this.hide();
@@ -751,6 +748,7 @@ var Tucano = (() => {
 
   // src/js/components/datepicker.js
   var RANGE_SEPARATOR = /\s*[–—]\s*|\s+(?:-{1,2}|at[ée]|a)\s+/i;
+  var TOUCHED_ATTRS = ["name", "role", "aria-haspopup", "aria-expanded", "aria-controls", "placeholder", "autocomplete", "inputmode", "readonly"];
   var DEFAULTS = {
     mode: "single",
     // 'single' | 'range'
@@ -772,7 +770,7 @@ var Tucano = (() => {
     presets: false,
     // atalhos de periodo (Hoje, Ultimos 7 dias...): opt-in
     autoApply: void 0,
-    // default: true sem hora, false com hora
+    // default: true sem hora, false com hora. Sem autoApply, a escolha so vale no Aplicar
     clearable: true,
     weekNumbers: false,
     placement: "bottom-center",
@@ -788,10 +786,15 @@ var Tucano = (() => {
     onOpen: null,
     onClose: null
   };
-  var DatePicker = class {
+  var DatePicker = class _DatePicker {
     constructor(target, options = {}) {
       const node = typeof target === "string" ? document.querySelector(target) : target;
       if (!node) throw new Error("[DatePicker] elemento alvo nao encontrado");
+      if (node._tucano instanceof _DatePicker) {
+        const ready = node.hasAttribute("data-tuc-ready");
+        node._tucano.destroy();
+        node.toggleAttribute("data-tuc-ready", ready);
+      }
       this.opts = { ...DEFAULTS, ...omitUndefined(options) };
       this.opts.locale = this.opts.locale || document.documentElement.lang || navigator.language || "pt-BR";
       this.L = getLocaleData(this.opts.locale);
@@ -814,12 +817,17 @@ var Tucano = (() => {
       this._cleanups = [];
       node._tucano = this;
       this.input = node;
+      this._original = Object.fromEntries(TOUCHED_ATTRS.map((name) => [name, node.getAttribute(name)]));
+      this._addedClass = !node.classList.contains("tuc-input");
       node.classList.add("tuc-input");
       this._buildPanel();
       this._setupTarget();
-      this._readInitialValue();
+      this._readValue(this.opts.value ?? node.value);
+      this._saved = [this.start, this.end];
+      this._syncTarget();
       this.viewDate = this._anchorMonth();
       this.focusDate = clone(this.viewDate);
+      if (node.form) this._cleanups.push(on(node.form, "reset", () => setTimeout(() => this._resetFromField())));
     }
     /* ---------------------------------------------------------------- *
      * API publica                                                       *
@@ -830,26 +838,20 @@ var Tucano = (() => {
     setValue(value, { silent = false } = {}) {
       if (this.isRange) {
         const v = value || {};
-        this.start = this._normalize(parseISO(v.start ?? v[0]));
-        this.end = this._normalize(parseISO(v.end ?? v[1]));
+        this.start = this._normalize(this._toDate(v.start ?? v[0]));
+        this.end = this._normalize(this._toDate(v.end ?? v[1]));
         if (this.start && this.end && compareDay(this.start, this.end) > 0) [this.start, this.end] = [this.end, this.start];
       } else {
-        this.start = this._normalize(parseISO(value));
+        this.start = this._normalize(this._toDate(value));
         this.end = null;
       }
-      this.pendingRange = false;
       this.viewDate = this._anchorMonth();
-      this._syncTarget();
-      this._render();
-      if (!silent) this._emit();
+      this._commit(silent);
     }
     clear({ silent = false } = {}) {
       this.start = null;
       this.end = null;
-      this.pendingRange = false;
-      this._syncTarget();
-      this._render();
-      if (!silent) this._emit();
+      this._commit(silent);
     }
     open() {
       if (this.native) {
@@ -858,16 +860,19 @@ var Tucano = (() => {
       }
       if (this.isOpen) return;
       this.isOpen = true;
+      this._saved = [this.start, this.end];
       this.viewDate = this._anchorMonth();
-      this.focusDate = clone(this.start || this.viewDate);
+      this.focusDate = this._initialFocus();
       this.view = "days";
       this._render();
       this.popover = new Popover(this.input, this.panel, {
         placement: this.opts.placement,
         appendTo: this.opts.appendTo,
         closeOnFocusOut: true,
-        // Clique fora: nao devolvemos o foco, senao roubariamos de onde o usuario clicou.
-        onDismiss: (reason) => this.close({ restoreFocus: reason === "escape" })
+        onDismiss: (reason) => {
+          if (reason === "outside") this._commitTyped();
+          this.close({ restoreFocus: reason === "escape" });
+        }
       });
       this.popover.show();
       this._revealed = null;
@@ -879,11 +884,10 @@ var Tucano = (() => {
     }
     close({ restoreFocus = true } = {}) {
       if (!this.isOpen) return;
-      if (this.pendingRange) {
-        this.pendingRange = false;
-        this.end = null;
-        this._syncTarget();
-      }
+      [this.start, this.end] = this._saved;
+      this.pendingRange = false;
+      this.hover = null;
+      this._syncTarget();
       this.isOpen = false;
       this.popover?.destroy();
       this.popover = null;
@@ -891,7 +895,7 @@ var Tucano = (() => {
       this._releaseFocus = null;
       this.input.setAttribute("aria-expanded", "false");
       this.input.removeAttribute("aria-controls");
-      if (restoreFocus && !this._compact) {
+      if (restoreFocus && !this._isCompact) {
         this._suppressOpen = true;
         this.input.focus();
         this._suppressOpen = false;
@@ -907,7 +911,15 @@ var Tucano = (() => {
       this._cleanups = [];
       this.panel.remove();
       this.isoInput?.remove();
-      delete this.input._tucano;
+      this.wrap?.replaceWith(this.input);
+      const input = this.input;
+      for (const [name, value] of Object.entries(this._original)) {
+        if (value === null) input.removeAttribute(name);
+        else input.setAttribute(name, value);
+      }
+      if (this._addedClass) input.classList.remove("tuc-input");
+      input.removeAttribute("data-tuc-ready");
+      delete input._tucano;
     }
     /* ---------------------------------------------------------------- *
      * Setup                                                             *
@@ -916,10 +928,11 @@ var Tucano = (() => {
       this.panel = el("div", {
         class: "tuc-dp",
         role: "dialog",
-        "aria-modal": "false",
         "aria-label": this.isRange ? DATEPICKER_TEXTS.dialogRange : DATEPICKER_TEXTS.dialog,
         id: this.id
       });
+      this._live = el("div", { class: "tuc-dp__live", "aria-live": "polite" });
+      this.panel.append(this._live);
       this._cleanups.push(
         on(this.panel, "keydown", (e) => this._onPanelKeydown(e)),
         on(this.panel, "mouseleave", () => {
@@ -942,41 +955,31 @@ var Tucano = (() => {
       if (this.opts.native === true) return true;
       return matchMedia("(pointer: coarse)").matches;
     }
-    /**
-     * Layout compacto: tela estreita E ponteiro de toque.
-     *
-     * O 40rem espelha o breakpoint do CSS (core/tokens.css) — os dois precisam
-     * concordar. A condicao de toque entra junto para nao desabilitar a
-     * digitacao numa janela estreita de desktop.
-     */
-    get _compact() {
-      return matchMedia("(max-width: 40rem) and (pointer: coarse)").matches;
-    }
     _setupTarget() {
-      if (this.native) return this._setupNative();
       const input = this.input;
-      if (this._compact) {
-        input.readOnly = true;
-        this._cleanups.push(on(input, "pointerdown", (e) => {
+      input.setAttribute("autocomplete", "off");
+      if (!input.placeholder) input.placeholder = this._placeholder();
+      if (this.native) return this._setupNative();
+      const compact = matchMedia("(max-width: 40rem) and (pointer: coarse)");
+      this._applyCompact(compact.matches);
+      this._cleanups.push(on(compact, "change", (e) => this._applyCompact(e.matches)));
+      this._cleanups.push(
+        on(input, "pointerdown", (e) => {
+          if (!this._isCompact) return;
           e.preventDefault();
           this.isOpen ? this.close({ restoreFocus: false }) : this.open();
-        }));
-      }
-      input.setAttribute("autocomplete", "off");
-      this._mask = this._compact ? null : this._maskTemplate();
-      this._maskDigits = "";
-      if (this._mask) {
-        input.setAttribute("inputmode", "numeric");
-        this._cleanups.push(on(input, "input", (e) => this._onMaskInput(e)));
-      }
+        }),
+        on(input, "input", (e) => {
+          if (this._mask) this._onMaskInput(e);
+        })
+      );
       input.setAttribute("role", "combobox");
       input.setAttribute("aria-haspopup", "dialog");
       input.setAttribute("aria-expanded", "false");
-      if (!input.placeholder) input.placeholder = this._placeholder();
       this._addIsoInput(input);
       this._cleanups.push(
         on(input, "click", () => {
-          if (!this._suppressOpen && !this._compact) this.open();
+          if (!this._suppressOpen && !this._isCompact) this.open();
         }),
         on(input, "keydown", (e) => {
           if (e.key === "ArrowDown" && !this.isOpen) {
@@ -990,6 +993,7 @@ var Tucano = (() => {
           } else if (e.key === "Enter" && this.isOpen) {
             e.preventDefault();
             this._commitTyped();
+            this.close();
           }
         }),
         // Ignora o `change` que nos mesmos disparamos em _emit(); senao o texto
@@ -1008,6 +1012,16 @@ var Tucano = (() => {
           this._commitTyped();
         })
       );
+    }
+    /** Liga ou desliga o layout compacto: campo so de toque, sem mascara. */
+    _applyCompact(compact) {
+      this._isCompact = compact;
+      const input = this.input;
+      input.readOnly = compact || this._original.readonly !== null;
+      this._mask = compact ? null : this._maskTemplate();
+      this._maskDigits = input.value.replace(/\D/g, "");
+      if (this._mask) input.setAttribute("inputmode", "numeric");
+      else if (this._original.inputmode === null) input.removeAttribute("inputmode");
     }
     /**
      * Input hidden com ISO, depois de `after`: o visivel mostra o formato do
@@ -1036,57 +1050,67 @@ var Tucano = (() => {
     _setupNative() {
       const input = this.input;
       input.readOnly = true;
-      input.setAttribute("autocomplete", "off");
-      if (!input.placeholder) input.placeholder = this._placeholder();
+      const { min, max, time } = this.opts;
       this.overlay = el("input", {
-        type: this.opts.time ? "datetime-local" : "date",
+        type: time ? "datetime-local" : "date",
         class: "tuc-native",
         tabindex: -1,
         "aria-hidden": "true"
       });
-      if (this.opts.min) this.overlay.min = this._nativeValue(this.opts.min);
-      if (this.opts.max) this.overlay.max = this._nativeValue(this.opts.max);
-      if (this.opts.time) this.overlay.step = this.opts.seconds ? 1 : this.opts.minuteStep * 60;
+      if (min) this.overlay.min = this._nativeValue(min);
+      if (max) this.overlay.max = this._nativeValue(time ? new Date(max.getFullYear(), max.getMonth(), max.getDate(), 23, 59, 59) : max);
+      if (time) this.overlay.step = this.opts.seconds ? 1 : this.opts.minuteStep * 60;
       this.wrap = el("span", { class: "tuc-native-wrap" });
       input.replaceWith(this.wrap);
       this.wrap.append(input, this.overlay);
       this._addIsoInput(this.wrap);
       this._cleanups.push(on(this.overlay, "change", () => {
         if (this._emitting) return;
-        this.start = this._normalize(parseISO(this.overlay.value));
-        this.end = null;
-        this._syncTarget();
-        this._emit();
+        this.setValue(parseISO(this.overlay.value));
       }));
     }
     _nativeValue(date = this.start) {
       if (!isValid(date)) return "";
       return this.opts.time ? toISODateTime(date, this.opts.seconds) : toISODate(date);
     }
-    _readInitialValue() {
-      const raw = this.opts.value ?? this.input.value;
-      if (!raw) return;
-      if (this.isRange) {
-        const iso = String(raw).match(/^\s*(\d{4}-\d{2}-\d{2}[T\d:.]*)\s*,\s*(\d{4}-\d{2}-\d{2}[T\d:.]*)\s*$/);
-        if (iso) {
-          this.start = this._normalize(parseISO(iso[1]));
-          this.end = this._normalize(parseISO(iso[2]));
-          this._syncTarget();
-          return;
-        }
-        const [a, b] = String(raw).split(RANGE_SEPARATOR);
-        this.start = this._normalize(parseUserInput(a, this.opts.locale)) || this._normalize(parseISO(a));
-        this.end = this._normalize(parseUserInput(b, this.opts.locale)) || this._normalize(parseISO(b));
-      } else {
-        this.start = this._normalize(parseISO(raw) || parseUserInput(raw, this.opts.locale));
-      }
-      this._syncTarget();
+    /**
+     * Date entra como esta; texto passa pelo parse do idioma, que tambem entende
+     * ISO. O fallback antigo, `new Date(texto)`, lia "07/09/2026" no formato
+     * americano e fazia 7 de setembro virar 9 de julho num campo em portugues.
+     */
+    _toDate(value) {
+      if (value instanceof Date) return isValid(value) ? clone(value) : null;
+      return parseUserInput(value, this.opts.locale);
     }
-    /** Aplica min/max e devolve null quando a data e invalida ou desabilitada. */
+    /** Le um valor em texto (o `value` do campo ou da opcao) para start/end, sem emitir. */
+    _readValue(raw) {
+      this.start = null;
+      this.end = null;
+      if (!raw) return;
+      if (!this.isRange) {
+        this.start = this._normalize(this._toDate(raw));
+        return;
+      }
+      const iso = String(raw).match(/^\s*(\d{4}-\d{2}-\d{2}[T\d:.]*)\s*,\s*(\d{4}-\d{2}-\d{2}[T\d:.]*)\s*$/);
+      const [a, b] = iso ? [iso[1], iso[2]] : String(raw).split(RANGE_SEPARATOR);
+      this.start = this._normalize(this._toDate(a));
+      this.end = this._normalize(this._toDate(b));
+    }
+    /** Depois do reset do formulario: le de novo o texto que o campo recebeu. */
+    _resetFromField() {
+      this.close({ restoreFocus: false });
+      this._readValue(this.input.value);
+      this.viewDate = this._anchorMonth();
+      this._commit(true);
+    }
+    /**
+     * Devolve null quando a data e invalida, desabilitada ou fora de min/max.
+     * Fora dos limites e recusada, e nao puxada para o limite: a documentacao
+     * sempre disse que ela nao e aceita, e trocar 2027 por 31/12/2026 calado
+     * gravava uma data que ninguem escolheu.
+     */
     _normalize(date) {
-      if (!isValid(date)) return null;
-      const d = clampDate(date, this.opts.min, this.opts.max);
-      return this._isDisabled(d) ? null : d;
+      return isValid(date) && !this._isDisabled(date) ? date : null;
     }
     _isDisabled(date) {
       if (this.opts.min && compareDay(date, this.opts.min) < 0) return true;
@@ -1098,8 +1122,28 @@ var Tucano = (() => {
      * limitamos — abrir no `min` levaria o usuario para anos atras sem motivo.
      */
     _anchorMonth() {
-      const base = this.start || clampDate(startOfDay(/* @__PURE__ */ new Date()), this.opts.min, this.opts.max);
-      return startOfDay(new Date(base.getFullYear(), base.getMonth(), 1));
+      return startOfMonth(this.start || clampDate(/* @__PURE__ */ new Date(), this.opts.min, this.opts.max));
+    }
+    /** O ultimo dia visivel na vista de dias (com dois meses, o fim do segundo). */
+    _viewEnd() {
+      return endOfMonth(addMonths(this.viewDate, this.opts.months - 1));
+    }
+    _inView(date) {
+      return compareDay(date, this.viewDate) >= 0 && compareDay(date, this._viewEnd()) <= 0;
+    }
+    /**
+     * Dia que recebe o foco: o selecionado, senao hoje, senao o primeiro dia
+     * habilitado da vista. Antes era sempre o dia 1 — desabilitado quando o `min`
+     * caia no meio do mes, e ai o foco nao chegava a grade.
+     */
+    _initialFocus() {
+      for (const d of [this.start, startOfDay(/* @__PURE__ */ new Date())]) {
+        if (d && this._inView(d) && !this._isDisabled(d)) return clone(d);
+      }
+      for (let d = clone(this.viewDate); compareDay(d, this._viewEnd()) <= 0; d = addDays(d, 1)) {
+        if (!this._isDisabled(d)) return d;
+      }
+      return clone(this.viewDate);
     }
     /**
      * Gabarito da mascara derivado do formato de exibicao, entao ele acompanha o
@@ -1130,7 +1174,7 @@ var Tucano = (() => {
       const input = this.input;
       const raw = input.value;
       const caret = input.selectionStart ?? raw.length;
-      const deleting = typeof e.inputType === "string" && e.inputType.startsWith("delete");
+      const deleting = e.inputType?.startsWith("delete");
       let digits = raw.replace(/\D/g, "");
       let before = raw.slice(0, caret).replace(/\D/g, "").length;
       if (deleting && digits === this._maskDigits) {
@@ -1150,27 +1194,27 @@ var Tucano = (() => {
       if (digits.length === this._maskSlots()) this._previewTyped();
     }
     /**
-     * Com a mascara completa, move o calendario para a data digitada sem fechar
-     * nem reescrever o campo — commit de verdade so no Enter ou ao sair.
+     * Com a mascara completa, leva o calendario ate a data digitada. So a vista
+     * anda: valor, hidden e evento ficam para o Enter ou para a saida do campo.
+     * Quando a previa gravava o valor, o commit achava tudo igual e nao emitia
+     * nada — e o Escape ja nao tinha o que descartar.
      */
     _previewTyped() {
-      const raw = this.input.value;
-      if (this.isRange) {
-        const [a, b] = raw.split(RANGE_SEPARATOR);
-        const start = this._keepTime(parseUserInput(a, this.opts.locale), this.start);
-        if (!start) return;
-        this.start = start;
-        this.end = this._keepTime(parseUserInput(b, this.opts.locale), this.end);
-        this.pendingRange = false;
-      } else {
-        const d = this._keepTime(parseUserInput(raw, this.opts.locale), this.start);
-        if (!d) return;
-        this.start = d;
-      }
-      this.viewDate = this._anchorMonth();
-      this.focusDate = clone(this.start);
-      if (this.isoInput) this.isoInput.value = this._isoValue();
+      const typed = this._parseTyped(this.input.value);
+      if (!typed || !this.isOpen) return;
+      this.viewDate = startOfMonth(typed.start);
+      this.focusDate = clone(typed.start);
       this._render();
+    }
+    /**
+     * Le o texto do campo: { start, end }, ou null quando nao vira valor. Periodo
+     * sem fim valido e recusado inteiro, porque nao existe meio intervalo.
+     */
+    _parseTyped(raw) {
+      const [a, b] = this.isRange ? raw.split(RANGE_SEPARATOR) : [raw];
+      const start = this._keepTime(parseUserInput(a, this.opts.locale), this.start);
+      const end = this.isRange ? this._keepTime(parseUserInput(b, this.opts.locale), this.end) : null;
+      return start && (end || !this.isRange) ? { start, end } : null;
     }
     _placeholder() {
       const sample = this._displayFormat().replace(
@@ -1182,10 +1226,13 @@ var Tucano = (() => {
     /* ---------------------------------------------------------------- *
      * Valor <-> input                                                   *
      * ---------------------------------------------------------------- */
+    /** Hora no formato do idioma: 12 horas com AM/PM onde o campo mostra assim. */
+    _timeFormat() {
+      const h12 = this.L.hour12;
+      return `${h12 ? "hh" : "HH"}:mm${this.opts.seconds ? ":ss" : ""}${h12 ? " a" : ""}`;
+    }
     _displayFormat() {
-      if (!this.opts.time) return this.opts.format;
-      const h = this.L.hour12 ? "hh:mm" : "HH:mm";
-      return `${this.opts.format} ${h}${this.opts.seconds ? ":ss" : ""}${this.L.hour12 ? " a" : ""}`;
+      return this.opts.time ? `${this.opts.format} ${this._timeFormat()}` : this.opts.format;
     }
     _displayValue() {
       const f = this._displayFormat();
@@ -1195,34 +1242,38 @@ var Tucano = (() => {
       return this.end ? `${a} \u2014 ${format(this.end, f, this.opts.locale)}` : a;
     }
     _isoValue() {
-      const enc = (d) => this.opts.time ? toISODateTime(d, this.opts.seconds) : toISODate(d);
       if (!this.start) return "";
-      return this.isRange ? `${enc(this.start)}${this.end ? `,${enc(this.end)}` : ""}` : enc(this.start);
+      return this.isRange ? `${this._nativeValue()}${this.end ? `,${this._nativeValue(this.end)}` : ""}` : this._nativeValue();
     }
     _syncTarget() {
       this.input.value = this._displayValue();
+      this._shown = this.input.value;
       if (this.overlay) this.overlay.value = this._nativeValue();
       if (this.isoInput) this.isoInput.value = this._isoValue();
       if (this._mask) this._maskDigits = this.input.value.replace(/\D/g, "");
     }
+    /**
+     * Confirma o que esta em start/end: vira o valor salvo (o que fechar o painel
+     * nao desfaz), vai para o campo e o hidden e, sem `silent`, emite.
+     */
+    _commit(silent = false) {
+      this.pendingRange = false;
+      this.hover = null;
+      this._saved = [this.start, this.end];
+      this._syncTarget();
+      if (this.isOpen) this._render();
+      if (!silent) this._emit();
+    }
     _commitTyped() {
       const raw = this.input.value.trim();
-      if (raw === this._displayValue()) return;
+      if (raw === this._shown) return;
       if (!raw) {
         this.clear();
         return;
       }
-      if (this.isRange) {
-        const [a, b] = raw.split(RANGE_SEPARATOR);
-        const s = this._keepTime(parseUserInput(a, this.opts.locale), this.start);
-        const e = this._keepTime(parseUserInput(b, this.opts.locale), this.end);
-        if (s) this.setValue({ start: s, end: e });
-        else this._syncTarget();
-      } else {
-        const d = this._keepTime(parseUserInput(raw, this.opts.locale), this.start);
-        if (d) this.setValue(d);
-        else this._syncTarget();
-      }
+      const typed = this._parseTyped(raw);
+      if (typed) this.setValue(this.isRange ? typed : typed.start);
+      else this._syncTarget();
     }
     /**
      * Normaliza o que foi digitado. Quando o texto nao traz hora (parseUserInput
@@ -1251,16 +1302,11 @@ var Tucano = (() => {
      * ---------------------------------------------------------------- */
     _selectDay(date) {
       if (this._isDisabled(date)) return;
+      this.focusDate = clone(date);
       const keepTime = (target, source) => this.opts.time && source ? withTime(target, source) : target;
       if (!this.isRange) {
         this.start = keepTime(clone(date), this.start);
-        this._syncTarget();
-        this._emit();
-        this._render();
-        if (this.opts.autoApply) this.close();
-        return;
-      }
-      if (!this.pendingRange || !this.start || this.start && this.end) {
+      } else if (!this.pendingRange || !this.start || this.end) {
         this.start = keepTime(clone(date), this.start);
         this.end = null;
         this.pendingRange = true;
@@ -1277,23 +1323,32 @@ var Tucano = (() => {
         this.pendingRange = false;
         this.hover = null;
       }
-      this._syncTarget();
-      this._render();
-      if (!this.pendingRange) {
-        this._emit();
-        if (this.opts.autoApply) this.close();
+      this._picked(true);
+    }
+    /**
+     * Escolha feita no painel. Com autoApply ela vale na hora (e o dia e o
+     * atalho fecham o painel); sem autoApply fica pendente ate o Aplicar, e
+     * fechar de outro jeito a descarta. Antes cada clique ja emitia, o Aplicar
+     * emitia de novo e fechar fora mantinha a mudanca — o botao nao segurava nada.
+     */
+    _picked(closes) {
+      if (this.pendingRange || !this.opts.autoApply) {
+        this._render();
+        return;
       }
+      this._commit();
+      if (closes) this.close();
     }
     _applyPreset(preset) {
+      const { min, max, time } = this.opts;
       const range = preset.value();
-      this.start = this._normalize(range.start);
-      this.end = this._normalize(range.end);
+      this.start = this._normalize(clampDate(range.start, min, max));
+      let end = clampDate(range.end, min, max);
+      if (time && isValid(end)) end = new Date(end.getFullYear(), end.getMonth(), end.getDate(), 23, 59, this.opts.seconds ? 59 : 0);
+      this.end = this._normalize(end);
       this.pendingRange = false;
       this.viewDate = this._anchorMonth();
-      this._syncTarget();
-      this._emit();
-      this._render();
-      if (this.opts.autoApply) this.close();
+      this._picked(true);
     }
     _setTime(which, unit, value) {
       const target = which === "end" ? this.end : this.start;
@@ -1308,9 +1363,7 @@ var Tucano = (() => {
         if (which === "start") this.start = clone(this.end);
         else this.end = clone(this.start);
       }
-      this._syncTarget();
-      this._emit();
-      this._render();
+      this._picked(false);
     }
     /* ---------------------------------------------------------------- *
      * Render                                                            *
@@ -1320,11 +1373,14 @@ var Tucano = (() => {
       for (const n of this.panel.querySelectorAll(".tuc-dp__timelist")) {
         scrollState.set(`${n.dataset.which}|${n.dataset.unit}`, n.scrollTop);
       }
+      const active = document.activeElement;
+      const focusKey = this.panel.contains(active) ? active.classList.contains("tuc-dp__day") ? "day" : active.dataset.key : null;
       this.panel.classList.toggle("is-picking", this.pendingRange && !!this.hover);
-      this.panel.replaceChildren();
-      if (this.opts.presets && this.isRange) this.panel.append(this._renderPresets());
+      for (const n of [...this.panel.children]) if (n !== this._live) n.remove();
+      if (this.opts.presets && this.isRange) this.panel.insertBefore(this._renderPresets(), this._live);
       const main = el("div", { class: "tuc-dp__main" });
       if (this.view === "days") {
+        if (!this.focusDate || !this._inView(this.focusDate)) this.focusDate = this._initialFocus();
         const months = el("div", { class: "tuc-dp__months" });
         for (let i = 0; i < this.opts.months; i++) months.append(this._renderMonth(addMonths(this.viewDate, i), i));
         main.append(months);
@@ -1332,13 +1388,20 @@ var Tucano = (() => {
         main.append(this._renderPeriodView());
       }
       if (this.opts.time && this.view === "days") main.append(this._renderTime());
-      if (this._needsFooter()) main.append(this._renderFooter());
-      this.panel.append(main);
+      if (!this.opts.autoApply || this.opts.clearable) main.append(this._renderFooter());
+      this.panel.insertBefore(main, this._live);
+      const heading = [...main.querySelectorAll(".tuc-dp__label")].map((n) => n.textContent).join(" \u2013 ");
+      if (this._live.textContent !== heading) this._live.textContent = heading;
       for (const n of this.panel.querySelectorAll(".tuc-dp__timelist")) {
         const prev = scrollState.get(`${n.dataset.which}|${n.dataset.unit}`);
         if (prev !== void 0) n.scrollTop = prev;
       }
       this._revealTimes();
+      if (focusKey) {
+        const target = focusKey === "day" ? this.panel.querySelector('.tuc-dp__day[tabindex="0"]') : this.panel.querySelector(`[data-key="${focusKey}"]`);
+        const fallback = this.panel.querySelector('.tuc-dp__day[tabindex="0"]') || this.panel.querySelector(".tuc-dp__label");
+        (target && !target.disabled ? target : fallback)?.focus({ preventScroll: true });
+      }
     }
     /**
      * Rola cada coluna de hora ate o valor selecionado — mas so quando esse valor
@@ -1349,14 +1412,12 @@ var Tucano = (() => {
       this._revealed = this._revealed || /* @__PURE__ */ new Map();
       for (const list of this.panel.querySelectorAll(".tuc-dp__timelist")) {
         const key = `${list.dataset.which}|${list.dataset.unit}`;
-        const selected = list.querySelector(".is-selected")?.textContent ?? null;
-        if (this._revealed.get(key) === selected) continue;
-        this._revealed.set(key, selected);
-        revealSelected(list);
+        const selected = list.querySelector(".is-selected");
+        const value = selected?.textContent ?? null;
+        if (this._revealed.get(key) === value) continue;
+        this._revealed.set(key, value);
+        if (selected) revealItem(list, selected);
       }
-    }
-    _needsFooter() {
-      return !this.opts.autoApply || this.opts.clearable;
     }
     _renderMonth(monthDate, index) {
       const year = monthDate.getFullYear();
@@ -1369,13 +1430,14 @@ var Tucano = (() => {
           type: "button",
           class: "tuc-btn is-ghost is-icon is-sm tuc-dp__nav",
           "aria-label": DATEPICKER_TEXTS.previousMonth,
+          dataset: { key: "prev" },
           disabled: this._navBlocked(-1),
           onclick: () => this._shiftView(-1)
         }, [icon(ICON_CHEVRON_LEFT)]) : el("span", { class: "tuc-btn is-icon is-sm tuc-dp__nav is-placeholder", "aria-hidden": "true" }),
         el("button", {
           type: "button",
           class: "tuc-btn is-ghost is-sm tuc-dp__label",
-          "aria-live": "polite",
+          dataset: { key: `label-${index}` },
           onclick: () => {
             this.view = "months";
             this.viewDate = clone(monthDate);
@@ -1386,6 +1448,7 @@ var Tucano = (() => {
           type: "button",
           class: "tuc-btn is-ghost is-icon is-sm tuc-dp__nav",
           "aria-label": DATEPICKER_TEXTS.nextMonth,
+          dataset: { key: "next" },
           disabled: this._navBlocked(1),
           onclick: () => this._shiftView(1)
         }, [icon(ICON_CHEVRON_RIGHT)]) : el("span", { class: "tuc-btn is-icon is-sm tuc-dp__nav is-placeholder", "aria-hidden": "true" })
@@ -1406,12 +1469,15 @@ var Tucano = (() => {
         "aria-label": `${this.L.monthsLong[month]} ${year}`
       });
       const cells = buildMonthGrid(year, month, this.opts.firstDayOfWeek);
-      cells.forEach((cell, i) => {
-        if (this.opts.weekNumbers && i % 7 === 0) {
-          grid.append(el("span", { class: "tuc-dp__weeknum", text: isoWeek(cell.date) }));
+      const monday = (8 - this.opts.firstDayOfWeek) % 7;
+      for (let r = 0; r < cells.length; r += 7) {
+        const row = el("div", { class: "tuc-dp__row", role: "row" });
+        if (this.opts.weekNumbers) {
+          row.append(el("span", { class: "tuc-dp__weeknum", role: "rowheader", text: String(isoWeek(cells[r + monday].date)) }));
         }
-        grid.append(this._renderDay(cell, month));
-      });
+        for (const cell of cells.slice(r, r + 7)) row.append(this._renderDay(cell, month));
+        grid.append(row);
+      }
       wrap.append(header, weekdays, grid);
       return wrap;
     }
@@ -1441,6 +1507,14 @@ var Tucano = (() => {
       return classes;
     }
     /**
+     * Parada de Tab da grade: so o dia do foco, e so dentro do proprio mes. Com
+     * dois meses lado a lado o mesmo dia aparece de novo como "de fora" no
+     * vizinho, e os dois ficavam com tabindex 0.
+     */
+    _tabStop(date, outside) {
+      return !outside && isSameDay(date, this.focusDate) ? 0 : -1;
+    }
+    /**
      * Repinta as celulas ja existentes. E o que roda a cada mouseenter: refazer a
      * grade ali trocaria o elemento entre o mousedown e o mouseup, e o browser
      * engoliria o clique — era isso que impedia de fechar o periodo.
@@ -1450,10 +1524,11 @@ var Tucano = (() => {
       for (const btn of this.panel.querySelectorAll(".tuc-dp__day")) {
         const date = parseISO(btn.dataset.date);
         if (!date) continue;
-        const classes = this._dayClasses(date, date.getMonth() !== +btn.dataset.month);
+        const outside = date.getMonth() !== +btn.dataset.month;
+        const classes = this._dayClasses(date, outside);
         btn.className = classes.join(" ");
         btn.setAttribute("aria-selected", classes.includes("is-selected") ? "true" : "false");
-        btn.tabIndex = isSameDay(date, this.focusDate) ? 0 : -1;
+        btn.tabIndex = this._tabStop(date, outside);
       }
     }
     _renderDay(cell, month) {
@@ -1462,8 +1537,13 @@ var Tucano = (() => {
       return el("button", {
         type: "button",
         class: classes.join(" "),
-        tabindex: isSameDay(date, this.focusDate) ? 0 : -1,
-        disabled: this._isDisabled(date),
+        tabindex: this._tabStop(date, outside),
+        /*
+         * aria-disabled, e nao disabled: botao desativado nao recebe foco, e a
+         * seta que caia num fim de semana bloqueado mandava o foco para o <body>.
+         * O clique continua sem efeito — _selectDay confere o dia.
+         */
+        "aria-disabled": this._isDisabled(date) ? "true" : null,
         role: "gridcell",
         "aria-selected": classes.includes("is-selected") ? "true" : "false",
         "aria-label": this._dayName.format(date),
@@ -1482,13 +1562,19 @@ var Tucano = (() => {
     _renderPeriodView() {
       const isMonths = this.view === "months";
       const year = this.viewDate.getFullYear();
+      const first = year - year % 12;
       const wrap = el("div", { class: "tuc-dp__period" });
+      const { min, max } = this.opts;
+      const outside = (from, to) => min && compareDay(to, min) < 0 || max && compareDay(from, max) > 0;
+      const years = (a, b) => outside(new Date(a, 0, 1), new Date(b, 11, 31));
       const step = isMonths ? 1 : 12;
       const header = el("div", { class: "tuc-dp__header" }, [
         el("button", {
           type: "button",
           class: "tuc-btn is-ghost is-icon is-sm tuc-dp__nav",
           "aria-label": DATEPICKER_TEXTS.previous,
+          dataset: { key: "prev" },
+          disabled: isMonths ? years(year - 1, year - 1) : years(first - 12, first - 1),
           onclick: () => {
             this.viewDate = addYears(this.viewDate, -step);
             this._render();
@@ -1497,15 +1583,18 @@ var Tucano = (() => {
         el("button", {
           type: "button",
           class: "tuc-btn is-ghost is-sm tuc-dp__label",
+          dataset: { key: "label-0" },
           onclick: () => {
             this.view = isMonths ? "years" : "days";
             this._render();
           }
-        }, [isMonths ? String(year) : `${floorTo(year, 12)} \u2013 ${floorTo(year, 12) + 11}`]),
+        }, [isMonths ? String(year) : `${first} \u2013 ${first + 11}`]),
         el("button", {
           type: "button",
           class: "tuc-btn is-ghost is-icon is-sm tuc-dp__nav",
           "aria-label": DATEPICKER_TEXTS.next,
+          dataset: { key: "next" },
+          disabled: isMonths ? years(year + 1, year + 1) : years(first + 12, first + 23),
           onclick: () => {
             this.viewDate = addYears(this.viewDate, step);
             this._render();
@@ -1513,34 +1602,35 @@ var Tucano = (() => {
         }, [icon(ICON_CHEVRON_RIGHT)])
       ]);
       const grid = el("div", { class: "tuc-dp__periodgrid" });
-      const items = isMonths ? this.L.monthsShort.map((label, m) => ({ label, date: new Date(year, m, 1) })) : Array.from({ length: 12 }, (_, i) => {
-        const y = floorTo(year, 12) + i;
-        return { label: String(y), date: new Date(y, this.viewDate.getMonth(), 1) };
+      const items = isMonths ? this.L.monthsShort.map((label, m) => ({ label, date: new Date(year, m, 1), off: outside(new Date(year, m, 1), new Date(year, m + 1, 0)) })) : Array.from({ length: 12 }, (_, i) => {
+        const y = first + i;
+        return { label: String(y), date: new Date(y, this.viewDate.getMonth(), 1), off: years(y, y) };
       });
-      for (const item of items) {
+      items.forEach((item, i) => {
         const active = isMonths ? this.start && isSameMonth(item.date, this.start) : this.start && item.date.getFullYear() === this.start.getFullYear();
         const current = isMonths ? isSameMonth(item.date, /* @__PURE__ */ new Date()) : item.date.getFullYear() === (/* @__PURE__ */ new Date()).getFullYear();
         grid.append(el("button", {
           type: "button",
           class: `tuc-dp__periodcell${active ? " is-selected" : ""}${current ? " is-today" : ""}`,
           text: item.label,
+          disabled: item.off,
+          dataset: { key: `cell-${i}` },
           onclick: () => {
             this.viewDate = startOfDay(item.date);
             this.view = isMonths ? "days" : "months";
             this._render();
           }
         }));
-      }
+      });
       wrap.append(header, grid);
       return wrap;
     }
     _renderTime() {
       const row = el("div", { class: "tuc-dp__time" });
       const targets = this.isRange ? [["start", DATEPICKER_TEXTS.start], ["end", DATEPICKER_TEXTS.end]] : [["start", DATEPICKER_TEXTS.time]];
-      const pad2 = (n) => String(n).padStart(2, "0");
       for (const [which, label] of targets) {
         const value = which === "end" ? this.end : this.start;
-        const readout = value ? `${pad2(value.getHours())}:${pad2(value.getMinutes())}${this.opts.seconds ? `:${pad2(value.getSeconds())}` : ""}` : "--:--";
+        const readout = value ? format(value, this._timeFormat(), this.opts.locale) : "--:--";
         const head = el("div", { class: "tuc-dp__timehead" }, [
           el("span", { class: "tuc-dp__timelabel", text: label }),
           el("span", { class: "tuc-dp__timevalue", text: readout })
@@ -1554,23 +1644,33 @@ var Tucano = (() => {
       }
       return row;
     }
+    /*
+     * Cada coluna e um grupo de botoes com uma parada de Tab so (tabindex
+     * itinerante): as setas andam dentro da coluna e Enter ou Espaco escolhem.
+     * Antes cada botao era uma parada — 194 Tabs num painel com segundos — e
+     * listbox com botoes focaveis dentro nao e ARIA valido.
+     */
     _renderTimeList(which, unit, count, step, current) {
       const list = el("div", {
         class: "tuc-dp__timelist",
-        role: "listbox",
-        tabindex: 0,
+        role: "group",
         "aria-label": { h: DATEPICKER_TEXTS.hour, m: DATEPICKER_TEXTS.minute, s: DATEPICKER_TEXTS.second }[unit],
         dataset: { which, unit }
       });
+      const selectedValue = current === null ? null : Math.floor(current / step) * step;
+      const disabled = !(which === "end" ? this.end : this.start);
       for (let v = 0; v < count; v += step) {
-        const selected = current !== null && (step > 1 ? Math.floor(current / step) * step === v : current === v);
+        const selected = selectedValue === v;
         list.append(el("button", {
           type: "button",
           class: `tuc-dp__timeitem${selected ? " is-selected" : ""}`,
           text: String(v).padStart(2, "0"),
-          role: "option",
-          "aria-selected": selected ? "true" : "false",
-          disabled: !(which === "end" ? this.end : this.start),
+          // Em 12 horas o nome lido e o do campo ("1 PM"), nao o 13 da coluna.
+          "aria-label": unit === "h" && this.L.hour12 ? format(new Date(2e3, 0, 1, v), "h a") : null,
+          "aria-pressed": selected ? "true" : "false",
+          tabindex: v === (selectedValue ?? 0) ? 0 : -1,
+          disabled,
+          dataset: { key: `${which}-${unit}-${v}` },
           onclick: () => this._setTime(which, unit, v)
         }));
       }
@@ -1578,16 +1678,17 @@ var Tucano = (() => {
     }
     _renderPresets() {
       const wrap = el("div", { class: "tuc-dp__presets" });
-      for (const preset of buildPresets(this.opts.presets)) {
+      buildPresets(this.opts.presets).forEach((preset, i) => {
         const r = preset.value();
         const active = this.start && this.end && isSameDay(this.start, r.start) && isSameDay(this.end, r.end);
         wrap.append(el("button", {
           type: "button",
           class: `tuc-btn is-ghost is-sm tuc-dp__preset${active ? " is-selected" : ""}`,
           title: preset.label,
+          dataset: { key: `preset-${i}` },
           onclick: () => this._applyPreset(preset)
         }, [el("span", { text: preset.label })]));
-      }
+      });
       return wrap;
     }
     _renderFooter() {
@@ -1597,6 +1698,7 @@ var Tucano = (() => {
           type: "button",
           class: "tuc-btn is-ghost is-sm",
           text: DATEPICKER_TEXTS.clear,
+          dataset: { key: "clear" },
           onclick: () => {
             this.clear();
             if (this.opts.autoApply) this.close();
@@ -1609,9 +1711,10 @@ var Tucano = (() => {
           type: "button",
           class: "tuc-btn is-primary is-sm",
           text: DATEPICKER_TEXTS.apply,
+          dataset: { key: "apply" },
           disabled: !this.start || this.isRange && !this.end,
           onclick: () => {
-            this._emit();
+            this._commit();
             this.close();
           }
         }));
@@ -1637,11 +1740,15 @@ var Tucano = (() => {
     /** Bloqueia a seta quando o mes vizinho ja esta todo fora de min/max. */
     _navBlocked(delta) {
       const target = addMonths(this.viewDate, delta === 1 ? this.opts.months : -1);
-      if (delta < 0 && this.opts.min) return compareDay(new Date(target.getFullYear(), target.getMonth() + 1, 0), this.opts.min) < 0;
+      if (delta < 0 && this.opts.min) return compareDay(endOfMonth(target), this.opts.min) < 0;
       if (delta > 0 && this.opts.max) return compareDay(target, this.opts.max) > 0;
       return false;
     }
     _onPanelKeydown(e) {
+      if (e.target.classList.contains("tuc-dp__timeitem")) {
+        this._onTimeKeydown(e);
+        return;
+      }
       if (!e.target.classList.contains("tuc-dp__day")) return;
       const moves = {
         ArrowLeft: -1,
@@ -1653,9 +1760,10 @@ var Tucano = (() => {
       if (e.key in moves) next = addDays(this.focusDate, moves[e.key]);
       else if (e.key === "PageUp") next = addMonths(this.focusDate, e.shiftKey ? -12 : -1);
       else if (e.key === "PageDown") next = addMonths(this.focusDate, e.shiftKey ? 12 : 1);
-      else if (e.key === "Home") next = addDays(this.focusDate, -((this.focusDate.getDay() - this.opts.firstDayOfWeek + 7) % 7));
-      else if (e.key === "End") next = addDays(this.focusDate, 6 - (this.focusDate.getDay() - this.opts.firstDayOfWeek + 7) % 7);
-      else if (e.key === "Enter" || e.key === " ") {
+      else if (e.key === "Home" || e.key === "End") {
+        const weekday = (this.focusDate.getDay() - this.opts.firstDayOfWeek + 7) % 7;
+        next = addDays(this.focusDate, e.key === "Home" ? -weekday : 6 - weekday);
+      } else if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
         this._selectDay(this.focusDate);
         return;
@@ -1663,12 +1771,22 @@ var Tucano = (() => {
       e.preventDefault();
       this.focusDate = clampDate(next, this.opts.min, this.opts.max);
       const last = addMonths(this.viewDate, this.opts.months - 1);
-      if (compareDay(this.focusDate, this.viewDate) < 0) this.viewDate = startOfDay(new Date(this.focusDate.getFullYear(), this.focusDate.getMonth(), 1));
-      else if (!isSameMonth(this.focusDate, last) && compareDay(this.focusDate, new Date(last.getFullYear(), last.getMonth() + 1, 0)) > 0) {
-        this.viewDate = addMonths(startOfDay(new Date(this.focusDate.getFullYear(), this.focusDate.getMonth(), 1)), -(this.opts.months - 1));
-      }
+      if (compareDay(this.focusDate, this.viewDate) < 0) this.viewDate = startOfMonth(this.focusDate);
+      else if (compareDay(this.focusDate, endOfMonth(last)) > 0) this.viewDate = addMonths(startOfMonth(this.focusDate), 1 - this.opts.months);
       this._render();
-      this.panel.querySelector(`.tuc-dp__day[data-date="${toISODate(this.focusDate)}"]`)?.focus();
+    }
+    /** Setas, Home e End dentro de uma coluna de hora: movem o foco, sem escolher. */
+    _onTimeKeydown(e) {
+      const item = e.target;
+      const items = [...item.parentElement.children];
+      const index = { ArrowUp: items.indexOf(item) - 1, ArrowDown: items.indexOf(item) + 1, Home: 0, End: items.length - 1 }[e.key];
+      if (index === void 0) return;
+      e.preventDefault();
+      const next = items[Math.max(0, Math.min(items.length - 1, index))];
+      item.tabIndex = -1;
+      next.tabIndex = 0;
+      next.focus({ preventScroll: true });
+      revealItem(item.parentElement, next);
     }
   };
   function buildPresets(option) {
@@ -1693,9 +1811,7 @@ var Tucano = (() => {
       } }
     ];
   }
-  function revealSelected(list) {
-    const item = list.querySelector(".is-selected");
-    if (!item) return;
+  function revealItem(list, item) {
     const lr = list.getBoundingClientRect();
     const ir = item.getBoundingClientRect();
     const top = ir.top - lr.top + list.scrollTop;
@@ -1725,9 +1841,6 @@ var Tucano = (() => {
     }
     return masked.length;
   }
-  function floorTo(value, size) {
-    return Math.floor(value / size) * size;
-  }
   function isoWeek(date) {
     const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
     d.setDate(d.getDate() + 3 - (d.getDay() + 6) % 7);
@@ -1753,7 +1866,7 @@ var Tucano = (() => {
         weekNumbers: d.weekNumbers === "true",
         isoName: d.isoName || void 0,
         placement: d.placement || void 0,
-        native: d.native === "true" ? true : d.native === "false" ? false : void 0
+        native: d.native === "auto" ? "auto" : d.native === "true"
       }));
     }
     return out;

@@ -63,7 +63,7 @@
       <button class="tuc-btn is-outline is-icon is-sm" data-theme-toggle data-label-light="Use light theme" data-label-dark="Use dark theme" aria-label="Toggle theme"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
     </div>
   </div>
-  <span class="tuc-badge is-plain ver">v0.33.1 · 51 KB</span>
+  <span class="tuc-badge is-plain ver">v0.33.1 · 52 KB</span>
   <nav class="tuc-menu" aria-label="Documentation">
 <div class="tuc-menu__section">Get started</div>
     <a class="tuc-menu__item" href="../">Home and installation</a>
@@ -143,22 +143,26 @@
   <tbody>
     <tr><td><code>↓</code></td><td>Field, closed</td><td>Opens the calendar</td></tr>
     <tr><td><code>Space</code></td><td>Empty field, closed</td><td>Opens the calendar</td></tr>
-    <tr><td><code>Enter</code></td><td>Field, open</td><td>Confirms the typed date; when closed, submits the form</td></tr>
+    <tr><td><code>Enter</code></td><td>Field, open</td><td>Confirms the typed date and closes; when closed, submits the form</td></tr>
     <tr><td><code>←</code> <code>→</code></td><td>Day</td><td>Previous and next day</td></tr>
     <tr><td><code>↑</code> <code>↓</code></td><td>Day</td><td>Same day in the previous and next week</td></tr>
     <tr><td><code>PageUp</code> <code>PageDown</code></td><td>Day</td><td>Previous and next month; with <code>Shift</code>, year</td></tr>
     <tr><td><code>Home</code> <code>End</code></td><td>Day</td><td>Start and end of the week, respecting the locale's first day</td></tr>
     <tr><td><code>Enter</code> <code>Space</code></td><td>Day</td><td>Picks the day</td></tr>
-    <tr><td><code>Tab</code></td><td>Panel</td><td>Cycles inside the panel, without escaping to the page</td></tr>
-    <tr><td><code>Esc</code></td><td>Panel</td><td>Closes and returns focus to the field</td></tr>
+    <tr><td><code>↑</code> <code>↓</code></td><td>Time column</td><td>Previous and next value in the column</td></tr>
+    <tr><td><code>Home</code> <code>End</code></td><td>Time column</td><td>First and last value in the column</td></tr>
+    <tr><td><code>Enter</code> <code>Space</code></td><td>Time column</td><td>Picks the value</td></tr>
+    <tr><td><code>Tab</code></td><td>Panel</td><td>Cycles inside the panel, without escaping to the page; each time column is a single stop</td></tr>
+    <tr><td><code>Esc</code></td><td>Panel</td><td>Closes, discards what wasn't confirmed and returns focus to the field</td></tr>
   </tbody>
 </table></div>
 <p>The field is a <code>combobox</code> with <code>aria-haspopup="dialog"</code> and <code>aria-expanded</code>, and gets
    <code>aria-controls</code> pointing to the panel while it's open. The panel is <code>role="dialog"</code>
-   labeled "Selecionar data" (select date) or "Selecionar período" (select period); each month is a <code>role="grid"</code> with the month's name, and
-   each day a <code>gridcell</code> with <code>aria-selected</code> and the full label — "Saturday, September 12,
-   2026". The month title is <code>aria-live="polite"</code>, so changing months is announced. The hour,
-   minute and second lists are <code>listbox</code>. Closing by clicking outside doesn't return focus to the field, so it
+   labeled "Selecionar data" (select date) or "Selecionar período" (select period); each month is a <code>role="grid"</code> with the month's name,
+   each week a <code>row</code> and each day a <code>gridcell</code> with <code>aria-selected</code> and the full label — "Saturday, September 12,
+   2026". A day outside the limits has <code>aria-disabled</code>: it receives focus but can't be picked. Changing months is
+   announced by an <code>aria-live="polite"</code> region that stays fixed in the panel. Each hour, minute and second column is a
+   group of buttons with a single Tab stop, and the chosen value has <code>aria-pressed</code>. Closing by clicking outside doesn't return focus to the field, so it
    isn't stolen from where the person clicked.</p>
 
 <h2 id="select">Select</h2>

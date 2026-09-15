@@ -5,6 +5,14 @@ import { on, openWithTransition } from './dom.js';
    e qualquer atraso de quadro cortava o fim. */
 const EXIT_MS = 200;
 
+/*
+ * Timer de saida guardado por painel, e nao por instancia. Os componentes criam
+ * um Popover novo a cada abertura; com o timer na instancia antiga, reabrir
+ * antes de a saida terminar deixava o timer vivo, e ele tirava do DOM o painel
+ * que acabara de abrir.
+ */
+const exitTimers = new WeakMap();
+
 /**
  * Posiciona um painel flutuante ancorado num elemento.
  * Escolhe lado com base no espaco disponivel (flip) e desloca no eixo
@@ -48,7 +56,7 @@ export class Popover {
     if (this.open) return;
     this.open = true;
 
-    clearTimeout(this._exitTimer);
+    clearTimeout(exitTimers.get(this.panel));
     this.panel.classList.remove('is-closing');
     this.panel.style.position = 'absolute';
     this.panel.style.top = '0';
@@ -139,14 +147,14 @@ export class Popover {
     this._ro?.disconnect();
     this._ro = null;
 
-    clearTimeout(this._exitTimer);
+    clearTimeout(exitTimers.get(this.panel));
     if (!animate) { this.panel.classList.remove('is-closing'); this.panel.remove(); return; }
 
     this.panel.classList.add('is-closing');
-    this._exitTimer = setTimeout(() => {
+    exitTimers.set(this.panel, setTimeout(() => {
       this.panel.classList.remove('is-closing');
       this.panel.remove();
-    }, EXIT_MS);
+    }, EXIT_MS));
   }
 
   destroy() {

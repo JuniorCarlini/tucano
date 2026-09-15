@@ -92,6 +92,12 @@ test('parseISO le o que toISODate escreveu', () => {
   assert.equal(parseISO('nada'), null);
 });
 
+test('parseISO nao le texto no formato americano', () => {
+  // O fallback new Date(texto) fazia 07/09/2026 virar 9 de julho num campo em portugues.
+  assert.equal(parseISO('07/09/2026'), null);
+  assert.equal(toISODateTime(parseISO('2026-09-07T14:30')), '2026-09-07T14:30');
+});
+
 test('parseUserInput entende o que a pessoa digita em pt-BR', () => {
   assert.equal(toISODate(parseUserInput('07/09/2026', 'pt-BR')), '2026-09-07');
   assert.equal(toISODate(parseUserInput('7/9/26', 'pt-BR')), '2026-09-07', 'ano de dois digitos');

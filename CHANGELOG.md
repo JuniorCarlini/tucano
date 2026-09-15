@@ -46,6 +46,21 @@ projeto.
   chave desligada, que usam `color-mix`, deixam de aparecer. E os pesos de fonte
   dos componentes ficam fixos em 500 e 600, sem ler o tema da Tailwind do seu
   projeto.
+- Date picker com o botão Aplicar (o padrão com `time`, ou `autoApply: false`):
+  escolher dia, hora ou atalho não dispara mais `tucano:change`, `change` nem
+  `onChange`. O evento sai uma vez, no Aplicar, e fechar com `Escape` ou clique
+  fora descarta a escolha. Antes cada clique já emitia, o Aplicar emitia de novo
+  e fechar fora mantinha a mudança. Com `autoApply: true` nada muda. Quem
+  salvava a cada evento passa a receber só o valor confirmado.
+- Data fora de `min` e `max` deixou de ser puxada para o limite. Digitada, é
+  recusada e o valor anterior fica; no `setValue()` e no `value` inicial, o
+  campo fica vazio, como já acontecia com `disabledDates`. Antes `2027-01-15`
+  com `max` em `2026-12-31` virava 31/12/2026 calado. Período digitado sem um
+  fim válido também é recusado inteiro, em vez de valer só o início.
+- `Tucano.dates.parseISO()` lê só ISO (`aaaa-mm-dd`, com hora opcional) e
+  `Date`. Texto em outro formato caía em `new Date(texto)`, que lê
+  `07/09/2026` como 9 de julho, e agora devolve `null`. Para o que a pessoa
+  digita, use `Tucano.dates.parseUserInput()`.
 
 ### Novo
 
@@ -97,6 +112,44 @@ projeto.
 - Reabrir um modal ou uma gaveta menos de 200 ms depois de fechar fazia o
   diálogo fechar sozinho logo em seguida: o fechamento agendado não era
   cancelado. Agora reabrir cancela o fechamento pendente.
+- Date picker lia data ambígua no formato americano no `value` inicial e no
+  `setValue()`: `07/09/2026` virava 9 de julho num campo em português, também
+  com hora. Texto agora passa pela leitura do idioma, e `Date` entra como está.
+- Data digitada no date picker não disparava `tucano:change` nem `onChange`, o
+  `Enter` com o painel aberto não confirmava nem fechava e o `Escape` não
+  descartava o texto: a prévia gravava o valor enquanto se digitava.
+- Começar um período novo e fechar com `Escape` ou clique fora apagava o
+  período que já estava escolhido. Agora ele volta.
+- Fechar e reabrir em menos de 200 ms o date picker, o select, o color picker,
+  o menu ou a dica tirava o painel do DOM com o componente ainda aberto.
+- Foco pelo teclado no calendário: a seta num dia desativado mandava o foco ao
+  `<body>`; abrir com `↓` focava o dia 1, desativado quando o `min` cai no
+  meio do mês, em vez do dia escolhido ou de hoje; e com dois meses o dia
+  repetido do mês vizinho recebia o foco, com duas paradas de Tab na grade.
+- Clicar ou apertar `Enter` nas setas, no rótulo do mês, nas células de mês e
+  ano, nos atalhos e nas horas do calendário mandava o foco ao `<body>`.
+- Número da semana errado no calendário quando a semana começa no domingo, como
+  em pt-BR e en-US: saía o da semana anterior.
+- Colunas de hora do date picker: cada botão era uma parada de Tab (194 com
+  segundos) e as setas não faziam nada. Agora cada coluna é uma parada só,
+  `↑`, `↓`, `Home` e `End` andam nela, e `Enter` ou `Espaço` escolhem.
+- `destroy()` do date picker deixava o campo sem `name`, e o formulário parava
+  de postar, além dos atributos, da classe e do `data-tuc-ready`, que impedia o
+  `Tucano.init` de montar de novo; no modo nativo sobravam o envólucro e o
+  overlay. E `new DatePicker` duas vezes no mesmo campo criava duas instâncias:
+  a segunda agora substitui a primeira.
+- `form.reset()` deixava o date picker dessincronizado: o campo mostrava o texto
+  cru do `value` e o hidden continuava com o valor antigo.
+- Date picker: no modo nativo com hora, o `max` travava todos os horários do
+  último dia; atalhos de período com hora terminavam à meia-noite ("Hoje" era
+  00:00 — 00:00); em idioma de 12 horas a hora do painel saía em 24; e
+  `data-native="auto"` não era lido.
+- As vistas de mês e de ano do calendário ignoravam `min` e `max`. Agora o que
+  está fora fica desativado, e as setas também.
+- O layout compacto do date picker era decidido só na montagem: alargar a tela
+  ou girar o tablet deixava o campo sem digitação e sem máscara.
+- A grade do calendário não tinha `role="row"`, e a região que anuncia a troca
+  de mês era recriada a cada render, então o leitor de tela não a anunciava.
 
 ## 0.33.1 — 2026-09-14
 

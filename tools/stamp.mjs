@@ -18,6 +18,7 @@
  */
 import { readFileSync, writeFileSync } from 'node:fs';
 import { gzipSync } from 'node:zlib';
+import { build } from 'esbuild';
 
 const kb = (file) => Math.round(gzipSync(readFileSync(file)).length / 1024);
 
@@ -25,6 +26,31 @@ const js = kb('dist/tucano.min.js');
 const css = kb('dist/tucano.min.css');
 const total = js + css;
 const v = JSON.parse(readFileSync('package.json', 'utf8')).version;
+
+/*
+ * Peso de importar so uma parte pelo npm, com o tree-shaking do empacotador.
+ * A tabela do README foi escrita a mao uma vez e ficou em 9,8 KB para o date
+ * picker e 30,2 KB para tudo enquanto o pacote crescia. Agora cada linha e o
+ * esbuild empacotando a importacao de verdade, minificada e com gzip.
+ */
+async function importCost(names) {
+  const contents = names === '*'
+    ? "export * from './src/js/index.js';"
+    : `export { ${names} } from './src/js/index.js';`;
+  const out = await build({ stdin: { contents, resolveDir: process.cwd(), loader: 'js' },
+    bundle: true, minify: true, format: 'esm', write: false, logLevel: 'silent' });
+  return gzipSync(out.outputFiles[0].contents).length / 1024;
+}
+const decimal = (n) => n.toFixed(1).replace('.', ',');
+const partial = {
+  'só o date picker': await importCost('DatePicker'),
+  'só o select': await importCost('Select'),
+  'só o toast': await importCost('toast'),
+  'date picker + select': await importCost('DatePicker, Select'),
+  tudo: await importCost('*'),
+};
+const tableRows = Object.entries(partial).map(([label, size]) =>
+  [new RegExp(`\\| ${label.replace(/[+]/g, '\\+')} \\| [\\d,]+ KB \\|`, 'g'), `| ${label} | ${decimal(size)} KB |`]);
 
 /* Cada entrada: [padrao, substituto]. O padrao precisa casar ao menos uma vez. */
 const files = {
@@ -35,6 +61,8 @@ const files = {
     [/\*\*\d+ KB de JS \+ \d+ KB de CSS\*\*/g, `**${js} KB de JS + ${css} KB de CSS**`],
     [/tucano@v[\d.]+/g, `tucano@v${v}`],
     [/\(`@[\d.]+`\)/g, `(\`@${v}\`)`],
+    ...tableRows,
+    [/\/\/ [\d,]+ KB em vez de \d+/g, `// ${decimal(partial['date picker + select'])} KB em vez de ${Math.round(partial.tudo)}`],
   ],
   'llms.txt': [
     [/\d+ KB JS \+ \d+ KB CSS \(gzip\)/g, `${js} KB JS + ${css} KB CSS (gzip)`],

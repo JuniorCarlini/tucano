@@ -39,22 +39,26 @@ description: Lo que hace cada tecla en todos los componentes de Tucano — date 
   <tbody>
     <tr><td><code>↓</code></td><td>Campo, cerrado</td><td>Abre el calendario</td></tr>
     <tr><td><code>Espacio</code></td><td>Campo vacío, cerrado</td><td>Abre el calendario</td></tr>
-    <tr><td><code>Enter</code></td><td>Campo, abierto</td><td>Confirma la fecha escrita; cerrado, envía el formulario</td></tr>
+    <tr><td><code>Enter</code></td><td>Campo, abierto</td><td>Confirma la fecha escrita y cierra; cerrado, envía el formulario</td></tr>
     <tr><td><code>←</code> <code>→</code></td><td>Día</td><td>Día anterior y siguiente</td></tr>
     <tr><td><code>↑</code> <code>↓</code></td><td>Día</td><td>Misma fecha en la semana anterior y en la siguiente</td></tr>
     <tr><td><code>PageUp</code> <code>PageDown</code></td><td>Día</td><td>Mes anterior y siguiente; con <code>Shift</code>, año</td></tr>
     <tr><td><code>Home</code> <code>End</code></td><td>Día</td><td>Inicio y fin de la semana, respetando el primer día del locale</td></tr>
     <tr><td><code>Enter</code> <code>Espacio</code></td><td>Día</td><td>Elige el día</td></tr>
-    <tr><td><code>Tab</code></td><td>Panel</td><td>Circula dentro del panel, sin escaparse a la página</td></tr>
-    <tr><td><code>Esc</code></td><td>Panel</td><td>Cierra y devuelve el foco al campo</td></tr>
+    <tr><td><code>↑</code> <code>↓</code></td><td>Columna de hora</td><td>Valor anterior y siguiente de la columna</td></tr>
+    <tr><td><code>Home</code> <code>End</code></td><td>Columna de hora</td><td>Primer y último valor de la columna</td></tr>
+    <tr><td><code>Enter</code> <code>Espacio</code></td><td>Columna de hora</td><td>Elige el valor</td></tr>
+    <tr><td><code>Tab</code></td><td>Panel</td><td>Circula dentro del panel, sin escaparse a la página; cada columna de hora es una sola parada</td></tr>
+    <tr><td><code>Esc</code></td><td>Panel</td><td>Cierra, descarta lo que no se confirmó y devuelve el foco al campo</td></tr>
   </tbody>
 </table></div>
 <p>El campo es un <code>combobox</code> con <code>aria-haspopup="dialog"</code> y <code>aria-expanded</code>, y recibe
    <code>aria-controls</code> apuntando al panel mientras está abierto. El panel es <code>role="dialog"</code>
-   con la etiqueta "Selecionar data" (seleccionar fecha) o "Selecionar período" (seleccionar período); cada mes es un <code>role="grid"</code> con el nombre del mes, y
-   cada día un <code>gridcell</code> con <code>aria-selected</code> y la etiqueta completa — "sábado, 12 de
-   septiembre de 2026". El título del mes es <code>aria-live="polite"</code>, así que cambiar de mes se anuncia. Las listas de
-   hora, minuto y segundo son <code>listbox</code>. Cerrar con un clic fuera no devuelve el foco al campo, para no
+   con la etiqueta "Selecionar data" (seleccionar fecha) o "Selecionar período" (seleccionar período); cada mes es un <code>role="grid"</code> con el nombre del mes,
+   cada semana un <code>row</code> y cada día un <code>gridcell</code> con <code>aria-selected</code> y la etiqueta completa — "sábado, 12 de
+   septiembre de 2026". Un día fuera de los límites lleva <code>aria-disabled</code>: recibe el foco, pero no se elige. El cambio de mes
+   se anuncia en una región <code>aria-live="polite"</code> que queda fija en el panel. Cada columna de hora, minuto y segundo es un
+   grupo de botones con una sola parada de Tab, y el valor elegido lleva <code>aria-pressed</code>. Cerrar con un clic fuera no devuelve el foco al campo, para no
    quitárselo al lugar donde la persona hizo clic.</p>
 
 <h2 id="select">Select</h2>

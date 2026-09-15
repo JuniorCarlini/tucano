@@ -103,7 +103,8 @@ body{margin:0;padding:16px;font-family:system-ui}
       ['01/03/2026–15/03/2026', '1/3', '15/3'],
       ['01/03/2026 — 15/03/2026', '1/3', '15/3'],
       ['25-12-2025 a 31-12-2025', '25/12', '31/12'],
-      ['01/03/2026 aa 15/03/2026', '1/3', 'nada'],
+      // Sem separador válido não há fim, e período sem fim é recusado inteiro.
+      ['01/03/2026 aa 15/03/2026', 'nada', 'nada'],
     ];
     var wrong = [];
     cases.forEach(function (c) {
@@ -285,6 +286,124 @@ body{margin:0;padding:16px;font-family:system-ui}
     box.remove();
     if (!ok) throw new Error('lido como ' + shown);
   });
+  /* Date picker: um campo montado por caso, destruído no fim. */
+  function dpBox(html, opts) {
+    var box = document.createElement('div');
+    box.innerHTML = html;
+    document.body.append(box);
+    var input = box.querySelector('input');
+    if (opts) new Tucano.DatePicker(input, opts); else Tucano.init(box);
+    return { box: box, input: input, dp: input._tucano, done: function () { if (input._tucano) input._tucano.destroy(); box.remove(); } };
+  }
+  var isoDay = function (d) { return d ? Tucano.dates.toISODate(d) : 'nada'; };
+
+  t('date picker lê data ambígua no formato do idioma, não no americano', function () {
+    // parseISO caía em new Date(texto), e 07/09/2026 virava 9 de julho.
+    var a = dpBox('<input data-tuc-datepicker value="07/09/2026">');
+    var b = dpBox('<input data-tuc-datepicker data-time="true" value="07/09/2026 14:30">');
+    var got = [isoDay(a.dp.start), Tucano.dates.toISODateTime(b.dp.start)];
+    a.dp.setValue('08/09/2026', { silent: true }); got.push(isoDay(a.dp.start));
+    a.dp.setValue(new Date(2026, 8, 9), { silent: true }); got.push(isoDay(a.dp.start));
+    a.done(); b.done();
+    if (got.join(' ') !== '2026-09-07 2026-09-07T14:30 2026-09-08 2026-09-09') throw new Error(got.join(' '));
+  });
+  t('date picker recusa setValue fora de min/max em vez de puxar para o limite', function () {
+    var x = dpBox('<input>', { min: '2026-01-01', max: '2026-12-31' });
+    x.dp.setValue('2027-01-15', { silent: true });
+    var value = x.dp.getValue();
+    x.done();
+    if (value) throw new Error('aceitou ' + isoDay(value));
+  });
+  t('número da semana com domingo primeiro é o da segunda-feira da linha', function () {
+    var x = dpBox('<input>', { weekNumbers: true, firstDayOfWeek: 0 });
+    x.dp.setValue('2026-09-07', { silent: true });
+    x.dp.open();
+    var rows = x.dp.panel.querySelectorAll('.tuc-dp__grid > [role=row]');
+    var nums = [].map.call(rows, function (r) { return r.querySelector('[role=rowheader]').textContent; }).slice(0, 2).join(' ');
+    var cells = rows[0].querySelectorAll('[role=gridcell]').length;
+    x.done();
+    if (rows.length !== 6 || cells !== 7) throw new Error(rows.length + ' linhas, ' + cells + ' dias na primeira');
+    if (nums !== '36 37') throw new Error('semanas ' + nums);
+  });
+  t('date picker anuncia a troca de mês numa região estável', function () {
+    var x = dpBox('<input>', {});
+    x.dp.setValue('2026-09-07', { silent: true });
+    x.dp.open();
+    var live = x.dp.panel.querySelector('[aria-live]');
+    x.dp.panel.querySelector('[data-key="next"]').click();
+    var same = live === x.dp.panel.querySelector('[aria-live]') && live.isConnected;
+    var text = live.textContent, labelLive = x.dp.panel.querySelector('.tuc-dp__label').hasAttribute('aria-live');
+    x.done();
+    if (!same) throw new Error('a região foi recriada');
+    if (text !== 'Outubro 2026' || labelLive) throw new Error('anúncio "' + text + '", aria-live no rótulo ' + labelLive);
+  });
+  t('destroy do date picker devolve o campo como era, e o init monta de novo', function () {
+    var x = dpBox('<form><input data-tuc-datepicker name="due" class="x" value="2026-09-07"></form>');
+    x.dp.destroy();
+    var i = x.input, r = [i.getAttribute('name'), i.getAttribute('role'), i.getAttribute('aria-expanded'), i.getAttribute('placeholder'),
+      i.getAttribute('autocomplete'), i.className, i.hasAttribute('data-tuc-ready'), x.box.querySelectorAll('input[type=hidden]').length];
+    Tucano.init(x.box);
+    var again = !!i._tucano && x.box.querySelectorAll('input[type=hidden][name=due]').length === 1;
+    x.done();
+    var n = dpBox('<input data-tuc-datepicker data-native="true" name="nd">');
+    n.dp.destroy();
+    var native = [n.box.querySelectorAll('.tuc-native-wrap, .tuc-native').length, n.input.readOnly, n.input.parentElement === n.box];
+    n.done();
+    if (JSON.stringify(r) !== '["due",null,null,null,null,"x",false,0]') throw new Error('restou ' + JSON.stringify(r));
+    if (!again) throw new Error('o init não montou de novo');
+    if (native.join() !== '0,false,true') throw new Error('nativo: ' + native.join());
+  });
+  t('segundo DatePicker no mesmo campo substitui o primeiro', function () {
+    var x = dpBox('<input name="twice">', {});
+    var first = x.dp, second = new Tucano.DatePicker(x.input);
+    var hiddens = x.box.querySelectorAll('input[type=hidden]').length;
+    x.done();
+    if (x.input._tucano) throw new Error('sobrou instância');
+    if (hiddens !== 1 || first === second) throw new Error(hiddens + ' hidden(s)');
+  });
+  t('nativo com hora limita no fim do dia do max, e data-native="auto" é lido', function () {
+    var x = dpBox('<input data-tuc-datepicker data-native="true" data-time="true" data-max="2026-12-31">');
+    var max = x.dp.overlay.max;
+    x.done();
+    var y = dpBox('<input data-tuc-datepicker data-native="auto">');
+    var mode = y.dp.opts.native;
+    y.done();
+    if (max !== '2026-12-31T23:59') throw new Error('max ' + max);
+    if (mode !== 'auto') throw new Error('native ' + mode);
+  });
+  t('vistas de mês e de ano desativam o que está fora de min/max', function () {
+    var x = dpBox('<input>', { min: '2026-03-10', max: '2026-10-05' });
+    x.dp.setValue('2026-06-01', { silent: true });
+    x.dp.open();
+    var panel = x.dp.panel, count = function () {
+      return [panel.querySelectorAll('.tuc-dp__periodcell:disabled').length,
+        panel.querySelector('[data-key=prev]').disabled, panel.querySelector('[data-key=next]').disabled].join();
+    };
+    panel.querySelector('.tuc-dp__label').click();
+    var months = count();
+    panel.querySelector('.tuc-dp__label').click();
+    var years = count();
+    x.done();
+    if (months !== '4,true,true') throw new Error('meses: ' + months);
+    if (years !== '11,true,true') throw new Error('anos: ' + years);
+  });
+  t('em inglês com hora, a leitura da hora segue as 12 horas do campo', function () {
+    var x = dpBox('<input>', { locale: 'en-US', time: true });
+    x.dp.setValue('2026-09-07T13:05', { silent: true });
+    x.dp.open();
+    var r = [x.dp.panel.querySelector('.tuc-dp__timevalue').textContent, x.dp.panel.querySelector('[data-key="start-h-13"]').getAttribute('aria-label')];
+    x.done();
+    if (r.join('|') !== '01:05 PM|1 PM') throw new Error(r.join(' | '));
+  });
+  t('atalho de período com hora vai até o fim do último dia', function () {
+    var x = dpBox('<input>', { mode: 'range', time: true, presets: true });
+    x.dp.open();
+    x.dp.panel.querySelector('.tuc-dp__preset').click();
+    var r = [x.dp.start.getHours(), x.dp.end.getHours(), x.dp.end.getMinutes()].join(':');
+    x.done();
+    if (r !== '0:23:59') throw new Error('Hoje ficou ' + r);
+  });
+
   t('URL em bloco de código não vira comentário', function () {
     var html = Tucano.highlight('curl https://exemplo.com/api');
     if (html.indexOf('tuc-tok-comment') >= 0) throw new Error(html);

@@ -234,9 +234,9 @@ document.querySelector('#due_date').addEventListener('tucano:change', (e) => {
   </tbody>
 </table></div>
 
-<p>Con la máscara completa el calendario ya salta a la fecha escrita y la marca, sin cerrarse. El valor se confirma al salir del campo
-   o con <code>Enter</code> mientras el panel está abierto. Un texto que no se convierte en fecha vuelve al valor anterior, y una fecha fuera de
-   <code>min</code>, <code>max</code> o <code>disabledDates</code> no se acepta. Borrar sobre un separador elimina el dígito
+<p>Con la máscara completa el calendario ya salta a la fecha escrita, sin cerrarse y sin cambiar el valor. El valor se confirma al salir del campo
+   o con <code>Enter</code> mientras el panel está abierto, que también lo cierra; <code>Esc</code> descarta lo escrito. Un texto que no se convierte en fecha vuelve al valor anterior, y una fecha fuera de
+   <code>min</code>, <code>max</code> o <code>disabledDates</code> no se acepta — ni se lleva al límite. Un rango sin un fin válido se rechaza entero. Borrar sobre un separador elimina el dígito
    vecino, en lugar de trabarse.</p>
 
 <p>Un formato con nombre de mes (<code>MMMM</code>) o <code>AM/PM</code> no se puede enmascarar; ahí el campo queda libre y vale la
@@ -270,22 +270,27 @@ native: true      // siempre el selector del sistema — como atributo, data-nat
   <tbody>
     <tr><td><code>↓</code></td><td>Campo</td><td>Abre el calendario</td></tr>
     <tr><td><code>Espacio</code></td><td>Campo vacío</td><td>Abre el calendario</td></tr>
-    <tr><td><code>Enter</code></td><td>Campo, panel abierto</td><td>Confirma lo que se escribió</td></tr>
+    <tr><td><code>Enter</code></td><td>Campo, panel abierto</td><td>Confirma lo que se escribió y cierra</td></tr>
     <tr><td><code>←</code> <code>→</code></td><td>Cuadrícula</td><td>Día anterior y siguiente</td></tr>
     <tr><td><code>↑</code> <code>↓</code></td><td>Cuadrícula</td><td>Mismo día en la semana anterior y en la siguiente</td></tr>
     <tr><td><code>PageUp</code> <code>PageDown</code></td><td>Cuadrícula</td><td>Mes anterior y siguiente; con <code>Shift</code>, año</td></tr>
     <tr><td><code>Home</code> <code>End</code></td><td>Cuadrícula</td><td>Inicio y fin de la semana</td></tr>
     <tr><td><code>Enter</code> <code>Espacio</code></td><td>Cuadrícula</td><td>Elige el día</td></tr>
+    <tr><td><code>↑</code> <code>↓</code></td><td>Columna de hora</td><td>Valor anterior y siguiente de la columna</td></tr>
+    <tr><td><code>Home</code> <code>End</code></td><td>Columna de hora</td><td>Primer y último valor de la columna</td></tr>
+    <tr><td><code>Enter</code> <code>Espacio</code></td><td>Columna de hora</td><td>Elige el valor</td></tr>
     <tr><td><code>Tab</code></td><td>Campo, panel abierto</td><td>Pasa al siguiente campo y cierra el panel</td></tr>
-    <tr><td><code>Tab</code></td><td>Dentro del panel</td><td>Recorre los controles sin salir del panel</td></tr>
-    <tr><td><code>Esc</code></td><td>Campo o panel</td><td>Cierra y devuelve el foco al campo</td></tr>
+    <tr><td><code>Tab</code></td><td>Dentro del panel</td><td>Recorre los controles sin salir del panel; cada columna de hora es una sola parada</td></tr>
+    <tr><td><code>Esc</code></td><td>Campo o panel</td><td>Cierra, descarta lo que no se confirmó y devuelve el foco al campo</td></tr>
   </tbody>
 </table></div>
 
 <div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Por qué <code>Tab</code> no abre, y <code>Enter</code> tampoco</p><p>Quien tabula por un formulario hasta el botón de guardar no debería llevarse un calendario en la cara en cada campo, tapando el siguiente — era lo que apilaba paneles. Y este es un campo de texto dentro de un <code>&lt;form&gt;</code>: <code>Enter</code> ahí envía el formulario, que es lo que se espera después de escribir la fecha. Por eso quien abre es <code>Espacio</code>, y solo con el campo vacío, porque con hora se escribe <code>07/09/2026 14:30</code>.</p></div></div>
 
 <p>Un clic fuera cierra sin robar el foco de donde se hizo clic; un rango elegido a medias se descarta al cerrar, porque no
-   existe medio intervalo. Con <code>prefers-reduced-motion</code> el panel solo se desvanece, sin deslizarse.</p>
+   existe medio intervalo, y vuelve el rango que ya estaba elegido. Con el botón Aplicar — el predeterminado con hora, o
+   <code>autoApply: false</code> —, día, hora y atajo quedan pendientes: solo Aplicar confirma y dispara <code>tucano:change</code>,
+   una vez, y cerrar con <code>Esc</code> o un clic fuera descarta la elección. Sin él, cada elección vale en el acto. Con <code>prefers-reduced-motion</code> el panel solo se desvanece, sin deslizarse.</p>
 
 <h2 id="api">API</h2>
 <!-- api -->

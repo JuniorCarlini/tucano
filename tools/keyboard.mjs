@@ -25,6 +25,8 @@ const PORT = 9000 + (process.pid % 1000);
 
 const page = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
 <style>${readFileSync('dist/tucano.css', 'utf8')}</style></head><body>
+<!-- "fora" fica preso no canto: rolar para alcançar uma hora não pode pôr o painel em cima dele. -->
+<button id="outside" style="position:fixed;right:0;bottom:0;z-index:2147483647">fora</button><div id="dpbox"></div>
 <input id="cpf" data-tuc-mask="cpf">
 <input id="doc" data-tuc-mask="cpf-cnpj">
 <input id="amount" data-tuc-mask="brl">
@@ -50,6 +52,25 @@ const page = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
   <div class="tuc-tabs__panel">a</div><div class="tuc-tabs__panel" hidden>b</div>
   <div class="tuc-tabs__panel" hidden>c</div><div class="tuc-tabs__panel" hidden>d</div></div>
 <script>${readFileSync('dist/tucano.js', 'utf8')}</script>
+<script>
+  /* Monta um date picker novo em #dpbox e registra o que ele emite. Cada caso
+     parte de um campo limpo; o anterior e destruido antes. */
+  window.mk = function (html, opts) {
+    if (window.dp) dp.destroy();
+    const box = document.getElementById('dpbox');
+    box.innerHTML = html;
+    const input = box.querySelector('input:not([type=hidden])');
+    if (opts) new Tucano.DatePicker(input, opts); else Tucano.init(box);
+    window.dp = input._tucano;
+    window.inp = input;
+    window.log = [];
+    dp.opts.onChange = (value, detail) => log.push('onChange ' + detail.iso);
+    input.addEventListener('tucano:change', (e) => log.push('event ' + e.detail.iso));
+    return true;
+  };
+  window.iso = (d) => (d ? Tucano.dates.toISODate(d) : null);
+  window.hidden = () => document.querySelector('#dpbox input[type=hidden]').value;
+</script>
 </body></html>`;
 
 const file = join(tmpdir(), `tucano-keyboard-${process.pid}.html`);
@@ -105,12 +126,16 @@ const KEYS = {
   Home: { code: 'Home', key: 'Home', vk: 36 },
   End: { code: 'End', key: 'End', vk: 35 },
   ArrowDown: { code: 'ArrowDown', key: 'ArrowDown', vk: 40 },
+  ArrowUp: { code: 'ArrowUp', key: 'ArrowUp', vk: 38 },
   Escape: { code: 'Escape', key: 'Escape', vk: 27 },
+  Tab: { code: 'Tab', key: 'Tab', vk: 9 },
+  // Enter leva texto: sem ele o Chrome nao ativa o botao focado.
+  Enter: { code: 'Enter', key: 'Enter', vk: 13, text: '\r' },
 };
 async function press(name, times = 1) {
   const t = KEYS[name];
   for (let i = 0; i < times; i++) {
-    await cdp('Input.dispatchKeyEvent', { type: 'rawKeyDown', ...t, windowsVirtualKeyCode: t.vk, nativeVirtualKeyCode: t.vk });
+    await cdp('Input.dispatchKeyEvent', { type: t.text ? 'keyDown' : 'rawKeyDown', ...t, windowsVirtualKeyCode: t.vk, nativeVirtualKeyCode: t.vk });
     await cdp('Input.dispatchKeyEvent', { type: 'keyUp', ...t, windowsVirtualKeyCode: t.vk, nativeVirtualKeyCode: t.vk });
   }
 }
@@ -135,8 +160,20 @@ const startFrom = (id, value) => evaluate(`document.getElementById('${id}')._tuc
 const readField = (id) => evaluate(`(() => { const el = document.getElementById('${id}');
   return { value: el.value, cursor: el.selectionStart }; })()`);
 
+/* Clique de mouse de verdade no centro do elemento: passa por pointerdown,
+   mousedown e foco, que element.click() pula. */
+async function clickOn(expression) {
+  const p = await evaluate(`(() => { const n = ${expression}; n.scrollIntoView({ block: 'nearest' });
+    const r = n.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; })()`);
+  for (const type of ['mouseMoved', 'mousePressed', 'mouseReleased']) {
+    await cdp('Input.dispatchMouseEvent', { type, x: p[0], y: p[1], button: 'left', clickCount: 1 });
+  }
+}
+
 let failures = 0;
+let cases = 0;
 async function testCase(name, fn) {
+  cases++;
   try {
     const error = await fn();
     if (error) { console.log(`  FALHA  ${name}\n         ${error}`); failures++; }
@@ -425,8 +462,212 @@ await testCase('reabrir um modal logo depois de fechar deixa ele aberto', async 
   return r[2] ? 'ficou com is-closing' : null;
 });
 
+/* ------------------------------------------------------------------ *
+ * Date picker: digitacao, confirmacao, descarte, foco e tempo          *
+ * ------------------------------------------------------------------ */
+
+await testCase('data digitada emite ao sair com Tab, e Enter com o painel aberto confirma e fecha', async () => {
+  // A prévia gravava o valor enquanto se digitava, e o commit achava tudo igual:
+  // nem tucano:change nem onChange saíam, e o Enter não fechava o painel.
+  await evaluate(`mk('<input data-tuc-datepicker name="kd">')`);
+  await evaluate('inp.focus()');
+  await typeText('25122026');
+  await press('Tab');
+  let r = await evaluate(`[iso(dp.start), log.join('|'), hidden()]`);
+  if (r[1] !== 'onChange 2026-12-25|event 2026-12-25' || r[2] !== '2026-12-25') return `Tab: ${JSON.stringify(r)}`;
+
+  await evaluate(`mk('<input data-tuc-datepicker name="kd">'); inp.focus(); dp.open()`);
+  await typeText('24122026');
+  const typing = await evaluate(`[hidden(), log.length, dp.start]`);
+  if (typing[0] !== '' || typing[1] || typing[2]) return `a prévia gravou o valor: ${JSON.stringify(typing)}`;
+  await press('Enter');
+  r = await evaluate(`[iso(dp.start), log.join('|'), dp.isOpen]`);
+  return r[1] === 'onChange 2026-12-24|event 2026-12-24' && !r[2] ? null : `Enter: ${JSON.stringify(r)}`;
+});
+
+await testCase('Escape depois de digitar descarta o texto e mantém o valor', async () => {
+  await evaluate(`mk('<input data-tuc-datepicker name="kd">'); dp.setValue('2026-09-07', { silent: true });
+    inp.focus(); dp.open(); inp.value = ''; inp.setSelectionRange(0, 0)`);
+  await typeText('25122026');
+  await press('Escape');
+  const r = await evaluate(`[inp.value, hidden(), log.length, dp.isOpen]`);
+  return r[0] === '07/09/2026' && r[1] === '2026-09-07' && !r[2] && !r[3] ? null : JSON.stringify(r);
+});
+
+await testCase('período digitado emite com as duas datas; com o fim inválido é recusado inteiro', async () => {
+  await evaluate(`mk('<input data-tuc-datepicker data-mode="range" name="kp">'); inp.focus()`);
+  await typeText('0103202615032026');
+  await press('Tab');
+  let r = await evaluate(`[log.join('|'), hidden()]`);
+  if (r[0] !== 'onChange 2026-03-01,2026-03-15|event 2026-03-01,2026-03-15') return `Tab: ${JSON.stringify(r)}`;
+  // 31/02 não existe: antes o início valia sozinho e o evento saía com o fim vazio.
+  await evaluate(`inp.focus(); dp.open(); inp.value = ''; inp.setSelectionRange(0, 0)`);
+  await typeText('0103202631022026');
+  await press('Enter');
+  r = await evaluate(`[hidden(), log.length, inp.value]`);
+  return r[0] === '2026-03-01,2026-03-15' && r[1] === 2 && r[2] === '01/03/2026 — 15/03/2026' ? null : `fim inválido: ${JSON.stringify(r)}`;
+});
+
+await testCase('data digitada fora do max é recusada, e o valor anterior fica', async () => {
+  await evaluate(`mk('<input name="km">', { max: '2026-12-31' }); dp.setValue('2026-06-01', { silent: true });
+    inp.focus(); inp.value = ''; inp.setSelectionRange(0, 0)`);
+  await typeText('15012027');
+  await press('Tab');
+  const r = await evaluate(`[iso(dp.start), inp.value, log.length]`);
+  return r[0] === '2026-06-01' && r[1] === '01/06/2026' && !r[2] ? null : JSON.stringify(r);
+});
+
+await testCase('período pela metade e Escape devolvem o período que já estava escolhido', async () => {
+  await evaluate(`mk('<input data-tuc-datepicker data-mode="range" name="kr">');
+    dp.setValue({ start: '2026-03-01', end: '2026-03-15' }, { silent: true }); inp.focus(); dp.open()`);
+  await clickOn(`dp.panel.querySelector('.tuc-dp__day[data-date="2026-03-20"]:not(.is-outside)')`);
+  const half = await evaluate('dp.pendingRange');
+  await press('Escape');
+  const r = await evaluate(`[iso(dp.start), iso(dp.end), hidden(), log.length]`);
+  if (!half) return 'o clique não começou um período';
+  return r.join(' ') === '2026-03-01 2026-03-15 2026-03-01,2026-03-15 0' ? null : JSON.stringify(r);
+});
+
+await testCase('com Aplicar, dia e hora ficam pendentes: Aplicar emite uma vez e clicar fora descarta', async () => {
+  await evaluate(`mk('<input data-tuc-datepicker data-time="true" name="kt">'); dp.setValue('2026-09-07T10:00', { silent: true })`);
+  await clickOn('inp');
+  await clickOn(`dp.panel.querySelector('.tuc-dp__day[data-date="2026-09-10"]:not(.is-outside)')`);
+  await clickOn(`dp.panel.querySelector('[data-key="start-h-14"]')`);
+  const pending = await evaluate(`[log.length, hidden()]`);
+  if (pending[0] || pending[1] !== '2026-09-07T10:00') return `a escolha valeu antes do Aplicar: ${JSON.stringify(pending)}`;
+  await clickOn(`dp.panel.querySelector('[data-key="apply"]')`);
+  let r = await evaluate(`[log.join('|'), hidden(), dp.isOpen]`);
+  if (r[0] !== 'onChange 2026-09-10T14:00|event 2026-09-10T14:00' || r[2]) return `Aplicar: ${JSON.stringify(r)}`;
+  await clickOn('inp');
+  await clickOn(`dp.panel.querySelector('[data-key="start-h-9"]')`);
+  const hit = await evaluate(`(() => { const b = document.getElementById('outside').getBoundingClientRect();
+    const n = document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2);
+    return n && (n.id || n.tagName + '.' + n.className + ' @' + Math.round(b.left) + ',' + Math.round(b.top) + ' vw ' + innerWidth + 'x' + innerHeight); })()`);
+  if (hit !== 'outside') return `o clique "fora" cairia em outro elemento (${hit})`;
+  await clickOn(`document.getElementById('outside')`);
+  r = await evaluate(`[log.length, hidden(), inp.value, dp.isOpen]`);
+  return r[0] === 2 && r[1] === '2026-09-10T14:00' && r[2] === '10/09/2026 14:00' && !r[3] ? null : `fora: ${JSON.stringify(r)}`;
+});
+
+await testCase('fechar e reabrir em menos de 200 ms mantém o painel no DOM — date picker e select', async () => {
+  // O timer de saída morava no Popover antigo, e tirava do DOM o painel que acabara de reabrir.
+  const r = await evaluate(`(async () => {
+    mk('<input data-tuc-datepicker>');
+    dp.open(); await new Promise((ok) => setTimeout(ok, 50));
+    dp.close({ restoreFocus: false }); dp.open();
+    await new Promise((ok) => setTimeout(ok, 400));
+    const date = [dp.isOpen, dp.panel.isConnected]; dp.close({ restoreFocus: false });
+    const s = document.getElementById('state')._tucano;
+    s.open(); await new Promise((ok) => setTimeout(ok, 50));
+    s.close(); s.open();
+    await new Promise((ok) => setTimeout(ok, 400));
+    const select = [s.isOpen, s.menu.isConnected]; s.close();
+    return [date, select]; })()`);
+  if (!r[0][1]) return `date picker: aberto ${r[0][0]}, painel no DOM ${r[0][1]}`;
+  return r[1][1] ? null : `select: aberto ${r[1][0]}, menu no DOM ${r[1][1]}`;
+});
+
+await testCase('dia desativado recebe foco pela seta, e ↓ com min no meio do mês foca um dia habilitado', async () => {
+  // Com disabled, a seta num fim de semana bloqueado mandava o foco ao <body>;
+  // e o foco inicial ia ao dia 1, desativado pelo min.
+  await evaluate(`(() => { const y = new Date().getFullYear() + 1;
+    mk('<input>', { min: new Date(y, 8, 16), disabledDates: (d) => d.getDay() === 0 || d.getDay() === 6 });
+    window.firstOk = (() => { let d = new Date(y, 8, 16); while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1); return iso(d); })();
+    inp.focus(); })()`);
+  await press('ArrowDown');
+  const first = await evaluate(`[document.activeElement.dataset.date, firstOk]`);
+  if (first[0] !== first[1]) return `foco inicial em ${first[0]}, esperado ${first[1]}`;
+  let sawDisabled = false;
+  for (let i = 0; i < 6; i++) {
+    await press('ArrowRight');
+    const r = await evaluate(`[document.activeElement.classList.contains('tuc-dp__day'), document.activeElement.getAttribute('aria-disabled'), document.activeElement.dataset.date, iso(dp.focusDate)]`);
+    if (!r[0] || r[2] !== r[3]) return `depois de ${i + 1} seta(s) o foco foi para ${r[2] || 'fora da grade'}`;
+    if (r[1] === 'true') { sawDisabled = true; await press('Enter'); break; }
+  }
+  const r = await evaluate(`[dp.start, dp.isOpen]`);
+  await press('Escape');
+  if (!sawDisabled) return 'a seta não passou por dia desativado';
+  return !r[0] && r[1] ? null : 'Enter num dia desativado escolheu o dia';
+});
+
+await testCase('Enter nas setas, no rótulo e na célula de mês mantém o foco no painel', async () => {
+  // O render refazia tudo com replaceChildren, e cada ativação mandava o foco ao <body>.
+  await evaluate(`mk('<input data-tuc-datepicker>'); dp.setValue('2026-09-07', { silent: true }); inp.focus()`);
+  await press('ArrowDown');
+  await evaluate(`dp.panel.querySelector('[data-key="next"]').focus()`);
+  await press('Enter');
+  let r = await evaluate(`[document.activeElement.dataset.key, dp.panel.querySelector('.tuc-dp__label').textContent]`);
+  if (r[0] !== 'next' || !r[1].startsWith('Outubro')) return `seta: foco em ${r[0]}, mês ${r[1]}`;
+  await evaluate(`dp.panel.querySelector('[data-key="label-0"]').focus()`);
+  await press('Enter');
+  r = await evaluate(`[document.activeElement.dataset.key, dp.view]`);
+  if (r[0] !== 'label-0' || r[1] !== 'months') return `rótulo: ${JSON.stringify(r)}`;
+  await evaluate(`dp.panel.querySelector('[data-key="cell-2"]').focus()`);
+  await press('Enter');
+  r = await evaluate(`[document.activeElement.classList.contains('tuc-dp__day'), dp.view, document.activeElement.dataset.date]`);
+  await press('Escape');
+  return r[0] && r[1] === 'days' && r[2].startsWith('2026-03') ? null : `célula de mês: ${JSON.stringify(r)}`;
+});
+
+await testCase('colunas de hora: uma parada de Tab por coluna, setas andam e Enter escolhe', async () => {
+  await evaluate(`mk('<input>', { time: true, seconds: true, minuteStep: 1 }); dp.setValue('2026-09-07T10:00', { silent: true }); dp.open()`);
+  const stops = await evaluate(`[...dp.panel.querySelectorAll('.tuc-dp__timeitem')].filter((n) => n.tabIndex === 0).length`);
+  if (stops !== 3) return `${stops} paradas de Tab nas colunas de hora (esperado 3)`;
+  if (await evaluate(`!!dp.panel.querySelector('[role=listbox], [role=option]')`)) return 'ainda há listbox com botões dentro';
+  await evaluate(`dp.panel.querySelector('[data-key="start-h-10"]').focus()`);
+  await press('ArrowDown');
+  let r = await evaluate('document.activeElement.dataset.key');
+  if (r !== 'start-h-11') return `↓ levou o foco a ${r}`;
+  await press('Enter');
+  r = await evaluate(`[dp.start.getHours(), document.activeElement.dataset.key]`);
+  if (r[0] !== 11 || r[1] !== 'start-h-11') return `Enter: hora ${r[0]}, foco ${r[1]}`;
+  await press('End');
+  r = await evaluate('document.activeElement.dataset.key');
+  await press('Escape');
+  return r === 'start-h-23' ? null : `End levou o foco a ${r}`;
+});
+
+await testCase('dois meses lado a lado: uma parada de Tab na grade, e nunca no dia de fora', async () => {
+  await evaluate(`mk('<input data-tuc-datepicker data-mode="range">'); dp.setValue({ start: '2026-09-28', end: '2026-09-29' }, { silent: true }); inp.focus()`);
+  await press('ArrowDown');
+  const r = await evaluate(`[dp.panel.querySelectorAll('.tuc-dp__day[tabindex="0"]').length, document.activeElement.dataset.date, document.activeElement.classList.contains('is-outside')]`);
+  await press('Escape');
+  return r[0] === 1 && r[1] === '2026-09-28' && !r[2] ? null : JSON.stringify(r);
+});
+
+await testCase('reset do formulário volta o date picker, o hidden e a instância', async () => {
+  const r = await evaluate(`(async () => {
+    mk('<form><input data-tuc-datepicker name="kf" value="2026-09-07"></form>');
+    dp.setValue('2026-10-01');
+    inp.form.reset();
+    await new Promise((ok) => setTimeout(ok, 30));
+    return [inp.value, hidden(), iso(dp.start)]; })()`);
+  return r.join(' ') === '07/09/2026 2026-09-07 2026-09-07' ? null : JSON.stringify(r);
+});
+
+await testCase('layout compacto acompanha a tela: alargar devolve a digitação e a máscara', async () => {
+  // Decidido só na montagem, girar o tablet deixava o campo readOnly e sem máscara.
+  // O Chrome sem cabeça não troca `pointer: coarse` pela emulação de toque, então
+  // a consulta do layout compacto é trocada por uma que o teste controla; o
+  // resto — ouvir o `change` e reconfigurar o campo — é o código de verdade.
+  await evaluate(`(() => {
+    const real = window.matchMedia;
+    window.fakeCompact = Object.assign(new EventTarget(), { matches: true });
+    window.matchMedia = (q) => (q.includes('max-width: 40rem') ? fakeCompact : real(q));
+    mk('<input data-tuc-datepicker>');
+    window.matchMedia = real; })()`);
+  const narrow = await evaluate(`[inp.readOnly, !!dp._mask]`);
+  await evaluate(`fakeCompact.matches = false; fakeCompact.dispatchEvent(Object.assign(new Event('change'), { matches: false }))`);
+  const wide = await evaluate(`[inp.readOnly, !!dp._mask]`);
+  const cleaned = await evaluate(`(() => { dp.destroy(); window.dp = null;
+    return inp.readOnly === false && !inp.hasAttribute('inputmode'); })()`);
+  if (!cleaned) return 'destroy deixou o campo readOnly ou com inputmode';
+  if (narrow[0] !== true || narrow[1] !== false) return `estreito: readOnly ${narrow[0]}, máscara ${narrow[1]}`;
+  return wide[0] === false && wide[1] === true ? null : `largo: readOnly ${wide[0]}, máscara ${wide[1]}`;
+});
+
 ws.close();
 chrome.kill();
 unlinkSync(file);
-console.log(failures ? `\n${failures} falha(s) no teclado` : '\n23 caminhos de teclado verificados');
+console.log(failures ? `\n${failures} falha(s) no teclado` : `\n${cases} caminhos de teclado verificados`);
 process.exit(failures ? 1 : 0);

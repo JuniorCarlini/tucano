@@ -39,22 +39,26 @@ description: What each key does in every Tucano component — date picker, selec
   <tbody>
     <tr><td><code>↓</code></td><td>Field, closed</td><td>Opens the calendar</td></tr>
     <tr><td><code>Space</code></td><td>Empty field, closed</td><td>Opens the calendar</td></tr>
-    <tr><td><code>Enter</code></td><td>Field, open</td><td>Confirms the typed date; when closed, submits the form</td></tr>
+    <tr><td><code>Enter</code></td><td>Field, open</td><td>Confirms the typed date and closes; when closed, submits the form</td></tr>
     <tr><td><code>←</code> <code>→</code></td><td>Day</td><td>Previous and next day</td></tr>
     <tr><td><code>↑</code> <code>↓</code></td><td>Day</td><td>Same day in the previous and next week</td></tr>
     <tr><td><code>PageUp</code> <code>PageDown</code></td><td>Day</td><td>Previous and next month; with <code>Shift</code>, year</td></tr>
     <tr><td><code>Home</code> <code>End</code></td><td>Day</td><td>Start and end of the week, respecting the locale's first day</td></tr>
     <tr><td><code>Enter</code> <code>Space</code></td><td>Day</td><td>Picks the day</td></tr>
-    <tr><td><code>Tab</code></td><td>Panel</td><td>Cycles inside the panel, without escaping to the page</td></tr>
-    <tr><td><code>Esc</code></td><td>Panel</td><td>Closes and returns focus to the field</td></tr>
+    <tr><td><code>↑</code> <code>↓</code></td><td>Time column</td><td>Previous and next value in the column</td></tr>
+    <tr><td><code>Home</code> <code>End</code></td><td>Time column</td><td>First and last value in the column</td></tr>
+    <tr><td><code>Enter</code> <code>Space</code></td><td>Time column</td><td>Picks the value</td></tr>
+    <tr><td><code>Tab</code></td><td>Panel</td><td>Cycles inside the panel, without escaping to the page; each time column is a single stop</td></tr>
+    <tr><td><code>Esc</code></td><td>Panel</td><td>Closes, discards what wasn't confirmed and returns focus to the field</td></tr>
   </tbody>
 </table></div>
 <p>The field is a <code>combobox</code> with <code>aria-haspopup="dialog"</code> and <code>aria-expanded</code>, and gets
    <code>aria-controls</code> pointing to the panel while it's open. The panel is <code>role="dialog"</code>
-   labeled "Selecionar data" (select date) or "Selecionar período" (select period); each month is a <code>role="grid"</code> with the month's name, and
-   each day a <code>gridcell</code> with <code>aria-selected</code> and the full label — "Saturday, September 12,
-   2026". The month title is <code>aria-live="polite"</code>, so changing months is announced. The hour,
-   minute and second lists are <code>listbox</code>. Closing by clicking outside doesn't return focus to the field, so it
+   labeled "Selecionar data" (select date) or "Selecionar período" (select period); each month is a <code>role="grid"</code> with the month's name,
+   each week a <code>row</code> and each day a <code>gridcell</code> with <code>aria-selected</code> and the full label — "Saturday, September 12,
+   2026". A day outside the limits has <code>aria-disabled</code>: it receives focus but can't be picked. Changing months is
+   announced by an <code>aria-live="polite"</code> region that stays fixed in the panel. Each hour, minute and second column is a
+   group of buttons with a single Tab stop, and the chosen value has <code>aria-pressed</code>. Closing by clicking outside doesn't return focus to the field, so it
    isn't stolen from where the person clicked.</p>
 
 <h2 id="select">Select</h2>

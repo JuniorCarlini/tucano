@@ -9,7 +9,7 @@ montam sozinhos. Os exemplos usam Django; em PHP e Rails, campo múltiplo precis
 de `name` terminado em `[]`, e o upload direto precisa do cabeçalho de CSRF do
 framework (`data-csrf="false"` e a opção `headers` do `new Upload`).
 
-**38 KB de JS + 13 KB de CSS** (minificado + gzip).
+**39 KB de JS + 13 KB de CSS** (minificado + gzip).
 
 **[Documentação e exemplos ao vivo →](https://juniorcarlini.github.io/tucano/)**
 
@@ -468,16 +468,16 @@ ano. É a escolha certa para a maioria dos casos.
 Quem empacota pode levar menos, importando de `tucano`:
 
 ```js
-import { DatePicker, Select } from 'tucano';   // 13,7 KB em vez de 33
+import { DatePicker, Select } from 'tucano';   // 14,5 KB em vez de 39
 ```
 
 | o que se importa | gzip |
 | --- | --- |
-| só o date picker | 9,8 KB |
-| só o select | 6,2 KB |
-| só o toast | 3,1 KB |
-| date picker + select | 13,7 KB |
-| tudo | 30,2 KB |
+| só o date picker | 11,0 KB |
+| só o select | 5,9 KB |
+| só o toast | 2,7 KB |
+| date picker + select | 14,5 KB |
+| tudo | 38,6 KB |
 
 Não é linear porque o núcleo — posicionamento, datas, utilidades de DOM — é
 compartilhado: o primeiro componente paga por ele e os seguintes saem mais

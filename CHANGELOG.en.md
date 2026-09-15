@@ -44,6 +44,23 @@ in your project.
   own baseline — soft backgrounds, focus rings and the off switch track, which
   use `color-mix`, no longer show. And component font weights are fixed at 500
   and 600 instead of reading your project's Tailwind theme.
+- Date picker with the Apply button (the default with `time`, or
+  `autoApply: false`): picking a day, time or preset no longer fires
+  `tucano:change`, `change` or `onChange`. The event fires once, on Apply, and
+  closing with `Escape` or a click outside discards the choice. Before, every
+  click already emitted, Apply emitted again and closing outside kept the
+  change. With `autoApply: true` nothing changes. Code that saved on every event
+  now only gets the confirmed value.
+- Dates outside `min` and `max` are no longer pulled to the limit. Typed, they
+  are refused and the previous value stays; in `setValue()` and in the initial
+  `value`, the field is left empty, as already happened with `disabledDates`.
+  Before, `2027-01-15` with `max` at `2026-12-31` silently became 12/31/2026. A
+  typed range without a valid end is also refused whole, instead of keeping just
+  the start.
+- `Tucano.dates.parseISO()` only reads ISO (`yyyy-mm-dd`, with optional time)
+  and `Date`. Text in any other format fell back to `new Date(text)`, which
+  reads `07/09/2026` as July 9, and now returns `null`. For what people type,
+  use `Tucano.dates.parseUserInput()`.
 
 ### New
 
@@ -96,6 +113,48 @@ in your project.
 - Reopening a modal or drawer less than 200 ms after closing it made the dialog
   close again right away: the scheduled close was not cancelled. Reopening now
   cancels the pending close.
+- The date picker read ambiguous dates US-style in the initial `value` and in
+  `setValue()`: `07/09/2026` became July 9 in a Portuguese field, with time too.
+  Text now goes through the locale's parsing, and a `Date` is taken as is.
+- A date typed into the date picker didn't fire `tucano:change` or `onChange`,
+  `Enter` with the panel open neither confirmed nor closed, and `Escape` didn't
+  discard the text: the preview wrote the value while typing.
+- Starting a new range and closing with `Escape` or a click outside erased the
+  range that was already chosen. It now comes back.
+- Closing and reopening the date picker, select, color picker, menu or tooltip
+  within 200 ms removed the panel from the DOM while the component was still
+  open.
+- Keyboard focus in the calendar: the arrow onto a disabled day sent focus to
+  `<body>`; opening with `↓` focused day 1, disabled when `min` falls
+  mid-month, instead of the chosen day or today; and with two months the
+  repeated day of the neighboring month got focus, with two Tab stops in the
+  grid.
+- Clicking or pressing `Enter` on the calendar's arrows, month label, month and
+  year cells, presets and times sent focus to `<body>`.
+- Wrong week number in the calendar when the week starts on Sunday, as in pt-BR
+  and en-US: it showed the previous week's.
+- Date picker time columns: every button was a Tab stop (194 with seconds) and
+  the arrows did nothing. Each column is now a single stop, `↑`, `↓`, `Home`
+  and `End` move within it, and `Enter` or `Space` pick.
+- The date picker's `destroy()` left the field without `name`, so the form
+  stopped posting, plus the attributes, the class and `data-tuc-ready`, which
+  kept `Tucano.init` from mounting it again; in native mode the wrapper and the
+  overlay stayed. And `new DatePicker` twice on the same field created two
+  instances: the second now replaces the first.
+- `form.reset()` left the date picker out of sync: the field showed the raw
+  `value` text and the hidden input kept the old value.
+- Date picker: in native mode with time, `max` blocked every time on the last
+  day; range presets with time ended at midnight ("Hoje" was 00:00 — 00:00); in
+  a 12-hour locale the panel's time readout showed 24-hour time; and
+  `data-native="auto"` wasn't read.
+- The calendar's month and year views ignored `min` and `max`. What falls
+  outside is now disabled, and so are the arrows.
+- The date picker's compact layout was decided only at mount: widening the
+  screen or rotating the tablet left the field without typing and without a
+  mask.
+- The calendar grid had no `role="row"`, and the region that announces the
+  month change was recreated on every render, so screen readers didn't announce
+  it.
 
 ## 0.33.1 — 2026-09-14
 

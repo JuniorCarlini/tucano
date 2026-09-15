@@ -179,6 +179,9 @@ function capitalize(s) {
 
 const pad = (n, len = 2) => String(n).padStart(len, '0');
 
+// Literal entre aspas primeiro; entre tokens de mesmo prefixo, o mais longo antes.
+const FORMAT_TOKENS = /'[^']*'|yyyy|yy|MMMM|MMM|MM|M|dd|d|EEEE|EEE|HH|H|hh|h|mm|m|ss|s|a/g;
+
 /**
  * Formata via tokens. Suporta: yyyy yy MMMM MMM MM M dd d EEEE EEE HH H mm ss a
  * Texto entre aspas simples e literal: "'de' MMMM".
@@ -208,9 +211,7 @@ export function format(date, pattern, locale = 'pt-BR') {
     s: () => String(date.getSeconds()),
     a: () => (date.getHours() < 12 ? 'AM' : 'PM'),
   };
-  const tokens = Object.keys(map).sort((a, b) => b.length - a.length);
-  const re = new RegExp(`'[^']*'|${tokens.join('|')}`, 'g');
-  return pattern.replace(re, (t) => (t.startsWith("'") ? t.slice(1, -1) : map[t]()));
+  return pattern.replace(FORMAT_TOKENS, (t) => (t.startsWith("'") ? t.slice(1, -1) : map[t]()));
 }
 
 /** ISO local (sem timezone) — o formato que o Django espera em DateField/DateTimeField. */
@@ -224,16 +225,18 @@ export function toISODateTime(date, seconds = false) {
   return `${toISODate(date)}T${time}`;
 }
 
-/** Le "yyyy-mm-dd", "yyyy-mm-ddTHH:MM" ou qualquer coisa que o Date aceite. */
+/**
+ * Le "yyyy-mm-dd" e "yyyy-mm-ddTHH:MM[:SS]", ou um Date. So ISO: o fallback para
+ * `new Date(texto)` lia "07/09/2026" no formato americano, e 7 de setembro virava
+ * 9 de julho num campo em portugues. Texto no formato do idioma e com
+ * parseUserInput.
+ */
 export function parseISO(value) {
   if (!value) return null;
   if (value instanceof Date) return isValid(value) ? value : null;
   const m = /^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2}))?)?/.exec(String(value).trim());
-  if (m) {
-    const d = new Date(+m[1], +m[2] - 1, +m[3], +(m[4] || 0), +(m[5] || 0), +(m[6] || 0));
-    return isValid(d) ? d : null;
-  }
-  const d = new Date(value);
+  if (!m) return null;
+  const d = new Date(+m[1], +m[2] - 1, +m[3], +(m[4] || 0), +(m[5] || 0), +(m[6] || 0));
   return isValid(d) ? d : null;
 }
 

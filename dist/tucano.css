@@ -1291,6 +1291,17 @@ textarea.tuc-editor__value[hidden] {
   letter-spacing: 0.04em;
   color: var(--tuc-subtle);
 }
+.tuc-dp__row {
+  display: contents;
+}
+.tuc-dp__live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
 .tuc-dp__grid {
   row-gap: 0.125rem;
   column-gap: 0;
@@ -1322,7 +1333,7 @@ textarea.tuc-editor__value[hidden] {
   border-radius: var(--tuc-radius-md);
   transition: background-color 120ms var(--tuc-ease), color 120ms var(--tuc-ease);
 }
-.tuc-dp__day:hover:not(:disabled):not(.is-selected) .tuc-dp__daynum {
+.tuc-dp__day:hover:not(.is-disabled):not(.is-selected) .tuc-dp__daynum {
   background: var(--tuc-hover);
 }
 .tuc-dp__day.is-outside {
@@ -1394,8 +1405,12 @@ textarea.tuc-editor__value[hidden] {
   font-weight: 500;
   border-radius: var(--tuc-radius-md);
 }
-.tuc-dp__periodcell:hover {
+.tuc-dp__periodcell:hover:not(:disabled) {
   background: var(--tuc-hover);
+}
+.tuc-dp__periodcell:disabled {
+  cursor: not-allowed;
+  opacity: 40%;
 }
 .tuc-dp__periodcell.is-today {
   color: var(--tuc-accent-text);

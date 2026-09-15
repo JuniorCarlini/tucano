@@ -46,6 +46,23 @@ cambios en tu proyecto.
   de foco y el riel del interruptor apagado, que usan `color-mix`, dejan de
   verse. Y los pesos de fuente de los componentes quedan fijos en 500 y 600, sin
   leer el tema de Tailwind de tu proyecto.
+- Date picker con el botón Aplicar (el predeterminado con `time`, o
+  `autoApply: false`): elegir día, hora o atajo ya no dispara `tucano:change`,
+  `change` ni `onChange`. El evento sale una vez, en Aplicar, y cerrar con
+  `Escape` o un clic fuera descarta la elección. Antes cada clic ya emitía,
+  Aplicar emitía otra vez y cerrar fuera mantenía el cambio. Con
+  `autoApply: true` nada cambia. Quien guardaba en cada evento pasa a recibir
+  solo el valor confirmado.
+- Una fecha fuera de `min` y `max` ya no se lleva al límite. Escrita, se
+  rechaza y queda el valor anterior; en `setValue()` y en el `value` inicial,
+  el campo queda vacío, como ya pasaba con `disabledDates`. Antes `2027-01-15`
+  con `max` en `2026-12-31` se convertía en 31/12/2026 en silencio. Un rango
+  escrito sin un fin válido también se rechaza entero, en lugar de quedarse solo
+  con el inicio.
+- `Tucano.dates.parseISO()` lee solo ISO (`aaaa-mm-dd`, con hora opcional) y
+  `Date`. Un texto en otro formato caía en `new Date(texto)`, que lee
+  `07/09/2026` como 9 de julio, y ahora devuelve `null`. Para lo que la persona
+  escribe, use `Tucano.dates.parseUserInput()`.
 
 ### Nuevo
 
@@ -100,6 +117,48 @@ cambios en tu proyecto.
 - Volver a abrir un modal o un panel lateral menos de 200 ms después de cerrarlo
   hacía que el diálogo se cerrara solo enseguida: el cierre programado no se
   cancelaba. Ahora volver a abrir cancela el cierre pendiente.
+- El date picker leía fechas ambiguas en formato estadounidense en el `value`
+  inicial y en `setValue()`: `07/09/2026` se convertía en 9 de julio en un campo
+  en portugués, también con hora. El texto ahora pasa por la lectura del idioma,
+  y un `Date` entra tal cual.
+- Una fecha escrita en el date picker no disparaba `tucano:change` ni
+  `onChange`, `Enter` con el panel abierto no confirmaba ni cerraba y `Escape`
+  no descartaba el texto: la vista previa grababa el valor mientras se escribía.
+- Empezar un rango nuevo y cerrar con `Escape` o un clic fuera borraba el rango
+  que ya estaba elegido. Ahora vuelve.
+- Cerrar y volver a abrir en menos de 200 ms el date picker, el select, el color
+  picker, el menú o la ayuda sacaba el panel del DOM con el componente todavía
+  abierto.
+- Foco con el teclado en el calendario: la flecha sobre un día desactivado
+  mandaba el foco al `<body>`; abrir con `↓` enfocaba el día 1, desactivado
+  cuando `min` cae a mitad de mes, en lugar del día elegido o de hoy; y con dos
+  meses el día repetido del mes vecino recibía el foco, con dos paradas de Tab
+  en la cuadrícula.
+- Hacer clic o pulsar `Enter` en las flechas, la etiqueta del mes, las celdas de
+  mes y año, los atajos y las horas del calendario mandaba el foco al `<body>`.
+- Número de semana incorrecto en el calendario cuando la semana empieza en
+  domingo, como en pt-BR y en-US: salía el de la semana anterior.
+- Columnas de hora del date picker: cada botón era una parada de Tab (194 con
+  segundos) y las flechas no hacían nada. Ahora cada columna es una sola parada,
+  `↑`, `↓`, `Home` y `End` se mueven en ella, y `Enter` o `Espacio` eligen.
+- `destroy()` del date picker dejaba el campo sin `name`, y el formulario dejaba
+  de enviarlo, además de los atributos, la clase y `data-tuc-ready`, que impedía
+  a `Tucano.init` montarlo de nuevo; en modo nativo quedaban el envoltorio y el
+  overlay. Y `new DatePicker` dos veces en el mismo campo creaba dos instancias:
+  la segunda ahora reemplaza a la primera.
+- `form.reset()` dejaba el date picker desincronizado: el campo mostraba el texto
+  crudo del `value` y el hidden seguía con el valor anterior.
+- Date picker: en modo nativo con hora, `max` bloqueaba todas las horas del
+  último día; los atajos de rango con hora terminaban a medianoche ("Hoje" era
+  00:00 — 00:00); en un idioma de 12 horas la hora del panel salía en 24; y
+  `data-native="auto"` no se leía.
+- Las vistas de mes y de año del calendario ignoraban `min` y `max`. Ahora lo
+  que queda fuera está desactivado, y las flechas también.
+- El diseño compacto del date picker se decidía solo al montar: ensanchar la
+  pantalla o girar la tableta dejaba el campo sin escritura y sin máscara.
+- La cuadrícula del calendario no tenía `role="row"`, y la región que anuncia el
+  cambio de mes se recreaba en cada render, así que el lector de pantalla no la
+  anunciaba.
 
 ## 0.33.1 — 2026-09-14
 

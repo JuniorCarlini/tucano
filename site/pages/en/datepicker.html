@@ -234,9 +234,9 @@ document.querySelector('#due_date').addEventListener('tucano:change', (e) => {
   </tbody>
 </table></div>
 
-<p>Once the mask is complete the calendar jumps to the typed date and marks it, without closing. The value is confirmed when leaving the field
-   or with <code>Enter</code> while the panel is open. Text that doesn't become a date reverts to the previous value, and a date outside
-   <code>min</code>, <code>max</code> or <code>disabledDates</code> is not accepted. Deleting over a separator removes the neighboring
+<p>Once the mask is complete the calendar jumps to the typed date, without closing and without changing the value. The value is confirmed when leaving the field
+   or with <code>Enter</code> while the panel is open, which also closes it; <code>Esc</code> discards what was typed. Text that doesn't become a date reverts to the previous value, and a date outside
+   <code>min</code>, <code>max</code> or <code>disabledDates</code> is not accepted — nor pulled to the limit. A range without a valid end is refused whole. Deleting over a separator removes the neighboring
    digit, instead of getting stuck.</p>
 
 <p>A format with a month name (<code>MMMM</code>) or <code>AM/PM</code> can't be masked; there the field stays free and the
@@ -270,22 +270,27 @@ native: true      // always the system picker — as an attribute, data-native="
   <tbody>
     <tr><td><code>↓</code></td><td>Field</td><td>Opens the calendar</td></tr>
     <tr><td><code>Space</code></td><td>Empty field</td><td>Opens the calendar</td></tr>
-    <tr><td><code>Enter</code></td><td>Field, panel open</td><td>Confirms what was typed</td></tr>
+    <tr><td><code>Enter</code></td><td>Field, panel open</td><td>Confirms what was typed and closes</td></tr>
     <tr><td><code>←</code> <code>→</code></td><td>Grid</td><td>Previous and next day</td></tr>
     <tr><td><code>↑</code> <code>↓</code></td><td>Grid</td><td>Same day in the previous and next week</td></tr>
     <tr><td><code>PageUp</code> <code>PageDown</code></td><td>Grid</td><td>Previous and next month; with <code>Shift</code>, year</td></tr>
     <tr><td><code>Home</code> <code>End</code></td><td>Grid</td><td>Start and end of the week</td></tr>
     <tr><td><code>Enter</code> <code>Space</code></td><td>Grid</td><td>Chooses the day</td></tr>
+    <tr><td><code>↑</code> <code>↓</code></td><td>Time column</td><td>Previous and next value in the column</td></tr>
+    <tr><td><code>Home</code> <code>End</code></td><td>Time column</td><td>First and last value in the column</td></tr>
+    <tr><td><code>Enter</code> <code>Space</code></td><td>Time column</td><td>Chooses the value</td></tr>
     <tr><td><code>Tab</code></td><td>Field, panel open</td><td>Moves on to the next field and closes the panel</td></tr>
-    <tr><td><code>Tab</code></td><td>Inside the panel</td><td>Moves between controls without leaving the panel</td></tr>
-    <tr><td><code>Esc</code></td><td>Field or panel</td><td>Closes and returns focus to the field</td></tr>
+    <tr><td><code>Tab</code></td><td>Inside the panel</td><td>Moves between controls without leaving the panel; each time column is a single stop</td></tr>
+    <tr><td><code>Esc</code></td><td>Field or panel</td><td>Closes, discards what wasn't confirmed and returns focus to the field</td></tr>
   </tbody>
 </table></div>
 
 <div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Why <code>Tab</code> doesn't open it, and neither does <code>Enter</code></p><p>Someone tabbing through a form to the save button shouldn't get a calendar in their face at every field, covering the next one — that's what stacked panels. And this is a text field inside a <code>&lt;form&gt;</code>: <code>Enter</code> there submits the form, which is what you expect after typing the date. That's why <code>Space</code> is what opens it, and only with the field empty, because with time you type <code>07/09/2026 14:30</code>.</p></div></div>
 
 <p>Clicking outside closes it without stealing focus from where you clicked; a half-chosen range is discarded on close, because there is
-   no such thing as half an interval. With <code>prefers-reduced-motion</code> the panel only fades, without sliding.</p>
+   no such thing as half an interval, and the range that was already chosen comes back. With the Apply button — the default with time, or
+   <code>autoApply: false</code> —, day, time and preset stay pending: only Apply confirms and fires <code>tucano:change</code>,
+   once, and closing with <code>Esc</code> or a click outside discards the choice. Without it, each choice takes effect right away. With <code>prefers-reduced-motion</code> the panel only fades, without sliding.</p>
 
 <h2 id="api">API</h2>
 <!-- api -->

@@ -97,6 +97,19 @@
   color: var(--tuc-subtle);
 }
 
+/* A linha existe para o papel `row` do grid; na grade CSS as celulas continuam filhas diretas. */
+.tuc-dp__row { display: contents; }
+
+/* Regiao de anuncio da troca de mes: lida pelo leitor de tela, fora da tela. */
+.tuc-dp__live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .tuc-dp__grid {
   /* Sem gap horizontal: e o que deixa a faixa do intervalo continua. */
   row-gap: 0.125rem;
@@ -128,7 +141,7 @@
     color 120ms var(--tuc-ease);
 }
 
-.tuc-dp__day:hover:not(:disabled):not(.is-selected) .tuc-dp__daynum {
+.tuc-dp__day:hover:not(.is-disabled):not(.is-selected) .tuc-dp__daynum {
   background: var(--tuc-hover);
 }
 
@@ -192,7 +205,9 @@
   @apply grid h-11 place-items-center capitalize transition-colors; font-weight: 500;
   border-radius: var(--tuc-radius-md);
 }
-.tuc-dp__periodcell:hover { background: var(--tuc-hover); }
+.tuc-dp__periodcell:hover:not(:disabled) { background: var(--tuc-hover); }
+/* Mes ou ano inteiro fora de min/max. */
+.tuc-dp__periodcell:disabled { @apply cursor-not-allowed opacity-40; }
 .tuc-dp__periodcell.is-today { color: var(--tuc-accent-text); font-weight: 600; }
 .tuc-dp__periodcell.is-selected {
   background: var(--tuc-accent);
