@@ -1058,6 +1058,12 @@ function revealSelected(list) {
  * Distribui os digitos pelo gabarito ("##/##/####"), inserindo os separadores.
  * O separador entra assim que o grupo anterior fecha, para o usuario nao
  * precisar digita-lo.
+ *
+ * Parece o apply/cursorAfter de core/mask.js, e nao e o mesmo de proposito. O
+ * gabarito daqui vem do formato de data do idioma, e um literal entre aspas do
+ * formato entra como esta, com letras. La, `A` e `*` sao marcadores e o cursor
+ * conta letras; aqui so `#` e marcador e o cursor conta so digitos. Unificar
+ * erraria a mascara e o cursor num formato com literal, por dezenas de bytes.
  */
 function maskFormat(digits, template) {
   let out = '';
