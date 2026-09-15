@@ -67,7 +67,7 @@ description: What each key does in every Tucano component — date picker, selec
   <tbody>
     <tr><td><code>↓</code> <code>↑</code> <code>Enter</code> <code>Space</code></td><td>When closed, opens the panel</td></tr>
     <tr><td><code>↑</code> <code>↓</code></td><td>When open, moves between options, skipping disabled ones and wrapping around</td></tr>
-    <tr><td><code>Home</code> <code>End</code></td><td>First and last option</td></tr>
+    <tr><td><code>Home</code> <code>End</code></td><td>First and last option, skipping disabled ones</td></tr>
     <tr><td><code>Enter</code></td><td>Picks the active option; in multiple mode, checks or unchecks it</td></tr>
     <tr><td>Letters</td><td>With search on, they filter the list ignoring accents. Search turns on by itself from 6 options, or with <code>data-search="true"</code></td></tr>
     <tr><td><code>Backspace</code></td><td>In multiple mode, with an empty search, removes the last tag</td></tr>
@@ -75,6 +75,9 @@ description: What each key does in every Tucano component — date picker, selec
     <tr><td><code>Esc</code></td><td>Closes and returns focus to the field</td></tr>
   </tbody>
 </table></div>
+<p>With the native <code>&lt;select&gt;</code> <code>disabled</code>, the field leaves the <code>Tab</code> order, is dimmed,
+   doesn't open, doesn't accept text and hides the clear X and the tag X. An option inside
+   <code>&lt;optgroup disabled&gt;</code> also counts as disabled.</p>
 <p>The control is a <code>combobox</code> with <code>aria-haspopup="listbox"</code>, <code>aria-expanded</code> and
    <code>aria-controls</code> pointing to the list while it's open — when closed, the list leaves the DOM and the attribute
    goes with it. The list is a <code>listbox</code>, with

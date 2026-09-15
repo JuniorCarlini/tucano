@@ -66,7 +66,7 @@
       <button class="tuc-btn is-outline is-icon is-sm" data-theme-toggle data-label-light="Usar tema claro" data-label-dark="Usar tema oscuro" aria-label="Cambiar tema"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
     </div>
   </div>
-  <span class="tuc-badge is-plain ver">v0.33.1 · 52 KB</span>
+  <span class="tuc-badge is-plain ver">v0.33.1 · 53 KB</span>
   <button class="tuc-btn is-outline search-trigger" data-search aria-haspopup="dialog" aria-keyshortcuts="/ Control+K Meta+K"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 19a8 8 0 100-16 8 8 0 000 16zM21 21l-4.35-4.35"/></svg>Buscar<kbd class="tuc-badge is-plain">/</kbd></button>
   <nav class="tuc-menu" aria-label="Documentación">
 <div class="tuc-menu__section">Empezar</div>
@@ -153,7 +153,7 @@
   <div class="demo-grid">
     <div class="demo-cell">
       <h4>Grupos y opción desactivada</h4>
-      <p><code>&lt;optgroup&gt;</code> se convierte en título de grupo; <code>disabled</code> se respeta.</p>
+      <p><code>&lt;optgroup&gt;</code> se convierte en título de grupo; <code>disabled</code> se respeta en la opción, en el grupo entero y en el propio <code>&lt;select&gt;</code>, que no abre ni limpia.</p>
       <select id="s-plan" name="plan" data-tuc-select aria-label="Plan">
         <option value="">Elige un plan...</option>
         <optgroup label="Mensual">
@@ -293,7 +293,7 @@ POST  tags  = htmx</code></pre></div>
   <tbody>
     <tr><td><code>↓</code> <code>Enter</code> <code>Espacio</code></td><td>Abre el panel</td></tr>
     <tr><td><code>↑</code> <code>↓</code></td><td>Recorre las opciones, saltando las desactivadas</td></tr>
-    <tr><td><code>Home</code> <code>End</code></td><td>Primera y última opción</td></tr>
+    <tr><td><code>Home</code> <code>End</code></td><td>Primera y última opción, saltando las desactivadas</td></tr>
     <tr><td><code>Enter</code></td><td>Elige la opción activa</td></tr>
     <tr><td><code>Backspace</code></td><td>Con la búsqueda vacía, quita la última etiqueta</td></tr>
     <tr><td><code>Backspace</code> <code>Delete</code></td><td>En el simple, con la búsqueda vacía, limpia el valor, como la X</td></tr>
@@ -307,7 +307,7 @@ POST  tags  = htmx</code></pre></div>
 <p class="lead">Generada a partir del código en cada build — si algo no está aquí, no existe.</p>
 <div class="api-line"><span>Marcado</span><div><code>select[data-tuc-select]</code></div></div>
 <div class="api-line"><span>En JS</span><div><code>new Tucano.Select(alvo, opcoes)</code></div></div>
-<div class="api-line"><span>Atributos</span><div><code>data-cache</code> <code>data-clearable</code> <code>data-close-on-select</code> <code>data-debounce</code> <code>data-empty-text</code> <code>data-max-items</code> <code>data-min-chars</code> <code>data-page-param</code> <code>data-placeholder</code> <code>data-query-param</code> <code>data-search</code> <code>data-short-circuit</code> <code>data-url</code> <code>data-wrap-tags</code></div></div>
+<div class="api-line"><span>Atributos</span><div><code>data-cache</code> <code>data-clearable</code> <code>data-close-on-select</code> <code>data-debounce</code> <code>data-empty-text</code> <code>data-max-items</code> <code>data-min-chars</code> <code>data-page-param</code> <code>data-query-param</code> <code>data-search</code> <code>data-short-circuit</code> <code>data-url</code> <code>data-wrap-tags</code></div></div>
 <div class="api-line"><span>Métodos</span><div><code>getValue</code> <code>setValue</code> <code>clear</code> <code>refresh</code> <code>open</code> <code>close</code> <code>toggle</code> <code>destroy</code></div></div>
 <div class="api-line"><span>Eventos</span><div><code>tucano:change</code></div></div>
 <h3>Opciones</h3>

@@ -72,6 +72,13 @@ projeto.
   o `change` para prévia ao vivo passa a ouvir o `tucano:change`.
 - A matiz do color picker para em 360 pelo teclado, em vez de dar a volta para
   0: `→` no fim da trilha não faz mais nada. `Home` e `End` vão aos extremos.
+- O upload direto só manda o `X-CSRFToken` lido do cookie para a mesma origem
+  da página, como na receita do Django. Antes ele ia junto do arquivo para
+  qualquer `url`, inclusive de outro domínio. Quem envia para outra origem e
+  precisa do token passa `headers: { 'X-CSRFToken': ... }`.
+- No upload direto de um input com `name`, uma resposta 2xx sem o id
+  (`responseId`) deixa o arquivo em erro, com "O servidor não devolveu o id".
+  Antes ele ficava pronto, com o visto, e o formulário não postava nada.
 
 ### Novo
 
@@ -233,6 +240,56 @@ projeto.
   mentindo o valor; o botão direito na área mudava a cor junto com o menu de
   contexto; e cinza ou preto pelo `setValue()` ou digitado pulava a área para o
   vermelho, em vez de manter a matiz.
+- Upload de um arquivo só: escolher um arquivo recusado apagava o que já estava
+  escolhido, e no modo direto ainda chamava o `DELETE` dele no servidor.
+- Upload no formulário: o `reset` esvaziava o input, mas a lista continuava
+  mostrando os arquivos que o envio já não levava.
+- `destroy()` do upload no meio de um envio deixava a requisição seguir e ainda
+  emitia `tucano:change`; no modo direto o input voltava sem `name`.
+- Upload: o input nativo escondido era uma parada de `Tab` sem foco visível, e
+  remover um arquivo — ou outro terminar de subir — jogava o foco no `<body>`.
+- Upload dentro de um `<label>`: clicar na zona abria a janela de arquivos duas
+  vezes no Firefox e no Safari.
+- Upload desativado, no input ou num `fieldset`, aceitava arquivo solto na
+  zona, e no modo direto o enviava.
+- Upload direto: `'x-csrftoken'` em minúsculas em `headers` somava com o token
+  do cookie; o id ia sem codificar na URL do `DELETE`, e um `../` saía do
+  `deleteUrl`; os hidden ignoravam o atributo `form` do input; `clear()` com
+  envio em andamento emitia duas vezes; e soltar muitos arquivos de uma vez
+  redesenhava a lista a cada um.
+- `data-max-size="2M"` e outras grafias sem o "b" viravam "sem limite" em
+  silêncio. Agora `2M`, `300k` e `1 MiB` valem, e o que não se lê avisa no
+  console.
+- Busca do select: digitar com acento (`pará`, `são`) não achava nada — só a
+  opção era dobrada, não o termo digitado.
+- Select com busca no servidor: voltar a um termo que ainda estava em voo
+  travava a lista em "Buscando..."; a resposta de um termo abandonado aparecia
+  durante o debounce e ao reabrir; `minChars: 0` não buscava ao abrir; e um
+  termo vindo do cache deixava de paginar.
+- Paginação do select remoto: servidor que ignora `page` gerava pedidos sem fim;
+  carregar a página seguinte voltava a rolagem e o destaque ao topo; e um erro
+  nela apagava a página que já estava na tela.
+- Select dentro de `<label>`: o clique que abria o painel o fechava em seguida.
+  O foco que chega ao `<select>` nativo — por `<label for>` ou pelo aviso de
+  campo obrigatório — vai para a busca, e o campo lê o nome acessível do
+  `<label>`, do `aria-label` ou do `aria-labelledby`.
+- Select desativado deixava digitar e limpar pelo X, e não parecia desativado.
+  Opção dentro de `<optgroup disabled>` podia ser escolhida, e o `Backspace` do
+  múltiplo removia tag de opção desativada.
+- Teclado no select: `Enter` no múltiplo depois de filtrar marcava outra opção;
+  `↑` sem opção ativa não ia à última; `Home` e `End` paravam em opção
+  desativada; o ponteiro parado sobre a lista roubava o destaque das setas
+  (no Safari, a cada rolagem); e o `aria-activedescendant` ficava apontando
+  para opção que não estava na tela.
+- Select: clicar no título de um grupo, no X de limpar ou no X de uma tag
+  tirava o foco da busca; escolher de novo a opção já escolhida disparava
+  `change`; `setValue()` com dois valores num select simples mostrava um e
+  postava outro (vale o primeiro); `<option value=""></option>` sem texto
+  apagava o placeholder; `destroy()` deixava o `data-tuc-ready`; e o
+  `form.reset()` no modo remoto deixava a tela vazia.
+- `refresh()` do select não ligava a busca quando as opções chegavam depois da
+  montagem, e o menu de um rótulo longo passava da largura do celular, rolando
+  a página de lado.
 
 ## 0.33.1 — 2026-09-14
 

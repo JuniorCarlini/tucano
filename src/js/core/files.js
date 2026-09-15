@@ -1,8 +1,6 @@
 /**
  * Utilitarios de arquivo. Sem dependencias.
  */
-import { UPLOAD_TEXTS } from './texts.js';
-
 /** Tamanho legivel: 1536 -> "1,5 KB". */
 export function formatSize(bytes, locale = 'pt-BR') {
   if (!Number.isFinite(bytes) || bytes < 0) return '';
@@ -15,14 +13,14 @@ export function formatSize(bytes, locale = 'pt-BR') {
   return `${n.toLocaleString(locale, { maximumFractionDigits: places })} ${units[i]}`;
 }
 
-/** "5mb", "500kb", 1048576 -> bytes. */
+/**
+ * "5mb", "5 MB", "5m", "500kb", "1,5 MiB", 1048576 -> bytes. Base 1024. O que
+ * nao se le devolve null.
+ */
 export function parseSize(value) {
   if (typeof value === 'number') return value;
-  const m = /^([\d.,]+)\s*(b|kb|mb|gb)?$/i.exec(String(value || '').trim());
-  if (!m) return null;
-  const n = parseFloat(m[1].replace(',', '.'));
-  const factor = { b: 1, kb: 1024, mb: 1024 ** 2, gb: 1024 ** 3 }[(m[2] || 'b').toLowerCase()];
-  return Math.round(n * factor);
+  const m = /^([\d.,]+)\s*([kmg]?)(?:i?b)?$/i.exec(String(value ?? '').trim());
+  return m ? Math.round(parseFloat(m[1].replace(',', '.')) * 1024 ** ' kmg'.indexOf(m[2].toLowerCase() || ' ')) : null;
 }
 
 /**
@@ -48,9 +46,14 @@ export function isImage(file) {
  * Le o cookie de CSRF do Django. Sem isso, POST de upload volta 403 —
  * e o erro nao e obvio de diagnosticar.
  */
-export function csrfToken(name = 'csrftoken') {
-  const m = document.cookie.match(new RegExp(`(?:^|;\\s*)${name}=([^;]*)`));
+export function csrfToken() {
+  const m = document.cookie.match(/(?:^|;\s*)csrftoken=([^;]*)/);
   return m ? decodeURIComponent(m[1]) : null;
+}
+
+/** A url aponta para a origem da pagina? Relativa conta como mesma origem. */
+export function sameOrigin(url, base = location.href) {
+  try { return new URL(url, base).origin === new URL(base).origin; } catch { return false; }
 }
 
 /**
@@ -59,7 +62,7 @@ export function csrfToken(name = 'csrftoken') {
  *
  * Devolve { promise, abort }.
  */
-export function uploadFile({ url, file, field = 'file', extras = {}, headers = {}, method = 'POST', texts = UPLOAD_TEXTS, onProgress }) {
+export function uploadFile({ url, file, field, extras, headers, method, texts, onProgress }) {
   const xhr = new XMLHttpRequest();
   const promise = new Promise((resolve, reject) => {
     const data = new FormData();
@@ -68,10 +71,10 @@ export function uploadFile({ url, file, field = 'file', extras = {}, headers = {
 
     xhr.open(method, url);
     xhr.responseType = 'json';
-    for (const [k, v] of Object.entries(headers)) if (v != null) xhr.setRequestHeader(k, v);
+    for (const [k, v] of Object.entries(headers)) xhr.setRequestHeader(k, v);
 
     xhr.upload.addEventListener('progress', (e) => {
-      if (e.lengthComputable) onProgress?.(e.loaded / e.total, e.loaded, e.total);
+      if (e.lengthComputable) onProgress(e.loaded / e.total);
     });
     xhr.addEventListener('load', () => {
       if (xhr.status >= 200 && xhr.status < 300) {

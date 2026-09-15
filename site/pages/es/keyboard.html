@@ -67,7 +67,7 @@ description: Lo que hace cada tecla en todos los componentes de Tucano — date 
   <tbody>
     <tr><td><code>↓</code> <code>↑</code> <code>Enter</code> <code>Espacio</code></td><td>Cerrado, abre el panel</td></tr>
     <tr><td><code>↑</code> <code>↓</code></td><td>Abierto, recorre las opciones, saltando las desactivadas y dando la vuelta</td></tr>
-    <tr><td><code>Home</code> <code>End</code></td><td>Primera y última opción</td></tr>
+    <tr><td><code>Home</code> <code>End</code></td><td>Primera y última opción, saltando las desactivadas</td></tr>
     <tr><td><code>Enter</code></td><td>Elige la opción activa; en el múltiple, la marca o la desmarca</td></tr>
     <tr><td>Letras</td><td>Con la búsqueda activada, filtran la lista ignorando tildes. La búsqueda se activa sola a partir de 6 opciones, o con <code>data-search="true"</code></td></tr>
     <tr><td><code>Backspace</code></td><td>En el múltiple, con la búsqueda vacía, quita la última etiqueta</td></tr>
@@ -75,6 +75,9 @@ description: Lo que hace cada tecla en todos los componentes de Tucano — date 
     <tr><td><code>Esc</code></td><td>Cierra y devuelve el foco al campo</td></tr>
   </tbody>
 </table></div>
+<p>Con el <code>&lt;select&gt;</code> nativo <code>disabled</code>, el campo sale del recorrido del <code>Tab</code>, queda
+   atenuado, no abre, no acepta texto y oculta la X de limpiar y la de las etiquetas. Una opción dentro de
+   <code>&lt;optgroup disabled&gt;</code> también cuenta como desactivada.</p>
 <p>El control es un <code>combobox</code> con <code>aria-haspopup="listbox"</code>, <code>aria-expanded</code> y
    <code>aria-controls</code> apuntando a la lista mientras está abierta — cerrada, la lista sale del DOM y el atributo
    se va con ella. La lista es <code>listbox</code>, con

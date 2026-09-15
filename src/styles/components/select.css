@@ -37,6 +37,19 @@
   box-shadow: 0 0 0 3px var(--tuc-accent-ring);
 }
 
+/* Mesmo desenho do .tuc-input desativado. Sem X e sem o X das tags: o campo
+   desativado nao e enviado, e limpar ali so enganava. */
+.tuc-select.is-disabled,
+.tuc-select.is-disabled input.tuc-select__search {
+  @apply cursor-not-allowed;
+}
+.tuc-select.is-disabled {
+  @apply opacity-60;
+  background: var(--tuc-elevated);
+}
+.tuc-select.is-disabled .tuc-select__clear,
+.tuc-select.is-disabled .tuc-select__tagx { display: none; }
+
 /*
  * Linha unica de proposito: com quebra de linha o campo cresce conforme as tags
  * e desalinha o formulario inteiro. Excesso rola na horizontal.
@@ -60,10 +73,10 @@
   @apply min-w-0 truncate whitespace-nowrap;
 }
 
+/* Fundo, borda, padding, contorno e cor ja saem do `all: unset` do base.css. */
 .tuc-select input.tuc-select__search {
-  @apply flex-1 shrink-0 bg-transparent p-0 outline-none; border-width: 0; border-style: solid;
+  @apply flex-1 shrink-0;
   min-width: 4rem;
-  color: var(--tuc-fg);
   text-overflow: ellipsis;
 }
 
@@ -126,58 +139,6 @@
  * Menu                                                                *
  * ------------------------------------------------------------------ */
 
-.tuc-select__menu {
-  @apply z-50 overflow-hidden p-1;
-  font-family: var(--tuc-font);
-  font-size: var(--tuc-text);
-  color: var(--tuc-fg);
-  background: var(--tuc-bg);
-  border-radius: var(--tuc-radius);
-  box-shadow: var(--tuc-shadow);
-
-}
-
-
-
-.tuc-select__list {
-  @apply flex max-h-64 flex-col gap-px overflow-y-auto overscroll-contain;
-  scrollbar-width: thin;
-  scrollbar-color: var(--tuc-border) transparent;
-}
-.tuc-select__list::-webkit-scrollbar { width: 6px; }
-.tuc-select__list::-webkit-scrollbar-thumb { background: var(--tuc-border); border-radius: 99px; }
-
-.tuc-select__group {
-  @apply px-2.5 pb-1 pt-2 text-[0.6875rem] uppercase; font-weight: 600;
-  letter-spacing: 0.04em;
-  color: var(--tuc-subtle);
-}
-
-.tuc-select__option {
-  @apply flex cursor-pointer items-center gap-2  px-2.5 py-1.5;
-  border-radius: var(--tuc-radius-sm);
-}
-
-.tuc-select__label { @apply min-w-0 flex-1 truncate; }
-
-/* Destaque do teclado e do mouse sao o mesmo estado, de proposito. */
-.tuc-select__option.is-active { background: var(--tuc-hover); }
-
-.tuc-select__option.is-selected { font-weight: 600; }
-.tuc-select__check { color: var(--tuc-accent-text); }
-
-.tuc-select__option.is-disabled {
-  @apply cursor-not-allowed;
-  color: var(--tuc-subtle);
-  opacity: 0.5;
-}
-.tuc-select__option.is-disabled.is-active { background: transparent; }
-
-.tuc-select__empty {
-  @apply px-3 py-6 text-center;
-  color: var(--tuc-subtle);
-}
-
 /*
  * Entrada e saida no mesmo vocabulario do shadcn/Radix: opacidade, zoom de
  * 95% e um deslize de 8px vindo do lado oposto ao que o painel abriu.
@@ -185,8 +146,20 @@
  * O lado importa: painel que abre para baixo entra vindo de cima; se virar
  * para cima por falta de espaco, entra vindo de baixo. Deslizar sempre na
  * mesma direcao faz o movimento brigar com o lugar de onde ele saiu.
+ *
+ * max-width: o menu mede o rotulo mais longo, e num celular de 390px um
+ * e-mail sem espaco o levava a 655px, com a pagina inteira rolando de lado.
+ * A folga e a mesma do Popover, 8px de cada lado.
  */
 .tuc-select__menu {
+  @apply z-50 overflow-hidden p-1;
+  max-width: calc(100vw - 1rem);
+  font-family: var(--tuc-font);
+  font-size: var(--tuc-text);
+  color: var(--tuc-fg);
+  background: var(--tuc-bg);
+  border-radius: var(--tuc-radius);
+  box-shadow: var(--tuc-shadow);
   opacity: 0;
   scale: 0.95;
   translate: 0 -0.5rem;
@@ -212,6 +185,45 @@
   .tuc-select__menu,
   .tuc-select__menu.is-open,
   .tuc-select__menu.is-closing { transition: opacity 90ms linear; scale: none; translate: none; }
+}
+
+.tuc-select__list {
+  @apply flex max-h-64 flex-col gap-px overflow-y-auto overscroll-contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--tuc-border) transparent;
+}
+.tuc-select__list::-webkit-scrollbar { width: 6px; }
+.tuc-select__list::-webkit-scrollbar-thumb { background: var(--tuc-border); border-radius: 99px; }
+
+.tuc-select__group {
+  @apply px-2.5 pb-1 pt-2 text-[0.6875rem] uppercase; font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--tuc-subtle);
+}
+
+.tuc-select__option {
+  @apply flex cursor-pointer items-center gap-2 px-2.5 py-1.5;
+  border-radius: var(--tuc-radius-sm);
+}
+
+.tuc-select__label { @apply min-w-0 flex-1 truncate; }
+
+/* Destaque do teclado e do mouse sao o mesmo estado, de proposito. */
+.tuc-select__option.is-active { background: var(--tuc-hover); }
+
+.tuc-select__option.is-selected { font-weight: 600; }
+.tuc-select__check { color: var(--tuc-accent-text); }
+
+.tuc-select__option.is-disabled {
+  @apply cursor-not-allowed;
+  color: var(--tuc-subtle);
+  opacity: 0.5;
+}
+.tuc-select__option.is-disabled.is-active { background: transparent; }
+
+.tuc-select__empty {
+  @apply px-3 py-6 text-center;
+  color: var(--tuc-subtle);
 }
 
 /* Buscando: o spinner do sistema ao lado do texto. Erro: o tom de perigo — sem

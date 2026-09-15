@@ -79,6 +79,8 @@ export const UPLOAD_TEXTS = {
   upTo: (size) => `até ${size}`,
   serverError: (status) => `O servidor respondeu ${status}`,
   networkError: 'Falha de rede',
+  // Resposta 2xx sem o id (responseId): sem ele o formulario nao teria o que postar.
+  noId: 'O servidor não devolveu o id',
 };
 
 export const MASK_TEXTS = {

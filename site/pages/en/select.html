@@ -45,7 +45,7 @@ description: Select with search, multiple with tags, groups, limits and server-s
   <div class="demo-grid">
     <div class="demo-cell">
       <h4>Groups and a disabled option</h4>
-      <p><code>&lt;optgroup&gt;</code> becomes a group heading; <code>disabled</code> is respected.</p>
+      <p><code>&lt;optgroup&gt;</code> becomes a group heading; <code>disabled</code> is respected on the option, on the whole group and on the <code>&lt;select&gt;</code> itself, which neither opens nor clears.</p>
       <select id="s-plan" name="plan" data-tuc-select aria-label="Plan">
         <option value="">Choose a plan...</option>
         <optgroup label="Monthly">
@@ -199,7 +199,7 @@ document.querySelector('#state').addEventListener('tucano:change', (e) => {
   <tbody>
     <tr><td><code>↓</code> <code>Enter</code> <code>Space</code></td><td>Opens the panel</td></tr>
     <tr><td><code>↑</code> <code>↓</code></td><td>Moves between options, skipping disabled ones</td></tr>
-    <tr><td><code>Home</code> <code>End</code></td><td>First and last option</td></tr>
+    <tr><td><code>Home</code> <code>End</code></td><td>First and last option, skipping disabled ones</td></tr>
     <tr><td><code>Enter</code></td><td>Chooses the active option</td></tr>
     <tr><td><code>Backspace</code></td><td>With the search empty, removes the last tag</td></tr>
     <tr><td><code>Backspace</code> <code>Delete</code></td><td>In single mode, with the search empty, clears the value, like the X</td></tr>

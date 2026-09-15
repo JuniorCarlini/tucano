@@ -9,7 +9,7 @@ montam sozinhos. Os exemplos usam Django; em PHP e Rails, campo múltiplo precis
 de `name` terminado em `[]`, e o upload direto precisa do cabeçalho de CSRF do
 framework (`data-csrf="false"` e a opção `headers` do `new Upload`).
 
-**39 KB de JS + 13 KB de CSS** (minificado + gzip).
+**40 KB de JS + 13 KB de CSS** (minificado + gzip).
 
 **[Documentação e exemplos ao vivo →](https://juniorcarlini.github.io/tucano/)**
 
@@ -263,7 +263,9 @@ s.refresh();           // releia as <option> depois de um swap do HTMX
 | `wrapTags` | `false` | `true` deixa o campo crescer em várias linhas |
 
 A busca ignora acentos: `sao` encontra "São Paulo". `<optgroup>` vira cabeçalho
-de grupo e `<option disabled>` fica desabilitada.
+de grupo e `<option disabled>` fica desabilitada, também dentro de
+`<optgroup disabled>`. Com `<select disabled>` o campo não abre, não aceita texto
+e esconde o X.
 
 O campo tem **altura fixa e linha única** de propósito — com tags quebrando linha
 o campo cresce e desalinha o formulário. O excesso rola na horizontal; use
@@ -271,7 +273,7 @@ o campo cresce e desalinha o formulário. O excesso rola na horizontal; use
 
 Teclado: setas navegam, `Enter` escolhe, `Esc` fecha, `Backspace` com a busca
 vazia remove a última tag (no simples, `Backspace` e `Delete` limpam o valor,
-como o X), `Home`/`End` vão às pontas.
+como o X), `Home`/`End` vão à primeira e à última opção, pulando as desativadas.
 
 ---
 
@@ -367,7 +369,8 @@ navegador envia tudo num bloco só e não reporta o andamento — é como o HTML
 funciona, não uma limitação daqui. Progresso exige que cada arquivo suba na
 hora, que é o modo direto.
 
-O token CSRF vai em `X-CSRFToken`, lido do cookie. E o modo direto precisa de
+O token CSRF vai em `X-CSRFToken`, lido do cookie, só quando a `url` é da mesma
+origem da página. Resposta 2xx sem o id vira erro. E o modo direto precisa de
 limpeza: arquivos enviados por alguém que fechou a aba sem salvar ficam no
 servidor.
 
@@ -489,16 +492,16 @@ ano. É a escolha certa para a maioria dos casos.
 Quem empacota pode levar menos, importando de `tucano`:
 
 ```js
-import { DatePicker, Select } from 'tucano';   // 14,5 KB em vez de 39
+import { DatePicker, Select } from 'tucano';   // 14,7 KB em vez de 40
 ```
 
 | o que se importa | gzip |
 | --- | --- |
 | só o date picker | 11,0 KB |
-| só o select | 5,9 KB |
+| só o select | 6,2 KB |
 | só o toast | 2,7 KB |
-| date picker + select | 14,5 KB |
-| tudo | 39,0 KB |
+| date picker + select | 14,7 KB |
+| tudo | 39,6 KB |
 
 Não é linear porque o núcleo — posicionamento, datas, utilidades de DOM — é
 compartilhado: o primeiro componente paga por ele e os seguintes saem mais

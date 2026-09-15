@@ -29,6 +29,7 @@ const page = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
 <style>${readFileSync('dist/tucano.css', 'utf8')}</style></head><body>
 <!-- "fora" fica preso no canto: rolar para alcançar uma hora não pode pôr o painel em cima dele. -->
 <button id="outside" style="position:fixed;right:0;bottom:0;z-index:2147483647">fora</button><div id="dpbox"></div>
+<div id="selbox" style="max-width:320px"></div>
 <input id="cpf" data-tuc-mask="cpf">
 <input id="doc" data-tuc-mask="cpf-cnpj">
 <input id="amount" data-tuc-mask="brl">
@@ -819,6 +820,68 @@ testCase('reset do formulário volta o date picker, o hidden e a instância', as
   return r.join(' ') === '07/09/2026 2026-09-07 2026-09-07' ? null : JSON.stringify(r);
 });
 
+/* Upload montado numa caixa propria; `pick` faz o que a janela do sistema faz. */
+const mountUpload = (html, opts = '{}') => evaluate(`(() => {
+  if (window.upBox) { window.up?.destroy(); upBox.remove(); }
+  window.upBox = document.createElement('div');
+  upBox.innerHTML = ${JSON.stringify(html)};
+  document.body.prepend(upBox);
+  window.upInput = upBox.querySelector('input[type=file]');
+  window.up = new Tucano.Upload(upInput, ${opts});
+  window.pick = (names) => { const dt = new DataTransfer(); names.forEach((n) => dt.items.add(new File(['x'], n))); upInput.files = dt.files; upInput.dispatchEvent(new Event('change')); };
+  return true; })()`);
+
+testCase('upload: Tab não para no input nativo escondido', async () => {
+  await mountUpload('<label for="kup">Anexos</label><input type="file" id="kup" name="kup" multiple>');
+  await evaluate(`pick(['a.txt']); up.zone.focus()`);
+  const seen = [];
+  for (let i = 0; i < 4; i++) { await press('Tab'); seen.push(await evaluate(`document.activeElement === upInput`)); }
+  return seen.includes(true) ? `o foco parou no input escondido: ${JSON.stringify(seen)}` : null;
+});
+
+testCase('upload: remover pelo teclado deixa o foco na zona, não no body', async () => {
+  await mountUpload('<input type="file" name="kup" multiple>');
+  await evaluate(`pick(['a.txt']); up.list.querySelector('button').focus()`);
+  await press('Enter');
+  const r = await evaluate(`[up.getFiles().length, document.activeElement === up.zone, document.activeElement.tagName]`);
+  return r[0] === 0 && r[1] ? null : JSON.stringify(r);
+});
+
+testCase('upload: o foco fica no botão quando outro arquivo termina de subir', async () => {
+  // Cada envio refazia a lista inteira, e o botão focado saía do DOM.
+  const r = await evaluate(`(async () => {
+    const Real = window.XMLHttpRequest, sent = [];
+    window.XMLHttpRequest = function () {
+      const x = new EventTarget(); x.upload = new EventTarget(); x.status = 0; x.response = null;
+      x.open = () => {}; x.setRequestHeader = () => {}; x.send = () => sent.push(x);
+      x.abort = () => x.dispatchEvent(new Event('abort'));
+      return x;
+    };
+    try {
+      up.destroy(); upBox.innerHTML = '<input type="file" name="kup" multiple>';
+      window.upInput = upBox.querySelector('input'); window.up = new Tucano.Upload(upInput, { url: '/up/' });
+      pick(['lento.txt', 'rapido.txt']);
+      up.list.querySelector('[data-key] button').focus();
+      Object.assign(sent[1], { status: 200, response: { id: 1 } }).dispatchEvent(new Event('load'));
+      await new Promise((ok) => setTimeout(ok));
+      const a = document.activeElement;
+      return [up.getFiles().map((f) => f.status).join(), a.getAttribute('aria-label'), a.closest('li')?.querySelector('.tuc-upload__name').textContent];
+    } finally { window.XMLHttpRequest = Real; }
+  })()`);
+  return r.join('|') === 'uploading,ready|Cancelar|lento.txt' ? null : JSON.stringify(r);
+});
+
+testCase('upload dentro de <label>: um clique na zona clica o input uma vez só', async () => {
+  // O label reativava o input, e Firefox e Safari abriam a janela duas vezes.
+  await mountUpload('<label>Foto <input type="file" name="kup"></label>');
+  await evaluate(`window.upClicks = 0; upInput.addEventListener('click', () => upClicks++)`);
+  await clickOn('up.zone');
+  await wait(300);
+  const n = await evaluate('upClicks');
+  await evaluate(`up.destroy(); upBox.remove(); window.upBox = null`);
+  return n === 1 ? null : `${n} cliques no input`;
+});
+
 testCase('layout compacto acompanha a tela: alargar devolve a digitação e a máscara', async () => {
   // Decidido só na montagem, girar o tablet deixava o campo readOnly e sem máscara.
   // O Chrome sem cabeça não troca `pointer: coarse` pela emulação de toque, então
@@ -838,6 +901,295 @@ testCase('layout compacto acompanha a tela: alargar devolve a digitação e a m�
   if (!cleaned) return 'destroy deixou o campo readOnly ou com inputmode';
   if (narrow[0] !== true || narrow[1] !== false) return `estreito: readOnly ${narrow[0]}, máscara ${narrow[1]}`;
   return wide[0] === false && wide[1] === true ? null : `largo: readOnly ${wide[0]}, máscara ${wide[1]}`;
+});
+
+
+/* ------------------------------------------------------------------ *
+ * Select: um caso por defeito que a auditoria reproduziu.             *
+ * ------------------------------------------------------------------ */
+
+/* Monta um select novo em #selbox; o anterior e destruido. `opts` e codigo JS. */
+const selMount = (html, opts = '{}') => evaluate(`(() => {
+  const box = document.getElementById('selbox');
+  for (const s of box.querySelectorAll('select')) s._tucano?.destroy();
+  box.innerHTML = ${JSON.stringify(html)};
+  window.calls = []; window.changes = 0;
+  const s = box.querySelector('select');
+  s.addEventListener('change', () => changes++);
+  window.sel = new Tucano.Select(s, ${opts});
+  return true; })()`);
+const UFS = '<option value="AC">Acre</option><option value="BA">Bahia</option><option value="PA">Pará</option>'
+  + '<option value="PR">Paraná</option><option value="SC">Santa Catarina</option><option value="SP">São Paulo</option>';
+const selText = () => evaluate(`sel.list.textContent`);
+const closeSel = () => evaluate(`void sel.close()`);
+
+testCase('select: digitar "são" com acento acha São Paulo', async () => {
+  // Só as opções perdiam o acento; o termo digitado não, e "são" não achava nada.
+  await selMount(`<select>${UFS}</select>`);
+  await evaluate(`sel.search.focus()`);
+  await typeText('são');
+  const r = await evaluate(`[...sel.list.querySelectorAll('[role=option]')].map((n) => n.textContent)`);
+  await closeSel();
+  return r.length === 1 && r[0] === 'São Paulo' ? null : `achou ${JSON.stringify(r)}`;
+});
+
+testCase('select: ↑ sem nada ativo vai à última; Home e End pulam as desativadas', async () => {
+  // Do -1, a seta para cima caía na penúltima; Home e End paravam em opção desativada.
+  await selMount('<select><option value="">-</option><option value="1" disabled>Um</option><option value="2">Dois</option><option value="3">Tres</option><option value="4" disabled>Quatro</option><option value="5">Cinco</option></select>');
+  await evaluate(`sel.search.focus()`);
+  await press('Enter');
+  const active = () => evaluate(`sel.list.querySelector('.is-active')?.textContent`);
+  await press('ArrowUp'); const up = await active();
+  await press('Home'); const home = await active();
+  await press('End'); const end = await active();
+  await closeSel();
+  return up === 'Cinco' && home === 'Dois' && end === 'Cinco' ? null : `↑ ${up}, Home ${home}, End ${end}`;
+});
+
+testCase('select múltiplo: Enter depois de filtrar mantém o destaque na opção marcada', async () => {
+  // A busca zerava e o índice da lista filtrada passava a apontar outra opção: o segundo Enter marcava Acre.
+  await selMount(`<select multiple>${UFS}</select>`);
+  await evaluate(`sel.search.focus()`);
+  await typeText('paran');
+  await press('Enter');
+  const first = await evaluate(`[sel.getValue().join(), sel.list.querySelector('.is-active')?.textContent]`);
+  await press('Enter');
+  const second = await evaluate(`sel.getValue().join()`);
+  await closeSel();
+  return first[0] === 'PR' && first[1] === 'Paraná' && second === '' ? null : `1º ${JSON.stringify(first)}, 2º "${second}"`;
+});
+
+testCase('select desativado não recebe texto, não limpa e não mostra o X', async () => {
+  // A busca aceitava texto e Backspace/X limpavam um campo que o formulário nem envia.
+  await selMount(`<select disabled>${UFS.replace('value="SP"', 'value="SP" selected')}</select>`, '{ search: true }');
+  await evaluate(`sel.search.focus()`);
+  await typeText('x');
+  const r = await evaluate(`[sel.search.disabled, sel.search.value, sel.getValue(), getComputedStyle(sel.clearBtn).display]`);
+  return r[0] === true && r[1] === '' && r[2] === 'SP' && r[3] === 'none' ? null : `disabled ${r[0]}, busca "${r[1]}", valor ${r[2]}, X ${r[3]}`;
+});
+
+testCase('select: clique dentro de <label> abre e fica aberto; <label for> e submit inválido levam o foco à busca', async () => {
+  // O label ativado mandava o foco ao nativo escondido, e o Popover fechava a lista na hora.
+  await selMount(`<label>Estado <select id="kwrap">${UFS}</select></label>`);
+  await clickOn(`sel.control`);
+  await wait(150);
+  const wrapped = await evaluate(`[sel.isOpen, document.activeElement === sel.search]`);
+  await closeSel();
+  await selMount(`<form id="kform" onsubmit="return false"><label for="kfor" id="kforlabel">Estado</label><select id="kfor" required><option value="">-</option>${UFS}</select><button id="kgo">ok</button></form>`);
+  await clickOn(`document.getElementById('kforlabel')`);
+  const byLabel = await evaluate(`document.activeElement === sel.search`);
+  await clickOn(`document.getElementById('kgo')`);
+  await wait(50);
+  const bySubmit = await evaluate(`document.activeElement === sel.search`);
+  const name = await evaluate(`sel.search.getAttribute('aria-label')`);
+  if (!wrapped[0] || !wrapped[1]) return `dentro do label: aberto ${wrapped[0]}, foco na busca ${wrapped[1]}`;
+  if (!byLabel || !bySubmit) return `foco na busca: label ${byLabel}, submit ${bySubmit}`;
+  return name === 'Estado' ? null : `nome acessível da busca "${name}"`;
+});
+
+const REMOTE = (delay) => `{ debounce: 30, loadOptions: (t, { page }) => { calls.push(t + ':' + page);
+  return new Promise((ok) => setTimeout(() => ok([{ value: t, label: 'R ' + t }]), ${delay})); } }`;
+
+testCase('select remoto: voltar ao termo que estava em voo busca de novo, sem travar em "Buscando..."', async () => {
+  // O termo abortado ficava marcado como em voo, e digitá-lo de novo não pedia nada.
+  await selMount('<select></select>', REMOTE(300));
+  await evaluate(`sel.search.focus()`);
+  await typeText('ab');
+  await wait(120);
+  await press('ControlOrMeta+a'); await press('Backspace');
+  await typeText('ab');
+  const ok = await waitFor(`sel.list.textContent === 'R ab'`, 1500);
+  const r = await evaluate(`[sel.list.textContent, calls.join()]`);
+  await closeSel();
+  return ok ? null : `lista "${r[0]}", pedidos ${r[1]}`;
+});
+
+testCase('select remoto: resposta de busca abandonada não aparece — nem no debounce, nem ao reabrir', async () => {
+  // A busca antiga voltava no intervalo do debounce do termo novo, e a pendente enchia a lista reaberta.
+  await selMount('<select></select>', `{ debounce: 150, loadOptions: (t) => { calls.push(t); return new Promise((ok) => setTimeout(() => ok([{ value: t, label: 'R ' + t }]), 60)); } }`);
+  await evaluate(`sel.search.focus()`);
+  await typeText('ab');
+  await wait(180);
+  await typeText('c');
+  await wait(90);
+  const during = await selText();
+  await wait(300);
+  const final = await selText();
+  await closeSel();
+  await typeText('pa');
+  await press('Escape');
+  await press('ArrowDown');
+  await wait(400);
+  const reopened = await evaluate(`[sel.search.value, sel.list.textContent]`);
+  await closeSel();
+  if (during === 'R ab') return 'mostrou o resultado de "ab" com "abc" digitado';
+  if (final !== 'R abc') return `resultado final "${final}"`;
+  return reopened[1].includes('R pa') ? `lista reaberta com "${reopened[1]}" e busca "${reopened[0]}"` : null;
+});
+
+testCase('select remoto: rolar pagina sem voltar ao topo, para quando nada novo chega, e erro não apaga a lista', async () => {
+  const bottom = `(() => { const l = sel.list; l.scrollTop = 0; l.scrollTop = l.scrollHeight; return l.scrollTop; })()`;
+  // Paginação de verdade: a lista esvaziava para mostrar "Buscando..." e a rolagem voltava a 0.
+  await selMount('<select></select>', `{ debounce: 0, loadOptions: (t, { page }) => { calls.push(page); return new Promise((ok) => setTimeout(() => ok({ next: page < 3 ? 'x' : null,
+    results: Array.from({ length: 20 }, (_, i) => ({ value: page + '-' + i, label: 'C ' + page + '-' + i })) }), 40)); } }`);
+  await evaluate(`sel.search.focus()`);
+  await typeText('a');
+  await waitFor(`sel.list.querySelectorAll('[role=option]').length === 20`);
+  const before = await evaluate(bottom);
+  await waitFor(`sel.list.querySelectorAll('[role=option]').length === 40`);
+  const top = await evaluate(`sel.list.scrollTop`);
+  // Servidor que ignora `page`: a mesma página voltava a cada rolagem, sem fim.
+  await selMount('<select></select>', `{ debounce: 0, loadOptions: (t, { page }) => { calls.push(page); return Promise.resolve(Array.from({ length: 20 }, (_, i) => ({ value: 'v' + i, label: 'C ' + i }))); } }`);
+  await evaluate(`sel.search.focus()`);
+  await typeText('a');
+  await waitFor(`sel.list.querySelectorAll('[role=option]').length === 20`);
+  for (let k = 0; k < 5; k++) { await evaluate(bottom); await wait(60); }
+  const ignored = await evaluate(`calls.length`);
+  // Erro na página 2: a página 1 sumia atrás de "Falha ao buscar".
+  await selMount('<select></select>', `{ debounce: 0, loadOptions: (t, { page }) => page > 1 ? Promise.reject(new Error('500'))
+    : Promise.resolve({ next: 'x', results: Array.from({ length: 20 }, (_, i) => ({ value: '' + i, label: 'C ' + i })) }) }`);
+  await evaluate(`sel.search.focus()`);
+  await typeText('a');
+  await waitFor(`sel.list.querySelectorAll('[role=option]').length === 20`);
+  await evaluate(bottom);
+  await wait(100);
+  const afterError = await evaluate(`[sel.list.querySelectorAll('[role=option]').length, sel.list.textContent.includes('Falha')]`);
+  await closeSel();
+  if (top < before - 1) return `a rolagem voltou de ${before} para ${top}`;
+  if (ignored > 2) return `servidor que ignora page recebeu ${ignored} pedidos`;
+  return afterError[0] === 20 && !afterError[1] ? null : `depois do erro: ${afterError[0]} opções, falha na lista ${afterError[1]}`;
+});
+
+testCase('select remoto: termo vindo do cache continua paginando', async () => {
+  // O cache não guardava se havia mais páginas; o termo herdava o "acabou" do último buscado.
+  await selMount('<select></select>', `{ debounce: 0, loadOptions: (t, { page }) => { calls.push(t + ':' + page); const more = t === 'a';
+    return Promise.resolve({ next: more && page < 3 ? 'x' : null, results: Array.from({ length: more ? 20 : 3 }, (_, i) => ({ value: t + page + '-' + i, label: t + ' ' + i })) }); } }`);
+  await evaluate(`sel.search.focus()`);
+  await typeText('a'); await wait(60);
+  await press('Backspace'); await typeText('b'); await wait(60);
+  await press('Backspace'); await typeText('a'); await wait(60);
+  await evaluate(`(() => { const l = sel.list; l.scrollTop = l.scrollHeight; })()`);
+  const ok = await waitFor(`calls.includes('a:2')`, 1000);
+  const r = await evaluate(`calls.join()`);
+  await closeSel();
+  return ok ? null : `pedidos ${r}`;
+});
+
+testCase('select remoto: minChars 0 busca ao abrir; reset do formulário volta à opção inicial', async () => {
+  // Com minChars 0 abria em "Nenhum resultado"; e o reset voltava o nativo a uma opção que a lista já não tinha.
+  await selMount('<select></select>', `{ minChars: 0, debounce: 0, loadOptions: (t) => { calls.push(t); return Promise.resolve([{ value: '1', label: 'Um' }]); } }`);
+  await evaluate(`sel.search.focus()`);
+  await press('Enter');
+  const opened = await waitFor(`sel.list.textContent === 'Um'`, 1000);
+  await closeSel();
+  await selMount('<form id="kreset"><select><option value="1" selected>Ana</option></select></form>', `{ debounce: 0, loadOptions: () => Promise.resolve([{ value: '2', label: 'Bruno' }]) }`);
+  await evaluate(`sel.search.focus()`);
+  await typeText('b');
+  await waitFor(`sel.list.textContent.includes('Bruno')`);
+  await press('Enter');
+  await press('ArrowDown'); await press('Escape');
+  await evaluate(`document.getElementById('kreset').reset()`);
+  await wait(40);
+  const r = await evaluate(`[sel.getValue(), sel.native.value, sel.control.textContent]`);
+  if (!opened) return 'minChars 0 não buscou ao abrir';
+  return r[0] === '1' && r[1] === '1' && r[2].includes('Ana') ? null : `reset: componente ${r[0]}, nativo ${r[1]}, tela "${r[2]}"`;
+});
+
+testCase('select: aria-activedescendant sai sem resultado e ao fechar; reescolher a mesma opção não dispara change', async () => {
+  await selMount(`<select>${UFS.replace('value="SP"', 'value="SP" selected')}</select>`);
+  await evaluate(`sel.search.focus()`);
+  await typeText('zzz');
+  const empty = await evaluate(`sel.search.getAttribute('aria-activedescendant')`);
+  await press('Escape');
+  const closed = await evaluate(`sel.search.getAttribute('aria-activedescendant')`);
+  await evaluate(`changes = 0`);
+  await press('Enter');
+  await press('Enter');
+  const r = await evaluate(`[changes, sel.isOpen, sel.getValue()]`);
+  if (empty !== null || closed !== null) return `aria-activedescendant sem resultado "${empty}", fechado "${closed}"`;
+  return r[0] === 0 && !r[1] && r[2] === 'SP' ? null : `change ${r[0]}, aberto ${r[1]}, valor ${r[2]}`;
+});
+
+testCase('select: refresh liga a busca quando as opções chegam depois; setValue com dois valores no simples fica com um', async () => {
+  // Um select de cidades que nasce vazio ficava sem busca depois do HTMX; e o nativo postava um valor diferente do mostrado.
+  await selMount('<select><option value="">Cidade</option></select>');
+  await evaluate(`(() => { sel.native.innerHTML = '<option value="">Cidade</option>' + Array.from({ length: 50 }, (_, i) => '<option value="' + i + '">Cidade ' + i + '</option>').join(''); sel.refresh(); })()`);
+  const search = await evaluate(`sel.search.readOnly`);
+  await selMount(`<select>${UFS}</select>`);
+  const r = await evaluate(`(() => { sel.setValue(['PR', 'SP']); return [sel.getValue(), sel.native.value]; })()`);
+  if (search) return 'a busca continuou desligada depois do refresh';
+  return r[0] === 'PR' && r[1] === 'PR' ? null : `componente ${r[0]}, nativo ${r[1]}`;
+});
+
+testCase('select: destroy devolve o campo ao init; <option value=""> em branco não apaga o placeholder', async () => {
+  await selMount(`<select data-tuc-select data-tuc-ready><option value=""></option>${UFS}</select>`);
+  const placeholder = await evaluate(`sel.search.placeholder`);
+  const r = await evaluate(`(() => { sel.destroy(); Tucano.init(document.getElementById('selbox'));
+    const s = document.querySelector('#selbox select'); window.sel = s._tucano; return [!!s._tucano, document.querySelectorAll('#selbox .tuc-select').length]; })()`);
+  if (placeholder !== 'Selecione...') return `placeholder "${placeholder}"`;
+  return r[0] && r[1] === 1 ? null : `depois do destroy: instância ${r[0]}, controles ${r[1]}`;
+});
+
+testCase('select: rótulo longo não passa da largura de um celular de 390px', async () => {
+  // O menu media o rótulo mais longo e levava a página a rolar de lado.
+  await tab().setViewportSize({ width: 390, height: 800 });
+  try {
+    await selMount('<select><option value="1">Curto</option><option value="2">fornecedor.de.materiais.de.construcao.muito.longo@empresa-exemplo.com.br</option></select>');
+    await evaluate(`sel.search.focus()`);
+    await press('Enter');
+    await wait(50);
+    const r = await evaluate(`[document.documentElement.scrollWidth, Math.round(sel.menu.getBoundingClientRect().right)]`);
+    await closeSel();
+    return r[0] <= 390 && r[1] <= 390 ? null : `página ${r[0]}px, menu termina em ${r[1]}px`;
+  } finally {
+    await tab().setViewportSize({ width: 1280, height: 900 });
+  }
+});
+
+testCase('select: ponteiro parado sobre a lista não rouba o destaque da seta', async () => {
+  // A seta rolava a lista por baixo do ponteiro, e o mouseenter (e o mousemove do WebKit) trocava o destaque.
+  await selMount('<select>' + Array.from({ length: 40 }, (_, i) => `<option value="${i}">Item ${i}</option>`).join('') + '</select>');
+  await evaluate(`sel.search.focus()`);
+  await press('Enter');
+  const [x, y] = await centerOf(`sel.list.querySelectorAll('[role=option]')[1]`);
+  await tab().mouse.move(x, y);
+  await wait(50);
+  const start = await evaluate(`sel.activeIndex`);
+  for (let k = 0; k < 15; k++) { await press('ArrowDown'); await wait(30); }
+  await wait(100);
+  const end = await evaluate(`sel.activeIndex`);
+  await tab().mouse.move(0, 0);
+  await closeSel();
+  return end === start + 15 ? null : `de ${start}, 15 setas, parou em ${end}`;
+});
+
+testCase('select: clique no título do grupo e no X de limpar mantêm o foco na busca', async () => {
+  // O título do grupo mandava o foco ao body com a lista aberta; o X some sem valor e levava o foco junto.
+  await selMount('<select><optgroup label="Mensal"><option value="1">Um</option></optgroup><optgroup label="Anual"><option value="2" selected>Dois</option></optgroup></select>', '{ search: true }');
+  await evaluate(`sel.search.focus()`);
+  await press('Enter');
+  await clickOn(`sel.list.querySelector('.tuc-select__group')`);
+  const group = await evaluate(`[sel.isOpen, document.activeElement === sel.search]`);
+  await closeSel();
+  await clickOn(`sel.clearBtn`);
+  const clear = await evaluate(`[sel.getValue(), document.activeElement === sel.search]`);
+  if (!group[1]) return `título do grupo: aberto ${group[0]}, foco na busca ${group[1]}`;
+  return clear[0] === null && clear[1] ? null : `X: valor ${clear[0]}, foco na busca ${clear[1]}`;
+});
+
+testCase('select múltiplo: Backspace pula tag desativada; <optgroup disabled> não se escolhe', async () => {
+  await selMount('<select multiple><option value="1" selected>Um</option><option value="2" selected disabled>Dois</option></select>');
+  await evaluate(`sel.search.focus()`);
+  await press('Backspace');
+  const tags = await evaluate(`sel.getValue().join()`);
+  await selMount('<select><option value="">-</option><optgroup label="Esgotado" disabled><option value="x">Item X</option></optgroup><option value="y">Item Y</option></select>');
+  await evaluate(`sel.search.focus()`);
+  await press('Enter');
+  await clickOn(`sel.list.querySelector('[role=option]')`);
+  const r = await evaluate(`[sel.getValue(), sel.native.value, sel.list.querySelector('[role=option]').getAttribute('aria-disabled')]`);
+  await closeSel();
+  if (tags !== '2') return `Backspace deixou "${tags}"`;
+  return r[0] === null && r[1] === '' && r[2] === 'true' ? null : `optgroup desativado: componente ${r[0]}, nativo "${r[1]}", aria-disabled ${r[2]}`;
 });
 
 /* Um navegador: uma pagina, os casos em ordem, a saida guardada para imprimir junta. */

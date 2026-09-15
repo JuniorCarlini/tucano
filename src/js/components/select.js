@@ -49,9 +49,10 @@ export class Select {
     this.opts.closeOnSelect = this.opts.closeOnSelect ?? !this.multiple;
     // A opcao da instancia vence o texto global.
     for (const key of TEXT_OPTIONS) this.opts[key] ??= T[key];
+    // `||`: uma <option value=""></option> em branco deixava o campo sem texto nenhum.
     this.opts.placeholder = this.opts.placeholder
       ?? node.dataset.placeholder
-      ?? (this.multiple ? T.placeholder : firstEmptyLabel(node) ?? T.placeholder);
+      ?? ((!this.multiple && firstEmptyLabel(node)) || T.placeholder);
 
     this.id = nextId('sel');
     this.isOpen = false;
@@ -59,19 +60,22 @@ export class Select {
     this.activeIndex = -1;
     this._cleanups = [];
 
-    this.items = readOptions(node);
     this.remote = !!(this.opts.url || this.opts.loadOptions);
-    // Com busca no servidor o campo de busca e obrigatorio: e o unico jeito de
-    // pedir algo.
-    this.opts.search = this.remote ? true : (this.opts.search ?? this.items.length >= this.opts.searchMinItems);
+    /*
+     * Com busca no servidor o campo de busca e obrigatorio: e o unico jeito de
+     * pedir algo. Sem a opcao, a busca liga pelo numero de opcoes e e refeita a
+     * cada releitura — um select que nasce vazio e recebe as cidades por HTMX
+     * ficava sem busca para sempre.
+     */
+    this._autoSearch = !this.remote && this.opts.search === undefined;
+    if (this.remote) this.opts.search = true;
     this.searchState = null;   // null | 'loading' | 'error'
-    this._cache = new Map();   // termo -> itens
-    this._empties = new Set();  // termos que nao trouxeram nada
+    this._cache = new Map();   // termo -> { items, more }
     this._page = 1;
     this._hasMore = false;
 
     this._build();
-    this._syncFromNative();
+    this.refresh();
     node._tucano = this;
   }
 
@@ -85,7 +89,8 @@ export class Select {
   }
 
   setValue(value, { silent = false } = {}) {
-    const target = new Set([].concat(value ?? []).map(String));
+    // No simples vale o primeiro: com dois, a tela mostrava um e o nativo postava o outro.
+    const target = new Set([].concat(value ?? []).map(String).slice(0, this.multiple ? undefined : 1));
     for (const item of this.items) item.selected = target.has(item.value);
     this._pushToNative();
     this._renderControl();
@@ -97,11 +102,16 @@ export class Select {
     this.setValue([], { silent });
   }
 
-  /** Relê as <option> do select nativo — use depois de trocar as opções por HTMX. */
+  /**
+   * Relê as <option> do select nativo — use depois de trocar as opções por HTMX.
+   * É também o que roda no `change` de fora e no reset do formulário: no modo
+   * remoto a lista guardada só tinha o que estava escolhido, e o reset que
+   * voltava a uma opção fora dela deixava a tela vazia e o POST com valor.
+   */
   refresh() {
     this._cache.clear();
-    this._empties.clear();
     this.items = readOptions(this.native);
+    if (this._autoSearch) this.opts.search = this.items.length >= this.opts.searchMinItems;
     this._renderControl();
     if (this.isOpen) this._renderMenu();
   }
@@ -131,15 +141,24 @@ export class Select {
     this.search.setAttribute('aria-controls', `${this.id}-list`);
     this.search.focus();
     this._scrollToActive();
+    // Com minChars 0 a lista vem do servidor ja na abertura; antes aparecia
+    // "Nenhum resultado" ate a pessoa digitar e apagar.
+    if (this.remote && !this.opts.minChars) this._scheduleSearch();
   }
 
   close() {
+    // Busca pendente morre com a lista: senao a resposta chegava depois e enchia
+    // a lista reaberta com o resultado de um termo que ja nao esta no campo.
+    clearTimeout(this._searchTimer);
+    this._abort();
     if (!this.isOpen) return;
     this.isOpen = false;
     this.control.classList.remove('is-open');
     this.control.setAttribute('aria-expanded', 'false');
     this.control.removeAttribute('aria-controls');
     this.search.removeAttribute('aria-controls');
+    // Pelo mesmo motivo do aria-controls: a opcao ativa sai do DOM com a lista.
+    this.search.removeAttribute('aria-activedescendant');
     this.popover?.destroy();
     this.popover = null;
     this.query = '';
@@ -152,8 +171,6 @@ export class Select {
   }
 
   destroy() {
-    clearTimeout(this._searchTimer);
-    this._abort();
     this.close();
     this._cleanups.forEach((fn) => fn());
     this._cleanups = [];
@@ -162,6 +179,8 @@ export class Select {
     this.native.classList.remove('tuc-select-native');
     this.native.removeAttribute('aria-hidden');
     this.native.removeAttribute('tabindex');
+    // Sem isto o init() seguinte pulava o campo, que ficava cru para sempre.
+    this.native.removeAttribute('data-tuc-ready');
     delete this.native._tucano;
   }
 
@@ -170,10 +189,19 @@ export class Select {
    * ---------------------------------------------------------------- */
 
   _build() {
+    const node = this.native;
     // O select nativo sai do fluxo visual mas continua no formulario.
-    this.native.classList.add('tuc-select-native');
-    this.native.setAttribute('aria-hidden', 'true');
-    this.native.tabIndex = -1;
+    node.classList.add('tuc-select-native');
+    node.setAttribute('aria-hidden', 'true');
+    node.tabIndex = -1;
+
+    /*
+     * O <label for> e o aria-label apontam para o nativo, que esta escondido:
+     * sem repassar o nome, o combobox e a busca ficavam sem nome nenhum para o
+     * leitor de tela.
+     */
+    const labelledBy = node.getAttribute('aria-labelledby');
+    const name = labelledBy ? null : (node.getAttribute('aria-label') || [...node.labels].map(labelText).join(' ') || null);
 
     this.values = el('div', { class: 'tuc-select__values' });
     this.search = el('input', {
@@ -182,12 +210,15 @@ export class Select {
       autocomplete: 'off',
       spellcheck: 'false',
       'aria-autocomplete': 'list',
+      'aria-label': name,
+      'aria-labelledby': labelledBy,
     });
 
     this.clearBtn = el('button', {
       type: 'button', class: 'tuc-btn is-ghost is-icon tuc-select__clear', 'aria-label': T.clear,
       tabindex: -1,
-      onclick: (e) => { e.stopPropagation(); this.clear(); },
+      // O foco volta para a busca: o X some sem valor e levava o foco junto para o body.
+      onclick: (e) => { e.stopPropagation(); this.clear(); this.search.focus(); },
     }, [icon(ICON_X, 14)]);
 
     this.control = el('div', {
@@ -195,6 +226,8 @@ export class Select {
       role: 'combobox',
       'aria-haspopup': 'listbox',
       'aria-expanded': 'false',
+      'aria-label': name,
+      'aria-labelledby': labelledBy,
       id: this.id,
     }, [
       this.values,
@@ -205,7 +238,7 @@ export class Select {
     this.list = el('div', { class: 'tuc-select__list', role: 'listbox', id: `${this.id}-list`, 'aria-multiselectable': this.multiple ? 'true' : null });
     this.menu = el('div', { class: 'tuc-select__menu' }, [this.list]);
 
-    this.native.after(this.control);
+    node.after(this.control);
     this.values.append(this.search);
 
     this._cleanups.push(
@@ -215,6 +248,14 @@ export class Select {
         e.preventDefault();
         this.isOpen ? this.search.focus() : this.open();
       }),
+      /*
+       * Dentro de um <label>, o clique no controle ativava o label, que mandava
+       * o foco ao nativo escondido: o Popover via o foco sair e fechava a lista
+       * que acabara de abrir. E o <label for>, o submit invalido do `required` e
+       * qualquer .focus() no nativo deixavam o foco num elemento invisivel.
+       */
+      on(this.control, 'click', (e) => e.preventDefault()),
+      on(node, 'focus', () => this.search.focus()),
       on(this.search, 'input', () => {
         // open() zera a busca. Com a lista fechada, a primeira letra digitada e
         // o que abre a lista, e sumia junto: "pa" virava "a".
@@ -228,23 +269,43 @@ export class Select {
       }),
       on(this.search, 'keydown', (e) => this._onKeydown(e)),
       // Se o valor mudar por fora, por JS de terceiros que dispara change.
-      on(this.native, 'change', () => { if (!this._pushing) this._syncFromNative(); }),
+      on(node, 'change', () => { if (!this._pushing) this.refresh(); }),
       /*
        * O reset do formulario volta o <select> aos valores iniciais sem disparar
        * change: o nativo mudava e a tela continuava mostrando o valor antigo. O
        * evento chega antes de os valores voltarem, entao a leitura espera a vez.
        */
-      this.native.form
-        ? on(this.native.form, 'reset', () => setTimeout(() => this._syncFromNative()))
+      node.form
+        ? on(node.form, 'reset', () => setTimeout(() => this.refresh()))
         : () => {},
+      /*
+       * Um ouvinte no painel, e nao dois por opcao: com 2.000 opcoes eram 4.000
+       * funcoes novas a cada tecla. E o clique em qualquer ponto do painel nao
+       * tira o foco da busca — no titulo de um grupo o foco ia para o body e a
+       * lista ficava aberta sem teclado. A barra de rolagem da lista fica de
+       * fora, para continuar arrastavel.
+       */
+      on(this.menu, 'mousedown', (e) => {
+        if (e.target !== this.list) e.preventDefault();
+        const i = optionIndex(e.target);
+        if (i >= 0) this._toggleItem(this._filtered()[i]);
+      }),
+      /*
+       * So o ponteiro que de fato andou muda o destaque. A seta rola a lista por
+       * baixo do ponteiro parado, e a opcao que passava por ali roubava o
+       * destaque do teclado — pelo mouseenter em todo motor, e o WebKit ainda
+       * dispara mousemove sem movimento ao rolar, por isso a coordenada.
+       */
+      on(this.list, 'mousemove', (e) => {
+        const at = e.clientX + ',' + e.clientY;
+        const i = optionIndex(e.target);
+        if (at === this._pointer || i < 0) return;
+        this._pointer = at;
+        this.activeIndex = i;
+        this._paintActive();
+      }),
       on(this.list, 'scroll', () => this._onListScroll()),
     );
-  }
-
-  _syncFromNative() {
-    const chosen = new Set([...this.native.selectedOptions].map((o) => o.value));
-    for (const item of this.items) item.selected = chosen.has(item.value);
-    this._renderControl();
   }
 
   _pushToNative() {
@@ -280,40 +341,34 @@ export class Select {
    * ---------------------------------------------------------------- */
 
   /**
-   * Quatro filtros antes de chegar na rede, do mais barato ao mais caro:
-   * tamanho minimo, cache, termo sem chance e requisicao ja em voo. Debounce
-   * so no fim, para o que sobrou.
+   * Tres filtros antes de chegar na rede, do mais barato ao mais caro: tamanho
+   * minimo, cache e termo sem chance. Debounce so no fim, para o que sobrou.
+   *
+   * A busca anterior morre ja na tecla, e nao quando a proxima sai: no intervalo
+   * do debounce ela voltava e mostrava o resultado de um termo abandonado. E
+   * nao ha mais o atalho de "termo ja em voo": abortado por um termo do cache,
+   * ele ficava marcado como em voo, e digitar o mesmo termo de novo deixava a
+   * lista em "Buscando..." para sempre.
    */
   _scheduleSearch() {
     clearTimeout(this._searchTimer);
+    this._abort();
+    this.searchState = null;
     const term = this.query.trim();
     this._page = 1;
 
     if (term.length < this.opts.minChars) {
-      this._abort();
-      this.searchState = null;
       this.items = this._chosen();
       this._hasMore = false;
       this._renderMenu();
       return;
     }
 
-    const saved = this.opts.cache ? this._cache.get(term) : null;
-    if (saved) {
-      this._abort();
-      this.searchState = null;
-      this._applyResult(saved, { append: false });
+    const saved = this.opts.cache && this._cache.get(term);
+    if (saved || this._noChance(term)) {
+      this._applyResult(saved ? saved.items : [], { more: !!saved && saved.more });
       return;
     }
-
-    if (this._noChance(term)) {
-      this._abort();
-      this.searchState = null;
-      this._applyResult([], { append: false });
-      return;
-    }
-
-    if (this._termInFlight === term) return;
 
     this.searchState = 'loading';
     this._renderMenu();
@@ -327,36 +382,43 @@ export class Select {
    * Fica desligado por padrao: com busca aproximada, por sinonimo ou por
    * relevancia, um termo maior pode sim trazer resultado, e cortar aqui
    * esconderia dados sem aviso.
+   *
+   * Os termos vazios sao lidos do proprio cache, sem um Set a parte para manter.
    */
   _noChance(term) {
-    if (!this.opts.shortCircuit) return false;
-    for (const empty of this._empties) if (term.startsWith(empty)) return true;
+    if (this.opts.shortCircuit) for (const [t, saved] of this._cache) if (!saved.items.length && term.startsWith(t)) return true;
     return false;
   }
 
-  _store(term, items) {
+  /** Guarda tambem se havia mais paginas: sem isso o termo vindo do cache herdava o `hasMore` do ultimo termo buscado. */
+  _store(term, items, more) {
     if (!this.opts.cache) return;
     // Map preserva ordem de insercao: o mais antigo sai primeiro.
     if (this._cache.size >= this.opts.cacheSize) {
       this._cache.delete(this._cache.keys().next().value);
     }
-    this._cache.set(term, items);
-    if (!items.length) this._empties.add(term);
+    this._cache.set(term, { items, more });
   }
 
   /** Junta o que veio com quem ja estava escolhido e desenha. */
-  _applyResult(incoming, { append }) {
-    const chosen = this._chosen();
-    const base = append ? this.items : chosen;
+  _applyResult(incoming, { append = false, more }) {
+    const base = append ? this.items : this._chosen();
     const fresh = incoming.filter((i) => !base.some((e) => e.value === i.value));
+    // Pagina sem nada novo encerra: um servidor que ignora `page` devolvia a
+    // mesma pagina a cada rolagem, sem fim.
+    this._hasMore = more && (!append || fresh.length > 0);
     this.items = [...base, ...fresh];
-    this.activeIndex = this.items.findIndex((i) => !i.disabled && !i.selected);
+    const top = this.list.scrollTop;
+    if (!append) this.activeIndex = this.items.findIndex((i) => !i.disabled && !i.selected);
     this._renderMenu();
+    // Mais uma pagina no fim: a rolagem e o destaque ficam onde a pessoa estava.
+    if (append) this.list.scrollTop = top;
   }
 
   _abort() {
     this._control?.abort();
     this._control = null;
+    this._more = null;
   }
 
   async _fetch(term, { page = 1 } = {}) {
@@ -365,7 +427,6 @@ export class Select {
     this._abort();
     const control = new AbortController();
     this._control = control;
-    this._termInFlight = term;
 
     try {
       const raws = this.opts.loadOptions
@@ -374,17 +435,18 @@ export class Select {
       if (control.signal.aborted) return;
 
       const incoming = normalizeOptions(raws);
-      this._hasMore = hasNextPage(raws, incoming, this.opts.pageParam);
+      const more = hasNextPage(raws, incoming, this.opts.pageParam);
       this.searchState = null;
-      if (page === 1) this._store(term, incoming);
-      this._applyResult(incoming, { append: page > 1 });
-      return;
+      if (page === 1) this._store(term, incoming, more);
+      this._applyResult(incoming, { append: page > 1, more });
     } catch (e) {
       if (e.name === 'AbortError' || control.signal.aborted) return;
+      // Falha ao carregar mais nao apaga a pagina que ja esta na tela: so para de pedir.
+      if (page > 1) { this._hasMore = false; this._more?.remove(); return; }
       this.searchState = 'error';
       this._renderMenu();
     } finally {
-      if (this._control === control) { this._control = null; this._termInFlight = null; }
+      if (this._control === control) { this._control = null; this._more = null; }
     }
   }
 
@@ -400,15 +462,16 @@ export class Select {
   /**
    * Proxima pagina ao chegar perto do fim da lista. Carregar de uma vez os
    * dez mil registros e o que trava a pagina; vinte por vez, nao.
+   *
+   * O "Buscando..." entra no fim da lista, sem redesenhar: redesenhar esvaziava
+   * a lista, e a rolagem voltava ao topo a cada pagina.
    */
   _onListScroll() {
-    if (!this.remote || !this._hasMore || this.searchState === 'loading') return;
+    if (!this.remote || !this._hasMore || this.searchState || this._more) return;
     const l = this.list;
     if (l.scrollTop + l.clientHeight < l.scrollHeight - 48) return;
-    this._page += 1;
-    this.searchState = 'loading';
-    this._renderMenu();
-    this._fetch(this.query.trim(), { page: this._page });
+    this._fetch(this.query.trim(), { page: ++this._page });
+    this._more = l.appendChild(loadingRow(this.opts.loadingText));
   }
 
   _chosen() {
@@ -446,77 +509,80 @@ export class Select {
       : (this.isOpen && this.opts.search ? this.opts.searchPlaceholder : '');
     this.control.classList.toggle('has-value', chosen.length > 0);
     this.search.readOnly = !this.opts.search;
+    // Desativado no nativo, desativado na tela: antes a busca aceitava texto e o
+    // Backspace e o X limpavam um campo que o formulario nem envia.
+    this.search.disabled = this.native.disabled;
+    this.control.classList.toggle('is-disabled', this.native.disabled);
   }
 
   _filtered() {
     // No modo remoto o servidor ja devolveu o recorte: filtrar de novo
     // esconderia resultados que ele considerou relevantes.
     if (this.remote) return this.items;
-    const q = this.query.trim().toLowerCase();
-    if (!q) return this.items;
-    return this.items.filter((i) => i.search.includes(q));
+    // O termo passa pela mesma normalizacao das opcoes: so elas perdiam o
+    // acento, e "são" digitado nao achava "São Paulo".
+    const q = normalize(this.query);
+    return q ? this.items.filter((i) => i.search.includes(q)) : this.items;
   }
 
   _renderMenu() {
     const visible = this._filtered();
-    this.list.replaceChildren();
+    const list = this.list;
+    list.replaceChildren();
 
     if (this.searchState === 'loading') {
-      this.list.append(el('div', { class: 'tuc-select__empty is-loading' }, [
-        el('span', { class: 'tuc-spinner', 'aria-hidden': 'true' }), this.opts.loadingText]));
-      return;
-    }
-    if (this.searchState === 'error') {
-      this.list.append(el('div', { class: 'tuc-select__empty is-error', text: this.opts.errorText }));
-      return;
-    }
-    if (!visible.length) {
-      const remainingToType = this.remote && this.query.trim().length < this.opts.minChars;
-      this.list.append(el('div', {
+      list.append(loadingRow(this.opts.loadingText));
+    } else if (this.searchState === 'error') {
+      list.append(el('div', { class: 'tuc-select__empty is-error', text: this.opts.errorText }));
+    } else if (!visible.length) {
+      list.append(el('div', {
         class: 'tuc-select__empty',
-        text: remainingToType
+        text: this.remote && this.query.trim().length < this.opts.minChars
           ? T.typeToSearch(this.opts.minChars)
           : this.opts.emptyText,
       }));
-      return;
+    } else {
+      let currentGroup = null;
+      visible.forEach((item, i) => {
+        if (item.group && item.group !== currentGroup) {
+          currentGroup = item.group;
+          list.append(el('div', { class: 'tuc-select__group', text: item.group, role: 'presentation' }));
+        }
+        list.append(el('div', {
+          class: `tuc-select__option${item.selected ? ' is-selected' : ''}${item.disabled ? ' is-disabled' : ''}`,
+          role: 'option',
+          id: `${this.id}-opt-${i}`,
+          'aria-selected': item.selected ? 'true' : 'false',
+          'aria-disabled': item.disabled ? 'true' : null,
+        }, [
+          el('span', { class: 'tuc-select__label', text: item.label }),
+          item.selected ? el('span', { class: 'tuc-select__check' }, [icon(ICON_CHECK, 15)]) : null,
+        ]));
+      });
     }
-
-    let currentGroup = null;
-    visible.forEach((item, i) => {
-      if (item.group && item.group !== currentGroup) {
-        currentGroup = item.group;
-        this.list.append(el('div', { class: 'tuc-select__group', text: item.group, role: 'presentation' }));
-      }
-      const active = i === this.activeIndex;
-      const node = el('div', {
-        class: `tuc-select__option${item.selected ? ' is-selected' : ''}${active ? ' is-active' : ''}${item.disabled ? ' is-disabled' : ''}`,
-        role: 'option',
-        id: `${this.id}-opt-${i}`,
-        'aria-selected': item.selected ? 'true' : 'false',
-        'aria-disabled': item.disabled ? 'true' : null,
-        onmousedown: (e) => { e.preventDefault(); if (!item.disabled) this._toggleItem(item); },
-        onmouseenter: () => { this.activeIndex = i; this._paintActive(); },
-      }, [
-        el('span', { class: 'tuc-select__label', text: item.label }),
-        item.selected ? el('span', { class: 'tuc-select__check' }, [icon(ICON_CHECK, 15)]) : null,
-      ]);
-      this.list.append(node);
-    });
-
-    this.search.setAttribute('aria-activedescendant',
-      this.activeIndex >= 0 ? `${this.id}-opt-${this.activeIndex}` : '');
+    this._paintActive();
   }
 
-  /** Move o destaque sem refazer a lista — mesma razao do calendario. */
+  /**
+   * Move o destaque sem refazer a lista — mesma razao do calendario. Sem opcao
+   * ativa na tela o aria-activedescendant sai: apontava para um id que nao
+   * existia mais, com a busca sem resultado ou com a lista fechada.
+   */
   _paintActive() {
-    const options = this.list.querySelectorAll('.tuc-select__option');
-    options.forEach((n, i) => n.classList.toggle('is-active', i === this.activeIndex));
-    this.search.setAttribute('aria-activedescendant',
-      this.activeIndex >= 0 ? `${this.id}-opt-${this.activeIndex}` : '');
+    for (const n of this.list.querySelectorAll('.is-active')) n.classList.remove('is-active');
+    const id = `${this.id}-opt-${this.activeIndex}`;
+    const node = this.list.querySelector(`[id="${id}"]`);
+    if (node) {
+      node.classList.add('is-active');
+      this.search.setAttribute('aria-activedescendant', id);
+    } else {
+      this.search.removeAttribute('aria-activedescendant');
+    }
+    return node;
   }
 
   _scrollToActive() {
-    const node = this.list.querySelectorAll('.tuc-select__option')[this.activeIndex];
+    const node = this._paintActive();
     if (!node) return;
     const lr = this.list.getBoundingClientRect();
     const nr = node.getBoundingClientRect();
@@ -533,6 +599,11 @@ export class Select {
     if (this.multiple) {
       if (!item.selected && this.opts.maxItems && this._chosen().length >= this.opts.maxItems) return;
       item.selected = !item.selected;
+    } else if (item.selected) {
+      // Reescolher a opcao que ja estava escolhida nao e mudanca: o nativo nao
+      // dispara change nesse caso, e o hx-trigger="change" fazia uma requisicao a toa.
+      if (this.opts.closeOnSelect) this.close();
+      return;
     } else {
       for (const i of this.items) i.selected = i === item;
     }
@@ -543,22 +614,37 @@ export class Select {
     this._emit();
 
     if (this.opts.closeOnSelect) this.close();
-    else if (this.isOpen) { this._renderMenu(); this.search.focus(); }
+    else if (this.isOpen) {
+      // A busca zera ao escolher: o destaque segue a opcao na lista inteira, e
+      // nao o indice que ela tinha na filtrada — senao o Enter seguinte marcava outra.
+      this.activeIndex = this._filtered().indexOf(item);
+      this._renderMenu();
+      this._scrollToActive();
+    }
+    // O X da tag some junto com a tag, e levava o foco para o body.
+    this.search.focus();
   }
 
   _onKeydown(e) {
+    const { key } = e;
     const visible = this._filtered();
-    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+    if (key === 'ArrowDown' || key === 'ArrowUp' || (this.isOpen && (key === 'Home' || key === 'End'))) {
       e.preventDefault();
       if (!this.isOpen) return this.open();
-      const step = e.key === 'ArrowDown' ? 1 : -1;
-      for (let n = 1; n <= visible.length; n++) {
-        const i = (this.activeIndex + step * n + visible.length * n) % visible.length;
+      /*
+       * Setas dao a volta; Home e End partem de fora das pontas. Todos pulam as
+       * desativadas — o Home caia numa opcao desativada. E a seta para cima sem
+       * nada ativo parte do fim: partindo do -1 ela caia na penultima.
+       */
+      const len = visible.length;
+      const step = key === 'ArrowDown' || key === 'Home' ? 1 : -1;
+      const from = key === 'Home' ? -1 : (key === 'End' || (step < 0 && this.activeIndex < 0)) ? len : this.activeIndex;
+      for (let n = 1; n <= len; n++) {
+        const i = (((from + step * n) % len) + len) % len;
         if (!visible[i].disabled) { this.activeIndex = i; break; }
       }
-      this._paintActive();
       this._scrollToActive();
-    } else if (e.key === 'Enter' || e.key === ' ') {
+    } else if (key === 'Enter' || key === ' ') {
       /*
        * Fechado, Enter e Espaco abrem — antes o campo so respondia a seta, e
        * quem chegava de Tab ficava sem saber como entrar na lista.
@@ -568,20 +654,21 @@ export class Select {
        * "Sao Paulo". Fechado o campo esta sempre vazio, entao nao ha conflito.
        */
       if (!this.isOpen) {
-        if (e.key === ' ' && this.search.value) return;
+        if (key === ' ' && this.search.value) return;
         e.preventDefault();
         return this.open();
       }
-      if (e.key === ' ') return;
+      if (key === ' ') return;
       e.preventDefault();
       const item = visible[this.activeIndex];
       if (item) this._toggleItem(item);
-    } else if (e.key === 'Backspace' && !this.search.value && this.multiple) {
+    } else if (key === 'Backspace' && !this.search.value && this.multiple) {
       // Campo de busca vazio: apagar remove a ultima tag, como em qualquer editor de tags.
+      // A ultima que se pode tirar: uma opcao desativada escolhida travava o Backspace nela.
       // O Escape nao passa por aqui: com a lista aberta quem o trata e o Popover.
-      const chosen = this._chosen();
-      if (chosen.length) this._toggleItem(chosen[chosen.length - 1]);
-    } else if ((e.key === 'Backspace' || e.key === 'Delete') && !this.search.value && !this.multiple) {
+      const last = this._chosen().filter((i) => !i.disabled).pop();
+      if (last) this._toggleItem(last);
+    } else if ((key === 'Backspace' || key === 'Delete') && !this.search.value && !this.multiple) {
       /*
        * No simples, apagar com a busca vazia limpa o valor — o mesmo que o X faz.
        * Antes so o multiplo respondia: quem tabulava ate um select preenchido e
@@ -592,12 +679,6 @@ export class Select {
         e.preventDefault();
         this.clear();
       }
-    } else if (e.key === 'Home' || e.key === 'End') {
-      if (!this.isOpen) return;
-      e.preventDefault();
-      this.activeIndex = e.key === 'Home' ? 0 : visible.length - 1;
-      this._paintActive();
-      this._scrollToActive();
     }
   }
 
@@ -611,20 +692,37 @@ export class Select {
 
 /* ------------------------------------------------------------------ */
 
+/** Indice da opcao sob o evento, lido do id (`sel-…-opt-12`); -1 fora de uma opcao. */
+function optionIndex(target) {
+  const node = target.closest('[role=option]');
+  return node ? +node.id.slice(node.id.lastIndexOf('-') + 1) : -1;
+}
+
+function loadingRow(text) {
+  return el('div', { class: 'tuc-select__empty is-loading' }, [
+    el('span', { class: 'tuc-spinner', 'aria-hidden': 'true' }), text]);
+}
+
+/** Texto do <label>, sem o texto das opcoes do select que mora dentro dele. */
+function labelText(label) {
+  const copy = label.cloneNode(true);
+  for (const n of copy.querySelectorAll('select')) n.remove();
+  return copy.textContent.trim();
+}
+
 /**
  * Aceita os formatos documentados, e so eles: [{value,label}], ["a","b"],
  * {results:[...]} do DRF e {id,text} do Select2 — para nao obrigar o servidor
- * a mudar so por causa daqui.
+ * a mudar so por causa daqui. Sem o campo `search`: o modo remoto nao filtra no
+ * cliente, e a normalizacao de cada item era trabalho jogado fora.
  */
 function normalizeOptions(data) {
   const list = Array.isArray(data) ? data : (data?.results ?? []);
   return list.map((o) => {
-    if (o == null) return null;
-    if (typeof o !== 'object') return { value: String(o), label: String(o), disabled: false, group: null, selected: false, search: normalize(String(o)) };
-    const value = String(o.value ?? o.id ?? '');
-    const label = String(o.label ?? o.text ?? value);
-    return { value, label, disabled: !!o.disabled, group: o.group ?? null, selected: false, search: normalize(`${label} ${value}`) };
-  }).filter((o) => o && o.value !== '');
+    if (typeof o !== 'object') o = { value: o };
+    const value = String(o?.value ?? o?.id ?? '');
+    return { value, label: String(o?.label ?? o?.text ?? value), disabled: !!o?.disabled, group: o?.group ?? null, selected: false };
+  }).filter((o) => o.value !== '');
 }
 
 /**
@@ -644,7 +742,8 @@ function readOptions(select) {
     .map((o) => ({
       value: o.value,
       label: o.textContent.trim(),
-      disabled: o.disabled,
+      // :disabled pega tambem a <optgroup disabled>, que o `o.disabled` ignora.
+      disabled: o.matches(':disabled'),
       group: o.parentElement.tagName === 'OPTGROUP' ? o.parentElement.label : null,
       selected: o.selected,
       // Normaliza acentos: buscar "sao" acha "São Paulo".
@@ -669,8 +768,8 @@ export function autoInit(scope = document) {
     const d = node.dataset;
     node.setAttribute('data-tuc-ready', '');
     out.push(new Select(node, {
+      // data-placeholder nao entra aqui: o construtor ja o le do proprio elemento.
       search: d.search === 'true' ? true : d.search === 'false' ? false : undefined,
-      placeholder: d.placeholder || undefined,
       emptyText: d.emptyText || undefined,
       maxItems: d.maxItems ? +d.maxItems : undefined,
       clearable: d.clearable === 'false' ? false : undefined,

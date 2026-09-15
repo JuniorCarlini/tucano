@@ -44,7 +44,7 @@ description: Select com busca, múltiplo com tags, grupos, limite e busca no ser
   <div class="demo-grid">
     <div class="demo-cell">
       <h4>Grupos e opção desativada</h4>
-      <p><code>&lt;optgroup&gt;</code> vira título de grupo; <code>disabled</code> é respeitado.</p>
+      <p><code>&lt;optgroup&gt;</code> vira título de grupo; <code>disabled</code> é respeitado na opção, no grupo inteiro e no próprio <code>&lt;select&gt;</code>, que não abre nem limpa.</p>
       <select id="s-plan" name="plan" data-tuc-select aria-label="Plano">
         <option value="">Escolha um plano...</option>
         <optgroup label="Mensal">
@@ -198,7 +198,7 @@ document.querySelector('#state').addEventListener('tucano:change', (e) => {
   <tbody>
     <tr><td><code>↓</code> <code>Enter</code> <code>Espaço</code></td><td>Abre o painel</td></tr>
     <tr><td><code>↑</code> <code>↓</code></td><td>Anda entre as opções, pulando as desativadas</td></tr>
-    <tr><td><code>Home</code> <code>End</code></td><td>Primeira e última opção</td></tr>
+    <tr><td><code>Home</code> <code>End</code></td><td>Primeira e última opção, pulando as desativadas</td></tr>
     <tr><td><code>Enter</code></td><td>Escolhe a opção ativa</td></tr>
     <tr><td><code>Backspace</code></td><td>Com a busca vazia, remove a última tag</td></tr>
     <tr><td><code>Backspace</code> <code>Delete</code></td><td>No simples, com a busca vazia, limpa o valor, como o X</td></tr>

@@ -74,6 +74,13 @@ in your project.
 - The color picker's hue stops at 360 with the keyboard instead of wrapping to
   0: `→` at the end of the track no longer does anything. `Home` and `End` go
   to the ends.
+- Direct upload only sends the `X-CSRFToken` read from the cookie to the page's
+  own origin, as in Django's recipe. It used to go along with the file to any
+  `url`, including another domain. If you upload to another origin and need the
+  token, pass `headers: { 'X-CSRFToken': ... }`.
+- In direct upload of an input with a `name`, a 2xx response without the id
+  (`responseId`) leaves the file in error, with "O servidor não devolveu o id".
+  It used to show as ready, with the check mark, while the form posted nothing.
 
 ### New
 
@@ -243,6 +250,56 @@ in your project.
   misreporting the value; right-clicking the area changed the color along with
   opening the context menu; and gray or black through `setValue()` or typing
   jumped the area to red instead of keeping the hue.
+- Single-file upload: choosing a rejected file wiped the one already chosen,
+  and in direct mode it also called its `DELETE` on the server.
+- Form upload: `reset` emptied the input, but the list kept showing files the
+  submit no longer carried.
+- Upload `destroy()` during a transfer let the request go on and still emitted
+  `tucano:change`; in direct mode the input came back without its `name`.
+- Upload: the hidden native input was a `Tab` stop with no visible focus, and
+  removing a file — or another one finishing — dropped focus onto `<body>`.
+- Upload inside a `<label>`: clicking the zone opened the file dialog twice in
+  Firefox and Safari.
+- A disabled upload, on the input or in a `fieldset`, accepted files dropped on
+  the zone, and in direct mode uploaded them.
+- Direct upload: a lowercase `'x-csrftoken'` in `headers` was joined with the
+  cookie token; the id went unencoded into the `DELETE` URL, so `../` escaped
+  `deleteUrl`; hidden inputs ignored the input's `form` attribute; `clear()`
+  during a transfer emitted twice; and dropping many files at once redrew the
+  list for each one.
+- `data-max-size="2M"` and other spellings without the "b" silently meant "no
+  limit". Now `2M`, `300k` and `1 MiB` work, and an unreadable value warns in
+  the console.
+- Select search: typing with accents (`pará`, `são`) found nothing — only the
+  option was folded, not the typed term.
+- Select with server search: going back to a term still in flight froze the
+  list on "Buscando..."; the response for an abandoned term showed up during
+  the debounce and on reopening; `minChars: 0` did not search on open; and a
+  term served from the cache stopped paginating.
+- Remote select pagination: a server that ignores `page` caused endless
+  requests; loading the next page reset the scroll and the highlight to the
+  top; and an error on it wiped the page already on screen.
+- Select inside a `<label>`: the click that opened the panel closed it right
+  away. Focus that reaches the native `<select>` — through `<label for>` or the
+  required-field prompt — goes to the search, and the field reads its
+  accessible name from the `<label>`, `aria-label` or `aria-labelledby`.
+- A disabled select still allowed typing and clearing with the X, and did not
+  look disabled. An option inside `<optgroup disabled>` could be picked, and
+  `Backspace` in multiple mode removed tags of disabled options.
+- Select keyboard: `Enter` in multiple mode after filtering checked a different
+  option; `↑` with no active option did not go to the last one; `Home` and
+  `End` stopped on disabled options; a pointer resting over the list stole the
+  arrow highlight (in Safari, on every scroll); and `aria-activedescendant`
+  kept pointing to an option that was not on screen.
+- Select: clicking a group heading, the clear X or a tag's X took focus away
+  from the search; picking the already chosen option again fired `change`;
+  `setValue()` with two values on a single select showed one and posted the
+  other (the first one wins); a blank `<option value=""></option>` wiped the
+  placeholder; `destroy()` left `data-tuc-ready`; and `form.reset()` in remote
+  mode left the field empty.
+- The select's `refresh()` did not turn search on when the options arrived after
+  mounting, and the menu of a long label overflowed a phone's width, scrolling
+  the page sideways.
 
 ## 0.33.1 — 2026-09-14
 

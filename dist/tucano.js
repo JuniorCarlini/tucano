@@ -647,7 +647,9 @@ var Tucano = (() => {
     others: (n) => `No m\xE1ximo ${n} arquivo${n > 1 ? "s" : ""}`,
     upTo: (size) => `at\xE9 ${size}`,
     serverError: (status) => `O servidor respondeu ${status}`,
-    networkError: "Falha de rede"
+    networkError: "Falha de rede",
+    // Resposta 2xx sem o id (responseId): sem ele o formulario nao teria o que postar.
+    noId: "O servidor n\xE3o devolveu o id"
   };
   var MASK_TEXTS = {
     show: "Mostrar",
@@ -1924,22 +1926,21 @@ var Tucano = (() => {
       this.multiple = node.multiple;
       this.opts.closeOnSelect = this.opts.closeOnSelect ?? !this.multiple;
       for (const key of TEXT_OPTIONS) this.opts[key] ??= SELECT_TEXTS[key];
-      this.opts.placeholder = this.opts.placeholder ?? node.dataset.placeholder ?? (this.multiple ? SELECT_TEXTS.placeholder : firstEmptyLabel(node) ?? SELECT_TEXTS.placeholder);
+      this.opts.placeholder = this.opts.placeholder ?? node.dataset.placeholder ?? (!this.multiple && firstEmptyLabel(node) || SELECT_TEXTS.placeholder);
       this.id = nextId("sel");
       this.isOpen = false;
       this.query = "";
       this.activeIndex = -1;
       this._cleanups = [];
-      this.items = readOptions(node);
       this.remote = !!(this.opts.url || this.opts.loadOptions);
-      this.opts.search = this.remote ? true : this.opts.search ?? this.items.length >= this.opts.searchMinItems;
+      this._autoSearch = !this.remote && this.opts.search === void 0;
+      if (this.remote) this.opts.search = true;
       this.searchState = null;
       this._cache = /* @__PURE__ */ new Map();
-      this._empties = /* @__PURE__ */ new Set();
       this._page = 1;
       this._hasMore = false;
       this._build();
-      this._syncFromNative();
+      this.refresh();
       node._tucano = this;
     }
     /* ---------------------------------------------------------------- *
@@ -1950,7 +1951,7 @@ var Tucano = (() => {
       return this.multiple ? chosen : chosen[0] ?? null;
     }
     setValue(value, { silent = false } = {}) {
-      const target = new Set([].concat(value ?? []).map(String));
+      const target = new Set([].concat(value ?? []).map(String).slice(0, this.multiple ? void 0 : 1));
       for (const item of this.items) item.selected = target.has(item.value);
       this._pushToNative();
       this._renderControl();
@@ -1960,11 +1961,16 @@ var Tucano = (() => {
     clear({ silent = false } = {}) {
       this.setValue([], { silent });
     }
-    /** Relê as <option> do select nativo — use depois de trocar as opções por HTMX. */
+    /**
+     * Relê as <option> do select nativo — use depois de trocar as opções por HTMX.
+     * É também o que roda no `change` de fora e no reset do formulário: no modo
+     * remoto a lista guardada só tinha o que estava escolhido, e o reset que
+     * voltava a uma opção fora dela deixava a tela vazia e o POST com valor.
+     */
     refresh() {
       this._cache.clear();
-      this._empties.clear();
       this.items = readOptions(this.native);
+      if (this._autoSearch) this.opts.search = this.items.length >= this.opts.searchMinItems;
       this._renderControl();
       if (this.isOpen) this._renderMenu();
     }
@@ -1993,14 +1999,18 @@ var Tucano = (() => {
       this.search.setAttribute("aria-controls", `${this.id}-list`);
       this.search.focus();
       this._scrollToActive();
+      if (this.remote && !this.opts.minChars) this._scheduleSearch();
     }
     close() {
+      clearTimeout(this._searchTimer);
+      this._abort();
       if (!this.isOpen) return;
       this.isOpen = false;
       this.control.classList.remove("is-open");
       this.control.setAttribute("aria-expanded", "false");
       this.control.removeAttribute("aria-controls");
       this.search.removeAttribute("aria-controls");
+      this.search.removeAttribute("aria-activedescendant");
       this.popover?.destroy();
       this.popover = null;
       this.query = "";
@@ -2011,8 +2021,6 @@ var Tucano = (() => {
       this.isOpen ? this.close() : this.open();
     }
     destroy() {
-      clearTimeout(this._searchTimer);
-      this._abort();
       this.close();
       this._cleanups.forEach((fn) => fn());
       this._cleanups = [];
@@ -2021,31 +2029,39 @@ var Tucano = (() => {
       this.native.classList.remove("tuc-select-native");
       this.native.removeAttribute("aria-hidden");
       this.native.removeAttribute("tabindex");
+      this.native.removeAttribute("data-tuc-ready");
       delete this.native._tucano;
     }
     /* ---------------------------------------------------------------- *
      * Construcao                                                        *
      * ---------------------------------------------------------------- */
     _build() {
-      this.native.classList.add("tuc-select-native");
-      this.native.setAttribute("aria-hidden", "true");
-      this.native.tabIndex = -1;
+      const node = this.native;
+      node.classList.add("tuc-select-native");
+      node.setAttribute("aria-hidden", "true");
+      node.tabIndex = -1;
+      const labelledBy = node.getAttribute("aria-labelledby");
+      const name = labelledBy ? null : node.getAttribute("aria-label") || [...node.labels].map(labelText).join(" ") || null;
       this.values = el("div", { class: "tuc-select__values" });
       this.search = el("input", {
         class: "tuc-select__search",
         type: "text",
         autocomplete: "off",
         spellcheck: "false",
-        "aria-autocomplete": "list"
+        "aria-autocomplete": "list",
+        "aria-label": name,
+        "aria-labelledby": labelledBy
       });
       this.clearBtn = el("button", {
         type: "button",
         class: "tuc-btn is-ghost is-icon tuc-select__clear",
         "aria-label": SELECT_TEXTS.clear,
         tabindex: -1,
+        // O foco volta para a busca: o X some sem valor e levava o foco junto para o body.
         onclick: (e) => {
           e.stopPropagation();
           this.clear();
+          this.search.focus();
         }
       }, [icon(ICON_X, 14)]);
       this.control = el("div", {
@@ -2053,6 +2069,8 @@ var Tucano = (() => {
         role: "combobox",
         "aria-haspopup": "listbox",
         "aria-expanded": "false",
+        "aria-label": name,
+        "aria-labelledby": labelledBy,
         id: this.id
       }, [
         this.values,
@@ -2061,7 +2079,7 @@ var Tucano = (() => {
       ]);
       this.list = el("div", { class: "tuc-select__list", role: "listbox", id: `${this.id}-list`, "aria-multiselectable": this.multiple ? "true" : null });
       this.menu = el("div", { class: "tuc-select__menu" }, [this.list]);
-      this.native.after(this.control);
+      node.after(this.control);
       this.values.append(this.search);
       this._cleanups.push(
         on(this.control, "mousedown", (e) => {
@@ -2069,6 +2087,14 @@ var Tucano = (() => {
           e.preventDefault();
           this.isOpen ? this.search.focus() : this.open();
         }),
+        /*
+         * Dentro de um <label>, o clique no controle ativava o label, que mandava
+         * o foco ao nativo escondido: o Popover via o foco sair e fechava a lista
+         * que acabara de abrir. E o <label for>, o submit invalido do `required` e
+         * qualquer .focus() no nativo deixavam o foco num elemento invisivel.
+         */
+        on(this.control, "click", (e) => e.preventDefault()),
+        on(node, "focus", () => this.search.focus()),
         on(this.search, "input", () => {
           const typed = this.search.value;
           if (!this.isOpen) {
@@ -2086,23 +2112,44 @@ var Tucano = (() => {
         }),
         on(this.search, "keydown", (e) => this._onKeydown(e)),
         // Se o valor mudar por fora, por JS de terceiros que dispara change.
-        on(this.native, "change", () => {
-          if (!this._pushing) this._syncFromNative();
+        on(node, "change", () => {
+          if (!this._pushing) this.refresh();
         }),
         /*
          * O reset do formulario volta o <select> aos valores iniciais sem disparar
          * change: o nativo mudava e a tela continuava mostrando o valor antigo. O
          * evento chega antes de os valores voltarem, entao a leitura espera a vez.
          */
-        this.native.form ? on(this.native.form, "reset", () => setTimeout(() => this._syncFromNative())) : () => {
+        node.form ? on(node.form, "reset", () => setTimeout(() => this.refresh())) : () => {
         },
+        /*
+         * Um ouvinte no painel, e nao dois por opcao: com 2.000 opcoes eram 4.000
+         * funcoes novas a cada tecla. E o clique em qualquer ponto do painel nao
+         * tira o foco da busca — no titulo de um grupo o foco ia para o body e a
+         * lista ficava aberta sem teclado. A barra de rolagem da lista fica de
+         * fora, para continuar arrastavel.
+         */
+        on(this.menu, "mousedown", (e) => {
+          if (e.target !== this.list) e.preventDefault();
+          const i = optionIndex(e.target);
+          if (i >= 0) this._toggleItem(this._filtered()[i]);
+        }),
+        /*
+         * So o ponteiro que de fato andou muda o destaque. A seta rola a lista por
+         * baixo do ponteiro parado, e a opcao que passava por ali roubava o
+         * destaque do teclado — pelo mouseenter em todo motor, e o WebKit ainda
+         * dispara mousemove sem movimento ao rolar, por isso a coordenada.
+         */
+        on(this.list, "mousemove", (e) => {
+          const at = e.clientX + "," + e.clientY;
+          const i = optionIndex(e.target);
+          if (at === this._pointer || i < 0) return;
+          this._pointer = at;
+          this.activeIndex = i;
+          this._paintActive();
+        }),
         on(this.list, "scroll", () => this._onListScroll())
       );
-    }
-    _syncFromNative() {
-      const chosen = new Set([...this.native.selectedOptions].map((o) => o.value));
-      for (const item of this.items) item.selected = chosen.has(item.value);
-      this._renderControl();
     }
     _pushToNative() {
       this._pushing = true;
@@ -2127,36 +2174,32 @@ var Tucano = (() => {
      * Busca no servidor                                                 *
      * ---------------------------------------------------------------- */
     /**
-     * Quatro filtros antes de chegar na rede, do mais barato ao mais caro:
-     * tamanho minimo, cache, termo sem chance e requisicao ja em voo. Debounce
-     * so no fim, para o que sobrou.
+     * Tres filtros antes de chegar na rede, do mais barato ao mais caro: tamanho
+     * minimo, cache e termo sem chance. Debounce so no fim, para o que sobrou.
+     *
+     * A busca anterior morre ja na tecla, e nao quando a proxima sai: no intervalo
+     * do debounce ela voltava e mostrava o resultado de um termo abandonado. E
+     * nao ha mais o atalho de "termo ja em voo": abortado por um termo do cache,
+     * ele ficava marcado como em voo, e digitar o mesmo termo de novo deixava a
+     * lista em "Buscando..." para sempre.
      */
     _scheduleSearch() {
       clearTimeout(this._searchTimer);
+      this._abort();
+      this.searchState = null;
       const term = this.query.trim();
       this._page = 1;
       if (term.length < this.opts.minChars) {
-        this._abort();
-        this.searchState = null;
         this.items = this._chosen();
         this._hasMore = false;
         this._renderMenu();
         return;
       }
-      const saved = this.opts.cache ? this._cache.get(term) : null;
-      if (saved) {
-        this._abort();
-        this.searchState = null;
-        this._applyResult(saved, { append: false });
+      const saved = this.opts.cache && this._cache.get(term);
+      if (saved || this._noChance(term)) {
+        this._applyResult(saved ? saved.items : [], { more: !!saved && saved.more });
         return;
       }
-      if (this._noChance(term)) {
-        this._abort();
-        this.searchState = null;
-        this._applyResult([], { append: false });
-        return;
-      }
-      if (this._termInFlight === term) return;
       this.searchState = "loading";
       this._renderMenu();
       this._searchTimer = setTimeout(() => this._fetch(term), this.opts.debounce);
@@ -2168,55 +2211,64 @@ var Tucano = (() => {
      * Fica desligado por padrao: com busca aproximada, por sinonimo ou por
      * relevancia, um termo maior pode sim trazer resultado, e cortar aqui
      * esconderia dados sem aviso.
+     *
+     * Os termos vazios sao lidos do proprio cache, sem um Set a parte para manter.
      */
     _noChance(term) {
-      if (!this.opts.shortCircuit) return false;
-      for (const empty of this._empties) if (term.startsWith(empty)) return true;
+      if (this.opts.shortCircuit) {
+        for (const [t, saved] of this._cache) if (!saved.items.length && term.startsWith(t)) return true;
+      }
       return false;
     }
-    _store(term, items) {
+    /** Guarda tambem se havia mais paginas: sem isso o termo vindo do cache herdava o `hasMore` do ultimo termo buscado. */
+    _store(term, items, more) {
       if (!this.opts.cache) return;
       if (this._cache.size >= this.opts.cacheSize) {
         this._cache.delete(this._cache.keys().next().value);
       }
-      this._cache.set(term, items);
-      if (!items.length) this._empties.add(term);
+      this._cache.set(term, { items, more });
     }
     /** Junta o que veio com quem ja estava escolhido e desenha. */
-    _applyResult(incoming, { append }) {
-      const chosen = this._chosen();
-      const base = append ? this.items : chosen;
+    _applyResult(incoming, { append = false, more }) {
+      const base = append ? this.items : this._chosen();
       const fresh = incoming.filter((i) => !base.some((e) => e.value === i.value));
+      this._hasMore = more && (!append || fresh.length > 0);
       this.items = [...base, ...fresh];
-      this.activeIndex = this.items.findIndex((i) => !i.disabled && !i.selected);
+      const top = this.list.scrollTop;
+      if (!append) this.activeIndex = this.items.findIndex((i) => !i.disabled && !i.selected);
       this._renderMenu();
+      if (append) this.list.scrollTop = top;
     }
     _abort() {
       this._control?.abort();
       this._control = null;
+      this._more = null;
     }
     async _fetch(term, { page = 1 } = {}) {
       this._abort();
       const control = new AbortController();
       this._control = control;
-      this._termInFlight = term;
       try {
         const raws = this.opts.loadOptions ? await this.opts.loadOptions(term, { signal: control.signal, page }) : await this._fetchUrl(term, control.signal, page);
         if (control.signal.aborted) return;
         const incoming = normalizeOptions(raws);
-        this._hasMore = hasNextPage(raws, incoming, this.opts.pageParam);
+        const more = hasNextPage(raws, incoming, this.opts.pageParam);
         this.searchState = null;
-        if (page === 1) this._store(term, incoming);
-        this._applyResult(incoming, { append: page > 1 });
-        return;
+        if (page === 1) this._store(term, incoming, more);
+        this._applyResult(incoming, { append: page > 1, more });
       } catch (e) {
         if (e.name === "AbortError" || control.signal.aborted) return;
+        if (page > 1) {
+          this._hasMore = false;
+          this._more?.remove();
+          return;
+        }
         this.searchState = "error";
         this._renderMenu();
       } finally {
         if (this._control === control) {
           this._control = null;
-          this._termInFlight = null;
+          this._more = null;
         }
       }
     }
@@ -2231,15 +2283,16 @@ var Tucano = (() => {
     /**
      * Proxima pagina ao chegar perto do fim da lista. Carregar de uma vez os
      * dez mil registros e o que trava a pagina; vinte por vez, nao.
+     *
+     * O "Buscando..." entra no fim da lista, sem redesenhar: redesenhar esvaziava
+     * a lista, e a rolagem voltava ao topo a cada pagina.
      */
     _onListScroll() {
-      if (!this.remote || !this._hasMore || this.searchState === "loading") return;
+      if (!this.remote || !this._hasMore || this.searchState || this._more) return;
       const l = this.list;
       if (l.scrollTop + l.clientHeight < l.scrollHeight - 48) return;
-      this._page += 1;
-      this.searchState = "loading";
-      this._renderMenu();
-      this._fetch(this.query.trim(), { page: this._page });
+      this._fetch(this.query.trim(), { page: ++this._page });
+      this._more = l.appendChild(loadingRow(this.opts.loadingText));
     }
     _chosen() {
       return this.items.filter((i) => i.selected);
@@ -2276,78 +2329,67 @@ var Tucano = (() => {
       this.search.placeholder = empty ? this.opts.placeholder : this.isOpen && this.opts.search ? this.opts.searchPlaceholder : "";
       this.control.classList.toggle("has-value", chosen.length > 0);
       this.search.readOnly = !this.opts.search;
+      this.search.disabled = this.native.disabled;
+      this.control.classList.toggle("is-disabled", this.native.disabled);
     }
     _filtered() {
       if (this.remote) return this.items;
-      const q = this.query.trim().toLowerCase();
-      if (!q) return this.items;
-      return this.items.filter((i) => i.search.includes(q));
+      const q = normalize(this.query);
+      return q ? this.items.filter((i) => i.search.includes(q)) : this.items;
     }
     _renderMenu() {
       const visible = this._filtered();
-      this.list.replaceChildren();
+      const list = this.list;
+      list.replaceChildren();
       if (this.searchState === "loading") {
-        this.list.append(el("div", { class: "tuc-select__empty is-loading" }, [
-          el("span", { class: "tuc-spinner", "aria-hidden": "true" }),
-          this.opts.loadingText
-        ]));
-        return;
-      }
-      if (this.searchState === "error") {
-        this.list.append(el("div", { class: "tuc-select__empty is-error", text: this.opts.errorText }));
-        return;
-      }
-      if (!visible.length) {
-        const remainingToType = this.remote && this.query.trim().length < this.opts.minChars;
-        this.list.append(el("div", {
+        list.append(loadingRow(this.opts.loadingText));
+      } else if (this.searchState === "error") {
+        list.append(el("div", { class: "tuc-select__empty is-error", text: this.opts.errorText }));
+      } else if (!visible.length) {
+        list.append(el("div", {
           class: "tuc-select__empty",
-          text: remainingToType ? SELECT_TEXTS.typeToSearch(this.opts.minChars) : this.opts.emptyText
+          text: this.remote && this.query.trim().length < this.opts.minChars ? SELECT_TEXTS.typeToSearch(this.opts.minChars) : this.opts.emptyText
         }));
-        return;
-      }
-      let currentGroup = null;
-      visible.forEach((item, i) => {
-        if (item.group && item.group !== currentGroup) {
-          currentGroup = item.group;
-          this.list.append(el("div", { class: "tuc-select__group", text: item.group, role: "presentation" }));
-        }
-        const active = i === this.activeIndex;
-        const node = el("div", {
-          class: `tuc-select__option${item.selected ? " is-selected" : ""}${active ? " is-active" : ""}${item.disabled ? " is-disabled" : ""}`,
-          role: "option",
-          id: `${this.id}-opt-${i}`,
-          "aria-selected": item.selected ? "true" : "false",
-          "aria-disabled": item.disabled ? "true" : null,
-          onmousedown: (e) => {
-            e.preventDefault();
-            if (!item.disabled) this._toggleItem(item);
-          },
-          onmouseenter: () => {
-            this.activeIndex = i;
-            this._paintActive();
+      } else {
+        let currentGroup = null;
+        visible.forEach((item, i) => {
+          if (item.group && item.group !== currentGroup) {
+            currentGroup = item.group;
+            list.append(el("div", { class: "tuc-select__group", text: item.group, role: "presentation" }));
           }
-        }, [
-          el("span", { class: "tuc-select__label", text: item.label }),
-          item.selected ? el("span", { class: "tuc-select__check" }, [icon(ICON_CHECK, 15)]) : null
-        ]);
-        this.list.append(node);
-      });
-      this.search.setAttribute(
-        "aria-activedescendant",
-        this.activeIndex >= 0 ? `${this.id}-opt-${this.activeIndex}` : ""
-      );
+          list.append(el("div", {
+            class: `tuc-select__option${item.selected ? " is-selected" : ""}${item.disabled ? " is-disabled" : ""}`,
+            role: "option",
+            id: `${this.id}-opt-${i}`,
+            "aria-selected": item.selected ? "true" : "false",
+            "aria-disabled": item.disabled ? "true" : null
+          }, [
+            el("span", { class: "tuc-select__label", text: item.label }),
+            item.selected ? el("span", { class: "tuc-select__check" }, [icon(ICON_CHECK, 15)]) : null
+          ]));
+        });
+      }
+      this._paintActive();
     }
-    /** Move o destaque sem refazer a lista — mesma razao do calendario. */
+    /**
+     * Move o destaque sem refazer a lista — mesma razao do calendario. Sem opcao
+     * ativa na tela o aria-activedescendant sai: apontava para um id que nao
+     * existia mais, com a busca sem resultado ou com a lista fechada.
+     */
     _paintActive() {
-      const options = this.list.querySelectorAll(".tuc-select__option");
-      options.forEach((n, i) => n.classList.toggle("is-active", i === this.activeIndex));
-      this.search.setAttribute(
-        "aria-activedescendant",
-        this.activeIndex >= 0 ? `${this.id}-opt-${this.activeIndex}` : ""
-      );
+      for (const n of this.list.querySelectorAll(".is-active")) n.classList.remove("is-active");
+      const id = `${this.id}-opt-${this.activeIndex}`;
+      const node = this.list.querySelector(`[id="${id}"]`);
+      if (node) {
+        node.classList.add("is-active");
+        this.search.setAttribute("aria-activedescendant", id);
+      } else {
+        this.search.removeAttribute("aria-activedescendant");
+      }
+      return node;
     }
     _scrollToActive() {
-      const node = this.list.querySelectorAll(".tuc-select__option")[this.activeIndex];
+      const node = this._paintActive();
       if (!node) return;
       const lr = this.list.getBoundingClientRect();
       const nr = node.getBoundingClientRect();
@@ -2362,6 +2404,9 @@ var Tucano = (() => {
       if (this.multiple) {
         if (!item.selected && this.opts.maxItems && this._chosen().length >= this.opts.maxItems) return;
         item.selected = !item.selected;
+      } else if (item.selected) {
+        if (this.opts.closeOnSelect) this.close();
+        return;
       } else {
         for (const i of this.items) i.selected = i === item;
       }
@@ -2372,49 +2417,47 @@ var Tucano = (() => {
       this._emit();
       if (this.opts.closeOnSelect) this.close();
       else if (this.isOpen) {
+        this.activeIndex = this._filtered().indexOf(item);
         this._renderMenu();
-        this.search.focus();
+        this._scrollToActive();
       }
+      this.search.focus();
     }
     _onKeydown(e) {
+      const { key } = e;
       const visible = this._filtered();
-      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      if (key === "ArrowDown" || key === "ArrowUp" || this.isOpen && (key === "Home" || key === "End")) {
         e.preventDefault();
         if (!this.isOpen) return this.open();
-        const step = e.key === "ArrowDown" ? 1 : -1;
-        for (let n = 1; n <= visible.length; n++) {
-          const i = (this.activeIndex + step * n + visible.length * n) % visible.length;
+        const len = visible.length;
+        const step = key === "ArrowDown" || key === "Home" ? 1 : -1;
+        const from = key === "Home" ? -1 : key === "End" || step < 0 && this.activeIndex < 0 ? len : this.activeIndex;
+        for (let n = 1; n <= len; n++) {
+          const i = ((from + step * n) % len + len) % len;
           if (!visible[i].disabled) {
             this.activeIndex = i;
             break;
           }
         }
-        this._paintActive();
         this._scrollToActive();
-      } else if (e.key === "Enter" || e.key === " ") {
+      } else if (key === "Enter" || key === " ") {
         if (!this.isOpen) {
-          if (e.key === " " && this.search.value) return;
+          if (key === " " && this.search.value) return;
           e.preventDefault();
           return this.open();
         }
-        if (e.key === " ") return;
+        if (key === " ") return;
         e.preventDefault();
         const item = visible[this.activeIndex];
         if (item) this._toggleItem(item);
-      } else if (e.key === "Backspace" && !this.search.value && this.multiple) {
-        const chosen = this._chosen();
-        if (chosen.length) this._toggleItem(chosen[chosen.length - 1]);
-      } else if ((e.key === "Backspace" || e.key === "Delete") && !this.search.value && !this.multiple) {
+      } else if (key === "Backspace" && !this.search.value && this.multiple) {
+        const last = this._chosen().filter((i) => !i.disabled).pop();
+        if (last) this._toggleItem(last);
+      } else if ((key === "Backspace" || key === "Delete") && !this.search.value && !this.multiple) {
         if (this.opts.clearable && this.getValue() !== null) {
           e.preventDefault();
           this.clear();
         }
-      } else if (e.key === "Home" || e.key === "End") {
-        if (!this.isOpen) return;
-        e.preventDefault();
-        this.activeIndex = e.key === "Home" ? 0 : visible.length - 1;
-        this._paintActive();
-        this._scrollToActive();
       }
     }
     _emit() {
@@ -2424,15 +2467,28 @@ var Tucano = (() => {
       this.native.dispatchEvent(new CustomEvent("tucano:change", { detail, bubbles: true }));
     }
   };
+  function optionIndex(target) {
+    const node = target.closest("[role=option]");
+    return node ? +node.id.slice(node.id.lastIndexOf("-") + 1) : -1;
+  }
+  function loadingRow(text) {
+    return el("div", { class: "tuc-select__empty is-loading" }, [
+      el("span", { class: "tuc-spinner", "aria-hidden": "true" }),
+      text
+    ]);
+  }
+  function labelText(label) {
+    const copy = label.cloneNode(true);
+    for (const n of copy.querySelectorAll("select")) n.remove();
+    return copy.textContent.trim();
+  }
   function normalizeOptions(data) {
     const list = Array.isArray(data) ? data : data?.results ?? [];
     return list.map((o) => {
-      if (o == null) return null;
-      if (typeof o !== "object") return { value: String(o), label: String(o), disabled: false, group: null, selected: false, search: normalize(String(o)) };
-      const value = String(o.value ?? o.id ?? "");
-      const label = String(o.label ?? o.text ?? value);
-      return { value, label, disabled: !!o.disabled, group: o.group ?? null, selected: false, search: normalize(`${label} ${value}`) };
-    }).filter((o) => o && o.value !== "");
+      if (typeof o !== "object") o = { value: o };
+      const value = String(o?.value ?? o?.id ?? "");
+      return { value, label: String(o?.label ?? o?.text ?? value), disabled: !!o?.disabled, group: o?.group ?? null, selected: false };
+    }).filter((o) => o.value !== "");
   }
   function hasNextPage(raws, items, pageParam) {
     if (!pageParam) return false;
@@ -2443,7 +2499,8 @@ var Tucano = (() => {
     return [...select2.options].filter((o) => o.value !== "").map((o) => ({
       value: o.value,
       label: o.textContent.trim(),
-      disabled: o.disabled,
+      // :disabled pega tambem a <optgroup disabled>, que o `o.disabled` ignora.
+      disabled: o.matches(":disabled"),
       group: o.parentElement.tagName === "OPTGROUP" ? o.parentElement.label : null,
       selected: o.selected,
       // Normaliza acentos: buscar "sao" acha "São Paulo".
@@ -2463,8 +2520,8 @@ var Tucano = (() => {
       const d = node.dataset;
       node.setAttribute("data-tuc-ready", "");
       out.push(new Select(node, {
+        // data-placeholder nao entra aqui: o construtor ja o le do proprio elemento.
         search: d.search === "true" ? true : d.search === "false" ? false : void 0,
-        placeholder: d.placeholder || void 0,
         emptyText: d.emptyText || void 0,
         maxItems: d.maxItems ? +d.maxItems : void 0,
         clearable: d.clearable === "false" ? false : void 0,
@@ -3009,11 +3066,8 @@ var Tucano = (() => {
   }
   function parseSize(value) {
     if (typeof value === "number") return value;
-    const m = /^([\d.,]+)\s*(b|kb|mb|gb)?$/i.exec(String(value || "").trim());
-    if (!m) return null;
-    const n = parseFloat(m[1].replace(",", "."));
-    const factor = { b: 1, kb: 1024, mb: 1024 ** 2, gb: 1024 ** 3 }[(m[2] || "b").toLowerCase()];
-    return Math.round(n * factor);
+    const m = /^([\d.,]+)\s*([kmg]?)(?:i?b)?$/i.exec(String(value ?? "").trim());
+    return m ? Math.round(parseFloat(m[1].replace(",", ".")) * 1024 ** " kmg".indexOf(m[2].toLowerCase() || " ")) : null;
   }
   function matchesAccept(file, accept) {
     if (!accept) return true;
@@ -3028,11 +3082,18 @@ var Tucano = (() => {
   function isImage(file) {
     return (file.type || "").startsWith("image/");
   }
-  function csrfToken(name = "csrftoken") {
-    const m = document.cookie.match(new RegExp(`(?:^|;\\s*)${name}=([^;]*)`));
+  function csrfToken() {
+    const m = document.cookie.match(/(?:^|;\s*)csrftoken=([^;]*)/);
     return m ? decodeURIComponent(m[1]) : null;
   }
-  function uploadFile({ url, file, field = "file", extras = {}, headers = {}, method = "POST", texts = UPLOAD_TEXTS, onProgress }) {
+  function sameOrigin(url, base = location.href) {
+    try {
+      return new URL(url, base).origin === new URL(base).origin;
+    } catch {
+      return false;
+    }
+  }
+  function uploadFile({ url, file, field, extras, headers, method, texts, onProgress }) {
     const xhr = new XMLHttpRequest();
     const promise = new Promise((resolve, reject) => {
       const data = new FormData();
@@ -3040,9 +3101,9 @@ var Tucano = (() => {
       for (const [k, v] of Object.entries(extras)) data.append(k, v);
       xhr.open(method, url);
       xhr.responseType = "json";
-      for (const [k, v] of Object.entries(headers)) if (v != null) xhr.setRequestHeader(k, v);
+      for (const [k, v] of Object.entries(headers)) xhr.setRequestHeader(k, v);
       xhr.upload.addEventListener("progress", (e) => {
-        if (e.lengthComputable) onProgress?.(e.loaded / e.total, e.loaded, e.total);
+        if (e.lengthComputable) onProgress(e.loaded / e.total);
       });
       xhr.addEventListener("load", () => {
         if (xhr.status >= 200 && xhr.status < 300) {
@@ -3069,7 +3130,7 @@ var Tucano = (() => {
     // campos extras enviados junto
     headers: {},
     csrf: true,
-    // manda X-CSRFToken lido do cookie (Django)
+    // manda X-CSRFToken lido do cookie (Django), so para a mesma origem
     responseId: "id",
     // chave do id na resposta JSON
     responseUrl: "url",
@@ -3097,7 +3158,9 @@ var Tucano = (() => {
       this.opts = { ...DEFAULTS4, ...omitUndefined(options) };
       this.opts.locale = this.opts.locale || document.documentElement.lang || "pt-BR";
       this.t = { ...UPLOAD_TEXTS, ...this.opts.texts };
-      this.opts.maxSize = this.opts.maxSize == null ? null : parseSize(this.opts.maxSize);
+      const maxSize = this.opts.maxSize;
+      this.opts.maxSize = maxSize == null ? null : parseSize(maxSize);
+      if (maxSize != null && this.opts.maxSize == null) console.warn(`[Upload] maxSize invalido: ${maxSize}`);
       this.input = node;
       this.direct = !!this.opts.url;
       this.multiple = node.multiple;
@@ -3126,24 +3189,31 @@ var Tucano = (() => {
     }
     /** Ids devolvidos pelo servidor (modo direto). E o que o formulario posta. */
     getValue() {
-      const ready = this.items.filter((i) => i.state === "ready" && i.serverId != null);
-      return this.direct ? ready.map((i) => i.serverId) : this.items.map((i) => i.file);
+      return this.direct ? this.items.filter((i) => i.state === "ready" && i.serverId != null).map((i) => i.serverId) : this.items.map((i) => i.file);
     }
     /** Sobe o que estiver pendente. Util com autoUpload: false. */
     uploadAll() {
       for (const item of this.items) if (item.state === "pending") this._upload(item);
+      this._renderList();
     }
     clear() {
       for (const item of [...this.items]) this._remove(item, { silent: true });
       this._emit();
     }
     destroy() {
+      this._destroyed = true;
       this._cleanups.forEach((fn) => fn());
       this._cleanups = [];
-      for (const i of this.items) if (i.preview) URL.revokeObjectURL(i.preview);
+      for (const i of this.items) {
+        i.abort?.();
+        if (i.preview) URL.revokeObjectURL(i.preview);
+      }
       this.root.replaceWith(this.input);
       this.input.classList.remove("tuc-upload-native");
-      this.hidden?.remove();
+      if (this.fieldName) this.input.name = this.fieldName;
+      if (this._tabindex == null) this.input.removeAttribute("tabindex");
+      else this.input.setAttribute("tabindex", this._tabindex);
+      this.input.removeAttribute("data-tuc-ready");
       delete this.input._tucano;
     }
     /* ---------------------------------------------------------------- *
@@ -3152,6 +3222,8 @@ var Tucano = (() => {
     _build() {
       const input = this.input;
       input.classList.add("tuc-upload-native");
+      this._tabindex = input.getAttribute("tabindex");
+      input.tabIndex = -1;
       if (this.direct && input.name) {
         this.fieldName = input.name;
         input.removeAttribute("name");
@@ -3172,7 +3244,12 @@ var Tucano = (() => {
       this.root.append(input);
       const open = () => input.click();
       this._cleanups.push(
-        on(this.zone, "click", open),
+        // preventDefault: dentro de um <label>, o clique tambem ativaria o label,
+        // que clica no input de novo — Firefox e Safari abriam a janela duas vezes.
+        on(this.zone, "click", (e) => {
+          e.preventDefault();
+          open();
+        }),
         on(this.zone, "keydown", (e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
@@ -3184,6 +3261,9 @@ var Tucano = (() => {
         }),
         ...this._dragAndDrop()
       );
+      if (!this.direct && input.form) {
+        this._cleanups.push(on(input.form, "reset", () => setTimeout(() => this.clear())));
+      }
       this._renderList();
     }
     _hint() {
@@ -3231,13 +3311,19 @@ var Tucano = (() => {
      * Arquivos                                                          *
      * ---------------------------------------------------------------- */
     _add(files) {
-      if (!files.length) return;
+      if (!files.length || this.input.matches(":disabled")) return;
       if (!this.multiple) {
+        const error = this._validate(files[0], 0);
+        if (error) {
+          this._fail(error, files[0]);
+          this._syncNative();
+          return;
+        }
         for (const item of [...this.items]) this._remove(item, { silent: true });
         files = files.slice(0, 1);
       }
       for (const file of files) {
-        const error = this._validate(file);
+        const error = this._validate(file, this.items.length);
         if (error) {
           this._fail(error, file);
           continue;
@@ -3256,8 +3342,8 @@ var Tucano = (() => {
       this._renderList();
       this._emit();
     }
-    _validate(file) {
-      if (this.opts.maxFiles && this.items.length >= this.opts.maxFiles) {
+    _validate(file, count) {
+      if (this.opts.maxFiles && count >= this.opts.maxFiles) {
         return this.t.others(this.opts.maxFiles);
       }
       if (this.opts.maxSize && file.size > this.opts.maxSize) {
@@ -3277,26 +3363,34 @@ var Tucano = (() => {
       for (const item of this.items) dt.items.add(item.file);
       this.input.files = dt.files;
     }
-    /** Cabecalhos da instancia com o CSRF do Django, sem passar por cima de um que ja veio. */
-    _headers() {
+    /**
+     * Cabecalhos da instancia com o CSRF do Django, sem passar por cima de um que
+     * ja veio — em qualquer caixa: `x-csrftoken` e o mesmo cabecalho, e o XHR
+     * juntava os dois num "MEU, DO_COOKIE" que o Django recusa. O token so vai
+     * para a mesma origem, como na receita do Django: para outro dominio ele
+     * vazava junto do arquivo.
+     */
+    _headers(url) {
       const headers = { ...this.opts.headers };
-      if (this.opts.csrf && !headers["X-CSRFToken"]) {
+      const given = Object.keys(headers).some((k) => k.toLowerCase() === "x-csrftoken");
+      if (this.opts.csrf && !given && sameOrigin(url)) {
         const token = csrfToken();
         if (token) headers["X-CSRFToken"] = token;
       }
+      for (const k in headers) if (headers[k] == null) delete headers[k];
       return headers;
     }
+    /** Comeca o envio. Nao redesenha: quem chama redesenha uma vez, depois de todos. */
     _upload(item) {
       item.state = "uploading";
       item.progress = 0;
       item.error = null;
-      this._renderList();
       const { promise, abort } = uploadFile({
         url: this.opts.url,
         file: item.file,
         field: this.opts.fieldName,
         extras: this.opts.extraData,
-        headers: this._headers(),
+        headers: this._headers(this.opts.url),
         method: this.opts.method,
         texts: this.t,
         onProgress: (fraction) => {
@@ -3306,23 +3400,25 @@ var Tucano = (() => {
       });
       item.abort = abort;
       promise.then((response) => {
-        item.state = "ready";
-        item.progress = 1;
-        item.response = response;
         item.serverId = response?.[this.opts.responseId] ?? null;
         item.url = response?.[this.opts.responseUrl] ?? null;
+        if (this.fieldName && (item.serverId == null || item.serverId === "")) throw new Error(this.t.noId);
+        item.state = "ready";
+        item.progress = 1;
       }).catch((e) => {
-        if (e.canceled) {
-          const i = this.items.indexOf(item);
-          if (i >= 0) this.items.splice(i, 1);
-          if (item.preview) URL.revokeObjectURL(item.preview);
-        } else {
+        if (!e.canceled) {
           item.state = "error";
           item.error = e.message;
           this.opts.onError?.(e, item.file);
+          return;
         }
-      }).finally(() => {
+        const i = this.items.indexOf(item);
+        if (i < 0 || this._destroyed) return false;
+        this.items.splice(i, 1);
+        if (item.preview) URL.revokeObjectURL(item.preview);
+      }).then((changed) => {
         item.abort = null;
+        if (changed === false || this._destroyed) return;
         this._renderList();
         this._emit();
       });
@@ -3333,7 +3429,8 @@ var Tucano = (() => {
       if (i >= 0) this.items.splice(i, 1);
       if (item.preview) URL.revokeObjectURL(item.preview);
       if (this.direct && this.opts.deleteUrl && item.serverId != null) {
-        fetch(`${this.opts.deleteUrl}${item.serverId}/`, { method: "DELETE", headers: this._headers() }).catch(() => {
+        const url = `${this.opts.deleteUrl}${encodeURIComponent(item.serverId)}/`;
+        fetch(url, { method: "DELETE", headers: this._headers(url) }).catch(() => {
         });
       }
       this._syncNative();
@@ -3355,27 +3452,35 @@ var Tucano = (() => {
     /* ---------------------------------------------------------------- *
      * Render                                                            *
      * ---------------------------------------------------------------- */
+    _meta(item) {
+      const size = formatSize(item.file.size, this.opts.locale);
+      if (item.state === "uploading") return `${Math.round(item.progress * 100)}% \xB7 ${size}`;
+      return item.state === "error" ? item.error : size;
+    }
     /** So a barra: chamado a cada evento de progresso, nao pode refazer a lista. */
     _paintProgress(item) {
       const li = this.list.querySelector(`[data-key="${item.key}"]`);
       if (!li) return;
-      const toolbar = li.querySelector(".tuc-upload__barfill");
-      if (toolbar) toolbar.style.width = `${Math.round(item.progress * 100)}%`;
-      const meta = li.querySelector(".tuc-upload__meta");
-      if (meta) meta.textContent = `${Math.round(item.progress * 100)}% \xB7 ${formatSize(item.file.size, this.opts.locale)}`;
+      const fill = li.querySelector(".tuc-upload__barfill");
+      if (fill) fill.style.width = `${Math.round(item.progress * 100)}%`;
+      li.querySelector(".tuc-upload__meta").textContent = this._meta(item);
     }
     _renderList() {
+      const focused = this.list.contains(document.activeElement) ? document.activeElement : null;
+      const focusedKey = focused?.closest("[data-key]")?.dataset.key;
+      const focusedLabel = focused?.getAttribute("aria-label");
       for (const n of [...this.list.children]) if (!n.classList.contains("tuc-upload__rejected")) n.remove();
       for (const item of this.items) {
-        const pct = Math.round(item.progress * 100);
-        const meta = item.state === "uploading" ? `${pct}% \xB7 ${formatSize(item.file.size, this.opts.locale)}` : item.state === "error" ? item.error : formatSize(item.file.size, this.opts.locale);
         const actions = [];
         if (item.state === "uploading") {
           actions.push(this._button(ICON_X, this.t.cancel, () => item.abort?.()));
-        } else if (item.state === "error") {
-          actions.push(this._button(ICON_RETRY, this.t.repeat, () => this._upload(item)));
-          actions.push(this._button(ICON_X, this.t.remove, () => this._remove(item)));
         } else {
+          if (item.state === "error") {
+            actions.push(this._button(ICON_RETRY, this.t.repeat, () => {
+              this._upload(item);
+              this._renderList();
+            }));
+          }
           actions.push(this._button(ICON_X, this.t.remove, () => this._remove(item)));
         }
         this.list.append(el("li", {
@@ -3385,14 +3490,19 @@ var Tucano = (() => {
           item.preview ? el("img", { class: "tuc-upload__thumb", src: item.preview, alt: "" }) : el("span", { class: "tuc-upload__thumb" }, [icon(ICON_FILE, 16)]),
           el("div", { class: "tuc-upload__info" }, [
             el("span", { class: "tuc-upload__name", title: item.file.name, text: item.file.name }),
-            el("span", { class: "tuc-upload__meta", text: meta }),
+            el("span", { class: "tuc-upload__meta", text: this._meta(item) }),
             item.state === "uploading" ? el("span", { class: "tuc-upload__bar" }, [
-              el("span", { class: "tuc-upload__barfill", style: `width:${pct}%` })
+              el("span", { class: "tuc-upload__barfill", style: `width:${Math.round(item.progress * 100)}%` })
             ]) : null
           ]),
           item.state === "ready" ? el("span", { class: "tuc-upload__ok" }, [icon(ICON_CHECK, 15)]) : null,
           el("div", { class: "tuc-upload__actions" }, actions)
         ]));
+      }
+      if (focused) {
+        const li = [...this.list.children].find((n) => n.dataset.key === focusedKey);
+        const buttons = li ? [...li.querySelectorAll("button")] : [];
+        (buttons.find((b) => b.getAttribute("aria-label") === focusedLabel) || buttons[0] || this.zone).focus();
       }
       this._syncHidden();
     }
@@ -3408,14 +3518,19 @@ var Tucano = (() => {
         }
       }, [icon(path, 14)]);
     }
-    /** Modo direto: os ids prontos viram inputs hidden com o `name` original. */
+    /**
+     * Modo direto: os ids prontos viram inputs hidden com o `name` original — e
+     * com o `form` original, senao um input ligado a um formulario por atributo
+     * tinha os ids fora dele.
+     */
     _syncHidden() {
       if (!this.direct || !this.fieldName) return;
       this.hidden?.remove();
+      const form = this.input.getAttribute("form");
       this.hidden = el(
         "span",
         { class: "tuc-upload__hidden" },
-        this.items.filter((i) => i.state === "ready" && i.serverId != null).map((i) => el("input", { type: "hidden", name: this.fieldName, value: String(i.serverId) }))
+        this.getValue().map((id) => el("input", { type: "hidden", name: this.fieldName, value: String(id), form }))
       );
       this.root.append(this.hidden);
     }

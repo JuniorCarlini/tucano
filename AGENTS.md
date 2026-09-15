@@ -745,8 +745,8 @@ bug contra build antigo. Confirme o código carregado, não só o arquivo em dis
 `npm test` compila e roda seis coisas, nesta ordem. Cada uma existe por causa
 de um defeito que passou batido.
 
-**`test/*.test.mjs` — 56 testes das funções puras** (`node --test`, sem
-dependência). `dates`, `mask`, `color` e `pageWindow` são entrada e saída sem
+**`test/*.test.mjs` — 62 testes das funções puras** (`node --test`, sem
+dependência). `dates`, `mask`, `color`, `files` e `pageWindow` são entrada e saída sem
 DOM. Inclui `sanitize`, que é peça de segurança.
 
 **`test:types` — os tipos que o pacote entrega.** O código não tem TypeScript;
@@ -796,20 +796,20 @@ dados vazios (colar é testado chamando o handler com o texto); e se a barra de
 rolagem ocupa espaço depende do motor e do sistema, então o teste do diálogo mede
 a barra em vez de supor que ela não existe.
 
-**`tools/behavior.mjs` — 92 comportamentos, nos três navegadores.** Abrir, fechar,
+**`tools/behavior.mjs` — 99 comportamentos, nos três navegadores.** Abrir, fechar,
 ordenar, marcar, emitir evento, e os textos: português sem `setTexts`, troca
 global, opção da instância vencendo e restauração no fim. A página roda sozinha
 e escreve o resultado em `<pre id="result">`; o teste espera esse bloco ser
 preenchido, e não um tempo fixo. Nunca leia opacidade ou posição logo depois de
 abrir algo — a página injeta `transition: none` para o estado final valer já.
 
-**`tools/examples.mjs` — os 348 exemplos da documentação, em todas as páginas do site.** Os de HTML são
+**`tools/examples.mjs` — os 357 exemplos da documentação, em todas as páginas do site.** Os de HTML são
 colados no documento e têm que montar; os de JS não são executados (citam
 `#delivery` e `form`, que não existem) e sim conferidos nome por nome
 contra o código: `Tucano.x` existe? o método existe no protótipo? cada chave de
 opção é lida por alguém, inclusive dentro de `actions` e `items`?
 
-**`tools/keyboard.mjs` — 51 caminhos de teclado e mouse reais, nos três
+**`tools/keyboard.mjs` — 72 caminhos de teclado e mouse reais, nos três
 navegadores**, pelo `page.keyboard` e `page.mouse` do Playwright: `Backspace` e `Delete` na máscara e no select, as setas nas abas, o
 `↓` que leva o foco ao dia no date picker, a data digitada que emite e o `Escape`
 que a descarta, o Aplicar que segura a escolha, o painel que reabre em menos de

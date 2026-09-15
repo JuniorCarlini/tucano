@@ -226,6 +226,11 @@ export interface UploadTexts {
   serverError: (status: number) => string;
   /** @default 'Falha de rede' */
   networkError: string;
+  /**
+   * Resposta 2xx sem o id (responseId): sem ele o formulario nao teria o que postar.
+   * @default 'O servidor não devolveu o id'
+   */
+  noId: string;
 }
 
 export interface MaskTexts {
@@ -1040,7 +1045,12 @@ export declare class Select {
   getValue(): SelectValue;
   setValue(value: string | number | ReadonlyArray<string | number> | null, options?: SilentOption): void;
   clear(options?: SilentOption): void;
-  /** Relê as <option> do select nativo — use depois de trocar as opções por HTMX. */
+  /**
+   * Relê as <option> do select nativo — use depois de trocar as opções por HTMX.
+   * É também o que roda no `change` de fora e no reset do formulário: no modo
+   * remoto a lista guardada só tinha o que estava escolhido, e o reset que
+   * voltava a uma opção fora dela deixava a tela vazia e o POST com valor.
+   */
   refresh(): void;
   open(): void;
   close(): void;
@@ -1296,7 +1306,7 @@ export interface UploadOptions {
   /** @default {} */
   headers?: Record<string, string>;
   /**
-   * manda X-CSRFToken lido do cookie (Django)
+   * manda X-CSRFToken lido do cookie (Django), so para a mesma origem
    * @default true
    */
   csrf?: boolean;

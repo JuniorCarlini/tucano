@@ -5,7 +5,7 @@
 > exemplos deste arquivo usam Django; em PHP e Rails, campo múltiplo precisa de
 > name terminado em [] e o upload direto precisa do cabeçalho de CSRF do
 > framework (data-csrf="false" e a opção headers do new Upload).
-> JavaScript puro, sem dependências em runtime. 39 KB JS + 13 KB CSS (gzip).
+> JavaScript puro, sem dependências em runtime. 40 KB JS + 13 KB CSS (gzip).
 > Os estilos são escritos em Tailwind mas distribuídos já compilados: o projeto
 > que consome não precisa de build e não recebe o preflight do Tailwind.
 >
@@ -74,7 +74,8 @@ Atributos: data-placeholder, data-search, data-empty-text, data-max-items,
 data-clearable, data-close-on-select, data-wrap-tags.
 
 A busca ignora acentos ("sao" encontra "São Paulo"). <optgroup> vira grupo,
-<option disabled> fica desabilitada. O campo tem altura fixa e linha única; o
+<option disabled> fica desabilitada, também dentro de <optgroup disabled>;
+<select disabled> não abre, não aceita texto nem limpa. O campo tem altura fixa e linha única; o
 excesso de tags rola na horizontal.
 
 Metodo util: instance.refresh() rele as <option> depois de um swap do HTMX.
@@ -121,7 +122,9 @@ extensão a MIME: o navegador entrega .csv com type vazio, então
 accept="text/csv" recusa e accept=".csv" aceita.
 
 O endpoint deve devolver JSON com um id: {"id": "...", "url": "..."}.
-O CSRF vai em X-CSRFToken, lido do cookie.
+O CSRF vai em X-CSRFToken, lido do cookie, só para url da mesma origem da
+página (outra origem: passe headers). Resposta 2xx sem o id vira erro
+("O servidor não devolveu o id").
 
 Não existe progresso por arquivo no modo formulário: num submit comum o
 navegador envia tudo num bloco e não reporta andamento.
@@ -841,7 +844,7 @@ Inventario extraido do codigo a cada build. Se algo nao esta aqui, nao existe.
 ### Select
   marcacao   select[data-tuc-select]
   em JS      new Tucano.Select(alvo, opcoes)
-  atributos  data-cache data-clearable data-close-on-select data-debounce data-empty-text data-max-items data-min-chars data-page-param data-placeholder data-query-param data-search data-short-circuit data-url data-wrap-tags
+  atributos  data-cache data-clearable data-close-on-select data-debounce data-empty-text data-max-items data-min-chars data-page-param data-query-param data-search data-short-circuit data-url data-wrap-tags
   opcoes
     search             = undefined  — default: liga a partir de 6 opcoes…
     searchMinItems     = 6
@@ -935,7 +938,7 @@ Inventario extraido do codigo a cada build. Se algo nao esta aqui, nao existe.
     fieldName          = 'file'  — nome do campo no FormData do upload direto…
     extraData          = {}  — campos extras enviados junto
     headers            = {}
-    csrf               = true  — manda X-CSRFToken lido do cookie (Django)
+    csrf               = true  — manda X-CSRFToken lido do cookie (Django), so para a mesma origem…
     responseId         = 'id'  — chave do id na resposta JSON
     responseUrl        = 'url'  — chave da url na resposta JSON
     deleteUrl          = null  — se definido, remover chama DELETE aqui
@@ -1017,6 +1020,7 @@ Inventario extraido do codigo a cada build. Se algo nao esta aqui, nao existe.
     upTo               = (size) => `até ${size}`
     serverError        = (status) => `O servidor respondeu ${status}`
     networkError       = 'Falha de rede'
+    noId               = 'O servidor não devolveu o id'
   mask
     show               = 'Mostrar'
     hide               = 'Ocultar'

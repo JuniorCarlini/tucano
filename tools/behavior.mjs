@@ -1107,8 +1107,155 @@ body{margin:0;padding:16px;font-family:system-ui}
     if (document.querySelectorAll('.tuc-editor__toolbar').length !== before) throw new Error('duplicou');
   });
 
-  out.__errors = errors;
-  document.getElementById('result').textContent = JSON.stringify(out);
+  /*
+   * Casos assincronos, um de cada vez: o upload direto resolve por promessa, e
+   * os casos trocam o XMLHttpRequest global. O resultado so e escrito depois.
+   */
+  var chain = Promise.resolve();
+  function ta(name, fn) {
+    chain = chain.then(fn).then(function () { out[name] = 'ok'; }, function (e) { out[name] = 'ERRO: ' + e.message; });
+  }
+  function tick(ms) { return new Promise(function (ok) { setTimeout(ok, ms || 0); }); }
+  /* XHR de mentira: guarda cada envio, e o caso decide quando e como termina. */
+  function fakeXhr() {
+    var Real = window.XMLHttpRequest, sent = [];
+    window.XMLHttpRequest = function () {
+      var x = new EventTarget();
+      x.upload = new EventTarget(); x.headers = {}; x.status = 0; x.response = null;
+      x.open = function (m, u) { x.url = u; };
+      x.setRequestHeader = function (k, v) { x.headers[k] = v; };
+      x.send = function () { sent.push(x); };
+      x.abort = function () { x.aborted = true; x.dispatchEvent(new Event('abort')); };
+      x.finish = function (status, response) { x.status = status; x.response = response; x.dispatchEvent(new Event('load')); };
+      return x;
+    };
+    return { sent: sent, restore: function () { window.XMLHttpRequest = Real; } };
+  }
+  function uploadBox(html, opts) {
+    var box = document.createElement('div');
+    box.innerHTML = html;
+    document.body.append(box);
+    var input = box.querySelector('input[type=file]');
+    return { box: box, input: input, up: new Tucano.Upload(input, opts || {}) };
+  }
+  function fileList(files) { var dt = new DataTransfer(); files.forEach(function (f) { dt.items.add(f); }); return dt; }
+  /* O que a janela do sistema faz: troca input.files e dispara change. */
+  function pick(input, files) { input.files = fileList(files).files; input.dispatchEvent(new Event('change', { bubbles: true })); }
+  function drop(up, files) { up.zone.dispatchEvent(new DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer: fileList(files) })); }
+  function mkFile(name, type) { return new File(['x'], name, { type: type || 'text/plain' }); }
+  function posted(form) { return [].map.call(new FormData(form).getAll('doc').concat(new FormData(form).getAll('f')), function (v) { return v.name || v; }).join(','); }
+
+  ta('upload de um arquivo: recusado não apaga o anterior, nem no servidor', async function () {
+    var a = uploadBox('<form><input type="file" name="doc" accept=".pdf"></form>');
+    try {
+      pick(a.input, [mkFile('contrato.pdf', 'application/pdf')]);
+      pick(a.input, [mkFile('foto.png', 'image/png')]);
+      if (posted(a.box.querySelector('form')) !== 'contrato.pdf') throw new Error('formulário posta: ' + posted(a.box.querySelector('form')));
+      if (a.up.getFiles().length !== 1) throw new Error('lista com ' + a.up.getFiles().length);
+    } finally { a.up.destroy(); a.box.remove(); }
+    var x = fakeXhr(), realFetch = window.fetch, deletes = [];
+    window.fetch = function (u) { deletes.push(u); return Promise.resolve(); };
+    var b = uploadBox('<input type="file" name="doc" accept=".pdf">', { url: '/up/', deleteUrl: '/up/' });
+    try {
+      drop(b.up, [mkFile('contrato.pdf', 'application/pdf')]);
+      x.sent[0].finish(200, { id: 7 });
+      await tick();
+      drop(b.up, [mkFile('foto.png', 'image/png')]);
+      if (deletes.length) throw new Error('DELETE do anterior: ' + deletes);
+      if (b.up.getValue().join() !== '7') throw new Error('valor ' + b.up.getValue());
+    } finally { x.restore(); window.fetch = realFetch; b.up.destroy(); b.box.remove(); }
+  });
+  ta('upload no formulário: reset esvazia a lista junto com o input', async function () {
+    var a = uploadBox('<form><input type="file" name="doc" multiple></form>');
+    try {
+      pick(a.input, [mkFile('a.txt'), mkFile('b.txt')]);
+      a.box.querySelector('form').reset();
+      await tick(20);
+      if (a.up.getFiles().length || a.up.list.querySelector('.tuc-upload__item')) throw new Error('a lista ficou com ' + a.up.getFiles().length);
+    } finally { a.up.destroy(); a.box.remove(); }
+  });
+  ta('upload: destroy no meio do envio aborta, não emite e devolve name e tabindex', async function () {
+    var x = fakeXhr();
+    var a = uploadBox('<form><input type="file" name="photos" tabindex="3"></form>', { url: '/up/' });
+    var events = 0;
+    a.input.addEventListener('tucano:change', function () { events++; });
+    try {
+      drop(a.up, [mkFile('a.png', 'image/png')]);
+      events = 0;
+      a.up.destroy();
+      await tick();
+      if (!x.sent[0].aborted) throw new Error('o XHR continuou');
+      if (events) throw new Error(events + ' evento(s) depois do destroy');
+      if (a.input.name !== 'photos') throw new Error('name: "' + a.input.name + '"');
+      if (a.input.getAttribute('tabindex') !== '3') throw new Error('tabindex: ' + a.input.getAttribute('tabindex'));
+    } finally { x.restore(); a.box.remove(); }
+  });
+  ta('upload direto: 2xx sem id vira erro, e não fica pronto sem postar nada', async function () {
+    var x = fakeXhr();
+    var a = uploadBox('<form><input type="file" name="f"></form>', { url: '/up/' });
+    try {
+      drop(a.up, [mkFile('a.txt')]);
+      x.sent[0].finish(200, null);
+      await tick();
+      var f = a.up.getFiles()[0];
+      if (f.status !== 'error' || f.id !== null) throw new Error(f.status + ' / ' + f.id);
+      if (a.up.list.querySelector('.tuc-upload__meta').textContent !== 'O servidor não devolveu o id') throw new Error('mensagem');
+    } finally { x.restore(); a.up.destroy(); a.box.remove(); }
+  });
+  ta('upload direto: CSRF só para a mesma origem, e o informado vence em qualquer caixa', async function () {
+    var x = fakeXhr();
+    Object.defineProperty(document, 'cookie', { configurable: true, get: function () { return 'csrftoken=DOCOOKIE'; } });
+    var a = uploadBox('<input type="file" multiple>', { url: '/up/' });
+    try {
+      drop(a.up, [mkFile('a.txt')]);
+      a.up.opts.headers = { 'x-csrftoken': 'MEU' };
+      drop(a.up, [mkFile('b.txt')]);
+      a.up.opts.headers = { 'X-CSRFToken': null };
+      drop(a.up, [mkFile('n.txt')]);
+      a.up.opts.headers = {};
+      a.up.opts.url = 'https://outro.exemplo/up/';
+      drop(a.up, [mkFile('c.txt')]);
+      var h = x.sent.map(function (s) { return JSON.stringify(s.headers); });
+      if (h[0] !== '{"X-CSRFToken":"DOCOOKIE"}') throw new Error('mesma origem: ' + h[0]);
+      if (h[1] !== '{"x-csrftoken":"MEU"}') throw new Error('minúsculo: ' + h[1]);
+      if (h[2] !== '{}') throw new Error('null não desliga: ' + h[2]);
+      if (h[3] !== '{}') throw new Error('outra origem: ' + h[3]);
+    } finally { delete document.cookie; x.restore(); a.up.destroy(); a.box.remove(); }
+  });
+  ta('upload direto: DELETE codifica o id, e o hidden leva o form= do input', async function () {
+    var x = fakeXhr(), realFetch = window.fetch, deletes = [];
+    window.fetch = function (u) { deletes.push(u); return Promise.resolve(); };
+    var a = uploadBox('<form id="upf"></form><input type="file" name="f" form="upf">', { url: '/up/', deleteUrl: '/api/temp/' });
+    try {
+      drop(a.up, [mkFile('a.txt')]);
+      x.sent[0].finish(200, { id: '../../admin/7' });
+      await tick();
+      var ids = new FormData(document.getElementById('upf')).getAll('f');
+      if (ids.join() !== '../../admin/7') throw new Error('form= posta: ' + ids.join());
+      a.up.clear();
+      if (deletes[0] !== '/api/temp/..%2F..%2Fadmin%2F7/') throw new Error('DELETE em ' + deletes[0]);
+    } finally { x.restore(); window.fetch = realFetch; a.up.destroy(); a.box.remove(); }
+  });
+  ta('upload: desativado não aceita arquivo solto; clear com envio emite uma vez', async function () {
+    var x = fakeXhr();
+    var a = uploadBox('<form><fieldset disabled><input type="file" name="f" multiple></fieldset></form>', { url: '/up/' });
+    try {
+      drop(a.up, [mkFile('a.txt')]);
+      if (x.sent.length || a.up.getFiles().length) throw new Error('entrou com o campo desativado');
+      a.box.querySelector('fieldset').disabled = false;
+      drop(a.up, [mkFile('a.txt')]);
+      var events = 0;
+      a.input.addEventListener('tucano:change', function () { events++; });
+      a.up.clear();
+      await tick();
+      if (events !== 1) throw new Error(events + ' eventos no clear');
+    } finally { x.restore(); a.up.destroy(); a.box.remove(); }
+  });
+
+  chain.then(function () {
+    out.__errors = errors;
+    document.getElementById('result').textContent = JSON.stringify(out);
+  });
 })();
 </script></body></html>`;
 
