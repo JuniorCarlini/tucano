@@ -1,6 +1,15 @@
-# Toda tag empurrada vira um release. Existe porque o repositório tem 56 tags e
-# nenhum release: quem chega pela página não vê versão nenhuma, e a coluna
-# Releases fica vazia mesmo com o histórico todo publicado no CDN e no npm.
+# Toda tag empurrada vira versão publicada: no npm e na página de Releases.
+#
+# Existe porque publicar à mão falhou nas duas últimas versões. O `npm publish`
+# local caía na publicação em espera da conta e só saía depois de uma aprovação
+# com código de dois fatores, e a tag, o CDN e o npm ficavam um tempo apontando
+# para coisas diferentes. Aqui a publicação usa o trusted publishing do npm: o
+# GitHub prova ao npm, por OIDC, que é este workflow deste repositório, e não
+# existe token guardado para vazar nem código para digitar.
+#
+# Uma vez só, no npmjs.com: pacote tucano → Settings → Trusted publishing →
+# GitHub Actions, com usuário JuniorCarlini, repositório tucano e workflow
+# release.yml. Sem isso o passo do npm falha com 404 e nada é publicado.
 #
 # O corpo do release sai da anotação da própria tag, então a nota de versão se
 # escreve uma vez só, no `git tag -a`, e não em dois lugares que divergem.
@@ -9,35 +18,95 @@ name: release
 on:
   push:
     tags: ['v*']
-  # Para as tags que já existiam antes deste workflow: Actions → release → Run.
+  # Para uma tag que já existe: Actions → release → Run. O que já estiver
+  # publicado é pulado, então rodar de novo não duplica nada.
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Tag existente a publicar (ex: v0.31.0)'
+        description: 'Tag existente a publicar (ex: v0.34.0)'
         required: true
 
+# id-token para o npm confirmar a origem do pacote; contents para criar o release.
 permissions:
   contents: write
+  id-token: write
 
 jobs:
   release:
     runs-on: ubuntu-latest
+    env:
+      TAG: ${{ inputs.tag || github.ref_name }}
     steps:
       # fetch-depth 0 porque a anotação da tag não vem num clone raso.
       - uses: actions/checkout@v7
         with:
+          ref: ${{ inputs.tag || github.ref }}
           fetch-depth: 0
 
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          registry-url: https://registry.npmjs.org
+
+      # A tag só publica o que diz ser: v0.34.0 com o package.json em 0.33.1
+      # sairia no npm com o número errado, e versão publicada não se apaga.
+      - name: Tag e package.json na mesma versão
+        run: |
+          set -euo pipefail
+          VERSION="$(node -p "require('./package.json').version")"
+          [ "v$VERSION" = "$TAG" ] || { echo "tag $TAG, package.json $VERSION"; exit 1; }
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
+      - run: npm ci
+
+      - name: Versão do Playwright
+        id: playwright
+        run: echo "version=$(node -p "require('playwright/package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ms-playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
+
+      - name: Navegadores dos testes
+        run: npx playwright install --with-deps chromium firefox webkit
+
+      # Os mesmos testes do CI, de novo, no commit exato da tag: é o que vai para
+      # o npm e para o CDN, e um build esquecido já fez os dois divergirem.
+      - run: npm test
+      - run: npm run audit
+      - name: Arquivos gerados batem com a tag
+        run: |
+          git diff --exit-code
+          test -z "$(git status --porcelain)" || { git status --porcelain; exit 1; }
+
+      # O trusted publishing pede npm 11.5.1 ou mais novo; o do Node 24 pode ser
+      # anterior. --ignore-scripts porque o prepublishOnly repetiria os testes que
+      # acabaram de passar. Versão com hífen (0.34.0-beta.1) sai na tag next, para
+      # não virar a latest de quem instala sem número.
+      - name: Publica no npm
+        run: |
+          set -euo pipefail
+          npm install -g npm@latest
+          if npm view "tucano@$VERSION" version >/dev/null 2>&1; then
+            echo "tucano@$VERSION já está no npm"; exit 0
+          fi
+          DIST_TAG=latest
+          case "$VERSION" in *-*) DIST_TAG=next ;; esac
+          npm publish --provenance --access public --tag "$DIST_TAG" --ignore-scripts
+
+      # Depois do npm, e não antes: um release na página com o npm recusado
+      # anunciaria uma versão que ninguém consegue instalar.
       - name: Publica o release com a anotação da tag
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG: ${{ inputs.tag || github.ref_name }}
         run: |
           set -euo pipefail
           if gh release view "$TAG" >/dev/null 2>&1; then
             echo "release $TAG já existe"; exit 0
           fi
           # Tag leve não tem anotação; nesse caso o corpo fica com o commit.
-          NOTAS="$(git tag -l --format='%(contents)' "$TAG")"
-          [ -n "$NOTAS" ] || NOTAS="$(git log -1 --format=%B "$TAG")"
-          gh release create "$TAG" --verify-tag --title "$TAG" --notes "$NOTAS"
+          NOTES="$(git tag -l --format='%(contents)' "$TAG")"
+          [ -n "$NOTES" ] || NOTES="$(git log -1 --format=%B "$TAG")"
+          gh release create "$TAG" --verify-tag --title "$TAG" --notes "$NOTES"
