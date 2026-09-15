@@ -13,18 +13,15 @@
  * compacto ninguem fica abaixo de 16px de fonte. As variantes declaradas de
  * botao sao excecao conhecida: is-sm e is-lg existem para fugir do padrao.
  *
- * A pagina e montada aqui, com CSS e JS embutidos, porque o --dump-dom do
- * Chrome despeja o documento antes de um <script src> externo executar.
+ * A pagina e montada aqui, com CSS e JS embutidos, e medida no Chromium pelo
+ * Playwright. Geometria e do CSS, que e o mesmo nos tres motores; os testes de
+ * comportamento e de teclado sao os que rodam em todos.
  */
-import { execFile } from 'node:child_process';
-import { promisify } from 'node:util';
 import { readFileSync, writeFileSync, unlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { requireChrome } from './chrome.mjs';
-
-const exec = promisify(execFile);
-const CHROME = requireChrome('audit');
+import { pathToFileURL } from 'node:url';
+import { openPage } from './browsers.mjs';
 
 /*
  * Alvos com altura propria: nao entram no padrao de controle, mas precisam ser
@@ -61,12 +58,11 @@ const TARGETS = {
 const EXPECTED = {
   desktop: { width: 1280, height: 38, variants: { 'botão pequeno': 30, 'botão grande': 44 } },
   /*
-   * 500 e nao 375: o Chrome sem cabeca nao encolhe a janela abaixo disso. Serve
-   * ao proposito porque o corte do compacto e 40rem (640px), entao as regras de
-   * toque entram do mesmo jeito — mas o numero relatado e o real, para ninguem
-   * ler 375 e acreditar que foi medido ali.
+   * 375, a largura de um iPhone. Com o Chrome chamado direto era 500, porque a
+   * janela sem cabeca nao encolhia abaixo disso; a viewport do Playwright nao
+   * tem esse piso. O numero relatado continua sendo o medido (innerWidth).
    */
-  mobile: { width: 500, height: 44, minFontSize: 16, variants: { 'botão pequeno': 30, 'botão grande': 44 } },
+  mobile: { width: 375, height: 44, minFontSize: 16, variants: { 'botão pequeno': 30, 'botão grande': 44 } },
 };
 
 const page = () => `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
@@ -131,16 +127,18 @@ body{margin:0;padding:16px;font-family:system-ui,sans-serif}</style></head><body
 </script></body></html>`;
 
 async function measure(width, file) {
-  const { stdout } = await exec(CHROME, [
-    '--headless=new', '--disable-gpu', '--hide-scrollbars',
-    `--window-size=${width},900`, '--virtual-time-budget=3000',
-    '--dump-dom', `file://${file}`,
-  ], { maxBuffer: 40 * 1024 * 1024 });
-  const m = stdout.match(/<pre id="result">([\s\S]*?)<\/pre>/);
-  if (!m || !m[1].trim()) throw new Error('a página de medidas não produziu resultado');
-  const data = JSON.parse(m[1].replace(/&quot;/g, '"').replace(/&amp;/g, '&'));
-  if (data.__error) throw new Error(data.__error);
-  return data;
+  const { browser, page } = await openPage('chromium', { viewport: { width, height: 900 } });
+  try {
+    await page.goto(pathToFileURL(file).href);
+    const text = await page.waitForFunction(() => document.getElementById('result')?.textContent.trim(), null, { timeout: 30000 })
+      .then((h) => h.jsonValue(), () => null);
+    if (!text) throw new Error('a página de medidas não produziu resultado');
+    const data = JSON.parse(text);
+    if (data.__error) throw new Error(data.__error);
+    return data;
+  } finally {
+    await browser.close();
+  }
 }
 
 const file = join(tmpdir(), `tucano-measures-${process.pid}.html`);

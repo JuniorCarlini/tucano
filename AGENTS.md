@@ -14,6 +14,9 @@ npm run build        # gera dist/ (JS via esbuild, CSS via Tailwind CLI)
 npm run serve        # build + servidor local na porta 4322
 npm run build:og     # regera og.png a partir de tools/og.html
 node tools/site.mjs preview   # gera o site numa pasta de prévia, fora do git
+npx playwright install chromium firefox webkit   # uma vez: os navegadores dos testes
+npm test             # build e todos os testes; comportamento e teclado nos três motores
+npm run test:webkit  # comportamento e teclado só no WebKit (também :chromium e :firefox)
 ```
 
 O `build` termina em `tools/reference.mjs`, que regera a referência do llms.txt, e
@@ -46,7 +49,8 @@ src/styles/components/  um arquivo por componente; os que são só classe
                       (botão, etiqueta, campo) também moram aqui
 site/                 fonte do site de documentação (layout, nav, css, js, pages/)
 tools/                build (reference, site, stamp, og) e verificação (behavior,
-                      keyboard, examples, consistency, audit)
+                      keyboard, examples, consistency, audit); browsers abre o
+                      navegador pelo Playwright para todos eles
 test/                 funções puras, com node --test
 ```
 
@@ -233,7 +237,8 @@ com um `.tuc-input` de verdade nos dois temas. E o `box-sizing` tem de ser decla
 nasce 2px mais alto que o vizinho. Componente novo que transforma um elemento
 existente precisa entrar nesse bloco.
 
-**Medição em headless não vê transição.** O Chrome com `--dump-dom` aplica a
+**Medição em headless não vê transição.** O Chrome com `--dump-dom`, que as
+ferramentas chamavam antes do Playwright, aplica a
 classe `is-open` mas não avança a transição: 400ms depois o `opacity` ainda é 0
 e o `translate` continua no valor de entrada. Medir posição logo depois de abrir
 devolve o estado inicial — no dropdown isso aparecia como 4px de recuo lateral e
@@ -699,11 +704,40 @@ de um defeito que passou batido.
 dependência). `dates`, `mask`, `color` e `pageWindow` são entrada e saída sem
 DOM. Inclui `sanitize`, que é peça de segurança.
 
-**`tools/behavior.mjs` — 85 comportamentos no Chrome sem cabeça.** Abrir, fechar,
+**Os testes de navegador rodam pelo Playwright, num lugar só: `tools/browsers.mjs`.**
+Ele abre Chromium, Firefox ou WebKit com viewport 1280×900, `pt-BR`, fuso
+`America/Sao_Paulo` e tema claro — idioma e fuso fixos porque o date picker lê o
+dia e o "Hoje" pelo relógio local. `behavior` e `keyboard` rodam nos três motores,
+em paralelo, com a saída agrupada por navegador e a contagem de cada um na última
+linha. Para um só: `npm run test:chromium`, `test:firefox` ou `test:webkit`, ou
+`--browsers=firefox,webkit` (ou `BROWSERS=...`) direto no script. `examples`,
+`audit` e `og` usam só o Chromium: conferem nome e geometria do CSS, que não
+mudam de motor. Não há outro jeito de achar navegador no repositório — o antigo
+`tools/chrome.mjs` saiu com a troca.
+
+Caso que não roda num motor é marcado no `testCase` com `skip: { webkit: 'motivo' }`
+e aparece na saída como "pulado no webkit", com o motivo; nunca se pula em
+silêncio, nem se pula comportamento que quem usa vê. Hoje nenhum caso é pulado.
+
+Rodar nos três achou quatro defeitos do editor que o Chrome escondia, todos com
+comentário no código: no WebKit o `Enter` e o `\n` do `insertText` dentro de
+`<pre>` abriam um bloco novo, e focar a área punha o cursor no começo antes de a
+seleção guardada voltar; no Firefox o `wrapTables` mexendo na tabela recém-inserida
+tirava a tabela do desfazer, e o `createLink` sobre o conteúdo de um `<a>` o
+aninhava dentro do antigo. E três armadilhas do próprio harness: no WebKit do
+Playwright `Backspace` fora de campo editável é "voltar" (por isso o teclado usa
+`setContent`, sem histórico, e não `goto`); o Playwright só lê a área de
+transferência no Chromium, e um `ClipboardEvent` sintético chega ao Firefox com os
+dados vazios (colar é testado chamando o handler com o texto); e se a barra de
+rolagem ocupa espaço depende do motor e do sistema, então o teste do diálogo mede
+a barra em vez de supor que ela não existe.
+
+**`tools/behavior.mjs` — 85 comportamentos, nos três navegadores.** Abrir, fechar,
 ordenar, marcar, emitir evento, e os textos: português sem `setTexts`, troca
-global, opção da instância vencendo e restauração no fim. Armadilha registrada no cabeçalho do arquivo:
-transição não avança ali, então nunca leia opacidade ou posição logo depois de
-abrir algo — a página injeta `transition: none` onde o estado final importa.
+global, opção da instância vencendo e restauração no fim. A página roda sozinha
+e escreve o resultado em `<pre id="result">`; o teste espera esse bloco ser
+preenchido, e não um tempo fixo. Nunca leia opacidade ou posição logo depois de
+abrir algo — a página injeta `transition: none` para o estado final valer já.
 
 **`tools/examples.mjs` — os 348 exemplos da documentação, em todas as páginas do site.** Os de HTML são
 colados no documento e têm que montar; os de JS não são executados (citam
@@ -711,8 +745,8 @@ colados no documento e têm que montar; os de JS não são executados (citam
 contra o código: `Tucano.x` existe? o método existe no protótipo? cada chave de
 opção é lida por alguém, inclusive dentro de `actions` e `items`?
 
-**`tools/keyboard.mjs` — 46 caminhos de teclado real**, pelo protocolo de
-depuração do Chrome: `Backspace` e `Delete` na máscara e no select, as setas nas abas, o
+**`tools/keyboard.mjs` — 46 caminhos de teclado e mouse reais, nos três
+navegadores**, pelo `page.keyboard` e `page.mouse` do Playwright: `Backspace` e `Delete` na máscara e no select, as setas nas abas, o
 `↓` que leva o foco ao dia no date picker, a data digitada que emite e o `Escape`
 que a descarta, o Aplicar que segura a escolha, o painel que reabre em menos de
 200 ms, a barra do editor pelo teclado, e no editor o soltar, o `Tab` na
@@ -720,7 +754,10 @@ tabela, a caixa de link, o `required` e o `reset`, o
 `Escape` de um painel dentro de modal (que fechava o modal junto: o `cancel` do
 `<dialog>` é ação padrão da tecla, e `stopPropagation` não o impede) e o foco
 que o `Escape` devolve à amostra do color picker.
-Evento sintético não dispara a ação padrão, então só assim o caminho é o real.
+Evento sintético não dispara a ação padrão, então só assim o caminho é o real. O
+soltar é um arrasto de mouse de verdade, a partir de um elemento que põe HTML no
+`dataTransfer`. Os casos são registrados e depois rodados uma vez por navegador;
+os helpers acham a página corrente por `AsyncLocalStorage`.
 
 **`tools/consistency.mjs` — nome que existe em dois lugares e mudou só num.** As
 checagens saíram de defeitos reais, e cada uma foi testada reintroduzindo
@@ -736,7 +773,7 @@ Duas armadilhas ao escrever essas ferramentas, ambas custaram tempo nesta
 sessão: um comentário com `</script>` fecha o bloco que ele descreve, e código
 de navegador escrito dentro de template literal perde toda barra de regex
 (`\\d` vira `d`, calado). Por isso `examples.mjs` injeta a função por
-`toString()` — assim o Node valida a sintaxe antes de o Chrome ver.
+`toString()` — assim o Node valida a sintaxe antes de o navegador ver.
 
 ## Ainda em aberto
 

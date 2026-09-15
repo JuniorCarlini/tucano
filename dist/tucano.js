@@ -5749,7 +5749,7 @@ var Tucano = (() => {
       r.setStartAfter(inside.closest(`.${SCROLL}`) || inside);
       select(r);
     }
-    document.execCommand("insertHTML", false, `<table><thead>${row("th")}</thead><tbody>${row("td").repeat(rows - 1)}</tbody></table><p><br></p>`);
+    document.execCommand("insertHTML", false, `<div class="${SCROLL}"><table><thead>${row("th")}</thead><tbody>${row("td").repeat(rows - 1)}</tbody></table></div><p><br></p>`);
     focusCell(ed._currentNode()?.closest("p")?.previousElementSibling?.querySelector("th"));
   }
   function nextCell(cell, back) {
@@ -5944,7 +5944,7 @@ var Tucano = (() => {
           const r = document.createRange();
           r.setStart(target.startContainer, target.startOffset);
           select(r);
-          document.execCommand("insertText", false, e.dataTransfer.getData("text/plain"));
+          this._insertPlain(e.dataTransfer.getData("text/plain"));
         }),
         on(this.area, "keydown", (e) => this._onKey(e)),
         // selectionchange e global: e o unico evento que pega o cursor mudando
@@ -5999,9 +5999,30 @@ var Tucano = (() => {
     }
     _paste(e) {
       e.preventDefault();
-      document.execCommand("insertText", false, e.clipboardData.getData("text/plain"));
+      this._insertPlain(e.clipboardData.getData("text/plain"));
+    }
+    /*
+     * Texto puro no cursor. Dentro do bloco de codigo cada quebra vai por
+     * insertLineBreak: o WebKit (Safari) transforma o "\n" do insertText num
+     * <pre> novo, e o trecho colado virava uma pilha de blocos de uma linha.
+     * Chromium e Firefox escrevem o mesmo <br> pelos dois caminhos.
+     */
+    _insertPlain(text) {
+      if (!this._currentNode()?.closest("pre")) {
+        document.execCommand("insertText", false, text);
+        return;
+      }
+      text.split(/\r\n?|\n/).forEach((line, i) => {
+        if (i) document.execCommand("insertLineBreak");
+        if (line) document.execCommand("insertText", false, line);
+      });
     }
     _onKey(e) {
+      if (e.key === "Enter" && !e.isComposing && !e.metaKey && !e.ctrlKey && this._currentNode()?.closest("pre")) {
+        e.preventDefault();
+        document.execCommand("insertLineBreak");
+        return;
+      }
       const cell = e.key === "Tab" && this._currentCell();
       if (cell) {
         let target = nextCell(cell, e.shiftKey);
@@ -6033,8 +6054,9 @@ var Tucano = (() => {
      * funciona se ninguem mexer na rolagem por fora.
      */
     _focus() {
+      const outside = !this.area.contains(window.getSelection()?.anchorNode);
       this.area.focus({ preventScroll: true });
-      if (this._range && !this.area.contains(window.getSelection()?.anchorNode)) select(this._range);
+      if (this._range && outside) select(this._range);
     }
     /* Elemento em volta do cursor, dentro da area. */
     _currentNode() {
@@ -6127,7 +6149,7 @@ var Tucano = (() => {
           let range = mark;
           if (existing) {
             range = document.createRange();
-            range.selectNodeContents(existing);
+            range.selectNode(existing);
           }
           if (range) select(range);
           if (decided === "remove") {

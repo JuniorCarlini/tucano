@@ -15,24 +15,35 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      # 24 e nao 22: o teste de teclado usa o WebSocket global, que so ficou
-      # estavel no 22.4 — pedir a major inteira deixaria a suite dependendo de
-      # qual minor o runner instalou naquele dia.
+      # 24, a LTS em uso no desenvolvimento: pedir a major inteira evita que a
+      # suite dependa de qual minor o runner instalou naquele dia.
       - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
 
-      # Metade do que interessa so existe num navegador de verdade: <dialog>,
-      # top layer, DOMParser, execCommand. O runner ja traz o Chrome.
-      - name: Locate Chrome
-        run: echo "CHROME=$(which google-chrome || which chromium-browser)" >> $GITHUB_ENV
-
       - run: npm ci
 
+      # Metade do que interessa so existe num navegador de verdade: <dialog>,
+      # top layer, DOMParser, execCommand. E o Safari e o Firefox tem caminhos
+      # proprios, entao os testes rodam nos tres motores pelo Playwright. O
+      # cache e por versao do Playwright, que e quem fixa a versao de cada
+      # navegador; as bibliotecas do sistema vem do apt a cada rodada.
+      - name: Playwright version
+        id: playwright
+        run: echo "version=$(node -p "require('playwright/package.json').version")" >> $GITHUB_OUTPUT
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ms-playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
+
+      - name: Install browsers
+        run: npx playwright install --with-deps chromium firefox webkit
+
       # Compila, gera a referencia, carimba a versao, e roda tudo:
-      # funcoes puras, comportamento no navegador, exemplos da documentacao e
-      # as checagens cruzadas de nome.
+      # funcoes puras, comportamento e teclado nos tres navegadores, exemplos da
+      # documentacao e as checagens cruzadas de nome.
       - run: npm test
 
       # Geometria dos campos nos dois temas — some se um token mudar de valor.

@@ -477,7 +477,7 @@ import { DatePicker, Select } from 'tucano';   // 14,5 KB em vez de 39
 | só o select | 5,9 KB |
 | só o toast | 2,7 KB |
 | date picker + select | 14,5 KB |
-| tudo | 38,6 KB |
+| tudo | 38,7 KB |
 
 Não é linear porque o núcleo — posicionamento, datas, utilidades de DOM — é
 compartilhado: o primeiro componente paga por ele e os seguintes saem mais
@@ -1188,8 +1188,11 @@ a IA escreva um date picker do zero — o modelo está na
 
 ```bash
 npm install
+npx playwright install chromium firefox webkit   # navegadores dos testes
 npm run build       # gera dist/
 npm run serve       # build + servidor local em http://127.0.0.1:4322
+npm test            # build e todos os testes, nos três navegadores
+npm run test:webkit # comportamento e teclado num navegador só
 ```
 
 ```

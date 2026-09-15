@@ -7,23 +7,25 @@
  * escrita, rodada uma vez e apagada; foi reescrito umas dez vezes numa sessao
  * so, e cada reescrita perdia os casos da anterior.
  *
- * Roda no Chrome sem cabeca porque metade do que interessa nao existe fora dele:
- * <dialog>, top layer, execCommand, DOMParser, transicao.
+ * Roda num navegador de verdade porque metade do que interessa nao existe fora
+ * dele: <dialog>, top layer, execCommand, DOMParser, transicao. E roda nos tres
+ * motores — Chromium, Firefox e WebKit — pelo Playwright (tools/browsers.mjs):
+ * a mesma pagina, os mesmos casos, um resultado por navegador.
  *
- * ARMADILHA: transicao nao avanca aqui. Nunca leia opacidade, posicao ou cor
- * logo depois de abrir algo — o valor lido e o do primeiro quadro. Onde o
- * estado final importa, a pagina injeta `transition: none`.
+ * A pagina roda sozinha e escreve o resultado em <pre id="result">; o teste
+ * espera esse bloco ser preenchido, e nao um tempo fixo.
+ *
+ * ARMADILHA: nunca leia opacidade, posicao ou cor logo depois de abrir algo —
+ * o valor lido pode ser o do primeiro quadro. Por isso a pagina injeta
+ * `transition: none` em tudo.
  */
-import { execFile } from 'node:child_process';
-import { promisify } from 'node:util';
-import { writeFileSync, unlinkSync, existsSync, readFileSync } from 'node:fs';
+import { writeFileSync, unlinkSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { requireChrome } from './chrome.mjs';
+import { pathToFileURL } from 'node:url';
+import { selectedBrowsers, openPage } from './browsers.mjs';
 
-const exec = promisify(execFile);
-
-const CHROME = requireChrome('behavior');
+const BROWSERS = selectedBrowsers('behavior');
 
 const page = () => `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
 <style>${readFileSync('dist/tucano.css', 'utf8')}
@@ -662,17 +664,21 @@ body{margin:0;padding:16px;font-family:system-ui}
   });
   t('diálogo aberto reserva o espaço da barra de rolagem, e só quando ela ocupa espaço', function () {
     // A trava de rolagem sumia com a barra, a página ganhava a largura dela e o
-    // conteúdo de trás andava. Este Chrome roda com --hide-scrollbars, então a
-    // barra nunca ocupa espaço aqui: o teste confere as duas metades do mecanismo.
+    // conteúdo de trás andava. Se a barra ocupa espaço depende do motor e do
+    // sistema — sobreposta no macOS e no Chromium sem cabeça, fixa no Firefox do
+    // Linux —, então a marca é conferida contra a medida deste navegador, e a
+    // outra metade do mecanismo, o padding, é forçada com a marca posta à mão.
     removeDialogs();
     var root = document.documentElement;
     root.removeAttribute('data-tuc-gutter');
+    var occupies = innerWidth - root.clientWidth > 0;
     var modal = Tucano.modal({ title: 'M' });
-    if (root.hasAttribute('data-tuc-gutter')) throw new Error('marcou sem barra que ocupa espaço');
+    if (root.hasAttribute('data-tuc-gutter') !== occupies) throw new Error(occupies ? 'não marcou com barra que ocupa espaço' : 'marcou sem barra que ocupa espaço');
     root.setAttribute('data-tuc-gutter', '');
     root.style.setProperty('--tuc-gutter-pad', '31px');
     var withMark = getComputedStyle(document.body).paddingRight;
     modal.close(); removeDialogs();
+    root.setAttribute('data-tuc-gutter', '');
     var afterClose = getComputedStyle(document.body).paddingRight;
     root.removeAttribute('data-tuc-gutter');
     root.style.removeProperty('--tuc-gutter-pad');
@@ -1027,25 +1033,42 @@ body{margin:0;padding:16px;font-family:system-ui}
 
 const file = join(tmpdir(), `tucano-behavior-${process.pid}.html`);
 writeFileSync(file, page());
-try {
-  const { stdout } = await exec(CHROME, [
-    '--headless=new', '--disable-gpu', '--hide-scrollbars',
-    '--window-size=1280,900', '--virtual-time-budget=6000',
-    '--dump-dom', `file://${file}`,
-  ], { maxBuffer: 60 * 1024 * 1024 });
-  const m = stdout.match(/<pre id="result">([\s\S]*?)<\/pre>/);
-  if (!m || !m[1].trim()) throw new Error('a página de teste não produziu resultado');
-  const r = JSON.parse(m[1].replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>'));
-  const errors = r.__errors; delete r.__errors;
 
-  let failures = 0;
-  for (const [name, value] of Object.entries(r)) {
-    console.log(`  ${value === 'ok' ? 'ok    ' : 'FALHA '} ${name}${value === 'ok' ? '' : '  ' + value}`);
-    if (value !== 'ok') failures++;
+/* Um navegador: abre a pagina, espera o resultado e devolve as linhas e a contagem. */
+async function run(name) {
+  const lines = [];
+  const { browser, page: tab } = await openPage(name);
+  try {
+    await tab.goto(pathToFileURL(file).href);
+    await tab.waitForFunction(() => document.getElementById('result')?.textContent.trim(), null, { timeout: 30000 })
+      .catch(() => { throw new Error('a página de teste não produziu resultado em 30 s'); });
+    const r = JSON.parse(await tab.textContent('#result'));
+    const errors = r.__errors; delete r.__errors;
+    let failures = 0;
+    for (const [test, value] of Object.entries(r)) {
+      lines.push(`  ${value === 'ok' ? 'ok    ' : 'FALHA '} ${test}${value === 'ok' ? '' : '  ' + value}`);
+      if (value !== 'ok') failures++;
+    }
+    if (errors.length) { lines.push(`  FALHA  erro de console: ${errors.join(' | ')}`); failures++; }
+    return { name, lines, failures, total: Object.keys(r).length };
+  } catch (e) {
+    lines.push(`  FALHA  ${e.message}`);
+    return { name, lines, failures: 1, total: 0 };
+  } finally {
+    await browser.close();
   }
-  if (errors.length) { console.log(`  FALHA  erro de console: ${errors.join(' | ')}`); failures++; }
-  console.log(failures ? `\n${failures} de ${Object.keys(r).length} com problema` : `\n${Object.keys(r).length} comportamentos verificados`);
-  process.exit(failures ? 1 : 0);
+}
+
+let results;
+try {
+  // Em paralelo: cada motor tem o proprio processo e a propria pagina. A saida
+  // e agrupada por navegador so no fim, para as linhas nao se misturarem.
+  results = await Promise.all(BROWSERS.map(run));
 } finally {
   unlinkSync(file);
 }
+for (const r of results) console.log(`\n[${r.name}]\n${r.lines.join('\n')}`);
+console.log('\n' + results.map((r) => (r.failures
+  ? `${r.name}: ${r.failures} de ${r.total} com problema`
+  : `${r.name}: ${r.total} comportamentos verificados`)).join(' · '));
+process.exit(results.some((r) => r.failures) ? 1 : 0);

@@ -72,6 +72,9 @@
     "test:unit": "node --test test/*.test.mjs",
     "test:behavior": "node tools/behavior.mjs",
     "test:keyboard": "node tools/keyboard.mjs",
+    "test:chromium": "node tools/behavior.mjs --browsers=chromium && node tools/keyboard.mjs --browsers=chromium",
+    "test:firefox": "node tools/behavior.mjs --browsers=firefox && node tools/keyboard.mjs --browsers=firefox",
+    "test:webkit": "node tools/behavior.mjs --browsers=webkit && node tools/keyboard.mjs --browsers=webkit",
     "test:examples": "node tools/examples.mjs",
     "test:consistency": "node tools/consistency.mjs",
     "audit": "node tools/audit.mjs",
@@ -81,6 +84,7 @@
   "devDependencies": {
     "@tailwindcss/node": "^4.3.3",
     "esbuild": "^0.28.2",
+    "playwright": "1.63.0",
     "tailwindcss": "^4.3.3"
   }
 }

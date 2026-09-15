@@ -180,6 +180,16 @@ projeto.
   salvo.
 - `destroy()` do editor deixava `_tucano` e a classe no textarea, e a repintura
   agendada ainda rodava.
+- No Safari, `Enter` dentro de um bloco de código do editor abria um bloco novo
+  em vez de quebrar a linha, e colar ou soltar texto com várias linhas ali
+  virava um bloco por linha.
+- No Safari, o botão da barra do editor acionado pelo teclado (`Tab` até ele e
+  `Espaço` ou `Enter`) aplicava o comando num cursor vazio no começo do texto, e
+  não no trecho selecionado.
+- No Firefox, `Ctrl+Z` logo depois de inserir uma tabela no editor não a
+  removia.
+- No Firefox, trocar o endereço de um link com o cursor dentro dele deixava um
+  `<a>` vazio na frente do link, no valor salvo.
 
 ## 0.33.1 — 2026-09-14
 

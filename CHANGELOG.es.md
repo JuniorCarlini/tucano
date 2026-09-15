@@ -190,6 +190,16 @@ cambios en tu proyecto.
   valor guardado.
 - `destroy()` del editor dejaba `_tucano` y la clase en el textarea, y el
   repintado programado seguía corriendo.
+- En Safari, `Enter` dentro de un bloque de código del editor abría un bloque
+  nuevo en lugar de partir la línea, y pegar o soltar texto de varias líneas ahí
+  se convertía en un bloque por línea.
+- En Safari, el botón de la barra del editor activado con el teclado (`Tab`
+  hasta él y `Espacio` o `Enter`) aplicaba el comando a un cursor vacío al
+  principio del texto, y no al fragmento seleccionado.
+- En Firefox, `Ctrl+Z` justo después de insertar una tabla en el editor no la
+  quitaba.
+- En Firefox, cambiar la dirección de un enlace con el cursor dentro dejaba un
+  `<a>` vacío delante del enlace, en el valor guardado.
 
 ## 0.33.1 — 2026-09-14
 

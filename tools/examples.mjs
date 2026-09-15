@@ -18,20 +18,17 @@
  *           lida por alguem. Foi por chave que os tres defeitos passaram.
  * Shell, Python e template Django ficam de fora: nao sao para rodar.
  *
- * A pagina roda no navegador porque so la existe o Tucano montado. O codigo que
+ * A pagina roda no navegador porque so la existe o Tucano montado — no Chromium,
+ * pelo Playwright: o que se confere aqui e nome, e nome nao muda de motor. O codigo que
  * roda la esta na funcao `check` abaixo, injetada por toString(): escrita
  * dentro de um template literal, cada `\d` de regex viraria `d` calado.
  */
-import { execFile } from 'node:child_process';
-import { promisify } from 'node:util';
-import { writeFileSync, unlinkSync, existsSync, readFileSync, readdirSync } from 'node:fs';
+import { writeFileSync, unlinkSync, readFileSync, readdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname, normalize } from 'node:path';
-import { requireChrome } from './chrome.mjs';
+import { pathToFileURL } from 'node:url';
+import { openPage } from './browsers.mjs';
 import { pages } from './pages.mjs';
-
-const exec = promisify(execFile);
-const CHROME = requireChrome('examples');
 
 /* ---- o que o codigo aceita, lido do proprio codigo ---- */
 
@@ -257,18 +254,20 @@ catch (e) { document.title = JSON.stringify({ error: e.message + ' — ' + Strin
 const file = join(tmpdir(), `tucano-examples-${process.pid}.html`);
 writeFileSync(file, page);
 let exitCode = 0;
+const { browser, page: tab } = await openPage('chromium');
 try {
-  const { stdout } = await exec(CHROME, ['--headless=new', '--disable-gpu', '--no-sandbox',
-    '--virtual-time-budget=8000', '--dump-dom', `file://${file}`], { maxBuffer: 64 * 1024 * 1024 });
-  const t = stdout.match(/<title>([\s\S]*?)<\/title>/);
-  if (!t) {
+  await tab.goto(pathToFileURL(file).href);
+  // O resultado e escrito no titulo, de uma vez, no fim da checagem.
+  const title = await tab.waitForFunction(() => document.title.startsWith('{') && document.title, null, { timeout: 60000 })
+    .then((h) => h.jsonValue(), () => null);
+  if (!title) {
     console.error('[examples] a página não terminou de rodar');
     exitCode = 1;
   } else {
-    const r = JSON.parse(decode(t[1]));
+    const r = JSON.parse(title);
     if (r.error) { console.error('[examples] ' + r.error); exitCode = 1; }
     else {
-          for (const f of wrongComments) console.log('  FALHA  ' + f);
+      for (const f of wrongComments) console.log('  FALHA  ' + f);
       for (const f of r.failures) console.log('  FALHA  ' + f);
       const total = r.failures.length + wrongComments.length;
       console.log(`${r.total} exemplos conferidos e ${Object.keys(NESTED).length} formas aninhadas`
@@ -277,6 +276,7 @@ try {
     }
   }
 } finally {
+  await browser.close();
   if (process.env.KEEP) console.log('pagina em', file); else unlinkSync(file);
 }
 process.exit(exitCode);

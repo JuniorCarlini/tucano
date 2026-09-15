@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /*
- * Teclado de verdade, pelo protocolo de depuracao do Chrome.
+ * Teclado e mouse de verdade, nos tres motores, pelo Playwright.
  *
  * Por que nao entra no `behavior.mjs`: la a pagina roda sozinha e o teste le o
  * resultado no fim. Evento sintetico (`new KeyboardEvent`) nao dispara acao
@@ -8,20 +8,22 @@
  * Entao tudo que a mascara faz com o cursor estava provado pelo lado errado:
  * o teste mandava o `input` que ele mesmo queria ver.
  *
- * `Input.dispatchKeyEvent` passa pela mesma porta que o teclado fisico: o
- * Chrome apaga o caractere, move o cursor e so entao dispara o `input` que a
- * mascara escuta. E o unico jeito de provar o caminho real.
+ * `page.keyboard` passa pela mesma porta que o teclado fisico, em Chromium,
+ * Firefox e WebKit: o navegador apaga o caractere, move o cursor e so entao
+ * dispara o `input` que a mascara escuta. E o unico jeito de provar o caminho
+ * real — e o Safari e o Firefox tem caminhos proprios, que o Chrome nao prova.
  *
- * Sem dependencia: o Node ja traz WebSocket e fetch.
+ * Os casos sao registrados primeiro e rodados depois, uma vez por navegador, os
+ * navegadores em paralelo. Os helpers acham a pagina do navegador corrente pelo
+ * AsyncLocalStorage, e por isso cada caso continua escrito como se so houvesse um.
  */
-import { spawn } from 'node:child_process';
-import { writeFileSync, unlinkSync, readFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
-import { requireChrome, FLAGS } from './chrome.mjs';
+import { readFileSync } from 'node:fs';
+import { AsyncLocalStorage } from 'node:async_hooks';
+import { selectedBrowsers, openPage } from './browsers.mjs';
 
-const CHROME = requireChrome('keyboard');
-const PORT = 9000 + (process.pid % 1000);
+const BROWSERS = selectedBrowsers('keyboard');
+const current = new AsyncLocalStorage();
+const tab = () => current.getStore().page;
 
 const page = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
 <style>${readFileSync('dist/tucano.css', 'utf8')}</style></head><body>
@@ -75,79 +77,17 @@ const page = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
 </script>
 </body></html>`;
 
-const file = join(tmpdir(), `tucano-keyboard-${process.pid}.html`);
-writeFileSync(file, page);
-
-const chrome = spawn(CHROME, [...FLAGS, `--remote-debugging-port=${PORT}`,
-  '--user-data-dir=' + join(tmpdir(), `tucano-profile-${process.pid}`), `file://${file}`],
-  { stdio: 'ignore' });
-
-const wait = (ms) => new Promise((r) => setTimeout(r, ms));
-
-/* O Chrome demora alguns milissegundos para abrir a porta; sem isto o primeiro
-   fetch falha com ECONNREFUSED e o teste culpa o produto. */
-async function debuggerUrl() {
-  for (let i = 0; i < 100; i++) {
-    try {
-      const list = await fetch(`http://127.0.0.1:${PORT}/json/list`).then((r) => r.json());
-      const p = list.find((t) => t.type === 'page' && t.webSocketDebuggerUrl);
-      if (p) return p.webSocketDebuggerUrl;
-    } catch { /* ainda subindo */ }
-    await wait(50);
-  }
-  throw new Error('o Chrome não abriu a porta de depuração');
-}
-
-const ws = new WebSocket(await debuggerUrl());
-await new Promise((r, x) => { ws.onopen = r; ws.onerror = () => x(new Error('não conectou')); });
-
-let nextId = 1;
-const pending = new Map();
-ws.onmessage = (e) => {
-  const m = JSON.parse(e.data);
-  if (m.id && pending.has(m.id)) { pending.get(m.id)(m); pending.delete(m.id); }
-};
-function cdp(method, params = {}) {
-  const id = nextId++;
-  ws.send(JSON.stringify({ id, method, params }));
-  return new Promise((r, x) => pending.set(id, (m) => (m.error ? x(new Error(m.method + ': ' + m.error.message)) : r(m.result))));
-}
+const wait = (ms) => tab().waitForTimeout(ms);
 
 async function evaluate(expression) {
-  const r = await cdp('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true });
-  if (r.exceptionDetails) throw new Error(r.exceptionDetails.exception?.description || 'erro na página');
-  return r.result.value;
+  return tab().evaluate(expression);
 }
 
-/* Teclas de edicao vao sem `text`: com texto o Chrome as trata como digitacao. */
-const KEYS = {
-  Backspace: { code: 'Backspace', key: 'Backspace', vk: 8 },
-  Delete: { code: 'Delete', key: 'Delete', vk: 46 },
-  ArrowRight: { code: 'ArrowRight', key: 'ArrowRight', vk: 39 },
-  ArrowLeft: { code: 'ArrowLeft', key: 'ArrowLeft', vk: 37 },
-  Home: { code: 'Home', key: 'Home', vk: 36 },
-  End: { code: 'End', key: 'End', vk: 35 },
-  ArrowDown: { code: 'ArrowDown', key: 'ArrowDown', vk: 40 },
-  ArrowUp: { code: 'ArrowUp', key: 'ArrowUp', vk: 38 },
-  Escape: { code: 'Escape', key: 'Escape', vk: 27 },
-  Tab: { code: 'Tab', key: 'Tab', vk: 9 },
-  // Enter leva texto: sem ele o Chrome nao ativa o botao focado.
-  Enter: { code: 'Enter', key: 'Enter', vk: 13, text: '\r' },
-};
 async function press(name, times = 1) {
-  const t = KEYS[name];
-  for (let i = 0; i < times; i++) {
-    await cdp('Input.dispatchKeyEvent', { type: t.text ? 'keyDown' : 'rawKeyDown', ...t, windowsVirtualKeyCode: t.vk, nativeVirtualKeyCode: t.vk });
-    await cdp('Input.dispatchKeyEvent', { type: 'keyUp', ...t, windowsVirtualKeyCode: t.vk, nativeVirtualKeyCode: t.vk });
-  }
+  for (let i = 0; i < times; i++) await tab().keyboard.press(name);
 }
-async function typeText(text) {
-  for (const c of text) {
-    const vk = c.charCodeAt(0);
-    await cdp('Input.dispatchKeyEvent', { type: 'keyDown', text: c, key: c, windowsVirtualKeyCode: vk, nativeVirtualKeyCode: vk });
-    await cdp('Input.dispatchKeyEvent', { type: 'keyUp', key: c, windowsVirtualKeyCode: vk, nativeVirtualKeyCode: vk });
-  }
-}
+/* Caractere por caractere, como quem digita: keydown, beforeinput, input e keyup. */
+const typeText = (text) => tab().keyboard.type(text);
 /* Foca e posiciona o cursor sem passar por clique: o alvo e o texto, nao o pixel. */
 const focusAt = (id, pos = null) => evaluate(`(() => {
   const el = document.getElementById('${id}');
@@ -158,44 +98,39 @@ const focusAt = (id, pos = null) => evaluate(`(() => {
 })()`);
 /* Cada caso monta o proprio ponto de partida: encadear o estado de um no outro
    ja fez um caso falhar por causa do vizinho, e nao do produto. */
-const startFrom = (id, value) => evaluate(`document.getElementById('${id}')._tucano.setValue('${value}')`);
+const startFrom = (id, value) => evaluate(`void document.getElementById('${id}')._tucano.setValue('${value}')`);
 const readField = (id) => evaluate(`(() => { const el = document.getElementById('${id}');
   return { value: el.value, cursor: el.selectionStart }; })()`);
+
+/* Centro do elemento, depois de rola-lo para a tela. */
+const centerOf = (expression) => evaluate(`(() => { const n = ${expression}; n.scrollIntoView({ block: 'nearest' });
+  const r = n.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; })()`);
 
 /* Clique de mouse de verdade no centro do elemento: passa por pointerdown,
    mousedown e foco, que element.click() pula. */
 async function clickOn(expression) {
-  const p = await evaluate(`(() => { const n = ${expression}; n.scrollIntoView({ block: 'nearest' });
-    const r = n.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; })()`);
-  for (const type of ['mouseMoved', 'mousePressed', 'mouseReleased']) {
-    await cdp('Input.dispatchMouseEvent', { type, x: p[0], y: p[1], button: 'left', clickCount: 1 });
-  }
+  const [x, y] = await centerOf(expression);
+  await tab().mouse.click(x, y);
 }
 
-let failures = 0;
-let cases = 0;
-async function testCase(name, fn) {
-  cases++;
-  try {
-    const error = await fn();
-    if (error) { console.log(`  FALHA  ${name}\n         ${error}`); failures++; }
-    else console.log(`  ok     ${name}`);
-  } catch (e) {
-    console.log(`  FALHA  ${name}\n         ${e.message}`); failures++;
-  }
+/*
+ * `skip` e por motor, e sempre com motivo: { webkit: 'por que' }. O motivo sai
+ * na saida — caso pulado em silencio e caso que ninguem mais olha.
+ */
+const CASES = [];
+function testCase(name, fn, { skip = {} } = {}) {
+  CASES.push({ name, fn, skip });
 }
 const expectField = (r, value, cursor) => (r.value === value && (cursor === undefined || r.cursor === cursor)
   ? null : `esperado "${value}"${cursor === undefined ? '' : ` cursor ${cursor}`}, veio "${r.value}" cursor ${r.cursor}`);
 
-await evaluate('new Promise((r) => (document.readyState === "complete" ? r() : addEventListener("load", r)))');
-
-await testCase('digitar CPF põe os separadores enquanto se digita', async () => {
+testCase('digitar CPF põe os separadores enquanto se digita', async () => {
   await focusAt('cpf');
   await typeText('12345678901');
   return expectField(await readField('cpf'), '123.456.789-01', 14);
 });
 
-await testCase('Backspace apaga dígito por dígito, e o cursor para antes do separador', async () => {
+testCase('Backspace apaga dígito por dígito, e o cursor para antes do separador', async () => {
   await startFrom('cpf', '12345678901');
   await focusAt('cpf');
   await press('Backspace');
@@ -207,7 +142,7 @@ await testCase('Backspace apaga dígito por dígito, e o cursor para antes do se
   return expectField(await readField('cpf'), '123.456.789-', 11);
 });
 
-await testCase('Backspace em cima do separador que sobrou apaga o dígito', async () => {
+testCase('Backspace em cima do separador que sobrou apaga o dígito', async () => {
   // Aqui a mascara recolocaria o '-' na hora e a tecla nao faria nada. O
   // _format percebe que a contagem de digitos nao mudou e tira o vizinho.
   await startFrom('cpf', '123456789');
@@ -216,28 +151,28 @@ await testCase('Backspace em cima do separador que sobrou apaga o dígito', asyn
   return expectField(await readField('cpf'), '123.456.78', 10);
 });
 
-await testCase('Backspace em cima de separador apaga o dígito vizinho', async () => {
+testCase('Backspace em cima de separador apaga o dígito vizinho', async () => {
   await startFrom('cpf', '12345678901');
   await focusAt('cpf', 4);           // logo depois do primeiro ponto: "123."
   await press('Backspace');
   return expectField(await readField('cpf'), '124.567.890-1', 2);
 });
 
-await testCase('Delete apaga para a frente sem travar no separador', async () => {
+testCase('Delete apaga para a frente sem travar no separador', async () => {
   await startFrom('cpf', '12345678901');
   await focusAt('cpf', 3);           // em cima do ponto de "123|.456"
   await press('Delete');
   return expectField(await readField('cpf'), '123.567.890-1');
 });
 
-await testCase('digitar no meio empurra o resto e mantém o cursor no lugar certo', async () => {
+testCase('digitar no meio empurra o resto e mantém o cursor no lugar certo', async () => {
   await startFrom('cpf', '12345678901');
   await focusAt('cpf', 3);
   await typeText('9');
   return expectField(await readField('cpf'), '123.945.678-90', 5);
 });
 
-await testCase('cpf-cnpj troca de gabarito no 12º dígito, digitando', async () => {
+testCase('cpf-cnpj troca de gabarito no 12º dígito, digitando', async () => {
   await focusAt('doc');
   await typeText('12345678901');
   const cpf = await readField('doc');
@@ -249,7 +184,7 @@ await testCase('cpf-cnpj troca de gabarito no 12º dígito, digitando', async ()
   return expectField(await readField('doc'), '123.456.789-01');
 });
 
-await testCase('moeda enche da direita e o cursor fica no fim', async () => {
+testCase('moeda enche da direita e o cursor fica no fim', async () => {
   await startFrom('amount', '');
   await focusAt('amount');
   await typeText('12345');
@@ -258,21 +193,21 @@ await testCase('moeda enche da direita e o cursor fica no fim', async () => {
     ? null : `veio "${r.value}" cursor ${r.cursor}`;
 });
 
-await testCase('Backspace na moeda tira um dígito, não um caractere da máscara', async () => {
+testCase('Backspace na moeda tira um dígito, não um caractere da máscara', async () => {
   await focusAt('amount');   // continua de onde o caso acima parou: 123,45
   await press('Backspace');
   const r = await readField('amount');
   return r.value.endsWith('12,34') ? null : `veio "${r.value}"`;
 });
 
-await testCase('data recusa dia impossível enquanto se digita', async () => {
+testCase('data recusa dia impossível enquanto se digita', async () => {
   await focusAt('date');
   await typeText('99999999');
   const r = await readField('date');
   return /^\d{2}\/\d{2}\/\d{4}$/.test(r.value) ? null : `veio "${r.value}"`;
 });
 
-await testCase('setas andam entre as abas, pulam a desativada e trocam o painel', async () => {
+testCase('setas andam entre as abas, pulam a desativada e trocam o painel', async () => {
   const where = () => evaluate(`(() => { const a = document.getElementById('tabs');
     return document.activeElement.textContent + a._tucano.index + a.querySelectorAll('.tuc-tabs__panel:not([hidden])').length; })()`);
   await evaluate(`document.querySelector('#tabs .tuc-tabs__tab').focus()`);
@@ -293,7 +228,7 @@ await testCase('setas andam entre as abas, pulam a desativada e trocam o painel'
   return r === 'A01' ? null : `Home não voltou para a primeira: ${r}`;
 });
 
-await testCase('barra do editor aplica o comando pelo teclado, no texto selecionado', async () => {
+testCase('barra do editor aplica o comando pelo teclado, no texto selecionado', async () => {
   // Os botões agiam só no mousedown: com o foco no botão, Espaço e Enter não
   // faziam nada. Aqui a seleção é feita na área, o foco vai ao botão e a tecla
   // é de verdade — evento sintético numa página sem foco não prova isso.
@@ -320,54 +255,69 @@ const edStart = (id, html, where) => evaluate(`(() => { const e = ${ED(id)}; e.s
 const edSelectAll = (id, html) => evaluate(`(() => { const e = ${ED(id)}; e.setValue(${JSON.stringify(html)}); e.area.focus();
   const r = document.createRange(); r.selectNodeContents(e.area.querySelector('p'));
   const s = getSelection(); s.removeAllRanges(); s.addRange(r); return true; })()`);
-async function waitFor(expression, ms = 2000) {
-  for (const end = Date.now() + ms; Date.now() < end; await wait(20)) if (await evaluate(expression)) return true;
-  return false;
-}
+/* Espera uma condicao da pagina, e nao um tempo: devolve false se ela nao chegar. */
+const waitFor = (expression, ms = 2000) => tab().waitForFunction(expression, null, { timeout: ms }).then(() => true, () => false);
 /*
- * Abre a caixa de link, troca o endereco e confirma com Enter de verdade. O
- * endereco nao vai por typeText: ele manda o codigo do caractere como tecla, e
- * "." (46) chega como Delete e "(" (40) como seta para baixo.
+ * Abre a caixa de link, digita o endereco e confirma com Enter de verdade. O
+ * endereco vai tecla por tecla, como quem digita: o protocolo do Chrome, usado
+ * antes, mandava o codigo do caractere como tecla, e "." chegava como Delete.
  */
 async function linkDialog(id, url) {
   const open = `document.querySelector('dialog.tuc-modal:not(#kmodal)[open] input')`;
   await evaluate(`void ${ED(id)}.apply('link')`);
   if (!await waitFor(`!!${open}`)) throw new Error('a caixa de link não abriu');
-  await evaluate(`(() => { const i = ${open}; i.focus(); i.value = ${JSON.stringify(url)};
-    i.dispatchEvent(new Event('input', { bubbles: true })); })()`);
+  await evaluate(`(() => { const i = ${open}; i.focus(); i.select(); })()`);
+  await typeText(url);
   await press('Enter');
   await waitFor(`!document.querySelector('dialog.tuc-modal:not(#kmodal)')`);
   await wait(50);
 }
 
-await testCase('soltar HTML arrastado no editor entra como texto puro', async () => {
+testCase('soltar HTML arrastado no editor entra como texto puro', async () => {
   // Colar já era texto puro; arrastar trazia <h1>, estilo e <img> para a tela.
-  await evaluate(`void ${ED('ked')}.setValue('<p>alvo</p>')`);
-  const p = await evaluate(`(() => { const n = ${ED('ked')}.area.querySelector('p'); n.scrollIntoView({ block: 'nearest' });
+  // A origem é um elemento arrastável que põe HTML e texto no dataTransfer, como
+  // faz o trecho selecionado de outra página. O arrasto é do mouse, de verdade:
+  // só assim o navegador chega ao beforeinput de insertFromDrop.
+  await evaluate(`(() => { ${ED('ked')}.setValue('<p>alvo</p>');
+    const src = document.createElement('div');
+    src.id = 'dragsrc'; src.draggable = true; src.textContent = 'arrastar';
+    src.style.cssText = 'position:fixed;left:0;bottom:0;z-index:2147483647;padding:8px;background:#eee';
+    src.addEventListener('dragstart', (e) => {
+      e.dataTransfer.setData('text/html', '<h1 style="color:red">Título</h1><img src="data:," onerror="window.__dropped=1">');
+      e.dataTransfer.setData('text/plain', 'Título');
+    });
+    document.body.append(src); })()`);
+  const from = await centerOf(`document.getElementById('dragsrc')`);
+  const to = await evaluate(`(() => { const n = ${ED('ked')}.area.querySelector('p'); n.scrollIntoView({ block: 'nearest' });
     const b = n.getBoundingClientRect(); return [b.x + b.width - 2, b.y + b.height / 2]; })()`);
-  const data = { items: [
-    { mimeType: 'text/html', data: '<h1 style="color:red">Título</h1><img src="data:," onerror="window.__dropped=1">' },
-    { mimeType: 'text/plain', data: 'Título' },
-  ], dragOperationsMask: 1 };
-  for (const type of ['dragEnter', 'dragOver', 'drop']) await cdp('Input.dispatchDragEvent', { type, x: p[0], y: p[1], data });
-  await wait(100);
+  const mouse = tab().mouse;
+  await mouse.move(from[0], from[1]);
+  await mouse.down();
+  await mouse.move(to[0], to[1], { steps: 10 });
+  await mouse.up();
+  const arrived = await waitFor(`${ED('ked')}.area.textContent.includes('Título')`);
+  await evaluate(`document.getElementById('dragsrc').remove()`);
   const html = await evaluate(`${ED('ked')}.area.innerHTML`);
+  if (!arrived) return `o texto não entrou: ${html}`;
   if (!html.includes('Título')) return `o texto não entrou: ${html}`;
   return /<(h1|img|span|font)|style=/.test(html) ? `entrou HTML: ${html}` : null;
 });
 
-await testCase('Enter e colar dentro do bloco de código mantêm as quebras depois da repintura', async () => {
+testCase('Enter e colar dentro do bloco de código mantêm as quebras depois da repintura', async () => {
   // A repintura lia textContent, que não vê <br>, e juntava as linhas numa só.
   await edStart('ked', '<pre><code>ab</code></pre><p>x</p>', "(a) => { const c = a.querySelector('code'); return [c, c.childNodes.length]; }");
   await press('Enter');
   await typeText('cd');
-  await evaluate(`document.execCommand('insertText', false, ${JSON.stringify('\nef')})`);
+  // Colar pelo handler de verdade, com o texto que a área de transferência
+  // entregaria: o Playwright só lê e escreve a área de transferência no
+  // Chromium, e um ClipboardEvent sintético chega ao Firefox com os dados vazios.
+  await evaluate(`${ED('ked')}._paste({ preventDefault() {}, clipboardData: { getData: () => ${JSON.stringify('\nef')} } })`);
   await wait(400);
   const text = await evaluate(`${ED('ked')}.area.querySelector('code').textContent`);
   return text === 'ab\ncd\nef' ? null : `bloco ficou ${JSON.stringify(text)}`;
 });
 
-await testCase('Tab anda por todas as células, inclusive vazias, e cria linha na última', async () => {
+testCase('Tab anda por todas as células, inclusive vazias, e cria linha na última', async () => {
   // Pegava a célula pelo pai do nó da seleção: numa célula vazia isso é a linha, e o Tab saía do editor.
   await edStart('ked', '<table><thead><tr><th><br></th><th><br></th></tr></thead><tbody><tr><td><br></td><td><br></td></tr></tbody></table>',
     "(a) => [a.querySelector('th'), 0]");
@@ -378,7 +328,7 @@ await testCase('Tab anda por todas as células, inclusive vazias, e cria linha n
   return seen.join() === '1,2,3,4' && rows === 3 ? null : `células ${seen.join()}, ${rows} linhas`;
 });
 
-await testCase('inserir tabela no fim de um parágrafo não a aninha no <p>, e desfazer tira só a tabela', async () => {
+testCase('inserir tabela no fim de um parágrafo não a aninha no <p>, e desfazer tira só a tabela', async () => {
   await edStart('ked', '<p>abc</p>', "(a) => [a.querySelector('p').firstChild, 3]");
   await evaluate(`void ${ED('ked')}.apply('table')`);
   await wait(50);
@@ -391,7 +341,7 @@ await testCase('inserir tabela no fim de um parágrafo não a aninha no <p>, e d
   return u[0] === 0 && u[1].includes('abc') ? null : `depois de desfazer: ${u[0]} tabela(s), texto "${u[1]}"`;
 });
 
-await testCase('caixa de link: javascript: digitado não vira link na área', async () => {
+testCase('caixa de link: javascript: digitado não vira link na área', async () => {
   // O valor salvo saía limpo, mas a área ficava com um <a href="javascript:…"> clicável.
   await edSelectAll('ked', '<p>texto</p>');
   await linkDialog('ked', 'javascript:alert(1)');
@@ -399,7 +349,7 @@ await testCase('caixa de link: javascript: digitado não vira link na área', as
   return html.includes('<a') ? `virou link: ${html}` : null;
 });
 
-await testCase('caixa de link: endereço sem esquema ganha https://', async () => {
+testCase('caixa de link: endereço sem esquema ganha https://', async () => {
   // "exemplo.com" virava link relativo, que a peneira descartava calada ao salvar.
   await edSelectAll('ked', '<p>texto</p>');
   await linkDialog('ked', 'exemplo.com');
@@ -407,14 +357,14 @@ await testCase('caixa de link: endereço sem esquema ganha https://', async () =
   return v.includes('href="https://exemplo.com"') ? null : `valor: ${v}`;
 });
 
-await testCase('caixa de link: trocar o endereço com o cursor dentro não parte o link', async () => {
+testCase('caixa de link: trocar o endereço com o cursor dentro não parte o link', async () => {
   await edStart('ked', '<p>clique <a href="https://a.com">aqui</a> fim</p>', "(a) => [a.querySelector('a').firstChild, 2]");
   await linkDialog('ked', 'https://b.com');
   const v = await evaluate(`document.getElementById('ked').value`);
   return (v.match(/<a /g) || []).length === 1 && /href="https:\/\/b\.com"[^>]*>aqui<\/a>/.test(v) ? null : `valor: ${v}`;
 });
 
-await testCase('negrito selecionado fora do editor não acende o botão do editor', async () => {
+testCase('negrito selecionado fora do editor não acende o botão do editor', async () => {
   await evaluate(`(() => { document.activeElement?.blur(); const r = document.createRange();
     r.selectNodeContents(document.querySelector('#kbold b')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); })()`);
   await wait(50);
@@ -422,7 +372,7 @@ await testCase('negrito selecionado fora do editor não acende o botão do edito
   return r === 'false' ? null : `aria-pressed="${r}"`;
 });
 
-await testCase('editor obrigatório vazio barra o envio e leva o foco à área; com texto, envia', async () => {
+testCase('editor obrigatório vazio barra o envio e leva o foco à área; com texto, envia', async () => {
   // Esvaziado, postava <p><br></p> e passava; e o textarea escondido não recebia o foco do aviso.
   await evaluate(`(() => { window.__kedSubmits = 0; ${ED('ked2')}.setValue(''); })()`);
   await clickOn(`document.getElementById('kedSubmit')`);
@@ -437,7 +387,7 @@ await testCase('editor obrigatório vazio barra o envio e leva o foco à área; 
   return n === 1 ? null : `com texto, ${n} envio(s)`;
 });
 
-await testCase('reset do formulário devolve o editor ao conteúdo de origem', async () => {
+testCase('reset do formulário devolve o editor ao conteúdo de origem', async () => {
   const r = await evaluate(`(async () => { const e = ${ED('ked2')}; e.setValue('<p>mudado</p>');
     document.getElementById('kedForm').reset();
     await new Promise((ok) => setTimeout(ok, 30));
@@ -445,7 +395,7 @@ await testCase('reset do formulário devolve o editor ao conteúdo de origem', a
   return r[0] === '<p>original</p>' && r[1].includes('original') && !r[1].includes('mudado') ? null : JSON.stringify(r);
 });
 
-await testCase('↓ no campo de data abre o calendário e leva o foco ao dia', async () => {
+testCase('↓ no campo de data abre o calendário e leva o foco ao dia', async () => {
   // Antes o foco ficava no campo: a seta não chegava à grade e o Tab fechava o
   // painel, e quem usa só teclado nunca escolhia um dia.
   await evaluate(`document.getElementById('dt').focus()`);
@@ -461,7 +411,7 @@ await testCase('↓ no campo de data abre o calendário e leva o foco ao dia', a
   return last[0] === 'dt' && !last[1] ? null : `Esc deixou o foco em "${last[0]}", aberto: ${last[1]}`;
 });
 
-await testCase('Backspace e Delete no select simples com a busca vazia limpam o valor', async () => {
+testCase('Backspace e Delete no select simples com a busca vazia limpam o valor', async () => {
   // So o multiplo respondia: no simples, esvaziar exigia o mouse no X.
   for (const t of ['Backspace', 'Delete']) {
     await startFrom('state', 'SP');
@@ -473,7 +423,7 @@ await testCase('Backspace e Delete no select simples com a busca vazia limpam o 
   return null;
 });
 
-await testCase('limpar um select sem <option value=""> esvazia o nativo, não volta para a primeira opção', async () => {
+testCase('limpar um select sem <option value=""> esvazia o nativo, não volta para a primeira opção', async () => {
   // A tela mostrava vazio e o formulário postava a primeira opção.
   await startFrom('noEmpty', 'PC');
   await evaluate(`document.getElementById('noEmpty')._tucano.search.focus()`);
@@ -483,7 +433,7 @@ await testCase('limpar um select sem <option value=""> esvazia o nativo, não vo
   return r[0] === '' && r[1] === -1 && r[2] === null ? null : `nativo "${r[0]}" índice ${r[1]}, componente ${r[2]}`;
 });
 
-await testCase('Backspace no select simples sem o X não limpa', async () => {
+testCase('Backspace no select simples sem o X não limpa', async () => {
   await startFrom('fixed', 'RJ');
   await evaluate(`document.getElementById('fixed')._tucano.search.focus()`);
   await press('Backspace');
@@ -491,7 +441,7 @@ await testCase('Backspace no select simples sem o X não limpa', async () => {
   return v === 'RJ' ? null : `com clearable false o valor virou "${v}"`;
 });
 
-await testCase('digitar com a lista do select fechada não perde a primeira letra', async () => {
+testCase('digitar com a lista do select fechada não perde a primeira letra', async () => {
   // A primeira letra abria a lista, e o open() zerava a busca junto: "sa" virava "a".
   await evaluate(`(() => { const c = document.getElementById('searchable')._tucano; c.close(); c.search.focus(); })()`);
   await typeText('sa');
@@ -500,7 +450,7 @@ await testCase('digitar com a lista do select fechada não perde a primeira letr
   return r === 'sa' ? null : `a busca ficou "${r}"`;
 });
 
-await testCase('reset do formulário volta o select e o que ele mostra', async () => {
+testCase('reset do formulário volta o select e o que ele mostra', async () => {
   // O reset não dispara change: o nativo voltava e a tela seguia com o valor antigo.
   await startFrom('resetState', 'RJ');
   const r = await evaluate(`(async () => {
@@ -512,7 +462,7 @@ await testCase('reset do formulário volta o select e o que ele mostra', async (
     ? null : `nativo "${r[0]}", componente ${JSON.stringify(r[1])}, tela "${r[2]}"`;
 });
 
-await testCase('digitar numa senha com o olho não lança erro e não expõe o que se digita', async () => {
+testCase('digitar numa senha com o olho não lança erro e não expõe o que se digita', async () => {
   // Sem gabarito, cada tecla lançava "template is not iterable"; e a senha vazia
   // nascia a mostra, em type="text", com teclado numérico no celular.
   await evaluate(`(() => { window.__pageErrors = []; addEventListener('error', (e) => window.__pageErrors.push(e.message));
@@ -526,7 +476,7 @@ await testCase('digitar numa senha com o olho não lança erro e não expõe o q
   return r.inputmode ? `inputmode "${r.inputmode}" num campo de senha` : null;
 });
 
-await testCase('digitar num token com o olho, sem máscara, guarda o texto como foi digitado', async () => {
+testCase('digitar num token com o olho, sem máscara, guarda o texto como foi digitado', async () => {
   await evaluate(`(() => { window.__pageErrors = []; document.getElementById('revealToken').focus(); })()`);
   await typeText('sk_live_9');
   const r = await evaluate(`(() => { const hidden = document.querySelector('input[type=hidden][name=api_key]');
@@ -535,7 +485,7 @@ await testCase('digitar num token com o olho, sem máscara, guarda o texto como 
   return r.posted === 'sk_live_9' ? null : `o formulário enviaria "${r.posted}"`;
 });
 
-await testCase('Escape num painel dentro de um modal fecha só o painel', async () => {
+testCase('Escape num painel dentro de um modal fecha só o painel', async () => {
   // O Popover parava a propagação do Escape, mas não a ação padrão: o <dialog>
   // recebia o cancel e o modal fechava junto com o select, o calendário e a cor.
   const modal = `document.getElementById('kmodal')._tucano`;
@@ -559,7 +509,7 @@ await testCase('Escape num painel dentro de um modal fecha só o painel', async 
     // Espera o <dialog> fechar de fato, e não um tempo fixo: o close() só chega
     // ao nativo depois da animação, e com a máquina ocupada (logo após o build)
     // esse atraso passou dos 250ms e fechou o modal já reaberto pelo caso seguinte.
-    for (let i = 0; i < 100 && await evaluate(`document.getElementById('kmodal').open`); i++) await wait(20);
+    await waitFor(`!document.getElementById('kmodal').open`);
     if (!opened) return `${name}: a seta não abriu o painel`;
     if (r[0]) return `${name}: o Escape não fechou o painel`;
     if (!r[1] || !r[2]) return `${name}: o Escape fechou o modal junto`;
@@ -567,7 +517,7 @@ await testCase('Escape num painel dentro de um modal fecha só o painel', async 
   return null;
 });
 
-await testCase('Escape no color picker devolve o foco à amostra', async () => {
+testCase('Escape no color picker devolve o foco à amostra', async () => {
   // O painel sai do DOM ao fechar; com o foco no campo hex dentro dele, o foco
   // caía no <body> e o Tab seguinte recomeçava do topo da página.
   await evaluate(`document.getElementById('color')._tucano.swatch.focus()`);
@@ -581,7 +531,7 @@ await testCase('Escape no color picker devolve o foco à amostra', async () => {
   return r[1] ? null : `o foco foi para ${r[2]}`;
 });
 
-await testCase('reabrir um modal logo depois de fechar deixa ele aberto', async () => {
+testCase('reabrir um modal logo depois de fechar deixa ele aberto', async () => {
   // O open() não cancelava o fechamento agendado, e o modal reaberto fechava sozinho.
   const r = await evaluate(`(async () => {
     const m = Tucano.modal({ title: 'Reaberto' });
@@ -601,7 +551,7 @@ await testCase('reabrir um modal logo depois de fechar deixa ele aberto', async 
  * Date picker: digitacao, confirmacao, descarte, foco e tempo          *
  * ------------------------------------------------------------------ */
 
-await testCase('data digitada emite ao sair com Tab, e Enter com o painel aberto confirma e fecha', async () => {
+testCase('data digitada emite ao sair com Tab, e Enter com o painel aberto confirma e fecha', async () => {
   // A prévia gravava o valor enquanto se digitava, e o commit achava tudo igual:
   // nem tucano:change nem onChange saíam, e o Enter não fechava o painel.
   await evaluate(`mk('<input data-tuc-datepicker name="kd">')`);
@@ -620,7 +570,7 @@ await testCase('data digitada emite ao sair com Tab, e Enter com o painel aberto
   return r[1] === 'onChange 2026-12-24|event 2026-12-24' && !r[2] ? null : `Enter: ${JSON.stringify(r)}`;
 });
 
-await testCase('Escape depois de digitar descarta o texto e mantém o valor', async () => {
+testCase('Escape depois de digitar descarta o texto e mantém o valor', async () => {
   await evaluate(`mk('<input data-tuc-datepicker name="kd">'); dp.setValue('2026-09-07', { silent: true });
     inp.focus(); dp.open(); inp.value = ''; inp.setSelectionRange(0, 0)`);
   await typeText('25122026');
@@ -629,7 +579,7 @@ await testCase('Escape depois de digitar descarta o texto e mantém o valor', as
   return r[0] === '07/09/2026' && r[1] === '2026-09-07' && !r[2] && !r[3] ? null : JSON.stringify(r);
 });
 
-await testCase('período digitado emite com as duas datas; com o fim inválido é recusado inteiro', async () => {
+testCase('período digitado emite com as duas datas; com o fim inválido é recusado inteiro', async () => {
   await evaluate(`mk('<input data-tuc-datepicker data-mode="range" name="kp">'); inp.focus()`);
   await typeText('0103202615032026');
   await press('Tab');
@@ -643,7 +593,7 @@ await testCase('período digitado emite com as duas datas; com o fim inválido �
   return r[0] === '2026-03-01,2026-03-15' && r[1] === 2 && r[2] === '01/03/2026 — 15/03/2026' ? null : `fim inválido: ${JSON.stringify(r)}`;
 });
 
-await testCase('data digitada fora do max é recusada, e o valor anterior fica', async () => {
+testCase('data digitada fora do max é recusada, e o valor anterior fica', async () => {
   await evaluate(`mk('<input name="km">', { max: '2026-12-31' }); dp.setValue('2026-06-01', { silent: true });
     inp.focus(); inp.value = ''; inp.setSelectionRange(0, 0)`);
   await typeText('15012027');
@@ -652,7 +602,7 @@ await testCase('data digitada fora do max é recusada, e o valor anterior fica',
   return r[0] === '2026-06-01' && r[1] === '01/06/2026' && !r[2] ? null : JSON.stringify(r);
 });
 
-await testCase('período pela metade e Escape devolvem o período que já estava escolhido', async () => {
+testCase('período pela metade e Escape devolvem o período que já estava escolhido', async () => {
   await evaluate(`mk('<input data-tuc-datepicker data-mode="range" name="kr">');
     dp.setValue({ start: '2026-03-01', end: '2026-03-15' }, { silent: true }); inp.focus(); dp.open()`);
   await clickOn(`dp.panel.querySelector('.tuc-dp__day[data-date="2026-03-20"]:not(.is-outside)')`);
@@ -663,7 +613,7 @@ await testCase('período pela metade e Escape devolvem o período que já estava
   return r.join(' ') === '2026-03-01 2026-03-15 2026-03-01,2026-03-15 0' ? null : JSON.stringify(r);
 });
 
-await testCase('com Aplicar, dia e hora ficam pendentes: Aplicar emite uma vez e clicar fora descarta', async () => {
+testCase('com Aplicar, dia e hora ficam pendentes: Aplicar emite uma vez e clicar fora descarta', async () => {
   await evaluate(`mk('<input data-tuc-datepicker data-time="true" name="kt">'); dp.setValue('2026-09-07T10:00', { silent: true })`);
   await clickOn('inp');
   await clickOn(`dp.panel.querySelector('.tuc-dp__day[data-date="2026-09-10"]:not(.is-outside)')`);
@@ -684,7 +634,7 @@ await testCase('com Aplicar, dia e hora ficam pendentes: Aplicar emite uma vez e
   return r[0] === 2 && r[1] === '2026-09-10T14:00' && r[2] === '10/09/2026 14:00' && !r[3] ? null : `fora: ${JSON.stringify(r)}`;
 });
 
-await testCase('fechar e reabrir em menos de 200 ms mantém o painel no DOM — date picker e select', async () => {
+testCase('fechar e reabrir em menos de 200 ms mantém o painel no DOM — date picker e select', async () => {
   // O timer de saída morava no Popover antigo, e tirava do DOM o painel que acabara de reabrir.
   const r = await evaluate(`(async () => {
     mk('<input data-tuc-datepicker>');
@@ -702,7 +652,7 @@ await testCase('fechar e reabrir em menos de 200 ms mantém o painel no DOM — 
   return r[1][1] ? null : `select: aberto ${r[1][0]}, menu no DOM ${r[1][1]}`;
 });
 
-await testCase('dia desativado recebe foco pela seta, e ↓ com min no meio do mês foca um dia habilitado', async () => {
+testCase('dia desativado recebe foco pela seta, e ↓ com min no meio do mês foca um dia habilitado', async () => {
   // Com disabled, a seta num fim de semana bloqueado mandava o foco ao <body>;
   // e o foco inicial ia ao dia 1, desativado pelo min.
   await evaluate(`(() => { const y = new Date().getFullYear() + 1;
@@ -725,7 +675,7 @@ await testCase('dia desativado recebe foco pela seta, e ↓ com min no meio do m
   return !r[0] && r[1] ? null : 'Enter num dia desativado escolheu o dia';
 });
 
-await testCase('Enter nas setas, no rótulo e na célula de mês mantém o foco no painel', async () => {
+testCase('Enter nas setas, no rótulo e na célula de mês mantém o foco no painel', async () => {
   // O render refazia tudo com replaceChildren, e cada ativação mandava o foco ao <body>.
   await evaluate(`mk('<input data-tuc-datepicker>'); dp.setValue('2026-09-07', { silent: true }); inp.focus()`);
   await press('ArrowDown');
@@ -744,7 +694,7 @@ await testCase('Enter nas setas, no rótulo e na célula de mês mantém o foco 
   return r[0] && r[1] === 'days' && r[2].startsWith('2026-03') ? null : `célula de mês: ${JSON.stringify(r)}`;
 });
 
-await testCase('colunas de hora: uma parada de Tab por coluna, setas andam e Enter escolhe', async () => {
+testCase('colunas de hora: uma parada de Tab por coluna, setas andam e Enter escolhe', async () => {
   await evaluate(`mk('<input>', { time: true, seconds: true, minuteStep: 1 }); dp.setValue('2026-09-07T10:00', { silent: true }); dp.open()`);
   const stops = await evaluate(`[...dp.panel.querySelectorAll('.tuc-dp__timeitem')].filter((n) => n.tabIndex === 0).length`);
   if (stops !== 3) return `${stops} paradas de Tab nas colunas de hora (esperado 3)`;
@@ -762,7 +712,7 @@ await testCase('colunas de hora: uma parada de Tab por coluna, setas andam e Ent
   return r === 'start-h-23' ? null : `End levou o foco a ${r}`;
 });
 
-await testCase('dois meses lado a lado: uma parada de Tab na grade, e nunca no dia de fora', async () => {
+testCase('dois meses lado a lado: uma parada de Tab na grade, e nunca no dia de fora', async () => {
   await evaluate(`mk('<input data-tuc-datepicker data-mode="range">'); dp.setValue({ start: '2026-09-28', end: '2026-09-29' }, { silent: true }); inp.focus()`);
   await press('ArrowDown');
   const r = await evaluate(`[dp.panel.querySelectorAll('.tuc-dp__day[tabindex="0"]').length, document.activeElement.dataset.date, document.activeElement.classList.contains('is-outside')]`);
@@ -770,7 +720,7 @@ await testCase('dois meses lado a lado: uma parada de Tab na grade, e nunca no d
   return r[0] === 1 && r[1] === '2026-09-28' && !r[2] ? null : JSON.stringify(r);
 });
 
-await testCase('reset do formulário volta o date picker, o hidden e a instância', async () => {
+testCase('reset do formulário volta o date picker, o hidden e a instância', async () => {
   const r = await evaluate(`(async () => {
     mk('<form><input data-tuc-datepicker name="kf" value="2026-09-07"></form>');
     dp.setValue('2026-10-01');
@@ -780,7 +730,7 @@ await testCase('reset do formulário volta o date picker, o hidden e a instânci
   return r.join(' ') === '07/09/2026 2026-09-07 2026-09-07' ? null : JSON.stringify(r);
 });
 
-await testCase('layout compacto acompanha a tela: alargar devolve a digitação e a máscara', async () => {
+testCase('layout compacto acompanha a tela: alargar devolve a digitação e a máscara', async () => {
   // Decidido só na montagem, girar o tablet deixava o campo readOnly e sem máscara.
   // O Chrome sem cabeça não troca `pointer: coarse` pela emulação de toque, então
   // a consulta do layout compacto é trocada por uma que o teste controla; o
@@ -801,8 +751,42 @@ await testCase('layout compacto acompanha a tela: alargar devolve a digitação 
   return wide[0] === false && wide[1] === true ? null : `largo: readOnly ${wide[0]}, máscara ${wide[1]}`;
 });
 
-ws.close();
-chrome.kill();
-unlinkSync(file);
-console.log(failures ? `\n${failures} falha(s) no teclado` : `\n${cases} caminhos de teclado verificados`);
-process.exit(failures ? 1 : 0);
+/* Um navegador: uma pagina, os casos em ordem, a saida guardada para imprimir junta. */
+async function run(name) {
+  const lines = [];
+  let failures = 0, passed = 0, skipped = 0;
+  const { browser, page: tabPage } = await openPage(name);
+  try {
+    /*
+     * setContent, e nao goto de um arquivo: o goto deixa about:blank no
+     * historico, e no WebKit do Playwright Backspace fora de campo editavel e
+     * "voltar" — o caso do select sem o X, com a busca readOnly, levava a pagina
+     * embora e derrubava todos os seguintes. O Safari de verdade nao faz isso
+     * desde a versao 12; sem historico, a tecla nao tem para onde voltar.
+     */
+    await tabPage.setContent(page);
+    await current.run({ page: tabPage }, async () => {
+      for (const c of CASES) {
+        if (c.skip[name]) { lines.push(`  pulado no ${name}: ${c.name}\n         ${c.skip[name]}`); skipped++; continue; }
+        try {
+          const error = await c.fn();
+          if (error) { lines.push(`  FALHA  ${c.name}\n         ${error}`); failures++; }
+          else { lines.push(`  ok     ${c.name}`); passed++; }
+        } catch (e) {
+          lines.push(`  FALHA  ${c.name}\n         ${e.message.split('\n')[0]}`); failures++;
+        }
+      }
+    });
+  } catch (e) {
+    lines.push(`  FALHA  ${e.message}`); failures++;
+  } finally {
+    await browser.close();
+  }
+  return { name, lines, failures, passed, skipped };
+}
+
+const results = await Promise.all(BROWSERS.map(run));
+for (const r of results) console.log(`\n[${r.name}]\n${r.lines.join('\n')}`);
+console.log('\n' + results.map((r) => `${r.name}: ${r.failures ? `${r.failures} falha(s), ` : ''}`
+  + `${r.passed} caminhos de teclado verificados${r.skipped ? `, ${r.skipped} pulado(s)` : ''}`).join(' · '));
+process.exit(results.some((r) => r.failures) ? 1 : 0);

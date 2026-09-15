@@ -186,6 +186,16 @@ in your project.
   value.
 - The editor's `destroy()` left `_tucano` and the class on the textarea, and the
   scheduled repaint still ran.
+- In Safari, `Enter` inside an editor code block started a new block instead of
+  breaking the line, and pasting or dropping multi-line text there produced one
+  block per line.
+- In Safari, an editor toolbar button triggered from the keyboard (`Tab` to it,
+  then `Space` or `Enter`) applied the command to an empty caret at the start of
+  the text instead of the selected text.
+- In Firefox, `Ctrl+Z` right after inserting a table in the editor did not
+  remove it.
+- In Firefox, changing a link's address with the caret inside it left an empty
+  `<a>` in front of the link in the saved value.
 
 ## 0.33.1 — 2026-09-14
 
