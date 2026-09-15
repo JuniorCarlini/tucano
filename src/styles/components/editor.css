@@ -74,9 +74,9 @@ textarea.tuc-editor__value[hidden] { display: none; }
 .tuc-editor__area p,
 .tuc-prose p { @apply my-2; }
 .tuc-editor__area h2,
-.tuc-prose h2 { @apply mb-2 mt-4 text-lg font-semibold; }
+.tuc-prose h2 { @apply mb-2 mt-4 text-lg; font-weight: 600; }
 .tuc-editor__area h3,
-.tuc-prose h3 { @apply mb-1.5 mt-3 text-base font-semibold; }
+.tuc-prose h3 { @apply mb-1.5 mt-3 text-base; font-weight: 600; }
 .tuc-editor__area ul,
 .tuc-prose ul { @apply my-2 list-disc pl-5; }
 .tuc-editor__area ol,

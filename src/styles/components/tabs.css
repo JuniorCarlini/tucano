@@ -30,7 +30,7 @@
 .tuc-tabs__list::-webkit-scrollbar { display: none; }
 
 .tuc-tabs__tab {
-  @apply relative inline-flex shrink-0 cursor-pointer select-none items-center gap-1.5 whitespace-nowrap px-3 font-medium;
+  @apply relative inline-flex shrink-0 cursor-pointer select-none items-center gap-1.5 whitespace-nowrap px-3; font-weight: 500;
   height: var(--tuc-control-height);
   color: var(--tuc-muted);
   border-radius: var(--tuc-radius-sm) var(--tuc-radius-sm) 0 0;

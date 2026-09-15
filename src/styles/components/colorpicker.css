@@ -50,7 +50,7 @@
   @apply absolute inset-0;
   background: var(--color, transparent);
 }
-.tuc-color-field__swatch:hover { @apply scale-105; }
+.tuc-color-field__swatch:hover { scale: 1.05; }
 .tuc-color-field__swatch:focus-visible {
   outline: 2px solid var(--tuc-accent);
   outline-offset: 2px;
@@ -184,7 +184,7 @@
  * classe repetida para pesar 0,3,1 e vencer a altura do .tuc-input.
  */
 .tuc-colorpicker input.tuc-input.tuc-colorpicker__field {
-  @apply min-w-0 flex-1 px-2.5 font-medium;
+  @apply min-w-0 flex-1 px-2.5; font-weight: 500;
   height: var(--tuc-swatch);
   border-radius: var(--tuc-radius-sm);
 }
@@ -210,7 +210,7 @@
   box-shadow: inset 0 0 0 1px var(--tuc-ring);
   transition: transform 120ms var(--tuc-ease), box-shadow 120ms var(--tuc-ease);
 }
-.tuc-colorpicker__swatchbtn:hover { @apply scale-110; }
+.tuc-colorpicker__swatchbtn:hover { scale: 1.1; }
 
 /* Cor ativa ganha um anel externo, com folga na cor do painel para nao somir
    quando a amostra e escura. */

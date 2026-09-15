@@ -39,6 +39,11 @@ in your project.
   used. If your project relied on them, use
   `.tuc-select-native[multiple] + .tuc-select`, `.tuc-select:not(.has-value)`,
   `instance.isRange`, `instance.opts.time` and the `<table>`'s own `id`.
+- The CSS got almost 1 KB smaller (gzip) without the fallbacks Tailwind injected
+  for old browsers. Below Chrome 111, Safari 16.2 and Firefox 113 — Tailwind 4's
+  own baseline — soft backgrounds, focus rings and the off switch track, which
+  use `color-mix`, no longer show. And component font weights are fixed at 500
+  and 600 instead of reading your project's Tailwind theme.
 
 ### New
 

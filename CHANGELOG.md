@@ -40,6 +40,12 @@ projeto.
   seu projeto dependia delas, use `.tuc-select-native[multiple] + .tuc-select`,
   `.tuc-select:not(.has-value)`, `instancia.isRange`, `instancia.opts.time` e o
   `id` da própria `<table>`.
+- O CSS saiu quase 1 KB menor (gzip) sem os fallbacks que a Tailwind injetava
+  para navegadores antigos. Abaixo de Chrome 111, Safari 16.2 e Firefox 113 — a
+  base da própria Tailwind 4 —, fundos suaves, anéis de foco e o trilho da
+  chave desligada, que usam `color-mix`, deixam de aparecer. E os pesos de fonte
+  dos componentes ficam fixos em 500 e 600, sem ler o tema da Tailwind do seu
+  projeto.
 
 ### Novo
 

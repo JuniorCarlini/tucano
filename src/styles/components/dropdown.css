@@ -72,12 +72,12 @@
 .tuc-dropdown__text { @apply min-w-0 flex-1 truncate; }
 /* Atalho a direita, em numeros de largura fixa para as teclas alinharem. */
 .tuc-dropdown__shortcut {
-  @apply ml-auto shrink-0 pl-3 text-xs tabular-nums;
+  @apply ml-auto shrink-0 pl-3 text-xs; font-variant-numeric: tabular-nums;
   color: var(--tuc-subtle);
 }
 
 .tuc-dropdown__label {
-  @apply px-2.5 pb-1 pt-2 text-xs font-semibold uppercase tracking-wide;
+  @apply px-2.5 pb-1 pt-2 text-xs uppercase; font-weight: 600; letter-spacing: 0.025em;
   color: var(--tuc-subtle);
 }
 .tuc-dropdown__separator {

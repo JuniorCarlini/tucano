@@ -61,7 +61,7 @@
 }
 
 .tuc-select input.tuc-select__search {
-  @apply flex-1 shrink-0 border-0 bg-transparent p-0 outline-none;
+  @apply flex-1 shrink-0 bg-transparent p-0 outline-none; border-width: 0; border-style: solid;
   min-width: 4rem;
   color: var(--tuc-fg);
   text-overflow: ellipsis;
@@ -103,7 +103,7 @@
  * ------------------------------------------------------------------ */
 
 .tuc-select__tag {
-  @apply flex max-w-40 shrink-0 items-center gap-1  py-0.5 pl-2 pr-1 font-medium;
+  @apply flex max-w-40 shrink-0 items-center gap-1 py-0.5 pl-2 pr-1; font-weight: 500;
   border-radius: var(--tuc-radius-xs);
   font-size: 0.75rem;
   background: var(--tuc-accent-soft);
@@ -148,7 +148,7 @@
 .tuc-select__list::-webkit-scrollbar-thumb { background: var(--tuc-border); border-radius: 99px; }
 
 .tuc-select__group {
-  @apply px-2.5 pb-1 pt-2 text-[0.6875rem] font-semibold uppercase;
+  @apply px-2.5 pb-1 pt-2 text-[0.6875rem] uppercase; font-weight: 600;
   letter-spacing: 0.04em;
   color: var(--tuc-subtle);
 }
@@ -163,7 +163,7 @@
 /* Destaque do teclado e do mouse sao o mesmo estado, de proposito. */
 .tuc-select__option.is-active { background: var(--tuc-hover); }
 
-.tuc-select__option.is-selected { @apply font-semibold; }
+.tuc-select__option.is-selected { font-weight: 600; }
 .tuc-select__check { color: var(--tuc-accent-text); }
 
 .tuc-select__option.is-disabled {

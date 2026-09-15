@@ -9,7 +9,7 @@ montam sozinhos. Os exemplos usam Django; em PHP e Rails, campo múltiplo precis
 de `name` terminado em `[]`, e o upload direto precisa do cabeçalho de CSRF do
 framework (`data-csrf="false"` e a opção `headers` do `new Upload`).
 
-**38 KB de JS + 14 KB de CSS** (minificado + gzip).
+**38 KB de JS + 13 KB de CSS** (minificado + gzip).
 
 **[Documentação e exemplos ao vivo →](https://juniorcarlini.github.io/tucano/)**
 

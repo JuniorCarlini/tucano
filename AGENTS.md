@@ -91,6 +91,18 @@ anterior.
 
 Cada uma custou um bug real.
 
+**O CSS é compilado pelo `tools/css.mjs`, sem os fallbacks da Tailwind.** A CLI
+liga sempre os polyfills de `color-mix` e `@property`, para navegadores abaixo da
+base da própria Tailwind 4 (Chrome 111, Safari 16.2, Firefox 113), e não tem
+opção para desligar. Eles custavam quase 1 KB de gzip num CSS de 14 KB. O script
+chama a mesma API com `Polyfills.None`; com `Polyfills.All` a saída é idêntica à
+da CLI. Por isso, dentro de `@apply`, utilitário que registra variável própria
+não entra — `font-medium`, `font-semibold`, `tracking-wide`, `border-0`, `snap-y`,
+`scale-105`, `tabular-nums` — e vira declaração (`font-weight: 500;`). A seção 8 do
+`consistency.mjs` falha se `@property`, `@layer properties` ou o fallback de
+`color-mix` voltarem ao `dist`. Os pesos ficam fixos em vez de ler o tema da
+Tailwind do projeto, que antes vazava para dentro dos componentes.
+
 **O preflight do Tailwind não é enviado.** Só as classes dos componentes vão no
 `dist`. Enviar o preflight mudaria o CSS do projeto que instala. Em troca, os
 componentes precisam do próprio reset, em `src/styles/core/base.css`.

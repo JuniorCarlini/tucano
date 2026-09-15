@@ -226,11 +226,11 @@ input.tuc-switch.tuc-switch:disabled { @apply cursor-not-allowed opacity-50; }
  * layout, desfeitos aqui.
  */
 .tuc-choices.tuc-choices {
-  @apply m-0 flex min-w-0 flex-col gap-2.5 border-0 p-0;
+  @apply m-0 flex min-w-0 flex-col gap-2.5 p-0; border-width: 0; border-style: solid;
 }
 .tuc-choices.tuc-choices.is-inline { @apply flex-row flex-wrap gap-x-5; }
 .tuc-choices.tuc-choices > legend {
-  @apply mb-2 p-0 font-medium;
+  @apply mb-2 p-0; font-weight: 500;
   display: block;
   font-family: var(--tuc-font);
   font-size: var(--tuc-text);

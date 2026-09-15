@@ -1,5 +1,4 @@
 /*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
-@layer properties;
 :where([class^='tuc-'], [class*=' tuc-']) {
   box-sizing: border-box;
 }
@@ -104,30 +103,12 @@
   --tuc-cell: 2.25rem;
 }
 :root, :where([class^='tuc-'], [class*=' tuc-']) {
-  --tuc-accent-soft: var(--tuc-accent);
-  @supports (color: color-mix(in lab, red, red)) {
-    --tuc-accent-soft: color-mix(in oklab, var(--tuc-accent) 12%, transparent);
-  }
-  --tuc-accent-ring: var(--tuc-accent);
-  @supports (color: color-mix(in lab, red, red)) {
-    --tuc-accent-ring: color-mix(in oklab, var(--tuc-accent) 35%, transparent);
-  }
-  --tuc-success-soft: var(--tuc-success);
-  @supports (color: color-mix(in lab, red, red)) {
-    --tuc-success-soft: color-mix(in oklab, var(--tuc-success) 12%, transparent);
-  }
-  --tuc-warning-soft: var(--tuc-warning);
-  @supports (color: color-mix(in lab, red, red)) {
-    --tuc-warning-soft: color-mix(in oklab, var(--tuc-warning) 14%, transparent);
-  }
-  --tuc-danger-soft: var(--tuc-danger);
-  @supports (color: color-mix(in lab, red, red)) {
-    --tuc-danger-soft: color-mix(in oklab, var(--tuc-danger) 12%, transparent);
-  }
-  --tuc-info-soft: var(--tuc-info);
-  @supports (color: color-mix(in lab, red, red)) {
-    --tuc-info-soft: color-mix(in oklab, var(--tuc-info) 12%, transparent);
-  }
+  --tuc-accent-soft: color-mix(in oklab, var(--tuc-accent) 12%, transparent);
+  --tuc-accent-ring: color-mix(in oklab, var(--tuc-accent) 35%, transparent);
+  --tuc-success-soft: color-mix(in oklab, var(--tuc-success) 12%, transparent);
+  --tuc-warning-soft: color-mix(in oklab, var(--tuc-warning) 14%, transparent);
+  --tuc-danger-soft: color-mix(in oklab, var(--tuc-danger) 12%, transparent);
+  --tuc-info-soft: color-mix(in oklab, var(--tuc-info) 12%, transparent);
 }
 .dark, [data-theme='dark'] {
   --tuc-accent: #fafafa;
@@ -378,10 +359,7 @@ input.tuc-switch.tuc-switch {
   margin: 0;
   appearance: none;
   -webkit-appearance: none;
-  background: var(--tuc-border);
-  @supports (color: color-mix(in lab, red, red)) {
-    background: color-mix(in oklab, var(--tuc-border) 80%, var(--tuc-fg));
-  }
+  background: color-mix(in oklab, var(--tuc-border) 80%, var(--tuc-fg));
   border: 0;
   border-radius: 999px;
   transition: background var(--tuc-duration) var(--tuc-ease), box-shadow var(--tuc-duration) var(--tuc-ease);
@@ -408,10 +386,7 @@ input.tuc-check.tuc-check:hover:not(:checked):not(:indeterminate):not(:disabled)
   border-color: var(--tuc-subtle);
 }
 input.tuc-switch.tuc-switch:hover:not(:checked):not(:disabled) {
-  background: var(--tuc-border);
-  @supports (color: color-mix(in lab, red, red)) {
-    background: color-mix(in oklab, var(--tuc-border) 60%, var(--tuc-fg));
-  }
+  background: color-mix(in oklab, var(--tuc-border) 60%, var(--tuc-fg));
 }
 input.tuc-check.tuc-check:focus-visible, input.tuc-radio.tuc-radio:focus-visible, input.tuc-switch.tuc-switch:focus-visible {
   outline: 0;
@@ -468,9 +443,9 @@ input.tuc-check.tuc-check:disabled, input.tuc-radio.tuc-radio:disabled, input.tu
   min-width: 0px;
   flex-direction: column;
   gap: calc(var(--spacing, 0.25rem) * 2.5);
-  border-style: var(--tw-border-style);
-  border-width: 0px;
   padding: 0px;
+  border-width: 0;
+  border-style: solid;
 }
 .tuc-choices.tuc-choices.is-inline {
   flex-direction: row;
@@ -480,8 +455,7 @@ input.tuc-check.tuc-check:disabled, input.tuc-radio.tuc-radio:disabled, input.tu
 .tuc-choices.tuc-choices > legend {
   margin-bottom: calc(var(--spacing, 0.25rem) * 2);
   padding: 0px;
-  --tw-font-weight: var(--font-weight-medium, 500);
-  font-weight: var(--font-weight-medium, 500);
+  font-weight: 500;
   display: block;
   font-family: var(--tuc-font);
   font-size: var(--tuc-text);
@@ -547,10 +521,7 @@ input.tuc-input.tuc-input:is([aria-invalid='true'], .tuc-invalid, :user-invalid)
 }
 input.tuc-input.tuc-input:is([aria-invalid='true'], .tuc-invalid, :user-invalid):focus, textarea.tuc-input.tuc-input:is([aria-invalid='true'], :user-invalid):focus, select.tuc-input.tuc-input:is([aria-invalid='true'], :user-invalid):focus, select[aria-invalid='true'] + .tuc-select:is(:focus-within, .is-open), .tuc-color-field:has(> input[aria-invalid='true']):focus-within, .tuc-editor:has(> textarea[aria-invalid='true']):focus-within, .tuc-upload:has(> input[aria-invalid='true']) > .tuc-upload__zone:focus-visible {
   border-color: var(--tuc-danger);
-  box-shadow: 0 0 0 3px var(--tuc-danger);
-  @supports (color: color-mix(in lab, red, red)) {
-    box-shadow: 0 0 0 3px color-mix(in oklab, var(--tuc-danger) 22%, transparent);
-  }
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--tuc-danger) 22%, transparent);
 }
 input.tuc-check.tuc-check:is([aria-invalid='true'], :user-invalid):not(:checked), input.tuc-radio.tuc-radio:is([aria-invalid='true'], :user-invalid):not(:checked) {
   border-color: var(--tuc-danger);
@@ -563,10 +534,7 @@ input.tuc-input.tuc-input:is([data-tuc-valid], [data-validate]:not([data-tuc-mas
 }
 input.tuc-input.tuc-input:is([data-tuc-valid], [data-validate]:not([data-tuc-mask]):user-valid):not([aria-invalid='true']):focus, textarea.tuc-input.tuc-input:is([data-validate]:user-valid):not([aria-invalid='true']):focus, select.tuc-input.tuc-input:is([data-validate]:user-valid):not([aria-invalid='true']):focus {
   border-color: var(--tuc-success);
-  box-shadow: 0 0 0 3px var(--tuc-success);
-  @supports (color: color-mix(in lab, red, red)) {
-    box-shadow: 0 0 0 3px color-mix(in oklab, var(--tuc-success) 22%, transparent);
-  }
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--tuc-success) 22%, transparent);
 }
 .tuc-btn {
   display: inline-flex;
@@ -576,11 +544,10 @@ input.tuc-input.tuc-input:is([data-tuc-valid], [data-validate]:not([data-tuc-mas
   justify-content: center;
   gap: calc(var(--spacing, 0.25rem) * 1.5);
   padding-inline: calc(var(--spacing, 0.25rem) * 3);
-  --tw-font-weight: var(--font-weight-medium, 500);
-  font-weight: var(--font-weight-medium, 500);
   white-space: nowrap;
   -webkit-user-select: none;
   user-select: none;
+  font-weight: 500;
   --tuc-btn-icon: 0.9375rem;
   height: var(--tuc-control-height);
   font-family: var(--tuc-font);
@@ -663,10 +630,7 @@ input.tuc-input.tuc-input:is([data-tuc-valid], [data-validate]:not([data-tuc-mas
   box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
 }
 .tuc-btn.is-danger:hover {
-  background: var(--tuc-danger-fill);
-  @supports (color: color-mix(in lab, red, red)) {
-    background: color-mix(in oklab, var(--tuc-danger-fill) 85%, black);
-  }
+  background: color-mix(in oklab, var(--tuc-danger-fill) 85%, black);
 }
 .tuc-btn.is-link {
   height: auto;
@@ -763,10 +727,7 @@ input.tuc-input.tuc-input:is([data-tuc-valid], [data-validate]:not([data-tuc-mas
   width: 1em;
   height: 1em;
   vertical-align: -0.125em;
-  border: 2px solid currentColor;
-  @supports (color: color-mix(in lab, red, red)) {
-    border: 2px solid color-mix(in oklab, currentColor 22%, transparent);
-  }
+  border: 2px solid color-mix(in oklab, currentColor 22%, transparent);
   border-top-color: currentColor;
   animation: tuc-spin 700ms linear infinite;
 }
@@ -792,10 +753,7 @@ input.tuc-input.tuc-input:is([data-tuc-valid], [data-validate]:not([data-tuc-mas
   height: 1em;
   color: transparent;
   background-color: var(--tuc-hover);
-  background-image: linear-gradient( 90deg, transparent, var(--tuc-bg), transparent );
-  @supports (color: color-mix(in lab, red, red)) {
-    background-image: linear-gradient( 90deg, transparent, color-mix(in oklab, var(--tuc-bg) 65%, transparent), transparent );
-  }
+  background-image: linear-gradient( 90deg, transparent, color-mix(in oklab, var(--tuc-bg) 65%, transparent), transparent );
   background-repeat: no-repeat;
   background-size: 50% 100%;
   border-radius: var(--tuc-radius-xs);
@@ -835,14 +793,8 @@ input.tuc-input.tuc-input:is([data-tuc-valid], [data-validate]:not([data-tuc-mas
   font-size: var(--tuc-text);
   line-height: 1.25rem;
   color: var(--tuc-fg);
-  background: var(--tuc-alert-tone);
-  @supports (color: color-mix(in lab, red, red)) {
-    background: color-mix(in oklab, var(--tuc-alert-tone) 6%, var(--tuc-bg));
-  }
-  border: var(--tuc-border-width) solid var(--tuc-alert-tone);
-  @supports (color: color-mix(in lab, red, red)) {
-    border: var(--tuc-border-width) solid color-mix(in oklab, var(--tuc-alert-tone) 28%, var(--tuc-border));
-  }
+  background: color-mix(in oklab, var(--tuc-alert-tone) 6%, var(--tuc-bg));
+  border: var(--tuc-border-width) solid color-mix(in oklab, var(--tuc-alert-tone) 28%, var(--tuc-border));
   border-radius: var(--tuc-radius-md);
 }
 .tuc-alert.is-info {
@@ -971,10 +923,7 @@ input.tuc-input.tuc-input:is([data-tuc-valid], [data-validate]:not([data-tuc-mas
   width: var(--tuc-timeline-gutter);
   height: var(--tuc-timeline-gutter);
   color: var(--tuc-timeline-tone);
-  background: var(--tuc-timeline-tone);
-  @supports (color: color-mix(in lab, red, red)) {
-    background: color-mix(in oklab, var(--tuc-timeline-tone) 14%, var(--tuc-bg));
-  }
+  background: color-mix(in oklab, var(--tuc-timeline-tone) 14%, var(--tuc-bg));
 }
 .tuc-timeline__icon > svg {
   width: calc(var(--spacing, 0.25rem) * 3.5);
@@ -1085,16 +1034,14 @@ textarea.tuc-editor__value[hidden] {
   margin-bottom: calc(var(--spacing, 0.25rem) * 2);
   font-size: var(--text-lg, 1.125rem);
   line-height: var(--tw-leading, var(--text-lg--line-height, calc(1.75 / 1.125)));
-  --tw-font-weight: var(--font-weight-semibold, 600);
-  font-weight: var(--font-weight-semibold, 600);
+  font-weight: 600;
 }
 .tuc-editor__area h3, .tuc-prose h3 {
   margin-top: calc(var(--spacing, 0.25rem) * 3);
   margin-bottom: calc(var(--spacing, 0.25rem) * 1.5);
   font-size: var(--text-base, 1rem);
   line-height: var(--tw-leading, var(--text-base--line-height, calc(1.5 / 1)));
-  --tw-font-weight: var(--font-weight-semibold, 600);
-  font-weight: var(--font-weight-semibold, 600);
+  font-weight: 600;
 }
 .tuc-editor__area ul, .tuc-prose ul {
   margin-block: calc(var(--spacing, 0.25rem) * 2);
@@ -1301,9 +1248,8 @@ textarea.tuc-editor__value[hidden] {
 .tuc-dp .tuc-btn.tuc-dp__label {
   gap: var(--spacing, 0.25rem);
   padding-inline: calc(var(--spacing, 0.25rem) * 2);
-  --tw-font-weight: var(--font-weight-semibold, 600);
-  font-weight: var(--font-weight-semibold, 600);
   text-transform: capitalize;
+  font-weight: 600;
   font-size: 0.875rem;
   letter-spacing: -0.01em;
   color: var(--tuc-fg);
@@ -1338,10 +1284,9 @@ textarea.tuc-editor__value[hidden] {
   display: grid;
   height: calc(var(--spacing, 0.25rem) * 7);
   place-items: center;
-  --tw-font-weight: var(--font-weight-medium, 500);
-  font-weight: var(--font-weight-medium, 500);
   text-transform: uppercase;
   text-decoration-line: none;
+  font-weight: 500;
   font-size: 0.6875rem;
   letter-spacing: 0.04em;
   color: var(--tuc-subtle);
@@ -1354,8 +1299,7 @@ textarea.tuc-editor__value[hidden] {
   display: grid;
   place-items: center;
   font-size: 0.6875rem;
-  --tw-font-weight: var(--font-weight-medium, 500);
-  font-weight: var(--font-weight-medium, 500);
+  font-weight: 500;
   height: var(--tuc-cell);
   color: var(--tuc-subtle);
 }
@@ -1364,8 +1308,7 @@ textarea.tuc-editor__value[hidden] {
   display: grid;
   place-items: center;
   padding: 0px;
-  --tw-font-weight: var(--font-weight-medium, 500);
-  font-weight: var(--font-weight-medium, 500);
+  font-weight: 500;
   width: var(--tuc-cell);
   height: var(--tuc-cell);
   background: transparent;
@@ -1408,8 +1351,7 @@ textarea.tuc-editor__value[hidden] {
 .tuc-dp__day.is-selected .tuc-dp__daynum {
   background: var(--tuc-accent);
   color: var(--tuc-accent-fg);
-  --tw-font-weight: var(--font-weight-semibold, 600);
-  font-weight: var(--font-weight-semibold, 600);
+  font-weight: 600;
 }
 .tuc-dp__day.is-in-range {
   background: var(--tuc-accent-soft);
@@ -1424,16 +1366,10 @@ textarea.tuc-editor__value[hidden] {
   background: linear-gradient(to left, transparent 50%, var(--tuc-accent-soft) 50%);
 }
 .tuc-dp.is-picking {
-  --tuc-accent-soft: var(--tuc-accent);
-  @supports (color: color-mix(in lab, red, red)) {
-    --tuc-accent-soft: color-mix(in oklab, var(--tuc-accent) 7%, transparent);
-  }
+  --tuc-accent-soft: color-mix(in oklab, var(--tuc-accent) 7%, transparent);
 }
 .tuc-dp__day.is-preview .tuc-dp__daynum {
-  background: var(--tuc-accent);
-  @supports (color: color-mix(in lab, red, red)) {
-    background: color-mix(in oklab, var(--tuc-accent) 55%, transparent);
-  }
+  background: color-mix(in oklab, var(--tuc-accent) 55%, transparent);
   color: var(--tuc-accent-fg);
 }
 .tuc-dp__period {
@@ -1451,12 +1387,11 @@ textarea.tuc-editor__value[hidden] {
   display: grid;
   height: calc(var(--spacing, 0.25rem) * 11);
   place-items: center;
-  --tw-font-weight: var(--font-weight-medium, 500);
-  font-weight: var(--font-weight-medium, 500);
   text-transform: capitalize;
   transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
   transition-timing-function: var(--tw-ease, var(--default-transition-timing-function, cubic-bezier(0.4, 0, 0.2, 1)));
   transition-duration: var(--tw-duration, var(--default-transition-duration, 150ms));
+  font-weight: 500;
   border-radius: var(--tuc-radius-md);
 }
 .tuc-dp__periodcell:hover {
@@ -1464,14 +1399,12 @@ textarea.tuc-editor__value[hidden] {
 }
 .tuc-dp__periodcell.is-today {
   color: var(--tuc-accent-text);
-  --tw-font-weight: var(--font-weight-semibold, 600);
-  font-weight: var(--font-weight-semibold, 600);
+  font-weight: 600;
 }
 .tuc-dp__periodcell.is-selected {
   background: var(--tuc-accent);
   color: var(--tuc-accent-fg);
-  --tw-font-weight: var(--font-weight-semibold, 600);
-  font-weight: var(--font-weight-semibold, 600);
+  font-weight: 600;
 }
 .tuc-dp__time {
   margin-top: calc(var(--spacing, 0.25rem) * 2);
@@ -1505,14 +1438,12 @@ textarea.tuc-editor__value[hidden] {
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 0.6875rem;
-  --tw-font-weight: var(--font-weight-medium, 500);
-  font-weight: var(--font-weight-medium, 500);
   text-transform: uppercase;
+  font-weight: 500;
   letter-spacing: 0.04em;
 }
 .tuc-dp__timevalue {
-  --tw-font-weight: var(--font-weight-semibold, 600);
-  font-weight: var(--font-weight-semibold, 600);
+  font-weight: 600;
   color: var(--tuc-fg);
 }
 .tuc-dp__timecols {
@@ -1528,11 +1459,11 @@ textarea.tuc-editor__value[hidden] {
 .tuc-dp__timelist {
   display: flex;
   flex: 1;
-  scroll-snap-type: y var(--tw-scroll-snap-strictness);
   flex-direction: column;
   gap: 1px;
   overflow-y: auto;
   overscroll-behavior: contain;
+  scroll-snap-type: y proximity;
   border-radius: var(--tuc-radius-sm);
   min-width: 2.75rem;
   max-height: 8.5rem;
@@ -1554,11 +1485,10 @@ textarea.tuc-editor__value[hidden] {
   scroll-snap-align: center;
   padding-block: calc(var(--spacing, 0.25rem) * 1.5);
   text-align: center;
-  --tw-font-weight: var(--font-weight-medium, 500);
-  font-weight: var(--font-weight-medium, 500);
   transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
   transition-timing-function: var(--tw-ease, var(--default-transition-timing-function, cubic-bezier(0.4, 0, 0.2, 1)));
   transition-duration: var(--tw-duration, var(--default-transition-duration, 150ms));
+  font-weight: 500;
   border-radius: var(--tuc-radius-xs);
   color: var(--tuc-fg);
 }
@@ -1572,8 +1502,7 @@ textarea.tuc-editor__value[hidden] {
 .tuc-dp__timeitem.is-selected {
   background: var(--tuc-accent);
   color: var(--tuc-accent-fg);
-  --tw-font-weight: var(--font-weight-semibold, 600);
-  font-weight: var(--font-weight-semibold, 600);
+  font-weight: 600;
 }
 .tuc-dp__presets {
   display: flex;
@@ -1587,8 +1516,7 @@ textarea.tuc-editor__value[hidden] {
 }
 .tuc-dp .tuc-btn.tuc-dp__preset {
   justify-content: flex-start;
-  --tw-font-weight: var(--font-weight-medium, 500);
-  font-weight: var(--font-weight-medium, 500);
+  font-weight: 500;
 }
 .tuc-dp__preset > span {
   min-width: 0px;
@@ -1597,8 +1525,7 @@ textarea.tuc-editor__value[hidden] {
   white-space: nowrap;
 }
 .tuc-dp .tuc-btn.tuc-dp__preset.is-selected, .tuc-dp .tuc-btn.tuc-dp__preset.is-selected:hover {
-  --tw-font-weight: var(--font-weight-semibold, 600);
-  font-weight: var(--font-weight-semibold, 600);
+  font-weight: 600;
   background: var(--tuc-accent-soft);
   color: var(--tuc-accent-text);
 }
@@ -1685,10 +1612,10 @@ textarea.tuc-editor__value[hidden] {
   margin: 0px;
   width: 100%;
   cursor: pointer;
-  border-style: var(--tw-border-style);
-  border-width: 0px;
   padding: 0px;
   opacity: 0%;
+  border-width: 0;
+  border-style: solid;
   -webkit-appearance: none;
   appearance: none;
   background: transparent;
@@ -1784,12 +1711,12 @@ textarea.tuc-editor__value[hidden] {
 .tuc-select input.tuc-select__search {
   flex: 1;
   flex-shrink: 0;
-  border-style: var(--tw-border-style);
-  border-width: 0px;
   background-color: transparent;
   padding: 0px;
   --tw-outline-style: none;
   outline-style: none;
+  border-width: 0;
+  border-style: solid;
   min-width: 4rem;
   color: var(--tuc-fg);
   text-overflow: ellipsis;
@@ -1828,8 +1755,7 @@ textarea.tuc-editor__value[hidden] {
   padding-block: calc(var(--spacing, 0.25rem) * 0.5);
   padding-right: var(--spacing, 0.25rem);
   padding-left: calc(var(--spacing, 0.25rem) * 2);
-  --tw-font-weight: var(--font-weight-medium, 500);
-  font-weight: var(--font-weight-medium, 500);
+  font-weight: 500;
   border-radius: var(--tuc-radius-xs);
   font-size: 0.75rem;
   background: var(--tuc-accent-soft);
@@ -1854,10 +1780,7 @@ textarea.tuc-editor__value[hidden] {
 }
 .tuc-select__tagx:hover {
   opacity: 1;
-  background: var(--tuc-accent);
-  @supports (color: color-mix(in lab, red, red)) {
-    background: color-mix(in oklab, var(--tuc-accent) 18%, transparent);
-  }
+  background: color-mix(in oklab, var(--tuc-accent) 18%, transparent);
 }
 .tuc-select__menu {
   z-index: 50;
@@ -1892,9 +1815,8 @@ textarea.tuc-editor__value[hidden] {
   padding-top: calc(var(--spacing, 0.25rem) * 2);
   padding-bottom: var(--spacing, 0.25rem);
   font-size: 0.6875rem;
-  --tw-font-weight: var(--font-weight-semibold, 600);
-  font-weight: var(--font-weight-semibold, 600);
   text-transform: uppercase;
+  font-weight: 600;
   letter-spacing: 0.04em;
   color: var(--tuc-subtle);
 }
@@ -1918,8 +1840,7 @@ textarea.tuc-editor__value[hidden] {
   background: var(--tuc-hover);
 }
 .tuc-select__option.is-selected {
-  --tw-font-weight: var(--font-weight-semibold, 600);
-  font-weight: var(--font-weight-semibold, 600);
+  font-weight: 600;
 }
 .tuc-select__check {
   color: var(--tuc-accent-text);
@@ -2018,10 +1939,7 @@ textarea.tuc-editor__value[hidden] {
   background: var(--color, transparent);
 }
 .tuc-color-field__swatch:hover {
-  --tw-scale-x: 105%;
-  --tw-scale-y: 105%;
-  --tw-scale-z: 105%;
-  scale: var(--tw-scale-x) var(--tw-scale-y);
+  scale: 1.05;
 }
 .tuc-color-field__swatch:focus-visible {
   outline: 2px solid var(--tuc-accent);
@@ -2137,8 +2055,7 @@ textarea.tuc-editor__value[hidden] {
   min-width: 0px;
   flex: 1;
   padding-inline: calc(var(--spacing, 0.25rem) * 2.5);
-  --tw-font-weight: var(--font-weight-medium, 500);
-  font-weight: var(--font-weight-medium, 500);
+  font-weight: 500;
   height: var(--tuc-swatch);
   border-radius: var(--tuc-radius-sm);
 }
@@ -2164,10 +2081,7 @@ textarea.tuc-editor__value[hidden] {
   transition: transform 120ms var(--tuc-ease), box-shadow 120ms var(--tuc-ease);
 }
 .tuc-colorpicker__swatchbtn:hover {
-  --tw-scale-x: 110%;
-  --tw-scale-y: 110%;
-  --tw-scale-z: 110%;
-  scale: var(--tw-scale-x) var(--tw-scale-y);
+  scale: 1.1;
 }
 .tuc-colorpicker__swatchbtn.is-selected {
   box-shadow: inset 0 0 0 1px var(--tuc-ring), 0 0 0 2px var(--tuc-bg), 0 0 0 4px var(--tuc-accent);
@@ -2253,8 +2167,7 @@ textarea.tuc-editor__value[hidden] {
   color: var(--tuc-subtle);
 }
 .tuc-upload__label {
-  --tw-font-weight: var(--font-weight-medium, 500);
-  font-weight: var(--font-weight-medium, 500);
+  font-weight: 500;
 }
 .tuc-upload__hint {
   font-size: 0.6875rem;
@@ -2306,8 +2219,7 @@ textarea.tuc-editor__value[hidden] {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  --tw-font-weight: var(--font-weight-medium, 500);
-  font-weight: var(--font-weight-medium, 500);
+  font-weight: 500;
 }
 .tuc-upload__meta {
   overflow: hidden;
@@ -2540,8 +2452,7 @@ textarea.tuc-editor__value[hidden] {
   display: none;
 }
 .tuc-toast__title {
-  --tw-font-weight: var(--font-weight-semibold, 600);
-  font-weight: var(--font-weight-semibold, 600);
+  font-weight: 600;
   font-size: 0.875rem;
   line-height: 1.35;
 }
@@ -2671,10 +2582,9 @@ textarea.tuc-editor__value[hidden] {
   gap: calc(var(--spacing, 0.25rem) * 3);
   padding-block: calc(var(--spacing, 0.25rem) * 3);
   text-align: left;
-  --tw-font-weight: var(--font-weight-medium, 500);
-  font-weight: var(--font-weight-medium, 500);
   -webkit-user-select: none;
   user-select: none;
+  font-weight: 500;
   border-radius: var(--tuc-radius-sm);
   transition: color var(--tuc-duration) ease-out;
   list-style: none;
@@ -2730,11 +2640,9 @@ textarea.tuc-editor__value[hidden] {
   padding-inline: calc(var(--spacing, 0.25rem) * 2);
   font-size: var(--text-xs, 0.75rem);
   line-height: var(--tw-leading, var(--text-xs--line-height, calc(1 / 0.75)));
-  --tw-font-weight: var(--font-weight-semibold, 600);
-  font-weight: var(--font-weight-semibold, 600);
-  --tw-tracking: var(--tracking-wide, 0.025em);
-  letter-spacing: var(--tracking-wide, 0.025em);
   text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.025em;
   color: var(--tuc-muted);
 }
 @media (prefers-reduced-motion: reduce) {
@@ -2768,11 +2676,10 @@ textarea.tuc-editor__value[hidden] {
   align-items: center;
   gap: calc(var(--spacing, 0.25rem) * 1.5);
   padding-inline: calc(var(--spacing, 0.25rem) * 3);
-  --tw-font-weight: var(--font-weight-medium, 500);
-  font-weight: var(--font-weight-medium, 500);
   white-space: nowrap;
   -webkit-user-select: none;
   user-select: none;
+  font-weight: 500;
   height: var(--tuc-control-height);
   color: var(--tuc-muted);
   border-radius: var(--tuc-radius-sm) var(--tuc-radius-sm) 0 0;
@@ -2898,8 +2805,7 @@ textarea.tuc-editor__value[hidden] {
 .tuc-menu__count {
   margin-left: auto;
   flex-shrink: 0;
-  --tw-numeric-spacing: tabular-nums;
-  font-variant-numeric: var(--tw-ordinal,) var(--tw-slashed-zero,) var(--tw-numeric-figure,) var(--tw-numeric-spacing,) var(--tw-numeric-fraction,);
+  font-variant-numeric: tabular-nums;
 }
 .tuc-menu__separator {
   margin-block: calc(var(--spacing, 0.25rem) * 1.5);
@@ -2960,11 +2866,9 @@ textarea.tuc-editor__value[hidden] {
   padding-bottom: var(--spacing, 0.25rem);
   font-size: var(--text-xs, 0.75rem);
   line-height: var(--tw-leading, var(--text-xs--line-height, calc(1 / 0.75)));
-  --tw-font-weight: var(--font-weight-semibold, 600);
-  font-weight: var(--font-weight-semibold, 600);
-  --tw-tracking: var(--tracking-wide, 0.025em);
-  letter-spacing: var(--tracking-wide, 0.025em);
   text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.025em;
   color: var(--tuc-subtle);
 }
 .tuc-dropdown {
@@ -3060,8 +2964,7 @@ textarea.tuc-editor__value[hidden] {
   padding-left: calc(var(--spacing, 0.25rem) * 3);
   font-size: var(--text-xs, 0.75rem);
   line-height: var(--tw-leading, var(--text-xs--line-height, calc(1 / 0.75)));
-  --tw-numeric-spacing: tabular-nums;
-  font-variant-numeric: var(--tw-ordinal,) var(--tw-slashed-zero,) var(--tw-numeric-figure,) var(--tw-numeric-spacing,) var(--tw-numeric-fraction,);
+  font-variant-numeric: tabular-nums;
   color: var(--tuc-subtle);
 }
 .tuc-dropdown__label {
@@ -3070,11 +2973,9 @@ textarea.tuc-editor__value[hidden] {
   padding-bottom: var(--spacing, 0.25rem);
   font-size: var(--text-xs, 0.75rem);
   line-height: var(--tw-leading, var(--text-xs--line-height, calc(1 / 0.75)));
-  --tw-font-weight: var(--font-weight-semibold, 600);
-  font-weight: var(--font-weight-semibold, 600);
-  --tw-tracking: var(--tracking-wide, 0.025em);
-  letter-spacing: var(--tracking-wide, 0.025em);
   text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.025em;
   color: var(--tuc-subtle);
 }
 .tuc-dropdown__separator {
@@ -3111,8 +3012,7 @@ textarea.tuc-editor__value[hidden] {
 .tuc-table thead th, table[data-tuc-table]:not([data-tuc-ready]) thead th {
   font-size: var(--text-xs, 0.75rem);
   line-height: var(--tw-leading, var(--text-xs--line-height, calc(1 / 0.75)));
-  --tw-font-weight: var(--font-weight-medium, 500);
-  font-weight: var(--font-weight-medium, 500);
+  font-weight: 500;
   line-height: 1.5rem;
   color: var(--tuc-muted);
   background: var(--tuc-elevated);
@@ -3169,12 +3069,12 @@ textarea.tuc-editor__value[hidden] {
   cursor: pointer;
   align-items: center;
   gap: var(--spacing, 0.25rem);
-  border-style: var(--tw-border-style);
-  border-width: 0px;
   background-color: transparent;
   padding: 0px;
   text-align: left;
   text-decoration-line: none;
+  border-width: 0;
+  border-style: solid;
   font: inherit;
   color: inherit;
   border-radius: var(--tuc-radius-xs);
@@ -3340,10 +3240,7 @@ textarea.tuc-editor__value[hidden] {
   font-family: var(--tuc-font);
   color: var(--tuc-fg);
   overflow: visible;
-  --tuc-modal-glow: var(--tuc-accent);
-  @supports (color: color-mix(in lab, red, red)) {
-    --tuc-modal-glow: color-mix(in srgb, var(--tuc-accent) 45%, transparent);
-  }
+  --tuc-modal-glow: color-mix(in srgb, var(--tuc-accent) 45%, transparent);
 }
 .tuc-modal:not([open]), .tuc-drawer:not([open]) {
   display: none;
@@ -3359,10 +3256,7 @@ html[data-tuc-gutter]:has(> body dialog.tuc-modal[open]) > body, html[data-tuc-g
   --tuc-glow-y: 42%;
   --tuc-glow-w: 80rem;
   --tuc-glow-h: 58rem;
-  --tuc-glow-color: var(--tuc-accent);
-  @supports (color: color-mix(in lab, red, red)) {
-    --tuc-glow-color: color-mix(in oklab, var(--tuc-accent) 24%, transparent);
-  }
+  --tuc-glow-color: color-mix(in oklab, var(--tuc-accent) 24%, transparent);
   opacity: 0;
   background: radial-gradient( var(--tuc-glow-w) var(--tuc-glow-h) at var(--tuc-glow-x) var(--tuc-glow-y), var(--tuc-glow-color), transparent 78% ), rgb(9 9 11 / 0.55);
   backdrop-filter: blur(3px);
@@ -3375,40 +3269,22 @@ html[data-tuc-gutter]:has(> body dialog.tuc-modal[open]) > body, html[data-tuc-g
   opacity: 0;
 }
 .tuc-modal.is-danger::backdrop, .tuc-drawer.is-danger::backdrop {
-  --tuc-glow-color: var(--tuc-danger-fill);
-  @supports (color: color-mix(in lab, red, red)) {
-    --tuc-glow-color: color-mix(in oklab, var(--tuc-danger-fill) 22%, transparent);
-  }
+  --tuc-glow-color: color-mix(in oklab, var(--tuc-danger-fill) 22%, transparent);
 }
 .tuc-modal.is-success::backdrop, .tuc-drawer.is-success::backdrop {
-  --tuc-glow-color: var(--tuc-success);
-  @supports (color: color-mix(in lab, red, red)) {
-    --tuc-glow-color: color-mix(in oklab, var(--tuc-success) 22%, transparent);
-  }
+  --tuc-glow-color: color-mix(in oklab, var(--tuc-success) 22%, transparent);
 }
 .tuc-modal.is-warning::backdrop, .tuc-drawer.is-warning::backdrop {
-  --tuc-glow-color: var(--tuc-warning);
-  @supports (color: color-mix(in lab, red, red)) {
-    --tuc-glow-color: color-mix(in oklab, var(--tuc-warning) 22%, transparent);
-  }
+  --tuc-glow-color: color-mix(in oklab, var(--tuc-warning) 22%, transparent);
 }
 .tuc-modal.is-danger, .tuc-drawer.is-danger {
-  --tuc-modal-glow: var(--tuc-danger-fill);
-  @supports (color: color-mix(in lab, red, red)) {
-    --tuc-modal-glow: color-mix(in oklab, var(--tuc-danger-fill) 45%, transparent);
-  }
+  --tuc-modal-glow: color-mix(in oklab, var(--tuc-danger-fill) 45%, transparent);
 }
 .tuc-modal.is-success, .tuc-drawer.is-success {
-  --tuc-modal-glow: var(--tuc-success);
-  @supports (color: color-mix(in lab, red, red)) {
-    --tuc-modal-glow: color-mix(in oklab, var(--tuc-success) 45%, transparent);
-  }
+  --tuc-modal-glow: color-mix(in oklab, var(--tuc-success) 45%, transparent);
 }
 .tuc-modal.is-warning, .tuc-drawer.is-warning {
-  --tuc-modal-glow: var(--tuc-warning);
-  @supports (color: color-mix(in lab, red, red)) {
-    --tuc-modal-glow: color-mix(in oklab, var(--tuc-warning) 45%, transparent);
-  }
+  --tuc-modal-glow: color-mix(in oklab, var(--tuc-warning) 45%, transparent);
 }
 .tuc-modal__panel, .tuc-drawer__panel {
   display: flex;
@@ -3434,8 +3310,7 @@ html[data-tuc-gutter]:has(> body dialog.tuc-modal[open]) > body, html[data-tuc-g
 }
 .tuc-modal__title, .tuc-drawer__title {
   margin: 0px;
-  --tw-font-weight: var(--font-weight-semibold, 600);
-  font-weight: var(--font-weight-semibold, 600);
+  font-weight: 600;
   font-size: 1.0625rem;
   line-height: 1.3;
 }
@@ -3642,76 +3517,5 @@ html[data-tuc-gutter]:has(> body dialog.tuc-modal[open]) > body, html[data-tuc-g
   .tuc-drawer .tuc-drawer__panel, .tuc-drawer::backdrop {
     transition-duration: 100ms;
     translate: none;
-  }
-}
-@property --tw-border-style {
-  syntax: "*";
-  inherits: false;
-  initial-value: solid;
-}
-@property --tw-font-weight {
-  syntax: "*";
-  inherits: false;
-}
-@property --tw-scroll-snap-strictness {
-  syntax: "*";
-  inherits: false;
-  initial-value: proximity;
-}
-@property --tw-scale-x {
-  syntax: "*";
-  inherits: false;
-  initial-value: 1;
-}
-@property --tw-scale-y {
-  syntax: "*";
-  inherits: false;
-  initial-value: 1;
-}
-@property --tw-scale-z {
-  syntax: "*";
-  inherits: false;
-  initial-value: 1;
-}
-@property --tw-tracking {
-  syntax: "*";
-  inherits: false;
-}
-@property --tw-ordinal {
-  syntax: "*";
-  inherits: false;
-}
-@property --tw-slashed-zero {
-  syntax: "*";
-  inherits: false;
-}
-@property --tw-numeric-figure {
-  syntax: "*";
-  inherits: false;
-}
-@property --tw-numeric-spacing {
-  syntax: "*";
-  inherits: false;
-}
-@property --tw-numeric-fraction {
-  syntax: "*";
-  inherits: false;
-}
-@layer properties {
-  @supports ((-webkit-hyphens: none) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color:rgb(from red r g b)))) {
-    *, ::before, ::after, ::backdrop {
-      --tw-border-style: solid;
-      --tw-font-weight: initial;
-      --tw-scroll-snap-strictness: proximity;
-      --tw-scale-x: 1;
-      --tw-scale-y: 1;
-      --tw-scale-z: 1;
-      --tw-tracking: initial;
-      --tw-ordinal: initial;
-      --tw-slashed-zero: initial;
-      --tw-numeric-figure: initial;
-      --tw-numeric-spacing: initial;
-      --tw-numeric-fraction: initial;
-    }
   }
 }

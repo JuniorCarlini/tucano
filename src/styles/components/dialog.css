@@ -138,7 +138,7 @@ html[data-tuc-gutter]:has(> body dialog.tuc-drawer[open]) > body {
 .tuc-modal__top, .tuc-drawer__top { @apply flex items-start justify-between gap-4; }
 .tuc-modal__header, .tuc-drawer__header { @apply flex min-w-0 flex-col gap-1.5; }
 .tuc-modal__title, .tuc-drawer__title {
-  @apply m-0 font-semibold;
+  @apply m-0; font-weight: 600;
   font-size: 1.0625rem;
   line-height: 1.3;
 }

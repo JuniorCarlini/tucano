@@ -53,7 +53,7 @@
 /* O rotulo e um botao que se le como titulo: texto forte e capitalizado.
    `.tuc-dp` na frente para vencer a cor e a fonte do is-ghost e do is-sm. */
 .tuc-dp .tuc-btn.tuc-dp__label {
-  @apply gap-1 px-2 font-semibold capitalize;
+  @apply gap-1 px-2 capitalize; font-weight: 600;
   font-size: 0.875rem;
   letter-spacing: -0.01em;
   color: var(--tuc-fg);
@@ -91,7 +91,7 @@
 }
 
 .tuc-dp__weekday {
-  @apply grid h-7 place-items-center font-medium uppercase no-underline;
+  @apply grid h-7 place-items-center uppercase no-underline; font-weight: 500;
   font-size: 0.6875rem;
   letter-spacing: 0.04em;
   color: var(--tuc-subtle);
@@ -105,14 +105,14 @@
 
 .tuc-dp__weeknum,
 .tuc-dp__weeknum-head {
-  @apply grid place-items-center text-[0.6875rem] font-medium;
+  @apply grid place-items-center text-[0.6875rem]; font-weight: 500;
   height: var(--tuc-cell);
   color: var(--tuc-subtle);
 }
 
 .tuc-dp__day {
   /* Camada da faixa: sem raio e sem gap lateral, para o intervalo ficar continuo. */
-  @apply relative grid place-items-center p-0 font-medium;
+  @apply relative grid place-items-center p-0; font-weight: 500;
   width: var(--tuc-cell);
   height: var(--tuc-cell);
   background: transparent;
@@ -154,7 +154,7 @@
 .tuc-dp__day.is-selected .tuc-dp__daynum {
   background: var(--tuc-accent);
   color: var(--tuc-accent-fg);
-  @apply font-semibold;
+  font-weight: 600;
 }
 
 /* A faixa vive no botao; nas pontas ela cobre so a metade virada para dentro. */
@@ -189,15 +189,15 @@
 }
 
 .tuc-dp__periodcell {
-  @apply grid h-11 place-items-center font-medium capitalize transition-colors;
+  @apply grid h-11 place-items-center capitalize transition-colors; font-weight: 500;
   border-radius: var(--tuc-radius-md);
 }
 .tuc-dp__periodcell:hover { background: var(--tuc-hover); }
-.tuc-dp__periodcell.is-today { color: var(--tuc-accent-text); @apply font-semibold; }
+.tuc-dp__periodcell.is-today { color: var(--tuc-accent-text); font-weight: 600; }
 .tuc-dp__periodcell.is-selected {
   background: var(--tuc-accent);
   color: var(--tuc-accent-fg);
-  @apply font-semibold;
+  font-weight: 600;
 }
 
 /* ------------------------------------------------------------------ *
@@ -220,12 +220,12 @@
 }
 
 .tuc-dp__timelabel {
-  @apply flex-1 truncate text-[0.6875rem] font-medium uppercase;
+  @apply flex-1 truncate text-[0.6875rem] uppercase; font-weight: 500;
   letter-spacing: 0.04em;
 }
 
 .tuc-dp__timevalue {
-  @apply font-semibold;
+  font-weight: 600;
   color: var(--tuc-fg);
 }
 
@@ -238,7 +238,7 @@
 }
 
 .tuc-dp__timelist {
-  @apply flex flex-1 snap-y flex-col gap-px overflow-y-auto overscroll-contain ;
+  @apply flex flex-1 flex-col gap-px overflow-y-auto overscroll-contain; scroll-snap-type: y proximity;
   border-radius: var(--tuc-radius-sm);
   min-width: 2.75rem;
   max-height: 8.5rem;
@@ -253,7 +253,7 @@
 .tuc-dp__timelist::-webkit-scrollbar-track { background: transparent; }
 
 .tuc-dp__timeitem {
-  @apply shrink-0 snap-center  py-1.5 text-center font-medium transition-colors;
+  @apply shrink-0 snap-center py-1.5 text-center transition-colors; font-weight: 500;
   border-radius: var(--tuc-radius-xs);
   color: var(--tuc-fg);
 }
@@ -262,7 +262,7 @@
 .tuc-dp__timeitem.is-selected {
   background: var(--tuc-accent);
   color: var(--tuc-accent-fg);
-  @apply font-semibold;
+  font-weight: 600;
 }
 
 /* ------------------------------------------------------------------ *
@@ -276,12 +276,12 @@
 }
 
 /* Atalho e .tuc-btn is-ghost is-sm; daqui, o alinhamento de lista e o estado. */
-.tuc-dp .tuc-btn.tuc-dp__preset { @apply justify-start font-medium; }
+.tuc-dp .tuc-btn.tuc-dp__preset { @apply justify-start; font-weight: 500; }
 /* O texto vai num span: com texto solto no inline-flex a reticencia nao aparece. */
 .tuc-dp__preset > span { @apply min-w-0 truncate; }
 .tuc-dp .tuc-btn.tuc-dp__preset.is-selected,
 .tuc-dp .tuc-btn.tuc-dp__preset.is-selected:hover {
-  @apply font-semibold;
+  font-weight: 600;
   background: var(--tuc-accent-soft);
   color: var(--tuc-accent-text);
 }
@@ -368,7 +368,7 @@
 }
 
 .tuc-native {
-  @apply absolute inset-0 z-10 m-0 w-full cursor-pointer border-0 p-0 opacity-0;
+  @apply absolute inset-0 z-10 m-0 w-full cursor-pointer p-0 opacity-0; border-width: 0; border-style: solid;
   -webkit-appearance: none;
   appearance: none;
   background: transparent;

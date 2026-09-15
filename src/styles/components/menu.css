@@ -60,7 +60,7 @@
 
 /* Contador a direita: e a .tuc-badge is-plain, a mesma das abas. Daqui so o
    empurrao para a borda. */
-.tuc-menu__count { @apply ml-auto shrink-0 tabular-nums; }
+.tuc-menu__count { @apply ml-auto shrink-0; font-variant-numeric: tabular-nums; }
 
 .tuc-menu__separator {
   @apply my-1.5;
@@ -137,6 +137,6 @@
 
 /* Rotulo de secao, entre blocos do menu. */
 .tuc-menu__section {
-  @apply px-2.5 pb-1 pt-3 text-xs font-semibold uppercase tracking-wide;
+  @apply px-2.5 pb-1 pt-3 text-xs uppercase; font-weight: 600; letter-spacing: 0.025em;
   color: var(--tuc-subtle);
 }

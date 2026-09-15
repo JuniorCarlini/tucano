@@ -369,5 +369,29 @@ const htmlWithoutCode = html.replace(/<pre[\s\S]*?<\/pre>/g, '').replace(/<code>
   else ok(`changelog: ${pt.length} versões iguais em português, inglês e espanhol`);
 }
 
+/*
+ * 8. Fallback da Tailwind de volta no CSS do pacote.
+ *
+ * O tools/css.mjs compila sem os polyfills de color-mix e @property, e os
+ * utilitarios que registram variavel propria sao escritos como declaracao. Um
+ * @apply novo com font-medium ou scale-105 traria o @property de volta sem que
+ * ninguem notasse, e o CSS voltaria a crescer.
+ */
+{
+  const found = [];
+  for (const file of ['dist/tucano.css', 'dist/tucano.min.css']) {
+    const css = readFileSync(file, 'utf8');
+    for (const [label, pattern] of [
+      ['@property', /@property\s/],
+      ['@layer properties', /@layer properties/],
+      ['fallback de color-mix', /color-mix\(in lab,\s*red,\s*red\)/],
+    ]) {
+      if (pattern.test(css)) found.push(`${file}: ${label}`);
+    }
+  }
+  if (found.length) fail(`fallback da Tailwind no CSS do pacote: ${found.join(' · ')}`);
+  else ok('CSS do pacote sem fallback de color-mix nem @property');
+}
+
 console.log(failures ? `\n${failures} incoerência(s)` : '\ntudo coerente');
 process.exit(failures ? 1 : 0);

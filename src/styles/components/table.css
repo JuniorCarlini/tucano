@@ -39,7 +39,7 @@ table[data-tuc-table]:not([data-tuc-ready]) td {
 
 .tuc-table thead th,
 table[data-tuc-table]:not([data-tuc-ready]) thead th {
-  @apply text-xs font-medium;
+  @apply text-xs; font-weight: 500;
   /* text-xs traz a propria altura de linha; a fixa vem depois para valer. */
   line-height: 1.5rem;
   color: var(--tuc-muted);
@@ -86,7 +86,7 @@ table[data-tuc-table]:not([data-tuc-ready]) tbody tr:last-child > * { border-bot
 
 /* Serve para <a> e para <button>: no servidor e link, no cliente e botao. */
 .tuc-table__sortbtn {
-  @apply inline-flex cursor-pointer items-center gap-1 border-0 bg-transparent p-0 text-left no-underline;
+  @apply inline-flex cursor-pointer items-center gap-1 bg-transparent p-0 text-left no-underline; border-width: 0; border-style: solid;
   font: inherit;
   color: inherit;
   border-radius: var(--tuc-radius-xs);

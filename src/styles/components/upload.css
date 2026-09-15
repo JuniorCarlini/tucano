@@ -41,7 +41,7 @@
 .tuc-upload.is-dragging .tuc-upload__icon { color: var(--tuc-accent-text); }
 
 .tuc-upload__icon { color: var(--tuc-subtle); }
-.tuc-upload__label { @apply font-medium; }
+.tuc-upload__label { font-weight: 500; }
 .tuc-upload__hint {
   @apply text-[0.6875rem];
   color: var(--tuc-subtle);
@@ -72,7 +72,7 @@
 }
 
 .tuc-upload__info { @apply flex min-w-0 flex-1 flex-col gap-0.5; }
-.tuc-upload__name { @apply truncate font-medium; }
+.tuc-upload__name { @apply truncate; font-weight: 500; }
 .tuc-upload__meta {
   @apply truncate text-[0.6875rem];
   color: var(--tuc-muted);

@@ -13,7 +13,7 @@
 .tuc-accordion__item:last-child { border-bottom: 0; }
 
 .tuc-accordion__trigger {
-  @apply flex w-full cursor-pointer select-none items-center justify-between gap-3 py-3 text-left font-medium;
+  @apply flex w-full cursor-pointer select-none items-center justify-between gap-3 py-3 text-left; font-weight: 500;
   border-radius: var(--tuc-radius-sm);
   transition: color var(--tuc-duration) ease-out;
   /* A seta do <details> nativo sai: a nossa gira, e duas seriam ruido. */
@@ -69,7 +69,7 @@
 /* Variante sem divisórias, para menu lateral. */
 .tuc-accordion.is-plain .tuc-accordion__item { border-bottom: 0; }
 .tuc-accordion.is-plain .tuc-accordion__trigger {
-  @apply px-2 text-xs font-semibold uppercase tracking-wide;
+  @apply px-2 text-xs uppercase; font-weight: 600; letter-spacing: 0.025em;
   color: var(--tuc-muted);
 }
 

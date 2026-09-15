@@ -12,7 +12,7 @@
  */
 
 .tuc-btn {
-  @apply inline-flex shrink-0 cursor-pointer select-none items-center justify-center gap-1.5 whitespace-nowrap px-3 font-medium;
+  @apply inline-flex shrink-0 cursor-pointer select-none items-center justify-center gap-1.5 whitespace-nowrap px-3; font-weight: 500;
   /* O icone acompanha o botao, em vez de ser decidido em cada chamada. */
   --tuc-btn-icon: 0.9375rem;
   height: var(--tuc-control-height);
