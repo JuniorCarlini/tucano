@@ -86,6 +86,15 @@ const DEFAULT_UI = {
   apiOption: 'Opção',
   apiDefault: 'Padrão',
   apiWhat: 'Para quê',
+  search: 'Buscar',
+  searchDialog: 'Buscar na documentação',
+  searchPlaceholder: 'Buscar componente, opção ou assunto',
+  searchResults: 'Resultados da busca',
+  searchLoading: 'Carregando o índice...',
+  searchError: 'Não foi possível carregar a busca.',
+  searchEmpty: 'Nenhum resultado para “{q}”.',
+  searchCount: '{n} resultado(s).',
+  searchHint: '↑ ↓ para navegar · Enter abre · Esc fecha',
 };
 
 const dictionaries = new Map(LANGUAGES.map((l) => {
@@ -293,6 +302,171 @@ function languageSwitch(slug, lang, root, id) {
     + `<div class="tuc-dropdown" id="${id}" hidden>${menuItems}</div>`;
 }
 
+/* ---- ancoras e indice da busca do site ---- */
+
+const decodeEntities = (t) => t.replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+  .replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&');
+const plain = (html) => decodeEntities(html.replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim();
+const slugify = (t) => t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+  .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+/*
+ * Todo h2 e h3 do conteudo ganha id, para a busca levar direto a secao. A maior
+ * parte dos h3 nao tinha: o resultado caia no h2 de cima e a pessoa rolava
+ * atras do assunto. O id do h3 leva o do h2 na frente ("usage-em-javascript"),
+ * porque "Em JavaScript" se repete em varias secoes da mesma pagina. Titulo com
+ * classe e peca de componente (o grupo do changelog, o titulo do modal escrito
+ * no template) e fica de fora.
+ */
+function anchorHeadings(html) {
+  const taken = new Set([...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
+  let section = '';
+  return html.replace(/<h([23])(\s[^>]*)?>([\s\S]*?)<\/h\1>/g, (whole, level, attrs = '', inner) => {
+    const own = attrs.match(/\sid="([^"]+)"/);
+    if (level === '2' && own) section = own[1];
+    if (own || /\sclass=/.test(attrs)) return whole;
+    const base = [level === '3' ? section : '', slugify(plain(inner))].filter(Boolean).join('-') || 'section';
+    let id = base;
+    for (let n = 2; taken.has(id); n++) id = `${base}-${n}`;
+    taken.add(id);
+    if (level === '2') section = id;
+    return `<h${level}${attrs} id="${id}">${inner}</h${level}>`;
+  });
+}
+
+/* Corta no fim de uma palavra, para o trecho nao terminar em "valid". */
+const clip = (text, max) => {
+  if (text.length <= max) return text;
+  const cut = text.slice(0, max);
+  return `${cut.slice(0, Math.max(cut.lastIndexOf(' '), max * 0.7)).trim()}…`;
+};
+
+const INTRO_CHARS = 170;
+const SECTION_CHARS = 150;
+
+/*
+ * Entrada de uma pagina no indice da busca. O indice e baixado inteiro na
+ * primeira vez que alguem abre a busca, entao cada byte conta: codigo, <script>,
+ * <dialog> de exemplo e SVG saem, e de cada secao fica so o comeco do texto — o
+ * bastante para achar o assunto e mostrar de onde veio. Na secao de API entram,
+ * em vez da prosa, os nomes de opcao, atributo, metodo e evento, que e o que se
+ * procura ali ("minuteStep", "data-max-size").
+ *
+ * Forma compacta, em listas e nao em objetos, porque a chave se repetiria em
+ * cada linha: pagina = [titulo, descricao, url, grupo, introducao];
+ * secao = [indice da pagina, titulo, ancora, trecho].
+ */
+function searchEntry(slug, p, body, index) {
+  const html = body
+    .replace(/<(pre|script|style|svg|dialog|template)[\s>][\s\S]*?<\/\1>/g, ' ')
+    .replace(/<!-- api -->/g, () => {
+      const c = components.find((x) => x.name === p.meta.component);
+      return c ? esc([...c.options.map((o) => o.name), ...c.attributes, ...c.methods, ...c.events].join(' ')) : '';
+    });
+  const headings = [...html.matchAll(/<h([23])[^>]*\sid="([^"]+)"[^>]*>([\s\S]*?)<\/h\1>/g)];
+  const withText = slug !== 'changelog';
+  const intro = withText ? clip(plain(html.slice(0, headings[0]?.index ?? html.length).replace(/<h1[\s\S]*?<\/h1>/, '')), INTRO_CHARS) : '';
+  const pageIndex = index.pages.length;
+  const group = nav.find((g) => g.items.some((i) => i.slug === slug));
+  index.pages.push([p.title, p.desc || clip(p.meta.description || '', 110),slug === 'index' ? '' : `${slug}/`, groupName(p.lang, group), intro]);
+  headings.forEach((h, i) => {
+    const end = headings[i + 1]?.index ?? html.length;
+    const text = withText ? clip(plain(html.slice(h.index + h[0].length, end)), h[2] === 'api' && p.meta.component ? 900 : SECTION_CHARS) : '';
+    index.sections.push([pageIndex, plain(h[3]), h[2], text]);
+  });
+}
+
+/* ---- playground: as opcoes de verdade de cada componente ---- */
+
+/*
+ * O playground monta um formulario de opcoes por componente. A lista de quais
+ * opcoes aparecem e escolha de apresentacao (so o que faz sentido alternar:
+ * booleano, enumeracao, numero, texto curto) e mora aqui; nome, padrao,
+ * valores aceitos e atributo data-* saem do mesmo inventario da tabela de API.
+ * Opcao que deixar de existir no codigo quebra o build, em vez de o playground
+ * oferecer um controle que nao faz nada — o defeito do `tamanho:` nos onclick.
+ *
+ * `type` e `values` so entram quando o codigo nao diz sozinho: padrao
+ * `undefined` ("decide pelo contexto") nao tem tipo, e posicao de popover nao
+ * vem listada em comentario nenhum.
+ */
+const PLACEMENTS = ['top', 'bottom', 'left', 'right'].flatMap((side) => ['start', 'center', 'end'].map((align) => `${side}-${align}`));
+const FORMAT_NAMES = [...readFileSync('src/js/components/mask.js', 'utf8')
+  .match(/export const FORMATS = \{([\s\S]*?)\n\};/)[1].matchAll(/^\s{2}'?([\w-]+)'?:/gm)].map((m) => m[1]);
+
+const PLAYGROUND = {
+  datepicker: {
+    mode: {}, time: {}, seconds: {}, minuteStep: {}, months: { type: 'number' }, presets: {}, weekNumbers: {},
+    clearable: {}, autoApply: { type: 'tristate' }, min: { type: 'string' }, max: { type: 'string' }, placement: { values: PLACEMENTS },
+  },
+  select: {
+    search: { type: 'tristate' }, placeholder: { type: 'string' }, clearable: {}, maxItems: { type: 'number' },
+    wrapTags: {}, closeOnSelect: { type: 'tristate' }, placement: { values: PLACEMENTS },
+  },
+  mask: {
+    format: { values: FORMAT_NAMES, attr: 'data-tuc-mask' }, validate: {}, decimals: {}, currency: { type: 'string' },
+    reveal: { attr: 'data-tuc-reveal' }, revealMode: {}, revealVisible: {},
+  },
+  colorpicker: { format: {}, alpha: {}, swatches: { type: 'boolean', default: true }, placement: { values: PLACEMENTS } },
+  upload: { url: { type: 'string' }, autoUpload: {}, maxSize: { type: 'string' }, maxFiles: { type: 'number' } },
+  toast: { type: {}, title: { type: 'string' }, text: {}, duration: { type: 'number' }, position: {}, closable: {}, max: {} },
+  modal: {
+    title: { type: 'string' }, text: {}, size: {}, tone: {}, sheet: {}, closable: {}, closeOnBackdrop: { attr: 'data-backdrop' },
+  },
+  drawer: {
+    title: { type: 'string' }, text: {}, side: {}, size: {}, tone: {}, closable: {}, closeOnBackdrop: { attr: 'data-backdrop' },
+  },
+  tabs: { selected: { type: 'number' }, manual: {} },
+  table: { sortable: {}, sortMode: {}, selectable: {} },
+  editor: { placeholder: {}, minHeight: {} },
+  pagination: { page: {}, pages: {}, around: {}, edges: {}, param: {} },
+  tooltip: { text: { attr: 'data-tuc-tip' }, placement: { values: PLACEMENTS }, delay: {}, delayOut: {}, maxWidth: {} },
+};
+
+function playgroundManifest() {
+  const parseDefault = (raw) => {
+    if (raw === 'true' || raw === 'false') return raw === 'true';
+    if (raw === 'null' || raw === 'undefined') return null;
+    if (/^-?\d+(\.\d+)?$/.test(raw)) return Number(raw);
+    const quoted = raw.match(/^'(.*)'$/);
+    return quoted ? quoted[1] : undefined;
+  };
+  // "'single' | 'range'", "sm | md | lg — nas laterais", "top-start|top-center|..."
+  const noteValues = (note) => {
+    const m = note.match(/^((?:'[\w-]+'|[\w-]+)(?:\s*\|\s*(?:'[\w-]+'|[\w-]+))+)/);
+    return m ? m[1].split('|').map((v) => v.trim().replace(/^'|'$/g, '')) : null;
+  };
+  const kebab = (n) => n.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
+
+  return Object.entries(PLAYGROUND).map(([name, spec]) => {
+    const c = components.find((x) => x.name === name);
+    if (!c) throw new Error(`[site] playground: componente "${name}" nao existe`);
+    const options = Object.entries(spec).map(([option, o]) => {
+      const source = c.options.find((x) => x.name === option);
+      if (!source) throw new Error(`[site] playground: ${name} nao tem a opcao "${option}"`);
+      const def = 'default' in o ? o.default : parseDefault(source.defaultValue);
+      if (def === undefined) throw new Error(`[site] playground: padrao de ${name}.${option} ilegivel (${source.defaultValue})`);
+      let values = o.values || noteValues(source.note);
+      let type = o.type || (values ? 'enum' : def === null ? null : typeof def);
+      if (type === 'tristate') { type = 'enum'; values = [true, false]; }
+      if (!['boolean', 'number', 'string', 'enum'].includes(type)) {
+        throw new Error(`[site] playground: tipo de ${name}.${option} indefinido — declare type no PLAYGROUND`);
+      }
+      if (type === 'enum' && def === null) values = [null, ...values];
+      if (type === 'enum' && !values.includes(def)) throw new Error(`[site] playground: ${name}.${option} tem padrao fora dos valores`);
+      const guess = `data-${kebab(option)}`;
+      const attr = o.attr || (c.attributes.includes(guess) ? guess : null);
+      if (o.attr && !c.attributes.includes(o.attr)) throw new Error(`[site] playground: ${name} nao le o atributo ${o.attr}`);
+      return { name: option, type, default: def, ...(type === 'enum' ? { values } : {}), attr, note: source.note };
+    });
+    return {
+      name, className: c.className, shortcut: c.shortcuts.find((s) => s === name) || null, options,
+      callbacks: c.options.filter((o) => /^on[A-Z]/.test(o.name)).map((o) => o.name), events: c.events,
+    };
+  });
+}
+const playground = playgroundManifest();
+
 /* ---- busca: titulo, dados estruturados, hreflang e sitemap ---- */
 
 /*
@@ -311,6 +485,7 @@ const TITLES = {
     theme: 'Tema da Tucano — tokens CSS, tema escuro e cor de destaque',
     keyboard: 'Teclado e acessibilidade nos componentes da Tucano',
     ai: 'Tucano para agentes de IA — llms.txt e AGENTS.md',
+    playground: 'Playground da Tucano — teste as opções e copie o código',
     component: (t) => `${t} — JavaScript puro para Django, Laravel e Rails`,
   },
   en: {
@@ -320,6 +495,7 @@ const TITLES = {
     theme: 'Tucano theme — CSS tokens, dark mode and accent color',
     keyboard: 'Keyboard and accessibility in Tucano components',
     ai: 'Tucano for AI agents — llms.txt and AGENTS.md',
+    playground: 'Tucano playground — try the options and copy the code',
     component: (t) => `${t} — plain JavaScript for Django, Laravel and Rails`,
   },
   es: {
@@ -329,6 +505,7 @@ const TITLES = {
     theme: 'Tema de Tucano — tokens CSS, modo oscuro y color de acento',
     keyboard: 'Teclado y accesibilidad en los componentes de Tucano',
     ai: 'Tucano para agentes de IA — llms.txt y AGENTS.md',
+    playground: 'Playground de Tucano — prueba las opciones y copia el código',
     component: (t) => `${t} — JavaScript puro para Django, Laravel y Rails`,
   },
 };
@@ -419,21 +596,33 @@ function sitemap() {
 const outDepth = OUT === '.' ? 0 : OUT.split('/').length;
 let written = 0;
 
+const searchSizes = [];
 for (const language of LANGUAGES) {
   const lang = language.code;
+  const index = { pages: [], sections: [] };
   for (const [slug, p] of pages.get(lang)) {
     const route = pathFor(lang, slug);
     const root = '../'.repeat(outDepth + route.split('/').filter(Boolean).length);
 
+    // Script com src tambem vai para o fim do body: e o jeito de uma pagina so
+    // (o playground) carregar o proprio arquivo depois do dist/tucano.js.
     const scripts = [];
-    let body = p.body.replace(/<script>([\s\S]*?)<\/script>\s*/g, (m) => { scripts.push(m.trim()); return ''; });
+    let body = p.body.replace(/<script(?: src="[^"]*")?>([\s\S]*?)<\/script>\s*/g, (m) => {
+      scripts.push(m.trim().replaceAll('{{root}}', root).replaceAll('{{version}}', version));
+      return '';
+    });
     body = body
       .replaceAll('{{version}}', version)
       .replaceAll('{{kb-js}}', String(sizes.js))
       .replaceAll('{{kb-css}}', String(sizes.css))
       .replaceAll('{{root}}', root);
     body = codeBlocks(body);
+    body = anchorHeadings(body);
+    searchEntry(slug, p, body, index);
     body = body.replace(/<!-- api -->/g, () => api(p.meta.component, lang));
+    // `<` escapado pelo mesmo motivo do JSON-LD.
+    body = body.replace(/<!-- playground -->/g, () => `<script type="application/json" id="playground-api">${
+      JSON.stringify(playground).replace(/</g, '\\u003c')}</script>`);
     body = body.replace(/<!-- components -->/g, () => grid(slug, lang));
     // Cada idioma le as notas no proprio idioma; sem o arquivo, cai no portugues
     // em vez de a pagina sair vazia.
@@ -460,6 +649,8 @@ for (const language of LANGUAGES) {
       .replaceAll('{{ui-open-menu}}', esc(ui(lang, 'openMenu')))
       .replaceAll('{{ui-docs-nav}}', esc(ui(lang, 'docsNav')))
       .replaceAll('{{ui-llms}}', esc(ui(lang, 'llms')))
+      .replace(/\{\{ui-(search[\w-]*)\}\}/g, (_, key) => esc(ui(lang, key.replace(/-(\w)/g, (__, ch) => ch.toUpperCase()))))
+      .replaceAll('{{search-index}}', `${link(slug, 'index')}search.json`)
       .replace('{{lang-switch-top}}', () => languageSwitch(slug, lang, root, 'languages-top'))
       .replace('{{lang-switch-side}}', () => languageSwitch(slug, lang, root, 'languages-side'))
       .replaceAll('{{root}}', root)
@@ -476,6 +667,12 @@ for (const language of LANGUAGES) {
     writeFileSync(`${folder}/index.html`, html);
     written++;
   }
+  if (!index.pages.length) continue;
+  const json = JSON.stringify(index);
+  const folder = `${OUT}/${pathFor(lang, 'index')}`.replace(/\/+$/, '');
+  mkdirSync(folder, { recursive: true });
+  writeFileSync(`${folder}/search.json`, json);
+  searchSizes.push(`${language.short} ${(json.length / 1024).toFixed(1)} KB (${(gzipSync(json).length / 1024).toFixed(1)} gzip)`);
 }
 
 mkdirSync(OUT, { recursive: true });
@@ -483,3 +680,4 @@ writeFileSync(`${OUT}/sitemap.xml`, sitemap());
 
 const perLanguage = LANGUAGES.map((l) => `${l.short} ${pages.get(l.code).size}`).join(', ');
 console.log(`site: ${written} página(s) (${perLanguage}) e sitemap.xml em ${OUT}/ · ${items.length - pages.get('pt-BR').size} ainda sem conteúdo`);
+console.log(`busca: search.json por idioma — ${searchSizes.join(', ')}`);

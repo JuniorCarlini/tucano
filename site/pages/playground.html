@@ -1,0 +1,72 @@
+<!--
+title: Playground
+description: Escolha um componente da Tucano, alterne as opções de verdade e copie o código em HTML com data-*, em JavaScript ou no template do Django — o formulário sai do mesmo inventário da referência da API.
+-->
+<h1>Playground</h1>
+<p class="lead">Escolha um componente, mude as opções e veja o resultado na hora. O código embaixo acompanha cada troca:
+   em HTML com atributos <code>data-*</code>, em JavaScript e, quando faz sentido, no template do Django.</p>
+
+<div class="playground" id="playground">
+  <div class="pg-head">
+    <div class="pg-picker">
+      <label class="tuc-label" for="pg-component">Componente</label>
+      <select id="pg-component">
+        <option value="datepicker">Date picker</option>
+        <option value="select">Select</option>
+        <option value="mask">Máscara</option>
+        <option value="colorpicker">Color picker</option>
+        <option value="upload">Upload</option>
+        <option value="editor">Editor de texto</option>
+        <option value="toast">Toast</option>
+        <option value="modal">Modal</option>
+        <option value="drawer">Gaveta</option>
+        <option value="tooltip">Tooltip</option>
+        <option value="tabs">Abas</option>
+        <option value="table">Tabela</option>
+        <option value="pagination">Paginação</option>
+      </select>
+    </div>
+    <button type="button" class="tuc-btn is-outline" id="pg-reset">Restaurar padrões</button>
+  </div>
+
+  <div class="pg-grid">
+    <form class="pg-controls" id="pg-controls" aria-label="Opções" novalidate></form>
+    <div class="pg-side">
+      <div class="demo pg-stage" id="pg-stage"></div>
+      <div class="pg-events">
+        <div class="pg-events__head">
+          <h3 id="events">Eventos</h3>
+          <button type="button" class="tuc-btn is-ghost is-sm" id="pg-clear">Limpar</button>
+        </div>
+        <p class="tuc-hint" id="pg-empty">Cada callback chamado aparece aqui, com os argumentos que recebeu.</p>
+        <ol class="pg-log" id="pg-log" aria-live="polite"></ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h2 id="code">Código</h2>
+<p class="lead">Só entram as opções que você mudou: o que ficou no padrão não precisa ser escrito. Opção marcada com
+   <span class="tuc-badge is-plain">JS</span> não tem atributo <code>data-*</code> e aparece só no JavaScript.</p>
+
+<div class="tuc-tabs" data-tuc-tabs id="pg-code">
+  <div class="tuc-tabs__list">
+    <button class="tuc-tabs__tab" aria-selected="true">HTML</button>
+    <button class="tuc-tabs__tab">JavaScript</button>
+    <button class="tuc-tabs__tab">Django</button>
+  </div>
+  <div class="tuc-tabs__panel" id="pg-code-html"><pre data-code="html"></pre></div>
+  <div class="tuc-tabs__panel" id="pg-code-js" hidden><pre data-code="js"></pre></div>
+  <div class="tuc-tabs__panel" id="pg-code-django" hidden><pre data-code="django"></pre></div>
+</div>
+
+<h2 id="source">De onde vêm as opções</h2>
+<p>O formulário não é escrito à mão. No build, o <code>tools/site.mjs</code> lê cada opção do mesmo inventário que gera a
+   tabela de API e o <code>llms.txt</code>: nome, padrão, valores aceitos e o atributo <code>data-*</code> que a
+   inicialização automática lê. Uma opção renomeada no código quebra o build, em vez de deixar aqui um controle que não
+   faz nada.</p>
+<p>Ficam de fora o que não cabe num controle — funções, listas e objetos. Os callbacks viram a lista de eventos ao lado
+   da prévia, e a referência completa de cada componente continua na seção API da página dele.</p>
+
+<!-- playground -->
+<script src="{{root}}site/playground.js?v={{version}}"></script>

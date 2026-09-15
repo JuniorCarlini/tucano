@@ -203,6 +203,50 @@ a.link-card:hover { border-color: var(--accent); }
 .link-card.is-soon { opacity: .6; }
 .link-card .tuc-badge { align-self: flex-start; margin-top: 6px; }
 
+/* ---------- busca ---------- */
+
+/* O gatilho e o .tuc-btn is-outline; daqui so a largura da coluna e o atalho
+   encostado a direita, como um campo que ainda nao foi aberto. */
+.search-trigger { width: 100%; justify-content: flex-start; margin: -4px 0 16px; color: var(--muted); font-weight: 400; }
+.search-trigger kbd { margin-left: auto; font-family: ui-monospace, Menlo, monospace; }
+
+/* O dialogo e o .tuc-modal; a busca sobe para o terco de cima, que e onde o olho
+   procura a lista enquanto digita, e o campo ocupa o lugar do titulo. */
+.search-dialog.tuc-modal { place-items: start center; padding-top: min(12vh, 96px); }
+.search-dialog .tuc-modal__panel { max-height: min(640px, calc(100dvh - 2rem - min(12vh, 96px))); }
+.search-dialog .tuc-modal__header { flex: 1; }
+.search__input { width: 100%; }
+.search__status { margin: 0; }
+.search__status:empty { display: none; }
+.search__results { overflow: visible; }
+.search__option { flex-direction: column; align-items: stretch; gap: 1px; cursor: pointer; line-height: 1.45; }
+.search__title { font-weight: 550; }
+.search__meta { font-size: 12px; color: var(--muted); font-weight: 400; }
+.search__snippet { font-size: 13px; color: var(--muted); font-weight: 400; }
+.search__option mark { background: var(--tuc-accent-soft); color: inherit; border-radius: 3px; }
+.search__hint { margin: 0; }
+
+/* ---------- playground ---------- */
+
+.playground { margin-top: 32px; }
+.pg-head { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; margin-bottom: 20px; }
+.pg-picker { flex: 1 1 16rem; max-width: 22rem; }
+.pg-grid { display: grid; grid-template-columns: minmax(0, 19rem) minmax(0, 1fr); gap: 24px; align-items: start; }
+/* Opcoes numa coluna; a previa acompanha a rolagem para o efeito da troca
+   continuar a vista enquanto se mexe na lista. */
+.pg-controls { display: grid; gap: 18px; padding: 24px; border: 1px solid var(--line); border-radius: 16px; background: var(--panel); }
+.pg-controls > div { min-width: 0; }
+.pg-controls .tuc-badge { margin-left: 6px; }
+.pg-side { position: sticky; top: 24px; min-width: 0; }
+.pg-stage { display: flex; flex-direction: column; justify-content: center; gap: 8px; min-height: 240px; margin: 0; }
+.pg-events { margin-top: 16px; }
+.pg-events__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.pg-events__head h3 { margin: 0; font-size: 15px; font-weight: 650; }
+.pg-log { margin: 8px 0 0; padding: 0; list-style: none; max-height: 240px; overflow-y: auto; font: 12px/1.5 ui-monospace, Menlo, monospace; color: var(--muted); }
+.pg-log li { padding: 6px 0; border-top: 1px solid var(--line); overflow-wrap: anywhere; }
+.pg-log li:first-child { border-top: 0; }
+.pg-log code { margin-right: 6px; padding: 0; background: none; color: var(--fg); font-size: 12px; }
+
 /* ---------- transicao entre paginas ---------- */
 
 /* So do site: cada assunto e uma pagina, e o recarregamento seco piscava a tela
@@ -225,6 +269,12 @@ a.link-card:hover { border-color: var(--accent); }
   .hero { grid-template-columns: minmax(0, 1fr); }
 }
 
+/* Uma coluna: a previa vem antes das opcoes, para a troca aparecer sem rolar. */
+@media (max-width: 1100px) {
+  .pg-grid { grid-template-columns: minmax(0, 1fr); }
+  .pg-side { position: static; order: -1; }
+}
+
 @media (max-width: 900px) {
   :root { --side: 0px; }
   .topbar {
@@ -240,7 +290,10 @@ a.link-card:hover { border-color: var(--accent); }
     box-shadow: 0 12px 32px -16px rgb(0 0 0 / .35); display: none;
   }
   .side.is-open { display: block; }
-  .side .side__head, .side .ver { display: none; }
+  .side .side__head, .side .ver, .side .search-trigger { display: none; }
+  .search-dialog.tuc-modal { padding: 8px; }
+  .search__hint { display: none; }
+  .pg-controls { padding: 18px; }
   .main { margin-left: 0; padding: 36px 18px 100px; }
   .doc h1, .hero h1 { font-size: 34px; }
   .doc h2 { margin-top: 56px; }

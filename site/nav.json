@@ -8,6 +8,11 @@
         "title": "Início e instalação"
       },
       {
+        "slug": "playground",
+        "title": "Playground",
+        "desc": "Alterne as opções e copie o código."
+      },
+      {
         "slug": "changelog",
         "title": "Changelog"
       }

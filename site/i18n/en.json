@@ -22,7 +22,16 @@
     "apiOptions": "Options",
     "apiOption": "Option",
     "apiDefault": "Default",
-    "apiWhat": "What for"
+    "apiWhat": "What for",
+    "search": "Search",
+    "searchDialog": "Search the documentation",
+    "searchPlaceholder": "Search a component, option or topic",
+    "searchResults": "Search results",
+    "searchLoading": "Loading the index...",
+    "searchError": "Could not load search.",
+    "searchEmpty": "No results for “{q}”.",
+    "searchCount": "{n} result(s).",
+    "searchHint": "↑ ↓ to navigate · Enter opens · Esc closes"
   },
   "groups": {
     "get-started": "Get started",
@@ -36,6 +45,7 @@
   },
   "items": {
     "index": { "title": "Home and installation" },
+    "playground": { "title": "Playground", "desc": "Toggle the options and copy the code." },
     "changelog": { "title": "Changelog" },
     "form": { "title": "Form", "desc": "Label, hint, error and the field that failed." },
     "select": { "title": "Select", "desc": "Search, multiple with tags, groups and server search." },

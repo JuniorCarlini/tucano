@@ -22,7 +22,16 @@
     "apiOptions": "Opciones",
     "apiOption": "Opción",
     "apiDefault": "Por defecto",
-    "apiWhat": "Para qué"
+    "apiWhat": "Para qué",
+    "search": "Buscar",
+    "searchDialog": "Buscar en la documentación",
+    "searchPlaceholder": "Buscar componente, opción o tema",
+    "searchResults": "Resultados de la búsqueda",
+    "searchLoading": "Cargando el índice...",
+    "searchError": "No se pudo cargar la búsqueda.",
+    "searchEmpty": "Sin resultados para “{q}”.",
+    "searchCount": "{n} resultado(s).",
+    "searchHint": "↑ ↓ para navegar · Enter abre · Esc cierra"
   },
   "groups": {
     "get-started": "Empezar",
@@ -36,6 +45,7 @@
   },
   "items": {
     "index": { "title": "Inicio e instalación" },
+    "playground": { "title": "Playground", "desc": "Cambia las opciones y copia el código." },
     "changelog": { "title": "Changelog" },
     "form": { "title": "Formulario", "desc": "Etiqueta, ayuda, error y el campo que no pasó." },
     "select": { "title": "Select", "desc": "Búsqueda, múltiple con etiquetas, grupos y búsqueda en el servidor." },

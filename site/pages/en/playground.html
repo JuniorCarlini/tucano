@@ -1,0 +1,74 @@
+<!--
+title: Playground
+lang: en
+description: Pick a Tucano component, toggle its real options and copy the code as HTML with data-*, JavaScript or a Django template — the form comes from the same inventory as the API reference.
+-->
+<h1>Playground</h1>
+<p class="lead">Pick a component, change its options and see the result right away. The code below follows every change:
+   HTML with <code>data-*</code> attributes, JavaScript and, where it makes sense, a Django template.</p>
+
+<div class="playground" id="playground">
+  <div class="pg-head">
+    <div class="pg-picker">
+      <label class="tuc-label" for="pg-component">Component</label>
+      <select id="pg-component">
+        <option value="datepicker">Date picker</option>
+        <option value="select">Select</option>
+        <option value="mask">Mask</option>
+        <option value="colorpicker">Color picker</option>
+        <option value="upload">Upload</option>
+        <option value="editor">Text editor</option>
+        <option value="toast">Toast</option>
+        <option value="modal">Modal</option>
+        <option value="drawer">Drawer</option>
+        <option value="tooltip">Tooltip</option>
+        <option value="tabs">Tabs</option>
+        <option value="table">Table</option>
+        <option value="pagination">Pagination</option>
+      </select>
+    </div>
+    <button type="button" class="tuc-btn is-outline" id="pg-reset">Reset to defaults</button>
+  </div>
+
+  <div class="pg-grid">
+    <form class="pg-controls" id="pg-controls" aria-label="Options" novalidate></form>
+    <div class="pg-side">
+      <div class="demo pg-stage" id="pg-stage"></div>
+      <div class="pg-events">
+        <div class="pg-events__head">
+          <h3 id="events">Events</h3>
+          <button type="button" class="tuc-btn is-ghost is-sm" id="pg-clear">Clear</button>
+        </div>
+        <p class="tuc-hint" id="pg-empty">Every callback call shows up here, with the arguments it received.</p>
+        <ol class="pg-log" id="pg-log" aria-live="polite"></ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h2 id="code">Code</h2>
+<p class="lead">Only the options you changed are included: what stays at the default does not need to be written. An option
+   marked <span class="tuc-badge is-plain">JS</span> has no <code>data-*</code> attribute and only shows up in JavaScript.</p>
+
+<div class="tuc-tabs" data-tuc-tabs id="pg-code">
+  <div class="tuc-tabs__list">
+    <button class="tuc-tabs__tab" aria-selected="true">HTML</button>
+    <button class="tuc-tabs__tab">JavaScript</button>
+    <button class="tuc-tabs__tab">Django</button>
+  </div>
+  <div class="tuc-tabs__panel" id="pg-code-html"><pre data-code="html"></pre></div>
+  <div class="tuc-tabs__panel" id="pg-code-js" hidden><pre data-code="js"></pre></div>
+  <div class="tuc-tabs__panel" id="pg-code-django" hidden><pre data-code="django"></pre></div>
+</div>
+
+<h2 id="source">Where the options come from</h2>
+<p>The form is not written by hand. At build time, <code>tools/site.mjs</code> reads every option from the same inventory
+   that generates the API table and <code>llms.txt</code>: name, default, accepted values and the <code>data-*</code>
+   attribute read by auto-initialization. An option renamed in the code breaks the build, instead of leaving a control
+   here that does nothing.</p>
+<p>What does not fit a control is left out — functions, arrays and objects. Callbacks become the event list next to the
+   preview, and the full reference for each component is still in the API section of its page. The option notes come
+   from comments in the source code, which are written in Portuguese, so they only show on the Portuguese page.</p>
+
+<!-- playground -->
+<script src="{{root}}site/playground.js?v={{version}}"></script>
