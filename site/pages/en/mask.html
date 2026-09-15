@@ -152,7 +152,7 @@ class CustomerForm(forms.ModelForm):
         widgets = {
             "document": forms.TextInput(attrs={"data-tuc-mask": "cpf-cnpj", "data-validate": "true"}),
             "phone": forms.TextInput(attrs={"data-tuc-mask": "phone"}),
-            "credit_limit": forms.TextInput(attrs={"data-tuc-mask": "real"}),
+            "credit_limit": forms.TextInput(attrs={"data-tuc-mask": "brl"}),
         }
 </pre>
 

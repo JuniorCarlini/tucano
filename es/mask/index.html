@@ -252,7 +252,7 @@
         widgets = {
             "document": forms.TextInput(attrs={"data-tuc-mask": "cpf-cnpj", "data-validate": "true"}),
             "phone": forms.TextInput(attrs={"data-tuc-mask": "phone"}),
-            "credit_limit": forms.TextInput(attrs={"data-tuc-mask": "real"}),
+            "credit_limit": forms.TextInput(attrs={"data-tuc-mask": "brl"}),
         }</code></pre></div>
 
 <p>El campo envía el texto tal como está en pantalla: <code>111.444.777-35</code>, <code>R$ 1.234,50</code>. Límpialo en el <code>clean_</code> —
