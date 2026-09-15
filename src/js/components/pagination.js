@@ -1,4 +1,5 @@
 import { el, icon, ICON_CHEVRON_LEFT, ICON_CHEVRON_RIGHT, omitUndefined, on } from '../core/dom.js';
+import { PAGINATION_TEXTS } from '../core/texts.js';
 
 /*
  * Paginacao.
@@ -19,9 +20,9 @@ const DEFAULTS = {
   param: 'page',
   around: 1,        // paginas visiveis de cada lado da atual
   edges: 1,         // paginas visiveis nas pontas
-  prevText: 'Anterior',
-  nextText: 'Próxima',
-  label: 'Paginação',
+  prevText: undefined,   // default: setTexts ("Anterior")
+  nextText: undefined,   // default: setTexts ("Próxima")
+  label: undefined,      // default: setTexts ("Paginação")
   onChange: null,
 };
 
@@ -54,7 +55,8 @@ export function pageWindow(page, pages, { around = 1, edges = 1 } = {}) {
 
 export class Pagination {
   constructor(options = {}) {
-    this.opts = { ...DEFAULTS, ...omitUndefined(options) };
+    // Os textos saem de Tucano.setTexts; a opcao da instancia vence.
+    this.opts = { ...DEFAULTS, ...PAGINATION_TEXTS, ...omitUndefined(options) };
     this._cleanups = [];
     this.node = el('nav', { class: 'tuc-pagination', role: 'navigation', 'aria-label': this.opts.label });
     this.node._tucano = this;

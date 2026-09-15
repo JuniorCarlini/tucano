@@ -1,5 +1,6 @@
 import { el, nextId, omitUndefined } from '../core/dom.js';
 import { Dialog, buildPanel } from '../core/dialog.js';
+import { DRAWER_TEXTS } from '../core/texts.js';
 
 /*
  * Gaveta (off-canvas): dialogo encostado numa borda.
@@ -35,7 +36,7 @@ export class Drawer extends Dialog {
 
   _build() {
     const titleId = `${this.id}-title`;
-    this.panel = buildPanel('tuc-drawer', this.opts, this, titleId);
+    this.panel = buildPanel('tuc-drawer', this.opts, this, titleId, DRAWER_TEXTS.close);
 
     this.node = el('dialog', {
       class: [

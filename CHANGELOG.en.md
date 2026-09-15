@@ -6,6 +6,14 @@ in your project.
 
 ## Unreleased
 
+### Before upgrading
+
+- With the script loaded with `defer`, auto-init now waits for
+  `DOMContentLoaded` instead of running the moment the script executes. That is
+  what leaves room to call `Tucano.setTexts()` before the components mount. A
+  script of yours, also deferred, that read `element._tucano` right when it ran
+  now finds `undefined`: read it inside a `DOMContentLoaded` listener.
+
 ### New
 
 - `data-tuc-reveal` also works on loose text on the page, not only on fields: a
@@ -14,6 +22,17 @@ in your project.
   `email`, `all`) and together with `data-tuc-format`. It is visual only: the
   full value is still in the HTML, so anything that must not reach the browser
   has to be hidden on the server.
+- `Tucano.setTexts()` replaces any text the components show or announce: the
+  date picker's "Limpar" and "Aplicar", the range presets, the select's
+  "Buscar..." and "Nenhum resultado", the "Fechar" of modal, drawer and toast,
+  the editor buttons, the mask's "Mostrar"/"Ocultar" and the labels read by
+  screen readers. A project in English or Spanish no longer shows Portuguese.
+  Texts are replaced per group (`Tucano.setTexts({ datepicker: { clear:
+  'Clear' } })`), apply to whatever mounts afterwards, and the per-instance
+  option (`data-placeholder`, `emptyText`, `prevText`, the upload's `texts`)
+  still wins. Portuguese remains the default, with no language dictionaries in
+  the package, and `Tucano.getTexts()` returns the current texts. The day name
+  that screen readers read in the calendar now comes from the page language.
 
 ### Fixed
 
@@ -24,6 +43,10 @@ in your project.
 - A field with only the eye got `inputmode="numeric"`, so phones opened the
   number keyboard for passwords and tokens. And the password field lost the
   browser's `autocomplete`, which got in the way of password managers.
+- Some default Portuguese texts were missing accents: "Mês anterior", "Próximo
+  mês", "Próximo" and "Selecionar período" in the date picker, "Limpar seleção"
+  in the select and "Saturação e brilho" in the color picker. If a test in your
+  project compares those texts, update it.
 
 ## 0.33.1 — 2026-09-14
 

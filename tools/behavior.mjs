@@ -688,6 +688,146 @@ body{margin:0;padding:16px;font-family:system-ui}
     if (seen.change !== 'value,rgb,hsva,instance') throw new Error('change: ' + seen.change);
     if (seen.sort !== 'column,field,direction') throw new Error('sort: ' + seen.sort);
   });
+  /*
+   * Textos da interface. Cada leitura monta instâncias novas, porque o texto é
+   * lido na montagem: as da página nasceram antes de qualquer setTexts.
+   */
+  function readTexts() {
+    var box = document.createElement('div');
+    box.innerHTML = '<input class="x-date"><select class="x-sel" multiple><option value="a" selected>A</option><option value="b">B</option></select>'
+      + '<input type="password" class="x-pass" value="x"><textarea class="x-ed"></textarea><input type="file" class="x-up">'
+      + '<table class="x-tb"><thead><tr><th>N</th></tr></thead><tbody><tr><td>a</td></tr></tbody></table>'
+      + '<input class="x-color" value="#000000"><div class="tuc-prose"><pre><code>x</code></pre></div>';
+    document.body.append(box);
+    function q(sel) { return box.querySelector(sel); }
+    var r = {};
+
+    var dp = new Tucano.DatePicker(q('.x-date'), { time: true });
+    dp.setValue('2026-09-07T10:00', { silent: true });
+    dp.open();
+    r.clear = dp.panel.querySelector('.tuc-dp__footer .is-ghost').textContent;
+    r.apply = dp.panel.querySelector('.tuc-dp__footer .is-primary').textContent;
+    r.previousMonth = dp.panel.querySelector('.tuc-dp__nav').getAttribute('aria-label');
+    r.day = dp.panel.querySelector('[data-date="2026-09-07"]').getAttribute('aria-label');
+    r.placeholder = q('.x-date').placeholder;
+    dp.destroy();
+
+    var sel = new Tucano.Select(q('.x-sel'), { search: true });
+    r.remove = q('.tuc-select__tagx').getAttribute('aria-label');
+    sel.open();
+    sel.search.value = 'zzz';
+    sel.search.dispatchEvent(new Event('input', { bubbles: true }));
+    r.empty = sel.menu.querySelector('.tuc-select__empty').textContent;
+    r.search = sel.search.placeholder;
+    sel.destroy();
+
+    var mask = new Tucano.Mask(q('.x-pass'), { reveal: true });
+    r.show = mask.eye.getAttribute('aria-label');
+    mask.eye.click();
+    r.hide = mask.eye.getAttribute('aria-label');
+    mask.destroy();
+
+    var editor = new Tucano.Editor(q('.x-ed'));
+    r.bold = editor.toolbar.querySelector('[data-action="bold"]').getAttribute('aria-label');
+    editor.destroy();
+
+    var upload = new Tucano.Upload(q('.x-up'));
+    r.zone = upload.zone.querySelector('.tuc-upload__label').textContent;
+    upload.destroy();
+
+    new Tucano.Table(q('.x-tb'), { selectable: true, sortable: false });
+    r.selectRow = q('.x-tb tbody .tuc-table__check').getAttribute('aria-label');
+
+    var color = new Tucano.ColorPicker(q('.x-color'));
+    r.pick = color.swatch.getAttribute('aria-label');
+    color.destroy();
+
+    r.modalClose = new Tucano.Modal({ title: 'x' }).panel.querySelector('.tuc-modal__close').getAttribute('aria-label');
+    r.drawerClose = new Tucano.Drawer({ title: 'x' }).panel.querySelector('.tuc-drawer__close').getAttribute('aria-label');
+    var toast = Tucano.toast({ text: 'x', duration: null });
+    r.toastClose = toast.node.querySelector('.tuc-toast__close').getAttribute('aria-label');
+    toast.close();
+    r.prev = new Tucano.Pagination({ page: 2, pages: 5 }).node.querySelector('.tuc-pagination__word').textContent;
+    Tucano.autoInitProse(box);
+    r.copy = q('.tuc-copy').getAttribute('aria-label');
+    r.cpfError = Tucano.FORMATS.cpf.error;
+
+    box.remove();
+    return r;
+  }
+  var ptTexts = {
+    clear: 'Limpar', apply: 'Aplicar', previousMonth: 'Mês anterior', placeholder: 'dd/mm/aaaa hh:mm',
+    day: 'segunda-feira, 7 de setembro de 2026', remove: 'Remover A', empty: 'Nenhum resultado', search: 'Buscar...',
+    show: 'Mostrar', hide: 'Ocultar', bold: 'Negrito', zone: 'Arraste um arquivo aqui ou clique para escolher',
+    selectRow: 'Selecionar linha', pick: 'Escolher cor', modalClose: 'Fechar', drawerClose: 'Fechar',
+    toastClose: 'Fechar', prev: 'Anterior', copy: 'Copiar código', cpfError: 'CPF inválido',
+  };
+  function compare(got, expected) {
+    var wrong = Object.keys(expected).filter(function (k) { return got[k] !== expected[k]; });
+    if (wrong.length) throw new Error(wrong.map(function (k) { return k + ' = ' + got[k]; }).join(' | '));
+  }
+  t('textos: sem setTexts, tudo continua em português', function () {
+    compare(readTexts(), ptTexts);
+  });
+  t('textos: setTexts troca o texto de quem monta depois', function () {
+    var saved = Tucano.getTexts();
+    try {
+      Tucano.setTexts({
+        datepicker: { clear: 'Clear', apply: 'Apply', previousMonth: 'Previous month', placeholderLetters: 'ymdhms' },
+        select: { searchPlaceholder: 'Search...', emptyText: 'No results', remove: function (label) { return 'Remove ' + label; } },
+        mask: { show: 'Show', hide: 'Hide', cpf: 'Invalid CPF' },
+        editor: { bold: 'Bold' },
+        upload: { zoneOne: 'Drop a file here' },
+        table: { selectRow: 'Select row' },
+        colorpicker: { pick: 'Pick a color' },
+        modal: { close: 'Close' },
+        drawer: { close: 'Close panel' },
+        toast: { close: 'Dismiss' },
+        pagination: { prevText: 'Previous' },
+        prose: { copy: 'Copy code' },
+      });
+      compare(readTexts(), {
+        clear: 'Clear', apply: 'Apply', previousMonth: 'Previous month', placeholder: 'dd/mm/yyyy hh:mm',
+        remove: 'Remove A', empty: 'No results', search: 'Search...', show: 'Show', hide: 'Hide', bold: 'Bold',
+        zone: 'Drop a file here', selectRow: 'Select row', pick: 'Pick a color', modalClose: 'Close',
+        drawerClose: 'Close panel', toastClose: 'Dismiss', prev: 'Previous', copy: 'Copy code', cpfError: 'Invalid CPF',
+      });
+      // A troca é chave a chave: o que não foi passado continua em português.
+      if (Tucano.getTexts().datepicker.nextMonth !== 'Próximo mês') throw new Error('apagou o resto do grupo');
+    } finally {
+      Tucano.setTexts(saved);
+    }
+  });
+  t('textos: a opção da instância vence o setTexts', function () {
+    var saved = Tucano.getTexts();
+    var box = document.createElement('div');
+    box.innerHTML = '<select multiple><option value="a">A</option></select><input type="file">';
+    document.body.append(box);
+    try {
+      Tucano.setTexts({ select: { emptyText: 'No results' }, upload: { zoneOne: 'Drop a file here' }, pagination: { prevText: 'Previous' } });
+      var sel = new Tucano.Select(box.querySelector('select'), { search: true, emptyText: 'Nada por aqui' });
+      sel.open();
+      sel.search.value = 'zzz';
+      sel.search.dispatchEvent(new Event('input', { bubbles: true }));
+      var empty = sel.menu.querySelector('.tuc-select__empty').textContent;
+      sel.destroy();
+      if (empty !== 'Nada por aqui') throw new Error('select: ' + empty);
+      var upload = new Tucano.Upload(box.querySelector('input'), { texts: { zoneOne: 'Solte aqui' } });
+      var zone = upload.zone.querySelector('.tuc-upload__label').textContent;
+      upload.destroy();
+      if (zone !== 'Solte aqui') throw new Error('upload: ' + zone);
+      var prev = new Tucano.Pagination({ page: 2, pages: 5, prevText: 'Voltar' }).node.querySelector('.tuc-pagination__word').textContent;
+      if (prev !== 'Voltar') throw new Error('paginação: ' + prev);
+    } finally {
+      box.remove();
+      Tucano.setTexts(saved);
+    }
+  });
+  t('textos: getTexts devolve cópia, e restaurar volta ao português', function () {
+    Tucano.getTexts().datepicker.clear = 'mexido';
+    if (Tucano.getTexts().datepicker.clear !== 'Limpar') throw new Error('getTexts devolveu o objeto de verdade');
+    compare(readTexts(), ptTexts);
+  });
   t('init é idempotente: rodar de novo não duplica nada', function () {
     var before = document.querySelectorAll('.tuc-editor__toolbar').length;
     Tucano.init(document);

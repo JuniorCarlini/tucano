@@ -230,7 +230,7 @@ Tucano.toast.promise(fetch(url), {
    en un "guardado" eterno en la pantalla.</p>
 
 <p>En <code>toast.promise()</code>, <code>success</code> y <code>error</code> aceptan texto o una función que recibe el
-   resultado o el error. Sin ellos, se usan los textos incorporados de la biblioteca, que están en portugués: "Carregando...", "Pronto" y "Algo deu errado". La función devuelve la misma
+   resultado o el error. Sin ellos, se usan los textos por defecto de la biblioteca: "Carregando...", "Pronto" y "Algo deu errado" en portugués, o los que definas para toda la página con <code>Tucano.setTexts({ toast: { loading, success, error } })</code>. La función devuelve la misma
    promesa que recibió, para no estorbar a quien ya encadenaba sobre ella — si se rechaza, sigue rechazada, y el error se
    trata donde ya se trataría.</p>
 
@@ -330,7 +330,7 @@ def save(request, pk):
 
 <p>El reloj se pausa cuando el puntero entra en el toast o algo dentro de él recibe el foco: nadie consigue leer algo que desaparece
    mientras intenta hacer clic en "Deshacer". Por el mismo motivo la pila se abre en abanico también con el foco, y no solo con el puntero. La X
-   es un botón de verdad, con <code>aria-label="Fechar"</code> (la etiqueta incorporada de la biblioteca, en portugués). Con <code>prefers-reduced-motion</code>, entrar y salir se reducen
+   es un botón de verdad, con <code>aria-label="Fechar"</code> (la etiqueta por defecto de la biblioteca, en portugués hasta que la cambies con <code>Tucano.setTexts({ toast: { close } })</code>). Con <code>prefers-reduced-motion</code>, entrar y salir se reducen
    a un fundido.</p>
 
 <h2 id="api">API</h2>

@@ -6,6 +6,15 @@ cambios en tu proyecto.
 
 ## Sin publicar
 
+### Antes de actualizar
+
+- Con el script cargado con `defer`, la inicialización automática ahora espera
+  a `DOMContentLoaded`, en lugar de ejecutarse en el instante en que corre el
+  script. Es lo que da tiempo a llamar a `Tucano.setTexts()` antes de que los
+  componentes se monten. Un script tuyo, también con `defer`, que leía
+  `elemento._tucano` nada más ejecutarse pasa a encontrar `undefined`: léelo
+  dentro de un listener de `DOMContentLoaded`.
+
 ### Nuevo
 
 - `data-tuc-reveal` también en texto suelto en la pantalla, y no solo en campos:
@@ -14,6 +23,18 @@ cambios en tu proyecto.
   (`end`, `email`, `all`) y junto con `data-tuc-format`. Es solo visual: el valor
   completo sigue en el HTML, así que lo que no puede llegar al navegador debe
   ocultarse en el servidor.
+- `Tucano.setTexts()` reemplaza cualquier texto que los componentes muestran o
+  anuncian: el "Limpar" y el "Aplicar" del date picker, los atajos de período, el
+  "Buscar..." y el "Nenhum resultado" del select, el "Fechar" del modal, del
+  panel lateral y del toast, los botones del editor, el "Mostrar"/"Ocultar" de la
+  máscara y las etiquetas que lee el lector de pantalla. En un proyecto en inglés
+  o español ya no aparece nada en portugués. El cambio es por grupo
+  (`Tucano.setTexts({ datepicker: { clear: 'Clear' } })`), vale para lo que se
+  monte después, y la opción de la instancia (`data-placeholder`, `emptyText`,
+  `prevText`, `texts` del upload) sigue ganando. El portugués sigue como
+  predeterminado, sin diccionarios de idiomas en el paquete, y
+  `Tucano.getTexts()` devuelve los textos actuales. El nombre del día que el
+  lector de pantalla lee en el calendario ahora viene del idioma de la página.
 
 ### Corregido
 
@@ -24,6 +45,10 @@ cambios en tu proyecto.
 - Un campo solo con el ojo recibía `inputmode="numeric"`, y el móvil abría el
   teclado de números para contraseñas y tokens. Y el campo de contraseña perdía
   el `autocomplete` del navegador, lo que estorbaba al gestor de contraseñas.
+- Algunos textos predeterminados en portugués no tenían tilde: "Mês anterior",
+  "Próximo mês", "Próximo" y "Selecionar período" en el date picker, "Limpar
+  seleção" en el select y "Saturação e brilho" en el color picker. Si un test de
+  tu proyecto compara esos textos, actualízalo.
 
 ## 0.33.1 — 2026-09-14
 

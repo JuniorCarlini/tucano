@@ -133,7 +133,7 @@ Tucano.toast.promise(fetch(url), {
    a "saved" stuck on screen forever.</p>
 
 <p>In <code>toast.promise()</code>, <code>success</code> and <code>error</code> accept text or a function that receives the
-   result or the error. Without them, the library's built-in texts are used, which are in Portuguese: "Carregando...", "Pronto" and "Algo deu errado". The function returns the same
+   result or the error. Without them, the library's default texts are used: "Carregando...", "Pronto" and "Algo deu errado" in Portuguese, or whatever you set for the whole page with <code>Tucano.setTexts({ toast: { loading, success, error } })</code>. The function returns the same
    promise it received, so it doesn't get in the way of code already chaining on it — if rejected, it stays rejected, and the error is
    handled wherever it would have been.</p>
 
@@ -241,7 +241,7 @@ document.body.dispatchEvent(new CustomEvent('tucano:toast', {
 
 <p>The clock pauses when the pointer enters the toast or something inside it receives focus: nobody can read something that disappears
    while they're trying to click "Undo". For the same reason the stack fans out on focus too, not just on pointer. The X
-   is a real button, with <code>aria-label="Fechar"</code> (the library's built-in label, in Portuguese). With <code>prefers-reduced-motion</code>, entering and leaving become
+   is a real button, with <code>aria-label="Fechar"</code> (the library's default label, in Portuguese until you change it with <code>Tucano.setTexts({ toast: { close } })</code>). With <code>prefers-reduced-motion</code>, entering and leaving become
    just a fade.</p>
 
 <h2 id="api">API</h2>

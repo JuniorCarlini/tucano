@@ -1,4 +1,5 @@
 import { el, escapeHtml, icon, ICON_CHECK, ICON_COPY, on } from './dom.js';
+import { PROSE_TEXTS as T } from './texts.js';
 /*
  * Destaque de codigo, generico.
  *
@@ -120,7 +121,7 @@ function addCopy(pre) {
   // O botao e o do sistema; .tuc-copy so o posiciona no canto do bloco.
   const btn = el('button', {
     type: 'button', class: 'tuc-btn is-outline is-icon is-sm tuc-copy',
-    'aria-label': 'Copiar código',
+    'aria-label': T.copy,
   }, [icon(ICON_COPY, 14), icon(ICON_CHECK, 14)]);
   btn.children[1].classList.add('tuc-copy__ok');
 
@@ -137,10 +138,10 @@ function addCopy(pre) {
       return;
     }
     btn.classList.add('is-copied');
-    btn.setAttribute('aria-label', 'Copiado');
+    btn.setAttribute('aria-label', T.copied);
     setTimeout(() => {
       btn.classList.remove('is-copied');
-      btn.setAttribute('aria-label', 'Copiar código');
+      btn.setAttribute('aria-label', T.copy);
     }, 1600);
   });
 

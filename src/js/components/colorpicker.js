@@ -1,6 +1,7 @@
 import { clamp, formatColor, hsvToRgb, isDark, parseColor, rgbToHex } from '../core/color.js';
 import { el, icon, ICON_PIPETTE, nextId, omitUndefined, on, openWithTransition } from '../core/dom.js';
 import { Popover } from '../core/popover.js';
+import { COLORPICKER_TEXTS as T } from '../core/texts.js';
 
 const PALETTE = [
   '#0a0a0a', '#525252', '#a3a3a3', '#e5e5e5', '#ffffff',
@@ -111,7 +112,7 @@ export class ColorPicker {
     this.swatch = el('button', {
       type: 'button',
       class: 'tuc-color-field__swatch',
-      'aria-label': 'Escolher cor',
+      'aria-label': T.pick,
       'aria-haspopup': 'dialog',
       'aria-expanded': 'false',
       onclick: () => this.toggle(),
@@ -134,23 +135,23 @@ export class ColorPicker {
 
     this.area = el('div', {
       class: 'tuc-colorpicker__area', tabindex: 0, role: 'application',
-      'aria-label': 'Saturacao e brilho',
+      'aria-label': T.area,
     }, [el('span', { class: 'tuc-colorpicker__thumb' })]);
 
-    this.hue = this._buildSlider('hue', 'Matiz', 360);
-    this.alpha = this.opts.alpha ? this._buildSlider('alpha', 'Opacidade', 1) : null;
+    this.hue = this._buildSlider('hue', T.hue, 360);
+    this.alpha = this.opts.alpha ? this._buildSlider('alpha', T.alpha, 1) : null;
 
     this.preview = el('span', { class: 'tuc-colorpicker__preview' });
     this.hexField = el('input', {
       class: 'tuc-input tuc-colorpicker__field', type: 'text', spellcheck: 'false',
-      autocomplete: 'off', 'aria-label': 'Valor da cor',
+      autocomplete: 'off', 'aria-label': T.value,
     });
 
     const fieldRow = el('div', { class: 'tuc-colorpicker__row' }, [
       this.preview,
       this.hexField,
       supportsEyeDropper() ? el('button', {
-        type: 'button', class: 'tuc-btn is-outline is-icon is-sm tuc-colorpicker__pick', 'aria-label': 'Capturar cor da tela',
+        type: 'button', class: 'tuc-btn is-outline is-icon is-sm tuc-colorpicker__pick', 'aria-label': T.eyeDropper,
         onclick: () => this._pickFromScreen(),
       }, [icon(ICON_PIPETTE, 15)]) : null,
     ]);
@@ -158,7 +159,7 @@ export class ColorPicker {
     const tracks = el('div', { class: 'tuc-colorpicker__tracks' }, [this.hue.root, this.alpha?.root]);
 
     this.panel = el('div', {
-      class: 'tuc-colorpicker', role: 'dialog', 'aria-label': 'Seletor de cor', id: this.id,
+      class: 'tuc-colorpicker', role: 'dialog', 'aria-label': T.dialog, id: this.id,
     }, [this.area, tracks, fieldRow, this.opts.swatches ? this._buildSwatches() : null]);
 
     this._cleanups.push(

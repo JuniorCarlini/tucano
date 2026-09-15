@@ -1,4 +1,5 @@
 import { el, icon, ICON_ALERT, ICON_CHECK, ICON_INFO, ICON_X, nextId, omitUndefined, on, openWithTransition } from '../core/dom.js';
+import { TOAST_TEXTS as T } from '../core/texts.js';
 
 const DEFAULTS = {
   type: 'info',        // 'info' | 'success' | 'warning' | 'error' | 'loading'
@@ -43,7 +44,7 @@ function container(position) {
   const node = el('div', {
     class: `tuc-toasts is-${position}`,
     role: 'region',
-    'aria-label': 'Notificações',
+    'aria-label': T.region,
   }, [
     el('div', { class: 'tuc-toasts__stage' }, [
       el('div', { class: 'tuc-toasts__live', 'aria-live': 'polite', 'aria-atomic': 'false' }),
@@ -159,7 +160,7 @@ export class Toast {
       }) : null,
       closable ? el('button', {
         type: 'button', class: 'tuc-btn is-ghost is-icon is-sm tuc-toast__close',
-        'aria-label': 'Fechar', onclick: () => this.close(),
+        'aria-label': T.close, onclick: () => this.close(),
       }, [icon(ICON_X, 14)]) : null,
     ];
   }
@@ -323,14 +324,14 @@ for (const type of ['info', 'success', 'warning', 'error', 'loading']) {
  */
 toast.promise = (promise, msgs = {}) => {
   const { loading, success, error, ...rest } = msgs;
-  const t = toast.loading(loading ?? 'Carregando...', rest);
+  const t = toast.loading(loading ?? T.loading, rest);
   const render = (v, data, fallback) => {
     const r = typeof v === 'function' ? v(data) : v;
     return r ?? fallback;
   };
   Promise.resolve(promise).then(
-    (data) => t.update({ type: 'success', text: render(success, data, 'Pronto') }),
-    (failure) => t.update({ type: 'error', text: render(error, failure, 'Algo deu errado') }),
+    (data) => t.update({ type: 'success', text: render(success, data, T.success) }),
+    (failure) => t.update({ type: 'error', text: render(error, failure, T.error) }),
   );
   return promise;
 };

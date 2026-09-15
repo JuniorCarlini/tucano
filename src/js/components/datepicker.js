@@ -5,6 +5,7 @@ import {
 } from '../core/dates.js';
 import { el, icon, ICON_CHEVRON_DOWN, ICON_CHEVRON_LEFT, ICON_CHEVRON_RIGHT, nextId, omitUndefined, on, openWithTransition } from '../core/dom.js';
 import { Popover, trapFocus } from '../core/popover.js';
+import { DATEPICKER_TEXTS as T } from '../core/texts.js';
 
 const DEFAULTS = {
   mode: 'single',        // 'single' | 'range'
@@ -51,6 +52,9 @@ export class DatePicker {
     this.opts = { ...DEFAULTS, ...omitUndefined(options) };
     this.opts.locale = this.opts.locale || document.documentElement.lang || navigator.language || 'pt-BR';
     this.L = getLocaleData(this.opts.locale);
+    // Nome do dia lido pelo leitor de tela, na forma completa do proprio idioma.
+    // O padrao escrito a mao ("d 'de' MMMM 'de' yyyy") so servia ao portugues.
+    this._dayName = new Intl.DateTimeFormat(this.opts.locale, { dateStyle: 'full' });
     this.opts.format = this.opts.format || localeDatePattern(this.opts.locale);
     this.opts.firstDayOfWeek = this.opts.firstDayOfWeek ?? this.L.firstDayOfWeek;
     this.isRange = this.opts.mode === 'range';
@@ -195,7 +199,7 @@ export class DatePicker {
       class: `tuc-dp${this.isRange ? ' is-range' : ''}${this.opts.time ? ' is-timed' : ''}`,
       role: 'dialog',
       'aria-modal': 'false',
-      'aria-label': this.isRange ? 'Selecionar periodo' : 'Selecionar data',
+      'aria-label': this.isRange ? T.dialogRange : T.dialog,
       id: this.id,
     });
     this._cleanups.push(
@@ -496,7 +500,9 @@ export class DatePicker {
   }
 
   _placeholder() {
-    const sample = this._displayFormat().replace(/y/g, 'a').replace(/M/g, 'm').replace(/H|h/g, 'h');
+    // Cada letra do formato vira a do idioma: "yyyy" e "aaaa" em portugues.
+    const sample = this._displayFormat().replace(/[yMdHhms]/g,
+      (c) => T.placeholderLetters['yMdhms'.indexOf(c === 'H' ? 'h' : c)]);
     return this.isRange ? `${sample} — ${sample}` : sample;
   }
 
@@ -715,7 +721,7 @@ export class DatePicker {
     const header = el('div', { class: 'tuc-dp__header' }, [
       showPrev
         ? el('button', {
-            type: 'button', class: 'tuc-btn is-ghost is-icon is-sm tuc-dp__nav', 'aria-label': 'Mes anterior',
+            type: 'button', class: 'tuc-btn is-ghost is-icon is-sm tuc-dp__nav', 'aria-label': T.previousMonth,
             disabled: this._navBlocked(-1), onclick: () => this._shiftView(-1),
           }, [icon(ICON_CHEVRON_LEFT)])
         : el('span', { class: 'tuc-btn is-icon is-sm tuc-dp__nav is-placeholder', 'aria-hidden': 'true' }),
@@ -725,7 +731,7 @@ export class DatePicker {
       }, [`${this.L.monthsLong[month]} ${year}`, icon(ICON_CHEVRON_DOWN, 14)]),
       showNext
         ? el('button', {
-            type: 'button', class: 'tuc-btn is-ghost is-icon is-sm tuc-dp__nav', 'aria-label': 'Proximo mes',
+            type: 'button', class: 'tuc-btn is-ghost is-icon is-sm tuc-dp__nav', 'aria-label': T.nextMonth,
             disabled: this._navBlocked(1), onclick: () => this._shiftView(1),
           }, [icon(ICON_CHEVRON_RIGHT)])
         : el('span', { class: 'tuc-btn is-icon is-sm tuc-dp__nav is-placeholder', 'aria-hidden': 'true' }),
@@ -817,7 +823,7 @@ export class DatePicker {
       disabled: this._isDisabled(date),
       role: 'gridcell',
       'aria-selected': classes.includes('is-selected') ? 'true' : 'false',
-      'aria-label': format(date, "EEEE, d 'de' MMMM 'de' yyyy", this.opts.locale),
+      'aria-label': this._dayName.format(date),
       dataset: { date: toISODate(date), month },
       onclick: () => this._selectDay(date),
       onmouseenter: () => {
@@ -836,7 +842,7 @@ export class DatePicker {
     const step = isMonths ? 1 : 12;
     const header = el('div', { class: 'tuc-dp__header' }, [
       el('button', {
-        type: 'button', class: 'tuc-btn is-ghost is-icon is-sm tuc-dp__nav', 'aria-label': 'Anterior',
+        type: 'button', class: 'tuc-btn is-ghost is-icon is-sm tuc-dp__nav', 'aria-label': T.previous,
         onclick: () => { this.viewDate = addYears(this.viewDate, -step); this._render(); },
       }, [icon(ICON_CHEVRON_LEFT)]),
       el('button', {
@@ -844,7 +850,7 @@ export class DatePicker {
         onclick: () => { this.view = isMonths ? 'years' : 'days'; this._render(); },
       }, [isMonths ? String(year) : `${floorTo(year, 12)} – ${floorTo(year, 12) + 11}`]),
       el('button', {
-        type: 'button', class: 'tuc-btn is-ghost is-icon is-sm tuc-dp__nav', 'aria-label': 'Proximo',
+        type: 'button', class: 'tuc-btn is-ghost is-icon is-sm tuc-dp__nav', 'aria-label': T.next,
         onclick: () => { this.viewDate = addYears(this.viewDate, step); this._render(); },
       }, [icon(ICON_CHEVRON_RIGHT)]),
     ]);
@@ -882,7 +888,7 @@ export class DatePicker {
 
   _renderTime() {
     const row = el('div', { class: 'tuc-dp__time' });
-    const targets = this.isRange ? [['start', 'Início'], ['end', 'Fim']] : [['start', 'Horário']];
+    const targets = this.isRange ? [['start', T.start], ['end', T.end]] : [['start', T.time]];
     const pad2 = (n) => String(n).padStart(2, '0');
 
     for (const [which, label] of targets) {
@@ -910,7 +916,7 @@ export class DatePicker {
   _renderTimeList(which, unit, count, step, current) {
     const list = el('div', {
       class: 'tuc-dp__timelist', role: 'listbox', tabindex: 0,
-      'aria-label': { h: 'Hora', m: 'Minuto', s: 'Segundo' }[unit],
+      'aria-label': { h: T.hour, m: T.minute, s: T.second }[unit],
       dataset: { which, unit },
     });
     for (let v = 0; v < count; v += step) {
@@ -948,14 +954,14 @@ export class DatePicker {
     const footer = el('div', { class: 'tuc-dp__footer' });
     if (this.opts.clearable) {
       footer.append(el('button', {
-        type: 'button', class: 'tuc-btn is-ghost is-sm', text: 'Limpar',
+        type: 'button', class: 'tuc-btn is-ghost is-sm', text: T.clear,
         onclick: () => { this.clear(); if (this.opts.autoApply) this.close(); },
       }));
     }
     footer.append(el('span', { class: 'tuc-dp__spacer' }));
     if (!this.opts.autoApply) {
       footer.append(el('button', {
-        type: 'button', class: 'tuc-btn is-primary is-sm', text: 'Aplicar',
+        type: 'button', class: 'tuc-btn is-primary is-sm', text: T.apply,
         disabled: !this.start || (this.isRange && !this.end),
         onclick: () => { this._emit(); this.close(); },
       }));
@@ -1025,13 +1031,13 @@ function buildPresets(option) {
   if (Array.isArray(option)) return option;
   const today = () => startOfDay(new Date());
   return [
-    { label: 'Hoje', value: () => ({ start: today(), end: today() }) },
-    { label: 'Ontem', value: () => ({ start: addDays(today(), -1), end: addDays(today(), -1) }) },
-    { label: 'Últimos 7 dias', value: () => ({ start: addDays(today(), -6), end: today() }) },
-    { label: 'Últimos 30 dias', value: () => ({ start: addDays(today(), -29), end: today() }) },
-    { label: 'Este mês', value: () => { const t = today(); return { start: new Date(t.getFullYear(), t.getMonth(), 1), end: new Date(t.getFullYear(), t.getMonth() + 1, 0) }; } },
-    { label: 'Mês passado', value: () => { const t = today(); return { start: new Date(t.getFullYear(), t.getMonth() - 1, 1), end: new Date(t.getFullYear(), t.getMonth(), 0) }; } },
-    { label: 'Este ano', value: () => { const t = today(); return { start: new Date(t.getFullYear(), 0, 1), end: new Date(t.getFullYear(), 11, 31) }; } },
+    { label: T.today, value: () => ({ start: today(), end: today() }) },
+    { label: T.yesterday, value: () => ({ start: addDays(today(), -1), end: addDays(today(), -1) }) },
+    { label: T.last7Days, value: () => ({ start: addDays(today(), -6), end: today() }) },
+    { label: T.last30Days, value: () => ({ start: addDays(today(), -29), end: today() }) },
+    { label: T.thisMonth, value: () => { const t = today(); return { start: new Date(t.getFullYear(), t.getMonth(), 1), end: new Date(t.getFullYear(), t.getMonth() + 1, 0) }; } },
+    { label: T.lastMonth, value: () => { const t = today(); return { start: new Date(t.getFullYear(), t.getMonth() - 1, 1), end: new Date(t.getFullYear(), t.getMonth(), 0) }; } },
+    { label: T.thisYear, value: () => { const t = today(); return { start: new Date(t.getFullYear(), 0, 1), end: new Date(t.getFullYear(), 11, 31) }; } },
   ];
 }
 

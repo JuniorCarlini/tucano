@@ -61,6 +61,7 @@ var Tucano = (() => {
     confirm: () => confirm,
     dates: () => dates_exports,
     drawer: () => drawer,
+    getTexts: () => getTexts,
     highlight: () => highlight,
     icon: () => icon,
     init: () => init,
@@ -70,6 +71,7 @@ var Tucano = (() => {
     pageWindow: () => pageWindow,
     pagination: () => pagination,
     sanitize: () => sanitize,
+    setTexts: () => setTexts,
     toast: () => toast
   });
 
@@ -583,6 +585,164 @@ var Tucano = (() => {
     return on(panel, "keydown", handler);
   }
 
+  // src/js/core/texts.js
+  var DATEPICKER_TEXTS = {
+    dialog: "Selecionar data",
+    dialogRange: "Selecionar per\xEDodo",
+    previousMonth: "M\xEAs anterior",
+    nextMonth: "Pr\xF3ximo m\xEAs",
+    // Setas da escolha de mes e de ano.
+    previous: "Anterior",
+    next: "Pr\xF3ximo",
+    time: "Hor\xE1rio",
+    start: "In\xEDcio",
+    end: "Fim",
+    hour: "Hora",
+    minute: "Minuto",
+    second: "Segundo",
+    clear: "Limpar",
+    apply: "Aplicar",
+    today: "Hoje",
+    yesterday: "Ontem",
+    last7Days: "\xDAltimos 7 dias",
+    last30Days: "\xDAltimos 30 dias",
+    thisMonth: "Este m\xEAs",
+    lastMonth: "M\xEAs passado",
+    thisYear: "Este ano",
+    // Letras do placeholder, nesta ordem: ano, mes, dia, hora, minuto, segundo.
+    // "amdhms" escreve dd/mm/aaaa; em ingles, "ymdhms" escreve mm/dd/yyyy.
+    placeholderLetters: "amdhms"
+  };
+  var SELECT_TEXTS = {
+    placeholder: "Selecione...",
+    searchPlaceholder: "Buscar...",
+    emptyText: "Nenhum resultado",
+    loadingText: "Buscando...",
+    errorText: "Falha ao buscar",
+    typeToSearch: (n) => `Digite ${n} caractere${n > 1 ? "s" : ""} para buscar`,
+    clear: "Limpar sele\xE7\xE3o",
+    remove: (label) => `Remover ${label}`
+  };
+  var COLORPICKER_TEXTS = {
+    pick: "Escolher cor",
+    dialog: "Seletor de cor",
+    area: "Satura\xE7\xE3o e brilho",
+    hue: "Matiz",
+    alpha: "Opacidade",
+    value: "Valor da cor",
+    eyeDropper: "Capturar cor da tela"
+  };
+  var UPLOAD_TEXTS = {
+    zone: "Arraste arquivos aqui ou clique para escolher",
+    zoneOne: "Arraste um arquivo aqui ou clique para escolher",
+    drop: "Solte para enviar",
+    cancel: "Cancelar",
+    remove: "Remover",
+    repeat: "Tentar de novo",
+    large: (max) => `Arquivo maior que ${max}`,
+    type: "Tipo de arquivo n\xE3o aceito",
+    others: (n) => `No m\xE1ximo ${n} arquivo${n > 1 ? "s" : ""}`,
+    upTo: (size) => `at\xE9 ${size}`,
+    serverError: (status) => `O servidor respondeu ${status}`,
+    networkError: "Falha de rede"
+  };
+  var MASK_TEXTS = {
+    show: "Mostrar",
+    hide: "Ocultar",
+    invalid: "Valor inv\xE1lido",
+    cpf: "CPF inv\xE1lido",
+    cnpj: "CNPJ inv\xE1lido",
+    cpfCnpj: "Documento inv\xE1lido"
+  };
+  var TOAST_TEXTS = {
+    region: "Notifica\xE7\xF5es",
+    close: "Fechar",
+    // Padroes do toast.promise.
+    loading: "Carregando...",
+    success: "Pronto",
+    error: "Algo deu errado"
+  };
+  var MODAL_TEXTS = {
+    close: "Fechar",
+    // Botoes do Tucano.confirm.
+    confirm: "Confirmar",
+    cancel: "Cancelar"
+  };
+  var DRAWER_TEXTS = {
+    close: "Fechar"
+  };
+  var TABLE_TEXTS = {
+    selectAll: "Selecionar todas as linhas desta p\xE1gina",
+    selectRow: "Selecionar linha"
+  };
+  var PAGINATION_TEXTS = {
+    prevText: "Anterior",
+    nextText: "Pr\xF3xima",
+    label: "Pagina\xE7\xE3o"
+  };
+  var EDITOR_TEXTS = {
+    toolbar: "Formata\xE7\xE3o",
+    tableToolbar: "Tabela",
+    // Botoes da barra, com o nome que eles tem na opcao `toolbar`.
+    bold: "Negrito",
+    italic: "It\xE1lico",
+    underline: "Sublinhado",
+    title: "T\xEDtulo",
+    subheading: "Subt\xEDtulo",
+    list: "Lista",
+    numbered: "Lista numerada",
+    quote: "Cita\xE7\xE3o",
+    link: "Link",
+    clear: "Limpar formata\xE7\xE3o",
+    table: "Inserir tabela",
+    left: "Alinhar \xE0 esquerda",
+    center: "Centralizar",
+    right: "Alinhar \xE0 direita",
+    justify: "Justificar",
+    code: "C\xF3digo",
+    // Barra que aparece com o cursor dentro de uma tabela.
+    rowAbove: "Inserir linha acima",
+    rowBelow: "Inserir linha abaixo",
+    colBefore: "Inserir coluna \xE0 esquerda",
+    colAfter: "Inserir coluna \xE0 direita",
+    deleteRow: "Excluir linha",
+    deleteColumn: "Excluir coluna",
+    deleteTable: "Excluir tabela",
+    // Caixa do link.
+    insertLink: "Inserir link",
+    editLink: "Editar link",
+    cancel: "Cancelar",
+    removeLink: "Remover",
+    save: "Salvar",
+    insert: "Inserir"
+  };
+  var PROSE_TEXTS = {
+    copy: "Copiar c\xF3digo",
+    copied: "Copiado"
+  };
+  var GROUPS = {
+    datepicker: DATEPICKER_TEXTS,
+    select: SELECT_TEXTS,
+    colorpicker: COLORPICKER_TEXTS,
+    upload: UPLOAD_TEXTS,
+    mask: MASK_TEXTS,
+    toast: TOAST_TEXTS,
+    modal: MODAL_TEXTS,
+    drawer: DRAWER_TEXTS,
+    table: TABLE_TEXTS,
+    pagination: PAGINATION_TEXTS,
+    editor: EDITOR_TEXTS,
+    prose: PROSE_TEXTS
+  };
+  function setTexts(texts = {}) {
+    for (const [name, values] of Object.entries(texts)) {
+      if (GROUPS[name]) Object.assign(GROUPS[name], values);
+    }
+  }
+  function getTexts() {
+    return Object.fromEntries(Object.entries(GROUPS).map(([name, group]) => [name, { ...group }]));
+  }
+
   // src/js/components/datepicker.js
   var DEFAULTS = {
     mode: "single",
@@ -636,6 +796,7 @@ var Tucano = (() => {
       this.opts = { ...DEFAULTS, ...omitUndefined(options) };
       this.opts.locale = this.opts.locale || document.documentElement.lang || navigator.language || "pt-BR";
       this.L = getLocaleData(this.opts.locale);
+      this._dayName = new Intl.DateTimeFormat(this.opts.locale, { dateStyle: "full" });
       this.opts.format = this.opts.format || localeDatePattern(this.opts.locale);
       this.opts.firstDayOfWeek = this.opts.firstDayOfWeek ?? this.L.firstDayOfWeek;
       this.isRange = this.opts.mode === "range";
@@ -760,7 +921,7 @@ var Tucano = (() => {
         class: `tuc-dp${this.isRange ? " is-range" : ""}${this.opts.time ? " is-timed" : ""}`,
         role: "dialog",
         "aria-modal": "false",
-        "aria-label": this.isRange ? "Selecionar periodo" : "Selecionar data",
+        "aria-label": this.isRange ? DATEPICKER_TEXTS.dialogRange : DATEPICKER_TEXTS.dialog,
         id: this.id
       });
       this._cleanups.push(
@@ -1026,7 +1187,10 @@ var Tucano = (() => {
       this._render();
     }
     _placeholder() {
-      const sample = this._displayFormat().replace(/y/g, "a").replace(/M/g, "m").replace(/H|h/g, "h");
+      const sample = this._displayFormat().replace(
+        /[yMdHhms]/g,
+        (c) => DATEPICKER_TEXTS.placeholderLetters["yMdhms".indexOf(c === "H" ? "h" : c)]
+      );
       return this.isRange ? `${sample} \u2014 ${sample}` : sample;
     }
     /* ---------------------------------------------------------------- *
@@ -1219,7 +1383,7 @@ var Tucano = (() => {
         showPrev ? el("button", {
           type: "button",
           class: "tuc-btn is-ghost is-icon is-sm tuc-dp__nav",
-          "aria-label": "Mes anterior",
+          "aria-label": DATEPICKER_TEXTS.previousMonth,
           disabled: this._navBlocked(-1),
           onclick: () => this._shiftView(-1)
         }, [icon(ICON_CHEVRON_LEFT)]) : el("span", { class: "tuc-btn is-icon is-sm tuc-dp__nav is-placeholder", "aria-hidden": "true" }),
@@ -1236,7 +1400,7 @@ var Tucano = (() => {
         showNext ? el("button", {
           type: "button",
           class: "tuc-btn is-ghost is-icon is-sm tuc-dp__nav",
-          "aria-label": "Proximo mes",
+          "aria-label": DATEPICKER_TEXTS.nextMonth,
           disabled: this._navBlocked(1),
           onclick: () => this._shiftView(1)
         }, [icon(ICON_CHEVRON_RIGHT)]) : el("span", { class: "tuc-btn is-icon is-sm tuc-dp__nav is-placeholder", "aria-hidden": "true" })
@@ -1317,7 +1481,7 @@ var Tucano = (() => {
         disabled: this._isDisabled(date),
         role: "gridcell",
         "aria-selected": classes.includes("is-selected") ? "true" : "false",
-        "aria-label": format(date, "EEEE, d 'de' MMMM 'de' yyyy", this.opts.locale),
+        "aria-label": this._dayName.format(date),
         dataset: { date: toISODate(date), month },
         onclick: () => this._selectDay(date),
         onmouseenter: () => {
@@ -1339,7 +1503,7 @@ var Tucano = (() => {
         el("button", {
           type: "button",
           class: "tuc-btn is-ghost is-icon is-sm tuc-dp__nav",
-          "aria-label": "Anterior",
+          "aria-label": DATEPICKER_TEXTS.previous,
           onclick: () => {
             this.viewDate = addYears(this.viewDate, -step);
             this._render();
@@ -1356,7 +1520,7 @@ var Tucano = (() => {
         el("button", {
           type: "button",
           class: "tuc-btn is-ghost is-icon is-sm tuc-dp__nav",
-          "aria-label": "Proximo",
+          "aria-label": DATEPICKER_TEXTS.next,
           onclick: () => {
             this.viewDate = addYears(this.viewDate, step);
             this._render();
@@ -1387,7 +1551,7 @@ var Tucano = (() => {
     }
     _renderTime() {
       const row = el("div", { class: "tuc-dp__time" });
-      const targets = this.isRange ? [["start", "In\xEDcio"], ["end", "Fim"]] : [["start", "Hor\xE1rio"]];
+      const targets = this.isRange ? [["start", DATEPICKER_TEXTS.start], ["end", DATEPICKER_TEXTS.end]] : [["start", DATEPICKER_TEXTS.time]];
       const pad2 = (n) => String(n).padStart(2, "0");
       for (const [which, label] of targets) {
         const value = which === "end" ? this.end : this.start;
@@ -1410,7 +1574,7 @@ var Tucano = (() => {
         class: "tuc-dp__timelist",
         role: "listbox",
         tabindex: 0,
-        "aria-label": { h: "Hora", m: "Minuto", s: "Segundo" }[unit],
+        "aria-label": { h: DATEPICKER_TEXTS.hour, m: DATEPICKER_TEXTS.minute, s: DATEPICKER_TEXTS.second }[unit],
         dataset: { which, unit }
       });
       for (let v = 0; v < count; v += step) {
@@ -1447,7 +1611,7 @@ var Tucano = (() => {
         footer.append(el("button", {
           type: "button",
           class: "tuc-btn is-ghost is-sm",
-          text: "Limpar",
+          text: DATEPICKER_TEXTS.clear,
           onclick: () => {
             this.clear();
             if (this.opts.autoApply) this.close();
@@ -1459,7 +1623,7 @@ var Tucano = (() => {
         footer.append(el("button", {
           type: "button",
           class: "tuc-btn is-primary is-sm",
-          text: "Aplicar",
+          text: DATEPICKER_TEXTS.apply,
           disabled: !this.start || this.isRange && !this.end,
           onclick: () => {
             this._emit();
@@ -1526,19 +1690,19 @@ var Tucano = (() => {
     if (Array.isArray(option)) return option;
     const today = () => startOfDay(/* @__PURE__ */ new Date());
     return [
-      { label: "Hoje", value: () => ({ start: today(), end: today() }) },
-      { label: "Ontem", value: () => ({ start: addDays(today(), -1), end: addDays(today(), -1) }) },
-      { label: "\xDAltimos 7 dias", value: () => ({ start: addDays(today(), -6), end: today() }) },
-      { label: "\xDAltimos 30 dias", value: () => ({ start: addDays(today(), -29), end: today() }) },
-      { label: "Este m\xEAs", value: () => {
+      { label: DATEPICKER_TEXTS.today, value: () => ({ start: today(), end: today() }) },
+      { label: DATEPICKER_TEXTS.yesterday, value: () => ({ start: addDays(today(), -1), end: addDays(today(), -1) }) },
+      { label: DATEPICKER_TEXTS.last7Days, value: () => ({ start: addDays(today(), -6), end: today() }) },
+      { label: DATEPICKER_TEXTS.last30Days, value: () => ({ start: addDays(today(), -29), end: today() }) },
+      { label: DATEPICKER_TEXTS.thisMonth, value: () => {
         const t = today();
         return { start: new Date(t.getFullYear(), t.getMonth(), 1), end: new Date(t.getFullYear(), t.getMonth() + 1, 0) };
       } },
-      { label: "M\xEAs passado", value: () => {
+      { label: DATEPICKER_TEXTS.lastMonth, value: () => {
         const t = today();
         return { start: new Date(t.getFullYear(), t.getMonth() - 1, 1), end: new Date(t.getFullYear(), t.getMonth(), 0) };
       } },
-      { label: "Este ano", value: () => {
+      { label: DATEPICKER_TEXTS.thisYear, value: () => {
         const t = today();
         return { start: new Date(t.getFullYear(), 0, 1), end: new Date(t.getFullYear(), 11, 31) };
       } }
@@ -1611,14 +1775,17 @@ var Tucano = (() => {
   }
 
   // src/js/components/select.js
+  var TEXT_OPTIONS = ["searchPlaceholder", "emptyText", "loadingText", "errorText"];
   var DEFAULTS2 = {
     search: void 0,
     // default: liga a partir de 6 opcoes
     searchMinItems: 6,
     placeholder: void 0,
-    // default: do atributo ou "Selecione..."
-    searchPlaceholder: "Buscar...",
-    emptyText: "Nenhum resultado",
+    // default: do atributo, da <option value=""> ou setTexts ("Selecione...")
+    searchPlaceholder: void 0,
+    // default: setTexts ("Buscar...")
+    emptyText: void 0,
+    // default: setTexts ("Nenhum resultado")
     clearable: true,
     maxItems: null,
     // limite no modo multiplo
@@ -1643,8 +1810,10 @@ var Tucano = (() => {
     cacheSize: 60,
     shortCircuit: false,
     // ver _noChance()
-    loadingText: "Buscando...",
-    errorText: "Falha ao buscar",
+    loadingText: void 0,
+    // default: setTexts ("Buscando...")
+    errorText: void 0,
+    // default: setTexts ("Falha ao buscar")
     onChange: null
   };
   var Select = class {
@@ -1656,7 +1825,8 @@ var Tucano = (() => {
       this.native = node;
       this.multiple = node.multiple;
       this.opts.closeOnSelect = this.opts.closeOnSelect ?? !this.multiple;
-      this.opts.placeholder = this.opts.placeholder ?? node.dataset.placeholder ?? (this.multiple ? "Selecione..." : firstEmptyLabel(node) ?? "Selecione...");
+      for (const key of TEXT_OPTIONS) this.opts[key] ??= SELECT_TEXTS[key];
+      this.opts.placeholder = this.opts.placeholder ?? node.dataset.placeholder ?? (this.multiple ? SELECT_TEXTS.placeholder : firstEmptyLabel(node) ?? SELECT_TEXTS.placeholder);
       this.id = nextId("sel");
       this.isOpen = false;
       this.query = "";
@@ -1775,7 +1945,7 @@ var Tucano = (() => {
       this.clearBtn = el("button", {
         type: "button",
         class: "tuc-btn is-ghost is-icon tuc-select__clear",
-        "aria-label": "Limpar selecao",
+        "aria-label": SELECT_TEXTS.clear,
         tabindex: -1,
         onclick: (e) => {
           e.stopPropagation();
@@ -1992,7 +2162,7 @@ var Tucano = (() => {
               type: "button",
               class: "tuc-select__tagx",
               tabindex: -1,
-              "aria-label": `Remover ${item.label}`,
+              "aria-label": SELECT_TEXTS.remove(item.label),
               onclick: (e) => {
                 e.stopPropagation();
                 this._toggleItem(item);
@@ -2036,7 +2206,7 @@ var Tucano = (() => {
         const remainingToType = this.remote && this.query.trim().length < this.opts.minChars;
         this.list.append(el("div", {
           class: "tuc-select__empty",
-          text: remainingToType ? `Digite ${this.opts.minChars} caractere${this.opts.minChars > 1 ? "s" : ""} para buscar` : this.opts.emptyText
+          text: remainingToType ? SELECT_TEXTS.typeToSearch(this.opts.minChars) : this.opts.emptyText
         }));
         return;
       }
@@ -2449,7 +2619,7 @@ var Tucano = (() => {
       this.swatch = el("button", {
         type: "button",
         class: "tuc-color-field__swatch",
-        "aria-label": "Escolher cor",
+        "aria-label": COLORPICKER_TEXTS.pick,
         "aria-haspopup": "dialog",
         "aria-expanded": "false",
         onclick: () => this.toggle(),
@@ -2476,17 +2646,17 @@ var Tucano = (() => {
         class: "tuc-colorpicker__area",
         tabindex: 0,
         role: "application",
-        "aria-label": "Saturacao e brilho"
+        "aria-label": COLORPICKER_TEXTS.area
       }, [el("span", { class: "tuc-colorpicker__thumb" })]);
-      this.hue = this._buildSlider("hue", "Matiz", 360);
-      this.alpha = this.opts.alpha ? this._buildSlider("alpha", "Opacidade", 1) : null;
+      this.hue = this._buildSlider("hue", COLORPICKER_TEXTS.hue, 360);
+      this.alpha = this.opts.alpha ? this._buildSlider("alpha", COLORPICKER_TEXTS.alpha, 1) : null;
       this.preview = el("span", { class: "tuc-colorpicker__preview" });
       this.hexField = el("input", {
         class: "tuc-input tuc-colorpicker__field",
         type: "text",
         spellcheck: "false",
         autocomplete: "off",
-        "aria-label": "Valor da cor"
+        "aria-label": COLORPICKER_TEXTS.value
       });
       const fieldRow = el("div", { class: "tuc-colorpicker__row" }, [
         this.preview,
@@ -2494,7 +2664,7 @@ var Tucano = (() => {
         supportsEyeDropper() ? el("button", {
           type: "button",
           class: "tuc-btn is-outline is-icon is-sm tuc-colorpicker__pick",
-          "aria-label": "Capturar cor da tela",
+          "aria-label": COLORPICKER_TEXTS.eyeDropper,
           onclick: () => this._pickFromScreen()
         }, [icon(ICON_PIPETTE, 15)]) : null
       ]);
@@ -2502,7 +2672,7 @@ var Tucano = (() => {
       this.panel = el("div", {
         class: "tuc-colorpicker",
         role: "dialog",
-        "aria-label": "Seletor de cor",
+        "aria-label": COLORPICKER_TEXTS.dialog,
         id: this.id
       }, [this.area, tracks, fieldRow, this.opts.swatches ? this._buildSwatches() : null]);
       this._cleanups.push(
@@ -2745,7 +2915,7 @@ var Tucano = (() => {
     const m = document.cookie.match(new RegExp(`(?:^|;\\s*)${name}=([^;]*)`));
     return m ? decodeURIComponent(m[1]) : null;
   }
-  function uploadFile({ url, file, field = "file", extras = {}, headers = {}, method = "POST", onProgress }) {
+  function uploadFile({ url, file, field = "file", extras = {}, headers = {}, method = "POST", texts = UPLOAD_TEXTS, onProgress }) {
     const xhr = new XMLHttpRequest();
     const promise = new Promise((resolve, reject) => {
       const data = new FormData();
@@ -2761,10 +2931,10 @@ var Tucano = (() => {
         if (xhr.status >= 200 && xhr.status < 300) {
           resolve(xhr.response ?? {});
         } else {
-          reject(new Error(`O servidor respondeu ${xhr.status}`));
+          reject(new Error(texts.serverError(xhr.status)));
         }
       });
-      xhr.addEventListener("error", () => reject(new Error("Falha de rede")));
+      xhr.addEventListener("error", () => reject(new Error(texts.networkError)));
       xhr.addEventListener("abort", () => reject(Object.assign(new Error("Cancelado"), { canceled: true })));
       xhr.send(data);
     });
@@ -2800,19 +2970,9 @@ var Tucano = (() => {
     // no modo direto, comeca ao soltar
     locale: void 0,
     texts: {},
+    // por cima de Tucano.setTexts({ upload }), so nesta instancia
     onChange: null,
     onError: null
-  };
-  var TEXTS = {
-    zone: "Arraste arquivos aqui ou clique para escolher",
-    zoneOne: "Arraste um arquivo aqui ou clique para escolher",
-    drop: "Solte para enviar",
-    cancel: "Cancelar",
-    remove: "Remover",
-    repeat: "Tentar de novo",
-    large: (max) => `Arquivo maior que ${max}`,
-    type: "Tipo de arquivo n\xE3o aceito",
-    others: (n) => `No m\xE1ximo ${n} arquivo${n > 1 ? "s" : ""}`
   };
   var Upload = class {
     constructor(target, options = {}) {
@@ -2823,7 +2983,7 @@ var Tucano = (() => {
       }
       this.opts = { ...DEFAULTS4, ...omitUndefined(options) };
       this.opts.locale = this.opts.locale || document.documentElement.lang || "pt-BR";
-      this.t = { ...TEXTS, ...this.opts.texts };
+      this.t = { ...UPLOAD_TEXTS, ...this.opts.texts };
       this.opts.maxSize = this.opts.maxSize == null ? null : parseSize(this.opts.maxSize);
       this.input = node;
       this.direct = !!this.opts.url;
@@ -2916,7 +3076,7 @@ var Tucano = (() => {
     _hint() {
       const parts = [];
       if (this.input.accept) parts.push(this.input.accept.split(",").map((s) => s.trim()).join(", "));
-      if (this.opts.maxSize) parts.push(`at\xE9 ${formatSize(this.opts.maxSize, this.opts.locale)}`);
+      if (this.opts.maxSize) parts.push(this.t.upTo(formatSize(this.opts.maxSize, this.opts.locale)));
       if (this.opts.maxFiles) parts.push(this.t.others(this.opts.maxFiles).toLowerCase());
       return parts.join(" \xB7 ");
     }
@@ -3025,6 +3185,7 @@ var Tucano = (() => {
         extras: this.opts.extraData,
         headers,
         method: this.opts.method,
+        texts: this.t,
         onProgress: (fraction) => {
           item.progress = fraction;
           this._paintProgress(item);
@@ -3354,13 +3515,21 @@ var Tucano = (() => {
 
   // src/js/components/mask.js
   var FORMATS = {
-    cpf: { template: "###.###.###-##", validate: validateCPF, error: "CPF inv\xE1lido" },
-    cnpj: { template: "**.***.***/****-##", validate: validateCNPJ, error: "CNPJ inv\xE1lido", uppercase: true },
-    "cnpj-numeric": { template: "##.###.###/####-##", validate: validateCNPJ, error: "CNPJ inv\xE1lido" },
+    cpf: { template: "###.###.###-##", validate: validateCPF, get error() {
+      return MASK_TEXTS.cpf;
+    } },
+    cnpj: { template: "**.***.***/****-##", validate: validateCNPJ, get error() {
+      return MASK_TEXTS.cnpj;
+    }, uppercase: true },
+    "cnpj-numeric": { template: "##.###.###/####-##", validate: validateCNPJ, get error() {
+      return MASK_TEXTS.cnpj;
+    } },
     "cpf-cnpj": {
       template: ["###.###.###-##", "**.***.***/****-##"],
       validate: validateCpfCnpj,
-      error: "Documento inv\xE1lido",
+      get error() {
+        return MASK_TEXTS.cpfCnpj;
+      },
       uppercase: true
     },
     phone: { template: ["(##) ####-####", "(##) #####-####"] },
@@ -3507,7 +3676,7 @@ var Tucano = (() => {
       this.eye = el("button", {
         type: "button",
         class: "tuc-btn is-ghost is-icon is-sm tuc-field__eye",
-        "aria-label": "Mostrar",
+        "aria-label": MASK_TEXTS.show,
         "aria-pressed": "false",
         onclick: () => this._toggle()
       });
@@ -3580,7 +3749,7 @@ var Tucano = (() => {
         }
       }
       this.eye.replaceChildren(icon(showing ? ICON_EYE_OFF : ICON_EYE, 16));
-      this.eye.setAttribute("aria-label", showing ? "Ocultar" : "Mostrar");
+      this.eye.setAttribute("aria-label", showing ? MASK_TEXTS.hide : MASK_TEXTS.show);
       this.eye.setAttribute("aria-pressed", String(showing));
       this.wrapper.classList.toggle("is-hidden", !showing);
     }
@@ -3675,7 +3844,7 @@ var Tucano = (() => {
      * Vazio fica neutro — obrigatoriedade e assunto do `required`, nao da mascara.
      */
     _mark(ok, approved = false) {
-      const msg = ok ? "" : this.opts.errorText || this.preset?.error || "Valor inv\xE1lido";
+      const msg = ok ? "" : this.opts.errorText || this.preset?.error || MASK_TEXTS.invalid;
       this.input.setCustomValidity?.(msg);
       this.input.classList.toggle("tuc-invalid", !ok);
       this.input.setAttribute("aria-invalid", ok ? "false" : "true");
@@ -3750,7 +3919,7 @@ var Tucano = (() => {
     const node = el("div", {
       class: `tuc-toasts is-${position}`,
       role: "region",
-      "aria-label": "Notifica\xE7\xF5es"
+      "aria-label": TOAST_TEXTS.region
     }, [
       el("div", { class: "tuc-toasts__stage" }, [
         el("div", { class: "tuc-toasts__live", "aria-live": "polite", "aria-atomic": "false" }),
@@ -3834,7 +4003,7 @@ var Tucano = (() => {
         closable ? el("button", {
           type: "button",
           class: "tuc-btn is-ghost is-icon is-sm tuc-toast__close",
-          "aria-label": "Fechar",
+          "aria-label": TOAST_TEXTS.close,
           onclick: () => this.close()
         }, [icon(ICON_X, 14)]) : null
       ];
@@ -3953,14 +4122,14 @@ var Tucano = (() => {
   }
   toast.promise = (promise, msgs = {}) => {
     const { loading, success, error, ...rest } = msgs;
-    const t = toast.loading(loading ?? "Carregando...", rest);
+    const t = toast.loading(loading ?? TOAST_TEXTS.loading, rest);
     const render = (v, data, fallback) => {
       const r = typeof v === "function" ? v(data) : v;
       return r ?? fallback;
     };
     Promise.resolve(promise).then(
-      (data) => t.update({ type: "success", text: render(success, data, "Pronto") }),
-      (failure) => t.update({ type: "error", text: render(error, failure, "Algo deu errado") })
+      (data) => t.update({ type: "success", text: render(success, data, TOAST_TEXTS.success) }),
+      (failure) => t.update({ type: "error", text: render(error, failure, TOAST_TEXTS.error) })
     );
     return promise;
   };
@@ -4183,7 +4352,7 @@ var Tucano = (() => {
       );
     }
   };
-  function buildPanel(prefix, opts, owner, titleId) {
+  function buildPanel(prefix, opts, owner, titleId, closeLabel) {
     const { title, text, actions, closable } = opts;
     return el("div", { class: `${prefix}__panel` }, [
       el("div", { class: `${prefix}__top` }, [
@@ -4194,7 +4363,8 @@ var Tucano = (() => {
         closable ? el("button", {
           type: "button",
           class: `tuc-btn is-ghost is-icon is-sm ${prefix}__close`,
-          "aria-label": "Fechar",
+          // O rotulo vem de quem monta: modal e gaveta tem cada um o seu grupo de textos.
+          "aria-label": closeLabel,
           onclick: () => owner.close("button")
         }, [icon(ICON_X, 15)]) : null
       ]),
@@ -4239,7 +4409,7 @@ var Tucano = (() => {
     }
     _build() {
       const titleId = `${this.id}-title`;
-      this.panel = buildPanel("tuc-modal", this.opts, this, titleId);
+      this.panel = buildPanel("tuc-modal", this.opts, this, titleId, MODAL_TEXTS.close);
       this.node = el("dialog", {
         class: [
           "tuc-modal",
@@ -4262,7 +4432,7 @@ var Tucano = (() => {
     return new Modal({ ...base, ...extra }).open();
   }
   function confirm(options = {}) {
-    const { confirm: okLabel = "Confirmar", cancel = "Cancelar", ...rest } = options;
+    const { confirm: okLabel = MODAL_TEXTS.confirm, cancel = MODAL_TEXTS.cancel, ...rest } = options;
     const tone = rest.tone ?? "danger";
     return new Promise((resolve) => {
       let decided = false;
@@ -4340,7 +4510,7 @@ var Tucano = (() => {
     }
     _build() {
       const titleId = `${this.id}-title`;
-      this.panel = buildPanel("tuc-drawer", this.opts, this, titleId);
+      this.panel = buildPanel("tuc-drawer", this.opts, this, titleId, DRAWER_TEXTS.close);
       this.node = el("dialog", {
         class: [
           "tuc-drawer",
@@ -4886,7 +5056,7 @@ var Tucano = (() => {
       this.checkAll = el("input", {
         type: "checkbox",
         class: "tuc-check tuc-table__check",
-        "aria-label": "Selecionar todas as linhas desta p\xE1gina"
+        "aria-label": TABLE_TEXTS.selectAll
       });
       const th = el("th", { class: "tuc-table__pick", scope: "col" }, [this.checkAll]);
       head.prepend(th);
@@ -4896,7 +5066,7 @@ var Tucano = (() => {
           class: "tuc-check tuc-table__check",
           name: this.opts.selectName,
           value: tr.dataset.id ?? "",
-          "aria-label": "Selecionar linha"
+          "aria-label": TABLE_TEXTS.selectRow
         });
         const td = el("td", { class: "tuc-table__pick" }, [check]);
         tr.prepend(td);
@@ -4974,9 +5144,12 @@ var Tucano = (() => {
     // paginas visiveis de cada lado da atual
     edges: 1,
     // paginas visiveis nas pontas
-    prevText: "Anterior",
-    nextText: "Pr\xF3xima",
-    label: "Pagina\xE7\xE3o",
+    prevText: void 0,
+    // default: setTexts ("Anterior")
+    nextText: void 0,
+    // default: setTexts ("Próxima")
+    label: void 0,
+    // default: setTexts ("Paginação")
     onChange: null
   };
   function pageWindow(page, pages, { around = 1, edges = 1 } = {}) {
@@ -4997,7 +5170,7 @@ var Tucano = (() => {
   }
   var Pagination = class {
     constructor(options = {}) {
-      this.opts = { ...DEFAULTS14, ...omitUndefined(options) };
+      this.opts = { ...DEFAULTS14, ...PAGINATION_TEXTS, ...omitUndefined(options) };
       this._cleanups = [];
       this.node = el("nav", { class: "tuc-pagination", role: "navigation", "aria-label": this.opts.label });
       this.node._tucano = this;
@@ -5346,7 +5519,7 @@ var Tucano = (() => {
     const btn = el("button", {
       type: "button",
       class: "tuc-btn is-outline is-icon is-sm tuc-copy",
-      "aria-label": "Copiar c\xF3digo"
+      "aria-label": PROSE_TEXTS.copy
     }, [icon(ICON_COPY, 14), icon(ICON_CHECK, 14)]);
     btn.children[1].classList.add("tuc-copy__ok");
     on(btn, "click", async () => {
@@ -5362,10 +5535,10 @@ var Tucano = (() => {
         return;
       }
       btn.classList.add("is-copied");
-      btn.setAttribute("aria-label", "Copiado");
+      btn.setAttribute("aria-label", PROSE_TEXTS.copied);
       setTimeout(() => {
         btn.classList.remove("is-copied");
-        btn.setAttribute("aria-label", "Copiar c\xF3digo");
+        btn.setAttribute("aria-label", PROSE_TEXTS.copy);
       }, 1600);
     });
     pre.append(btn);
@@ -5412,24 +5585,6 @@ var Tucano = (() => {
     right: "M3 6h18M10 12h11M6 18h15",
     justify: "M3 6h18M3 12h18M3 18h18",
     code: "M16 18l6-6-6-6M8 6l-6 6 6 6"
-  };
-  var LABELS = {
-    bold: "Negrito",
-    italic: "It\xE1lico",
-    underline: "Sublinhado",
-    title: "T\xEDtulo",
-    subheading: "Subt\xEDtulo",
-    list: "Lista",
-    numbered: "Lista numerada",
-    quote: "Cita\xE7\xE3o",
-    link: "Link",
-    clear: "Limpar formata\xE7\xE3o",
-    table: "Inserir tabela",
-    left: "Alinhar \xE0 esquerda",
-    center: "Centralizar",
-    right: "Alinhar \xE0 direita",
-    justify: "Justificar",
-    code: "C\xF3digo"
   };
   var COMMANDS = {
     bold: () => document.execCommand("bold"),
@@ -5560,15 +5715,6 @@ var Tucano = (() => {
     deleteColumn: (c) => deleteColumn(c),
     deleteTable: (c) => c.closest("table")?.remove()
   };
-  var TABLE_LABELS = {
-    rowAbove: "Inserir linha acima",
-    rowBelow: "Inserir linha abaixo",
-    colBefore: "Inserir coluna \xE0 esquerda",
-    colAfter: "Inserir coluna \xE0 direita",
-    deleteRow: "Excluir linha",
-    deleteColumn: "Excluir coluna",
-    deleteTable: "Excluir tabela"
-  };
   var TABLE_ICONS = {
     rowAbove: "M12 3v8M8 7h8M3 15h18M3 20h18",
     rowBelow: "M3 4h18M3 9h18M12 21v-8M8 17h8",
@@ -5681,16 +5827,16 @@ var Tucano = (() => {
       this.area.style.minHeight = this.opts.minHeight;
       this.area.innerHTML = sanitize(field.value) || "<p><br></p>";
       wrapTables(this.area);
-      const GROUPS = /* @__PURE__ */ new Set(["left", "quote"]);
+      const GROUPS2 = /* @__PURE__ */ new Set(["left", "quote"]);
       this.toolbar = el(
         "div",
-        { class: "tuc-editor__toolbar", role: "toolbar", "aria-label": "Formata\xE7\xE3o" },
+        { class: "tuc-editor__toolbar", role: "toolbar", "aria-label": EDITOR_TEXTS.toolbar },
         this.opts.toolbar.flatMap((name) => {
           const b = el("button", {
             type: "button",
             class: "tuc-btn is-ghost is-icon is-sm",
-            "aria-label": LABELS[name] ?? name,
-            "data-tuc-tip": LABELS[name] ?? name,
+            "aria-label": EDITOR_TEXTS[name] ?? name,
+            "data-tuc-tip": EDITOR_TEXTS[name] ?? name,
             "aria-pressed": "false",
             // mousedown e nao click: click viria depois do blur, e a selecao
             // dentro da area ja teria sido perdida.
@@ -5706,19 +5852,19 @@ var Tucano = (() => {
             }
           }, [icon(ICONS[name] ?? ICONS.clear, 15)]);
           b.dataset.action = name;
-          return GROUPS.has(name) ? [el("span", { class: "tuc-editor__sep", "aria-hidden": "true" }), b] : [b];
+          return GROUPS2.has(name) ? [el("span", { class: "tuc-editor__sep", "aria-hidden": "true" }), b] : [b];
         })
       );
       this.tableBar = el("div", {
         class: "tuc-editor__toolbar is-table",
         role: "toolbar",
-        "aria-label": "Tabela",
+        "aria-label": EDITOR_TEXTS.tableToolbar,
         hidden: true
       }, Object.keys(TABLE).map((name) => el("button", {
         type: "button",
         class: `tuc-btn is-ghost is-icon is-sm${name.startsWith("delete") ? " is-remove" : ""}`,
-        "aria-label": TABLE_LABELS[name],
-        "data-tuc-tip": TABLE_LABELS[name],
+        "aria-label": EDITOR_TEXTS[name],
+        "data-tuc-tip": EDITOR_TEXTS[name],
         onmousedown: (e) => {
           e.preventDefault();
           this.inTable(name);
@@ -5951,21 +6097,21 @@ var Tucano = (() => {
         s.addRange(mark);
       };
       let decided = null;
-      const actions = [{ text: "Cancelar", variant: "outline" }];
+      const actions = [{ text: EDITOR_TEXTS.cancel, variant: "outline" }];
       if (existing) {
-        actions.push({ text: "Remover", variant: "ghost", onClick: () => {
+        actions.push({ text: EDITOR_TEXTS.removeLink, variant: "ghost", onClick: () => {
           decided = "remove";
         } });
       }
       actions.push({
-        text: existing ? "Salvar" : "Inserir",
+        text: existing ? EDITOR_TEXTS.save : EDITOR_TEXTS.insert,
         variant: "primary",
         onClick: () => {
           decided = field.value.trim();
         }
       });
       const dialog = new Modal({
-        title: existing ? "Editar link" : "Inserir link",
+        title: existing ? EDITOR_TEXTS.editLink : EDITOR_TEXTS.insertLink,
         size: "sm",
         actions,
         onClose: () => {
@@ -6060,8 +6206,10 @@ var Tucano = (() => {
       listenForEvents();
       init(document);
     };
-    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
-    else boot();
+    const nav = typeof performance !== "undefined" && performance.getEntriesByType?.("navigation")[0];
+    const ready = document.readyState === "complete" || (nav ? nav.domContentLoadedEventStart > 0 : document.readyState !== "loading");
+    if (ready) boot();
+    else document.addEventListener("DOMContentLoaded", boot);
     document.addEventListener("htmx:afterSwap", (e) => init(e.target));
   }
   return __toCommonJS(auto_exports);

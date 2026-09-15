@@ -2,6 +2,7 @@ import { el, escapeHtml, icon, omitUndefined, on } from '../core/dom.js';
 import { sanitize, textOnly } from '../core/sanitize.js';
 import { Modal } from './modal.js';
 import { highlight } from '../core/highlight.js';
+import { EDITOR_TEXTS as T } from '../core/texts.js';
 
 /*
  * Editor de texto formatado, do tipo que mostra o resultado enquanto se
@@ -51,15 +52,7 @@ const ICONS = {
   code:     'M16 18l6-6-6-6M8 6l-6 6 6 6',
 };
 
-const LABELS = {
-  bold: 'Negrito', italic: 'Itálico', underline: 'Sublinhado',
-  title: 'Título', subheading: 'Subtítulo', list: 'Lista',
-  numbered: 'Lista numerada', quote: 'Citação', link: 'Link',
-  clear: 'Limpar formatação', table: 'Inserir tabela',
-  left: 'Alinhar à esquerda', center: 'Centralizar',
-  right: 'Alinhar à direita', justify: 'Justificar',
-  code: 'Código',
-};
+/* Os rotulos dos botoes moram em core/texts.js, com a mesma chave da barra. */
 
 /*
  * execCommand esta deprecado, mas continua sendo o unico caminho com suporte
@@ -277,15 +270,10 @@ const TABLE = {
 };
 
 /*
- * O verbo vem primeiro porque sem ele o rotulo e ambiguo: "Coluna a esquerda"
- * tanto pode inserir quanto alinhar, e a barra tem as duas coisas.
+ * Os rotulos da barra de tabela tambem estao em core/texts.js. O verbo vem
+ * primeiro porque sem ele o rotulo e ambiguo: "Coluna a esquerda" tanto pode
+ * inserir quanto alinhar, e a barra tem as duas coisas.
  */
-const TABLE_LABELS = {
-  rowAbove: 'Inserir linha acima', rowBelow: 'Inserir linha abaixo',
-  colBefore: 'Inserir coluna à esquerda', colAfter: 'Inserir coluna à direita',
-  deleteRow: 'Excluir linha', deleteColumn: 'Excluir coluna',
-  deleteTable: 'Excluir tabela',
-};
 
 const TABLE_ICONS = {
   rowAbove:    'M12 3v8M8 7h8M3 15h18M3 20h18',
@@ -422,13 +410,13 @@ export class Editor {
     // Onde a barra muda de assunto: marcacao de texto, alinhamento, blocos.
     const GROUPS = new Set(['left', 'quote']);
 
-    this.toolbar = el('div', { class: 'tuc-editor__toolbar', role: 'toolbar', 'aria-label': 'Formatação' },
+    this.toolbar = el('div', { class: 'tuc-editor__toolbar', role: 'toolbar', 'aria-label': T.toolbar },
       this.opts.toolbar.flatMap((name) => {
         const b = el('button', {
           type: 'button',
           class: 'tuc-btn is-ghost is-icon is-sm',
-          'aria-label': LABELS[name] ?? name,
-          'data-tuc-tip': LABELS[name] ?? name,
+          'aria-label': T[name] ?? name,
+          'data-tuc-tip': T[name] ?? name,
           'aria-pressed': 'false',
           // mousedown e nao click: click viria depois do blur, e a selecao
           // dentro da area ja teria sido perdida.
@@ -452,13 +440,13 @@ export class Editor {
     this.tableBar = el('div', {
       class: 'tuc-editor__toolbar is-table',
       role: 'toolbar',
-      'aria-label': 'Tabela',
+      'aria-label': T.tableToolbar,
       hidden: true,
     }, Object.keys(TABLE).map((name) => el('button', {
       type: 'button',
       class: `tuc-btn is-ghost is-icon is-sm${name.startsWith('delete') ? ' is-remove' : ''}`,
-      'aria-label': TABLE_LABELS[name],
-      'data-tuc-tip': TABLE_LABELS[name],
+      'aria-label': T[name],
+      'data-tuc-tip': T[name],
       onmousedown: (e) => { e.preventDefault(); this.inTable(name); },
       onclick: (e) => { if (e.detail === 0) this.inTable(name); },
     }, [icon(TABLE_ICONS[name], 15)])));
@@ -731,18 +719,18 @@ export class Editor {
      * trecho nenhum e o link simplesmente nao aparecia.
      */
     let decided = null;
-    const actions = [{ text: 'Cancelar', variant: 'outline' }];
+    const actions = [{ text: T.cancel, variant: 'outline' }];
     if (existing) {
-      actions.push({ text: 'Remover', variant: 'ghost', onClick: () => { decided = 'remove'; } });
+      actions.push({ text: T.removeLink, variant: 'ghost', onClick: () => { decided = 'remove'; } });
     }
     actions.push({
-      text: existing ? 'Salvar' : 'Inserir',
+      text: existing ? T.save : T.insert,
       variant: 'primary',
       onClick: () => { decided = field.value.trim(); },
     });
 
     const dialog = new Modal({
-      title: existing ? 'Editar link' : 'Inserir link',
+      title: existing ? T.editLink : T.insertLink,
       size: 'sm',
       actions,
       onClose: () => {

@@ -230,7 +230,7 @@ Tucano.toast.promise(fetch(url), {
    um "salvo" eterno na tela.</p>
 
 <p>Em <code>toast.promise()</code>, <code>success</code> e <code>error</code> aceitam texto ou uma função que recebe o
-   resultado ou o erro. Sem eles, os textos são "Carregando...", "Pronto" e "Algo deu errado". A função devolve a mesma
+   resultado ou o erro. Sem eles, os textos são "Carregando...", "Pronto" e "Algo deu errado", trocáveis na página inteira por <code>Tucano.setTexts({ toast: { loading, success, error } })</code>. A função devolve a mesma
    promessa que recebeu, para não atrapalhar quem já encadeava nela — rejeitada, ela continua rejeitada, e o erro se
    trata onde já se trataria.</p>
 

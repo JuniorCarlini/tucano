@@ -147,7 +147,7 @@
       </div>
       <div>
         <label class="tuc-label is-required" for="p-due">Due date</label>
-        <input type="text" id="p-due" placeholder="mm/dd/yyyy">
+        <input type="text" id="p-due" data-tuc-datepicker placeholder="mm/dd/yyyy">
       </div>
     </div>
     <div class="field" style="margin-top:14px">
@@ -208,9 +208,36 @@ import 'tucano/css';</code></pre></div>
 &lt;select name="state" data-tuc-select&gt;...&lt;/select&gt;
 &lt;input type="text" name="card" data-tuc-mask="card"&gt;</code></pre></div>
 
-<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Dates and numbers follow your page's language</p><p>The date picker reads <code>&lt;html lang&gt;</code> for month names, weekdays and date format, and currency masks take a currency code. Labels, placeholders and messages are yours: write them in your template, in any language, like <code>data-placeholder="Search customers..."</code>.</p></div></div>
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Dates and numbers follow your page's language</p><p>The date picker reads <code>&lt;html lang&gt;</code> for month names, weekdays and date format, and currency masks take a currency code. Labels and placeholders can go in your template, like <code>data-placeholder="Search customers..."</code>, and the texts the components write on their own — Portuguese by default — change with <a href="#texts"><code>Tucano.setTexts()</code></a>.</p></div></div>
 
 <div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Plays well with your project's Tailwind</p><p>The package does not ship the preflight, and the components carry their own reset: your CSS does not break the components, and the components do not touch your project.</p></div></div>
+
+<h2 id="texts">Texts in other languages</h2>
+<p>The texts the components write on their own — the calendar's "Limpar", the select's "Buscar...", the modal's
+   "Fechar", the labels read by screen readers — come in Portuguese, and <code>Tucano.setTexts()</code> replaces any of
+   them, per group. Whatever you leave out stays as it was, and each instance's own option
+   (<code>data-placeholder</code>, <code>emptyText</code>, <code>prevText</code>) still wins. The package ships no
+   language dictionaries.</p>
+
+<div class="tuc-prose doc-code"><pre><code>// Before the components mount. With a deferred script, inside DOMContentLoaded.
+document.addEventListener('DOMContentLoaded', () =&gt; {
+  Tucano.setTexts({
+    datepicker: { clear: 'Clear', apply: 'Apply', previousMonth: 'Previous month',
+                  nextMonth: 'Next month', placeholderLetters: 'ymdhms' },
+    select: { searchPlaceholder: 'Search...', emptyText: 'No results',
+              remove: (label) =&gt; `Remove ${label}` },
+    modal: { close: 'Close' },
+    toast: { close: 'Close' },
+  });
+});</code></pre></div>
+
+<p>A text is read when the component mounts, so what is already on screen does not change. Where the sentence depends
+   on a number or a name, the value is a function. Groups are named after the components — <code>datepicker</code>,
+   <code>select</code>, <code>colorpicker</code>, <code>upload</code>, <code>mask</code>, <code>toast</code>,
+   <code>modal</code>, <code>drawer</code>, <code>table</code>, <code>pagination</code>, <code>editor</code> and
+   <code>prose</code> — and <code>Tucano.getTexts()</code> returns a copy of all of them. The keys, with each default,
+   are in <a href="../llms.txt"><code>llms.txt</code></a>. This site does the same: on every page in English, the
+   components speak English.</p>
 
 <h2 id="components">Components</h2>
 <p class="lead">Each one has its own page with examples, the Django way, keyboard support and the full API. For an AI
@@ -237,19 +264,12 @@ import 'tucano/css';</code></pre></div>
   <h3>Guides</h3>
   <div class="cards"><a class="link-card" href="django/"><b>Django</b><span>Widgets, what reaches the POST, and HTMX.</span></a><a class="link-card" href="theme/"><b>Theme</b><span>Tokens, dark mode and accent color.</span></a><a class="link-card" href="keyboard/"><b>Keyboard and accessibility</b><span>What every key does, in every component.</span></a><a class="link-card" href="ai/"><b>For AI agents</b><span>llms.txt and the AGENTS.md for your project.</span></a></div>
 
-
 <nav class="pager" aria-label="Documentation pagination"><a class="tuc-btn is-outline is-lg pager__next" href="changelog/" aria-label="Next page: Changelog">Changelog<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></a></nav>
   </article>
 </main>
 
 <script src="../dist/tucano.js?v=0.33.1"></script>
 <script src="../site/site.js?v=0.33.1"></script>
-<script>
-  // O calendario desta demonstracao nasce por JS, e nao por data-tuc-datepicker,
-  // so para desligar o botao "Limpar": ele ainda e texto fixo em portugues, e numa
-  // pagina em ingles apareceria assim que o calendario abrisse. Meses, dias da
-  // semana e formato ja seguem o lang="en" da pagina.
-  new Tucano.DatePicker('#p-due', { clearable: false });
-</script>
+
 </body>
 </html>

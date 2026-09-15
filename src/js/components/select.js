@@ -1,12 +1,16 @@
 import { el, icon, ICON_CHECK, ICON_CHEVRONS_UP_DOWN, ICON_X, nextId, omitUndefined, on, openWithTransition } from '../core/dom.js';
 import { Popover } from '../core/popover.js';
+import { SELECT_TEXTS as T } from '../core/texts.js';
+
+// Os textos sem valor aqui saem de Tucano.setTexts({ select }), com o portugues como padrao.
+const TEXT_OPTIONS = ['searchPlaceholder', 'emptyText', 'loadingText', 'errorText'];
 
 const DEFAULTS = {
   search: undefined,        // default: liga a partir de 6 opcoes
   searchMinItems: 6,
-  placeholder: undefined,   // default: do atributo ou "Selecione..."
-  searchPlaceholder: 'Buscar...',
-  emptyText: 'Nenhum resultado',
+  placeholder: undefined,   // default: do atributo, da <option value=""> ou setTexts ("Selecione...")
+  searchPlaceholder: undefined, // default: setTexts ("Buscar...")
+  emptyText: undefined,     // default: setTexts ("Nenhum resultado")
   clearable: true,
   maxItems: null,           // limite no modo multiplo
   wrapTags: false,          // true deixa o campo crescer em varias linhas
@@ -23,8 +27,8 @@ const DEFAULTS = {
   cache: true,           // guarda o resultado de cada termo
   cacheSize: 60,
   shortCircuit: false,   // ver _noChance()
-  loadingText: 'Buscando...',
-  errorText: 'Falha ao buscar',
+  loadingText: undefined,   // default: setTexts ("Buscando...")
+  errorText: undefined,     // default: setTexts ("Falha ao buscar")
   onChange: null,
 };
 
@@ -43,9 +47,11 @@ export class Select {
     this.native = node;
     this.multiple = node.multiple;
     this.opts.closeOnSelect = this.opts.closeOnSelect ?? !this.multiple;
+    // A opcao da instancia vence o texto global.
+    for (const key of TEXT_OPTIONS) this.opts[key] ??= T[key];
     this.opts.placeholder = this.opts.placeholder
       ?? node.dataset.placeholder
-      ?? (this.multiple ? 'Selecione...' : firstEmptyLabel(node) ?? 'Selecione...');
+      ?? (this.multiple ? T.placeholder : firstEmptyLabel(node) ?? T.placeholder);
 
     this.id = nextId('sel');
     this.isOpen = false;
@@ -181,7 +187,7 @@ export class Select {
     });
 
     this.clearBtn = el('button', {
-      type: 'button', class: 'tuc-btn is-ghost is-icon tuc-select__clear', 'aria-label': 'Limpar selecao',
+      type: 'button', class: 'tuc-btn is-ghost is-icon tuc-select__clear', 'aria-label': T.clear,
       tabindex: -1,
       onclick: (e) => { e.stopPropagation(); this.clear(); },
     }, [icon(ICON_X, 14)]);
@@ -425,7 +431,7 @@ export class Select {
           el('span', { class: 'tuc-select__tagtext', text: item.label }),
           el('button', {
             type: 'button', class: 'tuc-select__tagx', tabindex: -1,
-            'aria-label': `Remover ${item.label}`,
+            'aria-label': T.remove(item.label),
             onclick: (e) => { e.stopPropagation(); this._toggleItem(item); },
           }, [icon(ICON_X, 12)]),
         ]), this.search);
@@ -472,7 +478,7 @@ export class Select {
       this.list.append(el('div', {
         class: 'tuc-select__empty',
         text: remainingToType
-          ? `Digite ${this.opts.minChars} caractere${this.opts.minChars > 1 ? 's' : ''} para buscar`
+          ? T.typeToSearch(this.opts.minChars)
           : this.opts.emptyText,
       }));
       return;

@@ -6,6 +6,15 @@ projeto.
 
 ## Ainda não publicado
 
+### Atenção ao atualizar
+
+- Com o script carregado por `defer`, a inicialização automática agora espera o
+  `DOMContentLoaded`, em vez de rodar no instante em que o script executa. É o
+  que dá tempo de chamar `Tucano.setTexts()` antes de os componentes montarem.
+  Um script seu, também em `defer`, que lia `elemento._tucano` logo ao executar
+  passa a encontrar `undefined`: leia dentro de um listener do
+  `DOMContentLoaded`.
+
 ### Novo
 
 - `data-tuc-reveal` também em texto solto na tela, e não só em campo: um CPF
@@ -14,6 +23,17 @@ projeto.
   `email`, `all`) e junto com `data-tuc-format`. É só visual: o valor inteiro
   continua no HTML, então o que não pode chegar ao navegador precisa ser
   escondido no servidor.
+- `Tucano.setTexts()` troca qualquer texto que os componentes mostram ou
+  anunciam: o "Limpar" e o "Aplicar" do date picker, os atalhos de período, o
+  "Buscar..." e o "Nenhum resultado" do select, o "Fechar" do modal, da gaveta e
+  do toast, os botões do editor, o "Mostrar"/"Ocultar" da máscara e os rótulos
+  lidos pelo leitor de tela. Num projeto em inglês ou espanhol, nada mais aparece
+  em português. A troca é por grupo (`Tucano.setTexts({ datepicker: { clear:
+  'Clear' } })`), vale para o que montar depois, e a opção da instância
+  (`data-placeholder`, `emptyText`, `prevText`, `texts` do upload) continua
+  vencendo. O português segue como padrão, sem dicionário de idiomas no pacote,
+  e `Tucano.getTexts()` devolve os textos atuais. O nome do dia que o leitor de
+  tela lê no calendário passou a vir do idioma da página.
 
 ### Corrigido
 
@@ -24,6 +44,10 @@ projeto.
 - Campo só com o olho recebia `inputmode="numeric"`, e o celular abria o
   teclado de números para senha e token. E o campo de senha perdia o
   `autocomplete` do navegador, o que atrapalhava o gerenciador de senhas.
+- Alguns textos padrão estavam sem acento: "Mês anterior", "Próximo mês",
+  "Próximo" e "Selecionar período" no date picker, "Limpar seleção" no select e
+  "Saturação e brilho" no color picker. Quem compara esses textos, num teste do
+  próprio projeto, precisa atualizar.
 
 ## 0.33.1 — 2026-09-14
 

@@ -1,5 +1,6 @@
 import { csrfToken, fileId, formatSize, isImage, matchesAccept, parseSize, uploadFile } from '../core/files.js';
 import { el, icon, ICON_ALERT, ICON_CHECK, ICON_FILE, ICON_RETRY, ICON_UPLOAD, ICON_X, nextId, omitUndefined, on } from '../core/dom.js';
+import { UPLOAD_TEXTS } from '../core/texts.js';
 
 const DEFAULTS = {
   url: null,             // com url: upload direto. sem: os arquivos vao no submit
@@ -15,21 +16,9 @@ const DEFAULTS = {
   maxFiles: null,
   autoUpload: true,      // no modo direto, comeca ao soltar
   locale: undefined,
-  texts: {},
+  texts: {},             // por cima de Tucano.setTexts({ upload }), so nesta instancia
   onChange: null,
   onError: null,
-};
-
-const TEXTS = {
-  zone: 'Arraste arquivos aqui ou clique para escolher',
-  zoneOne: 'Arraste um arquivo aqui ou clique para escolher',
-  drop: 'Solte para enviar',
-  cancel: 'Cancelar',
-  remove: 'Remover',
-  repeat: 'Tentar de novo',
-  large: (max) => `Arquivo maior que ${max}`,
-  type: 'Tipo de arquivo não aceito',
-  others: (n) => `No máximo ${n} arquivo${n > 1 ? 's' : ''}`,
 };
 
 /**
@@ -56,7 +45,7 @@ export class Upload {
 
     this.opts = { ...DEFAULTS, ...omitUndefined(options) };
     this.opts.locale = this.opts.locale || document.documentElement.lang || 'pt-BR';
-    this.t = { ...TEXTS, ...this.opts.texts };
+    this.t = { ...UPLOAD_TEXTS, ...this.opts.texts };
     this.opts.maxSize = this.opts.maxSize == null ? null : parseSize(this.opts.maxSize);
 
     this.input = node;
@@ -156,7 +145,7 @@ export class Upload {
   _hint() {
     const parts = [];
     if (this.input.accept) parts.push(this.input.accept.split(',').map((s) => s.trim()).join(', '));
-    if (this.opts.maxSize) parts.push(`até ${formatSize(this.opts.maxSize, this.opts.locale)}`);
+    if (this.opts.maxSize) parts.push(this.t.upTo(formatSize(this.opts.maxSize, this.opts.locale)));
     if (this.opts.maxFiles) parts.push(this.t.others(this.opts.maxFiles).toLowerCase());
     return parts.join(' · ');
   }
@@ -269,6 +258,7 @@ export class Upload {
       extras: this.opts.extraData,
       headers,
       method: this.opts.method,
+      texts: this.t,
       onProgress: (fraction) => {
         item.progress = fraction;
         this._paintProgress(item);

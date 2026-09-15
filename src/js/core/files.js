@@ -1,6 +1,7 @@
 /**
  * Utilitarios de arquivo. Sem dependencias.
  */
+import { UPLOAD_TEXTS } from './texts.js';
 
 /** Tamanho legivel: 1536 -> "1,5 KB". */
 export function formatSize(bytes, locale = 'pt-BR') {
@@ -58,7 +59,7 @@ export function csrfToken(name = 'csrftoken') {
  *
  * Devolve { promessa, abortar }.
  */
-export function uploadFile({ url, file, field = 'file', extras = {}, headers = {}, method = 'POST', onProgress }) {
+export function uploadFile({ url, file, field = 'file', extras = {}, headers = {}, method = 'POST', texts = UPLOAD_TEXTS, onProgress }) {
   const xhr = new XMLHttpRequest();
   const promise = new Promise((resolve, reject) => {
     const data = new FormData();
@@ -76,10 +77,11 @@ export function uploadFile({ url, file, field = 'file', extras = {}, headers = {
       if (xhr.status >= 200 && xhr.status < 300) {
         resolve(xhr.response ?? {});
       } else {
-        reject(new Error(`O servidor respondeu ${xhr.status}`));
+        // A mensagem aparece na linha do arquivo, entao sai dos textos.
+        reject(new Error(texts.serverError(xhr.status)));
       }
     });
-    xhr.addEventListener('error', () => reject(new Error('Falha de rede')));
+    xhr.addEventListener('error', () => reject(new Error(texts.networkError)));
     xhr.addEventListener('abort', () => reject(Object.assign(new Error('Cancelado'), { canceled: true })));
     xhr.send(data);
   });

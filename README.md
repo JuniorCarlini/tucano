@@ -127,6 +127,43 @@ dp.clear();
 dp.destroy();
 ```
 
+### Textos em outros idiomas
+
+Datas e números seguem o `lang` da página. Os textos que os componentes escrevem
+sozinhos — o "Limpar" do calendário, o "Buscar..." do select, o "Fechar" do
+modal, os rótulos lidos pelo leitor de tela — vêm em português. Não há
+dicionário de idiomas no pacote: `Tucano.setTexts()` troca o que você quiser,
+por grupo, e o que não for passado continua como estava.
+
+```html
+<script src=".../tucano.min.js" defer></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => Tucano.setTexts({
+    datepicker: { clear: 'Clear', apply: 'Apply', previousMonth: 'Previous month',
+                  nextMonth: 'Next month', placeholderLetters: 'ymdhms' },
+    select: { searchPlaceholder: 'Search...', emptyText: 'No results',
+              remove: (label) => `Remove ${label}` },
+    modal: { close: 'Close' },
+    toast: { close: 'Close' },
+  }));
+</script>
+```
+
+Com npm, `import { setTexts } from 'tucano'`, chamado antes de criar os
+componentes.
+
+- O texto é lido quando o componente monta: chame antes da inicialização (o
+  `DOMContentLoaded` acima roda antes dela, também com `defer`) ou antes do
+  `new`. O que já está na tela não muda.
+- A opção da instância vence o texto global: `data-placeholder`, `emptyText`,
+  `prevText`/`nextText`, `texts` do upload.
+- Onde a frase depende de um número ou de um nome, o valor é uma função:
+  ``upload: { others: (n) => `At most ${n} files` }``.
+- Grupos: `datepicker`, `select`, `colorpicker`, `upload`, `mask`, `toast`,
+  `modal`, `drawer`, `table`, `pagination`, `editor`, `prose`.
+  `Tucano.getTexts()` devolve uma cópia dos textos atuais, e a lista de chaves
+  com o padrão de cada uma está no `llms.txt`, em "Textos (Tucano.setTexts)".
+
 ---
 
 ## Opções

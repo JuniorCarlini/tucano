@@ -36,7 +36,8 @@ estático funcionar sem build.
 ## Estrutura
 
 ```
-src/js/core/          dates, color, mask, dom, popover, dialog, sanitize, highlight
+src/js/core/          dates, color, mask, dom, popover, dialog, sanitize, highlight,
+                      files, texts (todo texto de interface)
 src/js/components/    datepicker, select, colorpicker, upload, mask, toast,
                       tooltip, modal, drawer, accordion, dropdown, table,
                       pagination, editor
@@ -309,6 +310,29 @@ descarta quando ninguém importa. O mapa `ICONS` existe só para a galeria em
 **Helper compartilhado mora em `core/dom.js`.** `omitUndefined` existia copiado
 em doze componentes com dois nomes; `escapeHtml` em dois. Antes de escrever
 uma função utilitária num componente, procure em `dom.js`.
+
+**Texto de interface mora em `core/texts.js`, nunca no componente.** Todo texto
+que um componente mostra ou anuncia — rótulo, placeholder, `aria-label`,
+mensagem de vazio, de erro e de carregando, nome de atalho — é uma chave em
+inglês no grupo com o nome do componente, e o valor é o português. Escrito
+direto no componente, ele aparecia em português num projeto em inglês sem jeito
+de trocar, e a demonstração em inglês do site chegou a desligar o "Limpar" do
+calendário só para escondê-lo. Texto novo entra no grupo do componente, e
+`tools/reference.mjs` o publica no `llms.txt` sozinho. Onde a frase depende de
+um número ou de um nome, o valor é função (`others: (n) => …`).
+
+Três regras vêm junto. Um objeto por componente, e não um mapa único: objeto é
+indivisível para o empacotador, e quem importa só o date picker levaria as
+frases do editor (medido: o date picker sozinho foi de 10.146 para 10.344 bytes
+com gzip, e o pacote inteiro de 38.300 para 39.198). O texto é lido na montagem,
+então `setTexts` depois do init não reescreve o que já está na tela — e é por
+isso que o boot espera o `DOMContentLoaded` também quando o script vem com
+`defer`: rodando no instante em que o script executava, não sobrava momento para
+trocar os textos antes. E a opção de instância que já existia (`emptyText`,
+`prevText`, `texts` do upload) fica `undefined` no `DEFAULTS` e é resolvida no
+construtor, para vencer o texto global. Nada de dicionário de idiomas no pacote.
+Mensagem de erro para quem programa (`[Select] elemento alvo nao encontrado`)
+não é interface e fica onde está.
 
 **O estado de espera vale para tudo que o script transforma — inclusive
 tabela, paginação e acordeão.** A tabela crua é a do navegador e ganhar a
@@ -647,16 +671,17 @@ bug contra build antigo. Confirme o código carregado, não só o arquivo em dis
 `npm test` compila e roda cinco coisas, nesta ordem. Cada uma existe por causa
 de um defeito que passou batido.
 
-**`test/*.test.mjs` — 49 testes das funções puras** (`node --test`, sem
+**`test/*.test.mjs` — 50 testes das funções puras** (`node --test`, sem
 dependência). `dates`, `mask`, `color` e `pageWindow` são entrada e saída sem
 DOM. Inclui `sanitize`, que é peça de segurança.
 
-**`tools/behavior.mjs` — 57 comportamentos no Chrome sem cabeça.** Abrir, fechar,
-ordenar, marcar, emitir evento. Armadilha registrada no cabeçalho do arquivo:
+**`tools/behavior.mjs` — 71 comportamentos no Chrome sem cabeça.** Abrir, fechar,
+ordenar, marcar, emitir evento, e os textos: português sem `setTexts`, troca
+global, opção da instância vencendo e restauração no fim. Armadilha registrada no cabeçalho do arquivo:
 transição não avança ali, então nunca leia opacidade ou posição logo depois de
 abrir algo — a página injeta `transition: none` onde o estado final importa.
 
-**`tools/examples.mjs` — os 126 exemplos da documentação, em todas as páginas do site.** Os de HTML são
+**`tools/examples.mjs` — os 339 exemplos da documentação, em todas as páginas do site.** Os de HTML são
 colados no documento e têm que montar; os de JS não são executados (citam
 `#delivery` e `form`, que não existem) e sim conferidos nome por nome
 contra o código: `Tucano.x` existe? o método existe no protótipo? cada chave de
@@ -681,21 +706,7 @@ de navegador escrito dentro de template literal perde toda barra de regex
 
 ## Ainda em aberto
 
-Em ordem do que mais dói.
-
-**Texto fixo em português dentro dos componentes.** Datas e números já seguem o
-`lang` da página, e parte dos textos pode ser trocada por atributo ou opção
-(`data-placeholder`, `emptyText`, `prevText`, `texts` do upload). O resto está
-escrito direto no código e não há como trocar pelo template: no date picker o
-botão "Limpar", "Aplicar", os atalhos ("Hoje", "Últimos 7 dias"…), o "aaaa" do
-placeholder e os rótulos "Mes anterior"/"Proximo mes"; no select "Buscar...",
-"Nenhum resultado", "Buscando..." como padrão sem atributo e o "Remover" das
-tags; e rótulos lidos pelo leitor de tela em vários componentes — "Fechar" no
-modal, gaveta e toast, "Selecionar linha" na tabela, "Mostrar"/"Ocultar" na
-máscara, "Copiar código", "Escolher cor", os botões do editor. Num projeto em
-inglês ou espanhol eles aparecem em português. A decisão tomada: nada de
-dicionário de idiomas no pacote, que custaria peso; o caminho é deixar todo texto
-trocável por atributo e por um `Tucano.setTexts({...})` global, com o português
-como padrão. Levantado ao traduzir o site; a demonstração em inglês contorna
-desligando o "Limpar" e a busca do select.
+Nada registrado no momento. O texto fixo em português dentro dos componentes,
+que abria esta lista, foi resolvido com `Tucano.setTexts` — ver "Texto de
+interface mora em `core/texts.js`".
 

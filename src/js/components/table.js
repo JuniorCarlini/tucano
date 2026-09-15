@@ -1,4 +1,5 @@
 import { ICON_CHEVRONS_UP_DOWN, el, icon, nextId, omitUndefined, on } from '../core/dom.js';
+import { TABLE_TEXTS as T } from '../core/texts.js';
 
 /*
  * Tabela.
@@ -188,7 +189,7 @@ export class Table {
 
     this.checkAll = el('input', {
       type: 'checkbox', class: 'tuc-check tuc-table__check',
-      'aria-label': 'Selecionar todas as linhas desta página',
+      'aria-label': T.selectAll,
     });
     const th = el('th', { class: 'tuc-table__pick', scope: 'col' }, [this.checkAll]);
     head.prepend(th);
@@ -202,7 +203,7 @@ export class Table {
       const check = el('input', {
         type: 'checkbox', class: 'tuc-check tuc-table__check',
         name: this.opts.selectName, value: tr.dataset.id ?? '',
-        'aria-label': 'Selecionar linha',
+        'aria-label': T.selectRow,
       });
       const td = el('td', { class: 'tuc-table__pick' }, [check]);
       tr.prepend(td);

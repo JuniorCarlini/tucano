@@ -168,7 +168,7 @@ document.querySelector('#color').addEventListener('tucano:change', (e) => {
 
 <div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Por qué el foco en el campo no abre el panel</p><p>Abrir con el foco molestaba dos veces: el panel aparecía solo con tabular por el formulario, y tapaba el propio campo a quien quería escribir el hex. Por eso el disparador es la muestra, que ya responde a <code>Enter</code> y <code>Espacio</code> por ser un botón, y en el campo queda solo la flecha hacia abajo, la misma del date picker.</p></div></div>
 
-<p>Las barras son <code>role="slider"</code> con <code>aria-valuenow</code>, el área tiene la etiqueta "Saturação e brilho" (saturación y brillo — los textos del componente están en portugués), y el valor en el
+<p>Las barras son <code>role="slider"</code> con <code>aria-valuenow</code>, el área tiene la etiqueta "Saturação e brilho" (saturación y brillo — las etiquetas por defecto están en portugués, y <code>Tucano.setTexts({ colorpicker })</code> las reemplaza), y el valor en el
    panel es un <code>.tuc-input</code> común. El panel se cierra cuando el foco sale de él o con un clic afuera; con
    <code>prefers-reduced-motion</code>, solo se desvanece.</p>
 

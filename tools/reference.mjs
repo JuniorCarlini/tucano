@@ -75,6 +75,24 @@ lines.push('  Tucano.mask / .dates / .color   modulos utilitarios (ver seção U
 lines.push('');
 lines.push(`  FORMATS (mascaras prontas): ${formats.join(' ')}`);
 lines.push('');
+
+/*
+ * Os textos da interface, com a chave e o padrao em portugues. Importados do
+ * proprio modulo, e nao lidos por expressao: sao dados, e a funcao de plural
+ * precisa aparecer inteira para a IA saber o que ela recebe.
+ */
+const { getTexts } = await import('../src/js/core/texts.js');
+lines.push('### Textos (Tucano.setTexts)', '');
+lines.push('  Tucano.setTexts({ grupo: { chave: texto } }) antes de os componentes montarem;');
+lines.push('  mescla chave a chave dentro do grupo. Tucano.getTexts() devolve uma copia.');
+lines.push('  A opcao da instancia (emptyText, prevText, texts do upload...) vence o texto global.');
+for (const [group, values] of Object.entries(getTexts())) {
+  lines.push(`  ${group}`);
+  for (const [key, value] of Object.entries(values)) {
+    lines.push(`    ${key.padEnd(18)} = ${typeof value === 'function' ? String(value) : `'${value}'`}`);
+  }
+}
+lines.push('');
 lines.push('### Classes CSS', '');
 lines.push('Escritas por voce no template (as com __ sao internas, montadas pelo JS):');
 lines.push('  ' + classes.filter((c) => !c.includes('__')).join(' '));

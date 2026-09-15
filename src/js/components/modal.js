@@ -1,5 +1,6 @@
 import { el, nextId, omitUndefined } from '../core/dom.js';
 import { Dialog, buildPanel } from '../core/dialog.js';
+import { MODAL_TEXTS as T } from '../core/texts.js';
 
 /*
  * Modal: dialogo centrado na tela.
@@ -34,7 +35,7 @@ export class Modal extends Dialog {
 
   _build() {
     const titleId = `${this.id}-title`;
-    this.panel = buildPanel('tuc-modal', this.opts, this, titleId);
+    this.panel = buildPanel('tuc-modal', this.opts, this, titleId, T.close);
 
     this.node = el('dialog', {
       class: [
@@ -67,7 +68,7 @@ export function modal(optionsOrText, extra = {}) {
  *   if (await Tucano.confirmar({ title: 'Excluir contrato?' })) excluir();
  */
 export function confirm(options = {}) {
-  const { confirm: okLabel = 'Confirmar', cancel = 'Cancelar', ...rest } = options;
+  const { confirm: okLabel = T.confirm, cancel = T.cancel, ...rest } = options;
   // O tom sai daqui, e nao de rest.tone, porque o padrao e perigo: lendo so o
   // que veio de fora, um dialogo vermelho ganhava botao azul de confirmar.
   const tone = rest.tone ?? 'danger';

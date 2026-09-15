@@ -310,7 +310,7 @@ def delete_temp(request, pk):                # data-delete-url="/upload/temp/"
 </table></div>
 
 <p>The hint below the drop zone is built from these three — <code>image/png, image/jpeg · até 2 MB · no máximo 2 arquivos</code> —,
-   so it does not need to be written again. The component's default texts are in Portuguese; the texts option replaces them. A rejected file does not enter the list: a notice appears with the name and the
+   so it does not need to be written again. The component's default texts are in Portuguese: <code>Tucano.setTexts({ upload })</code> replaces them for the whole page, and the <code>texts</code> option for a single field. A rejected file does not enter the list: a notice appears with the name and the
    reason, which disappears after 5 seconds, and <code>onError(error, file)</code> is called. An accepted image gets a thumbnail.</p>
 
 <h2 id="value">Value and form</h2>
@@ -376,7 +376,7 @@ POST   photos      = 8b41e0...</code></pre></div>
 <tr><td><code>maxFiles</code></td><td><code>null</code></td><td></td></tr>
 <tr><td><code>autoUpload</code></td><td><code>true</code></td><td>no modo direto, comeca ao soltar</td></tr>
 <tr><td><code>locale</code></td><td><code>undefined</code></td><td></td></tr>
-<tr><td><code>texts</code></td><td><code>{}</code></td><td></td></tr>
+<tr><td><code>texts</code></td><td><code>{}</code></td><td>por cima de Tucano.setTexts({ upload }), so nesta instancia</td></tr>
 <tr><td><code>onChange</code></td><td><code>null</code></td><td></td></tr>
 <tr><td><code>onError</code></td><td><code>null</code></td><td></td></tr>
 </tbody></table></div>

@@ -1,6 +1,7 @@
 import { apply, applyCurrency, capacity, clear, cursorAfter, format, pickTemplate, placeholderFromTemplate, validateCNPJ, validateCPF, validateCpfCnpj } from '../core/mask.js';
 import { maskMiddle } from '../core/mask.js';
 import { el, icon, ICON_EYE, ICON_EYE_OFF, omitUndefined, on } from '../core/dom.js';
+import { MASK_TEXTS as T } from '../core/texts.js';
 
 /**
  * Formatos prontos.
@@ -11,14 +12,17 @@ import { el, icon, ICON_EYE, ICON_EYE_OFF, omitUndefined, on } from '../core/dom
  * O `cnpj` aceita letras nas doze primeiras posicoes porque e o que o formato
  * novo permite; as duas ultimas seguem numericas. Quem precisa recusar letras
  * durante a transicao usa `cnpj-numeric`.
+ *
+ * O `error` e getter para seguir o Tucano.setTexts feito depois de carregar o
+ * modulo; formato criado pelo projeto continua podendo ter texto fixo ali.
  */
 export const FORMATS = {
-  cpf: { template: '###.###.###-##', validate: validateCPF, error: 'CPF inválido' },
-  cnpj: { template: '**.***.***/****-##', validate: validateCNPJ, error: 'CNPJ inválido', uppercase: true },
-  'cnpj-numeric': { template: '##.###.###/####-##', validate: validateCNPJ, error: 'CNPJ inválido' },
+  cpf: { template: '###.###.###-##', validate: validateCPF, get error() { return T.cpf; } },
+  cnpj: { template: '**.***.***/****-##', validate: validateCNPJ, get error() { return T.cnpj; }, uppercase: true },
+  'cnpj-numeric': { template: '##.###.###/####-##', validate: validateCNPJ, get error() { return T.cnpj; } },
   'cpf-cnpj': {
     template: ['###.###.###-##', '**.***.***/****-##'],
-    validate: validateCpfCnpj, error: 'Documento inválido', uppercase: true,
+    validate: validateCpfCnpj, get error() { return T.cpfCnpj; }, uppercase: true,
   },
   phone: { template: ['(##) ####-####', '(##) #####-####'] },
   mobile: { template: '(##) #####-####' },
@@ -189,7 +193,7 @@ export class Mask {
     this.eye = el('button', {
       type: 'button',
       class: 'tuc-btn is-ghost is-icon is-sm tuc-field__eye',
-      'aria-label': 'Mostrar',
+      'aria-label': T.show,
       'aria-pressed': 'false',
       onclick: () => this._toggle(),
     });
@@ -277,7 +281,7 @@ export class Mask {
     }
 
     this.eye.replaceChildren(icon(showing ? ICON_EYE_OFF : ICON_EYE, 16));
-    this.eye.setAttribute('aria-label', showing ? 'Ocultar' : 'Mostrar');
+    this.eye.setAttribute('aria-label', showing ? T.hide : T.show);
     this.eye.setAttribute('aria-pressed', String(showing));
     this.wrapper.classList.toggle('is-hidden', !showing);
   }
@@ -395,7 +399,7 @@ export class Mask {
    * Vazio fica neutro — obrigatoriedade e assunto do `required`, nao da mascara.
    */
   _mark(ok, approved = false) {
-    const msg = ok ? '' : (this.opts.errorText || this.preset?.error || 'Valor inválido');
+    const msg = ok ? '' : (this.opts.errorText || this.preset?.error || T.invalid);
     this.input.setCustomValidity?.(msg);
     this.input.classList.toggle('tuc-invalid', !ok);
     this.input.setAttribute('aria-invalid', ok ? 'false' : 'true');

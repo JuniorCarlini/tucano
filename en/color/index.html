@@ -263,7 +263,7 @@ c.destroy();</code></pre></div>
 
 <div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Why focusing the field does not open the panel</p><p>Opening on focus got in the way twice: the panel popped up just from tabbing through the form, and it covered the field itself for anyone who wanted to type the hex. That is why the trigger is the swatch, which already responds to <code>Enter</code> and <code>Space</code> because it is a button, and the field only gets the down arrow, the same as the date picker.</p></div></div>
 
-<p>The tracks are <code>role="slider"</code> with <code>aria-valuenow</code>, the area is labelled "Saturação e brilho" (saturation and brightness — the component's labels are in Portuguese), and the value in the
+<p>The tracks are <code>role="slider"</code> with <code>aria-valuenow</code>, the area is labelled "Saturação e brilho" (saturation and brightness — the default labels are in Portuguese, and <code>Tucano.setTexts({ colorpicker })</code> replaces them), and the value in the
    panel is a regular <code>.tuc-input</code>. The panel closes when focus leaves it or on an outside click; with
    <code>prefers-reduced-motion</code>, it only fades.</p>
 

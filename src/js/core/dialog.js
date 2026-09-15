@@ -118,7 +118,7 @@ export class Dialog {
  * as classes seguem o nome de cada componente — .tuc-modal__panel continua
  * sendo .tuc-modal__panel, que e o que quem escreve o template digita a mao.
  */
-export function buildPanel(prefix, opts, owner, titleId) {
+export function buildPanel(prefix, opts, owner, titleId, closeLabel) {
   const { title, text, actions, closable } = opts;
   return el('div', { class: `${prefix}__panel` }, [
     el('div', { class: `${prefix}__top` }, [
@@ -129,7 +129,8 @@ export function buildPanel(prefix, opts, owner, titleId) {
       closable ? el('button', {
         type: 'button',
         class: `tuc-btn is-ghost is-icon is-sm ${prefix}__close`,
-        'aria-label': 'Fechar',
+        // O rotulo vem de quem monta: modal e gaveta tem cada um o seu grupo de textos.
+        'aria-label': closeLabel,
         onclick: () => owner.close('button'),
       }, [icon(ICON_X, 15)]) : null,
     ]),

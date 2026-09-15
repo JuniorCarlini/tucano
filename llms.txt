@@ -590,9 +590,38 @@ Modal e Drawer tem content(node). Table tem sort, getSelected, clearSelection.
 Pagination tem setPage. Toast tem update e close.
 
 Atalhos: Tucano.modal(), Tucano.confirm(), Tucano.drawer(), Tucano.toast(),
-Tucano.pagination(), Tucano.sanitize(), Tucano.highlight(), Tucano.init(node).
+Tucano.pagination(), Tucano.sanitize(), Tucano.highlight(), Tucano.init(node),
+Tucano.setTexts(), Tucano.getTexts().
 
 Eventos proprios: tucano:change (campos), tuc:sort e tuc:select (tabela).
+
+## Textos em outros idiomas
+
+Datas e números seguem o lang da página. Os textos que os componentes escrevem
+sozinhos (o "Limpar" do calendário, o "Buscar..." do select, o "Fechar" do
+modal, os aria-label) vêm em português. Não há dicionário de idiomas no pacote:
+num projeto em outro idioma, troque por grupo com Tucano.setTexts.
+
+    <script src=".../tucano.min.js" defer></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => Tucano.setTexts({
+        datepicker: { clear: 'Clear', apply: 'Apply', previousMonth: 'Previous month',
+                      nextMonth: 'Next month', placeholderLetters: 'ymdhms' },
+        select: { searchPlaceholder: 'Search...', emptyText: 'No results',
+                  remove: (label) => `Remove ${label}` },
+        modal: { close: 'Close' },
+      }));
+    </script>
+
+    import { setTexts } from 'tucano';   // npm: antes de criar os componentes
+
+Regras: mescla chave a chave dentro do grupo (o que não foi passado fica). O
+texto é lido na montagem, então chame antes do init ou do new — o que já está na
+tela não muda. A opção da instância vence (data-placeholder, emptyText,
+prevText/nextText, texts do upload). Frase que depende de número ou nome é
+função: upload.others(n), select.remove(label). Tucano.getTexts() devolve uma
+cópia. Todos os grupos e chaves, com o padrão, estão em "Textos
+(Tucano.setTexts)" na referência abaixo.
 
 ## Tema
 
@@ -801,9 +830,9 @@ Inventario extraido do codigo a cada build. Se algo nao esta aqui, nao existe.
     param              = 'page'
     around             = 1  — paginas visiveis de cada lado da atual…
     edges              = 1  — paginas visiveis nas pontas
-    prevText           = 'Anterior'
-    nextText           = 'Próxima'
-    label              = 'Paginação'
+    prevText           = undefined  — default: setTexts ("Anterior")
+    nextText           = undefined  — default: setTexts ("Próxima")
+    label              = undefined  — default: setTexts ("Paginação")
     onChange           = null
   metodos    href render setPage destroy
 
@@ -814,9 +843,9 @@ Inventario extraido do codigo a cada build. Se algo nao esta aqui, nao existe.
   opcoes
     search             = undefined  — default: liga a partir de 6 opcoes…
     searchMinItems     = 6
-    placeholder        = undefined  — default: do atributo ou "Selecione..."
-    searchPlaceholder  = 'Buscar...'
-    emptyText          = 'Nenhum resultado'
+    placeholder        = undefined  — default: do atributo, da <option value=""> ou setTexts ("Selecione...")
+    searchPlaceholder  = undefined  — default: setTexts ("Buscar...")
+    emptyText          = undefined  — default: setTexts ("Nenhum resultado")
     clearable          = true
     maxItems           = null  — limite no modo multiplo
     wrapTags           = false  — true deixa o campo crescer em varias linhas…
@@ -832,8 +861,8 @@ Inventario extraido do codigo a cada build. Se algo nao esta aqui, nao existe.
     cache              = true  — guarda o resultado de cada termo
     cacheSize          = 60
     shortCircuit       = false  — ver _noChance()
-    loadingText        = 'Buscando...'
-    errorText          = 'Falha ao buscar'
+    loadingText        = undefined  — default: setTexts ("Buscando...")
+    errorText          = undefined  — default: setTexts ("Falha ao buscar")
     onChange           = null
   metodos    getValue setValue clear refresh open close toggle destroy
   eventos    tucano:change
@@ -912,7 +941,7 @@ Inventario extraido do codigo a cada build. Se algo nao esta aqui, nao existe.
     maxFiles           = null
     autoUpload         = true  — no modo direto, comeca ao soltar
     locale             = undefined
-    texts              = {}
+    texts              = {}  — por cima de Tucano.setTexts({ upload }), so nesta instancia…
     onChange           = null
     onError            = null
   metodos    getFiles getValue uploadAll clear destroy
@@ -923,10 +952,130 @@ Inventario extraido do codigo a cada build. Se algo nao esta aqui, nao existe.
   Tucano.init(node)         inicializa todo data-tuc-* dentro de `node`
   autoInitAccordions autoInitColorPickers autoInitDatePickers autoInitDrawers autoInitDropdowns autoInitEditors autoInitMasks autoInitModals autoInitPagination autoInitProse autoInitSelects autoInitTables autoInitTabs autoInitToasts autoInitTooltips autoInitUploads
     → um por componente, quando voce quer inicializar so um tipo
-  Accordion ColorPicker DatePicker Drawer Dropdown Editor FORMATS ICON_CHECK ICON_COPY ICON_X Mask Modal Pagination Popover Select Table Tabs Toast Tooltip Upload autoFormat confirm drawer highlight icon listenForEvents modal pageWindow pagination sanitize toast
+  Accordion ColorPicker DatePicker Drawer Dropdown Editor FORMATS ICON_CHECK ICON_COPY ICON_X Mask Modal Pagination Popover Select Table Tabs Toast Tooltip Upload autoFormat confirm drawer getTexts highlight icon listenForEvents modal pageWindow pagination sanitize setTexts toast
   Tucano.mask / .dates / .color   modulos utilitarios (ver seção Utilitários)
 
   FORMATS (mascaras prontas): cpf cnpj cnpj-numeric cpf-cnpj phone mobile cep date time card currency real
+
+### Textos (Tucano.setTexts)
+
+  Tucano.setTexts({ grupo: { chave: texto } }) antes de os componentes montarem;
+  mescla chave a chave dentro do grupo. Tucano.getTexts() devolve uma copia.
+  A opcao da instancia (emptyText, prevText, texts do upload...) vence o texto global.
+  datepicker
+    dialog             = 'Selecionar data'
+    dialogRange        = 'Selecionar período'
+    previousMonth      = 'Mês anterior'
+    nextMonth          = 'Próximo mês'
+    previous           = 'Anterior'
+    next               = 'Próximo'
+    time               = 'Horário'
+    start              = 'Início'
+    end                = 'Fim'
+    hour               = 'Hora'
+    minute             = 'Minuto'
+    second             = 'Segundo'
+    clear              = 'Limpar'
+    apply              = 'Aplicar'
+    today              = 'Hoje'
+    yesterday          = 'Ontem'
+    last7Days          = 'Últimos 7 dias'
+    last30Days         = 'Últimos 30 dias'
+    thisMonth          = 'Este mês'
+    lastMonth          = 'Mês passado'
+    thisYear           = 'Este ano'
+    placeholderLetters = 'amdhms'
+  select
+    placeholder        = 'Selecione...'
+    searchPlaceholder  = 'Buscar...'
+    emptyText          = 'Nenhum resultado'
+    loadingText        = 'Buscando...'
+    errorText          = 'Falha ao buscar'
+    typeToSearch       = (n) => `Digite ${n} caractere${n > 1 ? 's' : ''} para buscar`
+    clear              = 'Limpar seleção'
+    remove             = (label) => `Remover ${label}`
+  colorpicker
+    pick               = 'Escolher cor'
+    dialog             = 'Seletor de cor'
+    area               = 'Saturação e brilho'
+    hue                = 'Matiz'
+    alpha              = 'Opacidade'
+    value              = 'Valor da cor'
+    eyeDropper         = 'Capturar cor da tela'
+  upload
+    zone               = 'Arraste arquivos aqui ou clique para escolher'
+    zoneOne            = 'Arraste um arquivo aqui ou clique para escolher'
+    drop               = 'Solte para enviar'
+    cancel             = 'Cancelar'
+    remove             = 'Remover'
+    repeat             = 'Tentar de novo'
+    large              = (max) => `Arquivo maior que ${max}`
+    type               = 'Tipo de arquivo não aceito'
+    others             = (n) => `No máximo ${n} arquivo${n > 1 ? 's' : ''}`
+    upTo               = (size) => `até ${size}`
+    serverError        = (status) => `O servidor respondeu ${status}`
+    networkError       = 'Falha de rede'
+  mask
+    show               = 'Mostrar'
+    hide               = 'Ocultar'
+    invalid            = 'Valor inválido'
+    cpf                = 'CPF inválido'
+    cnpj               = 'CNPJ inválido'
+    cpfCnpj            = 'Documento inválido'
+  toast
+    region             = 'Notificações'
+    close              = 'Fechar'
+    loading            = 'Carregando...'
+    success            = 'Pronto'
+    error              = 'Algo deu errado'
+  modal
+    close              = 'Fechar'
+    confirm            = 'Confirmar'
+    cancel             = 'Cancelar'
+  drawer
+    close              = 'Fechar'
+  table
+    selectAll          = 'Selecionar todas as linhas desta página'
+    selectRow          = 'Selecionar linha'
+  pagination
+    prevText           = 'Anterior'
+    nextText           = 'Próxima'
+    label              = 'Paginação'
+  editor
+    toolbar            = 'Formatação'
+    tableToolbar       = 'Tabela'
+    bold               = 'Negrito'
+    italic             = 'Itálico'
+    underline          = 'Sublinhado'
+    title              = 'Título'
+    subheading         = 'Subtítulo'
+    list               = 'Lista'
+    numbered           = 'Lista numerada'
+    quote              = 'Citação'
+    link               = 'Link'
+    clear              = 'Limpar formatação'
+    table              = 'Inserir tabela'
+    left               = 'Alinhar à esquerda'
+    center             = 'Centralizar'
+    right              = 'Alinhar à direita'
+    justify            = 'Justificar'
+    code               = 'Código'
+    rowAbove           = 'Inserir linha acima'
+    rowBelow           = 'Inserir linha abaixo'
+    colBefore          = 'Inserir coluna à esquerda'
+    colAfter           = 'Inserir coluna à direita'
+    deleteRow          = 'Excluir linha'
+    deleteColumn       = 'Excluir coluna'
+    deleteTable        = 'Excluir tabela'
+    insertLink         = 'Inserir link'
+    editLink           = 'Editar link'
+    cancel             = 'Cancelar'
+    removeLink         = 'Remover'
+    save               = 'Salvar'
+    insert             = 'Inserir'
+  prose
+    copy               = 'Copiar código'
+    copied             = 'Copiado'
 
 ### Classes CSS
 
