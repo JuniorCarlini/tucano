@@ -25,7 +25,7 @@ table[data-tuc-table]:not([data-tuc-ready]) {
 .tuc-table td,
 table[data-tuc-table]:not([data-tuc-ready]) th,
 table[data-tuc-table]:not([data-tuc-ready]) td {
-  @apply px-3 py-2.5 align-middle;
+  @apply px-3 py-3.5 align-middle;
   /*
    * Altura de linha fixa. Com `normal`, a caixa de selecao e o botao de
    * ordenar (16px, alinhados ao meio) esticavam a linha de 37 para 43px assim
@@ -134,7 +134,7 @@ table[data-tuc-table]:not([data-tuc-ready]) tbody tr:last-child > * { border-bot
 
 @media (max-width: 40rem) {
   .tuc-table th,
-  .tuc-table td { @apply px-2.5 py-2; }
+  .tuc-table td { @apply px-2.5 py-2.5; }
   .tuc-table { font-size: var(--tuc-text); }
 }
 
