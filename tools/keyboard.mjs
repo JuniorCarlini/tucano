@@ -921,7 +921,16 @@ const selMount = (html, opts = '{}') => evaluate(`(() => {
 const UFS = '<option value="AC">Acre</option><option value="BA">Bahia</option><option value="PA">Pará</option>'
   + '<option value="PR">Paraná</option><option value="SC">Santa Catarina</option><option value="SP">São Paulo</option>';
 const selText = () => evaluate(`sel.list.textContent`);
-const closeSel = () => evaluate(`void sel.close()`);
+/*
+ * Fechar anima a saida, e o painel so sai do DOM depois. Na tela do CI, com as
+ * fontes do Linux, o campo fica mais baixo, o painel nao cabe nem embaixo nem em
+ * cima e e encaixado por cima dele: o clique seguinte, no X, acertava uma opcao
+ * do painel que ainda sumia, e o valor nao era limpo. Espera o painel sair.
+ */
+const closeSel = async () => {
+  await evaluate(`void sel.close()`);
+  await waitFor(`!sel.menu.isConnected`);
+};
 
 testCase('select: digitar "são" com acento acha São Paulo', async () => {
   // Só as opções perdiam o acento; o termo digitado não, e "são" não achava nada.
