@@ -376,97 +376,6 @@ function searchEntry(slug, p, body, index) {
   });
 }
 
-/* ---- playground: as opcoes de verdade de cada componente ---- */
-
-/*
- * O playground monta um formulario de opcoes por componente. A lista de quais
- * opcoes aparecem e escolha de apresentacao (so o que faz sentido alternar:
- * booleano, enumeracao, numero, texto curto) e mora aqui; nome, padrao,
- * valores aceitos e atributo data-* saem do mesmo inventario da tabela de API.
- * Opcao que deixar de existir no codigo quebra o build, em vez de o playground
- * oferecer um controle que nao faz nada — o defeito do `tamanho:` nos onclick.
- *
- * `type` e `values` so entram quando o codigo nao diz sozinho: padrao
- * `undefined` ("decide pelo contexto") nao tem tipo, e posicao de popover nao
- * vem listada em comentario nenhum.
- */
-const PLACEMENTS = ['top', 'bottom', 'left', 'right'].flatMap((side) => ['start', 'center', 'end'].map((align) => `${side}-${align}`));
-const FORMAT_NAMES = [...readFileSync('src/js/components/mask.js', 'utf8')
-  .match(/export const FORMATS = \{([\s\S]*?)\n\};/)[1].matchAll(/^\s{2}'?([\w-]+)'?:/gm)].map((m) => m[1]);
-
-const PLAYGROUND = {
-  datepicker: {
-    mode: {}, time: {}, seconds: {}, minuteStep: {}, months: { type: 'number' }, presets: {}, weekNumbers: {},
-    clearable: {}, autoApply: { type: 'tristate' }, min: { type: 'string' }, max: { type: 'string' }, placement: { values: PLACEMENTS },
-  },
-  select: {
-    search: { type: 'tristate' }, placeholder: { type: 'string' }, clearable: {}, maxItems: { type: 'number' },
-    wrapTags: {}, closeOnSelect: { type: 'tristate' }, placement: { values: PLACEMENTS },
-  },
-  mask: {
-    format: { values: FORMAT_NAMES, attr: 'data-tuc-mask' }, validate: {}, decimals: {}, currency: { type: 'string' },
-    reveal: { attr: 'data-tuc-reveal' }, revealMode: {}, revealVisible: {},
-  },
-  colorpicker: { format: {}, alpha: {}, swatches: { type: 'boolean', default: true }, placement: { values: PLACEMENTS } },
-  upload: { url: { type: 'string' }, autoUpload: {}, maxSize: { type: 'string' }, maxFiles: { type: 'number' } },
-  toast: { type: {}, title: { type: 'string' }, text: {}, duration: { type: 'number' }, position: {}, closable: {}, max: {} },
-  modal: {
-    title: { type: 'string' }, text: {}, size: {}, tone: {}, sheet: {}, closable: {}, closeOnBackdrop: { attr: 'data-backdrop' },
-  },
-  drawer: {
-    title: { type: 'string' }, text: {}, side: {}, size: {}, tone: {}, closable: {}, closeOnBackdrop: { attr: 'data-backdrop' },
-  },
-  tabs: { selected: { type: 'number' }, manual: {} },
-  table: { sortable: {}, sortMode: {}, selectable: {} },
-  editor: { placeholder: {}, minHeight: {} },
-  pagination: { page: {}, pages: {}, around: {}, edges: {}, param: {} },
-  tooltip: { text: { attr: 'data-tuc-tip' }, placement: { values: PLACEMENTS }, delay: {}, delayOut: {}, maxWidth: {} },
-};
-
-function playgroundManifest() {
-  const parseDefault = (raw) => {
-    if (raw === 'true' || raw === 'false') return raw === 'true';
-    if (raw === 'null' || raw === 'undefined') return null;
-    if (/^-?\d+(\.\d+)?$/.test(raw)) return Number(raw);
-    const quoted = raw.match(/^'(.*)'$/);
-    return quoted ? quoted[1] : undefined;
-  };
-  // "'single' | 'range'", "sm | md | lg — nas laterais", "top-start|top-center|..."
-  const noteValues = (note) => {
-    const m = note.match(/^((?:'[\w-]+'|[\w-]+)(?:\s*\|\s*(?:'[\w-]+'|[\w-]+))+)/);
-    return m ? m[1].split('|').map((v) => v.trim().replace(/^'|'$/g, '')) : null;
-  };
-  const kebab = (n) => n.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
-
-  return Object.entries(PLAYGROUND).map(([name, spec]) => {
-    const c = components.find((x) => x.name === name);
-    if (!c) throw new Error(`[site] playground: componente "${name}" nao existe`);
-    const options = Object.entries(spec).map(([option, o]) => {
-      const source = c.options.find((x) => x.name === option);
-      if (!source) throw new Error(`[site] playground: ${name} nao tem a opcao "${option}"`);
-      const def = 'default' in o ? o.default : parseDefault(source.defaultValue);
-      if (def === undefined) throw new Error(`[site] playground: padrao de ${name}.${option} ilegivel (${source.defaultValue})`);
-      let values = o.values || noteValues(source.note);
-      let type = o.type || (values ? 'enum' : def === null ? null : typeof def);
-      if (type === 'tristate') { type = 'enum'; values = [true, false]; }
-      if (!['boolean', 'number', 'string', 'enum'].includes(type)) {
-        throw new Error(`[site] playground: tipo de ${name}.${option} indefinido — declare type no PLAYGROUND`);
-      }
-      if (type === 'enum' && def === null) values = [null, ...values];
-      if (type === 'enum' && !values.includes(def)) throw new Error(`[site] playground: ${name}.${option} tem padrao fora dos valores`);
-      const guess = `data-${kebab(option)}`;
-      const attr = o.attr || (c.attributes.includes(guess) ? guess : null);
-      if (o.attr && !c.attributes.includes(o.attr)) throw new Error(`[site] playground: ${name} nao le o atributo ${o.attr}`);
-      return { name: option, type, default: def, ...(type === 'enum' ? { values } : {}), attr, note: source.note };
-    });
-    return {
-      name, className: c.className, shortcut: c.shortcuts.find((s) => s === name) || null, options,
-      callbacks: c.options.filter((o) => /^on[A-Z]/.test(o.name)).map((o) => o.name), events: c.events,
-    };
-  });
-}
-const playground = playgroundManifest();
-
 /* ---- busca: titulo, dados estruturados, hreflang e sitemap ---- */
 
 /*
@@ -485,7 +394,6 @@ const TITLES = {
     theme: 'Tema da Tucano — tokens CSS, tema escuro e cor de destaque',
     keyboard: 'Teclado e acessibilidade nos componentes da Tucano',
     ai: 'Tucano para agentes de IA — llms.txt e AGENTS.md',
-    playground: 'Playground da Tucano — teste as opções e copie o código',
     component: (t) => `${t} — JavaScript puro para Django, Laravel e Rails`,
   },
   en: {
@@ -495,7 +403,6 @@ const TITLES = {
     theme: 'Tucano theme — CSS tokens, dark mode and accent color',
     keyboard: 'Keyboard and accessibility in Tucano components',
     ai: 'Tucano for AI agents — llms.txt and AGENTS.md',
-    playground: 'Tucano playground — try the options and copy the code',
     component: (t) => `${t} — plain JavaScript for Django, Laravel and Rails`,
   },
   es: {
@@ -505,7 +412,6 @@ const TITLES = {
     theme: 'Tema de Tucano — tokens CSS, modo oscuro y color de acento',
     keyboard: 'Teclado y accesibilidad en los componentes de Tucano',
     ai: 'Tucano para agentes de IA — llms.txt y AGENTS.md',
-    playground: 'Playground de Tucano — prueba las opciones y copia el código',
     component: (t) => `${t} — JavaScript puro para Django, Laravel y Rails`,
   },
 };
@@ -604,8 +510,8 @@ for (const language of LANGUAGES) {
     const route = pathFor(lang, slug);
     const root = '../'.repeat(outDepth + route.split('/').filter(Boolean).length);
 
-    // Script com src tambem vai para o fim do body: e o jeito de uma pagina so
-    // (o playground) carregar o proprio arquivo depois do dist/tucano.js.
+    // Script com src tambem vai para o fim do body: e o jeito de uma pagina
+    // carregar o proprio arquivo depois do dist/tucano.js.
     const scripts = [];
     let body = p.body.replace(/<script(?: src="[^"]*")?>([\s\S]*?)<\/script>\s*/g, (m) => {
       scripts.push(m.trim().replaceAll('{{root}}', root).replaceAll('{{version}}', version));
@@ -620,9 +526,6 @@ for (const language of LANGUAGES) {
     body = anchorHeadings(body);
     searchEntry(slug, p, body, index);
     body = body.replace(/<!-- api -->/g, () => api(p.meta.component, lang));
-    // `<` escapado pelo mesmo motivo do JSON-LD.
-    body = body.replace(/<!-- playground -->/g, () => `<script type="application/json" id="playground-api">${
-      JSON.stringify(playground).replace(/</g, '\\u003c')}</script>`);
     body = body.replace(/<!-- components -->/g, () => grid(slug, lang));
     // Cada idioma le as notas no proprio idioma; sem o arquivo, cai no portugues
     // em vez de a pagina sair vazia.

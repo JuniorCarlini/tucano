@@ -1,13 +1,12 @@
 #!/usr/bin/env node
 /*
- * Confere a busca e o playground do site gerado, no navegador, nos tres motores.
+ * Confere a busca do site gerado, no navegador, nos tres motores.
  *
- * Os dois vivem so no site — nao sao componente da biblioteca, entao nem o
- * behavior.mjs nem o keyboard.mjs os alcancam. O que se confere aqui e o
+ * Ela vive so no site — nao e componente da biblioteca, entao nem o
+ * behavior.mjs nem o keyboard.mjs a alcancam. O que se confere aqui e o
  * caminho de quem usa, com teclado e mouse de verdade: "/" e Ctrl+K abrem, a
- * busca ignora acento, as setas e o Enter levam a ancora, o Esc devolve o foco;
- * no playground, trocar de componente e de opcao recria a previa sem erro no
- * console e sem deixar painel sobrando no <body>, e o codigo acompanha.
+ * busca ignora acento, as setas e o Enter levam a ancora, o Esc devolve o foco,
+ * e o indice de cada idioma e o do proprio idioma.
  *
  * Precisa do site servido (npm run serve, ou qualquer servidor estatico na raiz).
  *
@@ -128,120 +127,18 @@ async function run(name) {
     await page.keyboard.press('Escape');
     await dialog.waitFor({ state: 'hidden' });
 
-    /* ---- playground ---- */
-    await page.goto(`${BASE}playground/`, { waitUntil: 'load' });
-    await page.waitForSelector('#pg-controls [data-option="mode"]');
-    const code = (id) => page.locator(`#${id} code`).textContent();
-    const waitCode = (id, text) => page.waitForFunction(([i, t]) => document.querySelector(`#${i} code`)?.textContent.includes(t), [id, text], { timeout: 3000 })
-      .then(() => true, () => false);
-    const bodyChildren = () => page.evaluate(() => document.body.children.length);
+    /* ---- "/" dentro de campo ---- */
 
-    await page.click('#pg-stage #due-date');
-    const opened = await page.waitForSelector('.tuc-dp.is-open', { timeout: 3000 }).then(() => true, () => false);
-    check(opened, 'playground: date picker da prévia abre no clique');
-    await page.keyboard.press('Escape');
-
-    await page.locator('#pg-option-mode ~ .tuc-select').first().click();
-    await page.getByRole('option', { name: 'range', exact: true }).click();
-    check(await waitCode('pg-code-html', 'data-mode="range"'), 'playground: mode=range entra no HTML');
-    check((await code('pg-code-js')).includes("mode: 'range'"), 'playground: e no JavaScript');
-    check((await code('pg-code-django')).includes('"data-mode": "range"'), 'playground: e no widget do Django');
-    // O painel nasce no primeiro abrir: conta-se depois de abrir o recriado.
-    await page.click('#pg-stage #due-date');
-    await page.waitForSelector('.tuc-dp.is-open');
-    check(await page.locator('.tuc-dp').count() === 1, 'playground: recriar não deixa um segundo calendário');
-    check(await page.locator('.tuc-dp.is-open .tuc-dp__month').count() === 2, 'playground: em range a prévia mostra dois meses');
-    await page.keyboard.press('Escape');
-
-    await page.click('[data-option="time"]');
-    check(await waitCode('pg-code-html', 'data-time="true"'), 'playground: chave time atualiza o código');
-    await page.fill('[data-option="minuteStep"]', '15');
-    check(await waitCode('pg-code-html', 'data-minute-step="15"'), 'playground: número digitado atualiza o código');
-    await page.click('[data-option="clearable"]');
-    check(await waitCode('pg-code-js', 'clearable: false'), 'playground: opção só de JS vai só ao JavaScript');
-    check(!(await code('pg-code-html')).includes('clearable'), 'playground: e fica fora do HTML');
-
-    await page.focus('[data-option="minuteStep"]');
+    // Digitar "/" num campo escreve a barra, e nao abre a busca: sem isto,
+    // quem preenche um formulario perde o que digitou para o dialogo.
+    await page.goto(`${BASE}datepicker/`, { waitUntil: 'load' });
+    await page.focus('#dp-due');
     await page.keyboard.press('/');
     check(await dialog.count() === 0 || !(await dialog.isVisible()), 'busca: "/" dentro de campo não abre a busca');
-
-    // Copiar: o botão é o .tuc-copy do bloco de código da biblioteca.
-    await page.getByRole('tab', { name: 'JavaScript' }).click();
-    const jsText = (await code('pg-code-js')).trim();
-    if (name === 'chromium') await page.context().grantPermissions(['clipboard-read', 'clipboard-write'], { origin: BASE.replace(/\/$/, '') });
-    await page.hover('#pg-code-js pre');
-    await page.click('#pg-code-js .tuc-copy');
-    if (name === 'chromium') {
-      const copied = await page.evaluate(() => navigator.clipboard.readText());
-      check(copied === jsText, 'playground: copiar leva o código gerado');
-    } else {
-      const done = await page.evaluate(() => document.querySelector('#pg-code-js .tuc-copy').classList.contains('is-copied') || getSelection().toString().length > 0);
-      check(done, 'playground: copiar responde (área de transferência ou seleção)');
-    }
-    await page.getByRole('tab', { name: 'HTML' }).click();
-
-    // Troca pelo seletor de verdade, e depois passa por todos os componentes.
-    await page.locator('#pg-component ~ .tuc-select').first().click();
-    await page.getByRole('option', { name: 'Select', exact: true }).click();
-    check(await waitCode('pg-code-html', 'data-tuc-select'), 'playground: seletor troca para o select');
-    check(await page.locator('.tuc-dp').count() === 0, 'playground: calendário anterior destruído');
-    // Base depois de abrir o seletor de componente pelo mouse: o menu dele mora
-    // no <body> enquanto ele existir, e ele existe a pagina toda.
-    // O menu que acabou de fechar ainda anima a saida e so sai do DOM depois do
-    // tempo de saida do popover (200 ms). Contar antes pegava um painel a mais na
-    // base, e o Firefox, mais lento, as vezes acusava 7 -> 6. Espera acima do tempo.
-    const settle = () => page.waitForTimeout(400);
-    await settle();
-    const baseline = await bodyChildren();
-
-    const names = ['mask', 'colorpicker', 'upload', 'editor', 'toast', 'modal', 'drawer', 'tooltip', 'tabs', 'table', 'pagination', 'select', 'datepicker'];
-    const broken = [];
-    for (const component of names) {
-      await page.evaluate((n) => {
-        const picker = document.getElementById('pg-component');
-        picker.value = n;
-        picker.dispatchEvent(new Event('change', { bubbles: true }));
-      }, component);
-      const ok = await page.evaluate((n) => {
-        const stage = document.getElementById('pg-stage');
-        const html = document.querySelector('#pg-code-html code').textContent;
-        const mounted = ['toast', 'modal', 'drawer'].includes(n) ? stage.querySelector('button')
-          : n === 'pagination' ? stage.querySelector('.tuc-pagination') : stage.querySelector('[data-pg-target]')?._tucano;
-        return Boolean(mounted) && html.length > 10 && !stage.querySelector('.tuc-hint');
-      }, component);
-      if (!ok) broken.push(component);
-    }
-    check(!broken.length, 'playground: os 13 componentes montam e geram código', broken.join(', '));
-    await settle();
-    const after = await bodyChildren();
-    check(after === baseline, 'playground: nenhum painel sobrando no <body> depois da volta', `${baseline} → ${after}`);
-
-    // Modal: abre pela prévia, fecha no Esc, e o onClose aparece nos eventos.
-    await page.evaluate(() => { const p = document.getElementById('pg-component'); p.value = 'modal'; p.dispatchEvent(new Event('change', { bubbles: true })); });
-    await page.click('#pg-stage button');
-    await page.waitForSelector('dialog.tuc-modal[open]');
-    if (SHOTS) await shot(page, `${name}-playground-modal`);
     await page.keyboard.press('Escape');
-    const logged = await page.waitForFunction(() => document.getElementById('pg-log').textContent.includes('"escape"'), null, { timeout: 3000 }).then(() => true, () => false);
-    check(logged, 'playground: onClose do modal registrado com o motivo');
 
-    // Paginação: o clique vira onChange, e o código segue a página nova.
-    await page.evaluate(() => { const p = document.getElementById('pg-component'); p.value = 'pagination'; p.dispatchEvent(new Event('change', { bubbles: true })); });
-    await page.locator('#pg-stage a', { hasText: /^5$/ }).click();
-    check(await waitCode('pg-code-html', 'data-page="5"'), 'playground: página clicada entra no código');
-
-    // Tabela com seleção: a coluna de caixas aparece na prévia.
-    await page.evaluate(() => { const p = document.getElementById('pg-component'); p.value = 'table'; p.dispatchEvent(new Event('change', { bubbles: true })); });
-    await page.click('[data-option="selectable"]');
-    check(await waitCode('pg-code-html', 'data-selectable="true"'), 'playground: selectable entra no código');
-    check(await page.locator('#pg-stage input[type=checkbox]').count() > 0, 'playground: e a prévia ganha a coluna de seleção');
-
-    await page.evaluate(() => { const p = document.getElementById('pg-component'); p.value = 'datepicker'; p.dispatchEvent(new Event('change', { bubbles: true })); });
     if (SHOTS) {
-      await shot(page, `${name}-playground-light`);
       await setTheme(page, 'dark');
-      await page.waitForSelector('#pg-controls [data-option="mode"]');
-      await shot(page, `${name}-playground-dark`);
       await page.keyboard.press('/');
       await dialog.waitFor({ state: 'visible' });
       await page.keyboard.type('mascara');
@@ -253,9 +150,8 @@ async function run(name) {
 
     /* ---- idiomas ---- */
     for (const [dir, clear] of [['en', 'Clear'], ['es', 'Borrar']]) {
-      await page.goto(`${BASE}${dir}/playground/`, { waitUntil: 'load' });
-      await page.waitForSelector('#pg-controls [data-option="mode"]');
-      await page.click('#pg-stage #due-date');
+      await page.goto(`${BASE}${dir}/datepicker/`, { waitUntil: 'load' });
+      await page.click('#dp-due');
       await page.waitForSelector('.tuc-dp.is-open');
       check((await page.locator('.tuc-dp.is-open').innerText()).includes(clear), `${dir}: textos do componente no idioma da página`, clear);
       await page.keyboard.press('Escape');
@@ -277,17 +173,14 @@ async function run(name) {
   await preparePage(mobile.page, mobileErrors);
   try {
     const p = mobile.page;
-    await p.goto(`${BASE}playground/`, { waitUntil: 'load' });
-    await p.waitForSelector('#pg-controls [data-option="mode"]');
+    await p.goto(`${BASE}datepicker/`, { waitUntil: 'load' });
     const overflow = await p.evaluate(() => document.documentElement.scrollWidth - innerWidth);
-    check(overflow <= 0, '390px: playground sem rolagem horizontal', `${overflow}px`);
-    const order = await p.evaluate(() => document.getElementById('pg-stage').getBoundingClientRect().top < document.getElementById('pg-controls').getBoundingClientRect().top);
-    check(order, '390px: prévia antes das opções');
-    await p.click('#pg-stage #due-date');
+    check(overflow <= 0, '390px: página sem rolagem horizontal', `${overflow}px`);
+    await p.click('#dp-due');
     const panel = await p.waitForSelector('.tuc-dp.is-open', { timeout: 3000 }).then((h) => h.boundingBox(), () => null);
-    check(panel && panel.x >= 0 && panel.x + panel.width <= 390, '390px: calendário da prévia cabe na tela');
+    check(panel && panel.x >= 0 && panel.x + panel.width <= 390, '390px: calendário cabe na tela');
     await p.keyboard.press('Escape');
-    if (SHOTS) await shot(p, `${name}-mobile-playground-light`);
+    if (SHOTS) await shot(p, `${name}-mobile-light`);
 
     await p.click('.topbar [data-search]');
     await p.locator('dialog.search-dialog').waitFor({ state: 'visible' });
@@ -300,8 +193,7 @@ async function run(name) {
       await shot(p, `${name}-mobile-search-light`);
       await p.keyboard.press('Escape');
       await setTheme(p, 'dark');
-      await p.waitForSelector('#pg-controls [data-option="mode"]');
-      await shot(p, `${name}-mobile-playground-dark`);
+      await shot(p, `${name}-mobile-dark`);
     }
   } catch (e) {
     check(false, '390px: execução', e.message.split('\n')[0]);

@@ -14,7 +14,7 @@ npm run build        # gera dist/ (JS via esbuild, CSS via tools/css.mjs)
 npm run serve        # build + servidor local na porta 4322
 npm run build:og     # regera og.png a partir de tools/og.html
 node tools/site.mjs preview   # gera o site numa pasta de prévia, fora do git
-node tools/site-check.mjs     # busca e playground do site servido, nos três motores (SHOTS=pasta para capturas)
+node tools/site-check.mjs     # busca do site servido, nos três motores (SHOTS=pasta para capturas)
 npx playwright install chromium firefox webkit   # uma vez: os navegadores dos testes
 npm test             # build e todos os testes; comportamento e teclado nos três motores
 npm run test:webkit  # comportamento e teclado só no WebKit (também :chromium e :firefox)
@@ -33,8 +33,8 @@ envelheceram uma vez, e a página chegou a anunciar 15 KB com o arquivo em 27.
 `<slug>/index.html` na raiz — que é de onde o GitHub Pages publica — e monta
 sozinho a tabela de API (do mesmo extrator do `llms.txt`), a grade de
 componentes do início, o changelog em linha do tempo e os blocos de código.
-Gera também o `search.json` de cada idioma (índice da busca), os ids dos `h2` e
-`h3` que não tinham e o manifesto de opções do playground.
+Gera também o `search.json` de cada idioma (índice da busca) e os ids dos `h2` e
+`h3` que não tinham.
 Editar um `index.html` gerado é trabalho perdido no próximo build.
 `dist/` **é versionado** de propósito: é ele que o CDN serve e o que faz o uso
 estático funcionar sem build.
@@ -623,17 +623,6 @@ mapa de posições — marcar sobre o texto dobrado perderia o acento na tela. O
 rótulos são chaves `search*` do `DEFAULT_UI`, escritas como `data-search-*` no
 `<body>`.
 
-**O playground não tem lista de opções escrita à mão.** `PLAYGROUND`, no
-`site.mjs`, diz só quais opções de cada componente viram controle; nome, padrão,
-valores aceitos (lidos do comentário, `'a' | 'b'`) e atributo `data-*` saem do
-`tools/api.mjs`, e opção que sumiu do código, padrão ilegível ou atributo que o
-`autoInit` não lê quebram o build. O manifesto vai na própria página, num
-`<script type="application/json">`; `site/playground.js` só apresenta e guarda
-a marcação de exemplo e os textos de demonstração dos três idiomas. A cada troca
-a instância anterior é destruída com `destroy()` antes de a próxima nascer — o
-teste confere que nenhum painel sobra no `<body>`. Na paginação e na tabela em
-modo servidor a prévia passa `onChange`/`onSort`, que cancelam a navegação; na
-tabela em modo `client` não, porque `onSort` definido toma a ordenação para si.
 Uma página que precisa de script próprio o declara com
 `<script src="{{root}}site/x.js?v={{version}}">`: o gerador leva esse script,
 como os inline, para depois do `dist/tucano.js`.
@@ -831,13 +820,12 @@ de procurar, e por isso deixou passar `--matiz`, `nextId('cor')`, o sufixo
 nome — custom property, prefixo de `nextId`, motivo de `onDismiss` e sufixo de
 id — e acusou os sete antes da correção.
 
-**`tools/site-check.mjs` — busca e playground do site, nos três navegadores.**
+**`tools/site-check.mjs` — busca do site, nos três navegadores.**
 Fica fora do `npm test` porque precisa do site servido (`npm run serve`, ou
 `SITE_URL=` para outro endereço). Com teclado e mouse reais: `/` e Ctrl+K abrem,
-"sensivel" acha "sensível", ↓/↑/Enter levam à âncora, Esc devolve o foco; no
-playground, trocar de componente e de opção recria a prévia sem erro no console,
-sem painel sobrando no `<body>`, com o código acompanhando, e o copiar leva o
-código gerado. Também em inglês, em espanhol e em 390px. Com `SHOTS=pasta` salva
+"sensivel" acha "sensível", ↓/↑/Enter levam à âncora, Esc devolve o foco, e `/`
+dentro de um campo escreve a barra em vez de abrir o diálogo. Também em inglês,
+em espanhol e em 390px. Com `SHOTS=pasta` salva
 capturas nos dois temas. Duas expectativas erradas custaram uma rodada: o painel
 do date picker só nasce no primeiro abrir (contar antes dá zero), e ir a uma
 âncora da mesma página leva o foco para o `<body>` — o que se confere é que ele

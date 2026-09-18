@@ -45,7 +45,6 @@
   },
   "items": {
     "index": { "title": "Home and installation" },
-    "playground": { "title": "Playground", "desc": "Toggle the options and copy the code." },
     "changelog": { "title": "Changelog" },
     "form": { "title": "Form", "desc": "Label, hint, error and the field that failed." },
     "select": { "title": "Select", "desc": "Search, multiple with tags, groups and server search." },

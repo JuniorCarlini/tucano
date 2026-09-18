@@ -45,7 +45,6 @@
   },
   "items": {
     "index": { "title": "Inicio e instalación" },
-    "playground": { "title": "Playground", "desc": "Cambia las opciones y copia el código." },
     "changelog": { "title": "Changelog" },
     "form": { "title": "Formulario", "desc": "Etiqueta, ayuda, error y el campo que no pasó." },
     "select": { "title": "Select", "desc": "Búsqueda, múltiple con etiquetas, grupos y búsqueda en el servidor." },
