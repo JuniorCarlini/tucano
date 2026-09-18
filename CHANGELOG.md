@@ -126,6 +126,10 @@ projeto.
 
 ### Corrigido
 
+- O select não disparava `input` no `<select>` nativo, só `change`. O do
+  navegador dispara os dois, nessa ordem: um `hx-trigger="input"` nunca rodava,
+  e no Firefox o balão de validação de um envio inválido não fechava quando a
+  pessoa escolhia a opção.
 - `data-tuc-reveal` num campo sem `data-tuc-mask`, como senha e token, lançava
   erro a cada tecla digitada.
 - Campo de senha vazio com `data-tuc-reveal` nascia visível, trocado para

@@ -132,6 +132,21 @@ body{margin:0;padding:16px;font-family:system-ui}
     if (!nativeSelect.isConnected) throw new Error('o nativo sumiu');
     if ([].filter.call(nativeSelect.options, function (o) { return o.selected; }).length !== 2) throw new Error('o nativo não acompanhou');
   });
+  t('select: escolher dispara input e depois change no nativo, como o <select> do navegador', function () {
+    // So o change saia: hx-trigger="input" nunca disparava, e o balao de
+    // validacao do Firefox nao fechava quando a pessoa escolhia a opcao.
+    var box = document.createElement('div');
+    box.innerHTML = '<select data-tuc-select><option value="">Selecione</option><option>SP</option></select>';
+    document.body.append(box);
+    Tucano.init(box);
+    var nativo = box.querySelector('select');
+    var ordem = [];
+    nativo.addEventListener('input', function () { ordem.push('input'); });
+    nativo.addEventListener('change', function () { ordem.push('change'); });
+    nativo._tucano.setValue('SP');
+    nativo._tucano.destroy(); box.remove();
+    if (ordem.join() !== 'input,change') throw new Error(ordem.join() || 'nenhum evento');
+  });
   t('select: setValue silencioso não dispara o change nativo', function () {
     // silent existe para trocar por codigo sem avisar ninguem; o change do
     // nativo escapava e um hx-trigger="change" mandava requisicao a toa.

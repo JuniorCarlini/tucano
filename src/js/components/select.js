@@ -338,7 +338,14 @@ export class Select {
       // Sem nada selecionado, o <select> não posta nada e o `required` barra.
       else this.native.selectedIndex = -1;
     }
-    if (!silent) this.native.dispatchEvent(new Event('change', { bubbles: true }));
+    // `input` e depois `change`, na ordem do <select> do navegador. So com o
+    // `change`, o hx-trigger="input" nunca disparava, e o balao de validacao do
+    // Firefox, preso ao nativo depois de um submit invalido, nao fechava quando
+    // a pessoa escolhia a opcao: ele espera o `input` do proprio campo.
+    if (!silent) {
+      this.native.dispatchEvent(new Event('input', { bubbles: true }));
+      this.native.dispatchEvent(new Event('change', { bubbles: true }));
+    }
     this._pushing = false;
   }
 

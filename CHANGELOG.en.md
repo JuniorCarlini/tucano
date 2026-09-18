@@ -130,6 +130,10 @@ in your project.
 
 ### Fixed
 
+- The select did not fire `input` on the native `<select>`, only `change`. The
+  browser's fires both, in that order: an `hx-trigger="input"` never ran, and in
+  Firefox the validation bubble of an invalid submit did not close when the
+  person picked an option.
 - `data-tuc-reveal` on a field without `data-tuc-mask`, such as a password or
   a token, threw an error on every keystroke.
 - An empty password field with `data-tuc-reveal` started visible, switched to

@@ -2174,7 +2174,10 @@ var Tucano = (() => {
         if (empty) empty.selected = true;
         else this.native.selectedIndex = -1;
       }
-      if (!silent) this.native.dispatchEvent(new Event("change", { bubbles: true }));
+      if (!silent) {
+        this.native.dispatchEvent(new Event("input", { bubbles: true }));
+        this.native.dispatchEvent(new Event("change", { bubbles: true }));
+      }
       this._pushing = false;
     }
     /* ---------------------------------------------------------------- *

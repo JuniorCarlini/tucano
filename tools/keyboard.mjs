@@ -922,10 +922,8 @@ const UFS = '<option value="AC">Acre</option><option value="BA">Bahia</option><o
   + '<option value="PR">Paraná</option><option value="SC">Santa Catarina</option><option value="SP">São Paulo</option>';
 const selText = () => evaluate(`sel.list.textContent`);
 /*
- * Fechar anima a saida, e o painel so sai do DOM depois. Na tela do CI, com as
- * fontes do Linux, o campo fica mais baixo, o painel nao cabe nem embaixo nem em
- * cima e e encaixado por cima dele: o clique seguinte, no X, acertava uma opcao
- * do painel que ainda sumia, e o valor nao era limpo. Espera o painel sair.
+ * Fechar anima a saida, e o painel so sai do DOM depois: o passo seguinte do
+ * teste espera ele sair, para nunca clicar num painel que ainda esta sumindo.
  */
 const closeSel = async () => {
   await evaluate(`void sel.close()`);
@@ -990,9 +988,20 @@ testCase('select: clique dentro de <label> abre e fica aberto; <label for> e sub
   await clickOn(`document.getElementById('kgo')`);
   await wait(50);
   const bySubmit = await evaluate(`document.activeElement === sel.search`);
+  /*
+   * Corrige o campo, como faria quem viu o erro: escolhe um estado. E o `input`
+   * do nativo que fecha o balao de validacao; no Firefox sem tela ele nao some
+   * sozinho, e cobria o canto da pagina onde os testes seguintes clicavam.
+   */
+  await press('ArrowDown');
+  await wait(80);
+  await press('ArrowDown');
+  await press('Enter');
+  const fixed = await evaluate(`sel.native.value`);
   const name = await evaluate(`sel.search.getAttribute('aria-label')`);
   if (!wrapped[0] || !wrapped[1]) return `dentro do label: aberto ${wrapped[0]}, foco na busca ${wrapped[1]}`;
   if (!byLabel || !bySubmit) return `foco na busca: label ${byLabel}, submit ${bySubmit}`;
+  if (!fixed) return 'escolher pelo teclado depois do submit não preencheu o nativo';
   return name === 'Estado' ? null : `nome acessível da busca "${name}"`;
 });
 

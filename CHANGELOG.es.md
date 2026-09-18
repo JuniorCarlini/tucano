@@ -132,6 +132,10 @@ cambios en tu proyecto.
 
 ### Corregido
 
+- El select no disparaba `input` en el `<select>` nativo, solo `change`. El del
+  navegador dispara los dos, en ese orden: un `hx-trigger="input"` nunca se
+  ejecutaba, y en Firefox el globo de validación de un envío inválido no se
+  cerraba cuando la persona elegía la opción.
 - `data-tuc-reveal` en un campo sin `data-tuc-mask`, como contraseña y token,
   lanzaba un error en cada tecla.
 - Un campo de contraseña vacío con `data-tuc-reveal` nacía visible, cambiado a
