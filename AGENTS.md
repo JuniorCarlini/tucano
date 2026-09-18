@@ -24,6 +24,10 @@ O `build` termina em `tools/reference.mjs`, que regera a referência do llms.txt
 em `tools/stamp.mjs`, que escreve a versão e o peso real do `dist` na página, no
 README e no llms.txt. Nunca edite esses números à mão: eles já
 envelheceram uma vez, e a página chegou a anunciar 15 KB com o arquivo em 27.
+O gzip desses números é o do `fflate` (`tools/gzip-size.mjs`), com versão fixa,
+e não o do `node:zlib`: o zlib muda de uma versão do Node para outra, e o CI,
+que confere que os arquivos gerados batem com o commit, derrubou a publicação
+da 0.34.0 por 39,7 contra 39,8 KB entre o Node daqui e o de lá.
 
 **A documentação é gerada, e não se edita o HTML publicado.** A fonte mora em
 `site/`: `layout.html` (cabeçalho, barra lateral e `<head>`, uma vez só),

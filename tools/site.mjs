@@ -32,7 +32,7 @@
  * Uso: node tools/site.mjs [pasta de saida]   (padrao: a raiz do repositorio)
  */
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
-import { gzipSync } from 'node:zlib';
+import { gzipBytes } from './gzip-size.mjs';
 import { components } from './api.mjs';
 // As setas do anterior/proxima sao as mesmas da biblioteca, e nao um SVG a mais.
 import { ICON_CHEVRON_LEFT, ICON_CHEVRON_RIGHT } from '../src/js/core/dom.js';
@@ -40,7 +40,7 @@ import { ICON_CHEVRON_LEFT, ICON_CHEVRON_RIGHT } from '../src/js/core/dom.js';
 const OUT = (process.argv[2] || '.').replace(/\/+$/, '');
 const BASE_URL = 'https://juniorcarlini.github.io/tucano/';
 const version = JSON.parse(readFileSync('package.json', 'utf8')).version;
-const kb = (file) => Math.round(gzipSync(readFileSync(file)).length / 1024);
+const kb = (file) => Math.round(gzipBytes(readFileSync(file)) / 1024);
 const sizes = { js: kb('dist/tucano.min.js'), css: kb('dist/tucano.min.css') };
 
 const layout = readFileSync('site/layout.html', 'utf8');
@@ -575,7 +575,7 @@ for (const language of LANGUAGES) {
   const folder = `${OUT}/${pathFor(lang, 'index')}`.replace(/\/+$/, '');
   mkdirSync(folder, { recursive: true });
   writeFileSync(`${folder}/search.json`, json);
-  searchSizes.push(`${language.short} ${(json.length / 1024).toFixed(1)} KB (${(gzipSync(json).length / 1024).toFixed(1)} gzip)`);
+  searchSizes.push(`${language.short} ${(json.length / 1024).toFixed(1)} KB (${(gzipBytes(json) / 1024).toFixed(1)} gzip)`);
 }
 
 mkdirSync(OUT, { recursive: true });

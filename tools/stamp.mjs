@@ -17,10 +17,10 @@
  * seguir com numero velho.
  */
 import { readFileSync, writeFileSync } from 'node:fs';
-import { gzipSync } from 'node:zlib';
+import { gzipBytes } from './gzip-size.mjs';
 import { build } from 'esbuild';
 
-const kb = (file) => Math.round(gzipSync(readFileSync(file)).length / 1024);
+const kb = (file) => Math.round(gzipBytes(readFileSync(file)) / 1024);
 
 const js = kb('dist/tucano.min.js');
 const css = kb('dist/tucano.min.css');
@@ -39,7 +39,7 @@ async function importCost(names) {
     : `export { ${names} } from './src/js/index.js';`;
   const out = await build({ stdin: { contents, resolveDir: process.cwd(), loader: 'js' },
     bundle: true, minify: true, format: 'esm', write: false, logLevel: 'silent' });
-  return gzipSync(out.outputFiles[0].contents).length / 1024;
+  return gzipBytes(out.outputFiles[0].contents) / 1024;
 }
 const decimal = (n) => n.toFixed(1).replace('.', ',');
 const partial = {

@@ -5,7 +5,7 @@
 > exemplos deste arquivo usam Django; em PHP e Rails, campo múltiplo precisa de
 > name terminado em [] e o upload direto precisa do cabeçalho de CSRF do
 > framework (data-csrf="false" e a opção headers do new Upload).
-> JavaScript puro, sem dependências em runtime. 40 KB JS + 13 KB CSS (gzip).
+> JavaScript puro, sem dependências em runtime. 41 KB JS + 13 KB CSS (gzip).
 > Os estilos são escritos em Tailwind mas distribuídos já compilados: o projeto
 > que consome não precisa de build e não recebe o preflight do Tailwind.
 >
