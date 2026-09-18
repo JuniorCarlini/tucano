@@ -813,7 +813,7 @@ input.tuc-input.tuc-input:is([data-tuc-valid], [data-validate]:not([data-tuc-mas
   width: calc(var(--spacing, 0.25rem) * 4);
   height: calc(var(--spacing, 0.25rem) * 4);
   flex-shrink: 0;
-  margin-top: 0.125rem;
+  align-self: center;
   color: var(--tuc-alert-tone);
 }
 .tuc-alert__body {
@@ -3014,7 +3014,7 @@ textarea.tuc-editor__value[hidden] {
 }
 .tuc-table th, .tuc-table td, table[data-tuc-table]:not([data-tuc-ready]) th, table[data-tuc-table]:not([data-tuc-ready]) td {
   padding-inline: calc(var(--spacing, 0.25rem) * 3);
-  padding-block: calc(var(--spacing, 0.25rem) * 2.5);
+  padding-block: calc(var(--spacing, 0.25rem) * 3.5);
   vertical-align: middle;
   line-height: 1.5rem;
   border-bottom: var(--tuc-border-width) solid var(--tuc-border);
@@ -3133,7 +3133,7 @@ textarea.tuc-editor__value[hidden] {
 @media (max-width: 40rem) {
   .tuc-table th, .tuc-table td {
     padding-inline: calc(var(--spacing, 0.25rem) * 2.5);
-    padding-block: calc(var(--spacing, 0.25rem) * 2);
+    padding-block: calc(var(--spacing, 0.25rem) * 2.5);
   }
   .tuc-table {
     font-size: var(--tuc-text);

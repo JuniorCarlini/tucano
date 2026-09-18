@@ -106,6 +106,12 @@ projeto.
   `detail` dos eventos `tucano:*`, dos grupos e chaves de `Tucano.setTexts()` e
   dos utilitários `Tucano.mask`, `Tucano.dates` e `Tucano.color`.
 
+### Mudou
+
+- O ícone do `.tuc-alert` fica no meio da altura do aviso, e não mais preso à
+  primeira linha. Com título e texto ele subia sozinho, enquanto os botões de
+  ação ao lado já ficavam centrados.
+
 ### Corrigido
 
 - `data-tuc-reveal` num campo sem `data-tuc-mask`, como senha e token, lançava

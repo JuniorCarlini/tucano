@@ -109,6 +109,12 @@ in your project.
   events, the groups and keys of `Tucano.setTexts()`, and the `Tucano.mask`,
   `Tucano.dates` and `Tucano.color` utilities.
 
+### Changed
+
+- The `.tuc-alert` icon now sits at the middle of the alert's height instead of
+  being pinned to the first line. With a title and body it drifted upward, while
+  the action buttons beside it were already centered.
+
 ### Fixed
 
 - `data-tuc-reveal` on a field without `data-tuc-mask`, such as a password or

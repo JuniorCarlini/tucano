@@ -35,10 +35,13 @@
 .tuc-alert.is-warning { --tuc-alert-tone: var(--tuc-warning); }
 .tuc-alert.is-danger  { --tuc-alert-tone: var(--tuc-danger); }
 
-/* O icone fica no centro da primeira linha, como o controle do .tuc-choice. */
+/*
+ * O icone fica no meio da altura do aviso, como os botoes de acao ao lado.
+ * Preso a primeira linha ele subia sozinho num aviso de titulo e texto, e a
+ * caixa ficava com um canto pesado e o resto vazio.
+ */
 .tuc-alert > svg {
-  @apply size-4 shrink-0;
-  margin-top: 0.125rem;
+  @apply size-4 shrink-0 self-center;
   color: var(--tuc-alert-tone);
 }
 
