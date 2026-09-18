@@ -4,7 +4,7 @@ What changed in each Tucano release, newest first. Check the "Before upgrading"
 section of each version first: that is where you will find what requires changes
 in your project.
 
-## Unreleased
+## 0.34.0 — 2026-09-18
 
 ### Before upgrading
 
