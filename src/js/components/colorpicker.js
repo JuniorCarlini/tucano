@@ -44,11 +44,16 @@ export class ColorPicker {
     this.isOpen = false;
     this._cleanups = [];
     this.hsva = { h: 243, s: 0.7, v: 0.9, a: 1 };
+    // Campo sem cor nasce vazio. Escrever uma cor de fabrica fazia o formulario
+    // postar o que ninguem escolheu, e o `required` nunca barrava o envio — o
+    // campo ja chegava preenchido. O HSVA acima e so onde o painel abre.
+    this.empty = true;
 
     this._build();
     // Pelo setValue, e nao pelo parseColor direto: sem opacidade, o alfa do valor
     // inicial precisa sair tambem, e `#ff000080` ficava no campo com a trilha escondida.
-    this.setValue(node.value, { silent: true }) || this.setValue(this.opts.value, { silent: true }) || this._syncInput();
+    const initial = node.value || this.opts.value || '';
+    if (!initial || !this.setValue(initial, { silent: true })) this._syncInput();
     node._tucano = this;
   }
 
@@ -57,16 +62,28 @@ export class ColorPicker {
    * ---------------------------------------------------------------- */
 
   getValue() {
-    return formatColor(this.hsva, this.opts.format);
+    return this.empty ? null : this._color();
   }
 
   getRgb() {
-    return { ...hsvToRgb(this.hsva), a: this.hsva.a };
+    return this.empty ? null : { ...hsvToRgb(this.hsva), a: this.hsva.a };
+  }
+
+  /** A cor do HSVA atual, mesmo com o campo vazio: e por onde o painel pinta. */
+  _color() {
+    return formatColor(this.hsva, this.opts.format);
   }
 
   setValue(value, { silent = false } = {}) {
+    // null e '' limpam: e como o formulario volta ao vazio no reset.
+    if (value == null || value === '') {
+      this.empty = true;
+      this._commit(silent);
+      return true;
+    }
     const color = parseColor(value);
     if (!color) return false;
+    this.empty = false;
     const { h, s } = this.hsva;
     /*
      * Cinza nao tem matiz e preto nao tem saturacao: o parseColor devolve 0, e a
@@ -204,6 +221,7 @@ export class ColorPicker {
       }),
       ...this._dragHandler(this.area, (x, y) => {
         this.hsva = { ...this.hsva, s: x, v: 1 - y };
+        this.empty = false;   // mexer na area e escolher
         this._commit(false, false);
       }),
       on(this.area, 'keydown', (e) => this._areaKeys(e)),
@@ -223,7 +241,7 @@ export class ColorPicker {
       // _paint pula campo focado — texto invalido ficava la, mentindo o valor.
       on(this.hexField, 'change', () => {
         this.setValue(this.hexField.value);
-        this.hexField.value = this.getValue();
+        this.hexField.value = this.empty ? '' : this._color();
       }),
     );
 
@@ -250,6 +268,7 @@ export class ColorPicker {
     const hue = type === 'hue';
     const set = (x, native) => {
       this.hsva = hue ? { ...this.hsva, h: x * 360 } : { ...this.hsva, a: x };
+      this.empty = false;   // mexer na trilha e escolher
       this._commit(false, native);
     };
 
@@ -325,6 +344,7 @@ export class ColorPicker {
     const d = map[e.key];
     if (!d) return;
     e.preventDefault();
+    this.empty = false;   // mexer pelo teclado e escolher
     this.hsva = {
       ...this.hsva,
       s: clamp(this.hsva.s + (d.s || 0), 0, 1),
@@ -357,9 +377,11 @@ export class ColorPicker {
   }
 
   _syncInput() {
-    const value = this.getValue();
+    const value = this.empty ? '' : this._color();
     this.input.value = value;
-    this.swatch.style.setProperty('--color', value);
+    // Sem cor, o xadrez do fundo da amostra aparece sozinho — o mesmo desenho
+    // que ela ja usa para cor translucida.
+    this.swatch.style.setProperty('--color', value || 'transparent');
   }
 
   /** Repinta os controles a partir do HSVA atual. */
@@ -368,7 +390,7 @@ export class ColorPicker {
     const pure = rgbToHex(hsvToRgb({ h, s: 1, v: 1 }));
     const solid = rgbToHex(hsvToRgb(this.hsva));
     const thumb = this.area.firstElementChild;
-    const value = this.getValue();
+    const value = this.empty ? '' : this._color();
 
     this.area.style.setProperty('--hue', pure);
     thumb.style.left = `${s * 100}%`;
@@ -388,10 +410,10 @@ export class ColorPicker {
     }
 
     // Qualquer formato de saida e cor CSS valida.
-    this.preview.style.setProperty('--color', value);
+    this.preview.style.setProperty('--color', value || 'transparent');
 
     // Marca a amostra da paleta que corresponde a cor atual.
-    const current = formatColor(this.hsva);
+    const current = this.empty ? null : formatColor(this.hsva);
     for (const btn of this.panel.querySelectorAll('.tuc-colorpicker__swatchbtn')) {
       btn.classList.toggle('is-selected', btn.dataset.color === current);
     }

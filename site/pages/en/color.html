@@ -30,6 +30,14 @@ description: Color picker on top of a text input, with an HSV area, hue, opacity
 <div class="demo">
   <div class="demo-grid">
     <div class="demo-cell">
+      <h4>No value</h4>
+      <p>A field with no <code>value</code> starts empty, with no color picked for you, and <code>required</code>
+         blocks the submit until someone picks one.</p>
+      <label class="tuc-label is-required" for="co-empty">Tag color</label>
+      <input type="text" id="co-empty" name="tag_color" data-tuc-color required>
+      <div class="out" id="co-empty-out"></div>
+    </div>
+    <div class="demo-cell">
       <h4>No opacity</h4>
       <p><code>data-alpha="false"</code> removes the track; the hex always has 6 digits.</p>
       <input type="text" id="co-solid" name="solid" value="#0d9488" data-tuc-color data-alpha="false" aria-label="Solid color">

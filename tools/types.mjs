@@ -44,7 +44,7 @@ const SHARED = `
 export type Placement = PlacementSide | \`\${PlacementSide}-\${'start' | 'center' | 'end'}\`;
 export type PlacementSide = 'top' | 'bottom' | 'left' | 'right';
 
-/** \`{ silent: true }\` troca o valor sem chamar \`onChange\` nem disparar \`tucano:change\`. */
+/** \`{ silent: true }\` troca o valor sem avisar ninguem: nem \`onChange\`, nem \`tucano:change\`, nem o \`change\` do elemento nativo. */
 export interface SilentOption {
   silent?: boolean;
 }
@@ -153,18 +153,21 @@ export interface ColorPickerChangeDetail {
     },
     docs: {
       appendTo: 'Onde o painel nasce. Padrao: o `<dialog>` aberto que contem o campo, ou o `<body>`.',
-      value: 'Cor inicial, quando o campo esta vazio.',
+      value: 'Cor inicial, quando o `value` do campo esta vazio. Sem ela, o campo nasce sem cor.',
     },
     methods: {
-      getValue: '(): string',
-      getRgb: '(): RGBA',
-      setValue: '(value: string, options?: SilentOption): boolean',
+      getValue: '(): string | null',
+      getRgb: '(): RGBA | null',
+      setValue: '(value: string | null, options?: SilentOption): boolean',
       open: '(): void',
       close: '(): void',
       toggle: '(): void',
       destroy: '(): void',
     },
-    methodDocs: { setValue: 'Aplica a cor. Devolve `false`, sem mudar nada, quando o texto nao e uma cor.' },
+    methodDocs: {
+      getValue: '`null` enquanto ninguem escolheu: o campo nasce vazio.',
+      setValue: 'Aplica a cor; `null` ou `\'\'` limpa. Devolve `false`, sem mudar nada, quando o texto nao e uma cor.',
+    },
     props: { isOpen: 'boolean', input: 'HTMLInputElement' },
     events: { 'tucano:change': 'ColorPickerChangeDetail' },
   },

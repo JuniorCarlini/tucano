@@ -173,7 +173,7 @@ new Upload('input[type=file]', {
   onError: (error, file) => `${error.message} ${file.name}`,
 }).getFiles()[0]?.status;
 new Tooltip('#ajuda', { text: 'Ajuda', placement: 'right-center' }).setText('Outra');
-new ColorPicker('#cor', { format: 'rgb', swatches: false }).getRgb().a;
+new ColorPicker('#cor', { format: 'rgb', swatches: false }).getRgb()?.a;   // null enquanto ninguem escolheu
 new Pagination({ page: 2, pages: 10, onChange: (page, instance) => { instance.setPage(page); } }).render();
 pagination({ page: 1, pages: 3 }).append('x');
 new Popover(document.body, document.createElement('div'), {

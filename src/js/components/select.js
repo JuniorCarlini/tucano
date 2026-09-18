@@ -92,7 +92,7 @@ export class Select {
     // No simples vale o primeiro: com dois, a tela mostrava um e o nativo postava o outro.
     const target = new Set([].concat(value ?? []).map(String).slice(0, this.multiple ? undefined : 1));
     for (const item of this.items) item.selected = target.has(item.value);
-    this._pushToNative();
+    this._pushToNative({ silent });
     this._renderControl();
     if (this.isOpen) this._renderMenu();
     if (!silent) this._emit();
@@ -308,7 +308,14 @@ export class Select {
     );
   }
 
-  _pushToNative() {
+  /*
+   * `silent` segura tambem o `change` do nativo, e nao so os eventos da Tucano.
+   * Ele existe para trocar o valor por codigo sem avisar ninguem, e um
+   * hx-trigger="change" transformava cada troca silenciosa numa requisicao. E o
+   * que o DOM faz: atribuir `select.value` por script nunca dispara `change`.
+   * A escolha de quem clica ou digita continua disparando, por _toggleItem.
+   */
+  _pushToNative({ silent = false } = {}) {
     this._pushing = true;
     // Itens vindos do servidor nao existem no <select>: cria a <option> para o
     // valor poder ser postado.
@@ -331,7 +338,7 @@ export class Select {
       // Sem nada selecionado, o <select> não posta nada e o `required` barra.
       else this.native.selectedIndex = -1;
     }
-    this.native.dispatchEvent(new Event('change', { bubbles: true }));
+    if (!silent) this.native.dispatchEvent(new Event('change', { bubbles: true }));
     this._pushing = false;
   }
 

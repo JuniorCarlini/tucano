@@ -100,6 +100,8 @@ data-placement.
 
 Aceita na entrada: #rgb, #rgba, #rrggbb, #rrggbbaa, rgb(), rgba(), hsl(), hsla().
 Texto inválido não zera a cor: volta para o valor atual.
+Campo sem value nasce vazio (nenhuma cor escolhida por você), então required
+barra o envio; getValue() devolve null e setValue(null) ou setValue('') limpa.
 No arrasto, tucano:change sai a cada movimento e o change nativo uma vez, ao
 soltar: para prévia ao vivo, ouça tucano:change.
 

@@ -1882,7 +1882,7 @@ var Select = class {
   setValue(value, { silent = false } = {}) {
     const target = new Set([].concat(value ?? []).map(String).slice(0, this.multiple ? void 0 : 1));
     for (const item of this.items) item.selected = target.has(item.value);
-    this._pushToNative();
+    this._pushToNative({ silent });
     this._renderControl();
     if (this.isOpen) this._renderMenu();
     if (!silent) this._emit();
@@ -2080,7 +2080,14 @@ var Select = class {
       on(this.list, "scroll", () => this._onListScroll())
     );
   }
-  _pushToNative() {
+  /*
+   * `silent` segura tambem o `change` do nativo, e nao so os eventos da Tucano.
+   * Ele existe para trocar o valor por codigo sem avisar ninguem, e um
+   * hx-trigger="change" transformava cada troca silenciosa numa requisicao. E o
+   * que o DOM faz: atribuir `select.value` por script nunca dispara `change`.
+   * A escolha de quem clica ou digita continua disparando, por _toggleItem.
+   */
+  _pushToNative({ silent = false } = {}) {
     this._pushing = true;
     if (this.remote) {
       for (const item of this.items) {
@@ -2096,7 +2103,7 @@ var Select = class {
       if (empty) empty.selected = true;
       else this.native.selectedIndex = -1;
     }
-    this.native.dispatchEvent(new Event("change", { bubbles: true }));
+    if (!silent) this.native.dispatchEvent(new Event("change", { bubbles: true }));
     this._pushing = false;
   }
   /* ---------------------------------------------------------------- *
@@ -2626,22 +2633,34 @@ var ColorPicker = class _ColorPicker {
     this.isOpen = false;
     this._cleanups = [];
     this.hsva = { h: 243, s: 0.7, v: 0.9, a: 1 };
+    this.empty = true;
     this._build();
-    this.setValue(node.value, { silent: true }) || this.setValue(this.opts.value, { silent: true }) || this._syncInput();
+    const initial = node.value || this.opts.value || "";
+    if (!initial || !this.setValue(initial, { silent: true })) this._syncInput();
     node._tucano = this;
   }
   /* ---------------------------------------------------------------- *
    * API publica                                                       *
    * ---------------------------------------------------------------- */
   getValue() {
-    return formatColor(this.hsva, this.opts.format);
+    return this.empty ? null : this._color();
   }
   getRgb() {
-    return { ...hsvToRgb(this.hsva), a: this.hsva.a };
+    return this.empty ? null : { ...hsvToRgb(this.hsva), a: this.hsva.a };
+  }
+  /** A cor do HSVA atual, mesmo com o campo vazio: e por onde o painel pinta. */
+  _color() {
+    return formatColor(this.hsva, this.opts.format);
   }
   setValue(value, { silent = false } = {}) {
+    if (value == null || value === "") {
+      this.empty = true;
+      this._commit(silent);
+      return true;
+    }
     const color = parseColor(value);
     if (!color) return false;
+    this.empty = false;
     const { h, s } = this.hsva;
     this.hsva = {
       h: color.s && color.v ? color.h : h,
@@ -2771,6 +2790,7 @@ var ColorPicker = class _ColorPicker {
       }),
       ...this._dragHandler(this.area, (x, y) => {
         this.hsva = { ...this.hsva, s: x, v: 1 - y };
+        this.empty = false;
         this._commit(false, false);
       }),
       on(this.area, "keydown", (e) => this._areaKeys(e)),
@@ -2783,7 +2803,7 @@ var ColorPicker = class _ColorPicker {
       // _paint pula campo focado — texto invalido ficava la, mentindo o valor.
       on(this.hexField, "change", () => {
         this.setValue(this.hexField.value);
-        this.hexField.value = this.getValue();
+        this.hexField.value = this.empty ? "" : this._color();
       })
     );
     if (this.input.form) {
@@ -2805,6 +2825,7 @@ var ColorPicker = class _ColorPicker {
     const hue = type === "hue";
     const set = (x, native) => {
       this.hsva = hue ? { ...this.hsva, h: x * 360 } : { ...this.hsva, a: x };
+      this.empty = false;
       this._commit(false, native);
     };
     this._cleanups.push(
@@ -2885,6 +2906,7 @@ var ColorPicker = class _ColorPicker {
     const d = map[e.key];
     if (!d) return;
     e.preventDefault();
+    this.empty = false;
     this.hsva = {
       ...this.hsva,
       s: clamp(this.hsva.s + (d.s || 0), 0, 1),
@@ -2914,9 +2936,9 @@ var ColorPicker = class _ColorPicker {
     if (!silent && this.input.value !== before) this._emit(native);
   }
   _syncInput() {
-    const value = this.getValue();
+    const value = this.empty ? "" : this._color();
     this.input.value = value;
-    this.swatch.style.setProperty("--color", value);
+    this.swatch.style.setProperty("--color", value || "transparent");
   }
   /** Repinta os controles a partir do HSVA atual. */
   _paint() {
@@ -2924,7 +2946,7 @@ var ColorPicker = class _ColorPicker {
     const pure = rgbToHex(hsvToRgb({ h, s: 1, v: 1 }));
     const solid = rgbToHex(hsvToRgb(this.hsva));
     const thumb = this.area.firstElementChild;
-    const value = this.getValue();
+    const value = this.empty ? "" : this._color();
     this.area.style.setProperty("--hue", pure);
     thumb.style.left = `${s * 100}%`;
     thumb.style.top = `${(1 - v) * 100}%`;
@@ -2939,8 +2961,8 @@ var ColorPicker = class _ColorPicker {
       this.alpha.thumb.style.setProperty("--color", solid);
       this.alpha.root.setAttribute("aria-valuenow", a.toFixed(2));
     }
-    this.preview.style.setProperty("--color", value);
-    const current = formatColor(this.hsva);
+    this.preview.style.setProperty("--color", value || "transparent");
+    const current = this.empty ? null : formatColor(this.hsva);
     for (const btn of this.panel.querySelectorAll(".tuc-colorpicker__swatchbtn")) {
       btn.classList.toggle("is-selected", btn.dataset.color === current);
     }

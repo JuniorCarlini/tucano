@@ -492,7 +492,7 @@ ano. É a escolha certa para a maioria dos casos.
 Quem empacota pode levar menos, importando de `tucano`:
 
 ```js
-import { DatePicker, Select } from 'tucano';   // 14,7 KB em vez de 40
+import { DatePicker, Select } from 'tucano';   // 14,8 KB em vez de 40
 ```
 
 | o que se importa | gzip |
@@ -500,8 +500,8 @@ import { DatePicker, Select } from 'tucano';   // 14,7 KB em vez de 40
 | só o date picker | 11,0 KB |
 | só o select | 6,2 KB |
 | só o toast | 2,7 KB |
-| date picker + select | 14,7 KB |
-| tudo | 39,6 KB |
+| date picker + select | 14,8 KB |
+| tudo | 39,7 KB |
 
 Não é linear porque o núcleo — posicionamento, datas, utilidades de DOM — é
 compartilhado: o primeiro componente paga por ele e os seguintes saem mais

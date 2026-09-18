@@ -84,6 +84,18 @@ cambios en tu proyecto.
   (`responseId`) deja el archivo en error, con "O servidor não devolveu o id".
   Antes quedaba listo, con la marca, y el formulario no enviaba nada.
 
+- El campo de color sin `value` nace vacío, en lugar de venir con un color que
+  el componente elegía solo. Ahora `required` bloquea el envío mientras nadie
+  elige, y el formulario ya no envía un color que nadie pidió. `getValue()`
+  devuelve `null` en ese estado, y `setValue(null)` o `setValue('')` lo limpia.
+  Quien contaba con el color de fábrica pone `value="#4f46e5"` en el campo.
+- En el select, `setValue(valor, { silent: true })` y `clear({ silent: true })`
+  pasan a contener también el `change` del elemento nativo, y no solo el
+  `onChange` y el `tucano:change`. Es lo que hace el DOM cuando un script
+  escribe en `select.value`. Un `hx-trigger="change"` dejaba de ser silencioso y
+  mandaba una petición en cada cambio por código. Llama sin `silent` para
+  avisar; elegir con el ratón o el teclado sigue disparando.
+
 ### Nuevo
 
 - `data-tuc-reveal` también en texto suelto en la pantalla, y no solo en campos:

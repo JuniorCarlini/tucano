@@ -137,6 +137,14 @@
 <div class="demo">
   <div class="demo-grid">
     <div class="demo-cell">
+      <h4>Sin valor</h4>
+      <p>Un campo sin <code>value</code> nace vacío, sin ningún color elegido por ti, y <code>required</code> bloquea
+         el envío hasta que alguien elija uno.</p>
+      <label class="tuc-label is-required" for="co-empty">Color de la etiqueta</label>
+      <input type="text" id="co-empty" name="tag_color" data-tuc-color required>
+      <div class="out" id="co-empty-out"></div>
+    </div>
+    <div class="demo-cell">
       <h4>Sin opacidad</h4>
       <p><code>data-alpha="false"</code> quita la barra; el hex siempre tiene 6 dígitos.</p>
       <input type="text" id="co-solid" name="solid" value="#0d9488" data-tuc-color data-alpha="false" aria-label="Color sólido">

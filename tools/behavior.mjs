@@ -132,6 +132,27 @@ body{margin:0;padding:16px;font-family:system-ui}
     if (!nativeSelect.isConnected) throw new Error('o nativo sumiu');
     if ([].filter.call(nativeSelect.options, function (o) { return o.selected; }).length !== 2) throw new Error('o nativo não acompanhou');
   });
+  t('select: setValue silencioso não dispara o change nativo', function () {
+    // silent existe para trocar por codigo sem avisar ninguem; o change do
+    // nativo escapava e um hx-trigger="change" mandava requisicao a toa.
+    var box = document.createElement('div');
+    box.innerHTML = '<select data-tuc-select name="uf"><option value="">Selecione</option><option>SP</option><option>RJ</option></select>';
+    document.body.append(box);
+    Tucano.init(box);
+    var nativo = box.querySelector('select');
+    var i = nativo._tucano;
+    var avisos = 0;
+    nativo.addEventListener('change', function () { avisos++; });
+    i.setValue('SP', { silent: true });
+    var calado = avisos === 0;
+    var gravou = nativo.value === 'SP';
+    i.setValue('RJ');
+    var barulho = avisos;
+    i.destroy(); box.remove();
+    if (!calado) throw new Error('silent disparou change ' + avisos + ' vez(es)');
+    if (!gravou) throw new Error('o nativo não recebeu o valor');
+    if (barulho !== 1) throw new Error('sem silent devia disparar uma vez, veio ' + barulho);
+  });
   t('colorpicker abre e converte', function () {
     var i = document.getElementById('c')._tucano;
     i.open(); if (!document.querySelector('.tuc-colorpicker__area')) throw new Error('sem área');
@@ -1035,6 +1056,25 @@ body{margin:0;padding:16px;font-family:system-ui}
     var value = box.querySelector('input').value;
     box.querySelector('input')._tucano.destroy(); box.remove();
     if (value !== '#ff0000') throw new Error(value);
+  });
+  t('color picker: campo sem valor nasce vazio, e o required barra o envio', function () {
+    // Antes o componente escolhia uma cor sozinho: o formulario postava o que
+    // ninguem escolheu e o required nunca barrava, porque nunca estava vazio.
+    var box = colorBox('<input data-tuc-color name="cor" required>');
+    var input = box.querySelector('input');
+    var i = input._tucano;
+    var inicial = input.value;
+    var vazio = inicial === '' && i.getValue() === null && i.getRgb() === null;
+    var barrou = !box.checkValidity();
+    i.setValue('#16a34a');
+    var escolheu = input.value === '#16a34a' && box.checkValidity();
+    i.setValue('');
+    var limpou = input.value === '' && i.getValue() === null;
+    i.destroy(); box.remove();
+    if (!vazio) throw new Error('nasceu com "' + inicial + '"');
+    if (!barrou) throw new Error('required não barrou o campo vazio');
+    if (!escolheu) throw new Error('escolher não preencheu o campo');
+    if (!limpou) throw new Error('setValue("") não limpou');
   });
   t('color picker: campo desativado ou só leitura não abre', function () {
     var box = colorBox('<input data-tuc-color disabled><input data-tuc-color readonly>'

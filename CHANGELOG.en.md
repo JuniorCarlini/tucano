@@ -82,6 +82,19 @@ in your project.
   (`responseId`) leaves the file in error, with "O servidor não devolveu o id".
   It used to show as ready, with the check mark, while the form posted nothing.
 
+- A color field with no `value` now starts empty, instead of arriving with a
+  color the component picked on its own. `required` now blocks the submit while
+  nobody has picked one, and the form no longer posts a color nobody asked for.
+  `getValue()` returns `null` in that state, and `setValue(null)` or
+  `setValue('')` clears it. Anyone relying on the built-in color sets
+  `value="#4f46e5"` on the field itself.
+- In the select, `setValue(value, { silent: true })` and `clear({ silent: true })`
+  now also hold back the native element's `change`, not just `onChange` and
+  `tucano:change`. That is what the DOM does when a script writes to
+  `select.value`. An `hx-trigger="change"` was not silent at all and fired a
+  request on every programmatic change. Call it without `silent` to notify;
+  picking with the mouse or keyboard still fires.
+
 ### New
 
 - `data-tuc-reveal` also works on loose text on the page, not only on fields: a

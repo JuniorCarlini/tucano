@@ -17,7 +17,7 @@ export as namespace Tucano;
 export type Placement = PlacementSide | `${PlacementSide}-${'start' | 'center' | 'end'}`;
 export type PlacementSide = 'top' | 'bottom' | 'left' | 'right';
 
-/** `{ silent: true }` troca o valor sem chamar `onChange` nem disparar `tucano:change`. */
+/** `{ silent: true }` troca o valor sem avisar ninguem: nem `onChange`, nem `tucano:change`, nem o `change` do elemento nativo. */
 export interface SilentOption {
   silent?: boolean;
 }
@@ -448,7 +448,7 @@ export interface ColorPickerOptions {
   appendTo?: HTMLElement;
   /** @default null */
   onChange?: ((value: string, detail: ColorPickerChangeDetail) => void) | null;
-  /** Cor inicial, quando o campo esta vazio. */
+  /** Cor inicial, quando o `value` do campo esta vazio. Sem ela, o campo nasce sem cor. */
   value?: string;
 }
 
@@ -465,10 +465,11 @@ export declare class ColorPicker {
   readonly opts: ColorPickerOptions;
   readonly isOpen: boolean;
   readonly input: HTMLInputElement;
-  getValue(): string;
-  getRgb(): RGBA;
-  /** Aplica a cor. Devolve `false`, sem mudar nada, quando o texto nao e uma cor. */
-  setValue(value: string, options?: SilentOption): boolean;
+  /** `null` enquanto ninguem escolheu: o campo nasce vazio. */
+  getValue(): string | null;
+  getRgb(): RGBA | null;
+  /** Aplica a cor; `null` ou `''` limpa. Devolve `false`, sem mudar nada, quando o texto nao e uma cor. */
+  setValue(value: string | null, options?: SilentOption): boolean;
   open(): void;
   close(): void;
   toggle(): void;

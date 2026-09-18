@@ -80,6 +80,18 @@ projeto.
   (`responseId`) deixa o arquivo em erro, com "O servidor não devolveu o id".
   Antes ele ficava pronto, com o visto, e o formulário não postava nada.
 
+- O campo de cor sem `value` nasce vazio, em vez de já vir com uma cor que o
+  componente escolhia sozinho. Agora `required` barra o envio enquanto ninguém
+  escolhe, e o formulário não posta mais uma cor que ninguém pediu. `getValue()`
+  devolve `null` nesse estado, e `setValue(null)` ou `setValue('')` limpa. Quem
+  contava com a cor de fábrica põe `value="#4f46e5"` no próprio campo.
+- No select, `setValue(valor, { silent: true })` e `clear({ silent: true })`
+  passam a segurar também o `change` do elemento nativo, e não só o `onChange` e
+  o `tucano:change`. É o que o DOM faz quando um script escreve em
+  `select.value`. Um `hx-trigger="change"` deixava de ser silencioso e mandava
+  uma requisição a cada troca por código. Quem precisa avisar chama sem
+  `silent`; a escolha de quem clica ou digita continua disparando.
+
 ### Novo
 
 - `data-tuc-reveal` também em texto solto na tela, e não só em campo: um CPF
