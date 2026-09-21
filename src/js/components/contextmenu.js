@@ -72,6 +72,20 @@ export class ContextMenu extends Dropdown {
   /* A area nao e um gatilho: nao ha aria-expanded para marcar nela. */
   _setExpanded() {}
 
+  /*
+   * Aberto pelo botao direito, nenhum item nasce destacado: o menu do sistema
+   * tambem nao adivinha a escolha, e um item ja aceso parece escolhido por
+   * engano. O foco vai para o painel — e preciso ter foco la dentro para as
+   * setas andarem, o Escape fechar e o foco voltar depois —, e a primeira seta
+   * destaca o primeiro item. Aberto pelo teclado, vale a regra do menu suspenso:
+   * quem apertou a tecla de menu ja quer andar pelos itens.
+   */
+  _focusOnOpen() {
+    if (!this._point) return super._focusOnOpen();
+    this.panel.tabIndex = -1;
+    this.panel.focus({ preventScroll: true });
+  }
+
   _anchor() {
     if (!this._point) return this._target ?? this.trigger;
     /*

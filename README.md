@@ -502,7 +502,7 @@ import { DatePicker, Select } from 'tucano';   // 15,3 KB em vez de 42
 | só o select | 6,4 KB |
 | só o toast | 2,7 KB |
 | date picker + select | 15,3 KB |
-| tudo | 41,7 KB |
+| tudo | 41,8 KB |
 
 Não é linear porque o núcleo — posicionamento, datas, utilidades de DOM — é
 compartilhado: o primeiro componente paga por ele e os seguintes saem mais

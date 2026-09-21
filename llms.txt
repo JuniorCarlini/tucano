@@ -458,6 +458,9 @@ Em JS, com os itens da linha clicada:
       ],
     });
 
+Aberto pelo botao direito nenhum item nasce destacado, como no menu do sistema:
+a primeira seta destaca o primeiro. Pelo teclado, o primeiro ja vem destacado.
+
 `match` e o seletor do alvo dentro da area; sem ele o alvo e a area inteira.
 Fora de um alvo, e com Shift+botao direito, o menu do navegador continua
 valendo. Itens, teclado e papeis sao os do dropdown; o alvo clicado fica em

@@ -93,6 +93,13 @@ export class Dropdown {
   _anchor() { return this.trigger; }
 
   /*
+   * Quem recebe o foco ao abrir. No menu de um botao e o primeiro item: quem
+   * abriu pediu o menu e ja quer andar por ele. Aberto pelo ponteiro, o menu do
+   * botao direito nao destaca nada — ver la.
+   */
+  _focusOnOpen() { this._move(0, true); }
+
+  /*
    * Quem anuncia o estado. No menu do botao direito a "area" e uma tabela ou a
    * pagina inteira, e um aria-expanded num elemento desses nao diz nada a quem
    * usa leitor de tela — la este metodo nao faz nada.
@@ -160,7 +167,7 @@ export class Dropdown {
       onDismiss: () => this.close(),
     });
     this.popover.show();
-    this._move(0, true);
+    this._focusOnOpen();
     return this;
   }
 

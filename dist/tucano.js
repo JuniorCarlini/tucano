@@ -5088,6 +5088,14 @@ var Tucano = (() => {
       return this.trigger;
     }
     /*
+     * Quem recebe o foco ao abrir. No menu de um botao e o primeiro item: quem
+     * abriu pediu o menu e ja quer andar por ele. Aberto pelo ponteiro, o menu do
+     * botao direito nao destaca nada — ver la.
+     */
+    _focusOnOpen() {
+      this._move(0, true);
+    }
+    /*
      * Quem anuncia o estado. No menu do botao direito a "area" e uma tabela ou a
      * pagina inteira, e um aria-expanded num elemento desses nao diz nada a quem
      * usa leitor de tela — la este metodo nao faz nada.
@@ -5149,7 +5157,7 @@ var Tucano = (() => {
         onDismiss: () => this.close()
       });
       this.popover.show();
-      this._move(0, true);
+      this._focusOnOpen();
       return this;
     }
     close() {
@@ -5242,6 +5250,19 @@ var Tucano = (() => {
     }
     /* A area nao e um gatilho: nao ha aria-expanded para marcar nela. */
     _setExpanded() {
+    }
+    /*
+     * Aberto pelo botao direito, nenhum item nasce destacado: o menu do sistema
+     * tambem nao adivinha a escolha, e um item ja aceso parece escolhido por
+     * engano. O foco vai para o painel — e preciso ter foco la dentro para as
+     * setas andarem, o Escape fechar e o foco voltar depois —, e a primeira seta
+     * destaca o primeiro item. Aberto pelo teclado, vale a regra do menu suspenso:
+     * quem apertou a tecla de menu ja quer andar pelos itens.
+     */
+    _focusOnOpen() {
+      if (!this._point) return super._focusOnOpen();
+      this.panel.tabIndex = -1;
+      this.panel.focus({ preventScroll: true });
     }
     _anchor() {
       if (!this._point) return this._target ?? this.trigger;

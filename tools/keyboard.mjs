@@ -1243,7 +1243,8 @@ testCase('menu do botão direito: abre no ponto do clique, com os itens da linha
     const dy = Math.max(p.top - ${Math.round(y)}, ${Math.round(y)} - p.bottom, 0);
     return { gap: Math.round(Math.max(dx, dy)),
       label: document.querySelector('.tuc-dropdown__label').textContent.trim(),
-      focused: document.activeElement.textContent.trim() }; })()`);
+      onPanel: document.activeElement.classList.contains('tuc-dropdown'),
+      highlighted: !!document.querySelector('.tuc-dropdown__item:focus') }; })()`);
   await press('ArrowDown');
   await press('Enter');
   const picked = await evaluate(`picked.join()`);
@@ -1251,8 +1252,9 @@ testCase('menu do botão direito: abre no ponto do clique, com os itens da linha
   // O painel nasce colado no ponto, com o respiro de 6px do popover.
   if (r.gap > 24) return `painel a ${r.gap}px do ponteiro`;
   if (r.label !== 'Oficina Duas Rodas') return `título "${r.label}"`;
-  if (r.focused !== 'Editar') return `foco em "${r.focused}"`;
-  if (picked !== 'excluir:ctxrow2') return `escolheu "${picked}"`;
+  // Aberto pelo ponteiro, nenhum item nasce aceso: so a primeira seta destaca.
+  if (!r.onPanel || r.highlighted) return `ao abrir: foco no painel ${r.onPanel}, item aceso ${r.highlighted}`;
+  if (picked !== 'editar:ctxrow2') return `escolheu "${picked}"`;
   return back === 'ctxrow2' ? null : `foco voltou para "${back}"`;
 });
 
