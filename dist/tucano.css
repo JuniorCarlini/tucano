@@ -2983,9 +2983,7 @@ textarea.tuc-editor__value[hidden] {
   padding-bottom: var(--spacing, 0.25rem);
   font-size: var(--text-xs, 0.75rem);
   line-height: var(--tw-leading, var(--text-xs--line-height, calc(1 / 0.75)));
-  text-transform: uppercase;
   font-weight: 600;
-  letter-spacing: 0.025em;
   color: var(--tuc-subtle);
 }
 .tuc-dropdown__separator {
@@ -2999,6 +2997,12 @@ textarea.tuc-editor__value[hidden] {
     scale: none;
     translate: none;
   }
+}
+.tuc-context-pin {
+  pointer-events: none;
+  position: fixed;
+  width: 1px;
+  height: 1px;
 }
 .tuc-table-wrap {
   width: 100%;

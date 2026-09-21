@@ -1,0 +1,133 @@
+<!--
+title: Menu do botão direito
+component: contextmenu
+description: Menu de contexto no clique com o botão direito, sobre linha de tabela, cartão ou área inteira: o mesmo menu suspenso, aberto no ponto do clique.
+-->
+<h1>Menu do botão direito</h1>
+<p class="lead">O menu de ações que aparece onde a pessoa clicou. É o mesmo <a href="../dropdown/">menu suspenso</a> —
+   mesma marcação, mesmos itens, mesmo teclado —, só que aberto pelo botão direito e ancorado no ponto do clique.
+   Numa lista, os itens costumam mudar conforme a linha: por isso <code>items</code> também aceita uma função.</p>
+
+<div class="demo is-hero">
+  <p class="tuc-hint" id="ctx-hint">Clique com o botão direito numa linha. Pelo teclado, chegue de <code>Tab</code> e aperte a tecla de menu ou <code>Shift+F10</code>.</p>
+  <div class="tuc-table-wrap" style="margin-top:16px">
+    <table class="tuc-table" id="ctx-table">
+      <thead><tr><th>Cliente</th><th>Vencimento</th><th class="is-number">Valor</th></tr></thead>
+      <tbody>
+        <tr tabindex="0" data-id="1" data-name="Padaria Pão Quente"><td>Padaria Pão Quente</td><td>12/09/2026</td><td class="is-number" data-tuc-format="brl">12400</td></tr>
+        <tr tabindex="0" data-id="2" data-name="Oficina Duas Rodas"><td>Oficina Duas Rodas</td><td>03/07/2026</td><td class="is-number" data-tuc-format="brl">3890.5</td></tr>
+        <tr tabindex="0" data-id="3" data-name="Marcenaria Horizonte"><td>Marcenaria Horizonte</td><td>28/11/2026</td><td class="is-number" data-tuc-format="brl">760</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<h2 id="usage">Como usar</h2>
+<p class="lead">A área é quem escuta o botão direito; <code>match</code> diz qual pedaço dela é o alvo. O alvo vai para
+   <code>items</code>, e é dele que saem as ações daquela linha.</p>
+
+<pre data-code="js">
+new Tucano.ContextMenu('#contratos', {
+  match: 'tbody tr',
+  items: (row) => [
+    { label: row.dataset.name },
+    { text: 'Editar', shortcut: '⌘E', onClick: () => editar(row.dataset.id) },
+    { text: 'Duplicar', onClick: () => duplicar(row.dataset.id) },
+    { separator: true },
+    { text: 'Excluir', variant: 'danger', onClick: () => excluir(row.dataset.id) },
+  ],
+});
+</pre>
+
+<p>Sem <code>match</code>, o alvo é a área inteira — o caminho para um cartão ou um painel com um menu só. Fora de um
+   alvo, o menu do navegador continua aparecendo: um menu de ações que não sabe sobre o que age é pior que nenhum.</p>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">O menu do navegador continua a um Shift de distância</p><p><code>Shift</code> + botão direito mostra o menu do próprio navegador, em qualquer lugar da área. Quem precisa de "abrir em nova aba", do corretor ortográfico ou de inspecionar a página não fica sem — e não há como tirar isso de alguém.</p></div></div>
+
+<h2 id="examples">Exemplos</h2>
+
+<div class="demo">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <h4>Área inteira, sem <code>match</code></h4>
+      <p>Um cartão com as mesmas ações em qualquer ponto dele.</p>
+      <div class="preview" id="ctx-card" style="padding:20px">
+        <p class="preview__title">Contrato 4821</p>
+        <p class="tuc-hint">Clique com o botão direito em qualquer lugar deste cartão.</p>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Menu escrito no template</h4>
+      <p>Quando é o servidor quem sabe o que a pessoa pode fazer, como no menu suspenso.</p>
+      <div class="preview" id="ctx-template" data-tuc-contextmenu="#ctx-template-menu" style="padding:20px">
+        <p class="preview__title">Nota fiscal 118</p>
+        <p class="tuc-hint">Botão direito aqui abre o menu do template.</p>
+      </div>
+      <div class="tuc-dropdown" id="ctx-template-menu" hidden>
+        <button type="button" class="tuc-dropdown__item" onclick="Tucano.toast('Baixar XML')"><span class="tuc-dropdown__text">Baixar XML</span></button>
+        <button type="button" class="tuc-dropdown__item" onclick="Tucano.toast('Enviar por e-mail')"><span class="tuc-dropdown__text">Enviar por e-mail</span></button>
+        <hr class="tuc-dropdown__separator">
+        <button type="button" class="tuc-dropdown__item is-danger" onclick="Tucano.toast.error('Cancelar nota')"><span class="tuc-dropdown__text">Cancelar nota</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<pre data-code="django">
+&lt;table id="contratos" data-tuc-contextmenu="#acoes-linha" data-match="tbody tr"&gt;
+  {% for obj in page_obj %}
+    &lt;tr tabindex="0" data-id="{{ obj.pk }}"&gt;…&lt;/tr&gt;
+  {% endfor %}
+&lt;/table&gt;
+
+&lt;div class="tuc-dropdown" id="acoes-linha" hidden&gt;
+  &lt;button type="button" class="tuc-dropdown__item"&gt;
+    &lt;span class="tuc-dropdown__text"&gt;Editar&lt;/span&gt;
+  &lt;/button&gt;
+&lt;/div&gt;
+</pre>
+
+<p>Com o painel do template, os itens são os mesmos para toda linha: quem precisa saber qual foi clicada lê
+   <code>menu.target</code> dentro do <code>onclick</code>, ou usa <code>items</code> como função.</p>
+
+<h2 id="keyboard">Teclado e acessibilidade</h2>
+<p class="lead">O painel é o mesmo do menu suspenso: <code>role="menu"</code>, itens como <code>menuitem</code>, foco
+   dentro do menu e devolvido a quem o tinha antes.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Tecla</th><th>Onde</th><th>Ação</th></tr></thead>
+  <tbody>
+    <tr><td>Tecla de menu, <code>Shift+F10</code></td><td>Alvo com foco</td><td>Abre o menu ancorado no alvo</td></tr>
+    <tr><td><code>↑</code> <code>↓</code></td><td>Menu aberto</td><td>Anda pelos itens, dando a volta</td></tr>
+    <tr><td><code>Home</code> <code>End</code></td><td>Menu aberto</td><td>Primeiro e último item</td></tr>
+    <tr><td><code>Enter</code> <code>Espaço</code></td><td>Item</td><td>Escolhe e fecha</td></tr>
+    <tr><td><code>Esc</code></td><td>Menu aberto</td><td>Fecha e devolve o foco</td></tr>
+    <tr><td><code>Shift</code> + botão direito</td><td>Área</td><td>Deixa passar o menu do navegador</td></tr>
+  </tbody>
+</table></div>
+
+<div class="tuc-alert is-warning"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0zM12 9v4M12 17h.01"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">O alvo precisa receber foco</p><p>A tecla de menu e o <code>Shift+F10</code> abrem a partir de quem tem o foco. Numa tabela, ponha <code>tabindex="0"</code> nas linhas — sem isso, o que só existe no menu do botão direito fica inalcançável para quem não usa mouse. No celular, o toque longo abre o menu no Android; no iPhone, o Safari não avisa a página, então nenhuma ação pode existir só aqui.</p></div></div>
+
+<h2 id="api">API</h2>
+<!-- api -->
+
+<script>
+  const ACTIONS = (row) => [
+    { label: row.dataset.name },
+    { text: 'Editar', shortcut: '⌘E', onClick: () => Tucano.toast('Editar ' + row.dataset.name) },
+    { text: 'Duplicar', onClick: () => Tucano.toast('Duplicar ' + row.dataset.name) },
+    { separator: true },
+    { text: 'Excluir', variant: 'danger', onClick: () => Tucano.toast.error('Excluir ' + row.dataset.name) },
+  ];
+
+  new Tucano.ContextMenu('#ctx-table', { match: 'tbody tr', items: ACTIONS });
+
+  new Tucano.ContextMenu('#ctx-card', {
+    items: [
+      { text: 'Renomear', onClick: () => Tucano.toast('Renomear') },
+      { text: 'Mover para', onClick: () => Tucano.toast('Mover para') },
+      { separator: true },
+      { text: 'Excluir', variant: 'danger', onClick: () => Tucano.toast.error('Excluir') },
+    ],
+  });
+</script>

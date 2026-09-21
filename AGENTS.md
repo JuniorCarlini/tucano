@@ -66,6 +66,12 @@ Modal e gaveta compartilham `core/dialog.js`: top layer, foco preso, Escape e
 devolução do foco moram lá. Cada um só define geometria e movimento. Não
 duplique essa mecânica ao criar um diálogo novo.
 
+O menu do botão direito **herda do `Dropdown`**, e não copia: papéis de menu,
+setas, `Home`/`End`, devolução de foco e o painel são os mesmos. Ele troca só o
+que abre (`_wireTrigger`) e onde ancora (`_anchor`, um ponto de 1px no lugar do
+gatilho). Componente novo que for uma variação de outro segue esse caminho — e
+a conferência de tipos já lê a fonte da classe mãe junto.
+
 ## Decisões que não devem ser revertidas sem motivo
 
 **Código em inglês, comentário em português.** Vale para tudo que alguém digita:

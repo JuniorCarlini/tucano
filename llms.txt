@@ -5,7 +5,7 @@
 > exemplos deste arquivo usam Django; em PHP e Rails, campo múltiplo precisa de
 > name terminado em [] e o upload direto precisa do cabeçalho de CSRF do
 > framework (data-csrf="false" e a opção headers do new Upload).
-> JavaScript puro, sem dependências em runtime. 41 KB JS + 13 KB CSS (gzip).
+> JavaScript puro, sem dependências em runtime. 42 KB JS + 13 KB CSS (gzip).
 > Os estilos são escritos em Tailwind mas distribuídos já compilados: o projeto
 > que consome não precisa de build e não recebe o preflight do Tailwind.
 >
@@ -438,6 +438,35 @@ Item com href vira <a>; sem href vira <button>. Teclado: setas andam, Home e End
 vao as pontas, Escape e Tab fecham, e o foco volta ao gatilho. Os itens tem
 tabindex="-1" de proposito — dentro de um menu quem navega e a seta, nao o Tab.
 
+## Menu do botao direito (contextmenu)
+
+O mesmo menu, aberto pelo `contextmenu` e ancorado no ponto do clique. Do
+servidor, com o painel pronto no template:
+
+    <table data-tuc-contextmenu="#row-actions" data-match="tbody tr">...</table>
+    <div class="tuc-dropdown" id="row-actions" hidden>...</div>
+
+Em JS, com os itens da linha clicada:
+
+    new Tucano.ContextMenu('#contracts', {
+      match: 'tbody tr',
+      items: (row) => [
+        { label: row.dataset.name },
+        { text: 'Editar', onClick: () => edit(row.dataset.id) },
+        { separator: true },
+        { text: 'Excluir', variant: 'danger', onClick: () => remove(row.dataset.id) },
+      ],
+    });
+
+`match` e o seletor do alvo dentro da area; sem ele o alvo e a area inteira.
+Fora de um alvo, e com Shift+botao direito, o menu do navegador continua
+valendo. Itens, teclado e papeis sao os do dropdown; o alvo clicado fica em
+`menu.target`. Rolar a pagina fecha, como no sistema operacional.
+
+Ponha tabindex="0" no alvo: a tecla de menu e o Shift+F10 abrem a partir de
+quem tem o foco, e sem isso o menu fica inalcancavel sem mouse. No iPhone o
+Safari nao avisa a pagina no toque longo — nenhuma acao pode existir so aqui.
+
 ## Teclado nos campos que abrem painel
 
 Chegar de Tab nao abre painel nenhum: quem tabula por um formulario ate o botao
@@ -724,6 +753,19 @@ Inventario extraido do codigo a cada build. Se algo nao esta aqui, nao existe.
   metodos    getValue getRgb setValue open close toggle destroy
   eventos    tucano:change
 
+### ContextMenu
+  marcacao   [data-tuc-contextmenu]
+  em JS      new Tucano.ContextMenu(alvo, opcoes)
+  atributos  data-match data-placement data-tuc-contextmenu
+  opcoes
+    placement          = 'bottom-start'
+    items              = null  — array como o do Dropdown, ou (alvo) => array…
+    match              = null  — seletor do alvo dentro da area; sem ele, a area inteira…
+    closeOnPick        = true
+    onOpen             = null  — (alvo, instancia) — para marcar a linha clicada, por exemplo…
+    panel              = null  — painel ja escrito no template, no lugar de `items`…
+  metodos    openAt close destroy
+
 ### DatePicker
   marcacao   [data-tuc-datepicker]
   em JS      new Tucano.DatePicker(alvo, opcoes)
@@ -957,9 +999,9 @@ Inventario extraido do codigo a cada build. Se algo nao esta aqui, nao existe.
 ### Entradas do pacote
 
   Tucano.init(node)         inicializa todo data-tuc-* dentro de `node`
-  autoInitAccordions autoInitColorPickers autoInitDatePickers autoInitDrawers autoInitDropdowns autoInitEditors autoInitMasks autoInitModals autoInitPagination autoInitProse autoInitSelects autoInitTables autoInitTabs autoInitToasts autoInitTooltips autoInitUploads
+  autoInitAccordions autoInitColorPickers autoInitContextMenus autoInitDatePickers autoInitDrawers autoInitDropdowns autoInitEditors autoInitMasks autoInitModals autoInitPagination autoInitProse autoInitSelects autoInitTables autoInitTabs autoInitToasts autoInitTooltips autoInitUploads
     → um por componente, quando voce quer inicializar so um tipo
-  Accordion ColorPicker DatePicker Drawer Dropdown Editor FORMATS ICON_CHECK ICON_COPY ICON_X Mask Modal Pagination Popover Select Table Tabs Toast Tooltip Upload autoFormat confirm drawer getTexts highlight icon listenForEvents modal pageWindow pagination sanitize setTexts toast
+  Accordion ColorPicker ContextMenu DatePicker Drawer Dropdown Editor FORMATS ICON_CHECK ICON_COPY ICON_X Mask Modal Pagination Popover Select Table Tabs Toast Tooltip Upload autoFormat confirm drawer getTexts highlight icon listenForEvents modal pageWindow pagination sanitize setTexts toast
   Tucano.mask / .dates / .color   modulos utilitarios (ver seção Utilitários)
 
   FORMATS (mascaras prontas): cpf cnpj cnpj-numeric cpf-cnpj phone mobile cep date time card currency brl
@@ -1088,7 +1130,7 @@ Inventario extraido do codigo a cada build. Se algo nao esta aqui, nao existe.
 ### Classes CSS
 
 Escritas por voce no template (as com __ sao internas, montadas pelo JS):
-  tuc-accordion tuc-alert tuc-badge tuc-btn tuc-check tuc-choice tuc-choices tuc-color-field tuc-colorpicker tuc-copy tuc-dp tuc-drawer tuc-dropdown tuc-editor tuc-error tuc-field tuc-hint tuc-input tuc-input-group tuc-invalid tuc-label tuc-menu tuc-modal tuc-native tuc-native-wrap tuc-pagination tuc-prose tuc-radio tuc-reveal tuc-select tuc-select-native tuc-skeleton tuc-spinner tuc-switch tuc-table tuc-table-wrap tuc-tabs tuc-timeline tuc-tip tuc-toast tuc-toasts tuc-tok-attr tuc-tok-comment tuc-tok-key tuc-tok-num tuc-tok-tag tuc-tok-text tuc-tok-tmpl tuc-upload tuc-upload-native
+  tuc-accordion tuc-alert tuc-badge tuc-btn tuc-check tuc-choice tuc-choices tuc-color-field tuc-colorpicker tuc-context-pin tuc-copy tuc-dp tuc-drawer tuc-dropdown tuc-editor tuc-error tuc-field tuc-hint tuc-input tuc-input-group tuc-invalid tuc-label tuc-menu tuc-modal tuc-native tuc-native-wrap tuc-pagination tuc-prose tuc-radio tuc-reveal tuc-select tuc-select-native tuc-skeleton tuc-spinner tuc-switch tuc-table tuc-table-wrap tuc-tabs tuc-timeline tuc-tip tuc-toast tuc-toasts tuc-tok-attr tuc-tok-comment tuc-tok-key tuc-tok-num tuc-tok-tag tuc-tok-text tuc-tok-tmpl tuc-upload tuc-upload-native
 
 Montadas pelo JS dentro do componente — nao escreva no template, mas
 sao nomes estaveis para o seu proprio CSS:

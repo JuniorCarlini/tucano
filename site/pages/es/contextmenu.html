@@ -1,0 +1,136 @@
+<!--
+title: Menú del botón derecho
+component: contextmenu
+lang: es
+description: Menú contextual al hacer clic con el botón derecho, sobre una fila de tabla, una tarjeta o un área entera: el mismo menú desplegable, abierto en el punto del clic.
+-->
+<h1>Menú del botón derecho</h1>
+<p class="lead">El menú de acciones que aparece donde la persona hizo clic. Es el mismo <a href="../dropdown/">menú
+   desplegable</a> — la misma marcación, los mismos elementos, el mismo teclado —, solo que abierto con el botón
+   derecho y anclado en el punto del clic. En una lista los elementos suelen cambiar según la fila: por eso
+   <code>items</code> también acepta una función.</p>
+
+<div class="demo is-hero">
+  <p class="tuc-hint" id="ctx-hint">Haz clic con el botón derecho en una fila. Con el teclado, llega con <code>Tab</code> y pulsa la tecla de menú o <code>Shift+F10</code>.</p>
+  <div class="tuc-table-wrap" style="margin-top:16px">
+    <table class="tuc-table" id="ctx-table">
+      <thead><tr><th>Cliente</th><th>Vencimiento</th><th class="is-number">Importe</th></tr></thead>
+      <tbody>
+        <tr tabindex="0" data-id="1" data-name="Padaria Pão Quente"><td>Padaria Pão Quente</td><td>12/09/2026</td><td class="is-number" data-tuc-format="brl">12400</td></tr>
+        <tr tabindex="0" data-id="2" data-name="Oficina Duas Rodas"><td>Oficina Duas Rodas</td><td>03/07/2026</td><td class="is-number" data-tuc-format="brl">3890.5</td></tr>
+        <tr tabindex="0" data-id="3" data-name="Marcenaria Horizonte"><td>Marcenaria Horizonte</td><td>28/11/2026</td><td class="is-number" data-tuc-format="brl">760</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<h2 id="usage">Cómo se usa</h2>
+<p class="lead">El área es la que escucha el botón derecho; <code>match</code> dice qué parte de ella es el objetivo.
+   El objetivo llega a <code>items</code>, y de ahí salen las acciones de esa fila.</p>
+
+<pre data-code="js">
+new Tucano.ContextMenu('#contratos', {
+  match: 'tbody tr',
+  items: (row) => [
+    { label: row.dataset.name },
+    { text: 'Editar', shortcut: '⌘E', onClick: () => editar(row.dataset.id) },
+    { text: 'Duplicar', onClick: () => duplicar(row.dataset.id) },
+    { separator: true },
+    { text: 'Eliminar', variant: 'danger', onClick: () => eliminar(row.dataset.id) },
+  ],
+});
+</pre>
+
+<p>Sin <code>match</code>, el objetivo es el área entera — el camino para una tarjeta o un panel con un solo menú.
+   Fuera de un objetivo, el menú del navegador sigue apareciendo: un menú de acciones que no sabe sobre qué actúa es
+   peor que ninguno.</p>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">El menú del navegador está a un Shift de distancia</p><p><code>Shift</code> + botón derecho muestra el menú del propio navegador, en cualquier parte del área. Quien necesita "abrir en una pestaña nueva", el corrector ortográfico o inspeccionar la página no se queda sin ello — y eso no se le puede quitar a nadie.</p></div></div>
+
+<h2 id="examples">Ejemplos</h2>
+
+<div class="demo">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <h4>Área entera, sin <code>match</code></h4>
+      <p>Una tarjeta con las mismas acciones en cualquier punto.</p>
+      <div class="preview" id="ctx-card" style="padding:20px">
+        <p class="preview__title">Contrato 4821</p>
+        <p class="tuc-hint">Haz clic con el botón derecho en cualquier lugar de esta tarjeta.</p>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Menú escrito en la plantilla</h4>
+      <p>Cuando es el servidor quien sabe lo que la persona puede hacer, como en el desplegable.</p>
+      <div class="preview" id="ctx-template" data-tuc-contextmenu="#ctx-template-menu" style="padding:20px">
+        <p class="preview__title">Factura 118</p>
+        <p class="tuc-hint">El botón derecho aquí abre el menú de la plantilla.</p>
+      </div>
+      <div class="tuc-dropdown" id="ctx-template-menu" hidden>
+        <button type="button" class="tuc-dropdown__item" onclick="Tucano.toast('Descargar XML')"><span class="tuc-dropdown__text">Descargar XML</span></button>
+        <button type="button" class="tuc-dropdown__item" onclick="Tucano.toast('Enviar por correo')"><span class="tuc-dropdown__text">Enviar por correo</span></button>
+        <hr class="tuc-dropdown__separator">
+        <button type="button" class="tuc-dropdown__item is-danger" onclick="Tucano.toast.error('Anular factura')"><span class="tuc-dropdown__text">Anular factura</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<pre data-code="django">
+&lt;table id="contratos" data-tuc-contextmenu="#acciones-fila" data-match="tbody tr"&gt;
+  {% for obj in page_obj %}
+    &lt;tr tabindex="0" data-id="{{ obj.pk }}"&gt;…&lt;/tr&gt;
+  {% endfor %}
+&lt;/table&gt;
+
+&lt;div class="tuc-dropdown" id="acciones-fila" hidden&gt;
+  &lt;button type="button" class="tuc-dropdown__item"&gt;
+    &lt;span class="tuc-dropdown__text"&gt;Editar&lt;/span&gt;
+  &lt;/button&gt;
+&lt;/div&gt;
+</pre>
+
+<p>Con el panel de la plantilla los elementos son los mismos para toda fila: quien necesita saber cuál fue la clicada
+   lee <code>menu.target</code> dentro del <code>onclick</code>, o usa <code>items</code> como función.</p>
+
+<h2 id="keyboard">Teclado y accesibilidad</h2>
+<p class="lead">El panel es el del menú desplegable: <code>role="menu"</code>, elementos como <code>menuitem</code>,
+   foco dentro del menú y devuelto a quien lo tenía.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Tecla</th><th>Dónde</th><th>Acción</th></tr></thead>
+  <tbody>
+    <tr><td>Tecla de menú, <code>Shift+F10</code></td><td>Objetivo con foco</td><td>Abre el menú anclado en el objetivo</td></tr>
+    <tr><td><code>↑</code> <code>↓</code></td><td>Menú abierto</td><td>Recorre los elementos, dando la vuelta</td></tr>
+    <tr><td><code>Home</code> <code>End</code></td><td>Menú abierto</td><td>Primero y último elemento</td></tr>
+    <tr><td><code>Enter</code> <code>Espacio</code></td><td>Elemento</td><td>Lo elige y cierra</td></tr>
+    <tr><td><code>Esc</code></td><td>Menú abierto</td><td>Cierra y devuelve el foco</td></tr>
+    <tr><td><code>Shift</code> + botón derecho</td><td>Área</td><td>Deja pasar el menú del navegador</td></tr>
+  </tbody>
+</table></div>
+
+<div class="tuc-alert is-warning"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0zM12 9v4M12 17h.01"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">El objetivo tiene que poder recibir el foco</p><p>La tecla de menú y <code>Shift+F10</code> abren desde quien tiene el foco. En una tabla, pon <code>tabindex="0"</code> en las filas — sin eso, lo que solo existe en el menú del botón derecho queda fuera del alcance de quien no usa ratón. En el móvil, la pulsación larga abre el menú en Android; en el iPhone, Safari no avisa a la página, así que ninguna acción puede vivir solo aquí.</p></div></div>
+
+<h2 id="api">API</h2>
+<!-- api -->
+
+<script>
+  const ACTIONS = (row) => [
+    { label: row.dataset.name },
+    { text: 'Editar', shortcut: '⌘E', onClick: () => Tucano.toast('Editar ' + row.dataset.name) },
+    { text: 'Duplicar', onClick: () => Tucano.toast('Duplicar ' + row.dataset.name) },
+    { separator: true },
+    { text: 'Eliminar', variant: 'danger', onClick: () => Tucano.toast.error('Eliminar ' + row.dataset.name) },
+  ];
+
+  new Tucano.ContextMenu('#ctx-table', { match: 'tbody tr', items: ACTIONS });
+
+  new Tucano.ContextMenu('#ctx-card', {
+    items: [
+      { text: 'Renombrar', onClick: () => Tucano.toast('Renombrar') },
+      { text: 'Mover a', onClick: () => Tucano.toast('Mover a') },
+      { separator: true },
+      { text: 'Eliminar', variant: 'danger', onClick: () => Tucano.toast.error('Eliminar') },
+    ],
+  });
+</script>

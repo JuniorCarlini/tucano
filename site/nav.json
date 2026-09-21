@@ -72,6 +72,11 @@
         "slug": "dropdown",
         "title": "Menu suspenso",
         "desc": "Menu de ações ancorado, com setas."
+      },
+      {
+        "slug": "contextmenu",
+        "title": "Menu do botão direito",
+        "desc": "Menu de contexto no ponto do clique."
       }
     ]
   },

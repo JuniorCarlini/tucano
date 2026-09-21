@@ -77,7 +77,9 @@
 }
 
 .tuc-dropdown__label {
-  @apply px-2.5 pb-1 pt-2 text-xs uppercase; font-weight: 600; letter-spacing: 0.025em;
+  /* Sem caixa alta: "CONTRATO" gritava mais que os proprios itens do menu, e o
+     espacamento extra entre letras so existia para caixa alta se ler. */
+  @apply px-2.5 pb-1 pt-2 text-xs; font-weight: 600;
   color: var(--tuc-subtle);
 }
 .tuc-dropdown__separator {
@@ -88,4 +90,16 @@
 
 @media (prefers-reduced-motion: reduce) {
   .tuc-dropdown { transition-duration: 1ms; scale: none; translate: none; }
+}
+
+/*
+ * Ancora do menu do botao direito: um ponto de 1px onde o clique caiu, para o
+ * popover ter em que se ancorar. `fixed` porque a coordenada e da tela, e sem
+ * ponteiro para nao roubar o clique de quem esta embaixo.
+ */
+.tuc-context-pin {
+  @apply pointer-events-none;
+  position: fixed;
+  width: 1px;
+  height: 1px;
 }

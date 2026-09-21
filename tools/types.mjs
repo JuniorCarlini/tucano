@@ -310,6 +310,37 @@ export interface DropdownItem {
     doc: 'Menu suspenso ancorado num gatilho, com teclado de menu.',
   },
 
+  ContextMenu: {
+    target: 'string | HTMLElement',
+    options: {
+      placement: 'Placement',
+      items: 'DropdownItem[] | ((target: HTMLElement, menu: ContextMenu) => DropdownItem[]) | null',
+      match: 'string | null',
+      closeOnPick: 'boolean',
+      onOpen: '((target: HTMLElement, menu: ContextMenu) => void) | null',
+      panel: 'HTMLElement',
+    },
+    docs: {
+      items: 'Lista fixa, ou funcao que recebe o alvo e devolve a lista daquela linha.',
+      match: 'Seletor do alvo dentro da area. Sem ele, o alvo e a area inteira; fora de um alvo, o menu do navegador continua valendo.',
+      onOpen: 'Chamado antes de abrir, com o alvo do botao direito.',
+      panel: 'Painel ja escrito no template, com botoes `.tuc-dropdown__item`, no lugar de `items`.',
+    },
+    methods: {
+      openAt: '(x: number | null, y: number | null, target?: HTMLElement): this',
+      open: '(): this',
+      close: '(options?: { restoreFocus?: boolean }): this',
+      toggle: '(): this',
+      destroy: '(): void',
+    },
+    methodDocs: {
+      openAt: 'Abre no ponto da tela. Sem `x` e `y`, ancora no alvo — e o que a tecla de menu e o Shift+F10 fazem.',
+    },
+    getters: { items: 'HTMLElement[]', area: 'HTMLElement', target: 'HTMLElement | null' },
+    props: { trigger: 'HTMLElement', panel: 'HTMLElement', isOpen: 'boolean | undefined' },
+    doc: 'Menu do botao direito: o mesmo menu suspenso, aberto no ponto do clique.',
+  },
+
   Editor: {
     target: 'string | HTMLTextAreaElement',
     options: {
@@ -1062,7 +1093,16 @@ for (const c of inventory) {
   if (!spec) continue;
   const file = `src/js/components/${c.name}.js`;
   const source = read(file);
-  const sources = /extends Dialog\b/.test(source) ? `${source}\n${read('src/js/core/dialog.js')}` : source;
+  /*
+   * Classe que herda: a fonte da mae entra junto, senao propriedade atribuida
+   * la (this.panel, this.trigger) conta como inexistente. O modal e a gaveta
+   * herdam do core/dialog.js; o menu do botao direito, do dropdown.
+   */
+  const parent = source.match(/^export class \w+ extends (\w+)/m)?.[1];
+  const parentFile = !parent ? null
+    : parent === 'Dialog' ? 'src/js/core/dialog.js'
+      : `src/js/components/${parent.toLowerCase()}.js`;
+  const sources = parentFile ? `${source}\n${read(parentFile)}` : source;
   if (Boolean(spec.target) !== c.args.startsWith('alvo')) {
     problems.push(`${c.className}: o construtor ${spec.target ? 'nao recebe' : 'recebe'} alvo no codigo`);
   }

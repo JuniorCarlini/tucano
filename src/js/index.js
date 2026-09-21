@@ -10,6 +10,7 @@ export { Drawer, drawer, autoInit as autoInitDrawers } from './components/drawer
 export { Accordion, autoInit as autoInitAccordions } from './components/accordion.js';
 export { Tabs, autoInit as autoInitTabs } from './components/tabs.js';
 export { Dropdown, autoInit as autoInitDropdowns } from './components/dropdown.js';
+export { ContextMenu, autoInit as autoInitContextMenus } from './components/contextmenu.js';
 export { Table, autoInit as autoInitTables } from './components/table.js';
 export { Pagination, pagination, pageWindow, autoInit as autoInitPagination } from './components/pagination.js';
 export { Editor, autoInit as autoInitEditors } from './components/editor.js';
@@ -37,6 +38,7 @@ import { autoInit as autoInitDrawer } from './components/drawer.js';
 import { autoInit as autoInitAccordion } from './components/accordion.js';
 import { autoInit as autoInitTab } from './components/tabs.js';
 import { autoInit as autoInitDropdown } from './components/dropdown.js';
+import { autoInit as autoInitContextMenu } from './components/contextmenu.js';
 import { autoInit as autoInitTable } from './components/table.js';
 import { autoInit as autoInitPag } from './components/pagination.js';
 import { autoInit as autoInitEditor } from './components/editor.js';
@@ -57,6 +59,7 @@ export function init(scope = document) {
     accordions: autoInitAccordion(scope),
     tabs: autoInitTab(scope),
     dropdowns: autoInitDropdown(scope),
+    contextMenus: autoInitContextMenu(scope),
     tables: autoInitTable(scope),
     pagination: autoInitPag(scope),
     editors: autoInitEditor(scope),

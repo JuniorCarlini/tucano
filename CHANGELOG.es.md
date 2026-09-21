@@ -4,6 +4,21 @@ Qué cambió en cada versión de Tucano, de la más reciente a la más antigua. 
 primero la sección "Antes de actualizar" de cada versión: ahí está lo que exige
 cambios en tu proyecto.
 
+## Sin publicar
+
+### Nuevo
+
+- Menú del botón derecho (`ContextMenu`, `data-tuc-contextmenu`): el mismo menú
+  desplegable, abierto en el punto del clic. `match` dice qué parte del área es
+  el objetivo, `items` también acepta una función para montar las acciones de la
+  fila clicada, y el menú del navegador sigue con `Shift` + botón derecho. La
+  tecla de menú y `Shift+F10` abren desde el objetivo con foco.
+
+### Cambió
+
+- El título de grupo del menú desplegable dejó de ir en mayúsculas. "CONTRATO"
+  gritaba más que los propios elementos del menú.
+
 ## 0.34.0 — 2026-09-18
 
 ### Antes de actualizar

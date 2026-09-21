@@ -35,7 +35,11 @@ export class Dropdown {
   }
 
   _build() {
-    this.panel = this.opts.panel ?? el('div', {}, (this.opts.items ?? []).map((i) => this._item(i)));
+    // `items` tambem aceita funcao (o menu do botao direito monta a lista a
+    // partir da linha clicada); nesse caso o painel nasce vazio e e preenchido
+    // a cada abertura.
+    const items = Array.isArray(this.opts.items) ? this.opts.items : [];
+    this.panel = this.opts.panel ?? el('div', {}, items.map((i) => this._item(i)));
     this.panel.classList.add('tuc-dropdown');
     this.panel.setAttribute('role', 'menu');
     // Papel e tabindex dos itens aqui, e nao so no autoInit: um painel passado
@@ -48,20 +52,9 @@ export class Dropdown {
       item.setAttribute('tabindex', '-1');
     }
 
-    this.trigger.setAttribute('aria-haspopup', 'menu');
-    this.trigger.setAttribute('aria-expanded', 'false');
+    this._wireTrigger();
 
     this._cleanups.push(
-      on(this.trigger, 'click', (e) => { e.preventDefault(); this.toggle(); }),
-      on(this.trigger, 'keydown', (e) => {
-        // Seta para baixo abre e ja entra no primeiro item, como manda o padrao
-        // de menu — quem chega por teclado nao deveria precisar de Enter antes.
-        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-          e.preventDefault();
-          this.open();
-          this._move(e.key === 'ArrowUp' ? -1 : 0, true);
-        }
-      }),
       on(this.panel, 'keydown', (e) => this._onKey(e)),
       on(this.panel, 'click', (e) => {
         const item = e.target.closest('.tuc-dropdown__item');
@@ -73,6 +66,38 @@ export class Dropdown {
     this.trigger._tucano = this;
     this.panel._tucano = this;
   }
+
+  /*
+   * O que abre o menu. Separado do resto do _build porque o menu do botao
+   * direito herda tudo isto e troca so esta parte: la quem abre e o
+   * `contextmenu`, num ponto da tela, e nao o clique num gatilho.
+   */
+  _wireTrigger() {
+    this.trigger.setAttribute('aria-haspopup', 'menu');
+    this.trigger.setAttribute('aria-expanded', 'false');
+    this._cleanups.push(
+      on(this.trigger, 'click', (e) => { e.preventDefault(); this.toggle(); }),
+      on(this.trigger, 'keydown', (e) => {
+        // Seta para baixo abre e ja entra no primeiro item, como manda o padrao
+        // de menu — quem chega por teclado nao deveria precisar de Enter antes.
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+          e.preventDefault();
+          this.open();
+          this._move(e.key === 'ArrowUp' ? -1 : 0, true);
+        }
+      }),
+    );
+  }
+
+  /* De onde o painel sai. O menu do botao direito ancora no ponto do clique. */
+  _anchor() { return this.trigger; }
+
+  /*
+   * Quem anuncia o estado. No menu do botao direito a "area" e uma tabela ou a
+   * pagina inteira, e um aria-expanded num elemento desses nao diz nada a quem
+   * usa leitor de tela — la este metodo nao faz nada.
+   */
+  _setExpanded(value) { this.trigger.setAttribute('aria-expanded', String(value)); }
 
   _item(data) {
     if (data.separator) return el('hr', { class: 'tuc-dropdown__separator', role: 'separator' });
@@ -126,8 +151,8 @@ export class Dropdown {
   open() {
     if (this.isOpen) return this;
     this.isOpen = true;
-    this.trigger.setAttribute('aria-expanded', 'true');
-    this.popover = new Popover(this.trigger, this.panel, {
+    this._setExpanded(true);
+    this.popover = new Popover(this._anchor(), this.panel, {
       placement: this.opts.placement,
       offset: 6,
       closeIfDetached: true,
@@ -142,7 +167,7 @@ export class Dropdown {
   close() {
     if (!this.isOpen) return this;
     this.isOpen = false;
-    this.trigger.setAttribute('aria-expanded', 'false');
+    this._setExpanded(false);
     this.popover?.destroy();
     this.popover = null;
     // O foco volta para o gatilho: fechar um menu nao deveria largar quem

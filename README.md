@@ -9,7 +9,7 @@ montam sozinhos. Os exemplos usam Django; em PHP e Rails, campo múltiplo precis
 de `name` terminado em `[]`, e o upload direto precisa do cabeçalho de CSRF do
 framework (`data-csrf="false"` e a opção `headers` do `new Upload`).
 
-**41 KB de JS + 13 KB de CSS** (minificado + gzip).
+**42 KB de JS + 13 KB de CSS** (minificado + gzip).
 
 **[Documentação e exemplos ao vivo →](https://juniorcarlini.github.io/tucano/)**
 
@@ -26,6 +26,7 @@ framework (`data-csrf="false"` e a opção `headers` do `new Upload`).
 | `Drawer` — off-canvas nas quatro bordas, mesmo motor do modal | pronto |
 | `Acordeão` — sobre `<details>`, funciona sem JavaScript | pronto |
 | `Dropdown` — menu de ações ancorado, navegação por setas | pronto |
+| `ContextMenu` — menu do botão direito, no ponto do clique | pronto |
 | `Table` — ordenação por coluna e seleção em massa | pronto |
 | `Pagination` — links de página, feita para o Paginator | pronto |
 | `Tabs` — abas com teclado do ARIA APG, e segmentadas | pronto |
@@ -492,7 +493,7 @@ ano. É a escolha certa para a maioria dos casos.
 Quem empacota pode levar menos, importando de `tucano`:
 
 ```js
-import { DatePicker, Select } from 'tucano';   // 15,3 KB em vez de 41
+import { DatePicker, Select } from 'tucano';   // 15,3 KB em vez de 42
 ```
 
 | o que se importa | gzip |
@@ -501,7 +502,7 @@ import { DatePicker, Select } from 'tucano';   // 15,3 KB em vez de 41
 | só o select | 6,4 KB |
 | só o toast | 2,7 KB |
 | date picker + select | 15,3 KB |
-| tudo | 41,1 KB |
+| tudo | 41,7 KB |
 
 Não é linear porque o núcleo — posicionamento, datas, utilidades de DOM — é
 compartilhado: o primeiro componente paga por ele e os seguintes saem mais

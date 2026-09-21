@@ -54,6 +54,10 @@ const page = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
   <button class="tuc-tabs__tab" disabled>C</button><button class="tuc-tabs__tab">D</button></div>
   <div class="tuc-tabs__panel">a</div><div class="tuc-tabs__panel" hidden>b</div>
   <div class="tuc-tabs__panel" hidden>c</div><div class="tuc-tabs__panel" hidden>d</div></div>
+<table class="tuc-table" id="ctxtable"><tbody>
+  <tr id="ctxrow1" tabindex="0"><td>Padaria Pão Quente</td></tr>
+  <tr id="ctxrow2" tabindex="0"><td>Oficina Duas Rodas</td></tr>
+</tbody></table>
 <p id="kbold"><b>negrito fora do editor</b></p>
 <form id="kedForm" onsubmit="window.__kedSubmits++; return false"><textarea id="ked2" name="body" data-tuc-editor required>&lt;p&gt;original&lt;/p&gt;</textarea><button id="kedSubmit">enviar</button></form>
 <script>${readFileSync('dist/tucano.js', 'utf8')}</script>
@@ -71,6 +75,20 @@ const page = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
     window.log = [];
     dp.opts.onChange = (value, detail) => log.push('onChange ' + detail.iso);
     input.addEventListener('tucano:change', (e) => log.push('event ' + e.detail.iso));
+    return true;
+  };
+  /* Menu do botao direito na tabela, com os itens da linha clicada. */
+  window.mkCtx = function () {
+    if (window.ctx) ctx.destroy();
+    window.picked = [];
+    window.ctx = new Tucano.ContextMenu('#ctxtable', {
+      match: 'tbody tr',
+      items: function (row) {
+        return [{ label: row.textContent.trim() },
+          { text: 'Editar', onClick: function () { picked.push('editar:' + row.id); } },
+          { text: 'Excluir', variant: 'danger', onClick: function () { picked.push('excluir:' + row.id); } }];
+      },
+    });
     return true;
   };
   window.iso = (d) => (d ? Tucano.dates.toISODate(d) : null);
@@ -1208,6 +1226,52 @@ testCase('select múltiplo: Backspace pula tag desativada; <optgroup disabled> n
   await closeSel();
   if (tags !== '2') return `Backspace deixou "${tags}"`;
   return r[0] === null && r[1] === '' && r[2] === 'true' ? null : `optgroup desativado: componente ${r[0]}, nativo "${r[1]}", aria-disabled ${r[2]}`;
+});
+
+testCase('menu do botão direito: abre no ponto do clique, com os itens da linha', async () => {
+  await evaluate(`mkCtx()`);
+  const [x, y] = await centerOf(`document.getElementById('ctxrow2')`);
+  await tab().mouse.click(x, y, { button: 'right' });
+  if (!await waitFor(`!!document.querySelector('.tuc-dropdown')`)) return 'o menu não abriu';
+  /*
+   * Distancia do ponteiro ate a caixa do menu, e nao a posicao do canto: perto
+   * da borda de baixo o popover vira o painel para cima, e ai o canto fica bem
+   * acima do ponto — continua nascendo no ponteiro, que e o que se confere.
+   */
+  const r = await evaluate(`(() => { const p = document.querySelector('.tuc-dropdown').getBoundingClientRect();
+    const dx = Math.max(p.left - ${Math.round(x)}, ${Math.round(x)} - p.right, 0);
+    const dy = Math.max(p.top - ${Math.round(y)}, ${Math.round(y)} - p.bottom, 0);
+    return { gap: Math.round(Math.max(dx, dy)),
+      label: document.querySelector('.tuc-dropdown__label').textContent.trim(),
+      focused: document.activeElement.textContent.trim() }; })()`);
+  await press('ArrowDown');
+  await press('Enter');
+  const picked = await evaluate(`picked.join()`);
+  const back = await evaluate(`document.activeElement.id`);
+  // O painel nasce colado no ponto, com o respiro de 6px do popover.
+  if (r.gap > 24) return `painel a ${r.gap}px do ponteiro`;
+  if (r.label !== 'Oficina Duas Rodas') return `título "${r.label}"`;
+  if (r.focused !== 'Editar') return `foco em "${r.focused}"`;
+  if (picked !== 'excluir:ctxrow2') return `escolheu "${picked}"`;
+  return back === 'ctxrow2' ? null : `foco voltou para "${back}"`;
+});
+
+testCase('menu do botão direito: tecla de menu e Shift+F10 abrem no alvo com foco', async () => {
+  // Sem elas, o que só existe neste menu fica inalcançável para quem não usa mouse.
+  await evaluate(`mkCtx(); document.getElementById('ctxrow1').focus()`);
+  await press('ContextMenu');
+  const byKey = await evaluate(`[!!ctx.isOpen, ctx.target && ctx.target.id]`);
+  await press('Escape');
+  const back = await evaluate(`document.activeElement.id`);
+  await evaluate(`document.getElementById('ctxrow2').focus()`);
+  await tab().keyboard.down('Shift');
+  await press('F10');
+  await tab().keyboard.up('Shift');
+  const byF10 = await evaluate(`[!!ctx.isOpen, ctx.target && ctx.target.id]`);
+  await evaluate(`void ctx.close()`);
+  if (!byKey[0] || byKey[1] !== 'ctxrow1') return `tecla de menu: aberto ${byKey[0]}, alvo ${byKey[1]}`;
+  if (back !== 'ctxrow1') return `Esc devolveu o foco para "${back}"`;
+  return byF10[0] && byF10[1] === 'ctxrow2' ? null : `Shift+F10: aberto ${byF10[0]}, alvo ${byF10[1]}`;
 });
 
 /* Um navegador: uma pagina, os casos em ordem, a saida guardada para imprimir junta. */

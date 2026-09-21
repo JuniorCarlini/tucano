@@ -476,6 +476,51 @@ export declare class ColorPicker {
   destroy(): void;
 }
 
+/** Opcoes de `ContextMenu`. Toda opcao e opcional; o padrao vem do codigo. */
+export interface ContextMenuOptions {
+  /** @default 'bottom-start' */
+  placement?: Placement;
+  /**
+   * Lista fixa, ou funcao que recebe o alvo e devolve a lista daquela linha.
+   * @default null
+   */
+  items?: DropdownItem[] | ((target: HTMLElement, menu: ContextMenu) => DropdownItem[]) | null;
+  /**
+   * Seletor do alvo dentro da area. Sem ele, o alvo e a area inteira; fora de um alvo, o menu do navegador continua valendo.
+   * @default null
+   */
+  match?: string | null;
+  /** @default true */
+  closeOnPick?: boolean;
+  /**
+   * Chamado antes de abrir, com o alvo do botao direito.
+   * @default null
+   */
+  onOpen?: ((target: HTMLElement, menu: ContextMenu) => void) | null;
+  /**
+   * Painel ja escrito no template, com botoes `.tuc-dropdown__item`, no lugar de `items`.
+   * @default null
+   */
+  panel?: HTMLElement;
+}
+
+/** Menu do botao direito: o mesmo menu suspenso, aberto no ponto do clique. */
+export declare class ContextMenu {
+  constructor(target: string | HTMLElement, options?: ContextMenuOptions);
+  readonly trigger: HTMLElement;
+  readonly panel: HTMLElement;
+  readonly isOpen: boolean | undefined;
+  readonly items: HTMLElement[];
+  readonly area: HTMLElement;
+  readonly target: HTMLElement | null;
+  /** Abre no ponto da tela. Sem `x` e `y`, ancora no alvo — e o que a tecla de menu e o Shift+F10 fazem. */
+  openAt(x: number | null, y: number | null, target?: HTMLElement): this;
+  open(): this;
+  close(options?: { restoreFocus?: boolean }): this;
+  toggle(): this;
+  destroy(): void;
+}
+
 export type DatePickerMode = 'single' | 'range';
 /** Periodo. Uma ponta fica `null` enquanto nao ha valor. */
 export interface DateRange {
@@ -1445,6 +1490,17 @@ export declare function autoInitAccordions(scope?: ParentNode): Accordion[];
 export declare function autoInitColorPickers(scope?: ParentNode): ColorPicker[];
 
 /**
+ * Menu escrito no template, como o do dropdown — o caminho quando os itens vêm
+ * do servidor:
+ *
+ *   <table data-tuc-contextmenu="#acoes-linha" data-match="tbody tr">…</table>
+ *   <div class="tuc-dropdown" id="acoes-linha" hidden>
+ *     <button class="tuc-dropdown__item">Editar</button>
+ *   </div>
+ */
+export declare function autoInitContextMenus(scope?: ParentNode): ContextMenu[];
+
+/**
  * Inicializa todo [data-tuc-datepicker] do escopo. Opcoes vem de data-attributes:
  * data-mode, data-time, data-min, data-max, data-months, data-locale, data-format...
  */
@@ -1780,6 +1836,7 @@ export interface InitResult {
   accordions: Accordion[];
   tabs: Tabs[];
   dropdowns: Dropdown[];
+  contextMenus: ContextMenu[];
   tables: Table[];
   pagination: Pagination[];
   editors: Editor[];

@@ -22,6 +22,7 @@ var Tucano = (() => {
   __export(auto_exports, {
     Accordion: () => Accordion,
     ColorPicker: () => ColorPicker,
+    ContextMenu: () => ContextMenu,
     DatePicker: () => DatePicker,
     Drawer: () => Drawer,
     Dropdown: () => Dropdown,
@@ -43,16 +44,17 @@ var Tucano = (() => {
     autoFormat: () => autoFormat,
     autoInitAccordions: () => autoInit10,
     autoInitColorPickers: () => autoInit3,
+    autoInitContextMenus: () => autoInit13,
     autoInitDatePickers: () => autoInit,
     autoInitDrawers: () => autoInit9,
     autoInitDropdowns: () => autoInit12,
-    autoInitEditors: () => autoInit16,
+    autoInitEditors: () => autoInit17,
     autoInitMasks: () => autoInit5,
     autoInitModals: () => autoInit8,
-    autoInitPagination: () => autoInit14,
-    autoInitProse: () => autoInit15,
+    autoInitPagination: () => autoInit15,
+    autoInitProse: () => autoInit16,
     autoInitSelects: () => autoInit2,
-    autoInitTables: () => autoInit13,
+    autoInitTables: () => autoInit14,
     autoInitTabs: () => autoInit11,
     autoInitToasts: () => autoInit6,
     autoInitTooltips: () => autoInit7,
@@ -5039,13 +5041,32 @@ var Tucano = (() => {
       this._build();
     }
     _build() {
-      this.panel = this.opts.panel ?? el("div", {}, (this.opts.items ?? []).map((i) => this._item(i)));
+      const items = Array.isArray(this.opts.items) ? this.opts.items : [];
+      this.panel = this.opts.panel ?? el("div", {}, items.map((i) => this._item(i)));
       this.panel.classList.add("tuc-dropdown");
       this.panel.setAttribute("role", "menu");
       for (const item of this.panel.querySelectorAll(".tuc-dropdown__item")) {
         item.setAttribute("role", "menuitem");
         item.setAttribute("tabindex", "-1");
       }
+      this._wireTrigger();
+      this._cleanups.push(
+        on(this.panel, "keydown", (e) => this._onKey(e)),
+        on(this.panel, "click", (e) => {
+          const item = e.target.closest(".tuc-dropdown__item");
+          if (!item || item.hasAttribute("aria-disabled")) return;
+          if (this.opts.closeOnPick) this.close();
+        })
+      );
+      this.trigger._tucano = this;
+      this.panel._tucano = this;
+    }
+    /*
+     * O que abre o menu. Separado do resto do _build porque o menu do botao
+     * direito herda tudo isto e troca so esta parte: la quem abre e o
+     * `contextmenu`, num ponto da tela, e nao o clique num gatilho.
+     */
+    _wireTrigger() {
       this.trigger.setAttribute("aria-haspopup", "menu");
       this.trigger.setAttribute("aria-expanded", "false");
       this._cleanups.push(
@@ -5059,16 +5080,20 @@ var Tucano = (() => {
             this.open();
             this._move(e.key === "ArrowUp" ? -1 : 0, true);
           }
-        }),
-        on(this.panel, "keydown", (e) => this._onKey(e)),
-        on(this.panel, "click", (e) => {
-          const item = e.target.closest(".tuc-dropdown__item");
-          if (!item || item.hasAttribute("aria-disabled")) return;
-          if (this.opts.closeOnPick) this.close();
         })
       );
-      this.trigger._tucano = this;
-      this.panel._tucano = this;
+    }
+    /* De onde o painel sai. O menu do botao direito ancora no ponto do clique. */
+    _anchor() {
+      return this.trigger;
+    }
+    /*
+     * Quem anuncia o estado. No menu do botao direito a "area" e uma tabela ou a
+     * pagina inteira, e um aria-expanded num elemento desses nao diz nada a quem
+     * usa leitor de tela — la este metodo nao faz nada.
+     */
+    _setExpanded(value) {
+      this.trigger.setAttribute("aria-expanded", String(value));
     }
     _item(data) {
       if (data.separator) return el("hr", { class: "tuc-dropdown__separator", role: "separator" });
@@ -5115,8 +5140,8 @@ var Tucano = (() => {
     open() {
       if (this.isOpen) return this;
       this.isOpen = true;
-      this.trigger.setAttribute("aria-expanded", "true");
-      this.popover = new Popover(this.trigger, this.panel, {
+      this._setExpanded(true);
+      this.popover = new Popover(this._anchor(), this.panel, {
         placement: this.opts.placement,
         offset: 6,
         closeIfDetached: true,
@@ -5130,7 +5155,7 @@ var Tucano = (() => {
     close() {
       if (!this.isOpen) return this;
       this.isOpen = false;
-      this.trigger.setAttribute("aria-expanded", "false");
+      this._setExpanded(false);
       this.popover?.destroy();
       this.popover = null;
       if (this.panel.contains(document.activeElement)) {
@@ -5163,8 +5188,130 @@ var Tucano = (() => {
     return out;
   }
 
-  // src/js/components/table.js
+  // src/js/components/contextmenu.js
   var DEFAULTS13 = {
+    placement: "bottom-start",
+    items: null,
+    // array como o do Dropdown, ou (alvo) => array
+    match: null,
+    // seletor do alvo dentro da area; sem ele, a area inteira
+    closeOnPick: true,
+    onOpen: null,
+    // (alvo, instancia) — para marcar a linha clicada, por exemplo
+    panel: null
+    // painel ja escrito no template, no lugar de `items`
+  };
+  var ContextMenu = class extends Dropdown {
+    constructor(area, options = {}) {
+      super(area, { ...DEFAULTS13, ...omitUndefined(options) });
+    }
+    /** A area que responde ao botao direito. */
+    get area() {
+      return this.trigger;
+    }
+    /** O elemento clicado com o botao direito, dentro da area. */
+    get target() {
+      return this._target ?? null;
+    }
+    _wireTrigger() {
+      this._cleanups.push(
+        on(this.trigger, "contextmenu", (e) => {
+          if (e.shiftKey) return;
+          const target = this.opts.match ? e.target.closest(this.opts.match) : this.trigger;
+          if (!target || !this.trigger.contains(target)) return;
+          e.preventDefault();
+          this.openAt(e.clientX, e.clientY, target);
+        }),
+        /*
+         * Tecla de menu e Shift+F10, como em qualquer aplicativo: sem elas, tudo
+         * o que estiver so neste menu fica inalcancavel para quem nao usa mouse.
+         * Ancora no proprio elemento com foco, e nao num ponto da tela.
+         */
+        on(this.trigger, "keydown", (e) => {
+          if (e.key !== "ContextMenu" && !(e.key === "F10" && e.shiftKey)) return;
+          const target = this.opts.match ? e.target.closest(this.opts.match) : this.trigger;
+          if (!target) return;
+          e.preventDefault();
+          this.openAt(null, null, target);
+        }),
+        // Botao direito dentro do proprio menu nao troca o nosso pelo do navegador.
+        on(this.panel, "contextmenu", (e) => {
+          if (!e.shiftKey) e.preventDefault();
+        })
+      );
+    }
+    /* A area nao e um gatilho: nao ha aria-expanded para marcar nela. */
+    _setExpanded() {
+    }
+    _anchor() {
+      if (!this._point) return this._target ?? this.trigger;
+      this._pin ??= el("span", { class: "tuc-context-pin", "aria-hidden": "true" });
+      this._pin.style.left = `${this._point.x}px`;
+      this._pin.style.top = `${this._point.y}px`;
+      (this._target?.closest("dialog[open]") || document.body).append(this._pin);
+      return this._pin;
+    }
+    /**
+     * Abre o menu. Com x e y, no ponto da tela; sem eles, ancorado no alvo — que
+     * e como o teclado abre.
+     */
+    openAt(x, y, target = this.trigger) {
+      if (this.isOpen) this.close({ restoreFocus: false });
+      this._target = target;
+      this._point = x == null ? null : { x, y };
+      this._returnFocus = document.activeElement;
+      if (typeof this.opts.items === "function") this._renderItems(this.opts.items(target, this));
+      this.opts.onOpen?.(target, this);
+      super.open();
+      this._offScroll = on(window, "scroll", () => this.close(), true);
+      return this;
+    }
+    /** Troca os itens do painel, mantendo papeis e tabindex do Dropdown. */
+    _renderItems(items) {
+      this.panel.replaceChildren(...(items ?? []).map((i) => this._item(i)));
+      for (const item of this.panel.querySelectorAll(".tuc-dropdown__item")) {
+        item.setAttribute("role", "menuitem");
+        item.setAttribute("tabindex", "-1");
+      }
+    }
+    close({ restoreFocus = true } = {}) {
+      if (!this.isOpen) return this;
+      this._offScroll?.();
+      this._offScroll = null;
+      const inside = this.panel.contains(document.activeElement);
+      super.close();
+      this._pin?.remove();
+      this._point = null;
+      if (restoreFocus && inside && this._returnFocus?.isConnected) {
+        this._returnFocus.focus({ preventScroll: true });
+      }
+      return this;
+    }
+    destroy() {
+      super.destroy();
+      this._pin?.remove();
+      this._pin = null;
+    }
+  };
+  function autoInit13(scope = document) {
+    const out = [];
+    for (const area of scope.querySelectorAll("[data-tuc-contextmenu]:not([data-tuc-ready])")) {
+      area.setAttribute("data-tuc-ready", "");
+      const panel = document.querySelector(area.dataset.tucContextmenu);
+      if (!panel) continue;
+      panel.hidden = false;
+      panel.remove();
+      out.push(new ContextMenu(area, {
+        panel,
+        match: area.dataset.match || void 0,
+        placement: area.dataset.placement || void 0
+      }));
+    }
+    return out;
+  }
+
+  // src/js/components/table.js
+  var DEFAULTS14 = {
     sortable: true,
     sortMode: "server",
     // server | client
@@ -5188,7 +5335,7 @@ var Tucano = (() => {
       this.node = typeof node === "string" ? document.querySelector(node) : node;
       if (!this.node) throw new Error("[Table] elemento alvo nao encontrado");
       if (this.node.tagName !== "TABLE") throw new Error("[Table] o alvo precisa ser uma <table>");
-      this.opts = { ...DEFAULTS13, ...omitUndefined(options) };
+      this.opts = { ...DEFAULTS14, ...omitUndefined(options) };
       this._cleanups = [];
       this._build();
     }
@@ -5347,7 +5494,7 @@ var Tucano = (() => {
       this._cleanups = [];
     }
   };
-  function autoInit13(scope = document) {
+  function autoInit14(scope = document) {
     const out = [];
     for (const node of scope.querySelectorAll("table[data-tuc-table]:not([data-tuc-ready])")) {
       node.setAttribute("data-tuc-ready", "");
@@ -5365,7 +5512,7 @@ var Tucano = (() => {
   }
 
   // src/js/components/pagination.js
-  var DEFAULTS14 = {
+  var DEFAULTS15 = {
     page: 1,
     pages: 1,
     param: "page",
@@ -5399,7 +5546,7 @@ var Tucano = (() => {
   }
   var Pagination = class {
     constructor(options = {}) {
-      this.opts = { ...DEFAULTS14, ...PAGINATION_TEXTS, ...omitUndefined(options) };
+      this.opts = { ...DEFAULTS15, ...PAGINATION_TEXTS, ...omitUndefined(options) };
       this._cleanups = [];
       this.node = el("nav", { class: "tuc-pagination", role: "navigation", "aria-label": this.opts.label });
       this.node._tucano = this;
@@ -5486,7 +5633,7 @@ var Tucano = (() => {
   function pagination(options = {}) {
     return new Pagination(options).node;
   }
-  function autoInit14(scope = document) {
+  function autoInit15(scope = document) {
     const out = [];
     for (const node of scope.querySelectorAll("[data-tuc-pagination]:not([data-tuc-ready])")) {
       node.setAttribute("data-tuc-ready", "");
@@ -5721,7 +5868,7 @@ var Tucano = (() => {
       return className ? `<span class="tuc-tok-${className}">${whole}</span>` : whole;
     });
   }
-  function autoInit15(scope = document) {
+  function autoInit16(scope = document) {
     for (const table of scope.querySelectorAll(".tuc-prose table")) {
       if (table.parentElement.classList.contains("tuc-prose__scroll")) continue;
       const box = el("div", { class: "tuc-prose__scroll" });
@@ -5768,7 +5915,7 @@ var Tucano = (() => {
   }
 
   // src/js/components/editor.js
-  var DEFAULTS15 = {
+  var DEFAULTS16 = {
     toolbar: [
       "bold",
       "italic",
@@ -6030,7 +6177,7 @@ var Tucano = (() => {
     constructor(target, options = {}) {
       this.field = typeof target === "string" ? document.querySelector(target) : target;
       if (!this.field) throw new Error("[Editor] elemento n\xE3o encontrado");
-      this.opts = { ...DEFAULTS15, ...omitUndefined(options) };
+      this.opts = { ...DEFAULTS16, ...omitUndefined(options) };
       this._cleanups = [];
       this._build();
     }
@@ -6365,7 +6512,7 @@ var Tucano = (() => {
       delete this.field._tucano;
     }
   };
-  function autoInit16(scope = document) {
+  function autoInit17(scope = document) {
     const out = [];
     for (const node of scope.querySelectorAll("[data-tuc-editor]:not([data-tuc-ready])")) {
       node.setAttribute("data-tuc-ready", "");
@@ -6392,10 +6539,11 @@ var Tucano = (() => {
       accordions: autoInit10(scope),
       tabs: autoInit11(scope),
       dropdowns: autoInit12(scope),
-      tables: autoInit13(scope),
-      pagination: autoInit14(scope),
-      editors: autoInit16(scope),
-      prose: autoInit15(scope),
+      contextMenus: autoInit13(scope),
+      tables: autoInit14(scope),
+      pagination: autoInit15(scope),
+      editors: autoInit17(scope),
+      prose: autoInit16(scope),
       // Por último de propósito: componentes que criam a própria barra de botões
       // marcam neles `data-tuc-tip`, e esses elementos só existem depois que eles
       // se montam. Antes, os botões do editor nasciam sem dica.

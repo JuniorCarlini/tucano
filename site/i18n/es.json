@@ -56,6 +56,7 @@
     "editor": { "title": "Editor de texto", "desc": "Texto enriquecido con tablas y bloques de código." },
     "button": { "title": "Botón", "desc": "Variantes y tamaños, solo clases." },
     "dropdown": { "title": "Menú desplegable", "desc": "Menú de acciones anclado, con flechas." },
+    "contextmenu": { "title": "Menú del botón derecho", "desc": "Menú contextual en el punto del clic." },
     "toast": { "title": "Toast", "desc": "Avisos pasajeros, con Django y HTMX." },
     "alert": { "title": "Aviso", "desc": "Lo que sigue vigente en la pantalla." },
     "tooltip": { "title": "Tooltip", "desc": "Pista anclada, con puntero, foco y toque." },

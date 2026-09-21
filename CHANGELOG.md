@@ -4,6 +4,21 @@ O que mudou em cada versão da Tucano, da mais nova para a mais antiga. Antes de
 atualizar, leia "Atenção ao atualizar": ali está o que pede mudança no seu
 projeto.
 
+## Ainda não publicado
+
+### Novo
+
+- Menu do botão direito (`ContextMenu`, `data-tuc-contextmenu`): o mesmo menu
+  suspenso, aberto no ponto do clique. `match` diz qual pedaço da área é o
+  alvo, `items` também aceita função para montar as ações da linha clicada, e o
+  menu do navegador continua com `Shift` + botão direito. A tecla de menu e o
+  `Shift+F10` abrem a partir do alvo com foco.
+
+### Mudou
+
+- O título de grupo do menu suspenso deixou de ser em caixa alta. "CONTRATO"
+  gritava mais que os próprios itens do menu.
+
 ## 0.34.0 — 2026-09-18
 
 ### Atenção ao atualizar

@@ -56,6 +56,7 @@
     "editor": { "title": "Text editor", "desc": "Rich text with tables and code blocks." },
     "button": { "title": "Button", "desc": "Variants and sizes, class only." },
     "dropdown": { "title": "Dropdown menu", "desc": "Anchored action menu, with arrow keys." },
+    "contextmenu": { "title": "Right-click menu", "desc": "Context menu at the click point." },
     "toast": { "title": "Toast", "desc": "Short-lived notices, with Django and HTMX." },
     "alert": { "title": "Alert", "desc": "What stays true on the screen." },
     "tooltip": { "title": "Tooltip", "desc": "Anchored hint, on pointer, focus and touch." },

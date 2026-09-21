@@ -4,6 +4,21 @@ What changed in each Tucano release, newest first. Check the "Before upgrading"
 section of each version first: that is where you will find what requires changes
 in your project.
 
+## Unreleased
+
+### New
+
+- Right-click menu (`ContextMenu`, `data-tuc-contextmenu`): the same dropdown
+  menu, opened at the click point. `match` says which part of the area is the
+  target, `items` also takes a function to build the clicked row's actions, and
+  the browser's menu stays on `Shift` + right-click. The menu key and
+  `Shift+F10` open from the focused target.
+
+### Changed
+
+- The dropdown's group label is no longer uppercase. "CONTRACT" shouted louder
+  than the menu items themselves.
+
 ## 0.34.0 — 2026-09-18
 
 ### Before upgrading

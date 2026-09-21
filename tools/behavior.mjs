@@ -664,6 +664,50 @@ body{margin:0;padding:16px;font-family:system-ui}
     g.close();
     if (document.activeElement !== document.getElementById('bd')) throw new Error('foco não voltou');
   });
+  t('menu do botão direito deixa passar fora de um alvo e com Shift', function () {
+    // Sem alvo, o menu do navegador continua valendo: um menu de ações que não
+    // sabe sobre o que age é pior que nenhum. E o Shift é o atalho de quem quer
+    // o menu do navegador de propósito.
+    var box = document.createElement('div');
+    box.innerHTML = '<table id="ctxb"><thead><tr id="ctxhead"><th>Cliente</th></tr></thead>'
+      + '<tbody><tr id="ctxline"><td>Padaria</td></tr></tbody></table>';
+    document.body.append(box);
+    var m = new Tucano.ContextMenu('#ctxb', { match: 'tbody tr', items: [{ text: 'Editar' }] });
+    function rightClick(id, shift) {
+      var e = new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 120, clientY: 120, shiftKey: !!shift });
+      document.getElementById(id).dispatchEvent(e);
+      return e.defaultPrevented;
+    }
+    var onHead = rightClick('ctxhead');
+    var withShift = rightClick('ctxline', true);
+    var onRow = rightClick('ctxline');
+    var opened = !!document.querySelector('.tuc-dropdown');
+    m.destroy(); box.remove();
+    if (onHead) throw new Error('segurou o menu do navegador no cabeçalho');
+    if (withShift) throw new Error('segurou o menu do navegador com Shift');
+    if (!onRow || !opened) throw new Error('não abriu na linha');
+  });
+  t('menu do botão direito aceita painel do template e limpa a âncora no destroy', function () {
+    var box = document.createElement('div');
+    box.innerHTML = '<div id="ctxarea">área</div>'
+      + '<div class="tuc-dropdown" id="ctxpanel" hidden><button class="tuc-dropdown__item">Colar</button></div>';
+    box.setAttribute('data-nothing', '');
+    document.body.append(box);
+    var area = box.querySelector('#ctxarea');
+    area.setAttribute('data-tuc-contextmenu', '#ctxpanel');
+    Tucano.init(box);
+    var m = area._tucano;
+    area.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 40, clientY: 40 }));
+    var item = document.querySelector('#ctxpanel .tuc-dropdown__item');
+    var role = item && item.getAttribute('role');
+    var withPin = !!document.querySelector('.tuc-context-pin');
+    m.destroy();
+    var withoutPin = !document.querySelector('.tuc-context-pin');
+    box.remove(); document.getElementById('ctxpanel')?.remove();
+    if (role !== 'menuitem') throw new Error('item sem papel de menu: ' + role);
+    if (!withPin) throw new Error('sem âncora no ponto do clique');
+    if (!withoutPin) throw new Error('a âncora ficou no documento depois do destroy');
+  });
   t('modal abre com tom, rótulo e classes', function () {
     removeDialogs();
     var m = Tucano.modal({ title: 'Oi', text: 'x', tone: 'danger', actions: [{ text: 'Ok' }] });
