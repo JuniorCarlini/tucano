@@ -73,17 +73,34 @@ export class ContextMenu extends Dropdown {
   _setExpanded() {}
 
   /*
+   * Aberto pelo ponteiro, o foco pode acabar fora do painel — na linha clicada,
+   * por exemplo, que e para onde o Safari as vezes o devolve depois do clique.
+   * Com a regra do menu suspenso ligada, o painel se fechava sozinho nesse
+   * instante. Aqui fecham o menu o clique fora, o Escape, o Tab e a rolagem.
+   */
+  _closeOnFocusOut() { return !this._point; }
+
+  /*
    * Aberto pelo botao direito, nenhum item nasce destacado: o menu do sistema
    * tambem nao adivinha a escolha, e um item ja aceso parece escolhido por
-   * engano. O foco vai para o painel — e preciso ter foco la dentro para as
-   * setas andarem, o Escape fechar e o foco voltar depois —, e a primeira seta
-   * destaca o primeiro item. Aberto pelo teclado, vale a regra do menu suspenso:
-   * quem apertou a tecla de menu ja quer andar pelos itens.
+   * engano. O foco vai para o painel, e a primeira seta destaca o primeiro item.
+   * Aberto pelo teclado vale a regra do menu suspenso: quem apertou a tecla de
+   * menu ja quer andar pelos itens.
    */
   _focusOnOpen() {
     if (!this._point) return super._focusOnOpen();
     this.panel.tabIndex = -1;
     this.panel.focus({ preventScroll: true });
+    /*
+     * Rede para o foco que nao fica. Depois de um clique com o botao direito o
+     * Safari as vezes devolve o foco para onde estava, desfazendo o focus()
+     * acima; sem foco dentro do painel, as setas nao chegariam ao menu e ele
+     * ficaria so de mouse. Enquanto estiver aberto, as teclas de menu valem do
+     * documento inteiro, e a primeira seta leva o foco ao primeiro item.
+     */
+    this._offKeys = on(document, 'keydown', (e) => {
+      if (!this.panel.contains(e.target)) this._onKey(e);
+    }, true);
   }
 
   _anchor() {
@@ -119,11 +136,18 @@ export class ContextMenu extends Dropdown {
     this.opts.onOpen?.(target, this);
     super.open();
     /*
-     * Rolar a pagina fecha, como faz o menu do sistema operacional. Sem isto o
-     * menu fica preso na tela enquanto o conteudo corre por baixo, apontando
-     * para a linha errada.
+     * Rolar fecha, como faz o menu do sistema operacional: sem isto o menu fica
+     * preso na tela enquanto o conteudo corre por baixo, apontando para a linha
+     * errada.
+     *
+     * Roda do mouse e gesto de toque, e nao o evento `scroll`: dar foco a um
+     * item rola a pagina quando ele esta perto da borda, e isso tambem dispara
+     * `scroll` — o menu se fechava sozinho na primeira seta, devolvendo o foco
+     * para a linha. Aqui so fecha a rolagem de quem esta usando.
      */
-    this._offScroll = on(window, 'scroll', () => this.close(), true);
+    const bye = () => this.close();
+    this._offScroll = on(window, 'wheel', bye, { capture: true, passive: true });
+    this._offTouch = on(window, 'touchmove', bye, { capture: true, passive: true });
     return this;
   }
 
@@ -140,6 +164,10 @@ export class ContextMenu extends Dropdown {
     if (!this.isOpen) return this;
     this._offScroll?.();
     this._offScroll = null;
+    this._offTouch?.();
+    this._offTouch = null;
+    this._offKeys?.();
+    this._offKeys = null;
     const inside = this.panel.contains(document.activeElement);
     super.close();
     this._pin?.remove();

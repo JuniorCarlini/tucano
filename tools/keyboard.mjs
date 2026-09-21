@@ -1232,7 +1232,14 @@ testCase('menu do botão direito: abre no ponto do clique, com os itens da linha
   await evaluate(`mkCtx()`);
   const [x, y] = await centerOf(`document.getElementById('ctxrow2')`);
   await tab().mouse.click(x, y, { button: 'right' });
-  if (!await waitFor(`!!document.querySelector('.tuc-dropdown')`)) return 'o menu não abriu';
+  /*
+   * Espera a instancia abrir, e nao um `.tuc-dropdown` no documento: o painel do
+   * caso anterior ainda esta saindo do DOM e dava o teste por aberto sozinho.
+   * A segunda tentativa e do WebKit do Playwright, que de vez em quando move o
+   * foco com o clique direito mas nao emite o `contextmenu`.
+   */
+  if (!await waitFor(`!!ctx.isOpen`, 800)) await tab().mouse.click(x, y, { button: 'right' });
+  if (!await waitFor(`!!ctx.isOpen`)) return 'o menu não abriu';
   /*
    * Distancia do ponteiro ate a caixa do menu, e nao a posicao do canto: perto
    * da borda de baixo o popover vira o painel para cima, e ai o canto fica bem
@@ -1243,38 +1250,46 @@ testCase('menu do botão direito: abre no ponto do clique, com os itens da linha
     const dy = Math.max(p.top - ${Math.round(y)}, ${Math.round(y)} - p.bottom, 0);
     return { gap: Math.round(Math.max(dx, dy)),
       label: document.querySelector('.tuc-dropdown__label').textContent.trim(),
-      onPanel: document.activeElement.classList.contains('tuc-dropdown'),
       highlighted: !!document.querySelector('.tuc-dropdown__item:focus') }; })()`);
   await press('ArrowDown');
+  const first = await evaluate(`document.activeElement.textContent.trim()`);
   await press('Enter');
   const picked = await evaluate(`picked.join()`);
   const back = await evaluate(`document.activeElement.id`);
   // O painel nasce colado no ponto, com o respiro de 6px do popover.
   if (r.gap > 24) return `painel a ${r.gap}px do ponteiro`;
   if (r.label !== 'Oficina Duas Rodas') return `título "${r.label}"`;
-  // Aberto pelo ponteiro, nenhum item nasce aceso: so a primeira seta destaca.
-  if (!r.onPanel || r.highlighted) return `ao abrir: foco no painel ${r.onPanel}, item aceso ${r.highlighted}`;
+  /*
+   * Aberto pelo ponteiro, nada nasce aceso: so a primeira seta destaca. Confere
+   * o comportamento, e nao onde o foco esta: no Safari ele as vezes volta para a
+   * linha clicada, e o menu tem de seguir andando pelas setas mesmo assim.
+   */
+  if (r.highlighted) return 'um item já nasceu aceso';
+  if (first !== 'Editar') return `a primeira seta acendeu "${first}"`;
   if (picked !== 'editar:ctxrow2') return `escolheu "${picked}"`;
   return back === 'ctxrow2' ? null : `foco voltou para "${back}"`;
 });
 
-testCase('menu do botão direito: tecla de menu e Shift+F10 abrem no alvo com foco', async () => {
-  // Sem elas, o que só existe neste menu fica inalcançável para quem não usa mouse.
+testCase('menu do botão direito: a tecla de menu abre no alvo com foco, e o Esc devolve', async () => {
+  // Sem ela, o que só existe neste menu fica inalcançável para quem não usa mouse.
   await evaluate(`mkCtx(); document.getElementById('ctxrow1').focus()`);
   await press('ContextMenu');
-  const byKey = await evaluate(`[!!ctx.isOpen, ctx.target && ctx.target.id]`);
+  const byKey = await evaluate(`[!!ctx.isOpen, ctx.target && ctx.target.id, document.activeElement.textContent.trim()]`);
   await press('Escape');
   const back = await evaluate(`document.activeElement.id`);
-  await evaluate(`document.getElementById('ctxrow2').focus()`);
-  await tab().keyboard.down('Shift');
-  await press('F10');
-  await tab().keyboard.up('Shift');
-  const byF10 = await evaluate(`[!!ctx.isOpen, ctx.target && ctx.target.id]`);
-  await evaluate(`void ctx.close()`);
-  if (!byKey[0] || byKey[1] !== 'ctxrow1') return `tecla de menu: aberto ${byKey[0]}, alvo ${byKey[1]}`;
-  if (back !== 'ctxrow1') return `Esc devolveu o foco para "${back}"`;
-  return byF10[0] && byF10[1] === 'ctxrow2' ? null : `Shift+F10: aberto ${byF10[0]}, alvo ${byF10[1]}`;
+  if (!byKey[0] || byKey[1] !== 'ctxrow1') return `aberto ${byKey[0]}, alvo ${byKey[1]}`;
+  // Pelo teclado o primeiro item já vem destacado: quem pediu o menu quer andar por ele.
+  if (byKey[2] !== 'Editar') return `foco em "${byKey[2]}"`;
+  return back === 'ctxrow1' ? null : `Esc devolveu o foco para "${back}"`;
 });
+
+testCase('menu do botão direito: Shift+F10 abre no alvo com foco', async () => {
+  await evaluate(`mkCtx(); document.getElementById('ctxrow2').focus()`);
+  await tab().keyboard.press('Shift+F10');
+  const r = await evaluate(`[!!ctx.isOpen, ctx.target && ctx.target.id]`);
+  await evaluate(`void ctx.close()`);
+  return r[0] && r[1] === 'ctxrow2' ? null : `aberto ${r[0]}, alvo ${r[1]}`;
+}, { skip: { webkit: 'Shift+F10 é convenção de Windows; no macOS o Safari não a entrega, e o WebKit do Playwright só às vezes' } });
 
 /* Um navegador: uma pagina, os casos em ordem, a saida guardada para imprimir junta. */
 async function run(name) {

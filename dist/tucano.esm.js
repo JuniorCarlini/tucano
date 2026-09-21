@@ -5023,6 +5023,14 @@ var Dropdown = class {
     this._move(0, true);
   }
   /*
+   * Fechar quando o foco sai do painel. Faz sentido no menu de um botao, que so
+   * abre com o foco dentro dele: andar de Tab pela pagina nao deve deixar menu
+   * aberto para tras.
+   */
+  _closeOnFocusOut() {
+    return true;
+  }
+  /*
    * Quem anuncia o estado. No menu do botao direito a "area" e uma tabela ou a
    * pagina inteira, e um aria-expanded num elemento desses nao diz nada a quem
    * usa leitor de tela — la este metodo nao faz nada.
@@ -5080,7 +5088,8 @@ var Dropdown = class {
       placement: this.opts.placement,
       offset: 6,
       closeIfDetached: true,
-      closeOnFocusOut: true,
+      // Fora daqui para o menu do botao direito poder desligar: ver la.
+      closeOnFocusOut: this._closeOnFocusOut(),
       onDismiss: () => this.close()
     });
     this.popover.show();
@@ -5179,17 +5188,28 @@ var ContextMenu = class extends Dropdown {
   _setExpanded() {
   }
   /*
+   * Aberto pelo ponteiro, o foco pode acabar fora do painel — na linha clicada,
+   * por exemplo, que e para onde o Safari as vezes o devolve depois do clique.
+   * Com a regra do menu suspenso ligada, o painel se fechava sozinho nesse
+   * instante. Aqui fecham o menu o clique fora, o Escape, o Tab e a rolagem.
+   */
+  _closeOnFocusOut() {
+    return !this._point;
+  }
+  /*
    * Aberto pelo botao direito, nenhum item nasce destacado: o menu do sistema
    * tambem nao adivinha a escolha, e um item ja aceso parece escolhido por
-   * engano. O foco vai para o painel — e preciso ter foco la dentro para as
-   * setas andarem, o Escape fechar e o foco voltar depois —, e a primeira seta
-   * destaca o primeiro item. Aberto pelo teclado, vale a regra do menu suspenso:
-   * quem apertou a tecla de menu ja quer andar pelos itens.
+   * engano. O foco vai para o painel, e a primeira seta destaca o primeiro item.
+   * Aberto pelo teclado vale a regra do menu suspenso: quem apertou a tecla de
+   * menu ja quer andar pelos itens.
    */
   _focusOnOpen() {
     if (!this._point) return super._focusOnOpen();
     this.panel.tabIndex = -1;
     this.panel.focus({ preventScroll: true });
+    this._offKeys = on(document, "keydown", (e) => {
+      if (!this.panel.contains(e.target)) this._onKey(e);
+    }, true);
   }
   _anchor() {
     if (!this._point) return this._target ?? this.trigger;
@@ -5211,7 +5231,9 @@ var ContextMenu = class extends Dropdown {
     if (typeof this.opts.items === "function") this._renderItems(this.opts.items(target, this));
     this.opts.onOpen?.(target, this);
     super.open();
-    this._offScroll = on(window, "scroll", () => this.close(), true);
+    const bye = () => this.close();
+    this._offScroll = on(window, "wheel", bye, { capture: true, passive: true });
+    this._offTouch = on(window, "touchmove", bye, { capture: true, passive: true });
     return this;
   }
   /** Troca os itens do painel, mantendo papeis e tabindex do Dropdown. */
@@ -5226,6 +5248,10 @@ var ContextMenu = class extends Dropdown {
     if (!this.isOpen) return this;
     this._offScroll?.();
     this._offScroll = null;
+    this._offTouch?.();
+    this._offTouch = null;
+    this._offKeys?.();
+    this._offKeys = null;
     const inside = this.panel.contains(document.activeElement);
     super.close();
     this._pin?.remove();

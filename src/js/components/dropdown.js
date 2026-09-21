@@ -100,6 +100,13 @@ export class Dropdown {
   _focusOnOpen() { this._move(0, true); }
 
   /*
+   * Fechar quando o foco sai do painel. Faz sentido no menu de um botao, que so
+   * abre com o foco dentro dele: andar de Tab pela pagina nao deve deixar menu
+   * aberto para tras.
+   */
+  _closeOnFocusOut() { return true; }
+
+  /*
    * Quem anuncia o estado. No menu do botao direito a "area" e uma tabela ou a
    * pagina inteira, e um aria-expanded num elemento desses nao diz nada a quem
    * usa leitor de tela — la este metodo nao faz nada.
@@ -163,7 +170,8 @@ export class Dropdown {
       placement: this.opts.placement,
       offset: 6,
       closeIfDetached: true,
-      closeOnFocusOut: true,
+      // Fora daqui para o menu do botao direito poder desligar: ver la.
+      closeOnFocusOut: this._closeOnFocusOut(),
       onDismiss: () => this.close(),
     });
     this.popover.show();

@@ -687,6 +687,25 @@ body{margin:0;padding:16px;font-family:system-ui}
     if (withShift) throw new Error('segurou o menu do navegador com Shift');
     if (!onRow || !opened) throw new Error('não abriu na linha');
   });
+  t('menu do botão direito fecha na rolagem de quem usa, não na do foco', function () {
+    // Dar foco a um item rola a página quando ele está perto da borda, e isso
+    // dispara o evento de rolagem: com a regra nele, o menu se fechava sozinho
+    // na primeira seta e devolvia o foco para a linha.
+    var box = document.createElement('div');
+    box.innerHTML = '<table id="ctxs"><tbody><tr id="ctxsrow"><td>Padaria</td></tr></tbody></table>';
+    document.body.append(box);
+    var m = new Tucano.ContextMenu('#ctxs', { match: 'tbody tr', items: [{ text: 'Editar' }, { text: 'Excluir' }] });
+    document.getElementById('ctxsrow').dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 60, clientY: 60 }));
+    var opened = !!m.isOpen;
+    window.dispatchEvent(new Event('scroll'));
+    var afterFocusScroll = !!m.isOpen;
+    window.dispatchEvent(new WheelEvent('wheel', { bubbles: true }));
+    var afterWheel = !!m.isOpen;
+    m.destroy(); box.remove();
+    if (!opened) throw new Error('não abriu');
+    if (!afterFocusScroll) throw new Error('fechou com um scroll que não veio de quem usa');
+    if (afterWheel) throw new Error('não fechou com a roda do mouse');
+  });
   t('menu do botão direito aceita painel do template e limpa a âncora no destroy', function () {
     var box = document.createElement('div');
     box.innerHTML = '<div id="ctxarea">área</div>'
