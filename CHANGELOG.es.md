@@ -13,7 +13,10 @@ cambios en tu proyecto.
   viene después de la llave y escribe `{{nome}}` en el texto — texto puro, como
   ya lo espera la plantilla del servidor. `editor.unknownVariables()` señala lo
   que está escrito en el texto y no está en la lista, la errata de siempre.
-  Dentro de un bloque de código la lista no se abre y no se señala nada — ahí
+  En el texto la variable aparece con un fondo suave, y la que no está en la
+  lista sale en el tono de error — el navegador pinta sobre el tramo, sin
+  marcación en el contenido, así que el valor guardado no cambia. Dentro de un
+  bloque de código la lista no se abre y no se señala nada — ahí
   se escribe código, incluido el `{{ nome }}` de una plantilla como ejemplo.
   Sin `variables`, nada cambia en el editor.
 

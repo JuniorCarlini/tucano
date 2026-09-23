@@ -1205,6 +1205,14 @@ textarea.tuc-editor__value[hidden] {
     transition: none;
   }
 }
+.tuc-editor__area::highlight(tuc-variable) {
+  background-color: var(--tuc-accent-soft);
+  color: var(--tuc-accent-text);
+}
+.tuc-editor__area::highlight(tuc-variable-unknown) {
+  background-color: var(--tuc-danger-soft);
+  color: var(--tuc-danger);
+}
 .tuc-dp {
   z-index: 50;
   display: flex;

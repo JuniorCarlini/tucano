@@ -327,3 +327,19 @@ textarea.tuc-editor__value[hidden] { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .tuc-copy { transition: none; }
 }
+
+/*
+ * Variavel no meio do texto, com fundo para nao se confundir com o que e texto
+ * comum. E pintura do navegador sobre o intervalo, e nao marcacao no conteudo:
+ * o valor salvo nao muda. A que nao esta na lista sai no tom de erro, e o aviso
+ * aparece onde o erro esta. Navegador sem Custom Highlight mostra o texto sem
+ * fundo, e so.
+ */
+.tuc-editor__area::highlight(tuc-variable) {
+  background-color: var(--tuc-accent-soft);
+  color: var(--tuc-accent-text);
+}
+.tuc-editor__area::highlight(tuc-variable-unknown) {
+  background-color: var(--tuc-danger-soft);
+  color: var(--tuc-danger);
+}

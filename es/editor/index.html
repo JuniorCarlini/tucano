@@ -298,6 +298,11 @@ ed.destroy();                    // devuelve el textarea original</code></pre></
   </tbody>
 </table></div>
 
+<p>En el texto, la variable gana un fondo suave para distinguirse del resto, y la que no está en la lista sale en
+   el tono de error — el aviso aparece donde está el error. Es el navegador pintando sobre el tramo, no marcación en el
+   contenido: el valor guardado sigue siendo exactamente lo que escribiste. En un navegador sin esa pintura (Safari por
+   debajo de 17.2, Firefox por debajo de 140) el texto aparece sin fondo, y nada más cambia.</p>
+
 <p>Dentro de un bloque de código la lista no se abre, y lo que esté escrito ahí queda fuera de
    <code>unknownVariables()</code>: ahí se escribe código — incluido el <code>{{ nome }}</code> de una plantilla, como
    ejemplo — y una lista saltando en cada llave estorbaría.</p>

@@ -102,7 +102,15 @@ const htmlWithoutCode = html.replace(/<pre[\s\S]*?<\/pre>/g, '').replace(/<code>
   const css = readdirSync('src/styles/components')
     .map((f) => readFileSync(`src/styles/components/${f}`, 'utf8')).join('\n')
     + readFileSync('src/styles/core/base.css', 'utf8');
-  const defined = new Set([...css.matchAll(/\.(tuc-[\w-]+)/g)].map((m) => m[1]));
+  /*
+   * Classe (`.tuc-x`) e nome de pintura (`::highlight(tuc-x)`) contam igual: os
+   * dois sao nomes que o JS aplica e o CSS precisa definir. Sem a segunda
+   * forma, a pintura das variaveis do editor era acusada de nao ter regra.
+   */
+  const defined = new Set([
+    ...[...css.matchAll(/\.(tuc-[\w-]+)/g)].map((m) => m[1]),
+    ...[...css.matchAll(/::highlight\((tuc-[\w-]+)\)/g)].map((m) => m[1]),
+  ]);
   const js = ['src/js/index.js'].concat(
     readdirSync('src/js/components').map((f) => `src/js/components/${f}`),
     readdirSync('src/js/core').map((f) => `src/js/core/${f}`),

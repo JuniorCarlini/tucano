@@ -198,6 +198,11 @@ new Tucano.Editor('#message', {
   </tbody>
 </table></div>
 
+<p>In the text, a variable gets a light background so it stands out from the rest, and one that is not in the list
+   comes out in the error tone — the warning shows where the error is. It is the browser painting over the range, not
+   markup in the content: the saved value stays exactly what you wrote. In a browser without that painting (Safari
+   below 17.2, Firefox below 140) the text shows with no background, and nothing else changes.</p>
+
 <p>Inside a code block the list does not open, and whatever is written there stays out of
    <code>unknownVariables()</code>: that is where code goes — including a template's own <code>{{ nome }}</code>, as an
    example — and a list jumping in at every brace would get in the way.</p>

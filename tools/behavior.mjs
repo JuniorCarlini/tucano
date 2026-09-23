@@ -719,6 +719,28 @@ body{margin:0;padding:16px;font-family:system-ui}
     if (items.join() !== '{{nome}},{{prazo}}') throw new Error('itens: ' + items.join());
     if (unknown !== 'nomee') throw new Error('desconhecidas: ' + unknown);
   });
+  t('editor pinta as variáveis do texto sem mexer no valor salvo', function () {
+    var box = document.createElement('div');
+    box.innerHTML = '<textarea id="edpaint"></textarea>';
+    document.body.append(box);
+    var ed = new Tucano.Editor('#edpaint', { variables: [{ name: 'nome' }, { name: 'tarefa' }] });
+    var html = '<p>Oi {{nome}} e {{tarefa}}, mas {{praz}} não existe</p><pre><code>{{ codigo }}</code></pre>';
+    ed.setValue(html);
+    var value = ed.getValue();
+    var painted = window.CSS && CSS.highlights
+      ? [CSS.highlights.get('tuc-variable').size, CSS.highlights.get('tuc-variable-unknown').size]
+      : null;
+    ed.destroy();
+    var cleared = window.CSS && CSS.highlights ? CSS.highlights.get('tuc-variable').size : 0;
+    box.remove();
+    // A pintura é do navegador, sobre intervalos: o valor salvo sai igual ao que entrou.
+    if (value !== html) throw new Error('o valor mudou: ' + value);
+    // Onde a API não existe, o editor segue funcionando sem fundo nenhum.
+    if (!painted) return;
+    if (painted[0] !== 2) throw new Error('pintou ' + painted[0] + ' variáveis conhecidas, esperava 2');
+    if (painted[1] !== 1) throw new Error('pintou ' + painted[1] + ' desconhecidas, esperava 1');
+    if (cleared) throw new Error('a pintura ficou depois do destroy');
+  });
   t('editor não acusa variável escrita dentro de bloco de código', function () {
     // Exemplo de template num bloco de código não é erro de digitação.
     var box = document.createElement('div');

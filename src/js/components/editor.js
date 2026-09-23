@@ -399,6 +399,35 @@ function restoreOffset(block, howMany) {
 }
 
 
+/* `{{nome}}`, com ou sem espaco dentro das chaves. */
+const VARIABLE_RE = /\{\{\s*([\w.-]+)\s*\}\}/g;
+
+/*
+ * Fundo nas variaveis escritas no texto, para elas se distinguirem do resto.
+ *
+ * Pintura do navegador sobre intervalos (Custom Highlight do CSS), e nao <span>
+ * no conteudo: o valor salvo continua exatamente o texto que a pessoa escreveu,
+ * o desfazer nao ve marcacao aparecendo sozinha e nao ha nada para converter na
+ * hora de salvar. Onde a API nao existe (Safari abaixo da 17.2, Firefox abaixo
+ * da 140) o texto aparece sem fundo, e mais nada muda.
+ *
+ * O registro do CSS e global e por nome, entao cada editor guarda aqui os seus
+ * intervalos e a pintura junta os de todos.
+ */
+const variableRanges = new Map();
+
+function paintVariableHighlights() {
+  if (!window.CSS?.highlights || typeof Highlight === 'undefined') return;
+  const known = [];
+  const unknown = [];
+  for (const ranges of variableRanges.values()) {
+    known.push(...ranges.known);
+    unknown.push(...ranges.unknown);
+  }
+  CSS.highlights.set('tuc-variable', new Highlight(...known));
+  CSS.highlights.set('tuc-variable-unknown', new Highlight(...unknown));
+}
+
 /* Sem acento e em minusculas, dos dois lados: "prazo" acha "Prazo". */
 const fold = (text) => text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 
@@ -565,6 +594,7 @@ export class Editor {
    * e decisao de quem exibe, nao conteudo.
    */
   _paint() {
+    this._paintVariables();
     for (const code of this.area.querySelectorAll('pre > code')) {
       /*
        * Enter e colar dentro do bloco escrevem <br>, e textContent nao ve <br>:
@@ -918,8 +948,32 @@ export class Editor {
     // Bloco de codigo fora da conta: um exemplo de template escrito ali nao e
     // erro de digitacao, e acusa-lo transformaria o aviso em ruido.
     const text = this.getValue().replace(/<pre[\s\S]*?<\/pre>/g, '');
-    const used = [...text.matchAll(/\{\{\s*([\w.-]+)\s*\}\}/g)].map((m) => m[1]);
+    const used = [...text.matchAll(VARIABLE_RE)].map((m) => m[1]);
     return [...new Set(used)].filter((name) => !known.has(name));
+  }
+
+  /*
+   * Marca onde estao as variaveis do texto. A que nao esta na lista ganha o tom
+   * de erro: o aviso aparece onde o erro esta, e nao so numa linha embaixo.
+   */
+  _paintVariables() {
+    if (!this.opts.variables?.length || !window.CSS?.highlights) return;
+    const names = new Set(this.opts.variables.map((v) => v.name));
+    const known = [];
+    const unknown = [];
+    const walker = document.createTreeWalker(this.area, NodeFilter.SHOW_TEXT);
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+      // Bloco de codigo fica de fora, como no aviso: ali se escreve codigo.
+      if (node.parentElement?.closest('pre')) continue;
+      for (const match of node.textContent.matchAll(VARIABLE_RE)) {
+        const range = document.createRange();
+        range.setStart(node, match.index);
+        range.setEnd(node, match.index + match[0].length);
+        (names.has(match[1]) ? known : unknown).push(range);
+      }
+    }
+    variableRanges.set(this, { known, unknown });
+    paintVariableHighlights();
   }
 
   /* O `{` digitado abre a lista, filtrada pelo que vem depois dele. */
@@ -965,6 +1019,8 @@ export class Editor {
   destroy() {
     this._varMenu?.destroy();
     this._varMenu = null;
+    variableRanges.delete(this);
+    paintVariableHighlights();
     clearTimeout(this._brush);
     this._cleanups.forEach((fn) => fn());
     this.field.hidden = false;

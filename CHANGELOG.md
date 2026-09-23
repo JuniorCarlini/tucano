@@ -13,7 +13,10 @@ projeto.
   depois da chave e escreve `{{nome}}` no texto — texto puro, do jeito que o
   template do servidor já espera. `editor.unknownVariables()` aponta o que está
   escrito no texto e não está na lista, que é o erro de digitação de sempre.
-  Dentro de bloco de código a lista não abre e nada é acusado — ali se escreve
+  No texto a variável aparece com fundo leve, e a que não está na lista sai no
+  tom de erro — pintura do navegador sobre o trecho, sem marcação no conteúdo,
+  então o valor salvo não muda. Dentro de bloco de código a lista não abre e
+  nada é acusado — ali se escreve
   código, inclusive o `{{ nome }}` de um template como exemplo. Sem
   `variables`, nada muda no editor.
 

@@ -6174,6 +6174,19 @@ function restoreOffset(block, howMany) {
     counted += node.length;
   }
 }
+var VARIABLE_RE = /\{\{\s*([\w.-]+)\s*\}\}/g;
+var variableRanges = /* @__PURE__ */ new Map();
+function paintVariableHighlights() {
+  if (!window.CSS?.highlights || typeof Highlight === "undefined") return;
+  const known = [];
+  const unknown = [];
+  for (const ranges of variableRanges.values()) {
+    known.push(...ranges.known);
+    unknown.push(...ranges.unknown);
+  }
+  CSS.highlights.set("tuc-variable", new Highlight(...known));
+  CSS.highlights.set("tuc-variable-unknown", new Highlight(...unknown));
+}
 var fold = (text) => text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 function caretRect(area) {
   const sel = window.getSelection();
@@ -6317,6 +6330,7 @@ var Editor = class {
    * e decisao de quem exibe, nao conteudo.
    */
   _paint() {
+    this._paintVariables();
     for (const code of this.area.querySelectorAll("pre > code")) {
       for (const br of code.querySelectorAll("br")) br.replaceWith("\n");
       const painted = highlight(code.textContent);
@@ -6589,8 +6603,30 @@ var Editor = class {
     const known = new Set((this.opts.variables ?? []).map((v) => v.name));
     if (!known.size) return [];
     const text = this.getValue().replace(/<pre[\s\S]*?<\/pre>/g, "");
-    const used = [...text.matchAll(/\{\{\s*([\w.-]+)\s*\}\}/g)].map((m) => m[1]);
+    const used = [...text.matchAll(VARIABLE_RE)].map((m) => m[1]);
     return [...new Set(used)].filter((name) => !known.has(name));
+  }
+  /*
+   * Marca onde estao as variaveis do texto. A que nao esta na lista ganha o tom
+   * de erro: o aviso aparece onde o erro esta, e nao so numa linha embaixo.
+   */
+  _paintVariables() {
+    if (!this.opts.variables?.length || !window.CSS?.highlights) return;
+    const names = new Set(this.opts.variables.map((v) => v.name));
+    const known = [];
+    const unknown = [];
+    const walker = document.createTreeWalker(this.area, NodeFilter.SHOW_TEXT);
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+      if (node.parentElement?.closest("pre")) continue;
+      for (const match of node.textContent.matchAll(VARIABLE_RE)) {
+        const range = document.createRange();
+        range.setStart(node, match.index);
+        range.setEnd(node, match.index + match[0].length);
+        (names.has(match[1]) ? known : unknown).push(range);
+      }
+    }
+    variableRanges.set(this, { known, unknown });
+    paintVariableHighlights();
   }
   /* O `{` digitado abre a lista, filtrada pelo que vem depois dele. */
   _variableTyping() {
@@ -6624,6 +6660,8 @@ var Editor = class {
   destroy() {
     this._varMenu?.destroy();
     this._varMenu = null;
+    variableRanges.delete(this);
+    paintVariableHighlights();
     clearTimeout(this._brush);
     this._cleanups.forEach((fn) => fn());
     this.field.hidden = false;

@@ -263,6 +263,10 @@ Variaveis do texto (modelo de mensagem, e-mail, cartao):
       { name: 'prazo', label: 'Prazo', example: '21/09' },
     ]});
 
+No texto, a variavel ganha fundo leve e a que nao esta na lista sai no tom de
+erro — pintura do navegador sobre o trecho (Custom Highlight), nao marcacao: o
+valor salvo nao muda. Navegador sem a API mostra o texto sem fundo.
+
 Com elas a barra ganha o botao { } e digitar `{` abre a lista, filtrada pelas
 letras seguintes e sem tirar o foco do texto; escolher escreve {{nome}}, texto
 puro — o template do servidor troca pelos dados como ja fazia. Seta e Enter
