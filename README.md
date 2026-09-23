@@ -37,7 +37,7 @@ framework (`data-csrf="false"` e a opção `headers` do `new Upload`).
 | `.tuc-badge` — etiqueta de estado, quatro tons, só classe | pronto |
 | `.tuc-check` `.tuc-radio` `.tuc-switch` — caixa, opção e chave, só classe | pronto |
 | `.tuc-label` `.tuc-hint` `.tuc-error` — rótulo, ajuda e erro; campo inválido por `aria-invalid` | pronto |
-| `Editor` — editor de texto com tabela e bloco de código | pronto |
+| `Editor` — editor de texto com tabela, bloco de código e variáveis | pronto |
 | `.tuc-prose` — exibição do que o editor salvou, com destaque e copiar | pronto |
 | `.tuc-btn` — estilo de botão, só classe | pronto |
 
@@ -50,8 +50,8 @@ framework (`data-csrf="false"` e a opção `headers` do `new Upload`).
 Dois arquivos e nada mais — sem npm, sem build, sem escrever JavaScript:
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.35.0/dist/tucano.min.css">
-<script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.35.0/dist/tucano.min.js" defer></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.36.0/dist/tucano.min.css">
+<script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.36.0/dist/tucano.min.js" defer></script>
 
 <input type="text" name="date" data-tuc-datepicker>
 <select name="state" data-tuc-select><option>...</option></select>
@@ -62,7 +62,7 @@ Funciona junto com o CDN do Tailwind sem conflito: o pacote **não** envia o
 preflight, e os elementos internos têm reset próprio para não serem atingidos
 pelo preflight do Tailwind nem pelo CSS do projeto.
 
-Prenda sempre a versão (`@0.35.0`). `@latest` quebra sozinho quando você publicar
+Prenda sempre a versão (`@0.36.0`). `@latest` quebra sozinho quando você publicar
 uma versão nova.
 
 ### Estático (Django, Rails, HTML puro)

@@ -4,7 +4,7 @@ Qué cambió en cada versión de Tucano, de la más reciente a la más antigua. 
 primero la sección "Antes de actualizar" de cada versión: ahí está lo que exige
 cambios en tu proyecto.
 
-## Sin publicar
+## 0.36.0 — 2026-09-23
 
 ### Nuevo
 
