@@ -2904,6 +2904,9 @@ textarea.tuc-editor__value[hidden] {
 .tuc-dropdown[hidden] {
   display: none;
 }
+.tuc-dropdown:focus {
+  outline: none;
+}
 .tuc-dropdown[data-side='top'] {
   translate: 0 0.5rem;
   transform-origin: bottom center;

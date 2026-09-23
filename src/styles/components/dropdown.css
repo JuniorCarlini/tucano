@@ -32,6 +32,13 @@
  * menu ocuparia a largura dele na linha, invisivel, empurrando o que vem depois.
  */
 .tuc-dropdown[hidden] { display: none; }
+/*
+ * Sem anel de foco na caixa. Aberto por clique, o painel recebe o foco so para
+ * as setas, o Escape e a devolucao do foco terem onde chegar — nenhum item
+ * nasce aceso. O anel do navegador ali parecia um campo ativo em volta do menu;
+ * quem se destaca, e com anel proprio, sao os itens.
+ */
+.tuc-dropdown:focus { outline: none; }
 
 .tuc-dropdown[data-side='top'] { translate: 0 0.5rem; transform-origin: bottom center; }
 .tuc-dropdown.is-open { opacity: 1; scale: 1; translate: 0 0; }
