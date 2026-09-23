@@ -4,6 +4,26 @@ What changed in each Tucano release, newest first. Check the "Before upgrading"
 section of each version first: that is where you will find what requires changes
 in your project.
 
+## Unreleased
+
+### New
+
+- The editor gained variables: `variables: [{ name, label, example }]` adds a
+  toolbar button and opens a list when you type `{`, filtered by what follows
+  the brace, writing `{{nome}}` into the text — plain text, the way the server
+  template already expects it. `editor.unknownVariables()` points out what is
+  written in the text but missing from the list, the usual typo. Without
+  `variables`, nothing changes in the editor.
+
+### Changed
+
+- A dropdown opened by click no longer highlights the first item: with the
+  pointer somewhere else, a highlighted item looked like a choice already made.
+  The first arrow key is what highlights. Opened from the keyboard (`Enter`,
+  `Space` or an arrow on the trigger), the first item still starts highlighted.
+  This also covers the right-click menu and the variables list, which are the
+  same menu.
+
 ## 0.35.0 — 2026-09-20
 
 ### New

@@ -78,46 +78,13 @@ export class ContextMenu extends Dropdown {
    * Com a regra do menu suspenso ligada, o painel se fechava sozinho nesse
    * instante. Aqui fecham o menu o clique fora, o Escape, o Tab e a rolagem.
    */
-  _closeOnFocusOut() { return !this._point; }
+  _closeOnFocusOut() { return !this._pointerOpen; }
 
-  /*
-   * Aberto pelo botao direito, nenhum item nasce destacado: o menu do sistema
-   * tambem nao adivinha a escolha, e um item ja aceso parece escolhido por
-   * engano. O foco vai para o painel, e a primeira seta destaca o primeiro item.
-   * Aberto pelo teclado vale a regra do menu suspenso: quem apertou a tecla de
-   * menu ja quer andar pelos itens.
-   */
-  _focusOnOpen() {
-    if (!this._point) return super._focusOnOpen();
-    this.panel.tabIndex = -1;
-    this.panel.focus({ preventScroll: true });
-    /*
-     * Rede para o foco que nao fica. Depois de um clique com o botao direito o
-     * Safari as vezes devolve o foco para onde estava, desfazendo o focus()
-     * acima; sem foco dentro do painel, as setas nao chegariam ao menu e ele
-     * ficaria so de mouse. Enquanto estiver aberto, as teclas de menu valem do
-     * documento inteiro, e a primeira seta leva o foco ao primeiro item.
-     */
-    this._offKeys = on(document, 'keydown', (e) => {
-      if (!this.panel.contains(e.target)) this._onKey(e);
-    }, true);
-  }
+  _anchor() { return this._point ? super._anchor() : (this._target ?? this.trigger); }
 
-  _anchor() {
-    if (!this._point) return this._target ?? this.trigger;
-    /*
-     * Ancora de 1px no ponto do clique: o Popover sabe ancorar em elemento, e
-     * com isso ele continua fazendo tudo o que ja fazia — virar para cima ou
-     * para a esquerda quando nao cabe, nao vazar da tela, fechar no Escape e no
-     * clique fora. `fixed` porque o ponto e da tela, nao da pagina.
-     */
-    this._pin ??= el('span', { class: 'tuc-context-pin', 'aria-hidden': 'true' });
-    // Só o ponto vem do JavaScript; o resto do desenho mora no CSS.
-    this._pin.style.left = `${this._point.x}px`;
-    this._pin.style.top = `${this._point.y}px`;
-    (this._target?.closest('dialog[open]') || document.body).append(this._pin);
-    return this._pin;
-  }
+  /* Dentro de um <dialog> aberto o alfinete nasce nele, e nao no <body>: o
+     dialogo esta na top layer, e um painel no body ficaria atras dele. */
+  _pinInto() { return this._target?.closest('dialog[open]'); }
 
   /**
    * Abre o menu. Com x e y, no ponto da tela; sem eles, ancorado no alvo — que
@@ -128,13 +95,13 @@ export class ContextMenu extends Dropdown {
     // Popover anterior tem ouvintes presos na ancora velha.
     if (this.isOpen) this.close({ restoreFocus: false });
     this._target = target;
-    this._point = x == null ? null : { x, y };
     // Quem volta a ter o foco no fim. O alvo pode nem ser focavel — uma celula
     // de tabela —, entao guarda-se quem estava com o foco antes de abrir.
     this._returnFocus = document.activeElement;
     if (typeof this.opts.items === 'function') this._renderItems(this.opts.items(target, this));
     this.opts.onOpen?.(target, this);
-    super.open();
+    // Com x e y, o Dropdown ancora no ponto; sem eles, no alvo (o caminho do teclado).
+    if (x == null) super.open(); else super.openAt(x, y);
     /*
      * Rolar fecha, como faz o menu do sistema operacional: sem isto o menu fica
      * preso na tela enquanto o conteudo corre por baixo, apontando para a linha
@@ -151,15 +118,6 @@ export class ContextMenu extends Dropdown {
     return this;
   }
 
-  /** Troca os itens do painel, mantendo papeis e tabindex do Dropdown. */
-  _renderItems(items) {
-    this.panel.replaceChildren(...(items ?? []).map((i) => this._item(i)));
-    for (const item of this.panel.querySelectorAll('.tuc-dropdown__item')) {
-      item.setAttribute('role', 'menuitem');
-      item.setAttribute('tabindex', '-1');
-    }
-  }
-
   close({ restoreFocus = true } = {}) {
     if (!this.isOpen) return this;
     this._offScroll?.();
@@ -170,8 +128,6 @@ export class ContextMenu extends Dropdown {
     this._offKeys = null;
     const inside = this.panel.contains(document.activeElement);
     super.close();
-    this._pin?.remove();
-    this._point = null;
     // O foco volta para quem o tinha antes do botao direito. O super devolve ao
     // gatilho, que aqui e a area inteira e costuma nem ser focavel: sem isto o
     // foco caia no <body> e quem usa teclado voltava para o topo da pagina.
@@ -179,12 +135,6 @@ export class ContextMenu extends Dropdown {
       this._returnFocus.focus({ preventScroll: true });
     }
     return this;
-  }
-
-  destroy() {
-    super.destroy();
-    this._pin?.remove();
-    this._pin = null;
   }
 }
 

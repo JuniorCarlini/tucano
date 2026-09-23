@@ -301,10 +301,12 @@ export interface DropdownItem {
     docs: { panel: 'Painel ja escrito no template, com botoes `.tuc-dropdown__item`, no lugar de `items`.' },
     methods: {
       open: '(): this',
+      openAt: '(x: number, y: number): this',
       close: '(): this',
       toggle: '(): this',
       destroy: '(): void',
     },
+    methodDocs: { openAt: 'Abre ancorado num ponto da tela, em vez de no gatilho.' },
     getters: { items: 'HTMLElement[]' },
     props: { trigger: 'HTMLElement', panel: 'HTMLElement', isOpen: 'boolean | undefined' },
     doc: 'Menu suspenso ancorado num gatilho, com teclado de menu.',
@@ -343,25 +345,43 @@ export interface DropdownItem {
 
   Editor: {
     target: 'string | HTMLTextAreaElement',
+    types: `
+/** Variavel de \`variables\`, trocada pelos dados na hora de enviar o texto. */
+export interface EditorVariable {
+  /** O nome dentro das chaves: \`nome\` vira \`{{nome}}\`. */
+  name: string;
+  /** Como ela aparece na lista. Sem ele, vale o \`name\`. */
+  label?: string;
+  /** Valor de exemplo, para a previa do seu projeto. */
+  example?: string;
+}`,
     options: {
       toolbar: 'EditorTool[]',
       table: '{ rows: number; cols: number }',
       minHeight: 'string',
       placeholder: 'string',
+      variables: 'EditorVariable[] | null',
     },
     docs: {
       toolbar: 'Botoes da barra, na ordem.',
       table: 'Tamanho da tabela inserida pelo botao, com a linha de cabecalho.',
+      variables: 'Variaveis do texto. Com elas a barra ganha o botao da lista e o `{` digitado a abre; sem elas, nada muda.',
     },
     methods: {
       inTable: '(name: EditorTableAction): this',
       apply: '(name: EditorTool): this',
+      openVariables: '(query?: string): this',
+      insertVariable: '(name: string): this',
+      unknownVariables: '(): string[]',
       getValue: '(): string',
       setValue: '(html: string | null | undefined): this',
       destroy: '(): void',
     },
     methodDocs: {
       apply: 'Aplica um botao da barra onde esta a selecao.',
+      openVariables: 'Abre a lista de variaveis; com `query`, ja filtrada.',
+      insertVariable: 'Escreve `{{nome}}` onde esta o cursor.',
+      unknownVariables: 'Variaveis escritas no texto que nao estao em `variables` — o erro de digitacao. Vazio sem lista declarada.',
       getValue: 'HTML ja peneirado; editor vazio devolve `\'\'`.',
     },
     props: { field: 'HTMLTextAreaElement', area: 'HTMLElement', root: 'HTMLElement' },

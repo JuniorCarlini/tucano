@@ -88,7 +88,7 @@ export type ButtonVariant = 'primary' | 'outline' | 'ghost' | 'danger' | 'link';
 export type FormatName = 'cpf' | 'cnpj' | 'cnpj-numeric' | 'cpf-cnpj' | 'phone' | 'mobile' | 'cep' | 'date' | 'time' | 'card' | 'currency' | 'brl';
 
 /** Botao da barra do editor, na opcao `toolbar` e em `apply()`. */
-export type EditorTool = 'bold' | 'italic' | 'underline' | 'title' | 'subheading' | 'list' | 'numbered' | 'quote' | 'clear' | 'left' | 'center' | 'right' | 'justify' | 'code' | 'table' | 'link';
+export type EditorTool = 'bold' | 'italic' | 'underline' | 'title' | 'subheading' | 'list' | 'numbered' | 'quote' | 'clear' | 'left' | 'center' | 'right' | 'justify' | 'code' | 'table' | 'variable' | 'link';
 
 /** Operacao da barra de tabela do editor, em `inTable()`. */
 export type EditorTableAction = 'rowAbove' | 'rowBelow' | 'colBefore' | 'colAfter' | 'deleteRow' | 'deleteColumn' | 'deleteTable';
@@ -337,6 +337,8 @@ export interface EditorTexts {
   justify: string;
   /** @default 'Código' */
   code: string;
+  /** @default 'Variável' */
+  variable: string;
   /**
    * Barra que aparece com o cursor dentro de uma tabela.
    * @default 'Inserir linha acima'
@@ -735,9 +737,21 @@ export declare class Dropdown {
   readonly isOpen: boolean | undefined;
   readonly items: HTMLElement[];
   open(): this;
+  /** Abre ancorado num ponto da tela, em vez de no gatilho. */
+  openAt(x: number, y: number): this;
   close(): this;
   toggle(): this;
   destroy(): void;
+}
+
+/** Variavel de `variables`, trocada pelos dados na hora de enviar o texto. */
+export interface EditorVariable {
+  /** O nome dentro das chaves: `nome` vira `{{nome}}`. */
+  name: string;
+  /** Como ela aparece na lista. Sem ele, vale o `name`. */
+  label?: string;
+  /** Valor de exemplo, para a previa do seu projeto. */
+  example?: string;
 }
 
 /** Opcoes de `Editor`. Toda opcao e opcional; o padrao vem do codigo. */
@@ -756,6 +770,11 @@ export interface EditorOptions {
   minHeight?: string;
   /** @default '' */
   placeholder?: string;
+  /**
+   * Variaveis do texto. Com elas a barra ganha o botao da lista e o `{` digitado a abre; sem elas, nada muda.
+   * @default null
+   */
+  variables?: EditorVariable[] | null;
 }
 
 /** Editor de texto formatado sobre um `<textarea>`, que continua guardando o HTML peneirado. */
@@ -770,6 +789,12 @@ export declare class Editor {
   inTable(name: EditorTableAction): this;
   /** Aplica um botao da barra onde esta a selecao. */
   apply(name: EditorTool): this;
+  /** Abre a lista de variaveis; com `query`, ja filtrada. */
+  openVariables(query?: string): this;
+  /** Escreve `{{nome}}` onde esta o cursor. */
+  insertVariable(name: string): this;
+  /** Variaveis escritas no texto que nao estao em `variables` — o erro de digitacao. Vazio sem lista declarada. */
+  unknownVariables(): string[];
   /** HTML ja peneirado; editor vazio devolve `''`. */
   getValue(): string;
   setValue(html: string | null | undefined): this;

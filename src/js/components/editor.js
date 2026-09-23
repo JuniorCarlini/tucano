@@ -1,6 +1,7 @@
 import { el, escapeHtml, icon, omitUndefined, on } from '../core/dom.js';
 import { sanitize, safeUrl } from '../core/sanitize.js';
 import { Modal } from './modal.js';
+import { Dropdown } from './dropdown.js';
 import { highlight } from '../core/highlight.js';
 import { EDITOR_TEXTS as T } from '../core/texts.js';
 
@@ -31,6 +32,11 @@ const DEFAULTS = {
   table: { rows: 3, cols: 3 },
   minHeight: '9rem',
   placeholder: '',
+  /*
+   * Variaveis do texto: [{ name, label, example }]. Sem elas o editor nao muda
+   * em nada — nem botao na barra, nem a lista ao digitar `{`.
+   */
+  variables: null,
 };
 
 const ICONS = {
@@ -50,6 +56,7 @@ const ICONS = {
   right:    'M3 6h18M10 12h11M6 18h15',
   justify: 'M3 6h18M3 12h18M3 18h18',
   code:     'M16 18l6-6-6-6M8 6l-6 6 6 6',
+  variable: 'M8 4H7a2 2 0 00-2 2v3a2 2 0 01-2 2 2 2 0 012 2v3a2 2 0 002 2h1M16 4h1a2 2 0 012 2v3a2 2 0 002 2 2 2 0 00-2 2v3a2 2 0 01-2 2h-1',
 };
 
 /* Os rotulos dos botoes moram em core/texts.js, com a mesma chave da barra. */
@@ -77,6 +84,7 @@ const COMMANDS = {
   justify: () => document.execCommand('justifyFull'),
   code:     () => toggleCode(),
   table:    (ed) => insertTable(ed),
+  variable: (ed) => ed.openVariables(),
   link:     (ed) => ed._askForLink(),
 };
 
@@ -391,6 +399,32 @@ function restoreOffset(block, howMany) {
 }
 
 
+/* Sem acento e em minusculas, dos dois lados: "prazo" acha "Prazo". */
+const fold = (text) => text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
+/* Onde o cursor esta, em coordenadas de tela, para a lista nascer nele. */
+function caretRect(area) {
+  const sel = window.getSelection();
+  const r = sel?.rangeCount ? sel.getRangeAt(0).getBoundingClientRect() : null;
+  return r && (r.width || r.height || r.top || r.left) ? r : area.getBoundingClientRect();
+}
+
+/*
+ * Lista de variaveis: e o mesmo menu suspenso, com duas diferencas.
+ *
+ * Quem abre e o editor — pelo botao da barra ou pelo `{` digitado —, entao o
+ * gatilho nao recebe clique nem seta.
+ *
+ * Aberta enquanto se digita, ela nao rouba o foco: o foco esta no texto, e e de
+ * la que vem o filtro. Focar o primeiro item pararia a digitacao no meio, e a
+ * regra de "fechar quando o foco sai" fecharia a lista no mesmo instante.
+ */
+class VariableMenu extends Dropdown {
+  _wireTrigger() {}
+  _focusOnOpen() { if (!this.keepFocus) super._focusOnOpen(); }
+  _closeOnFocusOut() { return !this.keepFocus; }
+}
+
 export class Editor {
   constructor(target, options = {}) {
     this.field = typeof target === 'string' ? document.querySelector(target) : target;
@@ -418,8 +452,16 @@ export class Editor {
     // Onde a barra muda de assunto: marcacao de texto, alinhamento, blocos.
     const GROUPS = new Set(['left', 'quote']);
 
+    /*
+     * O botao da lista so existe quando ha variaveis, e entra no fim da barra.
+     * Quem quiser noutro lugar o declara na propria opcao `toolbar`.
+     */
+    const tools = this.opts.variables?.length && !this.opts.toolbar.includes('variable')
+      ? [...this.opts.toolbar, 'variable']
+      : this.opts.toolbar;
+
     this.toolbar = el('div', { class: 'tuc-editor__toolbar', role: 'toolbar', 'aria-label': T.toolbar },
-      this.opts.toolbar.flatMap((name) => {
+      tools.flatMap((name) => {
         const b = el('button', {
           type: 'button',
           class: 'tuc-btn is-ghost is-icon is-sm',
@@ -428,11 +470,11 @@ export class Editor {
           'aria-pressed': 'false',
           // mousedown e nao click: click viria depois do blur, e a selecao
           // dentro da area ja teria sido perdida.
-          onmousedown: (e) => { e.preventDefault(); this.apply(name); },
+          onmousedown: (e) => { e.preventDefault(); this._byPointer = true; this.apply(name); },
           // Enter e Espaco num botao focado viram click com detail 0 — o mouse
           // ja agiu no mousedown, entao so o teclado passa daqui. Sem isto a
           // barra so funcionava com mouse.
-          onclick: (e) => { if (e.detail === 0) this.apply(name); },
+          onclick: (e) => { if (e.detail === 0) { this._byPointer = false; this.apply(name); } },
         }, [icon(ICONS[name] ?? ICONS.clear, 15)]);
         b.dataset.action = name;
         return GROUPS.has(name)
@@ -459,6 +501,8 @@ export class Editor {
       onclick: (e) => { if (e.detail === 0) this.inTable(name); },
     }, [icon(TABLE_ICONS[name], 15)])));
 
+    this._varButton = this.toolbar.querySelector('[data-action="variable"]');
+
     this.root = el('div', { class: 'tuc-editor' }, [this.toolbar, this.tableBar, this.area]);
     field.parentNode.insertBefore(this.root, field);
     this.root.append(field);
@@ -466,7 +510,12 @@ export class Editor {
     field.classList.add('tuc-editor__value');
 
     this._cleanups.push(
-      on(this.area, 'input', () => { wrapTables(this.area); this._sync(); this._schedulePaint(); }),
+      on(this.area, 'input', () => {
+        wrapTables(this.area);
+        this._sync();
+        this._schedulePaint();
+        this._variableTyping();
+      }),
       on(this.area, 'paste', (e) => this._paste(e)),
       /*
        * Arrastar para dentro entra como texto puro, pelo mesmo motivo de colar:
@@ -571,6 +620,21 @@ export class Editor {
   }
 
   _onKey(e) {
+    /*
+     * Lista de variaveis aberta pela digitacao: o foco esta no texto, entao as
+     * teclas de menu passam por aqui. A seta leva o foco ao primeiro item, de
+     * onde o proprio menu assume; o Escape fecha e deixa a pessoa digitando.
+     */
+    if (this._typedVariable && this._varMenu?.isOpen) {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        this._varMenu.keepFocus = false;
+        this._varMenu._move(e.key === 'ArrowUp' ? -1 : 0, true);
+        return;
+      }
+      if (e.key === 'Escape') { e.preventDefault(); this._closeVariables(); return; }
+    }
+
     /*
      * Enter dentro do bloco de codigo quebra a linha no proprio bloco. Chromium
      * e Firefox ja fazem isso sozinhos; o WebKit (Safari) abria um <pre> novo a
@@ -775,6 +839,105 @@ export class Editor {
     return this;
   }
 
+  /* ---------------------------------------------------------------- *
+   * Variaveis                                                          *
+   * ---------------------------------------------------------------- */
+
+  /**
+   * Abre a lista de variaveis. Pelo botao da barra ela nasce no botao, com o
+   * primeiro item ja destacado; digitando `{`, nasce no cursor e deixa o foco
+   * no texto, filtrando pelo que vier depois da chave.
+   */
+  openVariables(query = '') {
+    const variables = this.opts.variables;
+    if (!variables?.length) return this;
+    const q = fold(query);
+    const items = variables
+      .filter((v) => !q || fold(v.name).includes(q) || fold(v.label || '').includes(q))
+      .map((v) => ({
+        text: v.label || v.name,
+        // O token fica a direita, como um atalho: quem ja o conhece o reconhece.
+        shortcut: `{{${v.name}}}`,
+        onClick: () => this.insertVariable(v.name),
+      }));
+    // Digitou algo que nao casa com nada: a lista sai da frente, em vez de
+    // ficar vazia por cima do texto.
+    if (!items.length) return this._closeVariables();
+
+    this._varMenu ??= new VariableMenu(this._varButton ?? this.area, { placement: 'bottom-start' });
+    this._varMenu.keepFocus = Boolean(this._typedVariable);
+    // Pela barra, a lista segue a regra do menu suspenso: clique nao acende
+    // nada, Enter no botao acende o primeiro.
+    this._varMenu._pointerOpen = !this._typedVariable && Boolean(this._byPointer);
+    this._varMenu._renderItems(items);
+    if (!this._typedVariable) this._varMenu.open();
+    else if (!this._varMenu.isOpen) {
+      const r = caretRect(this.area);
+      this._varMenu.openAt(r.left, r.bottom);
+    }
+    return this;
+  }
+
+  /** Escreve `{{nome}}` onde esta o cursor, no lugar do `{` que abriu a lista. */
+  insertVariable(name) {
+    const typed = this._typedVariable;
+    this._closeVariables();
+    this._focus();
+    /*
+     * Cursor no fim quando ainda nao houve nenhum: da para abrir a lista pela
+     * barra sem nunca ter clicado no texto, e ai o insertText nao tinha onde
+     * escrever — o botao parecia nao fazer nada.
+     */
+    if (!this.area.contains(window.getSelection()?.focusNode)) {
+      const end = document.createRange();
+      end.selectNodeContents(this.area);
+      end.collapse(false);
+      select(end);
+    }
+    if (typed?.node.isConnected && typed.node.textContent.length >= typed.start + typed.length) {
+      const r = document.createRange();
+      r.setStart(typed.node, typed.start);
+      r.setEnd(typed.node, typed.start + typed.length);
+      select(r);
+    }
+    // insertText, e nao escrever no DOM: assim o desfazer do navegador inclui a
+    // variavel, como inclui qualquer outra coisa digitada.
+    document.execCommand('insertText', false, `{{${name}}}`);
+    this._sync();
+    return this;
+  }
+
+  /**
+   * Variaveis escritas no texto que nao estao na lista — o `{{nomee}}` de quem
+   * digitou errado. Vazio quando nao ha lista declarada: sem ela nao ha o que
+   * conferir.
+   */
+  unknownVariables() {
+    const known = new Set((this.opts.variables ?? []).map((v) => v.name));
+    if (!known.size) return [];
+    const used = [...this.getValue().matchAll(/\{\{\s*([\w.-]+)\s*\}\}/g)].map((m) => m[1]);
+    return [...new Set(used)].filter((name) => !known.has(name));
+  }
+
+  /* O `{` digitado abre a lista, filtrada pelo que vem depois dele. */
+  _variableTyping() {
+    if (!this.opts.variables?.length) return;
+    const sel = window.getSelection();
+    const node = sel?.focusNode;
+    if (!node || node.nodeType !== 3 || !this.area.contains(node)) return this._closeVariables();
+    const before = node.textContent.slice(0, sel.focusOffset);
+    const match = before.match(/\{([\p{L}\p{N}_.-]*)$/u);
+    if (!match) return this._closeVariables();
+    this._typedVariable = { node, start: sel.focusOffset - match[0].length, length: match[0].length };
+    return this.openVariables(match[1]);
+  }
+
+  _closeVariables() {
+    this._typedVariable = null;
+    this._varMenu?.close();
+    return this;
+  }
+
   getValue() {
     const html = sanitize(this.area.innerHTML);
     // Editor vazio vale vazio: com o paragrafo em branco, `required` aceitava o
@@ -791,6 +954,8 @@ export class Editor {
   }
 
   destroy() {
+    this._varMenu?.destroy();
+    this._varMenu = null;
     clearTimeout(this._brush);
     this._cleanups.forEach((fn) => fn());
     this.field.hidden = false;

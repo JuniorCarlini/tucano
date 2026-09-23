@@ -42,15 +42,9 @@ export class Dropdown {
     this.panel = this.opts.panel ?? el('div', {}, items.map((i) => this._item(i)));
     this.panel.classList.add('tuc-dropdown');
     this.panel.setAttribute('role', 'menu');
-    // Papel e tabindex dos itens aqui, e nao so no autoInit: um painel passado
-    // em JS ficava com itens que o leitor de tela nao anunciava como opcao. Vale
-    // tambem para os montados por _item. O tabindex -1 e de proposito: quem
-    // navega e a seta, nao o Tab — itens tabulaveis fariam o Tab sair do menu
-    // item a item.
-    for (const item of this.panel.querySelectorAll('.tuc-dropdown__item')) {
-      item.setAttribute('role', 'menuitem');
-      item.setAttribute('tabindex', '-1');
-    }
+    // Tambem aqui, e nao so no autoInit: um painel passado em JS ficava com
+    // itens que o leitor de tela nao anunciava como opcao.
+    this._markItems();
 
     this._wireTrigger();
 
@@ -76,12 +70,19 @@ export class Dropdown {
     this.trigger.setAttribute('aria-haspopup', 'menu');
     this.trigger.setAttribute('aria-expanded', 'false');
     this._cleanups.push(
-      on(this.trigger, 'click', (e) => { e.preventDefault(); this.toggle(); }),
+      on(this.trigger, 'click', (e) => {
+        e.preventDefault();
+        // `detail` 0 e o clique que veio de Enter ou Espaco num botao focado: ali
+        // quem abriu foi o teclado, e o primeiro item ja nasce aceso.
+        this._pointerOpen = e.detail > 0;
+        this.toggle();
+      }),
       on(this.trigger, 'keydown', (e) => {
         // Seta para baixo abre e ja entra no primeiro item, como manda o padrao
         // de menu — quem chega por teclado nao deveria precisar de Enter antes.
         if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
           e.preventDefault();
+          this._pointerOpen = false;
           this.open();
           this._move(e.key === 'ArrowUp' ? -1 : 0, true);
         }
@@ -89,15 +90,64 @@ export class Dropdown {
     );
   }
 
-  /* De onde o painel sai. O menu do botao direito ancora no ponto do clique. */
-  _anchor() { return this.trigger; }
+  /*
+   * De onde o painel sai: o gatilho, ou um ponto da tela quando o menu foi
+   * aberto por openAt() — o botao direito numa linha, a lista de variaveis no
+   * cursor do editor. A ancora e um ponto de 1px: o Popover so sabe ancorar em
+   * elemento, e assim ele continua virando de lado quando nao cabe, nao vazando
+   * da tela e fechando no Escape e no clique fora.
+   */
+  _anchor() {
+    if (!this._point) return this.trigger;
+    this._pin ??= el('span', { class: 'tuc-context-pin', 'aria-hidden': 'true' });
+    // So o ponto vem do JavaScript; o resto do desenho mora no CSS.
+    this._pin.style.left = `${this._point.x}px`;
+    this._pin.style.top = `${this._point.y}px`;
+    (this._pinInto?.() || document.body).append(this._pin);
+    return this._pin;
+  }
+
+  /** Abre ancorado num ponto da tela, em vez de no gatilho. */
+  openAt(x, y) {
+    // Reabrir noutro ponto e fechar e abrir: o Popover anterior tem ouvintes
+    // presos na ancora velha.
+    if (this.isOpen) this.close();
+    this._point = { x, y };
+    // Depois do close, que limpa a marca: abrir num ponto e coisa de ponteiro,
+    // entao nenhum item nasce aceso.
+    this._pointerOpen = true;
+    return this.open();
+  }
+
+  /** Troca os itens do painel, mantendo papeis e tabindex. */
+  _renderItems(items) {
+    this.panel.replaceChildren(...(items ?? []).map((i) => this._item(i)));
+    this._markItems();
+  }
 
   /*
-   * Quem recebe o foco ao abrir. No menu de um botao e o primeiro item: quem
-   * abriu pediu o menu e ja quer andar por ele. Aberto pelo ponteiro, o menu do
-   * botao direito nao destaca nada — ver la.
+   * Quem recebe o foco ao abrir, e por consequencia o que nasce aceso.
+   *
+   * Pelo teclado, o primeiro item: quem apertou Enter ou a seta ja quer andar
+   * pelo menu. Pelo ponteiro, nada — o menu do sistema operacional tambem nao
+   * adivinha a escolha, e um item aceso com o ponteiro noutro canto parece
+   * escolha feita. O foco vai para o painel, porque as setas, o Escape e a
+   * devolucao do foco precisam de alguem focado la dentro, e a primeira seta
+   * acende o primeiro item.
    */
-  _focusOnOpen() { this._move(0, true); }
+  _focusOnOpen() {
+    if (!this._pointerOpen) return this._move(0, true);
+    this.panel.tabIndex = -1;
+    this.panel.focus({ preventScroll: true });
+    /*
+     * Rede para o foco que nao fica: depois de um clique o Safari as vezes
+     * devolve o foco para onde estava, e sem foco no painel as setas nao
+     * chegariam ao menu. Enquanto aberto, as teclas de menu valem do documento.
+     */
+    this._offKeys = on(document, 'keydown', (e) => {
+      if (!this.panel.contains(e.target)) this._onKey(e);
+    }, true);
+  }
 
   /*
    * Fechar quando o foco sai do painel. Faz sentido no menu de um botao, que so
@@ -112,6 +162,17 @@ export class Dropdown {
    * usa leitor de tela — la este metodo nao faz nada.
    */
   _setExpanded(value) { this.trigger.setAttribute('aria-expanded', String(value)); }
+
+  /*
+   * Papel e tabindex dos itens. O tabindex -1 e de proposito: quem navega e a
+   * seta, nao o Tab — itens tabulaveis fariam o Tab sair do menu item a item.
+   */
+  _markItems() {
+    for (const item of this.panel.querySelectorAll('.tuc-dropdown__item')) {
+      item.setAttribute('role', 'menuitem');
+      item.setAttribute('tabindex', '-1');
+    }
+  }
 
   _item(data) {
     if (data.separator) return el('hr', { class: 'tuc-dropdown__separator', role: 'separator' });
@@ -185,6 +246,11 @@ export class Dropdown {
     this._setExpanded(false);
     this.popover?.destroy();
     this.popover = null;
+    this._offKeys?.();
+    this._offKeys = null;
+    this._pointerOpen = false;
+    this._pin?.remove();
+    this._point = null;
     // O foco volta para o gatilho: fechar um menu nao deveria largar quem
     // navega por teclado no comeco da pagina.
     if (this.panel.contains(document.activeElement)) {
@@ -197,6 +263,8 @@ export class Dropdown {
 
   destroy() {
     this.close();
+    this._pin?.remove();
+    this._pin = null;
     this._cleanups.forEach((fn) => fn());
     this._cleanups = [];
   }

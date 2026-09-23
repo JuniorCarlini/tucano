@@ -161,6 +161,45 @@ ed.destroy();                    // gives back the original textarea
    An address typed without a scheme, such as <code>example.com</code>, gets <code>https://</code> in front. Every saved link comes out with
    <code>target="_blank"</code> and <code>rel="noopener noreferrer"</code>.</p>
 
+<h2 id="variables">Variables</h2>
+<p class="lead">A text that becomes a message for each person has parts that change: who receives it, the due date,
+   the task title. Declare those variables and the editor gains a toolbar button and a list when you type
+   <code>{</code> — nobody has to memorize names or close braces by hand.</p>
+
+<div class="demo">
+  <label class="tuc-label" for="ed-vars">Card message</label>
+  <textarea id="ed-vars" name="message" aria-label="Write the message">&lt;p&gt;Hi {{nome}}! You are responsible for: {{tarefa}}&lt;/p&gt;</textarea>
+  <p class="tuc-hint">Click the <code>{ }</code> on the toolbar, or type <code>{</code> in the text and start writing the name.</p>
+  <div class="out" id="ed-vars-unknown"></div>
+</div>
+
+<pre data-code="js">
+new Tucano.Editor('#message', {
+  variables: [
+    { name: 'nome',   label: 'Assignee name', example: 'Junior' },
+    { name: 'tarefa', label: 'Task title',    example: 'Record the video' },
+    { name: 'prazo',  label: 'Due date',      example: '09/21' },
+  ],
+});
+</pre>
+
+<p>What goes into the text is <code>{{nome}}</code>, plain text: your server template keeps replacing it with the data
+   as it already did, and copy, paste and undo keep working. The <code>label</code> is what shows in the list; the
+   <code>example</code> is kept for the preview your project builds.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>What it does</th><th>How</th></tr></thead>
+  <tbody>
+    <tr><td>Open the list from the toolbar</td><td>The <code>{ }</code> button, which only exists when there are variables</td></tr>
+    <tr><td>Open while writing</td><td>Type <code>{</code>; the next letters filter, and the focus stays in the text</td></tr>
+    <tr><td>Pick one</td><td>Click, or <code>↓</code> and <code>Enter</code>. The typed <code>{</code> goes away with it</td></tr>
+    <tr><td>Give up</td><td><code>Esc</code> closes the list and leaves you typing</td></tr>
+    <tr><td>Find a typo</td><td><code>editor.unknownVariables()</code> returns what is in the text but not in the list</td></tr>
+  </tbody>
+</table></div>
+
+<p>Without <code>variables</code> nothing changes: no button, and <code>{</code> is still just a brace.</p>
+
 <h2 id="value">Value and form</h2>
 <p class="lead">What holds the value is the <code>&lt;textarea&gt;</code>, hidden inside the editor. On every change it
    receives the sanitized HTML and fires native <code>input</code> and <code>change</code> events.</p>
@@ -299,4 +338,19 @@ Tucano.init(fragment);                // highlights and adds copy to HTML insert
   const hostile = '<p onclick="steal()">Hi <img src=x onerror="steal()"><b>there</b>, <a href="javascript:steal()">click</a></p><script>steal()<\/script>';
   document.getElementById('ed-sanitizer-input').textContent = `input:  ${hostile}`;
   document.getElementById('ed-sanitizer-output').textContent = `output: ${Tucano.sanitize(hostile)}`;
+
+  // Variáveis: a lista alimenta o editor, e o aviso mostra o que não existe nela.
+  const VARIABLES = [
+    { name: 'nome',   label: 'Assignee name', example: 'Junior' },
+    { name: 'tarefa', label: 'Task title', example: 'Record the video' },
+    { name: 'prazo',  label: 'Due date', example: '21/09' },
+  ];
+  const withVars = new Tucano.Editor('#ed-vars', { variables: VARIABLES, minHeight: '7rem', placeholder: 'Write the message…' });
+  const unknown = document.getElementById('ed-vars-unknown');
+  const showUnknown = () => {
+    const missing = withVars.unknownVariables();
+    unknown.textContent = missing.length ? `not in the list: ${missing.map((n) => `{{${n}}}`).join(', ')}` : '';
+  };
+  withVars.field.addEventListener('change', showUnknown);
+  showUnknown();
 </script>

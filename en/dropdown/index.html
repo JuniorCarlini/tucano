@@ -66,7 +66,7 @@
       <button class="tuc-btn is-outline is-icon is-sm" data-theme-toggle data-label-light="Use light theme" data-label-dark="Use dark theme" aria-label="Toggle theme"><svg class="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
     </div>
   </div>
-  <span class="tuc-badge is-plain ver">v0.35.0 · 55 KB</span>
+  <span class="tuc-badge is-plain ver">v0.35.0 · 56 KB</span>
   <button class="tuc-btn is-outline search-trigger" data-search aria-haspopup="dialog" aria-keyshortcuts="/ Control+K Meta+K"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 19a8 8 0 100-16 8 8 0 000 16zM21 21l-4.35-4.35"/></svg>Search<kbd class="tuc-badge is-plain">/</kbd></button>
   <nav class="tuc-menu" aria-label="Documentation">
 <div class="tuc-menu__section">Get started</div>
@@ -298,7 +298,8 @@ menu.destroy();   // closes and removes the listeners</code></pre></div>
 <div class="tuc-table-wrap"><table class="tuc-table">
   <thead><tr><th>Key</th><th>Action</th></tr></thead>
   <tbody>
-    <tr><td><code>Enter</code> <code>Space</code> or click</td><td>On the trigger: opens and focuses the first item</td></tr>
+    <tr><td><code>Enter</code> <code>Space</code></td><td>On the trigger: opens with the first item already highlighted</td></tr>
+    <tr><td>Click</td><td>On the trigger: opens with nothing highlighted; the first arrow key highlights the first item</td></tr>
     <tr><td><code>↓</code></td><td>On the trigger: opens straight on the first item</td></tr>
     <tr><td><code>↑</code></td><td>On the trigger: opens straight on the last item</td></tr>
     <tr><td><code>↑</code> <code>↓</code></td><td>In the menu: moves between items, wrapping around and skipping disabled ones</td></tr>
@@ -319,7 +320,7 @@ menu.destroy();   // closes and removes the listeners</code></pre></div>
 <div class="api-line"><span>Markup</span><div><code>[data-tuc-dropdown]</code></div></div>
 <div class="api-line"><span>In JS</span><div><code>new Tucano.Dropdown(alvo, opcoes)</code></div></div>
 <div class="api-line"><span>Attributes</span><div><code>data-placement</code> <code>data-tuc-dropdown</code></div></div>
-<div class="api-line"><span>Methods</span><div><code>open</code> <code>close</code> <code>toggle</code> <code>destroy</code></div></div>
+<div class="api-line"><span>Methods</span><div><code>openAt</code> <code>open</code> <code>close</code> <code>toggle</code> <code>destroy</code></div></div>
 <h3>Options</h3>
 <p>The notes in this table come from comments in the source code, which are written in Portuguese.</p>
 <div class="tuc-table-wrap"><table class="tuc-table"><thead><tr><th style="width:26%">Option</th><th style="width:22%">Default</th><th>What for</th></tr></thead><tbody>

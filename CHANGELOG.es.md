@@ -4,6 +4,26 @@ Qué cambió en cada versión de Tucano, de la más reciente a la más antigua. 
 primero la sección "Antes de actualizar" de cada versión: ahí está lo que exige
 cambios en tu proyecto.
 
+## Sin publicar
+
+### Nuevo
+
+- El editor ganó variables: `variables: [{ name, label, example }]` pone un
+  botón en la barra y abre una lista al escribir `{`, que filtra por lo que
+  viene después de la llave y escribe `{{nome}}` en el texto — texto puro, como
+  ya lo espera la plantilla del servidor. `editor.unknownVariables()` señala lo
+  que está escrito en el texto y no está en la lista, la errata de siempre. Sin
+  `variables`, nada cambia en el editor.
+
+### Cambió
+
+- El menú desplegable abierto con clic ya no destaca el primer elemento: con el
+  puntero en otro lado, un elemento destacado parecía una elección ya hecha. La
+  primera flecha es la que destaca. Abierto con el teclado (`Enter`, `Espacio` o
+  flecha en el disparador), el primero sigue naciendo destacado. Vale también
+  para el menú del botón derecho y para la lista de variables, que son el mismo
+  menú.
+
 ## 0.35.0 — 2026-09-20
 
 ### Nuevo

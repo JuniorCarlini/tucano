@@ -634,6 +634,7 @@ var EDITOR_TEXTS = {
   right: "Alinhar \xE0 direita",
   justify: "Justificar",
   code: "C\xF3digo",
+  variable: "Vari\xE1vel",
   // Barra que aparece com o cursor dentro de uma tabela.
   rowAbove: "Inserir linha acima",
   rowBelow: "Inserir linha abaixo",
@@ -4972,10 +4973,7 @@ var Dropdown = class {
     this.panel = this.opts.panel ?? el("div", {}, items.map((i) => this._item(i)));
     this.panel.classList.add("tuc-dropdown");
     this.panel.setAttribute("role", "menu");
-    for (const item of this.panel.querySelectorAll(".tuc-dropdown__item")) {
-      item.setAttribute("role", "menuitem");
-      item.setAttribute("tabindex", "-1");
-    }
+    this._markItems();
     this._wireTrigger();
     this._cleanups.push(
       on(this.panel, "keydown", (e) => this._onKey(e)),
@@ -4999,28 +4997,63 @@ var Dropdown = class {
     this._cleanups.push(
       on(this.trigger, "click", (e) => {
         e.preventDefault();
+        this._pointerOpen = e.detail > 0;
         this.toggle();
       }),
       on(this.trigger, "keydown", (e) => {
         if (e.key === "ArrowDown" || e.key === "ArrowUp") {
           e.preventDefault();
+          this._pointerOpen = false;
           this.open();
           this._move(e.key === "ArrowUp" ? -1 : 0, true);
         }
       })
     );
   }
-  /* De onde o painel sai. O menu do botao direito ancora no ponto do clique. */
+  /*
+   * De onde o painel sai: o gatilho, ou um ponto da tela quando o menu foi
+   * aberto por openAt() — o botao direito numa linha, a lista de variaveis no
+   * cursor do editor. A ancora e um ponto de 1px: o Popover so sabe ancorar em
+   * elemento, e assim ele continua virando de lado quando nao cabe, nao vazando
+   * da tela e fechando no Escape e no clique fora.
+   */
   _anchor() {
-    return this.trigger;
+    if (!this._point) return this.trigger;
+    this._pin ??= el("span", { class: "tuc-context-pin", "aria-hidden": "true" });
+    this._pin.style.left = `${this._point.x}px`;
+    this._pin.style.top = `${this._point.y}px`;
+    (this._pinInto?.() || document.body).append(this._pin);
+    return this._pin;
+  }
+  /** Abre ancorado num ponto da tela, em vez de no gatilho. */
+  openAt(x, y) {
+    if (this.isOpen) this.close();
+    this._point = { x, y };
+    this._pointerOpen = true;
+    return this.open();
+  }
+  /** Troca os itens do painel, mantendo papeis e tabindex. */
+  _renderItems(items) {
+    this.panel.replaceChildren(...(items ?? []).map((i) => this._item(i)));
+    this._markItems();
   }
   /*
-   * Quem recebe o foco ao abrir. No menu de um botao e o primeiro item: quem
-   * abriu pediu o menu e ja quer andar por ele. Aberto pelo ponteiro, o menu do
-   * botao direito nao destaca nada — ver la.
+   * Quem recebe o foco ao abrir, e por consequencia o que nasce aceso.
+   *
+   * Pelo teclado, o primeiro item: quem apertou Enter ou a seta ja quer andar
+   * pelo menu. Pelo ponteiro, nada — o menu do sistema operacional tambem nao
+   * adivinha a escolha, e um item aceso com o ponteiro noutro canto parece
+   * escolha feita. O foco vai para o painel, porque as setas, o Escape e a
+   * devolucao do foco precisam de alguem focado la dentro, e a primeira seta
+   * acende o primeiro item.
    */
   _focusOnOpen() {
-    this._move(0, true);
+    if (!this._pointerOpen) return this._move(0, true);
+    this.panel.tabIndex = -1;
+    this.panel.focus({ preventScroll: true });
+    this._offKeys = on(document, "keydown", (e) => {
+      if (!this.panel.contains(e.target)) this._onKey(e);
+    }, true);
   }
   /*
    * Fechar quando o foco sai do painel. Faz sentido no menu de um botao, que so
@@ -5037,6 +5070,16 @@ var Dropdown = class {
    */
   _setExpanded(value) {
     this.trigger.setAttribute("aria-expanded", String(value));
+  }
+  /*
+   * Papel e tabindex dos itens. O tabindex -1 e de proposito: quem navega e a
+   * seta, nao o Tab — itens tabulaveis fariam o Tab sair do menu item a item.
+   */
+  _markItems() {
+    for (const item of this.panel.querySelectorAll(".tuc-dropdown__item")) {
+      item.setAttribute("role", "menuitem");
+      item.setAttribute("tabindex", "-1");
+    }
   }
   _item(data) {
     if (data.separator) return el("hr", { class: "tuc-dropdown__separator", role: "separator" });
@@ -5102,6 +5145,11 @@ var Dropdown = class {
     this._setExpanded(false);
     this.popover?.destroy();
     this.popover = null;
+    this._offKeys?.();
+    this._offKeys = null;
+    this._pointerOpen = false;
+    this._pin?.remove();
+    this._point = null;
     if (this.panel.contains(document.activeElement)) {
       this.trigger.focus({ preventScroll: true });
     }
@@ -5112,6 +5160,8 @@ var Dropdown = class {
   }
   destroy() {
     this.close();
+    this._pin?.remove();
+    this._pin = null;
     this._cleanups.forEach((fn) => fn());
     this._cleanups = [];
   }
@@ -5194,30 +5244,15 @@ var ContextMenu = class extends Dropdown {
    * instante. Aqui fecham o menu o clique fora, o Escape, o Tab e a rolagem.
    */
   _closeOnFocusOut() {
-    return !this._point;
-  }
-  /*
-   * Aberto pelo botao direito, nenhum item nasce destacado: o menu do sistema
-   * tambem nao adivinha a escolha, e um item ja aceso parece escolhido por
-   * engano. O foco vai para o painel, e a primeira seta destaca o primeiro item.
-   * Aberto pelo teclado vale a regra do menu suspenso: quem apertou a tecla de
-   * menu ja quer andar pelos itens.
-   */
-  _focusOnOpen() {
-    if (!this._point) return super._focusOnOpen();
-    this.panel.tabIndex = -1;
-    this.panel.focus({ preventScroll: true });
-    this._offKeys = on(document, "keydown", (e) => {
-      if (!this.panel.contains(e.target)) this._onKey(e);
-    }, true);
+    return !this._pointerOpen;
   }
   _anchor() {
-    if (!this._point) return this._target ?? this.trigger;
-    this._pin ??= el("span", { class: "tuc-context-pin", "aria-hidden": "true" });
-    this._pin.style.left = `${this._point.x}px`;
-    this._pin.style.top = `${this._point.y}px`;
-    (this._target?.closest("dialog[open]") || document.body).append(this._pin);
-    return this._pin;
+    return this._point ? super._anchor() : this._target ?? this.trigger;
+  }
+  /* Dentro de um <dialog> aberto o alfinete nasce nele, e nao no <body>: o
+     dialogo esta na top layer, e um painel no body ficaria atras dele. */
+  _pinInto() {
+    return this._target?.closest("dialog[open]");
   }
   /**
    * Abre o menu. Com x e y, no ponto da tela; sem eles, ancorado no alvo — que
@@ -5226,23 +5261,15 @@ var ContextMenu = class extends Dropdown {
   openAt(x, y, target = this.trigger) {
     if (this.isOpen) this.close({ restoreFocus: false });
     this._target = target;
-    this._point = x == null ? null : { x, y };
     this._returnFocus = document.activeElement;
     if (typeof this.opts.items === "function") this._renderItems(this.opts.items(target, this));
     this.opts.onOpen?.(target, this);
-    super.open();
+    if (x == null) super.open();
+    else super.openAt(x, y);
     const bye = () => this.close();
     this._offScroll = on(window, "wheel", bye, { capture: true, passive: true });
     this._offTouch = on(window, "touchmove", bye, { capture: true, passive: true });
     return this;
-  }
-  /** Troca os itens do painel, mantendo papeis e tabindex do Dropdown. */
-  _renderItems(items) {
-    this.panel.replaceChildren(...(items ?? []).map((i) => this._item(i)));
-    for (const item of this.panel.querySelectorAll(".tuc-dropdown__item")) {
-      item.setAttribute("role", "menuitem");
-      item.setAttribute("tabindex", "-1");
-    }
   }
   close({ restoreFocus = true } = {}) {
     if (!this.isOpen) return this;
@@ -5254,17 +5281,10 @@ var ContextMenu = class extends Dropdown {
     this._offKeys = null;
     const inside = this.panel.contains(document.activeElement);
     super.close();
-    this._pin?.remove();
-    this._point = null;
     if (restoreFocus && inside && this._returnFocus?.isConnected) {
       this._returnFocus.focus({ preventScroll: true });
     }
     return this;
-  }
-  destroy() {
-    super.destroy();
-    this._pin?.remove();
-    this._pin = null;
   }
 };
 function autoInit13(scope = document) {
@@ -5910,7 +5930,12 @@ var DEFAULTS16 = {
   ],
   table: { rows: 3, cols: 3 },
   minHeight: "9rem",
-  placeholder: ""
+  placeholder: "",
+  /*
+   * Variaveis do texto: [{ name, label, example }]. Sem elas o editor nao muda
+   * em nada — nem botao na barra, nem a lista ao digitar `{`.
+   */
+  variables: null
 };
 var ICONS = {
   bold: "M6 4h6a4 4 0 010 8H6zM6 12h7a4 4 0 010 8H6z",
@@ -5928,7 +5953,8 @@ var ICONS = {
   center: "M3 6h18M6 12h12M4 18h16",
   right: "M3 6h18M10 12h11M6 18h15",
   justify: "M3 6h18M3 12h18M3 18h18",
-  code: "M16 18l6-6-6-6M8 6l-6 6 6 6"
+  code: "M16 18l6-6-6-6M8 6l-6 6 6 6",
+  variable: "M8 4H7a2 2 0 00-2 2v3a2 2 0 01-2 2 2 2 0 012 2v3a2 2 0 002 2h1M16 4h1a2 2 0 012 2v3a2 2 0 002 2 2 2 0 00-2 2v3a2 2 0 01-2 2h-1"
 };
 var COMMANDS = {
   bold: () => document.execCommand("bold"),
@@ -5946,6 +5972,7 @@ var COMMANDS = {
   justify: () => document.execCommand("justifyFull"),
   code: () => toggleCode(),
   table: (ed) => insertTable(ed),
+  variable: (ed) => ed.openVariables(),
   link: (ed) => ed._askForLink()
 };
 var STATES = {
@@ -6147,6 +6174,22 @@ function restoreOffset(block, howMany) {
     counted += node.length;
   }
 }
+var fold = (text) => text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+function caretRect(area) {
+  const sel = window.getSelection();
+  const r = sel?.rangeCount ? sel.getRangeAt(0).getBoundingClientRect() : null;
+  return r && (r.width || r.height || r.top || r.left) ? r : area.getBoundingClientRect();
+}
+var VariableMenu = class extends Dropdown {
+  _wireTrigger() {
+  }
+  _focusOnOpen() {
+    if (!this.keepFocus) super._focusOnOpen();
+  }
+  _closeOnFocusOut() {
+    return !this.keepFocus;
+  }
+};
 var Editor = class {
   constructor(target, options = {}) {
     this.field = typeof target === "string" ? document.querySelector(target) : target;
@@ -6168,10 +6211,11 @@ var Editor = class {
     this.area.innerHTML = sanitize(field.value) || "<p><br></p>";
     wrapTables(this.area);
     const GROUPS2 = /* @__PURE__ */ new Set(["left", "quote"]);
+    const tools = this.opts.variables?.length && !this.opts.toolbar.includes("variable") ? [...this.opts.toolbar, "variable"] : this.opts.toolbar;
     this.toolbar = el(
       "div",
       { class: "tuc-editor__toolbar", role: "toolbar", "aria-label": EDITOR_TEXTS.toolbar },
-      this.opts.toolbar.flatMap((name) => {
+      tools.flatMap((name) => {
         const b = el("button", {
           type: "button",
           class: "tuc-btn is-ghost is-icon is-sm",
@@ -6182,13 +6226,17 @@ var Editor = class {
           // dentro da area ja teria sido perdida.
           onmousedown: (e) => {
             e.preventDefault();
+            this._byPointer = true;
             this.apply(name);
           },
           // Enter e Espaco num botao focado viram click com detail 0 — o mouse
           // ja agiu no mousedown, entao so o teclado passa daqui. Sem isto a
           // barra so funcionava com mouse.
           onclick: (e) => {
-            if (e.detail === 0) this.apply(name);
+            if (e.detail === 0) {
+              this._byPointer = false;
+              this.apply(name);
+            }
           }
         }, [icon(ICONS[name] ?? ICONS.clear, 15)]);
         b.dataset.action = name;
@@ -6213,6 +6261,7 @@ var Editor = class {
         if (e.detail === 0) this.inTable(name);
       }
     }, [icon(TABLE_ICONS[name], 15)])));
+    this._varButton = this.toolbar.querySelector('[data-action="variable"]');
     this.root = el("div", { class: "tuc-editor" }, [this.toolbar, this.tableBar, this.area]);
     field.parentNode.insertBefore(this.root, field);
     this.root.append(field);
@@ -6223,6 +6272,7 @@ var Editor = class {
         wrapTables(this.area);
         this._sync();
         this._schedulePaint();
+        this._variableTyping();
       }),
       on(this.area, "paste", (e) => this._paste(e)),
       /*
@@ -6311,6 +6361,19 @@ var Editor = class {
     });
   }
   _onKey(e) {
+    if (this._typedVariable && this._varMenu?.isOpen) {
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.preventDefault();
+        this._varMenu.keepFocus = false;
+        this._varMenu._move(e.key === "ArrowUp" ? -1 : 0, true);
+        return;
+      }
+      if (e.key === "Escape") {
+        e.preventDefault();
+        this._closeVariables();
+        return;
+      }
+    }
     if (e.key === "Enter" && !e.isComposing && !e.metaKey && !e.ctrlKey && this._currentNode()?.closest("pre")) {
       e.preventDefault();
       document.execCommand("insertLineBreak");
@@ -6466,6 +6529,85 @@ var Editor = class {
     field.select();
     return this;
   }
+  /* ---------------------------------------------------------------- *
+   * Variaveis                                                          *
+   * ---------------------------------------------------------------- */
+  /**
+   * Abre a lista de variaveis. Pelo botao da barra ela nasce no botao, com o
+   * primeiro item ja destacado; digitando `{`, nasce no cursor e deixa o foco
+   * no texto, filtrando pelo que vier depois da chave.
+   */
+  openVariables(query = "") {
+    const variables = this.opts.variables;
+    if (!variables?.length) return this;
+    const q = fold(query);
+    const items = variables.filter((v) => !q || fold(v.name).includes(q) || fold(v.label || "").includes(q)).map((v) => ({
+      text: v.label || v.name,
+      // O token fica a direita, como um atalho: quem ja o conhece o reconhece.
+      shortcut: `{{${v.name}}}`,
+      onClick: () => this.insertVariable(v.name)
+    }));
+    if (!items.length) return this._closeVariables();
+    this._varMenu ??= new VariableMenu(this._varButton ?? this.area, { placement: "bottom-start" });
+    this._varMenu.keepFocus = Boolean(this._typedVariable);
+    this._varMenu._pointerOpen = !this._typedVariable && Boolean(this._byPointer);
+    this._varMenu._renderItems(items);
+    if (!this._typedVariable) this._varMenu.open();
+    else if (!this._varMenu.isOpen) {
+      const r = caretRect(this.area);
+      this._varMenu.openAt(r.left, r.bottom);
+    }
+    return this;
+  }
+  /** Escreve `{{nome}}` onde esta o cursor, no lugar do `{` que abriu a lista. */
+  insertVariable(name) {
+    const typed = this._typedVariable;
+    this._closeVariables();
+    this._focus();
+    if (!this.area.contains(window.getSelection()?.focusNode)) {
+      const end = document.createRange();
+      end.selectNodeContents(this.area);
+      end.collapse(false);
+      select(end);
+    }
+    if (typed?.node.isConnected && typed.node.textContent.length >= typed.start + typed.length) {
+      const r = document.createRange();
+      r.setStart(typed.node, typed.start);
+      r.setEnd(typed.node, typed.start + typed.length);
+      select(r);
+    }
+    document.execCommand("insertText", false, `{{${name}}}`);
+    this._sync();
+    return this;
+  }
+  /**
+   * Variaveis escritas no texto que nao estao na lista — o `{{nomee}}` de quem
+   * digitou errado. Vazio quando nao ha lista declarada: sem ela nao ha o que
+   * conferir.
+   */
+  unknownVariables() {
+    const known = new Set((this.opts.variables ?? []).map((v) => v.name));
+    if (!known.size) return [];
+    const used = [...this.getValue().matchAll(/\{\{\s*([\w.-]+)\s*\}\}/g)].map((m) => m[1]);
+    return [...new Set(used)].filter((name) => !known.has(name));
+  }
+  /* O `{` digitado abre a lista, filtrada pelo que vem depois dele. */
+  _variableTyping() {
+    if (!this.opts.variables?.length) return;
+    const sel = window.getSelection();
+    const node = sel?.focusNode;
+    if (!node || node.nodeType !== 3 || !this.area.contains(node)) return this._closeVariables();
+    const before = node.textContent.slice(0, sel.focusOffset);
+    const match = before.match(/\{([\p{L}\p{N}_.-]*)$/u);
+    if (!match) return this._closeVariables();
+    this._typedVariable = { node, start: sel.focusOffset - match[0].length, length: match[0].length };
+    return this.openVariables(match[1]);
+  }
+  _closeVariables() {
+    this._typedVariable = null;
+    this._varMenu?.close();
+    return this;
+  }
   getValue() {
     const html = sanitize(this.area.innerHTML);
     return html === "<p><br></p>" ? "" : html;
@@ -6478,6 +6620,8 @@ var Editor = class {
     return this;
   }
   destroy() {
+    this._varMenu?.destroy();
+    this._varMenu = null;
     clearTimeout(this._brush);
     this._cleanups.forEach((fn) => fn());
     this.field.hidden = false;

@@ -5,7 +5,7 @@
 > exemplos deste arquivo usam Django; em PHP e Rails, campo múltiplo precisa de
 > name terminado em [] e o upload direto precisa do cabeçalho de CSRF do
 > framework (data-csrf="false" e a opção headers do new Upload).
-> JavaScript puro, sem dependências em runtime. 42 KB JS + 13 KB CSS (gzip).
+> JavaScript puro, sem dependências em runtime. 43 KB JS + 13 KB CSS (gzip).
 > Os estilos são escritos em Tailwind mas distribuídos já compilados: o projeto
 > que consome não precisa de build e não recebe o preflight do Tailwind.
 >
@@ -438,6 +438,11 @@ Item com href vira <a>; sem href vira <button>. Teclado: setas andam, Home e End
 vao as pontas, Escape e Tab fecham, e o foco volta ao gatilho. Os itens tem
 tabindex="-1" de proposito — dentro de um menu quem navega e a seta, nao o Tab.
 
+Aberto pelo teclado (Enter, Espaco ou seta no gatilho), o primeiro item ja nasce
+destacado. Aberto por clique, nenhum: como no menu do sistema, a primeira seta e
+que destaca. Vale para o menu do botao direito e para a lista de variaveis do
+editor, que sao o mesmo menu.
+
 ## Menu do botao direito (contextmenu)
 
 O mesmo menu, aberto pelo `contextmenu` e ancorado no ponto do clique. Do
@@ -767,7 +772,7 @@ Inventario extraido do codigo a cada build. Se algo nao esta aqui, nao existe.
     closeOnPick        = true
     onOpen             = null  — (alvo, instancia) — para marcar a linha clicada, por exemplo…
     panel              = null  — painel ja escrito no template, no lugar de `items`…
-  metodos    openAt close destroy
+  metodos    openAt close
 
 ### DatePicker
   marcacao   [data-tuc-datepicker]
@@ -824,7 +829,7 @@ Inventario extraido do codigo a cada build. Se algo nao esta aqui, nao existe.
     placement          = 'bottom-start'
     items              = null  — [{ text, icon, shortcut, onClick, href, variant, disabled, separator, label }]
     closeOnPick        = true
-  metodos    open close toggle destroy
+  metodos    openAt open close toggle destroy
 
 ### Editor
   marcacao   [data-tuc-editor]
@@ -835,7 +840,8 @@ Inventario extraido do codigo a cada build. Se algo nao esta aqui, nao existe.
     table              = { rows: 3, cols: 3 }
     minHeight          = '9rem'
     placeholder        = ''
-  metodos    inTable apply getValue setValue destroy
+    variables          = null
+  metodos    inTable apply openVariables insertVariable unknownVariables getValue setValue destroy
 
 ### Mask
   marcacao   [data-tuc-mask], [data-tuc-reveal]  ou  [data-tuc-format]:not([data-tuc-formatted])
@@ -1113,6 +1119,7 @@ Inventario extraido do codigo a cada build. Se algo nao esta aqui, nao existe.
     right              = 'Alinhar à direita'
     justify            = 'Justificar'
     code               = 'Código'
+    variable           = 'Variável'
     rowAbove           = 'Inserir linha acima'
     rowBelow           = 'Inserir linha abaixo'
     colBefore          = 'Inserir coluna à esquerda'

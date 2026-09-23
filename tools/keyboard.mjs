@@ -58,6 +58,12 @@ const page = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
   <tr id="ctxrow1" tabindex="0"><td>Padaria Pão Quente</td></tr>
   <tr id="ctxrow2" tabindex="0"><td>Oficina Duas Rodas</td></tr>
 </tbody></table>
+<button id="kdd" class="tuc-btn" data-tuc-dropdown="#kddmenu">Ações</button>
+<div class="tuc-dropdown" id="kddmenu" hidden>
+  <button class="tuc-dropdown__item"><span class="tuc-dropdown__text">Editar</span></button>
+  <button class="tuc-dropdown__item"><span class="tuc-dropdown__text">Excluir</span></button>
+</div>
+<textarea id="kvars"></textarea>
 <p id="kbold"><b>negrito fora do editor</b></p>
 <form id="kedForm" onsubmit="window.__kedSubmits++; return false"><textarea id="ked2" name="body" data-tuc-editor required>&lt;p&gt;original&lt;/p&gt;</textarea><button id="kedSubmit">enviar</button></form>
 <script>${readFileSync('dist/tucano.js', 'utf8')}</script>
@@ -77,6 +83,34 @@ const page = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
     input.addEventListener('tucano:change', (e) => log.push('event ' + e.detail.iso));
     return true;
   };
+  /* Editor com variaveis, para a lista do botao e a do "{" digitado. */
+  /*
+   * Cursor no fim do texto do editor, sem clicar: o painel do caso anterior
+   * ainda esta saindo da tela e cobria o ponto do clique, e a digitacao ia
+   * parar no nada.
+   */
+  window.caretIntoEditor = function (editor) {
+    editor.area.focus();
+    const r = document.createRange();
+    r.selectNodeContents(editor.area);
+    r.collapse(false);
+    const sel = getSelection();
+    sel.removeAllRanges();
+    sel.addRange(r);
+    return true;
+  };
+
+  window.mkVars = function () {
+    if (window.edv) edv.destroy();
+    document.getElementById('kvars').value = '';   // cada caso parte do texto vazio
+    window.edv = new Tucano.Editor('#kvars', { variables: [
+      { name: 'nome', label: 'Nome do responsável' },
+      { name: 'prazo', label: 'Prazo' },
+      { name: 'tarefa', label: 'Título da tarefa' },
+    ] });
+    return true;
+  };
+
   /* Menu do botao direito na tabela, com os itens da linha clicada. */
   window.mkCtx = function () {
     if (window.ctx) ctx.destroy();
@@ -1290,6 +1324,72 @@ testCase('menu do botão direito: Shift+F10 abre no alvo com foco', async () => 
   await evaluate(`void ctx.close()`);
   return r[0] && r[1] === 'ctxrow2' ? null : `aberto ${r[0]}, alvo ${r[1]}`;
 }, { skip: { webkit: 'Shift+F10 é convenção de Windows; no macOS o Safari não a entrega, e o WebKit do Playwright só às vezes' } });
+
+testCase('menu suspenso: clique não acende item algum; Enter acende o primeiro', async () => {
+  /*
+   * Aberto por clique, um item aceso parece escolha feita — o ponteiro está
+   * noutro canto. É a mesma regra do menu do botão direito e da lista de
+   * variáveis do editor, que herdam deste.
+   */
+  const dd = `document.getElementById('kdd')._tucano`;
+  await clickOn(`document.getElementById('kdd')`);
+  if (!await waitFor(`${dd}.isOpen`)) return 'não abriu no clique';
+  const byClick = await evaluate(`!!${dd}.panel.querySelector('.tuc-dropdown__item:focus')`);
+  await press('ArrowDown');
+  const afterArrow = await evaluate(`document.activeElement.textContent.trim()`);
+  await press('Escape');
+  await evaluate(`document.getElementById('kdd').focus()`);
+  await press('Enter');
+  if (!await waitFor(`${dd}.isOpen`)) return 'não abriu no Enter';
+  const byKey = await evaluate(`document.activeElement.textContent.trim()`);
+  await press('Escape');
+  if (byClick) return 'o clique acendeu um item';
+  if (afterArrow !== 'Editar') return `a seta acendeu "${afterArrow}"`;
+  return byKey === 'Editar' ? null : `o Enter acendeu "${byKey}"`;
+});
+
+testCase('editor: o botão da barra insere a variável onde está o cursor', async () => {
+  await evaluate(`mkVars(); caretIntoEditor(edv)`);
+  await typeText('Oi ');
+  await clickOn(`edv.root.querySelector('[data-action="variable"]')`);
+  if (!await waitFor(`!!edv._varMenu && edv._varMenu.isOpen`)) return 'a lista não abriu';
+  // Escopado na lista do editor: painéis de outros casos ainda estão saindo do DOM.
+  await clickOn(`edv._varMenu.panel.querySelector('.tuc-dropdown__item')`);
+  const value = await evaluate(`edv.getValue()`);
+  return value.includes('Oi {{nome}}') ? null : `valor "${value}"`;
+});
+
+testCase('editor: digitar "{" abre a lista filtrada, sem tirar o foco do texto', async () => {
+  // O filtro vem do que se digita: focar o primeiro item pararia a digitação.
+  await evaluate(`mkVars(); caretIntoEditor(edv)`);
+  await typeText('Prazo: {pra');
+  if (!await waitFor(`!!edv._varMenu && edv._varMenu.isOpen`)) return 'a lista não abriu';
+  const state = await evaluate(`({
+    items: [...edv._varMenu.panel.querySelectorAll('.tuc-dropdown__text')].map((n) => n.textContent),
+    typing: document.activeElement === edv.area })`);
+  await press('ArrowDown');
+  // Só o rótulo: o item traz o token ao lado, como um atalho.
+  const highlighted = await evaluate(`document.activeElement.querySelector('.tuc-dropdown__text')?.textContent`);
+  await press('Enter');
+  const value = await evaluate(`edv.getValue()`);
+  if (state.items.join() !== 'Prazo') return `a lista mostrou ${JSON.stringify(state.items)}`;
+  if (!state.typing) return 'o foco saiu do texto ao abrir a lista';
+  if (highlighted !== 'Prazo') return `a seta acendeu "${highlighted}"`;
+  // O "{pra" digitado sai junto: sobra só a variável.
+  return value.includes('Prazo: {{prazo}}') ? null : `valor "${value}"`;
+});
+
+testCase('editor: Esc fecha a lista e deixa a pessoa digitando', async () => {
+  await evaluate(`mkVars(); caretIntoEditor(edv)`);
+  await typeText('{ta');
+  if (!await waitFor(`!!edv._varMenu && edv._varMenu.isOpen`)) return 'a lista não abriu';
+  await press('Escape');
+  await typeText('rde');
+  const r = await evaluate(`[edv.getValue(), !!edv._varMenu.isOpen, document.activeElement === edv.area]`);
+  if (r[1]) return 'a lista continuou aberta';
+  if (!r[2]) return 'o foco saiu do texto';
+  return r[0].includes('{tarde') ? null : `valor "${r[0]}"`;
+});
 
 /* Um navegador: uma pagina, os casos em ordem, a saida guardada para imprimir junta. */
 async function run(name) {

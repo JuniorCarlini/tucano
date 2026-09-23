@@ -160,6 +160,45 @@ ed.destroy();                    // devolve o textarea original
    Endereço digitado sem esquema, como <code>exemplo.com</code>, ganha <code>https://</code> na frente. Todo link salvo sai com
    <code>target="_blank"</code> e <code>rel="noopener noreferrer"</code>.</p>
 
+<h2 id="variables">Variáveis</h2>
+<p class="lead">Um texto que vira mensagem para cada pessoa tem trechos que mudam: o nome de quem recebe, o prazo, o
+   título da tarefa. Declare essas variáveis e o editor ganha um botão na barra e uma lista ao digitar
+   <code>{</code> — ninguém precisa decorar nome nem fechar chaves na mão.</p>
+
+<div class="demo">
+  <label class="tuc-label" for="ed-vars">Mensagem do cartão</label>
+  <textarea id="ed-vars" name="message" aria-label="Escreva a mensagem">&lt;p&gt;Oi {{nome}}! Você ficou responsável por: {{tarefa}}&lt;/p&gt;</textarea>
+  <p class="tuc-hint">Clique no <code>{ }</code> da barra, ou digite <code>{</code> no texto e comece a escrever o nome.</p>
+  <div class="out" id="ed-vars-unknown"></div>
+</div>
+
+<pre data-code="js">
+new Tucano.Editor('#message', {
+  variables: [
+    { name: 'nome',   label: 'Nome do responsável', example: 'Junior' },
+    { name: 'tarefa', label: 'Título da tarefa',    example: 'Gravar o vídeo' },
+    { name: 'prazo',  label: 'Prazo',               example: '21/09' },
+  ],
+});
+</pre>
+
+<p>O que entra no texto é <code>{{nome}}</code>, texto puro: o seu template no servidor continua trocando pelos dados
+   como já fazia, e copiar, colar e desfazer seguem funcionando. O <code>label</code> é o que aparece na lista; o
+   <code>example</code> fica guardado para a prévia que o seu projeto monta.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>O que faz</th><th>Como</th></tr></thead>
+  <tbody>
+    <tr><td>Abrir a lista pela barra</td><td>Botão <code>{ }</code>, que só existe quando há variáveis</td></tr>
+    <tr><td>Abrir enquanto escreve</td><td>Digite <code>{</code>; as letras seguintes filtram, e o foco não sai do texto</td></tr>
+    <tr><td>Escolher</td><td>Clique, ou <code>↓</code> e <code>Enter</code>. O <code>{</code> digitado sai junto</td></tr>
+    <tr><td>Desistir</td><td><code>Esc</code> fecha a lista e deixa você digitando</td></tr>
+    <tr><td>Achar erro de digitação</td><td><code>editor.unknownVariables()</code> devolve o que está no texto e não na lista</td></tr>
+  </tbody>
+</table></div>
+
+<p>Sem <code>variables</code> nada muda: não há botão, e <code>{</code> continua sendo só uma chave.</p>
+
 <h2 id="value">Valor e formulário</h2>
 <p class="lead">Quem guarda o valor é o <code>&lt;textarea&gt;</code>, escondido dentro do editor. A cada alteração ele
    recebe o HTML peneirado e dispara <code>input</code> e <code>change</code> nativos.</p>
@@ -298,4 +337,19 @@ Tucano.init(fragment);                // pinta e põe o copiar no HTML inserido 
   const hostile = '<p onclick="steal()">Oi <img src=x onerror="steal()"><b>você</b>, <a href="javascript:steal()">clique</a></p><script>steal()<\/script>';
   document.getElementById('ed-sanitizer-input').textContent = `entrada: ${hostile}`;
   document.getElementById('ed-sanitizer-output').textContent = `saída:   ${Tucano.sanitize(hostile)}`;
+
+  // Variáveis: a lista alimenta o editor, e o aviso mostra o que não existe nela.
+  const VARIABLES = [
+    { name: 'nome',   label: 'Nome do responsável', example: 'Junior' },
+    { name: 'tarefa', label: 'Título da tarefa', example: 'Gravar o vídeo' },
+    { name: 'prazo',  label: 'Prazo', example: '21/09' },
+  ];
+  const withVars = new Tucano.Editor('#ed-vars', { variables: VARIABLES, minHeight: '7rem', placeholder: 'Escreva a mensagem…' });
+  const unknown = document.getElementById('ed-vars-unknown');
+  const showUnknown = () => {
+    const missing = withVars.unknownVariables();
+    unknown.textContent = missing.length ? `não existe na lista: ${missing.map((n) => `{{${n}}}`).join(', ')}` : '';
+  };
+  withVars.field.addEventListener('change', showUnknown);
+  showUnknown();
 </script>

@@ -161,6 +161,45 @@ ed.destroy();                    // devuelve el textarea original
    Una dirección escrita sin esquema, como <code>ejemplo.com</code>, recibe <code>https://</code> adelante. Todo enlace guardado sale con
    <code>target="_blank"</code> y <code>rel="noopener noreferrer"</code>.</p>
 
+<h2 id="variables">Variables</h2>
+<p class="lead">Un texto que se vuelve mensaje para cada persona tiene partes que cambian: quién lo recibe, el plazo,
+   el título de la tarea. Declara esas variables y el editor gana un botón en la barra y una lista al escribir
+   <code>{</code> — nadie tiene que memorizar nombres ni cerrar llaves a mano.</p>
+
+<div class="demo">
+  <label class="tuc-label" for="ed-vars">Mensaje de la tarjeta</label>
+  <textarea id="ed-vars" name="message" aria-label="Escribe el mensaje">&lt;p&gt;¡Hola {{nome}}! Eres responsable de: {{tarefa}}&lt;/p&gt;</textarea>
+  <p class="tuc-hint">Pulsa el <code>{ }</code> de la barra, o escribe <code>{</code> en el texto y empieza a escribir el nombre.</p>
+  <div class="out" id="ed-vars-unknown"></div>
+</div>
+
+<pre data-code="js">
+new Tucano.Editor('#message', {
+  variables: [
+    { name: 'nome',   label: 'Nombre del responsable', example: 'Junior' },
+    { name: 'tarefa', label: 'Título de la tarea',     example: 'Grabar el vídeo' },
+    { name: 'prazo',  label: 'Plazo',                  example: '21/09' },
+  ],
+});
+</pre>
+
+<p>Lo que entra en el texto es <code>{{nome}}</code>, texto puro: tu plantilla en el servidor sigue cambiándolo por los
+   datos como ya hacía, y copiar, pegar y deshacer siguen funcionando. El <code>label</code> es lo que aparece en la
+   lista; el <code>example</code> queda guardado para la vista previa que arma tu proyecto.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Qué hace</th><th>Cómo</th></tr></thead>
+  <tbody>
+    <tr><td>Abrir la lista desde la barra</td><td>El botón <code>{ }</code>, que solo existe cuando hay variables</td></tr>
+    <tr><td>Abrir mientras escribes</td><td>Escribe <code>{</code>; las letras siguientes filtran, y el foco no sale del texto</td></tr>
+    <tr><td>Elegir</td><td>Clic, o <code>↓</code> y <code>Enter</code>. La <code>{</code> escrita se va con ella</td></tr>
+    <tr><td>Desistir</td><td><code>Esc</code> cierra la lista y te deja escribiendo</td></tr>
+    <tr><td>Encontrar una errata</td><td><code>editor.unknownVariables()</code> devuelve lo que está en el texto y no en la lista</td></tr>
+  </tbody>
+</table></div>
+
+<p>Sin <code>variables</code> no cambia nada: no hay botón, y <code>{</code> sigue siendo solo una llave.</p>
+
 <h2 id="value">Valor y formulario</h2>
 <p class="lead">Quien guarda el valor es el <code>&lt;textarea&gt;</code>, oculto dentro del editor. Con cada cambio
    recibe el HTML filtrado y dispara los eventos nativos <code>input</code> y <code>change</code>.</p>
@@ -299,4 +338,19 @@ Tucano.init(fragment);                // colorea y pone el copiar en HTML insert
   const hostile = '<p onclick="steal()">Hola <img src=x onerror="steal()"><b>tú</b>, <a href="javascript:steal()">clic</a></p><script>steal()<\/script>';
   document.getElementById('ed-sanitizer-input').textContent = `entrada: ${hostile}`;
   document.getElementById('ed-sanitizer-output').textContent = `salida:  ${Tucano.sanitize(hostile)}`;
+
+  // Variáveis: a lista alimenta o editor, e o aviso mostra o que não existe nela.
+  const VARIABLES = [
+    { name: 'nome',   label: 'Nombre del responsable', example: 'Junior' },
+    { name: 'tarefa', label: 'Título de la tarea', example: 'Grabar el vídeo' },
+    { name: 'prazo',  label: 'Plazo', example: '21/09' },
+  ];
+  const withVars = new Tucano.Editor('#ed-vars', { variables: VARIABLES, minHeight: '7rem', placeholder: 'Escribe el mensaje…' });
+  const unknown = document.getElementById('ed-vars-unknown');
+  const showUnknown = () => {
+    const missing = withVars.unknownVariables();
+    unknown.textContent = missing.length ? `no está en la lista: ${missing.map((n) => `{{${n}}}`).join(', ')}` : '';
+  };
+  withVars.field.addEventListener('change', showUnknown);
+  showUnknown();
 </script>

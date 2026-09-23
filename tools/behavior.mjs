@@ -687,6 +687,38 @@ body{margin:0;padding:16px;font-family:system-ui}
     if (withShift) throw new Error('segurou o menu do navegador com Shift');
     if (!onRow || !opened) throw new Error('não abriu na linha');
   });
+  t('editor sem variáveis não ganha botão nem lista', function () {
+    // Recurso opcional: quem não declara variáveis não vê nada de diferente.
+    var box = document.createElement('div');
+    box.innerHTML = '<textarea id="edplain"></textarea>';
+    document.body.append(box);
+    var ed = new Tucano.Editor('#edplain');
+    var hasButton = !!box.querySelector('[data-action="variable"]');
+    var unknown = ed.unknownVariables().length;
+    ed.destroy(); box.remove();
+    if (hasButton) throw new Error('apareceu botão de variável sem variáveis');
+    if (unknown) throw new Error('acusou variável desconhecida sem lista declarada');
+  });
+  t('editor lista as variáveis na barra e acusa a que não existe', function () {
+    var box = document.createElement('div');
+    box.innerHTML = '<textarea id="edvars"></textarea>';
+    document.body.append(box);
+    var ed = new Tucano.Editor('#edvars', { variables: [
+      { name: 'nome', label: 'Nome do responsável' },
+      { name: 'prazo', label: 'Prazo' },
+    ] });
+    var button = box.querySelector('[data-action="variable"]');
+    ed.openVariables();
+    var items = [].map.call(document.querySelectorAll('.tuc-dropdown__item .tuc-dropdown__shortcut'), function (n) { return n.textContent; });
+    // A inserção em si é do keyboard.mjs: com a página sem foco, o insertText
+    // do navegador não escreve, e aqui o teste mediria o ambiente.
+    ed.setValue('<p>{{nome}} e {{nomee}}</p>');
+    var unknown = ed.unknownVariables().join();
+    ed.destroy(); box.remove();
+    if (!button) throw new Error('sem botão de variável na barra');
+    if (items.join() !== '{{nome}},{{prazo}}') throw new Error('itens: ' + items.join());
+    if (unknown !== 'nomee') throw new Error('desconhecidas: ' + unknown);
+  });
   t('menu do botão direito fecha na rolagem de quem usa, não na do foco', function () {
     // Dar foco a um item rola a página quando ele está perto da borda, e isso
     // dispara o evento de rolagem: com a regra nele, o menu se fechava sozinho

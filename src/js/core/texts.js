@@ -143,6 +143,7 @@ export const EDITOR_TEXTS = {
   right: 'Alinhar à direita',
   justify: 'Justificar',
   code: 'Código',
+  variable: 'Variável',
   // Barra que aparece com o cursor dentro de uma tabela.
   rowAbove: 'Inserir linha acima',
   rowBelow: 'Inserir linha abaixo',
