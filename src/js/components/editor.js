@@ -915,13 +915,22 @@ export class Editor {
   unknownVariables() {
     const known = new Set((this.opts.variables ?? []).map((v) => v.name));
     if (!known.size) return [];
-    const used = [...this.getValue().matchAll(/\{\{\s*([\w.-]+)\s*\}\}/g)].map((m) => m[1]);
+    // Bloco de codigo fora da conta: um exemplo de template escrito ali nao e
+    // erro de digitacao, e acusa-lo transformaria o aviso em ruido.
+    const text = this.getValue().replace(/<pre[\s\S]*?<\/pre>/g, '');
+    const used = [...text.matchAll(/\{\{\s*([\w.-]+)\s*\}\}/g)].map((m) => m[1]);
     return [...new Set(used)].filter((name) => !known.has(name));
   }
 
   /* O `{` digitado abre a lista, filtrada pelo que vem depois dele. */
   _variableTyping() {
     if (!this.opts.variables?.length) return;
+    /*
+     * Dentro de um bloco de codigo, nao. Ali se escreve codigo — inclusive o
+     * proprio `{{ nome }}` de um template, como exemplo —, e uma lista pulando
+     * na frente a cada chave atrapalha em vez de ajudar.
+     */
+    if (this._currentNode()?.closest('pre')) return this._closeVariables();
     const sel = window.getSelection();
     const node = sel?.focusNode;
     if (!node || node.nodeType !== 3 || !this.area.contains(node)) return this._closeVariables();

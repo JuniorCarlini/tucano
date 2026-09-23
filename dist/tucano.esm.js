@@ -6588,12 +6588,14 @@ var Editor = class {
   unknownVariables() {
     const known = new Set((this.opts.variables ?? []).map((v) => v.name));
     if (!known.size) return [];
-    const used = [...this.getValue().matchAll(/\{\{\s*([\w.-]+)\s*\}\}/g)].map((m) => m[1]);
+    const text = this.getValue().replace(/<pre[\s\S]*?<\/pre>/g, "");
+    const used = [...text.matchAll(/\{\{\s*([\w.-]+)\s*\}\}/g)].map((m) => m[1]);
     return [...new Set(used)].filter((name) => !known.has(name));
   }
   /* O `{` digitado abre a lista, filtrada pelo que vem depois dele. */
   _variableTyping() {
     if (!this.opts.variables?.length) return;
+    if (this._currentNode()?.closest("pre")) return this._closeVariables();
     const sel = window.getSelection();
     const node = sel?.focusNode;
     if (!node || node.nodeType !== 3 || !this.area.contains(node)) return this._closeVariables();

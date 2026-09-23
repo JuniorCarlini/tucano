@@ -13,7 +13,9 @@ projeto.
   depois da chave e escreve `{{nome}}` no texto — texto puro, do jeito que o
   template do servidor já espera. `editor.unknownVariables()` aponta o que está
   escrito no texto e não está na lista, que é o erro de digitação de sempre.
-  Sem `variables`, nada muda no editor.
+  Dentro de bloco de código a lista não abre e nada é acusado — ali se escreve
+  código, inclusive o `{{ nome }}` de um template como exemplo. Sem
+  `variables`, nada muda no editor.
 
 ### Mudou
 

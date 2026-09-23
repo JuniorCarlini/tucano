@@ -12,7 +12,9 @@ in your project.
   toolbar button and opens a list when you type `{`, filtered by what follows
   the brace, writing `{{nome}}` into the text — plain text, the way the server
   template already expects it. `editor.unknownVariables()` points out what is
-  written in the text but missing from the list, the usual typo. Without
+  written in the text but missing from the list, the usual typo. Inside a code
+  block the list does not open and nothing is flagged — that is where code
+  goes, including a template's own `{{ nome }}` as an example. Without
   `variables`, nothing changes in the editor.
 
 ### Changed

@@ -719,6 +719,20 @@ body{margin:0;padding:16px;font-family:system-ui}
     if (items.join() !== '{{nome}},{{prazo}}') throw new Error('itens: ' + items.join());
     if (unknown !== 'nomee') throw new Error('desconhecidas: ' + unknown);
   });
+  t('editor não acusa variável escrita dentro de bloco de código', function () {
+    // Exemplo de template num bloco de código não é erro de digitação.
+    var box = document.createElement('div');
+    box.innerHTML = '<textarea id="edcode"></textarea>';
+    document.body.append(box);
+    var ed = new Tucano.Editor('#edcode', { variables: [{ name: 'nome', label: 'Nome' }] });
+    ed.setValue('<pre><code>&lt;h1&gt;Oi, {{ usuario }}!&lt;/h1&gt;</code></pre><p>texto</p>');
+    var inCode = ed.unknownVariables().join();
+    ed.setValue('<p>Oi {{ usuario }}</p>');
+    var inText = ed.unknownVariables().join();
+    ed.destroy(); box.remove();
+    if (inCode) throw new Error('acusou dentro do código: ' + inCode);
+    if (inText !== 'usuario') throw new Error('no texto deveria acusar, veio "' + inText + '"');
+  });
   t('menu do botão direito fecha na rolagem de quem usa, não na do foco', function () {
     // Dar foco a um item rola a página quando ele está perto da borda, e isso
     // dispara o evento de rolagem: com a regra nele, o menu se fechava sozinho

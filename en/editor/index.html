@@ -298,6 +298,10 @@ ed.destroy();                    // gives back the original textarea</code></pre
   </tbody>
 </table></div>
 
+<p>Inside a code block the list does not open, and whatever is written there stays out of
+   <code>unknownVariables()</code>: that is where code goes — including a template's own <code>{{ nome }}</code>, as an
+   example — and a list jumping in at every brace would get in the way.</p>
+
 <p>Without <code>variables</code> nothing changes: no button, and <code>{</code> is still just a brace.</p>
 
 <h2 id="value">Value and form</h2>

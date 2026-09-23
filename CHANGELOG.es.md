@@ -12,8 +12,10 @@ cambios en tu proyecto.
   botón en la barra y abre una lista al escribir `{`, que filtra por lo que
   viene después de la llave y escribe `{{nome}}` en el texto — texto puro, como
   ya lo espera la plantilla del servidor. `editor.unknownVariables()` señala lo
-  que está escrito en el texto y no está en la lista, la errata de siempre. Sin
-  `variables`, nada cambia en el editor.
+  que está escrito en el texto y no está en la lista, la errata de siempre.
+  Dentro de un bloque de código la lista no se abre y no se señala nada — ahí
+  se escribe código, incluido el `{{ nome }}` de una plantilla como ejemplo.
+  Sin `variables`, nada cambia en el editor.
 
 ### Cambió
 

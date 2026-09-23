@@ -1379,6 +1379,25 @@ testCase('editor: digitar "{" abre a lista filtrada, sem tirar o foco do texto',
   return value.includes('Prazo: {{prazo}}') ? null : `valor "${value}"`;
 });
 
+testCase('editor: dentro do bloco de código o "{" não abre a lista', async () => {
+  // Ali se escreve código, inclusive o {{ nome }} de um template como exemplo.
+  await evaluate(`mkVars(); edv.setValue('<pre><code>codigo</code></pre><p>texto</p>')`);
+  await evaluate(`(() => { const code = edv.area.querySelector('code');
+    const r = document.createRange(); r.selectNodeContents(code); r.collapse(false);
+    const s = getSelection(); s.removeAllRanges(); s.addRange(r); edv.area.focus(); return true; })()`);
+  await typeText(' {no');
+  await wait(150);
+  const inCode = await evaluate(`!!edv._varMenu?.isOpen`);
+  await evaluate(`(() => { const p = edv.area.querySelector('p');
+    const r = document.createRange(); r.selectNodeContents(p); r.collapse(false);
+    const s = getSelection(); s.removeAllRanges(); s.addRange(r); edv.area.focus(); return true; })()`);
+  await typeText(' {no');
+  const inText = await waitFor(`!!edv._varMenu && edv._varMenu.isOpen`);
+  await evaluate(`void edv._closeVariables()`);
+  if (inCode) return 'a lista abriu dentro do código';
+  return inText ? null : 'a lista não abriu no texto normal';
+});
+
 testCase('editor: Esc fecha a lista e deixa a pessoa digitando', async () => {
   await evaluate(`mkVars(); caretIntoEditor(edv)`);
   await typeText('{ta');
