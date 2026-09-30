@@ -1420,6 +1420,18 @@ testCase('editor: Esc fecha a lista e deixa a pessoa digitando', async () => {
  * anel de foco e a cor de ativo sao os dois box-shadow, e um apagava o outro —
  * quem andava de seta ficava sem saber onde estava.
  */
+
+/*
+ * Espera o anel, em vez de dormir um tempo fixo: a sombra tem transicao, e no
+ * WebKit de Linux ela demora bem mais a terminar que no macOS — ler cedo era
+ * ler o primeiro quadro, e o teste passava aqui e reprovava no CI.
+ */
+const waitForRing = () => tab().waitForFunction(`(() => {
+  const label = [...document.querySelectorAll('#kbg .tuc-btn')]
+    .find((n) => n.querySelector('input') === document.activeElement);
+  return !!label && /0px 0px 0px 3px/.test(getComputedStyle(label).boxShadow);
+})()`, null, { timeout: 4000 }).then(() => true, () => false);
+
 const readGroup = () => evaluate(`(() => {
   const labels = [...document.querySelectorAll('#kbg .tuc-btn')];
   const probe = document.createElement('span');
@@ -1434,16 +1446,17 @@ const readGroup = () => evaluate(`(() => {
     checked: labels.map((l) => l.querySelector('input').checked),
     accent,
     background: style.backgroundColor,
-    ring: /0px 0px 0px 3px/.test(style.boxShadow),
+    shadow: style.boxShadow,
   };
 })()`);
 
 testCase('grupo de botões: o escolhido com foco ganha o anel sem perder a cor de ativo', async () => {
   await evaluate(`void document.querySelector('#kbg input').focus()`);
-  await wait(300);   // a sombra tem transicao; ler antes e ler o primeiro quadro
+  const ring = await waitForRing();
   const r = await readGroup();
   if (r.at !== 0) return `o foco parou em ${r.at}`;
-  if (!r.ring) return 'o escolhido com foco ficou sem anel';
+  if (!ring) return `o escolhido com foco ficou sem anel (sombra ${r.shadow})`;
+  // O anel nao pode custar a cor de ativo: os dois sao box-shadow, e um apagava o outro.
   if (r.background !== r.accent) return `fundo ${r.background}, esperada a cor de destaque ${r.accent}`;
   return null;
 });
@@ -1451,11 +1464,11 @@ testCase('grupo de botões: o escolhido com foco ganha o anel sem perder a cor d
 testCase('seta no grupo de botões troca a escolha e leva o anel junto', async () => {
   await evaluate(`void document.querySelector('#kbg input').focus()`);
   await press('ArrowRight');
-  await wait(300);
+  const ring = await waitForRing();
   const r = await readGroup();
   if (r.checked[0] || !r.checked[1]) return 'a seta não levou a escolha para a segunda opção';
   if (r.at !== 1) return `o foco parou em ${r.at}`;
-  if (!r.ring) return 'a opção de chegada ficou sem anel';
+  if (!ring) return `a opção de chegada ficou sem anel (sombra ${r.shadow})`;
   if (r.background !== r.accent) return `fundo ${r.background}, esperada a cor de destaque ${r.accent}`;
   await press('ArrowLeft');
   return null;
