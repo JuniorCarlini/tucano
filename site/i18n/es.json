@@ -55,6 +55,7 @@
     "upload": { "title": "Upload", "desc": "Arrastrar y soltar, progreso y validación." },
     "editor": { "title": "Editor de texto", "desc": "Texto enriquecido con tablas y bloques de código." },
     "button": { "title": "Botón", "desc": "Variantes y tamaños, solo clases." },
+    "buttongroup": { "title": "Grupo de botones", "desc": "Acciones unidas y elección en forma de botón." },
     "dropdown": { "title": "Menú desplegable", "desc": "Menú de acciones anclado, con flechas." },
     "contextmenu": { "title": "Menú del botón derecho", "desc": "Menú contextual en el punto del clic." },
     "toast": { "title": "Toast", "desc": "Avisos pasajeros, con Django y HTMX." },

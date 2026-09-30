@@ -672,6 +672,88 @@ input.tuc-input.tuc-input:is([data-tuc-valid], [data-validate]:not([data-tuc-mas
 .tuc-btn.is-block {
   width: 100%;
 }
+.tuc-btn-group {
+  display: inline-flex;
+  max-width: 100%;
+  align-items: center;
+  vertical-align: middle;
+}
+.tuc-btn-group > .tuc-btn {
+  --tuc-group-radius: var(--tuc-radius-md);
+  border-radius: 0;
+}
+.tuc-btn-group > .tuc-btn.is-sm {
+  --tuc-group-radius: var(--tuc-radius-sm);
+}
+.tuc-btn-group > .tuc-btn:first-child {
+  border-top-left-radius: var(--tuc-group-radius);
+  border-bottom-left-radius: var(--tuc-group-radius);
+}
+.tuc-btn-group > .tuc-btn:last-child {
+  border-top-right-radius: var(--tuc-group-radius);
+  border-bottom-right-radius: var(--tuc-group-radius);
+}
+.tuc-btn-group > .tuc-btn + .tuc-btn {
+  margin-left: calc(-1 * var(--tuc-border-width));
+}
+.tuc-btn-group > .tuc-btn:hover, .tuc-btn-group > .tuc-btn:focus-visible, .tuc-btn-group > .tuc-btn:has(> .tuc-btn__input:focus-visible), .tuc-btn-group > .tuc-btn:has(> .tuc-btn__input:checked) {
+  position: relative;
+  z-index: 10;
+}
+.tuc-btn-group.is-block {
+  display: flex;
+  width: 100%;
+}
+.tuc-btn-group.is-block > .tuc-btn {
+  flex: 1;
+}
+.tuc-btn__input {
+  position: absolute;
+  margin: 0px;
+  width: 0px;
+  height: 0px;
+  appearance: none;
+  opacity: 0%;
+}
+.tuc-btn-group.is-segmented {
+  gap: calc(var(--spacing, 0.25rem) * 0.5);
+  padding: 0.1875rem;
+  background: var(--tuc-elevated);
+  border: var(--tuc-border-width) solid var(--tuc-border);
+  border-radius: var(--tuc-radius-md);
+}
+.tuc-btn-group.is-segmented > .tuc-btn {
+  margin: 0px;
+  height: calc(var(--tuc-control-height) - 0.375rem - 2 * var(--tuc-border-width));
+  color: var(--tuc-muted);
+  border-color: transparent;
+  border-radius: var(--tuc-radius-sm);
+}
+.tuc-btn-group.is-segmented > .tuc-btn:hover {
+  color: var(--tuc-fg);
+  background: var(--tuc-hover);
+}
+.tuc-btn-group.is-segmented > .tuc-btn:has(> .tuc-btn__input:checked):hover {
+  color: var(--tuc-accent-fg);
+}
+.tuc-btn-group > .tuc-btn:has(> .tuc-btn__input:checked) {
+  color: var(--tuc-accent-fg);
+  background: var(--tuc-accent);
+  border-color: var(--tuc-accent);
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+}
+.tuc-btn-group > .tuc-btn:has(> .tuc-btn__input:checked):hover {
+  background: var(--tuc-accent-hover);
+  border-color: var(--tuc-accent-hover);
+}
+.tuc-btn-group > .tuc-btn:has(> .tuc-btn__input:focus-visible) {
+  border-color: var(--tuc-accent);
+  box-shadow: 0 0 0 3px var(--tuc-accent-ring);
+}
+.tuc-btn-group > .tuc-btn:has(> .tuc-btn__input:disabled) {
+  cursor: not-allowed;
+  opacity: 50%;
+}
 .tuc-badge {
   display: inline-flex;
   align-items: center;

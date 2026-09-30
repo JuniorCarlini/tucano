@@ -4,6 +4,22 @@ O que mudou em cada versão da Tucano, da mais nova para a mais antiga. Antes de
 atualizar, leia "Atenção ao atualizar": ali está o que pede mudança no seu
 projeto.
 
+## Ainda não publicado
+
+### Novo
+
+- Grupo de botões, em classe só: `.tuc-btn-group`. Sozinho, emenda ações que
+  andam juntas — `[Editar][Duplicar][Arquivar]` vira um bloco, em vez de três
+  botões soltos na linha. Com `is-segmented`, veste o `<input>` de botão: é a
+  caixa da aba segmentada, com o escolhido na cor de destaque do tema, e o
+  valor continua sendo do nativo — `name`, `value`, `required`, o POST e as
+  setas do teclado são os do navegador. O `<input>` vai dentro do
+  `<label class="tuc-btn">`, com `class="tuc-btn__input"`, e fica com opacidade
+  zero, e não escondido, para continuar focável e anunciado. Com
+  `type="checkbox"` valem várias ao mesmo tempo, e `is-block` ocupa a linha
+  inteira. Não substitui a aba segmentada: aquela troca o que se vê na tela,
+  esta é campo e vai no POST.
+
 ## 0.36.0 — 2026-09-23
 
 ### Novo

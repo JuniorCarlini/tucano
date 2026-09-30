@@ -196,6 +196,7 @@ description: O que cada tecla faz em todo componente da Tucano — date picker, 
     <tr><td>Toast</td><td>O relógio pausa quando algo dentro dele recebe foco</td><td>Duas regiões ao vivo criadas antes da primeira mensagem: <code>polite</code> para o normal e <code>assertive</code> para erro; cada toast é <code>status</code> ou <code>alert</code></td></tr>
     <tr><td>Paginação</td><td>Links nativos</td><td><code>&lt;nav&gt;</code> "Paginação", <code>aria-current="page"</code> na atual; a ponta desativada é <code>&lt;span&gt;</code>, fora do caminho do <code>Tab</code></td></tr>
     <tr><td>Caixa, opção e chave</td><td>As do <code>&lt;input&gt;</code> nativo</td><td>As do navegador; a chave precisa de <code>role="switch"</code> no template, porque CSS não põe papel</td></tr>
+    <tr><td>Grupo de botões</td><td>As do <code>&lt;input&gt;</code> nativo: o grupo de rádios é uma parada só do <code>Tab</code>, e as setas andam por ele</td><td>Precisa de nome no grupo — <code>role="group"</code> com <code>aria-label</code>, ou <code>&lt;fieldset&gt;</code> com <code>&lt;legend&gt;</code>; o <code>&lt;input&gt;</code> fica invisível, mas focável e anunciado</td></tr>
   </tbody>
 </table></div>
 

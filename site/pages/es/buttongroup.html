@@ -1,0 +1,196 @@
+<!--
+title: Grupo de botones
+lang: es
+description: Botones unidos en un solo bloque y elección en forma de botón — el radio y la casilla vestidos de segmentado, todavía nativos y sin JavaScript.
+-->
+<h1>Grupo de botones</h1>
+<p class="lead">Dos papeles en la misma caja. Unido, junta en un solo bloque las acciones que van juntas, en vez de
+   tres botones sueltos en la línea. Con <code>is-segmented</code>, viste el <code>&lt;input&gt;</code> de botón —
+   la elección de una opción entre pocas, con la cara de las <a href="../tabs/">pestañas segmentadas</a>. Solo
+   clases: nada de JavaScript, y el valor sigue siendo del <code>&lt;input&gt;</code> nativo.</p>
+
+<div class="demo is-hero">
+  <div class="bar">
+    <div class="tuc-btn-group is-segmented" role="group" aria-label="Periodo">
+      <label class="tuc-btn"><input type="radio" class="tuc-btn__input" name="bg-period" value="day" checked> Día</label>
+      <label class="tuc-btn"><input type="radio" class="tuc-btn__input" name="bg-period" value="week"> Semana</label>
+      <label class="tuc-btn"><input type="radio" class="tuc-btn__input" name="bg-period" value="month"> Mes</label>
+    </div>
+    <div class="tuc-btn-group" role="group" aria-label="Acciones del contrato">
+      <button type="button" class="tuc-btn is-outline">Editar</button>
+      <button type="button" class="tuc-btn is-outline">Duplicar</button>
+      <button type="button" class="tuc-btn is-outline">Archivar</button>
+    </div>
+  </div>
+  <div class="out" id="bg-out">Periodo: day</div>
+</div>
+
+<h2 id="examples">Ejemplos</h2>
+<p class="lead">El mismo <code>.tuc-btn-group</code> por fuera; por dentro, o botones, o rótulos con un
+   <code>&lt;input&gt;</code> dentro.</p>
+
+<div class="demo">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <h4>Una opción entre pocas</h4>
+      <p>Es <code>type="radio"</code>: el navegador desmarca la anterior, y las flechas recorren el grupo.</p>
+      <div class="tuc-btn-group is-segmented" role="group" aria-label="Situación">
+        <label class="tuc-btn"><input type="radio" class="tuc-btn__input" name="bg-status" value="all" checked> Todos</label>
+        <label class="tuc-btn"><input type="radio" class="tuc-btn__input" name="bg-status" value="open"> Pendientes</label>
+        <label class="tuc-btn"><input type="radio" class="tuc-btn__input" name="bg-status" value="paid"> Pagados</label>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Varias a la vez</h4>
+      <p>Cambiando a <code>type="checkbox"</code>, cada botón se enciende y se apaga por su cuenta.</p>
+      <div class="tuc-btn-group is-segmented" role="group" aria-label="Formato del archivo">
+        <label class="tuc-btn"><input type="checkbox" class="tuc-btn__input" name="bg-format" value="pdf" checked> PDF</label>
+        <label class="tuc-btn"><input type="checkbox" class="tuc-btn__input" name="bg-format" value="xml" checked> XML</label>
+        <label class="tuc-btn"><input type="checkbox" class="tuc-btn__input" name="bg-format" value="csv"> CSV</label>
+        <label class="tuc-btn"><input type="checkbox" class="tuc-btn__input" name="bg-format" value="zip" disabled> ZIP</label>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Acciones unidas</h4>
+      <p>Sin <code>is-segmented</code>, los botones comparten el borde y solo se redondean en las puntas. Vale cualquier variante.</p>
+      <div class="bar">
+        <div class="tuc-btn-group" role="group" aria-label="Alineación">
+          <button type="button" class="tuc-btn is-outline is-icon" aria-label="A la izquierda"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h10M4 18h13"/></svg></button>
+          <button type="button" class="tuc-btn is-outline is-icon" aria-label="Centrado"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M7 12h10M6 18h12"/></svg></button>
+          <button type="button" class="tuc-btn is-outline is-icon" aria-label="A la derecha"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M10 12h10M7 18h13"/></svg></button>
+        </div>
+        <div class="tuc-btn-group" role="group" aria-label="Guardar">
+          <button type="button" class="tuc-btn is-primary">Guardar</button>
+          <button type="button" class="tuc-btn is-primary is-icon" aria-label="Más opciones de guardado" data-tuc-dropdown="#bg-save-menu"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+        </div>
+        <div class="tuc-dropdown" id="bg-save-menu" hidden>
+          <button type="button" class="tuc-dropdown__item" onclick="Tucano.toast('Guardar y continuar')"><span class="tuc-dropdown__text">Guardar y continuar</span></button>
+          <button type="button" class="tuc-dropdown__item" onclick="Tucano.toast('Guardar como borrador')"><span class="tuc-dropdown__text">Guardar como borrador</span></button>
+        </div>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Pequeño, al lado de un campo</h4>
+      <p><code>is-sm</code> en los botones acierta la altura de un <code>is-sm</code>; la esquina acompaña.</p>
+      <div class="bar">
+        <div class="tuc-btn-group" role="group" aria-label="Zoom">
+          <button type="button" class="tuc-btn is-outline is-sm">−</button>
+          <button type="button" class="tuc-btn is-outline is-sm">100%</button>
+          <button type="button" class="tuc-btn is-outline is-sm">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Línea entera</h4>
+      <p><code>is-block</code> ocupa todo el ancho y lo reparte en partes iguales — el camino en el móvil.</p>
+      <div class="tuc-btn-group is-segmented is-block" role="group" aria-label="Entrega">
+        <label class="tuc-btn"><input type="radio" class="tuc-btn__input" name="bg-ship" value="pickup" checked> Recogida</label>
+        <label class="tuc-btn"><input type="radio" class="tuc-btn__input" name="bg-ship" value="delivery"> Entrega</label>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Con rótulo y ayuda</h4>
+      <p>Dentro del formulario es un campo como los demás: <code>.tuc-label</code> arriba, <code>.tuc-hint</code> abajo.</p>
+      <span class="tuc-label" id="bg-vat-label">Régimen</span>
+      <div class="tuc-btn-group is-segmented" role="group" aria-labelledby="bg-vat-label" aria-describedby="bg-vat-hint">
+        <label class="tuc-btn"><input type="radio" class="tuc-btn__input" name="bg-vat" value="simple" checked> Simplificado</label>
+        <label class="tuc-btn"><input type="radio" class="tuc-btn__input" name="bg-vat" value="real"> Beneficio real</label>
+      </div>
+      <p class="tuc-hint" id="bg-vat-hint">Cambia el cálculo de los impuestos en la factura.</p>
+    </div>
+  </div>
+</div>
+
+<h2 id="usage">Cómo se usa</h2>
+<p class="lead">En la elección, el <code>&lt;input&gt;</code> va <b>dentro</b> del
+   <code>&lt;label class="tuc-btn"&gt;</code>, y como hijo directo: es lo que el CSS lee para saber cuál está
+   marcado.</p>
+
+<pre data-code="html">
+&lt;div class="tuc-btn-group is-segmented" role="group" aria-label="Periodo"&gt;
+  &lt;label class="tuc-btn"&gt;
+    &lt;input type="radio" class="tuc-btn__input" name="period" value="day" checked&gt; Día
+  &lt;/label&gt;
+  &lt;label class="tuc-btn"&gt;
+    &lt;input type="radio" class="tuc-btn__input" name="period" value="week"&gt; Semana
+  &lt;/label&gt;
+&lt;/div&gt;
+
+&lt;div class="tuc-btn-group" role="group" aria-label="Acciones del contrato"&gt;
+  &lt;button type="button" class="tuc-btn is-outline"&gt;Editar&lt;/button&gt;
+  &lt;button type="button" class="tuc-btn is-outline"&gt;Duplicar&lt;/button&gt;
+&lt;/div&gt;
+</pre>
+
+<p>El <code>role="group"</code> con <code>aria-label</code> (o <code>aria-labelledby</code> apuntando al rótulo) es
+   lo que hace que el lector de pantalla anuncie de qué va la fila. En un formulario, el
+   <code>&lt;fieldset&gt;</code> con <code>&lt;legend&gt;</code> también sirve — solo que no pongas la leyenda
+   dentro del grupo, que es una fila de botones.</p>
+
+<h3>En el formulario de Django</h3>
+<p>Nada de widget nuevo: es el <code>RadioSelect</code> de siempre, con la clase en <code>attrs</code> y recorrido
+   en la plantilla.</p>
+
+<pre data-code="python">
+period = forms.ChoiceField(
+    choices=[('day', 'Día'), ('week', 'Semana'), ('month', 'Mes')],
+    widget=forms.RadioSelect(attrs={'class': 'tuc-btn__input'}),
+)
+</pre>
+
+<pre data-code="django">
+&lt;div class="tuc-btn-group is-segmented" role="group" aria-label="{{ form.period.label }}"&gt;
+  {% for radio in form.period %}
+    &lt;label class="tuc-btn"&gt;{{ radio.tag }} {{ radio.choice_label }}&lt;/label&gt;
+  {% endfor %}
+&lt;/div&gt;
+</pre>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Parece una pestaña, pero no lo es</p><p>La <a href="../tabs/">pestaña segmentada</a> cambia lo que se ve en la pantalla y no llega al servidor. El grupo de botones es un campo: tiene <code>name</code>, tiene <code>value</code>, entra en el POST y acepta <code>required</code>. Si la elección viaja con el formulario, es aquí; si solo muestra otro panel, es allí.</p></div></div>
+
+<div class="tuc-alert is-warning"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0zM12 9v4M12 17h.01"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Hasta unas cuatro opciones, y cortas</p><p>Todas quedan a la vista al mismo tiempo, una al lado de la otra: con muchas, o con textos largos, la fila revienta la línea en el móvil. De ahí en adelante, usa el <a href="../select/">select</a> o las <a href="../choice/">opciones en lista</a> — que también son lo correcto cuando cada opción necesita una explicación debajo.</p></div></div>
+
+<h2 id="keyboard">Teclado y accesibilidad</h2>
+<p class="lead">Todo nativo. En la elección, quien recibe el foco es el <code>&lt;input&gt;</code> — invisible, pero
+   presente: se queda con opacidad cero, y no escondido, justamente para seguir siendo enfocable y anunciado. El
+   anillo de foco aparece en el botón que lo rodea.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Tecla</th><th>Dónde</th><th>Acción</th></tr></thead>
+  <tbody>
+    <tr><td><code>Tab</code></td><td>Grupo de radios</td><td>Entra en la opción marcada y sale del grupo — el grupo entero es una sola parada</td></tr>
+    <tr><td><code>←</code> <code>→</code> <code>↑</code> <code>↓</code></td><td>Radio con foco</td><td>Recorre las opciones y marca la de llegada</td></tr>
+    <tr><td><code>Tab</code></td><td>Casillas y botones</td><td>Cada uno es una parada, porque cada uno actúa por su cuenta</td></tr>
+    <tr><td><code>Espacio</code></td><td>Casilla con foco</td><td>La enciende y la apaga</td></tr>
+    <tr><td><code>Enter</code> <code>Espacio</code></td><td>Botón de acción</td><td>Lo acciona</td></tr>
+  </tbody>
+</table></div>
+
+<ul>
+  <li>El grupo necesita nombre: <code>role="group"</code> con <code>aria-label</code>, o un <code>&lt;fieldset&gt;</code> con <code>&lt;legend&gt;</code>.</li>
+  <li>El botón de solo icono sigue necesitando <code>aria-label</code>, como en cualquier <a href="../button/">botón</a>.</li>
+  <li><code>disabled</code> en el <code>&lt;input&gt;</code> atenúa el botón solo — sin una clase de más en el rótulo.</li>
+</ul>
+
+<h2 id="api">Clases</h2>
+<p class="lead">Solo CSS. La caja es la misma de la pestaña segmentada, a propósito: las dos tienen que alinear con
+   los campos de la fila, y por eso el borde más el respiro suman exactamente <code>--tuc-control-height</code>.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Clase</th><th>Para qué</th></tr></thead>
+  <tbody>
+    <tr><td><code>tuc-btn-group</code></td><td>La fila. Sola, une los botones en un solo bloque</td></tr>
+    <tr><td><code>is-segmented</code></td><td>La caja rebajada de las pestañas segmentadas, para la elección en botón</td></tr>
+    <tr><td><code>is-block</code></td><td>Ocupa la línea entera, repartida en partes iguales</td></tr>
+    <tr><td><code>tuc-btn__input</code></td><td>El <code>&lt;input&gt;</code> dentro del rótulo: invisible, enfocable y todavía dueño del valor</td></tr>
+    <tr><td><code>tuc-btn</code> y sus variantes</td><td>Cada elemento del grupo — <code>is-outline</code>, <code>is-primary</code>, <code>is-sm</code>, <code>is-icon</code></td></tr>
+  </tbody>
+</table></div>
+
+<script>
+  // La demostracion de arriba solo muestra el valor que iria en el POST.
+  const out = document.getElementById('bg-out');
+  for (const input of document.querySelectorAll('input[name="bg-period"]')) {
+    input.addEventListener('change', () => { out.textContent = 'Periodo: ' + input.value; });
+  }
+</script>

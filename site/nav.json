@@ -69,6 +69,11 @@
         "desc": "Variantes e tamanhos, só classe."
       },
       {
+        "slug": "buttongroup",
+        "title": "Grupo de botões",
+        "desc": "Ações emendadas e escolha em forma de botão."
+      },
+      {
         "slug": "dropdown",
         "title": "Menu suspenso",
         "desc": "Menu de ações ancorado, com setas."

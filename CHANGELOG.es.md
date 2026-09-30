@@ -4,6 +4,22 @@ Qué cambió en cada versión de Tucano, de la más reciente a la más antigua. 
 primero la sección "Antes de actualizar" de cada versión: ahí está lo que exige
 cambios en tu proyecto.
 
+## Sin publicar
+
+### Nuevo
+
+- Grupo de botones, solo con clases: `.tuc-btn-group`. Por sí solo une las
+  acciones que van juntas — `[Editar][Duplicar][Archivar]` se vuelve un bloque,
+  en vez de tres botones sueltos en la línea. Con `is-segmented` viste el
+  `<input>` de botón: es la caja de la pestaña segmentada, con el elegido en el
+  color de destaque del tema, y el valor sigue siendo del nativo — `name`,
+  `value`, `required`, el POST y las flechas del teclado son los del navegador.
+  El `<input>` va dentro del `<label class="tuc-btn">`, con
+  `class="tuc-btn__input"`, y queda con opacidad cero, y no escondido, para
+  seguir siendo enfocable y anunciado. Con `type="checkbox"` valen varias a la
+  vez, y `is-block` ocupa la línea entera. No sustituye a la pestaña segmentada:
+  aquella cambia lo que se ve en la pantalla, esta es un campo y va en el POST.
+
 ## 0.36.0 — 2026-09-23
 
 ### Nuevo

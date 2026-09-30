@@ -40,6 +40,7 @@ framework (`data-csrf="false"` e a opção `headers` do `new Upload`).
 | `Editor` — editor de texto com tabela, bloco de código e variáveis | pronto |
 | `.tuc-prose` — exibição do que o editor salvou, com destaque e copiar | pronto |
 | `.tuc-btn` — estilo de botão, só classe | pronto |
+| `.tuc-btn-group` — grupo de botões: ações emendadas e escolha em botão, só classe | pronto |
 
 ---
 
@@ -398,6 +399,39 @@ Desabilitado mostra o cursor de bloqueio e não reage ao hover. Sem
 `pointer-events: none`: sem receber ponteiro o elemento não troca o cursor, e a
 pessoa fica sem sinal de que o botão não responde. Num `<button disabled>` o
 navegador já impede o clique.
+
+### Grupo de botões
+
+Também só classe. Sem `is-segmented`, emenda ações que andam juntas num bloco
+só; com ele, veste o `<input>` de botão — a caixa é a mesma da aba segmentada, e
+o escolhido sai na cor de destaque do tema.
+
+```html
+<div class="tuc-btn-group is-segmented" role="group" aria-label="Período">
+  <label class="tuc-btn">
+    <input type="radio" class="tuc-btn__input" name="period" value="day" checked> Dia
+  </label>
+  <label class="tuc-btn">
+    <input type="radio" class="tuc-btn__input" name="period" value="week"> Semana
+  </label>
+</div>
+
+<div class="tuc-btn-group" role="group" aria-label="Ações">
+  <button class="tuc-btn is-outline">Editar</button>
+  <button class="tuc-btn is-outline">Duplicar</button>
+</div>
+```
+
+**O valor continua sendo do `<input>` nativo**: `name`, `value`, `required`, o
+POST e as setas do teclado são os do navegador. O `<input>` vai dentro do
+`<label class="tuc-btn">`, como filho direto — é o `:has` do rótulo que desenha
+o escolhido —, e fica com opacidade zero, e não escondido, para continuar
+focável. Com `type="checkbox"` valem várias ao mesmo tempo; `is-block` ocupa a
+linha inteira.
+
+**Não é aba.** A aba segmentada troca o que se vê na tela e não vai para o
+servidor; o grupo de botões é campo. Até umas quatro opções curtas — passando
+disso, `select` ou `.tuc-choices`.
 
 ## Toast
 

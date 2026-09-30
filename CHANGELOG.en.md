@@ -4,6 +4,23 @@ What changed in each Tucano release, newest first. Check the "Before upgrading"
 section of each version first: that is where you will find what requires changes
 in your project.
 
+## Unreleased
+
+### New
+
+- Button group, class only: `.tuc-btn-group`. On its own it joins actions that
+  belong together — `[Edit][Duplicate][Archive]` becomes one block instead of
+  three loose buttons on the line. With `is-segmented` it dresses the `<input>`
+  as a button: the segmented tab's box, with the chosen one in the theme's
+  accent colour, and the value still belongs to the native control — `name`,
+  `value`, `required`, the POST and the arrow keys are the browser's. The
+  `<input>` goes inside the `<label class="tuc-btn">`, with
+  `class="tuc-btn__input"`, and has zero opacity rather than being hidden, so it
+  stays focusable and announced. With `type="checkbox"` several can be on at
+  once, and `is-block` takes the whole line. It does not replace the segmented
+  tab: that one changes what is on the screen, this one is a field and goes in
+  the POST.
+
 ## 0.36.0 — 2026-09-23
 
 ### New

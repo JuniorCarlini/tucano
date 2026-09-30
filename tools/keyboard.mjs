@@ -63,6 +63,10 @@ const page = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
   <button class="tuc-dropdown__item"><span class="tuc-dropdown__text">Editar</span></button>
   <button class="tuc-dropdown__item"><span class="tuc-dropdown__text">Excluir</span></button>
 </div>
+<div class="tuc-btn-group is-segmented" id="kbg" role="group" aria-label="Período">
+  <label class="tuc-btn"><input type="radio" class="tuc-btn__input" name="kbgp" value="day" checked> Dia</label>
+  <label class="tuc-btn"><input type="radio" class="tuc-btn__input" name="kbgp" value="week"> Semana</label>
+</div>
 <textarea id="kvars"></textarea>
 <p id="kbold"><b>negrito fora do editor</b></p>
 <form id="kedForm" onsubmit="window.__kedSubmits++; return false"><textarea id="ked2" name="body" data-tuc-editor required>&lt;p&gt;original&lt;/p&gt;</textarea><button id="kedSubmit">enviar</button></form>
@@ -1411,6 +1415,52 @@ testCase('editor: Esc fecha a lista e deixa a pessoa digitando', async () => {
 });
 
 /* Um navegador: uma pagina, os casos em ordem, a saida guardada para imprimir junta. */
+/*
+ * Grupo de botoes: o teclado aqui e todo do navegador, mas o desenho nao. O
+ * anel de foco e a cor de ativo sao os dois box-shadow, e um apagava o outro —
+ * quem andava de seta ficava sem saber onde estava.
+ */
+const readGroup = () => evaluate(`(() => {
+  const labels = [...document.querySelectorAll('#kbg .tuc-btn')];
+  const probe = document.createElement('span');
+  probe.style.color = 'var(--tuc-accent)';
+  document.body.append(probe);
+  const accent = getComputedStyle(probe).color;
+  probe.remove();
+  const at = labels.findIndex((l) => l.querySelector('input') === document.activeElement);
+  const style = getComputedStyle(labels[at] ?? labels[0]);
+  return {
+    at,
+    checked: labels.map((l) => l.querySelector('input').checked),
+    accent,
+    background: style.backgroundColor,
+    ring: /0px 0px 0px 3px/.test(style.boxShadow),
+  };
+})()`);
+
+testCase('grupo de botões: o escolhido com foco ganha o anel sem perder a cor de ativo', async () => {
+  await evaluate(`void document.querySelector('#kbg input').focus()`);
+  await wait(300);   // a sombra tem transicao; ler antes e ler o primeiro quadro
+  const r = await readGroup();
+  if (r.at !== 0) return `o foco parou em ${r.at}`;
+  if (!r.ring) return 'o escolhido com foco ficou sem anel';
+  if (r.background !== r.accent) return `fundo ${r.background}, esperada a cor de destaque ${r.accent}`;
+  return null;
+});
+
+testCase('seta no grupo de botões troca a escolha e leva o anel junto', async () => {
+  await evaluate(`void document.querySelector('#kbg input').focus()`);
+  await press('ArrowRight');
+  await wait(300);
+  const r = await readGroup();
+  if (r.checked[0] || !r.checked[1]) return 'a seta não levou a escolha para a segunda opção';
+  if (r.at !== 1) return `o foco parou em ${r.at}`;
+  if (!r.ring) return 'a opção de chegada ficou sem anel';
+  if (r.background !== r.accent) return `fundo ${r.background}, esperada a cor de destaque ${r.accent}`;
+  await press('ArrowLeft');
+  return null;
+}, { skip: { webkit: 'o WebKit tira o :focus-visible do radio alcançado por seta — dá :focus, e o anel só volta num foco novo' } });
+
 async function run(name) {
   const lines = [];
   let failures = 0, passed = 0, skipped = 0;

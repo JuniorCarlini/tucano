@@ -151,3 +151,109 @@
 .tuc-btn.is-icon.is-lg { width: 2.75rem; }
 
 .tuc-btn.is-block { @apply w-full; }
+
+/*
+ * Grupo de botoes.
+ *
+ * Dois papeis na mesma caixa, porque a caixa e a mesma e so o conteudo muda:
+ *
+ * - acoes emendadas, como [Editar][Duplicar][Excluir], que viram um bloco so
+ *   em vez de tres botoes soltos na linha;
+ * - escolha em forma de botao (`is-segmented`), que e o radio ou a caixa
+ *   desenhados como a aba segmentada — mesma altura de controle e mesmo fundo
+ *   rebaixado, com o escolhido na cor de destaque do tema.
+ *
+ * So classe, nenhum JavaScript. Na escolha, quem guarda o valor continua sendo
+ * o <input> de verdade dentro do <label>: `name`, `value`, `required`, o POST e
+ * as setas do teclado sao os nativos. O input fica invisivel, mas presente e
+ * focavel — e o :has do rotulo que veste o botao.
+ */
+
+.tuc-btn-group {
+  @apply inline-flex max-w-full items-center align-middle;
+}
+
+/* Emendados: um bloco so, arredondado apenas nas pontas. */
+.tuc-btn-group > .tuc-btn {
+  --tuc-group-radius: var(--tuc-radius-md);
+  border-radius: 0;
+}
+.tuc-btn-group > .tuc-btn.is-sm { --tuc-group-radius: var(--tuc-radius-sm); }
+.tuc-btn-group > .tuc-btn:first-child {
+  border-top-left-radius: var(--tuc-group-radius);
+  border-bottom-left-radius: var(--tuc-group-radius);
+}
+.tuc-btn-group > .tuc-btn:last-child {
+  border-top-right-radius: var(--tuc-group-radius);
+  border-bottom-right-radius: var(--tuc-group-radius);
+}
+/* Borda compartilhada: sem isto, duas bordas encostadas viram uma linha grossa. */
+.tuc-btn-group > .tuc-btn + .tuc-btn { margin-left: calc(-1 * var(--tuc-border-width)); }
+/* O vizinho nao pode cobrir a borda de quem esta sob o mouse nem o anel de foco. */
+.tuc-btn-group > .tuc-btn:hover,
+.tuc-btn-group > .tuc-btn:focus-visible,
+.tuc-btn-group > .tuc-btn:has(> .tuc-btn__input:focus-visible),
+.tuc-btn-group > .tuc-btn:has(> .tuc-btn__input:checked) { @apply relative z-10; }
+
+/* Ocupa a linha inteira, repartida em partes iguais. */
+.tuc-btn-group.is-block { @apply flex w-full; }
+.tuc-btn-group.is-block > .tuc-btn { @apply flex-1; }
+
+/*
+ * O input da escolha: invisivel, mas presente. Opacidade zero em vez de
+ * display:none de proposito — assim ele continua focavel, as setas andam entre
+ * os radios do mesmo `name` e o leitor de tela anuncia o grupo.
+ */
+.tuc-btn__input {
+  @apply absolute m-0 size-0 appearance-none opacity-0;
+}
+
+/* Escolha em botao: a caixa da aba segmentada. */
+.tuc-btn-group.is-segmented {
+  @apply gap-0.5;
+  padding: 0.1875rem;
+  background: var(--tuc-elevated);
+  border: var(--tuc-border-width) solid var(--tuc-border);
+  border-radius: var(--tuc-radius-md);
+}
+.tuc-btn-group.is-segmented > .tuc-btn {
+  @apply m-0;
+  height: calc(var(--tuc-control-height) - 0.375rem - 2 * var(--tuc-border-width));
+  color: var(--tuc-muted);
+  border-color: transparent;
+  border-radius: var(--tuc-radius-sm);
+}
+.tuc-btn-group.is-segmented > .tuc-btn:hover { color: var(--tuc-fg); background: var(--tuc-hover); }
+.tuc-btn-group.is-segmented > .tuc-btn:has(> .tuc-btn__input:checked):hover { color: var(--tuc-accent-fg); }
+/*
+ * O escolhido e o botao primario do tema — o mesmo desenho do `.tuc-btn
+ * is-primary`, e nao um relevo cinza. E o padrao do sistema: o que esta ativo
+ * sai na cor de destaque, que no site e o laranja e no pacote e o que o projeto
+ * tiver posto em --tuc-accent. Vale nas duas formas do grupo, porque o rotulo
+ * com input dentro tambem serve no emendado.
+ */
+.tuc-btn-group > .tuc-btn:has(> .tuc-btn__input:checked) {
+  color: var(--tuc-accent-fg);
+  background: var(--tuc-accent);
+  border-color: var(--tuc-accent);
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+}
+.tuc-btn-group > .tuc-btn:has(> .tuc-btn__input:checked):hover {
+  background: var(--tuc-accent-hover);
+  border-color: var(--tuc-accent-hover);
+}
+
+/*
+ * O anel de foco segue o input, que e quem recebe o foco de verdade: sem isto,
+ * quem anda de Tab ou de seta pelo grupo nao veria onde esta. Vem depois do
+ * escolhido de proposito: os dois pesam igual, e quem chega de seta precisa do
+ * anel por cima.
+ */
+.tuc-btn-group > .tuc-btn:has(> .tuc-btn__input:focus-visible) {
+  border-color: var(--tuc-accent);
+  box-shadow: 0 0 0 3px var(--tuc-accent-ring);
+}
+/* Desativado pelo proprio input, e nao por uma classe a mais no rotulo. */
+.tuc-btn-group > .tuc-btn:has(> .tuc-btn__input:disabled) {
+  @apply cursor-not-allowed opacity-50;
+}

@@ -60,6 +60,11 @@ body{margin:0;padding:16px;font-family:system-ui}
 <input type="checkbox" class="tuc-check" id="ck">
 <label class="tuc-choice" id="chl"><input type="radio" class="tuc-radio" name="r" id="rd"> Um</label>
 <input type="checkbox" role="switch" class="tuc-switch" id="sw">
+<div class="tuc-btn-group is-segmented" id="bgr" role="group" aria-label="Período">
+  <label class="tuc-btn" id="bgr1"><input type="radio" class="tuc-btn__input" name="bgp" value="day" checked> Dia</label>
+  <label class="tuc-btn" id="bgr2"><input type="radio" class="tuc-btn__input" name="bgp" value="week"> Semana</label>
+</div>
+<div class="tuc-btn-group" id="bga"><button class="tuc-btn is-outline" id="bga1">A</button><button class="tuc-btn is-outline" id="bga2">B</button></div>
 <style>.hostile label{display:block;margin-bottom:8px;font-weight:600}</style>
 <div class="hostile"><label class="tuc-choice" id="chh"><input type="checkbox" class="tuc-check"> Dentro de um card</label></div>
 <ol class="tuc-timeline" id="tl"><li class="tuc-timeline__item is-success"><div class="tuc-timeline__head"><span class="tuc-timeline__title">A</span></div></li><li class="tuc-timeline__item"><div class="tuc-timeline__head"><span class="tuc-timeline__title">B</span></div></li></ol>
@@ -972,6 +977,33 @@ body{margin:0;padding:16px;font-family:system-ui}
     var after = getComputedStyle(sw, '::after').translate;
     if (before === after) throw new Error('translate ficou ' + after);
     sw.click();
+  });
+  t('grupo de botões acende o escolhido, e só ele', function () {
+    var first = document.getElementById('bgr1'), second = document.getElementById('bgr2');
+    var lit = function (n) { return getComputedStyle(n).backgroundColor; };
+    var off = lit(second);
+    if (lit(first) === off) throw new Error('o marcado nasceu igual ao resto');
+    // Clicar no rótulo é o que a pessoa faz; quem guarda o valor é o input.
+    second.click();
+    if (!second.querySelector('input').checked) throw new Error('o input não ficou marcado');
+    if (lit(second) === off) throw new Error('o destaque não acompanhou a escolha');
+    if (lit(first) !== off) throw new Error('o anterior continuou aceso');
+    first.click();
+  });
+  t('grupo segmentado alinha com a altura dos campos da linha', function () {
+    // A caixa da aba segmentada: borda mais respiro somam --tuc-control-height.
+    var group = getComputedStyle(document.getElementById('bgr')).height;
+    var field = getComputedStyle(document.getElementById('m')).height;
+    if (group !== field) throw new Error('grupo ' + group + ', campo ' + field);
+  });
+  t('botões emendados dividem a borda e arredondam só nas pontas', function () {
+    var a = getComputedStyle(document.getElementById('bga1'));
+    var b = getComputedStyle(document.getElementById('bga2'));
+    if (a.borderTopLeftRadius === '0px') throw new Error('a ponta esquerda perdeu o canto');
+    if (a.borderTopRightRadius !== '0px') throw new Error('arredondou no meio do bloco');
+    if (b.borderTopRightRadius === '0px') throw new Error('a ponta direita perdeu o canto');
+    // Sem a margem negativa, duas bordas encostadas viram uma linha grossa.
+    if (parseFloat(b.marginLeft) >= 0) throw new Error('margem ' + b.marginLeft);
   });
   t('aria-invalid pinta a borda de erro, inclusive nos controles montados', function () {
     // O atributo fica no nativo; a borda tem de aparecer no que a pessoa vê.

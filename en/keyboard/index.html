@@ -83,6 +83,7 @@
     <a class="tuc-menu__item" href="../editor/">Text editor</a>
 <div class="tuc-menu__section">Actions</div>
     <a class="tuc-menu__item" href="../button/">Button</a>
+    <a class="tuc-menu__item" href="../buttongroup/">Button group</a>
     <a class="tuc-menu__item" href="../dropdown/">Dropdown menu</a>
     <a class="tuc-menu__item" href="../contextmenu/">Right-click menu</a>
 <div class="tuc-menu__section">Feedback</div>
@@ -306,6 +307,7 @@
     <tr><td>Toast</td><td>The timer pauses when something inside it receives focus</td><td>Two live regions created before the first message: <code>polite</code> for normal ones and <code>assertive</code> for errors; each toast is <code>status</code> or <code>alert</code></td></tr>
     <tr><td>Pagination</td><td>Native links</td><td><code>&lt;nav&gt;</code> "Paginação" (pagination), <code>aria-current="page"</code> on the current one; a disabled end is a <code>&lt;span&gt;</code>, out of the <code>Tab</code> path</td></tr>
     <tr><td>Checkbox, radio and switch</td><td>Those of the native <code>&lt;input&gt;</code></td><td>The browser's; the switch needs <code>role="switch"</code> in the template, because CSS can't add a role</td></tr>
+    <tr><td>Button group</td><td>Those of the native <code>&lt;input&gt;</code>: the radio group is a single <code>Tab</code> stop, and the arrow keys move through it</td><td>The group needs a name — <code>role="group"</code> with <code>aria-label</code>, or <code>&lt;fieldset&gt;</code> with <code>&lt;legend&gt;</code>; the <code>&lt;input&gt;</code> stays invisible, but focusable and announced</td></tr>
   </tbody>
 </table></div>
 

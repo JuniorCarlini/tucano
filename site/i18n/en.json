@@ -55,6 +55,7 @@
     "upload": { "title": "Upload", "desc": "Drag and drop, progress and validation." },
     "editor": { "title": "Text editor", "desc": "Rich text with tables and code blocks." },
     "button": { "title": "Button", "desc": "Variants and sizes, class only." },
+    "buttongroup": { "title": "Button group", "desc": "Joined actions and choice as buttons." },
     "dropdown": { "title": "Dropdown menu", "desc": "Anchored action menu, with arrow keys." },
     "contextmenu": { "title": "Right-click menu", "desc": "Context menu at the click point." },
     "toast": { "title": "Toast", "desc": "Short-lived notices, with Django and HTMX." },
