@@ -59,6 +59,8 @@ const files = {
      cima seria procurar, numa pagina gerada, padroes da pagina antiga. */
   'README.md': [
     [/\*\*\d+ KB de JS \+ \d+ KB de CSS\*\*/g, `**${js} KB de JS + ${css} KB de CSS**`],
+    /* O selo do topo tambem e numero: escrito a mao, envelhece como os outros. */
+    [/badge\/gzip-\d+%20KB/g, `badge/gzip-${total}%20KB`],
     [/tucano@v[\d.]+/g, `tucano@v${v}`],
     [/\(`@[\d.]+`\)/g, `(\`@${v}\`)`],
     ...tableRows,

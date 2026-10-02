@@ -1,46 +1,58 @@
-# 🦜 Tucano
+<div align="center">
 
-Componentes de formulário e interface para a web, para quem escreve HTML.
-Sem React, sem Vue, sem dependência em runtime.
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/JuniorCarlini/tucano/main/site/assets/logo-dark.svg">
+  <img src="https://raw.githubusercontent.com/JuniorCarlini/tucano/main/site/assets/logo-light.svg" alt="" width="104" height="97">
+</picture>
 
-Funciona com Django, Laravel, Rails ou qualquer back-end que devolve HTML do
-servidor, com ou sem HTMX: o valor fica no formulário nativo e os componentes se
-montam sozinhos. Os exemplos usam Django; em PHP e Rails, campo múltiplo precisa
-de `name` terminado em `[]`, e o upload direto precisa do cabeçalho de CSRF do
-framework (`data-csrf="false"` e a opção `headers` do `new Upload`).
+<h1>Tucano</h1>
 
-**43 KB de JS + 13 KB de CSS** (minificado + gzip).
+<p><b>Componentes de formulário e interface para quem escreve HTML.</b><br>
+Sem React, sem Vue, sem dependência em runtime: o valor fica no formulário nativo<br>
+e os componentes se montam sozinhos, no Django, no Laravel, no Rails ou em HTML puro.</p>
 
-**[Documentação e exemplos ao vivo →](https://juniorcarlini.github.io/tucano/)**
+<p>
+  <a href="https://www.npmjs.com/package/tucano"><img alt="npm" src="https://img.shields.io/npm/v/tucano?style=flat-square&color=FF7501&label=npm"></a>
+  <a href="#baixar-só-o-que-se-usa"><img alt="tamanho" src="https://img.shields.io/badge/gzip-56%20KB-FF7501?style=flat-square"></a>
+  <a href="https://github.com/JuniorCarlini/tucano/actions/workflows/tests.yml"><img alt="testes" src="https://img.shields.io/github/actions/workflow/status/JuniorCarlini/tucano/tests.yml?style=flat-square&label=testes&branch=main"></a>
+  <img alt="dependências" src="https://img.shields.io/badge/depend%C3%AAncias-0-0a7?style=flat-square">
+  <a href="LICENSE"><img alt="licença" src="https://img.shields.io/github/license/JuniorCarlini/tucano?style=flat-square&color=555"></a>
+</p>
 
-| Componente | Status |
-| --- | --- |
-| `DatePicker` — data, período, hora, data+hora | pronto |
-| `Select` — busca, multi-seleção com tags, grupos, limite | pronto |
-| `ColorPicker` — HSV, hex/rgb/hsl, opacidade, paleta | pronto |
-| `Upload` — arrastar e soltar, progresso, validação | pronto |
-| `Mask` — CPF, CNPJ, telefone, real, campo sensível | pronto |
-| `Toast` — avisos, com integração Django e HTMX | pronto |
-| `Tooltip` — dica ancorada, teclado e toque | pronto |
-| `Modal` — diálogo sobre `<dialog>` nativo, fundo com brilho | pronto |
-| `Drawer` — off-canvas nas quatro bordas, mesmo motor do modal | pronto |
-| `Acordeão` — sobre `<details>`, funciona sem JavaScript | pronto |
-| `Dropdown` — menu de ações ancorado, navegação por setas | pronto |
-| `ContextMenu` — menu do botão direito, no ponto do clique | pronto |
-| `Table` — ordenação por coluna e seleção em massa | pronto |
-| `Pagination` — links de página, feita para o Paginator | pronto |
-| `Tabs` — abas com teclado do ARIA APG, e segmentadas | pronto |
-| `.tuc-alert` — aviso fixo na página, quatro tons, só classe | pronto |
-| `.tuc-spinner` `.tuc-skeleton` — carregando, só classe | pronto |
-| `.tuc-timeline` — linha do tempo, só classe | pronto |
-| `.tuc-menu` — lista de navegação, só classe | pronto |
-| `.tuc-badge` — etiqueta de estado, quatro tons, só classe | pronto |
-| `.tuc-check` `.tuc-radio` `.tuc-switch` — caixa, opção e chave, só classe | pronto |
-| `.tuc-label` `.tuc-hint` `.tuc-error` — rótulo, ajuda e erro; campo inválido por `aria-invalid` | pronto |
-| `Editor` — editor de texto com tabela, bloco de código e variáveis | pronto |
-| `.tuc-prose` — exibição do que o editor salvou, com destaque e copiar | pronto |
-| `.tuc-btn` — estilo de botão, só classe | pronto |
-| `.tuc-btn-group` — grupo de botões: ações emendadas e escolha em botão, só classe | pronto |
+<p>
+  <a href="https://juniorcarlini.github.io/tucano/"><b>Documentação ao vivo</b></a> ·
+  <a href="#componentes">Componentes</a> ·
+  <a href="CHANGELOG.md">Changelog</a> ·
+  <a href="https://juniorcarlini.github.io/tucano/ai/">Para agentes de IA</a>
+</p>
+
+<p>
+  <sub><a href="https://juniorcarlini.github.io/tucano/en/">English docs</a> · <a href="https://juniorcarlini.github.io/tucano/es/">Documentación en español</a></sub>
+</p>
+
+<br>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/JuniorCarlini/tucano/main/site/assets/cover-dark.png">
+  <img src="https://raw.githubusercontent.com/JuniorCarlini/tucano/main/site/assets/cover.png" alt="Campos, botões, chave, etiquetas, aviso e linha do tempo da Tucano" width="900">
+</picture>
+
+</div>
+
+---
+
+## Por que
+
+- **Nada para configurar.** Um `<link>`, um `<script>` e um atributo no campo. Sem build, sem npm, sem escrever JavaScript.
+- **O valor continua sendo do formulário.** `name`, `value`, `required` e o POST são os do navegador — o back-end não muda, e funciona sem JavaScript até onde o elemento nativo vai.
+- **Feito para HTML vindo do servidor.** Os componentes se montam no load e depois de cada swap do HTMX. Os exemplos usam Django, mas servem a Laravel, Rails ou PHP puro.
+- **Leve e sem dependências.** **43 KB de JS + 13 KB de CSS** (minificado + gzip), e quem empacota leva só o que importa.
+- **Acessível por padrão.** Papéis ARIA, foco preso onde precisa, teclado do ARIA APG e `prefers-reduced-motion` respeitado.
+- **Provado nos três motores.** Chromium, Firefox e WebKit a cada push: comportamento, teclado de verdade, exemplos da documentação e checagens cruzadas de nome.
+
+> **Fora do Django:** campo múltiplo em PHP e Rails precisa de `name` terminado
+> em `[]`, e o upload direto precisa do cabeçalho de CSRF do framework
+> (`data-csrf="false"` e a opção `headers` do `new Upload`).
 
 ---
 
@@ -110,7 +122,7 @@ instale o pacote como dependência de desenvolvimento e ponha
 
 ---
 
-## Uso
+## Em um minuto
 
 ### Por atributo (não precisa escrever JS)
 
@@ -186,7 +198,57 @@ componentes.
 
 ---
 
-## Opções
+## Componentes
+
+Vinte e seis, todos prontos. Cada linha abre a página com exemplos que você mexe
+na hora.
+
+| Com JavaScript | O que faz | |
+| --- | --- | --- |
+| `DatePicker` | Data, período, hora, data + hora | [docs](https://juniorcarlini.github.io/tucano/datepicker/) |
+| `Select` | Busca, múltiplo com tags, grupos, limite | [docs](https://juniorcarlini.github.io/tucano/select/) |
+| `ColorPicker` | HSV, hex/rgb/hsl, opacidade, paleta | [docs](https://juniorcarlini.github.io/tucano/color/) |
+| `Upload` | Arrastar e soltar, progresso, validação | [docs](https://juniorcarlini.github.io/tucano/upload/) |
+| `Mask` | CPF, CNPJ, telefone, real, campo sensível | [docs](https://juniorcarlini.github.io/tucano/mask/) |
+| `Editor` | Texto rico com tabela, bloco de código e variáveis | [docs](https://juniorcarlini.github.io/tucano/editor/) |
+| `Table` | Ordenação por coluna e seleção em massa | [docs](https://juniorcarlini.github.io/tucano/table/) |
+| `Pagination` | Links de página, feita para o Paginator | [docs](https://juniorcarlini.github.io/tucano/pagination/) |
+| `Tabs` | Abas com teclado do ARIA APG, e segmentadas | [docs](https://juniorcarlini.github.io/tucano/tabs/) |
+| `Dropdown` | Menu de ações ancorado, navegação por setas | [docs](https://juniorcarlini.github.io/tucano/dropdown/) |
+| `ContextMenu` | Menu do botão direito, no ponto do clique | [docs](https://juniorcarlini.github.io/tucano/contextmenu/) |
+| `Modal` | Diálogo sobre `<dialog>` nativo | [docs](https://juniorcarlini.github.io/tucano/modal/) |
+| `Drawer` | Off-canvas nas quatro bordas, mesmo motor do modal | [docs](https://juniorcarlini.github.io/tucano/drawer/) |
+| `Toast` | Avisos passageiros, com Django e HTMX | [docs](https://juniorcarlini.github.io/tucano/toast/) |
+| `Tooltip` | Dica ancorada, no ponteiro, no foco e no toque | [docs](https://juniorcarlini.github.io/tucano/tooltip/) |
+| `Accordion` | Sobre `<details>`, funciona sem JavaScript | [docs](https://juniorcarlini.github.io/tucano/accordion/) |
+
+| Só classe | O que faz | |
+| --- | --- | --- |
+| `.tuc-btn` | Botão: variantes, tamanhos, só ícone, ocupado | [docs](https://juniorcarlini.github.io/tucano/button/) |
+| `.tuc-btn-group` | Ações emendadas e escolha em forma de botão | [docs](https://juniorcarlini.github.io/tucano/buttongroup/) |
+| `.tuc-check` `.tuc-radio` `.tuc-switch` | Caixa, opção e chave, ainda nativas | [docs](https://juniorcarlini.github.io/tucano/choice/) |
+| `.tuc-label` `.tuc-hint` `.tuc-error` | Rótulo, ajuda, erro e o campo que reprovou | [docs](https://juniorcarlini.github.io/tucano/form/) |
+| `.tuc-alert` | O que continua valendo na tela, em quatro tons | [docs](https://juniorcarlini.github.io/tucano/alert/) |
+| `.tuc-badge` | Estado de um registro, em quatro tons | [docs](https://juniorcarlini.github.io/tucano/badge/) |
+| `.tuc-spinner` `.tuc-skeleton` | Carregando | [docs](https://juniorcarlini.github.io/tucano/loading/) |
+| `.tuc-timeline` | Histórico em ordem, com tons e ícone | [docs](https://juniorcarlini.github.io/tucano/timeline/) |
+| `.tuc-menu` | Lista de navegação com submenu | [docs](https://juniorcarlini.github.io/tucano/menu/) |
+| `.tuc-prose` | Exibição do que o editor salvou, com copiar | [docs](https://juniorcarlini.github.io/tucano/editor/#display) |
+
+---
+
+## Manual
+
+A documentação completa, com exemplos que se mexem, está no
+[site](https://juniorcarlini.github.io/tucano/) — em português, inglês e espanhol. O que segue é o
+mesmo conteúdo em texto, para ler sem sair daqui.
+
+### Campos
+
+<details>
+<summary><b>Date picker — opções, eventos e teclado</b></summary>
+
+[Página com exemplos ao vivo →](https://juniorcarlini.github.io/tucano/datepicker/)
 
 | Opção | Padrão | O que faz |
 | --- | --- | --- |
@@ -208,7 +270,7 @@ componentes.
 | `isoName` | `name` do input | `name` do input hidden em ISO |
 | `native` | `false` | Seletor nativo do sistema: `true` sempre, `'auto'` em tela de toque (só em JS) |
 
-### Eventos
+#### Eventos
 
 `tucano:change` borbulha a partir do input — use isso em vez de `onChange` quando
 não controlar a ordem de inicialização:
@@ -228,9 +290,42 @@ sem `name`, para o servidor receber ISO e não o texto formatado. Ali use
 Um `change` nativo também é disparado, então validação de formulário e HTMX
 enxergam o valor normalmente.
 
----
+Chegar de `Tab` não abre painel nenhum — quem tabula por um formulário até o
+botão de salvar não deveria levar um calendário na cara a cada campo, com o
+painel cobrindo o campo seguinte. É a regra do `<select>` nativo e do ARIA APG.
 
-## Select
+Abrir é sempre explícito:
+
+| | abre com |
+|---|---|
+| Date picker | `↓`, `Espaço`, clique |
+| Select | `↓`, `Enter`, `Espaço`, clique |
+| Color picker | `↓`, clique — ou `Enter`/`Espaço` na amostra, que é um `<button>` |
+
+No campo de data o `Enter` fica de fora de propósito: ele é um campo de texto
+dentro de um `<form>`, e `Enter` num campo de texto envia o formulário — é o que
+se espera depois de digitar a data. Ali quem abre é o `Espaço`, e só com o campo
+vazio, porque em modo com hora se digita `07/09/2026 14:30`.
+
+| Tecla | Ação |
+| --- | --- |
+| `↑ ↓ ← →` | Move o dia focado |
+| `Enter` / `Espaço` | Seleciona |
+| `PageUp` / `PageDown` | Mês anterior / próximo (com `Shift`: ano) |
+| `Home` / `End` | Início / fim da semana |
+| `Esc` | Fecha |
+
+O painel é `role="dialog"`, a grade é `role="grid"`, cada dia tem
+`aria-selected` e rótulo por extenso, e o foco fica preso no painel enquanto
+aberto — voltando ao input ao fechar. `prefers-reduced-motion` desliga a
+animação.
+
+</details>
+
+<details>
+<summary><b>Select — busca, múltiplo e busca no servidor</b></summary>
+
+[Página com exemplos ao vivo →](https://juniorcarlini.github.io/tucano/select/)
 
 Enriquece um `<select>` nativo. O elemento original continua no DOM guardando o
 valor, então `name`, `multiple` e `required` seguem funcionando e o Django recebe
@@ -277,9 +372,123 @@ Teclado: setas navegam, `Enter` escolhe, `Esc` fecha, `Backspace` com a busca
 vazia remove a última tag (no simples, `Backspace` e `Delete` limpam o valor,
 como o X), `Home`/`End` vão à primeira e à última opção, pulando as desativadas.
 
----
+</details>
 
-## Color picker
+<details>
+<summary><b>Máscaras — CPF, CNPJ, telefone, moeda e campo sensível</b></summary>
+
+[Página com exemplos ao vivo →](https://juniorcarlini.github.io/tucano/mask/)
+
+Formata enquanto se digita, valida documento e esconde dado sensível. Não
+envolve nem substitui o input — é comportamento puro.
+
+```html
+<input name="cpf"       data-tuc-mask="cpf" data-validate="true">
+<input name="cnpj"      data-tuc-mask="cnpj">
+<input name="document"   data-tuc-mask="cpf-cnpj">
+<input name="phone"      data-tuc-mask="phone">
+<input name="amount"     data-tuc-mask="brl">
+<input name="cep"       data-tuc-mask="cep">
+<input                  data-tuc-mask="##/##">   <!-- template livre -->
+```
+
+Formatos: `cpf`, `cnpj`, `cnpj-numeric`, `cpf-cnpj`, `phone`, `mobile`,
+`cep`, `brl`, `currency`, `date`, `time`, `card`. No gabarito livre, `#` é
+dígito, `A` é letra e `*` aceita os dois.
+
+**CNPJ alfanumérico.** O formato novo mantém as 14 posições e a mesma máscara:
+as 12 primeiras aceitam letras, as 2 últimas seguem numéricas, e o dígito
+verificador usa o código ASCII menos 48. `cnpj` já aceita os dois formatos;
+`cnpj-numeric` recusa letras. Confirme a vigência na Nota Técnica da Receita
+antes de exigir em produção.
+
+#### Validação
+
+Com `data-validate`, o dígito verificador é conferido ao sair do campo e o
+navegador barra o submit sozinho via `setCustomValidity` — sem escrever nada.
+
+#### Campo sensível
+
+```html
+<input name="cpf" value="111.444.777-35" data-tuc-mask="cpf" data-tuc-reveal>
+<input type="password" name="password" data-tuc-reveal>
+```
+
+Nasce oculto quando já tem conteúdo, mostrando `•••.•••.•••-35`. O valor real
+vai num `<input type="hidden">` com o mesmo `name`, então o servidor recebe o
+dado completo — o que fica escondido é só a tela. Print, gravação de suporte e
+quem olha por cima do ombro deixam de expor o dado por padrão.
+
+Em `type="password"` o olho apenas alterna o `type`, como se espera, e a senha
+nasce sempre oculta, mesmo vazia.
+
+Funciona em qualquer campo, não só documento. O modo de esconder muda o que
+fica à mostra:
+
+| Modo | Quando | Resultado |
+| --- | --- | --- |
+| `end` (padrão) | Documento, cartão, conta, telefone | `•••• •••• •••• 1234` |
+| `email` | Automático em `type="email"` | `j•••••••••@empresa.com.br` |
+| `all` | Senha, token, chave de API | `••••••••••••••••` |
+
+```html
+<input data-tuc-reveal data-reveal-visible="4">
+<input data-tuc-reveal="all">
+<input type="email" data-tuc-reveal>
+```
+
+O e-mail esconde ao contrário do resto de propósito: o domínio reconhece a
+conta, a parte local identifica a pessoa. Guardar o fim revelaria `om.br` e
+esconderia o útil.
+
+Também vale em texto solto na tela, fora de campo — o CPF num perfil, o cartão
+numa tabela —, nos mesmos modos e junto com `data-tuc-format`:
+
+```html
+<td><span data-tuc-format="cpf" data-tuc-reveal>11144477735</span></td>
+<span data-tuc-reveal="all">sk_live_a1b2c3d4e5f6</span>
+```
+
+Na tela, esconder é só visual: o valor inteiro continua no HTML. O que não pode
+chegar ao navegador precisa ser escondido no servidor.
+
+#### Só para exibir
+
+```html
+<span data-tuc-format="cpf">12345678901</span>      <!-- 123.456.789-01 -->
+<span data-tuc-format="brl">1234.5</span>          <!-- R$ 1.234,50 -->
+```
+
+Pela API: `Tucano.mask.validateCPF()`, `validateCNPJ()`, `format(v, 'cpf')`.
+
+O campo digitável tem máscara, derivada do próprio formato de exibição — então
+ela acompanha o locale sozinha, sem configuração:
+
+| Modo | Máscara |
+| --- | --- |
+| data | `dd/mm/aaaa` |
+| data + hora | `dd/mm/aaaa hh:mm` |
+| período | `dd/mm/aaaa — dd/mm/aaaa` |
+| período + hora | `dd/mm/aaaa hh:mm — dd/mm/aaaa hh:mm` |
+
+Você digita só números; barras, dois-pontos e o travessão do período entram
+sozinhos. Colar `abc25xx12--2026zz` resulta em `25/12/2026` — o lixo é
+descartado e sobram os dígitos. Apagar em cima de um separador remove o dígito
+vizinho, em vez de travar.
+
+Com a máscara completa o calendário já pula para a data digitada e a marca, sem
+fechar. O valor é confirmado no `Enter` ou ao sair do campo.
+
+Formatos com nome de mês (`MMMM`) ou `AM/PM` não são mascaráveis; nesses casos o
+campo fica como texto livre e vale o parse tolerante, que aceita `25/12/26`,
+`25-12-2026`, `2512` e `12/25/2026 2:05 pm`.
+
+</details>
+
+<details>
+<summary><b>Color picker</b></summary>
+
+[Página com exemplos ao vivo →](https://juniorcarlini.github.io/tucano/color/)
 
 ```html
 <input type="text" name="color" value="#4f46e5" data-tuc-color>
@@ -315,9 +524,12 @@ A amostra e o valor vivem num controle só (`.tuc-color-field`), com a mesma
 altura, raio e anel de foco do Select — os três componentes leem como a mesma
 família. O `<input>` original continua sendo quem guarda o valor e o `name`.
 
----
+</details>
 
-## Upload
+<details>
+<summary><b>Upload — arrastar e soltar, progresso e envio direto</b></summary>
+
+[Página com exemplos ao vivo →](https://juniorcarlini.github.io/tucano/upload/)
 
 Dois lugares, escolhidos pela presença de `url`.
 
@@ -376,7 +588,130 @@ origem da página. Resposta 2xx sem o id vira erro. E o modo direto precisa de
 limpeza: arquivos enviados por alguém que fechou a aba sem salvar ficam no
 servidor.
 
-## Botão
+</details>
+
+<details>
+<summary><b>Editor de texto — tabela, bloco de código e variáveis</b></summary>
+
+[Página com exemplos ao vivo →](https://juniorcarlini.github.io/tucano/editor/)
+
+Mostra o resultado enquanto se escreve, com tabela e bloco de código. O
+`<textarea>` continua dono do valor, então `name`, `required` e o POST do Django
+funcionam sem nada especial:
+
+```html
+<textarea name="description" data-tuc-editor>{{ form.description.value|default:"" }}</textarea>
+```
+
+Colar e arrastar entram sempre como texto puro — é o que evita o HTML do Word.
+Editor vazio vale `''`, e não um parágrafo em branco, então `required` funciona;
+e endereço de link sem esquema ganha `https://`. E a saída
+passa por uma peneira de tags a cada leitura: sobrevivem parágrafo, título,
+negrito, itálico, sublinhado, listas, citação, código, link e tabela. Atributo
+nenhum passa, exceto o `href` com destino aceitável.
+
+**Sanitize no servidor antes de publicar.** O HTML chega por POST e ninguém
+garante que veio deste editor.
+
+#### Na exibição
+
+O que é salvo é HTML sem classe, para servir a qualquer servidor. Envolver a
+saída em `.tuc-prose` devolve a aparência que a pessoa viu ao escrever — são as
+mesmas regras de CSS da área de edição:
+
+```html
+<div class="tuc-prose">{{ project.description|safe }}</div>
+```
+
+O código publicado é colorido pelo `init()`. O destacador não conhece linguagem
+nenhuma: reconhece comentário, texto entre aspas, número, tag, atributo e chaves
+de template, o que funciona em qualquer linguagem por 2 KB.
+
+</details>
+
+<details>
+<summary><b>Formulário — rótulo, ajuda, erro e campo inválido</b></summary>
+
+[Página com exemplos ao vivo →](https://juniorcarlini.github.io/tucano/form/)
+
+```html
+<label class="tuc-label is-required" for="doc">CNPJ</label>
+<input id="doc" name="doc" data-tuc-mask="cnpj" aria-invalid="true" aria-describedby="doc-e">
+<p class="tuc-error" id="doc-e">CNPJ inválido.</p>
+
+<label class="tuc-label" for="plan">Plano</label>
+<select class="tuc-input" id="plan" name="plan"><option>Mensal</option><option>Anual</option></select>
+<p class="tuc-hint">Dá para trocar depois.</p>
+```
+
+O campo com erro é marcado por `aria-invalid="true"`, e não por uma classe: é o
+atributo que o leitor de tela anuncia, e **o Django 5 já o escreve** em todo campo
+que voltou com erro. A borda e o anel vermelhos valem para todos os campos da
+biblioteca — select, cor, data, máscara, editor, upload, caixa e opção —, mesmo os
+que o script troca por um controle próprio, porque o atributo fica no elemento
+nativo e o CSS alcança o controle a partir dele.
+
+```django
+<label class="tuc-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+{{ field }}
+{% if field.help_text %}<p class="tuc-hint" id="{{ field.auto_id }}_helptext">{{ field.help_text }}</p>{% endif %}
+{% for error in field.errors %}<p class="tuc-error">{{ error }}</p>{% endfor %}
+```
+
+A validação do navegador (`required`, `type="email"`) pinta também, por
+`:user-invalid` — só depois que a pessoa mexeu no campo, para o formulário não
+nascer vermelho. `.tuc-input` vale em `<input>`, `<textarea>` e `<select>` nativo,
+este para a lista curta em que o Select com busca seria exagero.
+
+</details>
+
+<details>
+<summary><b>Caixa, opção e chave</b></summary>
+
+[Página com exemplos ao vivo →](https://juniorcarlini.github.io/tucano/choice/)
+
+```html
+<label class="tuc-choice">
+  <input type="checkbox" class="tuc-check" name="invoice"> Nota fiscal por e-mail
+</label>
+
+<fieldset class="tuc-choices">
+  <legend>Entrega</legend>
+  <label class="tuc-choice">
+    <input type="radio" class="tuc-radio" name="shipping" value="standard" checked>
+    <span>Normal <span class="tuc-choice__hint">Até 7 dias úteis</span></span>
+  </label>
+</fieldset>
+
+<label class="tuc-choice is-end">
+  <input type="checkbox" role="switch" class="tuc-switch"> Avisos por e-mail
+</label>
+```
+
+Desenhados, e não `accent-color` — essa entrega o azul do sistema, que muda entre
+macOS e Windows, nunca tem o raio do resto dos campos e só pinta a caixa: a opção
+ao lado continuaria com o círculo do sistema. Continuam sendo `<input>` de
+verdade: valor, `name`, `required` e estado misto são os nativos. A caixa é a que
+a tabela usa na seleção em massa.
+
+`.tuc-choice` é o `<label>` que alinha o controle à primeira linha do texto, com
+`.tuc-choice__hint` para a descrição e `is-end` para o controle à direita.
+`.tuc-choices` empilha um grupo — feito para `<fieldset>`, que dá o nome do grupo
+ao leitor de tela — e `is-inline` põe lado a lado.
+
+A chave precisa de `role="switch"` no template, porque CSS não põe papel: é ele
+que faz o leitor de tela anunciar "chave, ligada". Use chave para o que tem
+efeito na hora e caixa para o que só vale ao salvar.
+
+</details>
+
+
+### Ações e navegação
+
+<details>
+<summary><b>Botão e grupo de botões</b></summary>
+
+[Página com exemplos ao vivo →](https://juniorcarlini.github.io/tucano/button/)
 
 Não é componente com JavaScript, é só classe — um `<button>` continua sendo um
 `<button>`. Nasceu do que os componentes precisavam por dentro e ficou
@@ -400,7 +735,7 @@ Desabilitado mostra o cursor de bloqueio e não reage ao hover. Sem
 pessoa fica sem sinal de que o botão não responde. Num `<button disabled>` o
 navegador já impede o clique.
 
-### Grupo de botões
+#### Grupo de botões
 
 Também só classe. Sem `is-segmented`, emenda ações que andam juntas num bloco
 só; com ele, veste o `<input>` de botão — a caixa é a mesma da aba segmentada, e
@@ -433,232 +768,94 @@ linha inteira.
 servidor; o grupo de botões é campo. Até umas quatro opções curtas — passando
 disso, `select` ou `.tuc-choices`.
 
-## Toast
+</details>
 
-```js
-Tucano.toast('Salvo');
-Tucano.toast.error('Não foi possível salvar');
-Tucano.toast({
-  type: 'success', title: 'Contrato excluído', text: 'Ainda dá para voltar atrás.',
-  action: { text: 'Desfazer', onClick: () => restore() },
-  position: 'bottom-end', duration: null,
-});
-```
+<details>
+<summary><b>Menu suspenso e menu do botão direito</b></summary>
 
-Tipos: `info`, `success`, `warning`, `error`, `loading`. Posições: `top-start`,
-`top-center`, `top-end`, `bottom-start`, `bottom-center`, `bottom-end` — o
-padrão é `bottom-end`. No celular o toast ocupa a largura da tela e entra pelo
-eixo vertical, seja qual for a posição escolhida.
-
-### Operação assíncrona
-
-O tipo `loading` não fecha sozinho: quem o encerra é o fim da operação. E ele
-vira o resultado **no mesmo cartão**, em vez de fechar um e abrir outro:
-
-```js
-const t = Tucano.toast.loading('Enviando arquivo...');
-await send();
-t.update({ type: 'success', text: 'Arquivo enviado' });
-
-// ou entregue a promessa e deixe os três estados por conta dela
-Tucano.toast.promise(fetch(url), {
-  loading: 'Enviando arquivo...',
-  success: (r) => `Enviado (${r.status})`,
-  error: 'Não deu para enviar',
-});
-```
-
-### Com o Django, sem JavaScript
+[Página com exemplos ao vivo →](https://juniorcarlini.github.io/tucano/dropdown/)
 
 ```html
-{% for m in messages %}
-  <div data-tuc-toast data-type="{{ m.tags }}">{{ m }}</div>
-{% endfor %}
-```
+<button data-tuc-dropdown="#actions">Ações</button>
 
-`debug`, `info`, `success`, `warning` e `error` são traduzidos sozinhos.
-
-### Com o HTMX, disparado pelo servidor
-
-```python
-return HttpResponse(headers={"HX-Trigger": json.dumps(
-    {"tucano:toast": {"type": "success", "text": "Contrato salvo"}})})
-```
-
-Os toasts **empilham sobrepostos** e abrem em leque quando o ponteiro entra ou
-algo dentro recebe foco. A posição de cada um vem da altura real medida no DOM,
-não de um valor fixo: toast com título é mais alto que um sem, e chutar
-desalinha a pilha.
-
-O `aria-live` fica no container, criado antes de qualquer mensagem — se a região
-nascer junto com o texto, o leitor de tela não anuncia. Erro vai para uma região
-`assertive` separada. O relógio pausa quando o ponteiro entra ou algo dentro
-recebe foco, senão o aviso some no instante em que a pessoa vai clicar no
-"Desfazer".
-
-## Modal
-
-Sobre o `<dialog>` nativo — `showModal()` põe o elemento na *top layer*, acima de
-qualquer `z-index` e imune a ancestral com `overflow: hidden` ou `transform`.
-Armadilha de foco, devolução do foco e `Escape` vêm junto.
-
-```js
-Tucano.modal({
-  title: 'Excluir contrato',
-  text: 'Esta ação não pode ser desfeita.',
-  tone: 'danger',      // default | danger | success | warning — muda o brilho do fundo
-  size: 'md',      // sm | md | lg | full
-  sheet: true,        // no mobile sobe do rodapé
-  actions: [
-    { text: 'Cancelar', variant: 'outline' },
-    { text: 'Excluir', variant: 'danger', onClick: () => deleteContract() },
-  ],
-});
-
-// confirmação como promessa; fechar por fora resolve false
-if (await Tucano.confirm({ title: 'Excluir contrato?' })) deleteContract();
-```
-
-## Baixar só o que se usa
-
-Pelo CDN vem tudo — um arquivo, sem build, e o navegador guarda em cache por um
-ano. É a escolha certa para a maioria dos casos.
-
-Quem empacota pode levar menos, importando de `tucano`:
-
-```js
-import { DatePicker, Select } from 'tucano';   // 15,3 KB em vez de 43
-```
-
-| o que se importa | gzip |
-| --- | --- |
-| só o date picker | 11,4 KB |
-| só o select | 6,4 KB |
-| só o toast | 2,7 KB |
-| date picker + select | 15,3 KB |
-| tudo | 43,0 KB |
-
-Não é linear porque o núcleo — posicionamento, datas, utilidades de DOM — é
-compartilhado: o primeiro componente paga por ele e os seguintes saem mais
-baratos.
-
-Ao importar de `tucano`, os campos **não** se inicializam sozinhos: chame
-`Tucano.init(document)` uma vez, ou importe `tucano/auto`, que faz isso e
-também escuta os swaps do HTMX.
-
-```js
-import 'tucano/auto';   // comporta-se como o script do CDN
-```
-
-
-## Acordeão
-
-Sobre `<details>`/`<summary>` nativos: teclado, semântica e estado vêm do
-elemento, e ele abre e fecha antes de o JavaScript carregar. O componente entra
-só onde o nativo não vai — animar.
-
-```html
-<div data-tuc-accordion data-single="true">
-  <details open>
-    <summary>Projetos</summary>
-    <p>Listar, criar e acompanhar vistorias.</p>
-  </details>
+<div class="tuc-dropdown" id="actions" hidden>
+  <div class="tuc-dropdown__label">Contrato</div>
+  <button class="tuc-dropdown__item">
+    <span class="tuc-dropdown__text">Editar</span>
+    <span class="tuc-dropdown__shortcut">⌘E</span>
+  </button>
+  <hr class="tuc-dropdown__separator">
+  <button class="tuc-dropdown__item is-danger">
+    <span class="tuc-dropdown__text">Excluir</span>
+  </button>
 </div>
 ```
 
-`data-single="true"` recolhe os outros ao abrir um. Para menu lateral,
-`.tuc-accordion.is-plain` tira as divisórias e deixa o título com cara de rótulo
-de grupo.
+O `hidden` importa: sem ele o menu aparece no meio da página até o script rodar.
 
-## Editor de texto
-
-Mostra o resultado enquanto se escreve, com tabela e bloco de código. O
-`<textarea>` continua dono do valor, então `name`, `required` e o POST do Django
-funcionam sem nada especial:
-
-```html
-<textarea name="description" data-tuc-editor>{{ form.description.value|default:"" }}</textarea>
-```
-
-Colar e arrastar entram sempre como texto puro — é o que evita o HTML do Word.
-Editor vazio vale `''`, e não um parágrafo em branco, então `required` funciona;
-e endereço de link sem esquema ganha `https://`. E a saída
-passa por uma peneira de tags a cada leitura: sobrevivem parágrafo, título,
-negrito, itálico, sublinhado, listas, citação, código, link e tabela. Atributo
-nenhum passa, exceto o `href` com destino aceitável.
-
-**Sanitize no servidor antes de publicar.** O HTML chega por POST e ninguém
-garante que veio deste editor.
-
-### Na exibição
-
-O que é salvo é HTML sem classe, para servir a qualquer servidor. Envolver a
-saída em `.tuc-prose` devolve a aparência que a pessoa viu ao escrever — são as
-mesmas regras de CSS da área de edição:
-
-```html
-<div class="tuc-prose">{{ project.description|safe }}</div>
-```
-
-O código publicado é colorido pelo `init()`. O destacador não conhece linguagem
-nenhuma: reconhece comentário, texto entre aspas, número, tag, atributo e chaves
-de template, o que funciona em qualquer linguagem por 2 KB.
-
-## Teclado nos campos que abrem painel
-
-Chegar de `Tab` não abre painel nenhum — quem tabula por um formulário até o
-botão de salvar não deveria levar um calendário na cara a cada campo, com o
-painel cobrindo o campo seguinte. É a regra do `<select>` nativo e do ARIA APG.
-
-Abrir é sempre explícito:
-
-| | abre com |
-|---|---|
-| Date picker | `↓`, `Espaço`, clique |
-| Select | `↓`, `Enter`, `Espaço`, clique |
-| Color picker | `↓`, clique — ou `Enter`/`Espaço` na amostra, que é um `<button>` |
-
-No campo de data o `Enter` fica de fora de propósito: ele é um campo de texto
-dentro de um `<form>`, e `Enter` num campo de texto envia o formulário — é o que
-se espera depois de digitar a data. Ali quem abre é o `Espaço`, e só com o campo
-vazio, porque em modo com hora se digita `07/09/2026 14:30`.
-
-## Utilitários
+Em JavaScript, quando os itens são calculados na hora:
 
 ```js
-Tucano.sanitize(html)   // aplica a peneira de tags do editor
-Tucano.highlight(code)  // devolve o código com marcação de cor
-Tucano.init(node)       // inicializa data-tuc-* num trecho novo de HTML
+new Tucano.Dropdown('#actions', {
+  placement: 'bottom-start',    // as mesmas posições do tooltip
+  items: [
+    { label: 'Contrato' },
+    { text: 'Editar', shortcut: '⌘E', onClick: () => editContract() },
+    { text: 'Abrir', href: '/contracts/12/' },
+    { separator: true },
+    { text: 'Excluir', variant: 'danger', onClick: () => deleteContract() },
+  ],
+});
 ```
 
-Os três módulos que os componentes usam por dentro também saem prontos, porque
-num CRUD eles resolvem o que sempre falta — validar um CPF na tela antes de
-mandar pro servidor, formatar uma data, decidir se um texto fica legível sobre
-uma cor escolhida pelo usuário.
+O item vira `<a>` quando tem `href`, e `<button>` no resto. Abrir leva o foco ao
+primeiro item, as setas andam entre eles e fechar devolve o foco ao gatilho; os
+itens ficam com `tabindex="-1"` porque dentro de um menu quem navega é a seta, e
+não o `Tab`.
+
+</details>
+
+<details>
+<summary><b>Abas</b></summary>
+
+[Página com exemplos ao vivo →](https://juniorcarlini.github.io/tucano/tabs/)
+
+```html
+<div class="tuc-tabs" data-tuc-tabs>
+  <div class="tuc-tabs__list">
+    <button class="tuc-tabs__tab" aria-selected="true">Dados</button>
+    <button class="tuc-tabs__tab">Endereço</button>
+  </div>
+  <div class="tuc-tabs__panel">Conteúdo</div>
+  <div class="tuc-tabs__panel" hidden>Conteúdo</div>
+</div>
+```
+
+O template traz as classes, a aba inicial com `aria-selected="true"` e os outros
+painéis com `hidden`, então a página nasce desenhada antes do script. O JavaScript
+põe `role="tab"`, `aria-controls` e o teclado do ARIA APG: a lista é uma parada só
+do `Tab`, e dentro dela andam `←` `→` `Home` `End`, pulando aba desativada.
+`is-segmented` tem a altura de um campo, para ficar ao lado de um filtro.
+
+| Opção | Padrão | Para quê |
+| --- | --- | --- |
+| `selected` | `null` | Índice da aba inicial; sem ele, a marcada ou a primeira |
+| `manual` | `false` | Setas só movem o foco; `Enter`/`Espaço` abrem — para painel que carrega por HTMX |
+| `onChange` | `null` | `(index, detail)` a cada troca |
 
 ```js
-Tucano.mask.validateCpfCnpj('123.456.789-01')   // false
-Tucano.mask.applyCurrency('12345', { currency: 'BRL' })  // 'R$ 123,45'
-Tucano.mask.maskEmail('contato@empresa.com.br')  // 'c••••••@empresa.com.br'
-
-Tucano.dates.format(new Date(), 'dd/MM/yyyy')
-Tucano.dates.parseUserInput('7/9/26')            // Date
-Tucano.dates.addMonths(new Date(), -1)
-
-Tucano.color.parseColor('#4f46e5')               // { h, s, v, a }
-Tucano.color.isDark('#4f46e5')                   // true — escolhe texto claro
+const tabs = new Tucano.Tabs('#customer', { manual: true });
+tabs.select(2);
 ```
 
-| módulo | serve para |
-|---|---|
-| `Tucano.mask` | CPF, CNPJ, moeda, telefone; aplicar e tirar máscara; ocultar dado sensível |
-| `Tucano.dates` | ler, formatar, comparar e caminhar por datas, respeitando o locale |
-| `Tucano.color` | converter entre hex/rgb/hsv, e medir luminância |
+Cada troca dispara `tucano:change` no elemento, com `{ value, tab, panel, instance }`.
 
-Quem instala pelo npm e não usa nada disso não paga nada por eles — importar só
-o `Toast` custa 3 KB, com os três módulos fora do pacote.
+</details>
 
-## Tabela
+<details>
+<summary><b>Tabela — ordenação no servidor e seleção em massa</b></summary>
+
+[Página com exemplos ao vivo →](https://juniorcarlini.github.io/tucano/table/)
 
 O `<table>` do template continua sendo a fonte da verdade, e a célula é livre.
 
@@ -711,7 +908,12 @@ A seleção é um formulário de verdade: cada linha ganha um
 `<input type="checkbox" name="selected" value="{{ data-id }}">`, então chega como
 `request.POST.getlist('selected')`.
 
-## Paginação
+</details>
+
+<details>
+<summary><b>Paginação</b></summary>
+
+[Página com exemplos ao vivo →](https://juniorcarlini.github.io/tucano/pagination/)
 
 ```html
 <div data-tuc-pagination
@@ -732,226 +934,111 @@ funcionar e o buscador indexar. Quem precisa interceptar passa `onChange`.
 A ponta desativada é `<span>`, não `<a>` sem `href`, que continuaria no caminho
 do `Tab` sendo anunciado como link. Com uma página só, nada é renderizado.
 
-## Etiqueta de estado
-
-```html
-<span class="tuc-badge is-success">Aprovado</span>
-<span class="tuc-badge is-warning">Em análise</span>
-<span class="tuc-badge is-danger">Vencido</span>
-<span class="tuc-badge">Rascunho</span>
-```
-
-Nasceu para a coluna "situação" de uma tabela, mas não depende dela: vale em
-card, em lista, ao lado de um título. Tons: `is-success`, `is-warning`,
-`is-danger`, `is-info`; sem tom fica neutra, e `is-plain` tira o pontinho.
-
-O fundo é suave com texto forte, e não preenchido: numa lista de vinte linhas,
-vinte etiquetas sólidas competem com o conteúdo e a tabela vira um semáforo.
-
-## Formulário
-
-```html
-<label class="tuc-label is-required" for="doc">CNPJ</label>
-<input id="doc" name="doc" data-tuc-mask="cnpj" aria-invalid="true" aria-describedby="doc-e">
-<p class="tuc-error" id="doc-e">CNPJ inválido.</p>
-
-<label class="tuc-label" for="plan">Plano</label>
-<select class="tuc-input" id="plan" name="plan"><option>Mensal</option><option>Anual</option></select>
-<p class="tuc-hint">Dá para trocar depois.</p>
-```
-
-O campo com erro é marcado por `aria-invalid="true"`, e não por uma classe: é o
-atributo que o leitor de tela anuncia, e **o Django 5 já o escreve** em todo campo
-que voltou com erro. A borda e o anel vermelhos valem para todos os campos da
-biblioteca — select, cor, data, máscara, editor, upload, caixa e opção —, mesmo os
-que o script troca por um controle próprio, porque o atributo fica no elemento
-nativo e o CSS alcança o controle a partir dele.
-
-```django
-<label class="tuc-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-{{ field }}
-{% if field.help_text %}<p class="tuc-hint" id="{{ field.auto_id }}_helptext">{{ field.help_text }}</p>{% endif %}
-{% for error in field.errors %}<p class="tuc-error">{{ error }}</p>{% endfor %}
-```
-
-A validação do navegador (`required`, `type="email"`) pinta também, por
-`:user-invalid` — só depois que a pessoa mexeu no campo, para o formulário não
-nascer vermelho. `.tuc-input` vale em `<input>`, `<textarea>` e `<select>` nativo,
-este para a lista curta em que o Select com busca seria exagero.
-
-## Caixa, opção e chave
-
-```html
-<label class="tuc-choice">
-  <input type="checkbox" class="tuc-check" name="invoice"> Nota fiscal por e-mail
-</label>
-
-<fieldset class="tuc-choices">
-  <legend>Entrega</legend>
-  <label class="tuc-choice">
-    <input type="radio" class="tuc-radio" name="shipping" value="standard" checked>
-    <span>Normal <span class="tuc-choice__hint">Até 7 dias úteis</span></span>
-  </label>
-</fieldset>
-
-<label class="tuc-choice is-end">
-  <input type="checkbox" role="switch" class="tuc-switch"> Avisos por e-mail
-</label>
-```
-
-Desenhados, e não `accent-color` — essa entrega o azul do sistema, que muda entre
-macOS e Windows, nunca tem o raio do resto dos campos e só pinta a caixa: a opção
-ao lado continuaria com o círculo do sistema. Continuam sendo `<input>` de
-verdade: valor, `name`, `required` e estado misto são os nativos. A caixa é a que
-a tabela usa na seleção em massa.
-
-`.tuc-choice` é o `<label>` que alinha o controle à primeira linha do texto, com
-`.tuc-choice__hint` para a descrição e `is-end` para o controle à direita.
-`.tuc-choices` empilha um grupo — feito para `<fieldset>`, que dá o nome do grupo
-ao leitor de tela — e `is-inline` põe lado a lado.
-
-A chave precisa de `role="switch"` no template, porque CSS não põe papel: é ele
-que faz o leitor de tela anunciar "chave, ligada". Use chave para o que tem
-efeito na hora e caixa para o que só vale ao salvar.
+</details>
 
 
-## Menu suspenso
+### Avisos e diálogos
 
-```html
-<button data-tuc-dropdown="#actions">Ações</button>
+<details>
+<summary><b>Toast — com Django e com HTMX</b></summary>
 
-<div class="tuc-dropdown" id="actions" hidden>
-  <div class="tuc-dropdown__label">Contrato</div>
-  <button class="tuc-dropdown__item">
-    <span class="tuc-dropdown__text">Editar</span>
-    <span class="tuc-dropdown__shortcut">⌘E</span>
-  </button>
-  <hr class="tuc-dropdown__separator">
-  <button class="tuc-dropdown__item is-danger">
-    <span class="tuc-dropdown__text">Excluir</span>
-  </button>
-</div>
-```
-
-O `hidden` importa: sem ele o menu aparece no meio da página até o script rodar.
-
-Em JavaScript, quando os itens são calculados na hora:
+[Página com exemplos ao vivo →](https://juniorcarlini.github.io/tucano/toast/)
 
 ```js
-new Tucano.Dropdown('#actions', {
-  placement: 'bottom-start',    // as mesmas posições do tooltip
-  items: [
-    { label: 'Contrato' },
-    { text: 'Editar', shortcut: '⌘E', onClick: () => editContract() },
-    { text: 'Abrir', href: '/contracts/12/' },
-    { separator: true },
-    { text: 'Excluir', variant: 'danger', onClick: () => deleteContract() },
-  ],
+Tucano.toast('Salvo');
+Tucano.toast.error('Não foi possível salvar');
+Tucano.toast({
+  type: 'success', title: 'Contrato excluído', text: 'Ainda dá para voltar atrás.',
+  action: { text: 'Desfazer', onClick: () => restore() },
+  position: 'bottom-end', duration: null,
 });
 ```
 
-O item vira `<a>` quando tem `href`, e `<button>` no resto. Abrir leva o foco ao
-primeiro item, as setas andam entre eles e fechar devolve o foco ao gatilho; os
-itens ficam com `tabindex="-1"` porque dentro de um menu quem navega é a seta, e
-não o `Tab`.
+Tipos: `info`, `success`, `warning`, `error`, `loading`. Posições: `top-start`,
+`top-center`, `top-end`, `bottom-start`, `bottom-center`, `bottom-end` — o
+padrão é `bottom-end`. No celular o toast ocupa a largura da tela e entra pelo
+eixo vertical, seja qual for a posição escolhida.
 
-## Abas
+#### Operação assíncrona
 
-```html
-<div class="tuc-tabs" data-tuc-tabs>
-  <div class="tuc-tabs__list">
-    <button class="tuc-tabs__tab" aria-selected="true">Dados</button>
-    <button class="tuc-tabs__tab">Endereço</button>
-  </div>
-  <div class="tuc-tabs__panel">Conteúdo</div>
-  <div class="tuc-tabs__panel" hidden>Conteúdo</div>
-</div>
-```
-
-O template traz as classes, a aba inicial com `aria-selected="true"` e os outros
-painéis com `hidden`, então a página nasce desenhada antes do script. O JavaScript
-põe `role="tab"`, `aria-controls` e o teclado do ARIA APG: a lista é uma parada só
-do `Tab`, e dentro dela andam `←` `→` `Home` `End`, pulando aba desativada.
-`is-segmented` tem a altura de um campo, para ficar ao lado de um filtro.
-
-| Opção | Padrão | Para quê |
-| --- | --- | --- |
-| `selected` | `null` | Índice da aba inicial; sem ele, a marcada ou a primeira |
-| `manual` | `false` | Setas só movem o foco; `Enter`/`Espaço` abrem — para painel que carrega por HTMX |
-| `onChange` | `null` | `(index, detail)` a cada troca |
+O tipo `loading` não fecha sozinho: quem o encerra é o fim da operação. E ele
+vira o resultado **no mesmo cartão**, em vez de fechar um e abrir outro:
 
 ```js
-const tabs = new Tucano.Tabs('#customer', { manual: true });
-tabs.select(2);
+const t = Tucano.toast.loading('Enviando arquivo...');
+await send();
+t.update({ type: 'success', text: 'Arquivo enviado' });
+
+// ou entregue a promessa e deixe os três estados por conta dela
+Tucano.toast.promise(fetch(url), {
+  loading: 'Enviando arquivo...',
+  success: (r) => `Enviado (${r.status})`,
+  error: 'Não deu para enviar',
+});
 ```
 
-Cada troca dispara `tucano:change` no elemento, com `{ value, tab, panel, instance }`.
-
-## Aviso
+#### Com o Django, sem JavaScript
 
 ```html
-<div class="tuc-alert is-warning">
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg>
-  <div class="tuc-alert__body">
-    <p class="tuc-alert__title">Assinatura vence em 3 dias</p>
-    <p>Renove para não perder o acesso.</p>
-  </div>
-  <div class="tuc-alert__actions"><a class="tuc-btn is-outline is-sm" href="/subscription/">Renovar</a></div>
-</div>
+{% for m in messages %}
+  <div data-tuc-toast data-type="{{ m.tags }}">{{ m }}</div>
+{% endfor %}
 ```
 
-Para o que continua valendo enquanto a pessoa está na tela — o toast é para o que
-acabou de acontecer, e some. Tons: `is-info`, `is-success`, `is-warning`,
-`is-danger`; sem tom, neutro. As ações são os botões do sistema. Use
-`role="alert"` só no aviso que aparece depois do carregamento; o que já vem no
-HTML é lido com a página.
+`debug`, `info`, `success`, `warning` e `error` são traduzidos sozinhos.
 
-## Carregando
+#### Com o HTMX, disparado pelo servidor
 
-```html
-<button class="tuc-btn is-primary" aria-busy="true" disabled>
-  <span class="tuc-spinner"></span> Salvando
-</button>
-
-<span class="tuc-spinner htmx-indicator"></span>
-
-<div class="tuc-skeleton" style="width:60%"></div>
+```python
+return HttpResponse(headers={"HX-Trigger": json.dumps(
+    {"tucano:toast": {"type": "success", "text": "Contrato salvo"}})})
 ```
 
-Spinner para a ação que a pessoa espera; esqueleto para o conteúdo que vai
-chegar, com o espaço já reservado. O spinner mede em `em` e pinta com
-`currentColor`, então dentro de um botão sai do tamanho do ícone e da cor do texto.
-`is-lg` aumenta; `.tuc-skeleton.is-circle` faz o avatar. Com o HTMX,
-`htmx-indicator` junto do spinner já o mostra só durante a requisição.
+Os toasts **empilham sobrepostos** e abrem em leque quando o ponteiro entra ou
+algo dentro recebe foco. A posição de cada um vem da altura real medida no DOM,
+não de um valor fixo: toast com título é mais alto que um sem, e chutar
+desalinha a pilha.
 
-## Linha do tempo
+O `aria-live` fica no container, criado antes de qualquer mensagem — se a região
+nascer junto com o texto, o leitor de tela não anuncia. Erro vai para uma região
+`assertive` separada. O relógio pausa quando o ponteiro entra ou algo dentro
+recebe foco, senão o aviso some no instante em que a pessoa vai clicar no
+"Desfazer".
 
-```html
-<ol class="tuc-timeline">
-  <li class="tuc-timeline__item is-success is-filled">
-    <div class="tuc-timeline__head">
-      <p class="tuc-timeline__title">Contrato assinado</p>
-      <time class="tuc-timeline__time" datetime="2026-09-12">12/09/2026</time>
-    </div>
-    <div class="tuc-timeline__body">As duas partes assinaram.</div>
-  </li>
-  <li class="tuc-timeline__item">
-    <div class="tuc-timeline__head">
-      <p class="tuc-timeline__title">Enviado para assinatura</p>
-      <time class="tuc-timeline__time" datetime="2026-09-10">10/09/2026</time>
-    </div>
-  </li>
-</ol>
+</details>
+
+<details>
+<summary><b>Modal</b></summary>
+
+[Página com exemplos ao vivo →](https://juniorcarlini.github.io/tucano/modal/)
+
+Sobre o `<dialog>` nativo — `showModal()` põe o elemento na *top layer*, acima de
+qualquer `z-index` e imune a ancestral com `overflow: hidden` ou `transform`.
+Armadilha de foco, devolução do foco e `Escape` vêm junto.
+
+```js
+Tucano.modal({
+  title: 'Excluir contrato',
+  text: 'Esta ação não pode ser desfeita.',
+  tone: 'danger',      // default | danger | success | warning — muda o brilho do fundo
+  size: 'md',      // sm | md | lg | full
+  sheet: true,        // no mobile sobe do rodapé
+  actions: [
+    { text: 'Cancelar', variant: 'outline' },
+    { text: 'Excluir', variant: 'danger', onClick: () => deleteContract() },
+  ],
+});
+
+// confirmação como promessa; fechar por fora resolve false
+if (await Tucano.confirm({ title: 'Excluir contrato?' })) deleteContract();
 ```
 
-Histórico em ordem — andamento de um pedido, o que aconteceu com um contrato,
-versões de um changelog. É um `<ol>`, então o leitor de tela anuncia a posição de
-cada item. Ponto e trilho são desenhados pela classe; o template só traz o
-conteúdo. Tons no item: `is-accent`, `is-success`, `is-warning`, `is-danger`,
-`is-info`; `is-filled` enche o ponto. Para um ícone no lugar do ponto, ponha
-`<span class="tuc-timeline__icon"><svg>…</svg></span>` como primeiro filho do item.
+</details>
 
-## Gaveta (off-canvas)
+<details>
+<summary><b>Gaveta (off-canvas)</b></summary>
+
+[Página com exemplos ao vivo →](https://juniorcarlini.github.io/tucano/drawer/)
 
 Painel que entra por uma borda e ocupa o eixo inteiro dela. Divide com o modal a
 mecânica do `<dialog>` — *top layer*, foco preso, `Esc`, foco devolvido — então
@@ -979,7 +1066,12 @@ fecha e anima:
 <button data-tuc-modal="#delete">Excluir</button>
 ```
 
-## Tooltip
+</details>
+
+<details>
+<summary><b>Tooltip</b></summary>
+
+[Página com exemplos ao vivo →](https://juniorcarlini.github.io/tucano/tooltip/)
 
 Lados `top`, `right`, `bottom`, `left` e alinhamentos `start`, `center`, `end` —
 as mesmas do shadcn, e o padrão também é o dele, `top-center`. Quando o lado
@@ -1007,141 +1099,139 @@ parado em cima, como pede a WCAG 1.4.13.
 O texto vai em `aria-describedby`. Um `title` é aproveitado quando o elemento
 tem `data-tuc-tip` vazio, e removido para a dica nativa não aparecer por cima.
 
-## Máscaras
+</details>
 
-Formata enquanto se digita, valida documento e esconde dado sensível. Não
-envolve nem substitui o input — é comportamento puro.
+<details>
+<summary><b>Aviso</b></summary>
 
-```html
-<input name="cpf"       data-tuc-mask="cpf" data-validate="true">
-<input name="cnpj"      data-tuc-mask="cnpj">
-<input name="document"   data-tuc-mask="cpf-cnpj">
-<input name="phone"      data-tuc-mask="phone">
-<input name="amount"     data-tuc-mask="brl">
-<input name="cep"       data-tuc-mask="cep">
-<input                  data-tuc-mask="##/##">   <!-- template livre -->
-```
-
-Formatos: `cpf`, `cnpj`, `cnpj-numeric`, `cpf-cnpj`, `phone`, `mobile`,
-`cep`, `brl`, `currency`, `date`, `time`, `card`. No gabarito livre, `#` é
-dígito, `A` é letra e `*` aceita os dois.
-
-**CNPJ alfanumérico.** O formato novo mantém as 14 posições e a mesma máscara:
-as 12 primeiras aceitam letras, as 2 últimas seguem numéricas, e o dígito
-verificador usa o código ASCII menos 48. `cnpj` já aceita os dois formatos;
-`cnpj-numeric` recusa letras. Confirme a vigência na Nota Técnica da Receita
-antes de exigir em produção.
-
-### Validação
-
-Com `data-validate`, o dígito verificador é conferido ao sair do campo e o
-navegador barra o submit sozinho via `setCustomValidity` — sem escrever nada.
-
-### Campo sensível
+[Página com exemplos ao vivo →](https://juniorcarlini.github.io/tucano/alert/)
 
 ```html
-<input name="cpf" value="111.444.777-35" data-tuc-mask="cpf" data-tuc-reveal>
-<input type="password" name="password" data-tuc-reveal>
+<div class="tuc-alert is-warning">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg>
+  <div class="tuc-alert__body">
+    <p class="tuc-alert__title">Assinatura vence em 3 dias</p>
+    <p>Renove para não perder o acesso.</p>
+  </div>
+  <div class="tuc-alert__actions"><a class="tuc-btn is-outline is-sm" href="/subscription/">Renovar</a></div>
+</div>
 ```
 
-Nasce oculto quando já tem conteúdo, mostrando `•••.•••.•••-35`. O valor real
-vai num `<input type="hidden">` com o mesmo `name`, então o servidor recebe o
-dado completo — o que fica escondido é só a tela. Print, gravação de suporte e
-quem olha por cima do ombro deixam de expor o dado por padrão.
+Para o que continua valendo enquanto a pessoa está na tela — o toast é para o que
+acabou de acontecer, e some. Tons: `is-info`, `is-success`, `is-warning`,
+`is-danger`; sem tom, neutro. As ações são os botões do sistema. Use
+`role="alert"` só no aviso que aparece depois do carregamento; o que já vem no
+HTML é lido com a página.
 
-Em `type="password"` o olho apenas alterna o `type`, como se espera, e a senha
-nasce sempre oculta, mesmo vazia.
+</details>
 
-Funciona em qualquer campo, não só documento. O modo de esconder muda o que
-fica à mostra:
+<details>
+<summary><b>Carregando — spinner e esqueleto</b></summary>
 
-| Modo | Quando | Resultado |
-| --- | --- | --- |
-| `end` (padrão) | Documento, cartão, conta, telefone | `•••• •••• •••• 1234` |
-| `email` | Automático em `type="email"` | `j•••••••••@empresa.com.br` |
-| `all` | Senha, token, chave de API | `••••••••••••••••` |
+[Página com exemplos ao vivo →](https://juniorcarlini.github.io/tucano/loading/)
 
 ```html
-<input data-tuc-reveal data-reveal-visible="4">
-<input data-tuc-reveal="all">
-<input type="email" data-tuc-reveal>
+<button class="tuc-btn is-primary" aria-busy="true" disabled>
+  <span class="tuc-spinner"></span> Salvando
+</button>
+
+<span class="tuc-spinner htmx-indicator"></span>
+
+<div class="tuc-skeleton" style="width:60%"></div>
 ```
 
-O e-mail esconde ao contrário do resto de propósito: o domínio reconhece a
-conta, a parte local identifica a pessoa. Guardar o fim revelaria `om.br` e
-esconderia o útil.
+Spinner para a ação que a pessoa espera; esqueleto para o conteúdo que vai
+chegar, com o espaço já reservado. O spinner mede em `em` e pinta com
+`currentColor`, então dentro de um botão sai do tamanho do ícone e da cor do texto.
+`is-lg` aumenta; `.tuc-skeleton.is-circle` faz o avatar. Com o HTMX,
+`htmx-indicator` junto do spinner já o mostra só durante a requisição.
 
-Também vale em texto solto na tela, fora de campo — o CPF num perfil, o cartão
-numa tabela —, nos mesmos modos e junto com `data-tuc-format`:
+</details>
+
+<details>
+<summary><b>Etiqueta de estado</b></summary>
+
+[Página com exemplos ao vivo →](https://juniorcarlini.github.io/tucano/badge/)
 
 ```html
-<td><span data-tuc-format="cpf" data-tuc-reveal>11144477735</span></td>
-<span data-tuc-reveal="all">sk_live_a1b2c3d4e5f6</span>
+<span class="tuc-badge is-success">Aprovado</span>
+<span class="tuc-badge is-warning">Em análise</span>
+<span class="tuc-badge is-danger">Vencido</span>
+<span class="tuc-badge">Rascunho</span>
 ```
 
-Na tela, esconder é só visual: o valor inteiro continua no HTML. O que não pode
-chegar ao navegador precisa ser escondido no servidor.
+Nasceu para a coluna "situação" de uma tabela, mas não depende dela: vale em
+card, em lista, ao lado de um título. Tons: `is-success`, `is-warning`,
+`is-danger`, `is-info`; sem tom fica neutra, e `is-plain` tira o pontinho.
 
-### Só para exibir
+O fundo é suave com texto forte, e não preenchido: numa lista de vinte linhas,
+vinte etiquetas sólidas competem com o conteúdo e a tabela vira um semáforo.
+
+</details>
+
+<details>
+<summary><b>Linha do tempo</b></summary>
+
+[Página com exemplos ao vivo →](https://juniorcarlini.github.io/tucano/timeline/)
 
 ```html
-<span data-tuc-format="cpf">12345678901</span>      <!-- 123.456.789-01 -->
-<span data-tuc-format="brl">1234.5</span>          <!-- R$ 1.234,50 -->
+<ol class="tuc-timeline">
+  <li class="tuc-timeline__item is-success is-filled">
+    <div class="tuc-timeline__head">
+      <p class="tuc-timeline__title">Contrato assinado</p>
+      <time class="tuc-timeline__time" datetime="2026-09-12">12/09/2026</time>
+    </div>
+    <div class="tuc-timeline__body">As duas partes assinaram.</div>
+  </li>
+  <li class="tuc-timeline__item">
+    <div class="tuc-timeline__head">
+      <p class="tuc-timeline__title">Enviado para assinatura</p>
+      <time class="tuc-timeline__time" datetime="2026-09-10">10/09/2026</time>
+    </div>
+  </li>
+</ol>
 ```
 
-Pela API: `Tucano.mask.validateCPF()`, `validateCNPJ()`, `format(v, 'cpf')`.
+Histórico em ordem — andamento de um pedido, o que aconteceu com um contrato,
+versões de um changelog. É um `<ol>`, então o leitor de tela anuncia a posição de
+cada item. Ponto e trilho são desenhados pela classe; o template só traz o
+conteúdo. Tons no item: `is-accent`, `is-success`, `is-warning`, `is-danger`,
+`is-info`; `is-filled` enche o ponto. Para um ícone no lugar do ponto, ponha
+`<span class="tuc-timeline__icon"><svg>…</svg></span>` como primeiro filho do item.
 
-## Máscara do campo
+</details>
 
-O campo digitável tem máscara, derivada do próprio formato de exibição — então
-ela acompanha o locale sozinha, sem configuração:
+<details>
+<summary><b>Acordeão</b></summary>
 
-| Modo | Máscara |
-| --- | --- |
-| data | `dd/mm/aaaa` |
-| data + hora | `dd/mm/aaaa hh:mm` |
-| período | `dd/mm/aaaa — dd/mm/aaaa` |
-| período + hora | `dd/mm/aaaa hh:mm — dd/mm/aaaa hh:mm` |
+[Página com exemplos ao vivo →](https://juniorcarlini.github.io/tucano/accordion/)
 
-Você digita só números; barras, dois-pontos e o travessão do período entram
-sozinhos. Colar `abc25xx12--2026zz` resulta em `25/12/2026` — o lixo é
-descartado e sobram os dígitos. Apagar em cima de um separador remove o dígito
-vizinho, em vez de travar.
+Sobre `<details>`/`<summary>` nativos: teclado, semântica e estado vêm do
+elemento, e ele abre e fecha antes de o JavaScript carregar. O componente entra
+só onde o nativo não vai — animar.
 
-Com a máscara completa o calendário já pula para a data digitada e a marca, sem
-fechar. O valor é confirmado no `Enter` ou ao sair do campo.
-
-Formatos com nome de mês (`MMMM`) ou `AM/PM` não são mascaráveis; nesses casos o
-campo fica como texto livre e vale o parse tolerante, que aceita `25/12/26`,
-`25-12-2026`, `2512` e `12/25/2026 2:05 pm`.
-
----
-
-## Celular
-
-O painel é o mesmo do desktop, adaptado ao toque: texto de 16px, células
-maiores e, no modo período, os dois meses empilhados.
-
-Os 16px não são estética: **o Safari do iOS aplica zoom automático ao focar
-qualquer campo com menos de 16px**, e a página inteira salta.
-
-O seletor do sistema (a roda do iOS, o diálogo do Android) é opt-in:
-
-```js
-native: false     // padrão: o painel em todo lugar
-native: 'auto'    // seletor do sistema onde o ponteiro é de toque
-native: true      // sempre o seletor do sistema
+```html
+<div data-tuc-accordion data-single="true">
+  <details open>
+    <summary>Projetos</summary>
+    <p>Listar, criar e acompanhar vistorias.</p>
+  </details>
+</div>
 ```
 
-Por atributo: `data-native="true"`.
+`data-single="true"` recolhe os outros ao abrir um. Para menu lateral,
+`.tuc-accordion.is-plain` tira as divisórias e deixa o título com cara de rótulo
+de grupo.
 
-Ele **não altera o `type` do seu input** — um input nativo transparente fica
-por cima do campo, então o estilo que você aplicou continua valendo. Período
-nunca usa nativo: não existe seletor de intervalo em HTML.
+</details>
 
----
 
-## Django
+### No seu projeto
+
+<details>
+<summary><b>Django — widgets, o que chega no POST e HTMX</b></summary>
+
+[Página com exemplos ao vivo →](https://juniorcarlini.github.io/tucano/django/)
 
 O input visível mostra a data no formato do locale; um `<input type="hidden">`
 com o mesmo `name` carrega o valor em ISO. É esse que chega no `request.POST`:
@@ -1166,9 +1256,12 @@ class BookingForm(forms.Form):
         return date.fromisoformat(start), date.fromisoformat(end)
 ```
 
----
+</details>
 
-## Tema
+<details>
+<summary><b>Tema — tokens, tema escuro e cor de destaque</b></summary>
+
+[Página com exemplos ao vivo →](https://juniorcarlini.github.io/tucano/theme/)
 
 Toda cor, raio e sombra é variável CSS, e todas vivem em `:root`. Para mudar o
 visual, sobrescreva — não precisa recompilar:
@@ -1213,22 +1306,105 @@ temas.
 Nenhum valor de cor, raio, borda ou altura está fixo no CSS dos componentes:
 todos saem dessas variáveis.
 
+</details>
+
+<details>
+<summary><b>Celular — o que muda abaixo de 640px</b></summary>
+
+[Página com exemplos ao vivo →](https://juniorcarlini.github.io/tucano/keyboard/)
+
+O painel é o mesmo do desktop, adaptado ao toque: texto de 16px, células
+maiores e, no modo período, os dois meses empilhados.
+
+Os 16px não são estética: **o Safari do iOS aplica zoom automático ao focar
+qualquer campo com menos de 16px**, e a página inteira salta.
+
+O seletor do sistema (a roda do iOS, o diálogo do Android) é opt-in:
+
+```js
+native: false     // padrão: o painel em todo lugar
+native: 'auto'    // seletor do sistema onde o ponteiro é de toque
+native: true      // sempre o seletor do sistema
+```
+
+Por atributo: `data-native="true"`.
+
+Ele **não altera o `type` do seu input** — um input nativo transparente fica
+por cima do campo, então o estilo que você aplicou continua valendo. Período
+nunca usa nativo: não existe seletor de intervalo em HTML.
+
+</details>
+
+<details>
+<summary><b>Utilitários</b></summary>
+
+```js
+Tucano.sanitize(html)   // aplica a peneira de tags do editor
+Tucano.highlight(code)  // devolve o código com marcação de cor
+Tucano.init(node)       // inicializa data-tuc-* num trecho novo de HTML
+```
+
+Os três módulos que os componentes usam por dentro também saem prontos, porque
+num CRUD eles resolvem o que sempre falta — validar um CPF na tela antes de
+mandar pro servidor, formatar uma data, decidir se um texto fica legível sobre
+uma cor escolhida pelo usuário.
+
+```js
+Tucano.mask.validateCpfCnpj('123.456.789-01')   // false
+Tucano.mask.applyCurrency('12345', { currency: 'BRL' })  // 'R$ 123,45'
+Tucano.mask.maskEmail('contato@empresa.com.br')  // 'c••••••@empresa.com.br'
+
+Tucano.dates.format(new Date(), 'dd/MM/yyyy')
+Tucano.dates.parseUserInput('7/9/26')            // Date
+Tucano.dates.addMonths(new Date(), -1)
+
+Tucano.color.parseColor('#4f46e5')               // { h, s, v, a }
+Tucano.color.isDark('#4f46e5')                   // true — escolhe texto claro
+```
+
+| módulo | serve para |
+|---|---|
+| `Tucano.mask` | CPF, CNPJ, moeda, telefone; aplicar e tirar máscara; ocultar dado sensível |
+| `Tucano.dates` | ler, formatar, comparar e caminhar por datas, respeitando o locale |
+| `Tucano.color` | converter entre hex/rgb/hsv, e medir luminância |
+
+Quem instala pelo npm e não usa nada disso não paga nada por eles — importar só
+o `Toast` custa 3 KB, com os três módulos fora do pacote.
+
+</details>
+
 ---
 
-## Teclado e acessibilidade
+## Baixar só o que se usa
 
-| Tecla | Ação |
+Pelo CDN vem tudo — um arquivo, sem build, e o navegador guarda em cache por um
+ano. É a escolha certa para a maioria dos casos.
+
+Quem empacota pode levar menos, importando de `tucano`:
+
+```js
+import { DatePicker, Select } from 'tucano';   // 15,3 KB em vez de 43
+```
+
+| o que se importa | gzip |
 | --- | --- |
-| `↑ ↓ ← →` | Move o dia focado |
-| `Enter` / `Espaço` | Seleciona |
-| `PageUp` / `PageDown` | Mês anterior / próximo (com `Shift`: ano) |
-| `Home` / `End` | Início / fim da semana |
-| `Esc` | Fecha |
+| só o date picker | 11,4 KB |
+| só o select | 6,4 KB |
+| só o toast | 2,7 KB |
+| date picker + select | 15,3 KB |
+| tudo | 43,0 KB |
 
-O painel é `role="dialog"`, a grade é `role="grid"`, cada dia tem
-`aria-selected` e rótulo por extenso, e o foco fica preso no painel enquanto
-aberto — voltando ao input ao fechar. `prefers-reduced-motion` desliga a
-animação.
+Não é linear porque o núcleo — posicionamento, datas, utilidades de DOM — é
+compartilhado: o primeiro componente paga por ele e os seguintes saem mais
+baratos.
+
+Ao importar de `tucano`, os campos **não** se inicializam sozinhos: chame
+`Tucano.init(document)` uma vez, ou importe `tucano/auto`, que faz isso e
+também escuta os swaps do HTMX.
+
+```js
+import 'tucano/auto';   // comporta-se como o script do CDN
+```
 
 ---
 
@@ -1265,3 +1441,7 @@ site/                fonte do site de documentação; index.html e <componente>/
 
 As classes e variáveis usam o prefixo `tuc-` para não colidir com o CSS do
 projeto que consome.
+
+## Licença
+
+[MIT](LICENSE) © Junior Carlini

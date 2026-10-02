@@ -73,6 +73,7 @@
     "build:css:min": "node tools/css.mjs --minify dist/tucano.min.css",
     "build": "npm run build:js && npm run build:js:min && node tools/types.mjs && npm run build:css && npm run build:css:min && node tools/reference.mjs && node tools/site.mjs && node tools/stamp.mjs",
     "build:og": "node tools/og.mjs",
+    "build:cover": "node tools/cover.mjs",
     "test": "npm run build && npm run test:unit && npm run test:types && npm run test:behavior && npm run test:keyboard && npm run test:examples && npm run test:consistency",
     "test:unit": "node --test test/*.test.mjs",
     "test:types": "node tools/types.mjs --check && tsc -p test/types/tsconfig.json && tsc -p test/types/tsconfig.script.json",

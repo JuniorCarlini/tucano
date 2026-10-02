@@ -1,0 +1,82 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../dist/tucano.css">
+<style>
+  /* Mesma identidade da og.png: o laranja do site, e nao o neutro do pacote. */
+  :root{--tuc-accent:#FF7501;--tuc-accent-hover:#FF8A2A;--tuc-accent-fg:#ffffff;--tuc-accent-text:#B84300;--tuc-thumb:#ffffff}
+  html.dark{--tuc-accent-text:#FFA24D}
+  *{box-sizing:border-box}
+  body{
+    margin:0;width:1200px;height:500px;overflow:hidden;
+    background:#fbfbfa;color:#111110;
+    font:15px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Inter,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    display:flex;align-items:center;justify-content:center;
+  }
+  html.dark body{background:#0f0f0f;color:#fafafa}
+  .grid{display:grid;grid-template-columns:repeat(3,320px);gap:24px}
+  .card{
+    background:#fff;border:1px solid #e5e5e1;border-radius:14px;padding:22px;
+    box-shadow:0 1px 2px rgb(0 0 0/.04),0 12px 32px -20px rgb(0 0 0/.35);
+    display:flex;flex-direction:column;gap:14px;
+  }
+  html.dark .card{background:#171717;border-color:#2e2e2e;box-shadow:0 1px 2px rgb(0 0 0/.4),0 12px 32px -20px rgb(0 0 0/.9)}
+  .card h3{margin:0;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#a1a19c}
+  html.dark .card h3{color:#737373}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+</style></head><body>
+  <div class="grid">
+
+    <div class="card">
+      <h3>Campos</h3>
+      <div>
+        <label class="tuc-label is-required" for="c-doc">CNPJ</label>
+        <input class="tuc-input" id="c-doc" data-tuc-mask="cnpj" value="12345678000190">
+      </div>
+      <div>
+        <label class="tuc-label" for="c-uf">Estado</label>
+        <select id="c-uf" data-tuc-select data-search="false">
+          <option value="SP" selected>São Paulo</option><option value="RJ">Rio de Janeiro</option>
+        </select>
+      </div>
+      <div>
+        <label class="tuc-label" for="c-when">Vencimento</label>
+        <input id="c-when" data-tuc-datepicker value="2026-10-15">
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Escolha e ação</h3>
+      <div class="tuc-btn-group is-segmented" role="group" aria-label="Período">
+        <label class="tuc-btn"><input type="radio" class="tuc-btn__input" name="c-p" checked> Dia</label>
+        <label class="tuc-btn"><input type="radio" class="tuc-btn__input" name="c-p"> Semana</label>
+        <label class="tuc-btn"><input type="radio" class="tuc-btn__input" name="c-p"> Mês</label>
+      </div>
+      <div class="row">
+        <button type="button" class="tuc-btn is-primary">Salvar</button>
+        <button type="button" class="tuc-btn is-outline">Cancelar</button>
+        <button type="button" class="tuc-btn is-ghost">Voltar</button>
+      </div>
+      <label class="tuc-choice is-end"><input type="checkbox" role="switch" class="tuc-switch" checked><span>Avisar por e-mail</span></label>
+      <div class="row">
+        <span class="tuc-badge is-success">Pago</span>
+        <span class="tuc-badge is-warning">Pendente</span>
+        <span class="tuc-badge is-danger">Vencido</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Avisos</h3>
+      <div class="tuc-alert is-info">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg>
+        <div class="tuc-alert__body"><p class="tuc-alert__title">Nota emitida</p><p>A via do cliente foi enviada.</p></div>
+      </div>
+      <ol class="tuc-timeline">
+        <li class="tuc-timeline__item is-success"><div class="tuc-timeline__head"><span class="tuc-timeline__title">Aprovado</span><span class="tuc-timeline__time">hoje</span></div></li>
+        <li class="tuc-timeline__item"><div class="tuc-timeline__head"><span class="tuc-timeline__title">Em análise</span><span class="tuc-timeline__time">ontem</span></div></li>
+      </ol>
+      <div class="row"><span class="tuc-spinner"></span> <span style="color:var(--tuc-muted)">Enviando…</span></div>
+    </div>
+
+  </div>
+<script src="../dist/tucano.js"></script>
+</body></html>

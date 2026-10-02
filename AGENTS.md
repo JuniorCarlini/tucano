@@ -55,7 +55,7 @@ src/styles/core/      base (reset) e tokens
 src/styles/components/  um arquivo por componente; os que são só classe
                       (botão, etiqueta, campo) também moram aqui
 site/                 fonte do site de documentação (layout, nav, css, js, pages/)
-tools/                build (types, reference, site, stamp, og) e verificação (behavior,
+tools/                build (types, reference, site, stamp, og, cover) e verificação (behavior,
                       keyboard, examples, consistency, audit); browsers abre o
                       navegador pelo Playwright para todos eles
 test/                 funções puras, com node --test
