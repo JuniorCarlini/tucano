@@ -3,3 +3,6 @@ node_modules/
 *.log
 .claude/
 preview/
+
+# O site gerado: sai do build e vai para o Pages pelo workflow, sem passar pelo git.
+build/

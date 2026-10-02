@@ -31,7 +31,7 @@
  *
  * Uso: node tools/site.mjs [pasta de saida]   (padrao: a raiz do repositorio)
  */
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync, cpSync } from 'node:fs';
 import { gzipBytes } from './gzip-size.mjs';
 import { components } from './api.mjs';
 // As setas do anterior/proxima sao as mesmas da biblioteca, e nao um SVG a mais.
@@ -499,7 +499,6 @@ function sitemap() {
 
 /* ---- escrita ---- */
 
-const outDepth = OUT === '.' ? 0 : OUT.split('/').length;
 let written = 0;
 
 const searchSizes = [];
@@ -508,7 +507,13 @@ for (const language of LANGUAGES) {
   const index = { pages: [], sections: [] };
   for (const [slug, p] of pages.get(lang)) {
     const route = pathFor(lang, slug);
-    const root = '../'.repeat(outDepth + route.split('/').filter(Boolean).length);
+    /*
+     * O caminho de volta conta so a profundidade da pagina, e nao a da pasta de
+     * saida: a saida e autossuficiente — dist/, site/ e llms.txt sao copiados
+     * para dentro dela. Somar a pasta aqui punha um ../ a mais e levava a
+     * pagina a procurar o CSS fora do que vai para o ar.
+     */
+    const root = '../'.repeat(route.split('/').filter(Boolean).length);
 
     // Script com src tambem vai para o fim do body: e o jeito de uma pagina
     // carregar o proprio arquivo depois do dist/tucano.js.
@@ -580,6 +585,33 @@ for (const language of LANGUAGES) {
 
 mkdirSync(OUT, { recursive: true });
 writeFileSync(`${OUT}/sitemap.xml`, sitemap());
+
+/*
+ * Numa pasta de saida propria, o que a pagina carrega vai junto.
+ *
+ * Enquanto o GitHub Pages publicava o repositorio inteiro, a pagina pedia
+ * `dist/tucano.css` e `site/site.css` e o proprio repositorio respondia. Com o
+ * site publicado por workflow, a pasta de saida e tudo o que vai para o ar:
+ * o que nao for copiado aqui vira 404 em producao e em nenhum lugar antes.
+ *
+ * Os caminhos sao os mesmos de dentro do repositorio, de proposito — assim o
+ * `{{root}}` escrito no layout continua valendo nos dois modos.
+ */
+if (OUT !== '.') {
+  const assets = [
+    'dist',                             // o CSS e o JS que a pagina carrega
+    'site/site.css', 'site/site.js',    // layout e comportamento do site
+    'site/assets',                      // logo, favicon e a vitrine do README
+    'llms.txt',                         // a referencia que o site publica
+    'og.png',                           // imagem de compartilhamento
+    'google8732db8f79f27742.html',      // verificacao do Search Console
+  ];
+  for (const item of assets) {
+    if (!existsSync(item)) continue;
+    mkdirSync(`${OUT}/${item}`.replace(/\/[^/]+$/, ''), { recursive: true });
+    cpSync(item, `${OUT}/${item}`, { recursive: true });
+  }
+}
 
 const perLanguage = LANGUAGES.map((l) => `${l.short} ${pages.get(l.code).size}`).join(', ');
 console.log(`site: ${written} página(s) (${perLanguage}) e sitemap.xml em ${OUT}/ · ${items.length - pages.get('pt-BR').size} ainda sem conteúdo`);

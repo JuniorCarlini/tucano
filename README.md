@@ -1436,7 +1436,8 @@ src/js/components/   um arquivo por componente com JavaScript
 src/styles/core/     reset e tokens
 src/styles/components/
 dist/                versionado, para o uso estático e o CDN funcionarem sem build
-site/                fonte do site de documentação; index.html e <componente>/index.html são gerados
+site/                fonte do site de documentação
+build/               site gerado, fora do git: é o que o workflow publica no Pages
 ```
 
 As classes e variáveis usam o prefixo `tuc-` para não colidir com o CSS do

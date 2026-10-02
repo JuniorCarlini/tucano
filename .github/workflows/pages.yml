@@ -1,0 +1,64 @@
+# Publica o site de documentacao no GitHub Pages.
+#
+# Existe porque antes o Pages servia o repositorio inteiro, e por isso as 96
+# paginas geradas moravam versionadas na raiz, lado a lado com src/ e tools/.
+# Agora o site e construido aqui a cada push e vai para o ar como artefato: o
+# repositorio guarda a fonte, e nao a saida. O que esta no ar passa a ser sempre
+# o que o build produz, sem a chance de alguem esquecer de rodar o build antes
+# do commit.
+#
+# O dist/ continua versionado — e ele que o CDN serve a partir da tag.
+name: pages
+
+on:
+  # Por enquanto so a mao: enquanto o Pages ainda estiver publicando do branch,
+  # um deploy automatico falharia por configuracao, e nao por erro de verdade.
+  # O gatilho de push entra no commit que apagar o site versionado.
+  workflow_dispatch:
+
+# A permissao minima para publicar: ler o codigo, escrever no Pages e assinar o
+# artefato com a identidade do proprio workflow.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Uma publicacao por vez, e sem cancelar a que ja esta no meio: quem cancela no
+# meio de um deploy deixa o site pela metade.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      # O mesmo build de sempre: compila, gera os tipos, a referencia do
+      # llms.txt, as paginas e carimba versao e tamanho. Nao precisa de
+      # navegador — isso e a suite de testes, que roda no tests.yml.
+      - run: npm run build
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: build
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -34,7 +34,11 @@ da 0.34.0 por 39,7 contra 39,8 KB entre o Node daqui e o de lá.
 `nav.json` (ordem e grupos do menu, de onde saem anterior e próxima),
 `site.css` e `site.js` (só layout e comportamento da página) e `pages/<slug>.html`
 (o conteúdo de cada página). `tools/site.mjs` gera `index.html` e
-`<slug>/index.html` na raiz — que é de onde o GitHub Pages publica — e monta
+`<slug>/index.html` dentro de `build/` — que **não** é versionado: quem publica
+é o `.github/workflows/pages.yml`, que roda o build a cada push e manda a pasta
+para o GitHub Pages. A saída é autossuficiente, e por isso o gerador copia para
+dentro dela o que a página carrega (`dist/`, `site/site.css`, `site/site.js`,
+`site/assets/`, `llms.txt`, `og.png`). O gerador monta
 sozinho a tabela de API (do mesmo extrator do `llms.txt`), a grade de
 componentes do início, o changelog em linha do tempo e os blocos de código.
 Gera também o `search.json` de cada idioma (índice da busca) e os ids dos `h2` e
@@ -54,7 +58,8 @@ src/js/components/    datepicker, select, colorpicker, upload, mask, toast,
 src/styles/core/      base (reset) e tokens
 src/styles/components/  um arquivo por componente; os que são só classe
                       (botão, etiqueta, campo) também moram aqui
-site/                 fonte do site de documentação (layout, nav, css, js, pages/)
+site/                 fonte do site de documentação (layout, nav, css, js, pages/, assets/)
+build/                site gerado, fora do git; é o que o workflow publica
 tools/                build (types, reference, site, stamp, og, cover) e verificação (behavior,
                       keyboard, examples, consistency, audit); browsers abre o
                       navegador pelo Playwright para todos eles

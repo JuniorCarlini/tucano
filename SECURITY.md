@@ -8,10 +8,9 @@ preso no CDN ou no `package.json`.
 
 ## Como relatar
 
-Não abra issue pública para falha de segurança. Use o relato privado do
-GitHub — aba **Security** do repositório, botão *Report a vulnerability* —, que
-avisa só o mantenedor. Se ele não aparecer para você, me chame por mensagem
-direta no perfil [@JuniorCarlini](https://github.com/JuniorCarlini).
+Não abra issue pública para falha de segurança. Use o
+[relato privado do GitHub](https://github.com/JuniorCarlini/tucano/security/advisories/new),
+que avisa só o mantenedor.
 
 Conte o que dá para fazer com a falha, em que versão, e o caminho mínimo para
 reproduzir. Respondo pelo mesmo canal.
