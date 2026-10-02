@@ -59,6 +59,8 @@ src/styles/core/      base (reset) e tokens
 src/styles/components/  um arquivo por componente; os que são só classe
                       (botão, etiqueta, campo) também moram aqui
 site/                 fonte do site de documentação (layout, nav, css, js, pages/, assets/)
+site/public/          arquivos de endereço fixo, copiados para a raiz do site:
+                      og.png e a verificação do Search Console
 build/                site gerado, fora do git; é o que o workflow publica
 tools/                build (types, reference, site, stamp, og, cover) e verificação (behavior,
                       keyboard, examples, consistency, audit); browsers abre o

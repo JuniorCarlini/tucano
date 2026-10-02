@@ -603,14 +603,19 @@ if (OUT !== '.') {
     'site/site.css', 'site/site.js',    // layout e comportamento do site
     'site/assets',                      // logo, favicon e a vitrine do README
     'llms.txt',                         // a referencia que o site publica
-    'og.png',                           // imagem de compartilhamento
-    'google8732db8f79f27742.html',      // verificacao do Search Console
   ];
   for (const item of assets) {
     if (!existsSync(item)) continue;
     mkdirSync(`${OUT}/${item}`.replace(/\/[^/]+$/, ''), { recursive: true });
     cpSync(item, `${OUT}/${item}`, { recursive: true });
   }
+  /*
+   * `site/public/` vai inteira para a RAIZ do site, e nao para uma subpasta: e
+   * onde moram os arquivos que precisam de um endereco fixo — a og.png que as
+   * redes ja conhecem e a verificacao do Search Console, que deixa de valer se
+   * mudar de lugar.
+   */
+  if (existsSync('site/public')) cpSync('site/public', OUT, { recursive: true });
 }
 
 const perLanguage = LANGUAGES.map((l) => `${l.short} ${pages.get(l.code).size}`).join(', ');

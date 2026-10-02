@@ -11,9 +11,9 @@
 name: pages
 
 on:
-  # Por enquanto so a mao: enquanto o Pages ainda estiver publicando do branch,
-  # um deploy automatico falharia por configuracao, e nao por erro de verdade.
-  # O gatilho de push entra no commit que apagar o site versionado.
+  push:
+    branches: [main]
+  # Para republicar sem precisar de um commit novo.
   workflow_dispatch:
 
 # A permissao minima para publicar: ler o codigo, escrever no Pages e assinar o

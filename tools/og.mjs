@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 /*
  * Gera a og.png — a imagem que aparece quando o link e compartilhado.
+ *
+ * Vai para site/public/, que o build copia inteira para a raiz do site: a
+ * imagem continua em /og.png, onde as redes e o Search Console ja a conhecem.
  * Existe como script para o package.json nao carregar o passo a passo do navegador.
  */
 import { resolve } from 'node:path';
@@ -16,7 +19,7 @@ try {
   // virtual ate ela acabar; aqui se espera o fim de cada animacao de verdade.
   await page.evaluate(() => Promise.all(document.getAnimations().map((a) => a.finished)));
   await page.waitForTimeout(100);
-  await page.screenshot({ path: 'og.png' });
+  await page.screenshot({ path: 'site/public/og.png' });
 } finally {
   await browser.close();
 }
