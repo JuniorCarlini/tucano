@@ -203,37 +203,37 @@ componentes.
 Vinte e seis, todos prontos. Cada linha abre a página com exemplos que você mexe
 na hora.
 
-| Com JavaScript | O que faz | |
+| Com&nbsp;JavaScript | O que faz | |
 | --- | --- | --- |
-| `DatePicker` | Data, período, hora, data + hora | [docs](https://juniorcarlini.github.io/tucano/datepicker/) |
-| `Select` | Busca, múltiplo com tags, grupos, limite | [docs](https://juniorcarlini.github.io/tucano/select/) |
-| `ColorPicker` | HSV, hex/rgb/hsl, opacidade, paleta | [docs](https://juniorcarlini.github.io/tucano/color/) |
-| `Upload` | Arrastar e soltar, progresso, validação | [docs](https://juniorcarlini.github.io/tucano/upload/) |
-| `Mask` | CPF, CNPJ, telefone, real, campo sensível | [docs](https://juniorcarlini.github.io/tucano/mask/) |
-| `Editor` | Texto rico com tabela, bloco de código e variáveis | [docs](https://juniorcarlini.github.io/tucano/editor/) |
-| `Table` | Ordenação por coluna e seleção em massa | [docs](https://juniorcarlini.github.io/tucano/table/) |
-| `Pagination` | Links de página, feita para o Paginator | [docs](https://juniorcarlini.github.io/tucano/pagination/) |
-| `Tabs` | Abas com teclado do ARIA APG, e segmentadas | [docs](https://juniorcarlini.github.io/tucano/tabs/) |
-| `Dropdown` | Menu de ações ancorado, navegação por setas | [docs](https://juniorcarlini.github.io/tucano/dropdown/) |
-| `ContextMenu` | Menu do botão direito, no ponto do clique | [docs](https://juniorcarlini.github.io/tucano/contextmenu/) |
-| `Modal` | Diálogo sobre `<dialog>` nativo | [docs](https://juniorcarlini.github.io/tucano/modal/) |
-| `Drawer` | Off-canvas nas quatro bordas, mesmo motor do modal | [docs](https://juniorcarlini.github.io/tucano/drawer/) |
-| `Toast` | Avisos passageiros, com Django e HTMX | [docs](https://juniorcarlini.github.io/tucano/toast/) |
-| `Tooltip` | Dica ancorada, no ponteiro, no foco e no toque | [docs](https://juniorcarlini.github.io/tucano/tooltip/) |
-| `Accordion` | Sobre `<details>`, funciona sem JavaScript | [docs](https://juniorcarlini.github.io/tucano/accordion/) |
+| `DatePicker` | Data, período, hora e data + hora, com o valor em ISO num campo escondido | [docs](https://juniorcarlini.github.io/tucano/datepicker/) |
+| `Select` | Busca, múltiplo com tags, grupos e busca no servidor, tudo guardado no `<select>` nativo | [docs](https://juniorcarlini.github.io/tucano/select/) |
+| `ColorPicker` | HSV, hex, rgb e hsl, opacidade e paleta, com o valor no campo de texto | [docs](https://juniorcarlini.github.io/tucano/color/) |
+| `Upload` | Arrastar e soltar, progresso, validação e envio direto para o servidor | [docs](https://juniorcarlini.github.io/tucano/upload/) |
+| `Mask` | CPF, CNPJ, telefone, moeda e campo sensível, com o cursor no lugar certo | [docs](https://juniorcarlini.github.io/tucano/mask/) |
+| `Editor` | Texto rico com tabela, bloco de código e as variáveis do seu template | [docs](https://juniorcarlini.github.io/tucano/editor/) |
+| `Table` | Ordenação no servidor pela própria URL e seleção em massa das linhas | [docs](https://juniorcarlini.github.io/tucano/table/) |
+| `Pagination` | Links de página de verdade, feitos para o Paginator do Django | [docs](https://juniorcarlini.github.io/tucano/pagination/) |
+| `Tabs` | Teclado do ARIA APG, e a variação segmentada para trocar a visão | [docs](https://juniorcarlini.github.io/tucano/tabs/) |
+| `Dropdown` | Menu de ações ancorado no gatilho, com setas, Home e End | [docs](https://juniorcarlini.github.io/tucano/dropdown/) |
+| `ContextMenu` | Menu do botão direito no ponto do clique, herdado do menu suspenso | [docs](https://juniorcarlini.github.io/tucano/contextmenu/) |
+| `Modal` | Diálogo sobre o `<dialog>` nativo: top layer, foco preso e Escape | [docs](https://juniorcarlini.github.io/tucano/modal/) |
+| `Drawer` | Off-canvas nas quatro bordas, com o mesmo motor do modal | [docs](https://juniorcarlini.github.io/tucano/drawer/) |
+| `Toast` | Avisos passageiros, com as mensagens do Django e os gatilhos do HTMX | [docs](https://juniorcarlini.github.io/tucano/toast/) |
+| `Tooltip` | Dica ancorada, no ponteiro, no foco do teclado e no toque | [docs](https://juniorcarlini.github.io/tucano/tooltip/) |
+| `Accordion` | Sobre `<details>`: abre e fecha antes de o JavaScript carregar | [docs](https://juniorcarlini.github.io/tucano/accordion/) |
 
 | Só classe | O que faz | |
 | --- | --- | --- |
-| `.tuc-btn` | Botão: variantes, tamanhos, só ícone, ocupado | [docs](https://juniorcarlini.github.io/tucano/button/) |
-| `.tuc-btn-group` | Ações emendadas e escolha em forma de botão | [docs](https://juniorcarlini.github.io/tucano/buttongroup/) |
-| `.tuc-check` `.tuc-radio` `.tuc-switch` | Caixa, opção e chave, ainda nativas | [docs](https://juniorcarlini.github.io/tucano/choice/) |
-| `.tuc-label` `.tuc-hint` `.tuc-error` | Rótulo, ajuda, erro e o campo que reprovou | [docs](https://juniorcarlini.github.io/tucano/form/) |
+| `.tuc-btn` | Botão: variantes, tamanhos, só ícone, ocupado e desativado | [docs](https://juniorcarlini.github.io/tucano/button/) |
+| `.tuc-btn-group` | Ações emendadas num bloco e escolha em forma de botão | [docs](https://juniorcarlini.github.io/tucano/buttongroup/) |
+| `.tuc-check` `.tuc-radio` `.tuc-switch` | Caixa, opção e chave desenhadas, ainda o `<input>` nativo | [docs](https://juniorcarlini.github.io/tucano/choice/) |
+| `.tuc-label` `.tuc-hint` `.tuc-error` | Rótulo, ajuda, erro e o campo que reprovou, por `aria-invalid` | [docs](https://juniorcarlini.github.io/tucano/form/) |
 | `.tuc-alert` | O que continua valendo na tela, em quatro tons | [docs](https://juniorcarlini.github.io/tucano/alert/) |
 | `.tuc-badge` | Estado de um registro, em quatro tons | [docs](https://juniorcarlini.github.io/tucano/badge/) |
-| `.tuc-spinner` `.tuc-skeleton` | Carregando | [docs](https://juniorcarlini.github.io/tucano/loading/) |
-| `.tuc-timeline` | Histórico em ordem, com tons e ícone | [docs](https://juniorcarlini.github.io/tucano/timeline/) |
-| `.tuc-menu` | Lista de navegação com submenu | [docs](https://juniorcarlini.github.io/tucano/menu/) |
-| `.tuc-prose` | Exibição do que o editor salvou, com copiar | [docs](https://juniorcarlini.github.io/tucano/editor/#display) |
+| `.tuc-spinner` `.tuc-skeleton` | Carregando: roda e esqueleto, do tamanho do texto | [docs](https://juniorcarlini.github.io/tucano/loading/) |
+| `.tuc-timeline` | Histórico em ordem, com tom, ícone e horário | [docs](https://juniorcarlini.github.io/tucano/timeline/) |
+| `.tuc-menu` | Lista de navegação com submenu e contador | [docs](https://juniorcarlini.github.io/tucano/menu/) |
+| `.tuc-prose` | Exibição do que o editor salvou, com destaque e copiar | [docs](https://juniorcarlini.github.io/tucano/editor/#display) |
 
 ---
 
