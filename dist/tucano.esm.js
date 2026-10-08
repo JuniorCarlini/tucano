@@ -4370,6 +4370,7 @@ var Tooltip = class {
     node.setAttribute("aria-describedby", this.id);
     if (!node.hasAttribute("tabindex") && !FOCUSABLE.test(node.tagName)) node.tabIndex = 0;
     const isTouch = () => matchMedia("(pointer: coarse)").matches;
+    watchInput();
     this._cleanups.push(
       on(node, "pointerenter", (e) => {
         if (e.pointerType !== "touch") this._schedule(true);
@@ -4377,7 +4378,9 @@ var Tooltip = class {
       on(node, "pointerleave", (e) => {
         if (e.pointerType !== "touch") this._schedule(false);
       }),
-      on(node, "focusin", () => this._show()),
+      on(node, "focusin", () => {
+        if (focusVisible(node)) this._show();
+      }),
       on(node, "focusout", () => this._hide()),
       on(node, "click", () => {
         if (isTouch()) this.isOpen ? this._hide() : this._show();
@@ -4433,6 +4436,26 @@ var Tooltip = class {
   }
 };
 var FOCUSABLE = /^(A|BUTTON|INPUT|SELECT|TEXTAREA)$/;
+var lastInput = null;
+var watching = false;
+function watchInput() {
+  if (watching) return;
+  watching = true;
+  document.addEventListener("keydown", () => {
+    lastInput = "key";
+  }, true);
+  document.addEventListener("pointerdown", () => {
+    lastInput = "pointer";
+  }, true);
+}
+function focusVisible(node) {
+  if (lastInput === "pointer") return false;
+  try {
+    return node.matches(":focus-visible");
+  } catch {
+    return true;
+  }
+}
 function autoInit7(scope = document) {
   const out = [];
   for (const node of scope.querySelectorAll("[data-tuc-tip]:not([data-tuc-ready])")) {

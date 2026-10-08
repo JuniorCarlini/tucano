@@ -15,8 +15,9 @@ let isOpen = null;   // so um por vez
 /**
  * Dica de texto ancorada a um elemento.
  *
- * Aparece no `hover` e tambem no `focus`: um tooltip que so responde ao mouse
- * nao existe para quem navega por teclado.
+ * Aparece no `hover` e tambem no foco de teclado: um tooltip que so responde
+ * ao mouse nao existe para quem navega por teclado. O foco que veio do mouse
+ * nao abre — ver `focusVisible`.
  *
  * Em tela de toque nao ha hover, entao o toque abre e o proximo toque fora
  * fecha. Sem isso a dica simplesmente nunca apareceria no celular.
@@ -57,12 +58,13 @@ export class Tooltip {
     if (!node.hasAttribute('tabindex') && !FOCUSABLE.test(node.tagName)) node.tabIndex = 0;
 
     const isTouch = () => matchMedia('(pointer: coarse)').matches;
+    watchInput();
 
     // O Escape da WCAG 1.4.13 e do Popover, que vive enquanto a dica esta aberta.
     this._cleanups.push(
       on(node, 'pointerenter', (e) => { if (e.pointerType !== 'touch') this._schedule(true); }),
       on(node, 'pointerleave', (e) => { if (e.pointerType !== 'touch') this._schedule(false); }),
-      on(node, 'focusin', () => this._show()),
+      on(node, 'focusin', () => { if (focusVisible(node)) this._show(); }),
       on(node, 'focusout', () => this._hide()),
       on(node, 'click', () => { if (isTouch()) this.isOpen ? this._hide() : this._show(); }),
     );
@@ -125,6 +127,39 @@ export class Tooltip {
 
 const FOCUSABLE = /^(A|BUTTON|INPUT|SELECT|TEXTAREA)$/;
 
+/*
+ * O foco so abre a dica quando e de teclado. Foco de mouse tambem dispara
+ * `focusin`, e o caso que doia era o do modal: o clique num botao com dica
+ * abre o <dialog>, e ao fechar o navegador devolve o foco ao botao. A dica
+ * aparecia sozinha, sem ninguem ter apontado nem tabulado — e se o botao vivia
+ * numa camada que so aparece no hover, o balao flutuava sobre o nada.
+ *
+ * `:focus-visible` e a heuristica do proprio navegador para "esse foco precisa
+ * ser mostrado", a mesma que decide o anel, e resolve no Chrome e no Firefox.
+ * O WebKit marca `:focus-visible` no foco que o <dialog> devolve mesmo quando
+ * ele foi fechado com o mouse; por isso a ultima interacao conta tambem: se foi o
+ * ponteiro, o foco nao veio do teclado. Motor sem `:focus-visible` lanca no
+ * `matches`, e ali vale o comportamento antigo: mostrar sobra, faltar nao.
+ */
+let lastInput = null;   // 'key' ou 'pointer'; null antes de qualquer interacao
+let watching = false;
+
+function watchInput() {
+  if (watching) return;
+  watching = true;
+  // Na captura, para nenhum stopPropagation de quem hospeda esconder o evento.
+  document.addEventListener('keydown', () => { lastInput = 'key'; }, true);
+  document.addEventListener('pointerdown', () => { lastInput = 'pointer'; }, true);
+}
+
+function focusVisible(node) {
+  if (lastInput === 'pointer') return false;
+  try {
+    return node.matches(':focus-visible');
+  } catch {
+    return true;
+  }
+}
 
 export function autoInit(scope = document) {
   const out = [];

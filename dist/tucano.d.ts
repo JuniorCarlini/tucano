@@ -1316,8 +1316,9 @@ export interface TooltipOptions {
 /**
  * Dica de texto ancorada a um elemento.
  *
- * Aparece no `hover` e tambem no `focus`: um tooltip que so responde ao mouse
- * nao existe para quem navega por teclado.
+ * Aparece no `hover` e tambem no foco de teclado: um tooltip que so responde
+ * ao mouse nao existe para quem navega por teclado. O foco que veio do mouse
+ * nao abre — ver `focusVisible`.
  *
  * Em tela de toque nao ha hover, entao o toque abre e o proximo toque fora
  * fecha. Sem isso a dica simplesmente nunca apareceria no celular.

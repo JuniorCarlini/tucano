@@ -4,6 +4,18 @@ O que mudou em cada versão da Tucano, da mais nova para a mais antiga. Antes de
 atualizar, leia "Atenção ao atualizar": ali está o que pede mudança no seu
 projeto.
 
+## 0.37.1 — 2026-10-08
+
+### Corrigido
+
+- A dica aparecia sozinha depois de fechar um modal. O clique num botão com
+  `data-tuc-tip` abria o `<dialog>`, e ao fechar o navegador devolvia o foco ao
+  botão — e o foco abria a dica, sem ninguém ter apontado nem tabulado. Num
+  botão que só aparece no hover, o balão ficava flutuando sobre o nada. Agora o
+  foco só abre a dica quando é de teclado (`:focus-visible`, e não depois de um
+  clique); `Tab` até o elemento continua mostrando, e o hover, o `Escape` e o
+  toque não mudaram.
+
 ## 0.37.0 — 2026-09-29
 
 ### Novo

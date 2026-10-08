@@ -4,6 +4,18 @@ What changed in each Tucano release, newest first. Check the "Before upgrading"
 section of each version first: that is where you will find what requires changes
 in your project.
 
+## 0.37.1 — 2026-10-08
+
+### Fixed
+
+- The tooltip showed up on its own after a modal closed. Clicking a button with
+  `data-tuc-tip` opened the `<dialog>`, and on close the browser returned focus
+  to the button — and that focus opened the tooltip, with nobody pointing at it
+  or tabbing to it. On a button that only appears on hover, the bubble floated
+  over nothing. Focus now opens the tooltip only when it comes from the
+  keyboard (`:focus-visible`, and not right after a click); `Tab` to the
+  element still shows it, and hover, `Escape` and touch are unchanged.
+
 ## 0.37.0 — 2026-09-29
 
 ### New

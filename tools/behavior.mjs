@@ -930,9 +930,13 @@ body{margin:0;padding:16px;font-family:system-ui}
     if (!document.querySelector('.tuc-toasts.is-bottom-end .tuc-toast.is-success')) throw new Error('posição ou tom');
     x.close();
   });
-  t('tooltip aparece no foco', function () {
-    document.getElementById('tp').dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
-    if (!document.querySelector('.tuc-tip__arrow')) throw new Error('sem seta');
+  // O foco de teclado que abre a dica e real, e por isso mora no keyboard.mjs.
+  // Aqui fica o outro lado: um focusin sem foco de teclado nao abre nada — e o
+  // que o <dialog> faz ao devolver o foco a um botao clicado com o mouse.
+  t('tooltip não aparece num focusin sem foco de teclado', function () {
+    var b = document.getElementById('tp');
+    b.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+    if (b._tucano.isOpen || document.querySelector('.tuc-tip')) throw new Error('a dica abriu sem foco de teclado');
   });
   t('tabela ordena no cliente quando pedido', function () {
     document.querySelector('#t .tuc-table__sortbtn').click();

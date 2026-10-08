@@ -4,6 +4,18 @@ Qué cambió en cada versión de Tucano, de la más reciente a la más antigua. 
 primero la sección "Antes de actualizar" de cada versión: ahí está lo que exige
 cambios en tu proyecto.
 
+## 0.37.1 — 2026-10-08
+
+### Corregido
+
+- La sugerencia aparecía sola después de cerrar un modal. El clic en un botón
+  con `data-tuc-tip` abría el `<dialog>`, y al cerrarlo el navegador devolvía el
+  foco al botón — y ese foco abría la sugerencia, sin que nadie apuntara ni
+  tabulara. En un botón que solo aparece con el hover, el globo flotaba sobre
+  la nada. Ahora el foco solo abre la sugerencia cuando viene del teclado
+  (`:focus-visible`, y no justo después de un clic); `Tab` hasta el elemento la
+  sigue mostrando, y el hover, el `Escape` y el toque no cambiaron.
+
 ## 0.37.0 — 2026-09-29
 
 ### Nuevo

@@ -63,8 +63,8 @@ e os componentes se montam sozinhos, no Django, no Laravel, no Rails ou em HTML 
 Dois arquivos e nada mais — sem npm, sem build, sem escrever JavaScript:
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.37.0/dist/tucano.min.css">
-<script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.37.0/dist/tucano.min.js" defer></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.37.1/dist/tucano.min.css">
+<script src="https://cdn.jsdelivr.net/gh/JuniorCarlini/tucano@v0.37.1/dist/tucano.min.js" defer></script>
 
 <input type="text" name="date" data-tuc-datepicker>
 <select name="state" data-tuc-select><option>...</option></select>
@@ -75,7 +75,7 @@ Funciona junto com o CDN do Tailwind sem conflito: o pacote **não** envia o
 preflight, e os elementos internos têm reset próprio para não serem atingidos
 pelo preflight do Tailwind nem pelo CSS do projeto.
 
-Prenda sempre a versão (`@0.37.0`). `@latest` quebra sozinho quando você publicar
+Prenda sempre a versão (`@0.37.1`). `@latest` quebra sozinho quando você publicar
 uma versão nova.
 
 ### Estático (Django, Rails, HTML puro)
@@ -1392,7 +1392,7 @@ import { DatePicker, Select } from 'tucano';   // 15,3 KB em vez de 43
 | só o select | 6,4 KB |
 | só o toast | 2,7 KB |
 | date picker + select | 15,3 KB |
-| tudo | 43,0 KB |
+| tudo | 43,1 KB |
 
 Não é linear porque o núcleo — posicionamento, datas, utilidades de DOM — é
 compartilhado: o primeiro componente paga por ele e os seguintes saem mais

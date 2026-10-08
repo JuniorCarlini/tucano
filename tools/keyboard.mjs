@@ -70,6 +70,11 @@ const page = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
 <textarea id="kvars"></textarea>
 <p id="kbold"><b>negrito fora do editor</b></p>
 <form id="kedForm" onsubmit="window.__kedSubmits++; return false"><textarea id="ked2" name="body" data-tuc-editor required>&lt;p&gt;original&lt;/p&gt;</textarea><button id="kedSubmit">enviar</button></form>
+<!-- Dica pelo teclado e no gatilho de um modal. No fim da página, longe do botão de fechar, que fica no centro: o mouse sai do gatilho de verdade. -->
+<button id="ktipbefore">antes da dica</button><button id="ktip" data-tuc-tip="Dica pelo teclado">dica</button>
+<button id="ktipopen" data-tuc-tip="Abre o modal" onclick="document.getElementById('ktipmodal')._tucano.open()">abrir</button>
+<span id="ktipspan" role="button" tabindex="0" data-tuc-tip="Abre o modal" onclick="document.getElementById('ktipmodal')._tucano.open()">abrir</span>
+<dialog class="tuc-modal" id="ktipmodal"><div class="tuc-modal__panel"><button id="ktipclose" data-tuc-modal-close>Fechar</button></div></dialog>
 <script>${readFileSync('dist/tucano.js', 'utf8')}</script>
 <script>
   /* Monta um date picker novo em #dpbox e registra o que ele emite. Cada caso
@@ -1473,6 +1478,84 @@ testCase('seta no grupo de botões troca a escolha e leva o anel junto', async (
   await press('ArrowLeft');
   return null;
 }, { skip: { webkit: 'o WebKit tira o :focus-visible do radio alcançado por seta — dá :focus, e o anel só volta num foco novo' } });
+
+/* ------------------------------------------------------------------ *
+ * Tooltip: foco de teclado abre, foco devolvido depois do mouse nao    *
+ * ------------------------------------------------------------------ */
+
+const tipOpen = (id) => `(() => { const t = document.getElementById('${id}')._tucano;
+  return !!t.isOpen && t.panel.isConnected; })()`;
+
+/*
+ * No macOS o Tab do Safari so para em campo; botao e link pedem Option+Tab,
+ * como quem nao ligou o "acesso total pelo teclado". O WebKit do Playwright
+ * segue a mesma regra, e o Tab puro saia do botao direto para o proximo campo.
+ */
+const tabToButton = () => press(tab().context().browser().browserType().name() === 'webkit' ? 'Alt+Tab' : 'Tab');
+
+testCase('Tab até um botão com dica mostra a dica', async () => {
+  await evaluate(`document.getElementById('ktipbefore').focus()`);
+  await tabToButton();
+  const at = await evaluate(`document.activeElement.id`);
+  const shown = await waitFor(tipOpen('ktip'), 1000);
+  await evaluate(`document.activeElement.blur()`);
+  if (at !== 'ktip') return `o Tab parou em "${at}"`;
+  return shown ? null : 'o foco de teclado não abriu a dica';
+});
+
+/*
+ * O <dialog> devolve o foco ao botao que o abriu. Com o clique de mouse, esse
+ * foco nao e de teclado, e a dica aparecia sozinha — num botao dentro de uma
+ * camada que so existe no hover, flutuava sobre o nada. A espera passa do
+ * atraso do hover (350ms), para o caso nao passar por chegar cedo demais.
+ */
+async function closeTipModal(trigger, how) {
+  await clickOn(`document.getElementById('${trigger}')`);
+  const opened = await waitFor(`document.getElementById('ktipmodal').open`);
+  if (!opened) return `${how}: o clique não abriu o modal`;
+  // Com o Escape o mouse sai antes, senao a dica volta pelo hover ao fechar.
+  if (how === 'mouse') await clickOn(`document.getElementById('ktipclose')`);
+  else { await tab().mouse.move(640, 450); await press('Escape'); }
+  await waitFor(`!document.getElementById('ktipmodal').open`);
+  await wait(500);
+  const r = await evaluate(`[document.activeElement.id, ${tipOpen(trigger)},
+    document.getElementById('${trigger}').matches(':focus-visible')]`);
+  await evaluate(`document.activeElement.blur()`);
+  await tab().mouse.move(640, 450);
+  return { focused: r[0], open: r[1], ring: r[2] };
+}
+
+/*
+ * Dois gatilhos porque o Safari nao foca <button> no clique, e o WebKit do
+ * Playwright tambem nao: ali o foco devolvido e o do <body>, e o defeito nao
+ * tem como acontecer. O <span tabindex> recebe foco no clique nos tres
+ * motores, e e ele que prova a correcao no WebKit.
+ */
+testCase('fechar com o mouse um modal aberto pelo mouse não deixa a dica aberta no gatilho', async () => {
+  const webkit = tab().context().browser().browserType().name() === 'webkit';
+  for (const trigger of ['ktipopen', 'ktipspan']) {
+    const r = await closeTipModal(trigger, 'mouse');
+    if (typeof r === 'string') return `${trigger}: ${r}`;
+    const expected = webkit && trigger === 'ktipopen' ? '' : trigger;
+    if (r.focused !== expected) return `${trigger}: o foco voltou para "${r.focused}", e não para "${expected}"`;
+    if (r.open) return `${trigger}: a dica abriu no foco devolvido pelo modal`;
+  }
+  return null;
+});
+
+/*
+ * Com o Escape, a ultima interacao foi de teclado, e o navegador mostra o anel
+ * no foco devolvido. A dica acompanha o anel: quem fechou pelo teclado tem de
+ * saber onde o foco caiu, e o texto do botao pode ser so um icone.
+ */
+testCase('fechar pelo Escape: a dica do gatilho acompanha o anel de foco', async () => {
+  for (const trigger of ['ktipopen', 'ktipspan']) {
+    const r = await closeTipModal(trigger, 'escape');
+    if (typeof r === 'string') return `${trigger}: ${r}`;
+    if (r.open !== r.ring) return `${trigger}: dica aberta ${r.open}, anel ${r.ring}`;
+  }
+  return null;
+});
 
 async function run(name) {
   const lines = [];
