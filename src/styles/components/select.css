@@ -1,8 +1,23 @@
 @reference "tailwindcss";
 
-/* O select nativo continua no formulario, so sai do fluxo visual. */
-.tuc-select-native {
+/*
+ * O select nativo continua no formulario, so sai do fluxo visual.
+ *
+ * O seletor pesa 0,3,1 porque o nativo costuma vir com `.tuc-input`: o
+ * `select.tuc-input.tuc-input` (0,2,1) devolvia `width: 100%` e a altura do
+ * campo, e o nativo, absoluto num pai sem posicao, media a largura do <body> e
+ * empurrava a pagina para a rolagem horizontal. `:disabled` e `[multiple]`
+ * pesam 0,3,1 e trazem opacidade e altura de volta; empatam aqui, e vence esta
+ * regra por vir depois no index.css. Padding, borda, margem e minimos zerados
+ * pelo mesmo motivo: nada do campo ou do projeto pode dar tamanho a ele.
+ */
+select.tuc-select-native.tuc-select-native.tuc-select-native {
   @apply pointer-events-none absolute h-px w-px overflow-hidden opacity-0;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
   clip-path: inset(50%);
 }
 

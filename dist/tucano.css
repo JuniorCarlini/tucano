@@ -1752,13 +1752,18 @@ textarea.tuc-editor__value[hidden] {
     translate: none;
   }
 }
-.tuc-select-native {
+select.tuc-select-native.tuc-select-native.tuc-select-native {
   pointer-events: none;
   position: absolute;
   height: 1px;
   width: 1px;
   overflow: hidden;
   opacity: 0%;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
   clip-path: inset(50%);
 }
 .tuc-select {

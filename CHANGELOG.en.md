@@ -4,6 +4,18 @@ What changed in each Tucano release, newest first. Check the "Before upgrading"
 section of each version first: that is where you will find what requires changes
 in your project.
 
+## 0.37.2 — 2026-10-08
+
+### Fixed
+
+- A `<select class="tuc-input" data-tuc-select>` made the page scroll
+  horizontally. The `.tuc-input` rule outweighed the one that hides the native
+  element and gave it back `width: 100%`; absolutely positioned inside an
+  unpositioned parent, the invisible native select took the page's width and
+  sat shifted to the right. The hidden native select now stays 1px in every
+  case — disabled and `multiple` too — and submission, `required`, `reset` and
+  `<label>` work as before.
+
 ## 0.37.1 — 2026-10-08
 
 ### Fixed

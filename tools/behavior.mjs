@@ -173,6 +173,34 @@ body{margin:0;padding:16px;font-family:system-ui}
     if (!gravou) throw new Error('o nativo não recebeu o valor');
     if (barulho !== 1) throw new Error('sem silent devia disparar uma vez, veio ' + barulho);
   });
+  t('select: o nativo escondido não ocupa espaço nem com .tuc-input', function () {
+    // O select.tuc-input.tuc-input (0,2,1) vencia a regra que esconde o nativo e
+    // devolvia width: 100%. Absoluto num pai sem posição, ele media a largura do
+    // <body>, deslocado para a direita, e a página ganhava rolagem horizontal. O
+    // desativado e o multiple entram porque :disabled e [multiple] pesam 0,3,1 e
+    // trazem opacidade e altura de volta.
+    var box = document.createElement('div');
+    box.innerHTML = '<form><div style="padding-left:60%">'
+      + '<select class="tuc-input" data-tuc-select name="ncm" required><option value="">Selecione</option><option>SP</option></select>'
+      + '<select class="tuc-input" data-tuc-select disabled><option>SP</option></select>'
+      + '<select class="tuc-input" data-tuc-select multiple size="4"><option>SP</option><option>RJ</option></select>'
+      + '</div></form>';
+    document.body.append(box);
+    Tucano.init(box);
+    var root = document.documentElement, wrong = [];
+    box.querySelectorAll('select').forEach(function (s, n) {
+      var r = s.getBoundingClientRect(), cs = getComputedStyle(s);
+      if (r.width > 1 || r.height > 1) wrong.push('nativo ' + n + ' com ' + Math.round(r.width) + 'x' + Math.round(r.height) + 'px');
+      if (cs.opacity !== '0') wrong.push('nativo ' + n + ' com opacidade ' + cs.opacity);
+    });
+    var scroll = root.scrollWidth, view = root.clientWidth;
+    var valid = box.querySelector('form').checkValidity();
+    box.querySelectorAll('select').forEach(function (s) { s._tucano.destroy(); });
+    box.remove();
+    if (scroll > view) wrong.push('a página rola na horizontal: ' + scroll + ' > ' + view);
+    if (valid) wrong.push('o required do nativo deixou de barrar o envio');
+    if (wrong.length) throw new Error(wrong.join(' | '));
+  });
   t('colorpicker abre e converte', function () {
     var i = document.getElementById('c')._tucano;
     i.open(); if (!document.querySelector('.tuc-colorpicker__area')) throw new Error('sem área');

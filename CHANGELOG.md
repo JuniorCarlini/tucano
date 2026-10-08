@@ -4,6 +4,18 @@ O que mudou em cada versão da Tucano, da mais nova para a mais antiga. Antes de
 atualizar, leia "Atenção ao atualizar": ali está o que pede mudança no seu
 projeto.
 
+## 0.37.2 — 2026-10-08
+
+### Corrigido
+
+- O `<select class="tuc-input" data-tuc-select>` dava rolagem horizontal à
+  página. A regra do `.tuc-input` pesava mais que a que esconde o nativo e lhe
+  devolvia `width: 100%`; absoluto num pai sem posição, o nativo invisível
+  media a largura da página e ficava deslocado para a direita. Agora o nativo
+  escondido fica com 1px em qualquer caso — também desativado e com
+  `multiple` —, e o envio, o `required`, o `reset` e o `<label>` seguem como
+  antes.
+
 ## 0.37.1 — 2026-10-08
 
 ### Corrigido
