@@ -1536,8 +1536,11 @@ testCase('fechar com o mouse um modal aberto pelo mouse não deixa a dica aberta
   for (const trigger of ['ktipopen', 'ktipspan']) {
     const r = await closeTipModal(trigger, 'mouse');
     if (typeof r === 'string') return `${trigger}: ${r}`;
-    const expected = webkit && trigger === 'ktipopen' ? '' : trigger;
-    if (r.focused !== expected) return `${trigger}: o foco voltou para "${r.focused}", e não para "${expected}"`;
+    // O WebKit do macOS não foca <button> no clique, então o foco não volta a
+    // ele; o do Linux (o do CI) foca, e volta. O que o teste prova é a dica
+    // fechada, não para onde o sistema devolve o foco.
+    const aceitos = webkit && trigger === 'ktipopen' ? ['', trigger] : [trigger];
+    if (!aceitos.includes(r.focused)) return `${trigger}: o foco voltou para "${r.focused}", e não para "${aceitos.join('" ou "')}"`;
     if (r.open) return `${trigger}: a dica abriu no foco devolvido pelo modal`;
   }
   return null;
