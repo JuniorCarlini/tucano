@@ -546,6 +546,32 @@ export interface SelectChangeDetail {
     events: { 'tucano:change': 'SelectChangeDetail' },
   },
 
+  Slider: {
+    target: 'string | HTMLElement',
+    types: `
+/** \`number\` no slider simples; \`[min, max]\` no intervalo. */
+export type SliderValue = number | [number, number];
+export interface SliderChangeDetail {
+  value: SliderValue;
+  instance: Slider;
+}`,
+    options: {
+      output: 'string | HTMLElement | null',
+      currency: 'string | null',
+      locale: 'string',
+      format: '((value: number) => string) | null',
+      onChange: '((value: SliderValue, detail: SliderChangeDetail) => void) | null',
+    },
+    methods: {
+      getValue: '(): SliderValue',
+      setValue: '(value: number | [number, number], options?: SilentOption): this',
+      destroy: '(): void',
+    },
+    props: { node: 'HTMLElement', inputs: 'HTMLInputElement[]', isRange: 'boolean', output: 'HTMLElement | null' },
+    events: { 'tucano:change': 'SliderChangeDetail' },
+    doc: 'Slider de um valor ou de intervalo (minimo e maximo), sobre o `<input type="range">` nativo.',
+  },
+
   Table: {
     target: 'string | HTMLTableElement',
     types: `
@@ -856,6 +882,7 @@ const TEXT_FUNCTIONS = {
   'upload.others': '(n: number) => string',
   'upload.upTo': '(size: string) => string',
   'upload.serverError': '(status: number) => string',
+  'slider.range': '(start: string, end: string) => string',
 };
 
 /* Eventos que a Tucano escuta, e nao dispara. */
@@ -867,7 +894,7 @@ const LISTENED_EVENTS = {
 };
 
 const EVENT_DOCS = {
-  'tucano:change': 'Valor novo em date picker, select, color picker, upload, mascara ou abas. Borbulha.',
+  'tucano:change': 'Valor novo em date picker, select, color picker, upload, mascara, slider ou abas. Borbulha.',
   'tucano:sort': 'Clique num cabecalho ordenavel da tabela. Borbulha.',
   'tucano:select': 'Linha marcada ou desmarcada na tabela. Borbulha.',
   'tucano:toast-closed': 'O toast saiu da tela. Disparado no proprio elemento do toast, sem borbulhar.',

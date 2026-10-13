@@ -199,6 +199,7 @@ description: Lo que hace cada tecla en todos los componentes de Tucano — date 
     <tr><td>Paginación</td><td>Enlaces nativos</td><td><code>&lt;nav&gt;</code> "Paginação" (paginación), <code>aria-current="page"</code> en la actual; el extremo desactivado es un <code>&lt;span&gt;</code>, fuera del camino del <code>Tab</code></td></tr>
     <tr><td>Casilla, opción e interruptor</td><td>Las del <code>&lt;input&gt;</code> nativo</td><td>Las del navegador; el interruptor necesita <code>role="switch"</code> en la plantilla, porque el CSS no pone roles</td></tr>
     <tr><td>Grupo de botones</td><td>Las del <code>&lt;input&gt;</code> nativo: el grupo de radios es una sola parada del <code>Tab</code>, y las flechas lo recorren</td><td>El grupo necesita nombre — <code>role="group"</code> con <code>aria-label</code>, o <code>&lt;fieldset&gt;</code> con <code>&lt;legend&gt;</code>; el <code>&lt;input&gt;</code> queda invisible, pero enfocable y anunciado</td></tr>
+    <tr><td>Slider</td><td>Las del <code>&lt;input type="range"&gt;</code> nativo, en cada extremo: flechas, <code>PageUp</code>/<code>PageDown</code>, <code>Home</code> y <code>End</code>; en el rango, cada extremo es una parada del <code>Tab</code></td><td>El valor escrito en <code>aria-valuetext</code> ("800 €", y no "800"); en el rango, el extremo sin etiqueta recibe "Mínimo" o "Máximo"</td></tr>
   </tbody>
 </table></div>
 

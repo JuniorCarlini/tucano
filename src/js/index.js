@@ -2,6 +2,7 @@ export { DatePicker, autoInit as autoInitDatePickers } from './components/datepi
 export { Select, autoInit as autoInitSelects } from './components/select.js';
 export { ColorPicker, autoInit as autoInitColorPickers } from './components/colorpicker.js';
 export { Upload, autoInit as autoInitUploads } from './components/upload.js';
+export { Slider, autoInit as autoInitSliders } from './components/slider.js';
 export { Mask, FORMATS, autoInit as autoInitMasks, autoFormat } from './components/mask.js';
 export { Toast, toast, autoInit as autoInitToasts, listenForEvents } from './components/toast.js';
 export { Tooltip, autoInit as autoInitTooltips } from './components/tooltip.js';
@@ -30,6 +31,7 @@ import { autoInit } from './components/datepicker.js';
 import { autoInit as autoInitSelect } from './components/select.js';
 import { autoInit as autoInitColor } from './components/colorpicker.js';
 import { autoInit as autoInitUpload } from './components/upload.js';
+import { autoInit as autoInitSlider } from './components/slider.js';
 import { autoInit as autoInitMask, autoFormat } from './components/mask.js';
 import { autoInit as autoInitToast, listenForEvents } from './components/toast.js';
 import { autoInit as autoInitTip } from './components/tooltip.js';
@@ -51,6 +53,7 @@ export function init(scope = document) {
     selects: autoInitSelect(scope),
     colorpickers: autoInitColor(scope),
     uploads: autoInitUpload(scope),
+    sliders: autoInitSlider(scope),
     masks: autoInitMask(scope),
     formatted: autoFormat(scope),
     toasts: autoInitToast(scope),

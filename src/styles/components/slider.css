@@ -1,0 +1,144 @@
+@reference "tailwindcss";
+
+/*
+ * Slider: um valor, ou um intervalo de minimo e maximo.
+ *
+ * E o <input type="range"> nativo com o desenho trocado. A classe vem do
+ * template, como nas abas: o controle nasce com a altura e a trilha certas no
+ * primeiro quadro, e o script so acrescenta o trecho pintado. Sem JavaScript o
+ * slider funciona e posta — so a trilha fica sem a cor de destaque.
+ *
+ * A caixa tem a altura de um campo, com a trilha no meio: na mesma linha de um
+ * select ele nao desalinha, e no celular sobe para 44px junto com os campos —
+ * o alvo de toque de que um botao de 22px precisa.
+ *
+ * O trecho escolhido e um degrade com duas paradas, e nao um elemento: o
+ * pseudo-elemento de progresso so existe no Firefox. A posicao desconta meio
+ * botao de cada ponta, porque e assim que o centro do botao anda — sem isso a
+ * cor passava do botao no comeco e ficava aquem dele no fim.
+ *
+ * Os seletores do nativo repetem a classe para pesar 0,2,1, pelo motivo do
+ * .tuc-input: `input { height: ... }` do projeto venceria uma classe sozinha.
+ * E cada pseudo-elemento de motor vai numa regra propria: numa lista, o seletor
+ * que um navegador nao conhece derruba a regra inteira.
+ */
+.tuc-slider {
+  --tuc-slider-thumb: 1.125rem;
+  --tuc-slider-track: 0.375rem;
+  --tuc-slider-from: 0;
+  --tuc-slider-to: 0;
+  /* No simples a cor sai da ponta da trilha; no intervalo, do centro do primeiro botao. */
+  --tuc-slider-start: 0%;
+  /* A trilha vazia e a da chave desligada: so a borda some sobre um card branco. */
+  --tuc-slider-fill: linear-gradient(to right,
+    color-mix(in oklab, var(--tuc-border) 80%, var(--tuc-fg)) var(--tuc-slider-start),
+    var(--tuc-accent) 0 calc(var(--tuc-slider-thumb) / 2 + (100% - var(--tuc-slider-thumb)) * var(--tuc-slider-to)),
+    color-mix(in oklab, var(--tuc-border) 80%, var(--tuc-fg)) 0);
+}
+.tuc-slider.is-range {
+  --tuc-slider-start: calc(var(--tuc-slider-thumb) / 2 + (100% - var(--tuc-slider-thumb)) * var(--tuc-slider-from));
+}
+
+input.tuc-slider.tuc-slider,
+.tuc-slider.is-range > input[type='range'] {
+  @apply block w-full cursor-pointer p-0;
+  height: var(--tuc-control-height);
+  margin: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+}
+input.tuc-slider.tuc-slider:focus-visible,
+.tuc-slider.is-range > input[type='range']:focus-visible { outline: 0; }
+
+/* Trilha */
+input.tuc-slider.tuc-slider::-webkit-slider-runnable-track,
+.tuc-slider.is-range > input[type='range']::-webkit-slider-runnable-track {
+  height: var(--tuc-slider-track);
+  border-radius: 999px;
+  background: var(--tuc-slider-fill);
+}
+input.tuc-slider.tuc-slider::-moz-range-track,
+.tuc-slider.is-range > input[type='range']::-moz-range-track {
+  height: var(--tuc-slider-track);
+  border-radius: 999px;
+  background: var(--tuc-slider-fill);
+}
+
+/* Botao: a bolinha da chave, com a borda no destaque. */
+input.tuc-slider.tuc-slider::-webkit-slider-thumb,
+.tuc-slider.is-range > input[type='range']::-webkit-slider-thumb {
+  box-sizing: border-box;
+  width: var(--tuc-slider-thumb);
+  height: var(--tuc-slider-thumb);
+  margin-top: calc((var(--tuc-slider-track) - var(--tuc-slider-thumb)) / 2);
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--tuc-thumb);
+  border: 2px solid var(--tuc-accent);
+  border-radius: 999px;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.2);
+  transition: box-shadow var(--tuc-duration) var(--tuc-ease);
+}
+input.tuc-slider.tuc-slider::-moz-range-thumb,
+.tuc-slider.is-range > input[type='range']::-moz-range-thumb {
+  box-sizing: border-box;
+  width: var(--tuc-slider-thumb);
+  height: var(--tuc-slider-thumb);
+  background: var(--tuc-thumb);
+  border: 2px solid var(--tuc-accent);
+  border-radius: 999px;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.2);
+  transition: box-shadow var(--tuc-duration) var(--tuc-ease);
+}
+
+/* O mesmo anel dos campos, no botao e nao na caixa inteira. */
+input.tuc-slider.tuc-slider:focus-visible::-webkit-slider-thumb,
+.tuc-slider.is-range > input[type='range']:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px var(--tuc-accent-ring);
+}
+input.tuc-slider.tuc-slider:focus-visible::-moz-range-thumb,
+.tuc-slider.is-range > input[type='range']:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 0 3px var(--tuc-accent-ring);
+}
+
+/*
+ * Intervalo: a trilha e do contêiner, e os dois nativos ficam por cima, com
+ * trilha transparente — senao o de cima cobriria a cor do de baixo. O ponteiro
+ * e tratado pelo script (ver _onDown), por isso os nativos nao o recebem. O
+ * `pan-y` deixa a pagina rolar na vertical e da o arrasto horizontal ao slider.
+ */
+.tuc-slider.is-range {
+  @apply relative block w-full cursor-pointer;
+  height: var(--tuc-control-height);
+  touch-action: pan-y;
+}
+.tuc-slider.is-range::before {
+  content: '';
+  @apply absolute inset-x-0 top-1/2;
+  height: var(--tuc-slider-track);
+  translate: 0 -50%;
+  border-radius: 999px;
+  background: var(--tuc-slider-fill);
+}
+.tuc-slider.is-range > input[type='range'] {
+  @apply absolute inset-0;
+  pointer-events: none;
+}
+.tuc-slider.is-range > input[type='range']::-webkit-slider-runnable-track { background: transparent; }
+.tuc-slider.is-range > input[type='range']::-moz-range-track { background: transparent; }
+
+input.tuc-slider.tuc-slider:disabled,
+.tuc-slider.is-range:has(> input:disabled) { @apply cursor-not-allowed opacity-50; }
+
+/* No toque o botao cresce com o campo: 22px, e nao 18, para o dedo achar. */
+@media (max-width: 40rem) {
+  .tuc-slider { --tuc-slider-thumb: 1.375rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  input.tuc-slider.tuc-slider::-webkit-slider-thumb,
+  .tuc-slider.is-range > input[type='range']::-webkit-slider-thumb { transition: none; }
+  input.tuc-slider.tuc-slider::-moz-range-thumb,
+  .tuc-slider.is-range > input[type='range']::-moz-range-thumb { transition: none; }
+}

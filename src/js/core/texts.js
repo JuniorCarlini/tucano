@@ -92,6 +92,14 @@ export const MASK_TEXTS = {
   cpfCnpj: 'Documento inválido',
 };
 
+export const SLIDER_TEXTS = {
+  // Nome das duas pontas do intervalo, quando o template nao deu um rotulo.
+  min: 'Mínimo',
+  max: 'Máximo',
+  // Valor do intervalo escrito no output.
+  range: (start, end) => `${start} – ${end}`,
+};
+
 export const TOAST_TEXTS = {
   region: 'Notificações',
   close: 'Fechar',
@@ -172,6 +180,7 @@ const GROUPS = {
   colorpicker: COLORPICKER_TEXTS,
   upload: UPLOAD_TEXTS,
   mask: MASK_TEXTS,
+  slider: SLIDER_TEXTS,
   toast: TOAST_TEXTS,
   modal: MODAL_TEXTS,
   drawer: DRAWER_TEXTS,

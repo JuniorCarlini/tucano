@@ -67,6 +67,8 @@ const page = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
   <label class="tuc-btn"><input type="radio" class="tuc-btn__input" name="kbgp" value="day" checked> Dia</label>
   <label class="tuc-btn"><input type="radio" class="tuc-btn__input" name="kbgp" value="week"> Semana</label>
 </div>
+<input type="range" class="tuc-slider" data-tuc-slider id="ksl" min="0" max="10" value="5">
+<div class="tuc-slider is-range" data-tuc-slider id="kslr" style="max-width:400px"><input type="range" name="lo" value="50"><input type="range" name="hi" value="50"></div>
 <textarea id="kvars"></textarea>
 <p id="kbold"><b>negrito fora do editor</b></p>
 <form id="kedForm" onsubmit="window.__kedSubmits++; return false"><textarea id="ked2" name="body" data-tuc-editor required>&lt;p&gt;original&lt;/p&gt;</textarea><button id="kedSubmit">enviar</button></form>
@@ -288,6 +290,73 @@ testCase('setas andam entre as abas, pulam a desativada e trocam o painel', asyn
   await press('Home');
   r = await where();
   return r === 'A01' ? null : `Home não voltou para a primeira: ${r}`;
+});
+
+/*
+ * Slider de intervalo: o ponteiro e tratado pelo componente, porque os dois
+ * nativos sobrepostos deixavam a ponta de baixo presa quando as duas se
+ * encontravam. Mouse de verdade, para passar pelo pointerdown e pela captura.
+ */
+const sliderAt = async (fraction) => {
+  const [x, y, left, width] = await evaluate(`(() => { const n = document.getElementById('kslr');
+    n.scrollIntoView({ block: 'center' }); const r = n.getBoundingClientRect();
+    return [0, r.top + r.height / 2, r.left, r.width]; })()`);
+  // O centro do botao anda de meio botao ate a largura menos meio botao (18px).
+  return [left + 9 + fraction * (width - 18), y, x];
+};
+const sliderValue = () => evaluate(`(() => { const n = document.getElementById('kslr');
+  return n._tucano.getValue().join('-') + ' ' + (document.activeElement.name || document.activeElement.id); })()`);
+const dragSlider = async (from, to) => {
+  const [x0, y] = await sliderAt(from);
+  const [x1] = await sliderAt(to);
+  await tab().mouse.move(x0, y);
+  await tab().mouse.down();
+  await tab().mouse.move(x1, y, { steps: 6 });
+  await tab().mouse.up();
+};
+
+testCase('slider de intervalo: com as pontas juntas, o primeiro movimento decide qual se move', async () => {
+  await evaluate(`void document.getElementById('kslr')._tucano.setValue([50, 50], { silent: true })`);
+  await dragSlider(0.5, 0.3);
+  let r = await sliderValue();
+  if (r !== '30-50 lo') return `para a esquerda devia mover o mínimo: ${r}`;
+  await evaluate(`void document.getElementById('kslr')._tucano.setValue([50, 50], { silent: true })`);
+  await dragSlider(0.5, 0.8);
+  r = await sliderValue();
+  return r === '50-80 hi' ? null : `para a direita devia mover o máximo: ${r}`;
+});
+
+testCase('slider de intervalo: clique na trilha leva a ponta mais perto, e o mínimo para no máximo', async () => {
+  await evaluate(`void document.getElementById('kslr')._tucano.setValue([20, 60], { silent: true })`);
+  const [x, y] = await sliderAt(0.9);
+  await tab().mouse.click(x, y);
+  let r = await sliderValue();
+  if (r !== '20-90 hi') return `clique perto do fim devia levar o máximo: ${r}`;
+  await dragSlider(0.2, 1);
+  r = await sliderValue();
+  return r === '90-90 lo' ? null : `o mínimo devia parar no máximo: ${r}`;
+});
+
+testCase('slider de intervalo: no arrasto, tucano:change a cada movimento e o change nativo só ao soltar', async () => {
+  await evaluate(`(() => { const n = document.getElementById('kslr'); n._tucano.setValue([10, 90], { silent: true });
+    window.slLog = []; window.slNative = 0; n._tucano.opts.onChange = (v) => slLog.push(v.join('-'));
+    n.addEventListener('change', () => slNative++); })()`);
+  await dragSlider(0.1, 0.4);
+  const [moves, last, native] = await evaluate('[slLog.length, slLog[slLog.length - 1], slNative]');
+  await evaluate(`void (document.getElementById('kslr')._tucano.opts.onChange = null)`);
+  if (native !== 1) return `${native} change nativo(s); esperado um, ao soltar`;
+  if (moves < 2 || last !== '40-90') return `${moves} tucano:change, o último ${last}; esperados vários, terminando em 40-90`;
+  return null;
+});
+
+testCase('slider: setas, Home e End no nativo mudam o valor, repintam e emitem', async () => {
+  await evaluate(`(() => { const n = document.getElementById('ksl'); n._tucano.setValue(5, { silent: true });
+    window.slLog = []; n.addEventListener('tucano:change', (e) => slLog.push(e.detail.value)); n.focus(); })()`);
+  await press('ArrowRight');
+  await press('End');
+  await press('Home');
+  const r = await evaluate(`[slLog.join(), document.getElementById('ksl').style.getPropertyValue('--tuc-slider-to')].join(' ')`);
+  return r === '6,10,0 0' ? null : `esperado "6,10,0 0", veio "${r}"`;
 });
 
 testCase('barra do editor aplica o comando pelo teclado, no texto selecionado', async () => {

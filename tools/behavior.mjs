@@ -69,6 +69,9 @@ body{margin:0;padding:16px;font-family:system-ui}
 <div class="hostile"><label class="tuc-choice" id="chh"><input type="checkbox" class="tuc-check"> Dentro de um card</label></div>
 <ol class="tuc-timeline" id="tl"><li class="tuc-timeline__item is-success"><div class="tuc-timeline__head"><span class="tuc-timeline__title">A</span></div></li><li class="tuc-timeline__item"><div class="tuc-timeline__head"><span class="tuc-timeline__title">B</span></div></li></ol>
 <div class="tuc-prose" id="pr"><pre><code>npm run build // teste</code></pre></div>
+<input type="range" class="tuc-slider" data-tuc-slider id="sl" name="vol" min="0" max="200" value="50" data-output="#slo"><output id="slo"></output>
+<form id="slform"><div class="tuc-slider is-range" data-tuc-slider id="slr" data-output="#slro" data-currency="BRL">
+  <input type="range" name="pmin" min="0" max="1000" step="10" value="200"><input type="range" name="pmax" min="0" max="1000" step="10" value="800" aria-label="Preço máximo"></div></form><output id="slro"></output>
 <pre id="result"></pre>
 <script>${readFileSync('dist/tucano.js', 'utf8')}</script>
 <script>
@@ -683,6 +686,56 @@ body{margin:0;padding:16px;font-family:system-ui}
   t('aba dentro de formulário não envia o formulário', function () {
     document.querySelectorAll('#tbform .tuc-tabs__tab')[1].click();
     if (window.__submitted) throw new Error('enviou');
+  });
+  t('slider simples pinta a trilha até o valor e escreve o output', function () {
+    var n = document.getElementById('sl');
+    if (!n._tucano || n._tucano.isRange) throw new Error('sem instância simples');
+    if (n.style.getPropertyValue('--tuc-slider-to') !== '0.25') throw new Error('trilha em ' + n.style.getPropertyValue('--tuc-slider-to'));
+    if (document.getElementById('slo').textContent !== '50') throw new Error('output: ' + document.getElementById('slo').textContent);
+    if (getComputedStyle(n).height !== getComputedStyle(document.getElementById('m')).height) throw new Error('altura diferente da de um campo');
+  });
+  t('slider de intervalo: dois nativos com nome, valor em par e dinheiro por extenso', function () {
+    var n = document.getElementById('slr'), i = n._tucano, inputs = n.querySelectorAll('input');
+    if (!i.isRange || !n.classList.contains('is-range')) throw new Error('não montou o intervalo');
+    if (i.getValue().join() !== '200,800') throw new Error('valor ' + i.getValue());
+    // A ponta sem rótulo ganha o nome padrão; a que tem não é tocada.
+    if (inputs[0].getAttribute('aria-label') !== 'Mínimo') throw new Error('mínimo sem nome');
+    if (inputs[1].getAttribute('aria-label') !== 'Preço máximo') throw new Error('sobrescreveu o rótulo do template');
+    var text = document.getElementById('slro').textContent.replace(/\\s/g, ' ');
+    if (text !== 'R$ 200 – R$ 800') throw new Error('output: ' + text);
+    if (inputs[0].getAttribute('aria-valuetext').replace(/\\s/g, ' ') !== 'R$ 200') throw new Error('leitor de tela leria o número cru');
+    var fd = new FormData(document.getElementById('slform'));
+    if (fd.get('pmin') !== '200' || fd.get('pmax') !== '800') throw new Error('o formulário não posta os dois');
+  });
+  t('slider de intervalo: setValue ordena o par, emite uma vez e o silent cala tudo', function () {
+    var n = document.getElementById('slr'), i = n._tucano, seen = [], native = 0;
+    var listen = function (e) { seen.push(e.detail.value.join('-')); };
+    var count = function () { native++; };
+    n.addEventListener('tucano:change', listen);
+    n.addEventListener('change', count);
+    i.setValue([900, 100]);
+    i.setValue([300, 700], { silent: true });
+    n.removeEventListener('tucano:change', listen);
+    n.removeEventListener('change', count);
+    if (seen.join() !== '100-900') throw new Error('eventos: ' + seen.join());
+    if (native !== 2) throw new Error(native + ' change nativo(s); esperados 2, um por ponta que mudou');
+    if (i.getValue().join() !== '300,700') throw new Error('silent não trocou o valor');
+    if (n.style.getPropertyValue('--tuc-slider-from') !== '0.3') throw new Error('trilha não acompanhou o silent');
+  });
+  t('slider de intervalo: o mínimo não passa do máximo', function () {
+    var n = document.getElementById('slr'), low = n.querySelectorAll('input')[0];
+    low.value = 950;
+    low.dispatchEvent(new Event('input', { bubbles: true }));
+    if (n._tucano.getValue().join() !== '700,700') throw new Error('valor ' + n._tucano.getValue());
+    n._tucano.setValue([200, 800], { silent: true });
+  });
+  t('slider: destroy tira o nome que pôs e a pintura', function () {
+    var n = document.getElementById('slr'), low = n.querySelectorAll('input')[0];
+    n._tucano.destroy();
+    var left = low.hasAttribute('aria-label') || low.hasAttribute('aria-valuetext') || n.style.getPropertyValue('--tuc-slider-to');
+    var again = new Tucano.Slider(n, { currency: 'BRL', output: '#slro' });
+    if (left) throw new Error('sobrou: ' + left);
+    if (n._tucano !== again) throw new Error('não remontou');
   });
   t('dropdown abre, foca o item e devolve o foco', function () {
     var g = document.getElementById('bd')._tucano;
@@ -1394,6 +1447,17 @@ body{margin:0;padding:16px;font-family:system-ui}
   function drop(up, files) { up.zone.dispatchEvent(new DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer: fileList(files) })); }
   function mkFile(name, type) { return new File(['x'], name, { type: type || 'text/plain' }); }
   function posted(form) { return [].map.call(new FormData(form).getAll('doc').concat(new FormData(form).getAll('f')), function (v) { return v.name || v; }).join(','); }
+
+  ta('slider: reset do formulário volta o valor e repinta a trilha e o output', async function () {
+    var n = document.getElementById('slr');
+    n._tucano.setValue([500, 600], { silent: true });
+    document.getElementById('slform').reset();
+    // O reset devolve o valor depois do evento; a repintura espera a vez.
+    await tick();
+    if (n._tucano.getValue().join() !== '200,800') throw new Error('o nativo não voltou');
+    if (n.style.getPropertyValue('--tuc-slider-from') !== '0.2') throw new Error('trilha ficou em ' + n.style.getPropertyValue('--tuc-slider-from'));
+    if (document.getElementById('slro').textContent.replace(/\\s/g, ' ') !== 'R$ 200 – R$ 800') throw new Error('output ficou velho');
+  });
 
   ta('upload de um arquivo: recusado não apaga o anterior, nem no servidor', async function () {
     var a = uploadBox('<form><input type="file" name="doc" accept=".pdf"></form>');

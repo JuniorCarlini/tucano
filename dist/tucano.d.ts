@@ -248,6 +248,21 @@ export interface MaskTexts {
   cpfCnpj: string;
 }
 
+export interface SliderTexts {
+  /**
+   * Nome das duas pontas do intervalo, quando o template nao deu um rotulo.
+   * @default 'Mínimo'
+   */
+  min: string;
+  /** @default 'Máximo' */
+  max: string;
+  /**
+   * Valor do intervalo escrito no output.
+   * @default (start, end) => `${start} – ${end}`
+   */
+  range: (start: string, end: string) => string;
+}
+
 export interface ToastTexts {
   /** @default 'Notificações' */
   region: string;
@@ -387,6 +402,7 @@ export interface TucanoTexts {
   colorpicker: ColorPickerTexts;
   upload: UploadTexts;
   mask: MaskTexts;
+  slider: SliderTexts;
   toast: ToastTexts;
   modal: ModalTexts;
   drawer: DrawerTexts;
@@ -1129,6 +1145,54 @@ export declare class Select {
   destroy(): void;
 }
 
+/** `number` no slider simples; `[min, max]` no intervalo. */
+export type SliderValue = number | [number, number];
+export interface SliderChangeDetail {
+  value: SliderValue;
+  instance: Slider;
+}
+
+/** Opcoes de `Slider`. Toda opcao e opcional; o padrao vem do codigo. */
+export interface SliderOptions {
+  /**
+   * elemento ou seletor onde o valor aparece escrito; no intervalo, "min – max"
+   * @default null
+   */
+  output?: string | HTMLElement | null;
+  /**
+   * codigo ISO 4217 ('BRL'): escreve o valor como dinheiro
+   * @default null
+   */
+  currency?: string | null;
+  /** default: lang do documento ou do navegador */
+  locale?: string;
+  /**
+   * (value) => texto; vence currency. Vale para o output e para o leitor de tela
+   * @default null
+   */
+  format?: ((value: number) => string) | null;
+  /**
+   * (value, detail) a cada valor novo: no arrasto, a cada movimento; o `change` nativo sai so ao soltar
+   * @default null
+   */
+  onChange?: ((value: SliderValue, detail: SliderChangeDetail) => void) | null;
+}
+
+/** Slider de um valor ou de intervalo (minimo e maximo), sobre o `<input type="range">` nativo. */
+export declare class Slider {
+  constructor(target: string | HTMLElement, options?: SliderOptions);
+  /** Opcoes ja mescladas com os padroes. */
+  readonly opts: SliderOptions;
+  readonly node: HTMLElement;
+  readonly inputs: HTMLInputElement[];
+  readonly isRange: boolean;
+  readonly output: HTMLElement | null;
+  /** Numero no simples; `[min, max]` no intervalo. */
+  getValue(): SliderValue;
+  setValue(value: number | [number, number], options?: SilentOption): this;
+  destroy(): void;
+}
+
 export type SortDirection = 'asc' | 'desc';
 export interface TableSortDetail {
   /** Indice da coluna. */
@@ -1586,6 +1650,9 @@ export declare function autoInitProse(scope?: ParentNode): HTMLElement[];
 /** Inicializa todo `select[data-tuc-select]` do escopo que ainda nao foi montado. */
 export declare function autoInitSelects(scope?: ParentNode): Select[];
 
+/** Inicializa todo `[data-tuc-slider]` do escopo que ainda nao foi montado. */
+export declare function autoInitSliders(scope?: ParentNode): Slider[];
+
 /**
  * Tabelas escritas no template — o caminho normal num projeto Django:
  *
@@ -1854,6 +1921,7 @@ export interface InitResult {
   selects: Select[];
   colorpickers: ColorPicker[];
   uploads: Upload[];
+  sliders: Slider[];
   masks: Mask[];
   formatted: HTMLElement[];
   toasts: Toast[];
@@ -1877,8 +1945,8 @@ export declare function init(scope?: ParentNode): InitResult;
  * `Element`, `HTMLElement`, `Document` e `Window`, entao `addEventListener` ja sabe o tipo.
  */
 export interface TucanoEventMap {
-  /** Valor novo em date picker, select, color picker, upload, mascara ou abas. Borbulha. */
-  'tucano:change': CustomEvent<ColorPickerChangeDetail | DatePickerChangeDetail | MaskChangeDetail | SelectChangeDetail | TabsChangeDetail | UploadChangeDetail>;
+  /** Valor novo em date picker, select, color picker, upload, mascara, slider ou abas. Borbulha. */
+  'tucano:change': CustomEvent<ColorPickerChangeDetail | DatePickerChangeDetail | MaskChangeDetail | SelectChangeDetail | SliderChangeDetail | TabsChangeDetail | UploadChangeDetail>;
   /** Clique num cabecalho ordenavel da tabela. Borbulha. */
   'tucano:sort': CustomEvent<TableSortDetail>;
   /** Linha marcada ou desmarcada na tabela. Borbulha. */

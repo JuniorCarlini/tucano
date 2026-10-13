@@ -4,6 +4,25 @@ What changed in each Tucano release, newest first. Check the "Before upgrading"
 section of each version first: that is where you will find what requires changes
 in your project.
 
+## Unreleased
+
+### New
+
+- Slider, for one value or a range with a minimum and a maximum:
+  `Tucano.Slider` and `data-tuc-slider`. It is the native
+  `<input type="range">` with a new look — in the range, two of them on the
+  same track, inside a `<div class="tuc-slider is-range">` —, so `name`, POST,
+  `reset`, arrow keys, `Home`, `End` and the screen reader announcement are the
+  browser's, and each end posts under its own `name`
+  (`price_min=800&price_max=3200`). The script paints the chosen stretch in the
+  accent colour, keeps the minimum from passing the maximum and writes the
+  value into `data-output`; with `data-currency="USD"`, as money, with the
+  decimals taken from the `step`. The same text goes into `aria-valuetext`, so
+  the screen reader says "$800" instead of "800". In the range, a click on the
+  track moves the nearest end, and with both in the same place the first
+  movement decides which one moves. The box is as tall as a field. New texts
+  in the `slider` group of `setTexts`: `min`, `max` and `range`.
+
 ## 0.37.2 — 2026-10-08
 
 ### Fixed

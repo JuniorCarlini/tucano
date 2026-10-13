@@ -1,0 +1,170 @@
+<!--
+title: Slider
+component: slider
+lang: en
+description: Single-value or range slider, with a minimum and a maximum, built on the native <input type="range"> — name, POST, reset and keyboard stay the browser's, with the chosen stretch painted and the value written out.
+-->
+<h1>Slider</h1>
+<p class="lead">One value, or a range with a minimum and a maximum. Both are the native <code>&lt;input type="range"&gt;</code>
+   with a new look — in the range, two of them on the same track. The <code>name</code>, the POST, the <code>reset</code>, the
+   arrow keys and the screen reader announcement stay the browser's; the script paints the chosen stretch, keeps the minimum
+   from passing the maximum and writes the value out.</p>
+
+<div class="demo is-hero">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px">
+        <label class="tuc-label" for="sl-price-min">Price range</label>
+        <output class="tuc-hint" id="sl-price-out"></output>
+      </div>
+      <div class="tuc-slider is-range" data-tuc-slider data-currency="USD" data-output="#sl-price-out">
+        <input type="range" id="sl-price-min" name="price_min" min="0" max="5000" step="50" value="800">
+        <input type="range" name="price_max" min="0" max="5000" step="50" value="3200">
+      </div>
+    </div>
+    <div class="demo-cell">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px">
+        <label class="tuc-label" for="sl-discount">Maximum discount</label>
+        <output class="tuc-hint" id="sl-discount-out"></output>
+      </div>
+      <input type="range" class="tuc-slider" data-tuc-slider id="sl-discount" name="discount" min="0" max="30" value="10" data-output="#sl-discount-out">
+    </div>
+  </div>
+</div>
+
+<h2 id="examples">Examples</h2>
+<p class="lead">The same <code>&lt;input&gt;</code>, with different attributes.</p>
+
+<div class="demo">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <h4>Decimal step</h4>
+      <p>The decimals in the text come from the <code>step</code>: with <code>0.5</code>, one.</p>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px">
+        <label class="tuc-label" for="sl-rating">Minimum rating</label>
+        <output class="tuc-hint" id="sl-rating-out"></output>
+      </div>
+      <input type="range" class="tuc-slider" data-tuc-slider id="sl-rating" min="0" max="5" step="0.5" value="3.5" data-output="#sl-rating-out">
+    </div>
+    <div class="demo-cell">
+      <h4>Range without labels on the ends</h4>
+      <p>With no <code>&lt;label&gt;</code> or <code>aria-label</code>, the ends get "Minimum" and "Maximum".</p>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px">
+        <span class="tuc-label">Age</span>
+        <output class="tuc-hint" id="sl-age-out"></output>
+      </div>
+      <div class="tuc-slider is-range" data-tuc-slider data-output="#sl-age-out">
+        <input type="range" name="age_min" min="18" max="80" value="25">
+        <input type="range" name="age_max" min="18" max="80" value="45">
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Next to a field</h4>
+      <p>The box is as tall as a field, with the track in the middle: the row stays aligned.</p>
+      <div class="bar">
+        <input type="range" class="tuc-slider" data-tuc-slider id="sl-distance" min="1" max="50" value="10" aria-label="Distance in km" style="flex:1;width:auto">
+        <button type="button" class="tuc-btn is-outline">Filter</button>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Disabled</h4>
+      <p><code>disabled</code> on the native input; in the range, on both.</p>
+      <div class="tuc-slider is-range" data-tuc-slider>
+        <input type="range" aria-label="Start" value="30" disabled>
+        <input type="range" aria-label="End" value="70" disabled>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h2 id="usage">Usage</h2>
+<p class="lead">Single slider: the class and the attribute on the <code>&lt;input&gt;</code> itself. Range: a container with two,
+   each posting under its own <code>name</code>.</p>
+
+<pre data-code="html">
+<input type="range" class="tuc-slider" data-tuc-slider
+       name="discount" min="0" max="30" value="10">
+
+<div class="tuc-slider is-range" data-tuc-slider data-currency="USD" data-output="#price">
+  <input type="range" name="price_min" min="0" max="5000" step="50" value="800">
+  <input type="range" name="price_max" min="0" max="5000" step="50" value="3200">
+</div>
+<output id="price"></output>
+</pre>
+
+<p>Both ends need the same <code>min</code>, <code>max</code> and <code>step</code>. The form receives
+   <code>price_min=800&amp;price_max=3200</code> — in a GET filter, the URL comes back filled in. <code>data-output</code> points to
+   where the value is written; <code>data-currency</code> writes it as money, and the decimals come from the <code>step</code>: a
+   step of 1 writes "$800", not "$800.00".</p>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Why the class comes from the template</p><p>That way the slider is born with the right height and track on the first frame, with no jump when JavaScript arrives. Without the script it works and posts; only the chosen stretch misses the accent color.</p></div></div>
+
+<h3>With Django</h3>
+<p>The single slider's widget is a <code>NumberInput</code> with another <code>type</code>. The range is two fields, rendered inside
+   the same container.</p>
+<pre data-code="python">
+class RangeInput(forms.NumberInput):
+    input_type = "range"
+
+class ProductFilter(forms.Form):
+    attrs = {"min": 0, "max": 5000, "step": 50}
+    price_min = forms.IntegerField(initial=0, widget=RangeInput(attrs=attrs))
+    price_max = forms.IntegerField(initial=5000, widget=RangeInput(attrs=attrs))
+</pre>
+<pre data-code="django">
+<div class="tuc-slider is-range" data-tuc-slider data-currency="USD" data-output="#price">
+  {{ form.price_min }}
+  {{ form.price_max }}
+</div>
+<output id="price"></output>
+</pre>
+
+<h3>In JavaScript</h3>
+<pre data-code="js">
+const price = new Tucano.Slider('#price-range', {
+  currency: 'USD',
+  output: '#price',
+  onChange: ([min, max]) => console.log(min, max),
+});
+
+price.getValue();                        // [800, 3200]
+price.setValue([1000, 2000]);            // sorts the pair and emits once
+price.setValue([0, 5000], { silent: true });
+
+new Tucano.Slider('#rating', {
+  format: (value) => `${value} stars`,   // wins over currency
+});
+</pre>
+
+<p>While dragging, as in the color picker, <code>tucano:change</code> fires on every movement — which is what a live preview
+   needs — and the native <code>change</code> only once, on release: that is the one <code>hx-trigger</code> and a form filter
+   should listen to. From the keyboard, both fire on each key.</p>
+<pre data-code="js">
+document.addEventListener('tucano:change', (e) => {
+  if (!e.target.matches('.tuc-slider')) return;
+  e.detail.value;      // a number on the single slider, [minimum, maximum] on the range
+  e.detail.instance;   // the Slider
+});
+</pre>
+
+<h2 id="keyboard">Keyboard and accessibility</h2>
+<p class="lead">The keyboard is the native <code>&lt;input type="range"&gt;</code>'s, on each end. In the range, each end is a
+   <code>Tab</code> stop.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Key</th><th>Action</th></tr></thead>
+  <tbody>
+    <tr><td><code>←</code> <code>→</code> <code>↑</code> <code>↓</code></td><td>One <code>step</code> either way</td></tr>
+    <tr><td><code>PageUp</code> <code>PageDown</code></td><td>A bigger step, the browser's</td></tr>
+    <tr><td><code>Home</code> <code>End</code></td><td>The minimum and the maximum — in the range, up to the other end</td></tr>
+  </tbody>
+</table></div>
+
+<p>Each end gets <code>aria-valuetext</code> with the written value, so the screen reader says "$800" instead of "800". In the
+   range, an end with no label gets a name of its own — "Mínimo" and "Máximo" by default, changed with
+   <code>Tucano.setTexts({ slider: … })</code>, as this site does. In the
+   range the pointer is handled by the component: a click on the track moves the nearest end, and with both in the same
+   place the first movement decides which one moves.</p>
+
+<h2 id="api">API</h2>
+<!-- api -->

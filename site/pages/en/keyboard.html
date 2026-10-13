@@ -198,6 +198,7 @@ description: What each key does in every Tucano component — date picker, selec
     <tr><td>Pagination</td><td>Native links</td><td><code>&lt;nav&gt;</code> "Paginação" (pagination), <code>aria-current="page"</code> on the current one; a disabled end is a <code>&lt;span&gt;</code>, out of the <code>Tab</code> path</td></tr>
     <tr><td>Checkbox, radio and switch</td><td>Those of the native <code>&lt;input&gt;</code></td><td>The browser's; the switch needs <code>role="switch"</code> in the template, because CSS can't add a role</td></tr>
     <tr><td>Button group</td><td>Those of the native <code>&lt;input&gt;</code>: the radio group is a single <code>Tab</code> stop, and the arrow keys move through it</td><td>The group needs a name — <code>role="group"</code> with <code>aria-label</code>, or <code>&lt;fieldset&gt;</code> with <code>&lt;legend&gt;</code>; the <code>&lt;input&gt;</code> stays invisible, but focusable and announced</td></tr>
+    <tr><td>Slider</td><td>Those of the native <code>&lt;input type="range"&gt;</code>, on each end: arrows, <code>PageUp</code>/<code>PageDown</code>, <code>Home</code> and <code>End</code>; in the range, each end is a <code>Tab</code> stop</td><td>The written value in <code>aria-valuetext</code> ("$800", not "800"); in the range, an end with no label gets "Minimum" or "Maximum"</td></tr>
   </tbody>
 </table></div>
 

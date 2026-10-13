@@ -52,6 +52,7 @@
     "mask": { "title": "Masks", "desc": "Brazilian documents, phone, currency and sensitive fields." },
     "color": { "title": "Color picker", "desc": "HSV, hex, rgb and hsl, opacity and palette." },
     "choice": { "title": "Checkbox, radio and switch", "desc": "Styled checkbox, radio and switch, still native." },
+    "slider": { "title": "Slider", "desc": "One value or a min–max range, still native." },
     "upload": { "title": "Upload", "desc": "Drag and drop, progress and validation." },
     "editor": { "title": "Text editor", "desc": "Rich text with tables and code blocks." },
     "button": { "title": "Button", "desc": "Variants and sizes, class only." },

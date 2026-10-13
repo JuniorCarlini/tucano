@@ -1,0 +1,169 @@
+<!--
+title: Slider
+component: slider
+lang: es
+description: Slider de un valor o de rango, con mínimo y máximo, sobre el <input type="range"> nativo — name, POST, reset y teclado siguen siendo del navegador, con el tramo elegido pintado y el valor escrito.
+-->
+<h1>Slider</h1>
+<p class="lead">Un solo valor, o un rango con mínimo y máximo. Los dos son el <code>&lt;input type="range"&gt;</code> nativo con
+   otro diseño — en el rango, dos de ellos sobre la misma pista. El <code>name</code>, el POST, el <code>reset</code>, las flechas
+   y el anuncio del lector de pantalla siguen siendo los del navegador; el script pinta el tramo elegido, impide que el mínimo
+   pase del máximo y escribe el valor.</p>
+
+<div class="demo is-hero">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px">
+        <label class="tuc-label" for="sl-price-min">Rango de precio</label>
+        <output class="tuc-hint" id="sl-price-out"></output>
+      </div>
+      <div class="tuc-slider is-range" data-tuc-slider data-currency="EUR" data-output="#sl-price-out">
+        <input type="range" id="sl-price-min" name="price_min" min="0" max="5000" step="50" value="800">
+        <input type="range" name="price_max" min="0" max="5000" step="50" value="3200">
+      </div>
+    </div>
+    <div class="demo-cell">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px">
+        <label class="tuc-label" for="sl-discount">Descuento máximo</label>
+        <output class="tuc-hint" id="sl-discount-out"></output>
+      </div>
+      <input type="range" class="tuc-slider" data-tuc-slider id="sl-discount" name="discount" min="0" max="30" value="10" data-output="#sl-discount-out">
+    </div>
+  </div>
+</div>
+
+<h2 id="examples">Ejemplos</h2>
+<p class="lead">El mismo <code>&lt;input&gt;</code>, con otros atributos.</p>
+
+<div class="demo">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <h4>Paso decimal</h4>
+      <p>Los decimales del texto salen del <code>step</code>: con <code>0.5</code>, uno.</p>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px">
+        <label class="tuc-label" for="sl-rating">Nota mínima</label>
+        <output class="tuc-hint" id="sl-rating-out"></output>
+      </div>
+      <input type="range" class="tuc-slider" data-tuc-slider id="sl-rating" min="0" max="5" step="0.5" value="3.5" data-output="#sl-rating-out">
+    </div>
+    <div class="demo-cell">
+      <h4>Rango sin etiqueta en los extremos</h4>
+      <p>Sin <code>&lt;label&gt;</code> ni <code>aria-label</code>, los extremos reciben "Mínimo" y "Máximo".</p>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px">
+        <span class="tuc-label">Edad</span>
+        <output class="tuc-hint" id="sl-age-out"></output>
+      </div>
+      <div class="tuc-slider is-range" data-tuc-slider data-output="#sl-age-out">
+        <input type="range" name="age_min" min="18" max="80" value="25">
+        <input type="range" name="age_max" min="18" max="80" value="45">
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Junto a un campo</h4>
+      <p>La caja tiene la altura de un campo, con la pista en el medio: la línea no se desalinea.</p>
+      <div class="bar">
+        <input type="range" class="tuc-slider" data-tuc-slider id="sl-distance" min="1" max="50" value="10" aria-label="Distancia en km" style="flex:1;width:auto">
+        <button type="button" class="tuc-btn is-outline">Filtrar</button>
+      </div>
+    </div>
+    <div class="demo-cell">
+      <h4>Desactivado</h4>
+      <p><code>disabled</code> en el nativo; en el rango, en los dos.</p>
+      <div class="tuc-slider is-range" data-tuc-slider>
+        <input type="range" aria-label="Inicio" value="30" disabled>
+        <input type="range" aria-label="Fin" value="70" disabled>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h2 id="usage">Cómo usar</h2>
+<p class="lead">Slider simple: la clase y el atributo en el propio <code>&lt;input&gt;</code>. Rango: un contenedor con dos, y
+   cada uno envía con su propio <code>name</code>.</p>
+
+<pre data-code="html">
+<input type="range" class="tuc-slider" data-tuc-slider
+       name="discount" min="0" max="30" value="10">
+
+<div class="tuc-slider is-range" data-tuc-slider data-currency="EUR" data-output="#price">
+  <input type="range" name="price_min" min="0" max="5000" step="50" value="800">
+  <input type="range" name="price_max" min="0" max="5000" step="50" value="3200">
+</div>
+<output id="price"></output>
+</pre>
+
+<p>Los dos extremos necesitan el mismo <code>min</code>, <code>max</code> y <code>step</code>. El formulario recibe
+   <code>price_min=800&amp;price_max=3200</code> — en un filtro por GET, la URL vuelve rellenada. <code>data-output</code> indica
+   dónde aparece el valor escrito; <code>data-currency</code> lo escribe como dinero, y los decimales salen del <code>step</code>:
+   paso 1 escribe "800 €", y no "800,00 €".</p>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Por qué la clase viene de la plantilla</p><p>Así el slider nace con la altura y la pista correctas en el primer cuadro, sin salto cuando llega el JavaScript. Sin script funciona y envía; solo el tramo elegido queda sin el color de acento.</p></div></div>
+
+<h3>Con Django</h3>
+<p>El widget del slider simple es un <code>NumberInput</code> con otro <code>type</code>. El rango son dos campos, dibujados dentro
+   del mismo contenedor.</p>
+<pre data-code="python">
+class RangeInput(forms.NumberInput):
+    input_type = "range"
+
+class ProductFilter(forms.Form):
+    attrs = {"min": 0, "max": 5000, "step": 50}
+    price_min = forms.IntegerField(initial=0, widget=RangeInput(attrs=attrs))
+    price_max = forms.IntegerField(initial=5000, widget=RangeInput(attrs=attrs))
+</pre>
+<pre data-code="django">
+<div class="tuc-slider is-range" data-tuc-slider data-currency="EUR" data-output="#price">
+  {{ form.price_min }}
+  {{ form.price_max }}
+</div>
+<output id="price"></output>
+</pre>
+
+<h3>En JavaScript</h3>
+<pre data-code="js">
+const price = new Tucano.Slider('#price-range', {
+  currency: 'EUR',
+  output: '#price',
+  onChange: ([min, max]) => console.log(min, max),
+});
+
+price.getValue();                        // [800, 3200]
+price.setValue([1000, 2000]);            // ordena el par y emite una vez
+price.setValue([0, 5000], { silent: true });
+
+new Tucano.Slider('#rating', {
+  format: (value) => `${value} estrellas`,  // gana sobre currency
+});
+</pre>
+
+<p>Al arrastrar, como en el color picker, <code>tucano:change</code> sale con cada movimiento — lo que sirve a una vista previa
+   en vivo — y el <code>change</code> nativo una sola vez, al soltar: es el que deben escuchar el <code>hx-trigger</code> y el
+   filtro del formulario. Con el teclado, los dos salen con cada tecla.</p>
+<pre data-code="js">
+document.addEventListener('tucano:change', (e) => {
+  if (!e.target.matches('.tuc-slider')) return;
+  e.detail.value;      // número en el simple, [mínimo, máximo] en el rango
+  e.detail.instance;   // el Slider
+});
+</pre>
+
+<h2 id="keyboard">Teclado y accesibilidad</h2>
+<p class="lead">El teclado es el del <code>&lt;input type="range"&gt;</code> nativo, en cada extremo. En el rango, cada extremo
+   es una parada del <code>Tab</code>.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Tecla</th><th>Acción</th></tr></thead>
+  <tbody>
+    <tr><td><code>←</code> <code>→</code> <code>↑</code> <code>↓</code></td><td>Un <code>step</code> hacia cada lado</td></tr>
+    <tr><td><code>PageUp</code> <code>PageDown</code></td><td>Un paso mayor, del navegador</td></tr>
+    <tr><td><code>Home</code> <code>End</code></td><td>El mínimo y el máximo — en el rango, hasta el otro extremo</td></tr>
+  </tbody>
+</table></div>
+
+<p>Cada extremo recibe <code>aria-valuetext</code> con el valor escrito, y el lector de pantalla dice "800 €" en vez de "800".
+   En el rango, el extremo sin etiqueta recibe un nombre propio — "Mínimo" y "Máximo" por defecto, cambiados con
+   <code>Tucano.setTexts({ slider: … })</code>. En el rango el puntero lo maneja el componente: un clic en la pista mueve el
+   extremo más cercano, y con los dos en el mismo lugar el primer movimiento decide cuál se mueve.</p>
+
+<h2 id="api">API</h2>
+<!-- api -->

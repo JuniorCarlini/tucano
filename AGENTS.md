@@ -54,7 +54,7 @@ src/js/core/          dates, color, mask, dom, popover, dialog, sanitize, highli
                       files, texts (todo texto de interface)
 src/js/components/    datepicker, select, colorpicker, upload, mask, toast,
                       tooltip, modal, drawer, accordion, dropdown, table,
-                      pagination, editor
+                      pagination, editor, slider
 src/styles/core/      base (reset) e tokens
 src/styles/components/  um arquivo por componente; os que são só classe
                       (botão, etiqueta, campo) também moram aqui
@@ -708,6 +708,19 @@ nem abaixo. O `EXIT_MS` do `core/popover.js` estava exatamente igual ao token
 (170 ms) e passou a 200, como o do `dialog.js`: igual não tem folga nenhuma para
 um quadro atrasado.
 
+**O slider é o `<input type="range">` nativo, e no intervalo são dois.** Assim
+`name`, POST, `reset`, setas, `Home`/`End` e o leitor de tela são do navegador, e
+cada ponta posta sozinha. Um `role="slider"` desenhado pediria tudo isso de novo,
+mais um campo escondido por valor. O preço da sobreposição é o ponteiro: com os
+dois nativos empilhados, quem recebe o clique é sempre o de cima, e com as duas
+pontas no mesmo valor uma ficava presa embaixo da outra. Por isso, no intervalo,
+os nativos têm `pointer-events: none` e o componente trata o ponteiro (ver
+`_onDown`): leva a ponta mais perto e, no empate, o primeiro movimento decide. O
+teclado continua nativo. A posição desconta meio botão de cada lado, porque é
+assim que o centro do botão anda — no degradê da trilha e no ponteiro. E o
+trecho pintado é degradê com variável, não pseudo-elemento: o de progresso só
+existe no Firefox.
+
 ## Antes de dizer que está pronto
 
 ```bash
@@ -802,20 +815,20 @@ dados vazios (colar é testado chamando o handler com o texto); e se a barra de
 rolagem ocupa espaço depende do motor e do sistema, então o teste do diálogo mede
 a barra em vez de supor que ela não existe.
 
-**`tools/behavior.mjs` — 99 comportamentos, nos três navegadores.** Abrir, fechar,
+**`tools/behavior.mjs` — 119 comportamentos, nos três navegadores.** Abrir, fechar,
 ordenar, marcar, emitir evento, e os textos: português sem `setTexts`, troca
 global, opção da instância vencendo e restauração no fim. A página roda sozinha
 e escreve o resultado em `<pre id="result">`; o teste espera esse bloco ser
 preenchido, e não um tempo fixo. Nunca leia opacidade ou posição logo depois de
 abrir algo — a página injeta `transition: none` para o estado final valer já.
 
-**`tools/examples.mjs` — os 357 exemplos da documentação, em todas as páginas do site.** Os de HTML são
+**`tools/examples.mjs` — os 392 exemplos da documentação, em todas as páginas do site.** Os de HTML são
 colados no documento e têm que montar; os de JS não são executados (citam
 `#delivery` e `form`, que não existem) e sim conferidos nome por nome
 contra o código: `Tucano.x` existe? o método existe no protótipo? cada chave de
 opção é lida por alguém, inclusive dentro de `actions` e `items`?
 
-**`tools/keyboard.mjs` — 72 caminhos de teclado e mouse reais, nos três
+**`tools/keyboard.mjs` — 89 caminhos de teclado e mouse reais, nos três
 navegadores**, pelo `page.keyboard` e `page.mouse` do Playwright: `Backspace` e `Delete` na máscara e no select, as setas nas abas, o
 `↓` que leva o foco ao dia no date picker, a data digitada que emite e o `Escape`
 que a descarta, o Aplicar que segura a escolha, o painel que reabre em menos de

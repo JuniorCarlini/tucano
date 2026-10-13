@@ -13,7 +13,7 @@ e os componentes se montam sozinhos, no Django, no Laravel, no Rails ou em HTML 
 
 <p>
   <a href="https://www.npmjs.com/package/tucano"><img alt="npm" src="https://img.shields.io/npm/v/tucano?style=flat-square&color=FF7501&label=npm"></a>
-  <a href="#baixar-só-o-que-se-usa"><img alt="tamanho" src="https://img.shields.io/badge/gzip-56%20KB-FF7501?style=flat-square"></a>
+  <a href="#baixar-só-o-que-se-usa"><img alt="tamanho" src="https://img.shields.io/badge/gzip-59%20KB-FF7501?style=flat-square"></a>
   <a href="https://github.com/JuniorCarlini/tucano/actions/workflows/tests.yml"><img alt="testes" src="https://img.shields.io/github/actions/workflow/status/JuniorCarlini/tucano/tests.yml?style=flat-square&label=testes&branch=main"></a>
   <img alt="dependências" src="https://img.shields.io/badge/depend%C3%AAncias-0-0a7?style=flat-square">
   <a href="LICENSE"><img alt="licença" src="https://img.shields.io/github/license/JuniorCarlini/tucano?style=flat-square&color=555"></a>
@@ -46,7 +46,7 @@ e os componentes se montam sozinhos, no Django, no Laravel, no Rails ou em HTML 
 - **Nada para configurar.** Um `<link>`, um `<script>` e um atributo no campo. Sem build, sem npm, sem escrever JavaScript.
 - **O valor continua sendo do formulário.** `name`, `value`, `required` e o POST são os do navegador — o back-end não muda, e funciona sem JavaScript até onde o elemento nativo vai.
 - **Feito para HTML vindo do servidor.** Os componentes se montam no load e depois de cada swap do HTMX. Os exemplos usam Django, mas servem a Laravel, Rails ou PHP puro.
-- **Leve e sem dependências.** **43 KB de JS + 13 KB de CSS** (minificado + gzip), e quem empacota leva só o que importa.
+- **Leve e sem dependências.** **45 KB de JS + 14 KB de CSS** (minificado + gzip), e quem empacota leva só o que importa.
 - **Acessível por padrão.** Papéis ARIA, foco preso onde precisa, teclado do ARIA APG e `prefers-reduced-motion` respeitado.
 - **Provado nos três motores.** Chromium, Firefox e WebKit a cada push: comportamento, teclado de verdade, exemplos da documentação e checagens cruzadas de nome.
 
@@ -191,8 +191,8 @@ componentes.
   `prevText`/`nextText`, `texts` do upload.
 - Onde a frase depende de um número ou de um nome, o valor é uma função:
   ``upload: { others: (n) => `At most ${n} files` }``.
-- Grupos: `datepicker`, `select`, `colorpicker`, `upload`, `mask`, `toast`,
-  `modal`, `drawer`, `table`, `pagination`, `editor`, `prose`.
+- Grupos: `datepicker`, `select`, `colorpicker`, `upload`, `mask`, `slider`,
+  `toast`, `modal`, `drawer`, `table`, `pagination`, `editor`, `prose`.
   `Tucano.getTexts()` devolve uma cópia dos textos atuais, e a lista de chaves
   com o padrão de cada uma está no `llms.txt`, em "Textos (Tucano.setTexts)".
 
@@ -200,7 +200,7 @@ componentes.
 
 ## Componentes
 
-Vinte e seis, todos prontos. Cada linha abre a página com exemplos que você mexe
+Vinte e sete, todos prontos. Cada linha abre a página com exemplos que você mexe
 na hora.
 
 | Com&nbsp;JavaScript | O que faz | |
@@ -210,6 +210,7 @@ na hora.
 | `ColorPicker` | HSV, hex, rgb e hsl, opacidade e paleta, com o valor no campo de texto | [docs](https://juniorcarlini.github.io/tucano/color/) |
 | `Upload` | Arrastar e soltar, progresso, validação e envio direto para o servidor | [docs](https://juniorcarlini.github.io/tucano/upload/) |
 | `Mask` | CPF, CNPJ, telefone, moeda e campo sensível, com o cursor no lugar certo | [docs](https://juniorcarlini.github.io/tucano/mask/) |
+| `Slider` | Um valor ou intervalo de mínimo e máximo, ainda o `<input type="range">` nativo | [docs](https://juniorcarlini.github.io/tucano/slider/) |
 | `Editor` | Texto rico com tabela, bloco de código e as variáveis do seu template | [docs](https://juniorcarlini.github.io/tucano/editor/) |
 | `Table` | Ordenação no servidor pela própria URL e seleção em massa das linhas | [docs](https://juniorcarlini.github.io/tucano/table/) |
 | `Pagination` | Links de página de verdade, feitos para o Paginator do Django | [docs](https://juniorcarlini.github.io/tucano/pagination/) |
@@ -702,6 +703,43 @@ ao leitor de tela — e `is-inline` põe lado a lado.
 A chave precisa de `role="switch"` no template, porque CSS não põe papel: é ele
 que faz o leitor de tela anunciar "chave, ligada". Use chave para o que tem
 efeito na hora e caixa para o que só vale ao salvar.
+
+</details>
+
+<details>
+<summary><b>Slider — um valor, ou intervalo de mínimo e máximo</b></summary>
+
+[Página com exemplos ao vivo →](https://juniorcarlini.github.io/tucano/slider/)
+
+```html
+<input type="range" class="tuc-slider" data-tuc-slider
+       name="discount" min="0" max="30" value="10">
+
+<div class="tuc-slider is-range" data-tuc-slider data-currency="BRL" data-output="#price">
+  <input type="range" name="price_min" min="0" max="5000" step="50" value="800">
+  <input type="range" name="price_max" min="0" max="5000" step="50" value="3200">
+</div>
+<output id="price"></output>
+```
+
+É o `<input type="range">` nativo com o desenho trocado; no intervalo, dois deles
+sobre a mesma trilha, com o mesmo `min`, `max` e `step`. Cada um posta com o
+próprio `name` — `price_min=800&price_max=3200` —, e `reset`, setas, `Home`, `End`
+e leitor de tela são os do navegador. O script pinta o trecho escolhido, impede
+o mínimo de passar do máximo e escreve o valor em `data-output`. Com
+`data-currency`, como dinheiro, e as casas saem do `step`: passo 1 escreve
+"R$ 800". Cada ponta recebe `aria-valuetext` com esse texto.
+
+```js
+const price = new Tucano.Slider('#price-range', { currency: 'BRL', output: '#price' });
+price.getValue();               // [800, 3200]
+price.setValue([1000, 2000]);   // ordena o par e emite uma vez
+```
+
+No arrasto, como no color picker, `tucano:change` sai a cada movimento e o
+`change` nativo uma vez, ao soltar — é ele que o `hx-trigger` deve ouvir. A classe
+vem do template, para o controle nascer com a altura de um campo no primeiro
+quadro.
 
 </details>
 
@@ -1383,7 +1421,7 @@ ano. É a escolha certa para a maioria dos casos.
 Quem empacota pode levar menos, importando de `tucano`:
 
 ```js
-import { DatePicker, Select } from 'tucano';   // 15,3 KB em vez de 43
+import { DatePicker, Select } from 'tucano';   // 15,3 KB em vez de 44
 ```
 
 | o que se importa | gzip |
@@ -1392,7 +1430,7 @@ import { DatePicker, Select } from 'tucano';   // 15,3 KB em vez de 43
 | só o select | 6,4 KB |
 | só o toast | 2,7 KB |
 | date picker + select | 15,3 KB |
-| tudo | 43,1 KB |
+| tudo | 44,4 KB |
 
 Não é linear porque o núcleo — posicionamento, datas, utilidades de DOM — é
 compartilhado: o primeiro componente paga por ele e os seguintes saem mais

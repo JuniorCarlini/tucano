@@ -48,6 +48,11 @@
         "desc": "Checkbox, radio e switch desenhados, ainda nativos."
       },
       {
+        "slug": "slider",
+        "title": "Slider",
+        "desc": "Um valor ou intervalo de mínimo e máximo, ainda nativo."
+      },
+      {
         "slug": "upload",
         "title": "Upload",
         "desc": "Arrastar e soltar, progresso e validação."

@@ -5,7 +5,7 @@
 > exemplos deste arquivo usam Django; em PHP e Rails, campo múltiplo precisa de
 > name terminado em [] e o upload direto precisa do cabeçalho de CSRF do
 > framework (data-csrf="false" e a opção headers do new Upload).
-> JavaScript puro, sem dependências em runtime. 43 KB JS + 13 KB CSS (gzip).
+> JavaScript puro, sem dependências em runtime. 45 KB JS + 14 KB CSS (gzip).
 > Os estilos são escritos em Tailwind mas distribuídos já compilados: o projeto
 > que consome não precisa de build e não recebe o preflight do Tailwind.
 >
@@ -456,6 +456,24 @@ descricao; is-end poe o controle a direita. .tuc-choices empilha um grupo
 A chave exige role="switch" no input. Chave para efeito imediato; caixa para o
 que so vale ao salvar.
 
+## Slider
+
+    <input type="range" class="tuc-slider" data-tuc-slider name="discount" min="0" max="30" value="10">
+
+    <div class="tuc-slider is-range" data-tuc-slider data-currency="BRL" data-output="#price">
+      <input type="range" name="price_min" min="0" max="5000" step="50" value="800">
+      <input type="range" name="price_max" min="0" max="5000" step="50" value="3200">
+    </div>
+    <output id="price"></output>
+
+E o <input type="range"> nativo; no intervalo, dois deles com o mesmo min, max e
+step. Cada um posta com o proprio name. A classe vem do template.
+data-output: onde o valor aparece escrito ("R$ 800 – R$ 3.200" no intervalo).
+data-currency: escreve como dinheiro; as casas saem do step.
+getValue() devolve numero no simples e [min, max] no intervalo; setValue([a, b])
+ordena o par. No arrasto, tucano:change sai a cada movimento e o change nativo
+uma vez, ao soltar (use change no hx-trigger). Pelo teclado, os dois a cada tecla.
+
 ## Menu suspenso (dropdown)
 
 Sobre o mesmo popover do tooltip: vira de lado quando nao cabe, fecha no clique
@@ -775,6 +793,7 @@ formatado). Ali use `e.detail.iso`, ou leia o hidden.
                     color picker → { value, rgb, hsva, instance }
                     mascara      → { value, raw, number, instance }
                     upload       → { value, files, instance }
+                    slider       → { value, instance }        value e [min, max] no intervalo
     tucano:sort     tabela       → { column, field, direction }   direction: 'asc'|'desc'
     tucano:select   tabela       → { selected, row }              selected: array de data-id
     tucano:toast-closed  toast   → sem detail, disparado no proprio no do toast
@@ -974,6 +993,19 @@ Inventario extraido do codigo a cada build. Se algo nao esta aqui, nao existe.
   metodos    getValue setValue clear refresh open close toggle destroy
   eventos    tucano:change
 
+### Slider
+  marcacao   [data-tuc-slider]
+  em JS      new Tucano.Slider(alvo, opcoes)
+  atributos  data-currency data-locale data-output
+  opcoes
+    output             = null  — elemento ou seletor onde o valor aparece escrito; no intervalo, "min – max"…
+    currency           = null  — codigo ISO 4217 ('BRL'): escreve o valor como dinheiro…
+    locale             = undefined  — default: lang do documento ou do navegador…
+    format             = null  — (value) => texto; vence currency. Vale para o output e para o leitor de tela…
+    onChange           = null  — (value, detail) a cada valor novo: no arrasto, a cada movimento; o `change` nativo sai so ao soltar…
+  metodos    getValue setValue destroy
+  eventos    tucano:change
+
 ### Table
   marcacao   table[data-tuc-table]
   em JS      new Tucano.Table(alvo, opcoes)
@@ -1057,9 +1089,9 @@ Inventario extraido do codigo a cada build. Se algo nao esta aqui, nao existe.
 ### Entradas do pacote
 
   Tucano.init(node)         inicializa todo data-tuc-* dentro de `node`
-  autoInitAccordions autoInitColorPickers autoInitContextMenus autoInitDatePickers autoInitDrawers autoInitDropdowns autoInitEditors autoInitMasks autoInitModals autoInitPagination autoInitProse autoInitSelects autoInitTables autoInitTabs autoInitToasts autoInitTooltips autoInitUploads
+  autoInitAccordions autoInitColorPickers autoInitContextMenus autoInitDatePickers autoInitDrawers autoInitDropdowns autoInitEditors autoInitMasks autoInitModals autoInitPagination autoInitProse autoInitSelects autoInitSliders autoInitTables autoInitTabs autoInitToasts autoInitTooltips autoInitUploads
     → um por componente, quando voce quer inicializar so um tipo
-  Accordion ColorPicker ContextMenu DatePicker Drawer Dropdown Editor FORMATS ICON_CHECK ICON_COPY ICON_X Mask Modal Pagination Popover Select Table Tabs Toast Tooltip Upload autoFormat confirm drawer getTexts highlight icon listenForEvents modal pageWindow pagination sanitize setTexts toast
+  Accordion ColorPicker ContextMenu DatePicker Drawer Dropdown Editor FORMATS ICON_CHECK ICON_COPY ICON_X Mask Modal Pagination Popover Select Slider Table Tabs Toast Tooltip Upload autoFormat confirm drawer getTexts highlight icon listenForEvents modal pageWindow pagination sanitize setTexts toast
   Tucano.mask / .dates / .color   modulos utilitarios (ver seção Utilitários)
 
   FORMATS (mascaras prontas): cpf cnpj cnpj-numeric cpf-cnpj phone mobile cep date time card currency brl
@@ -1130,6 +1162,10 @@ Inventario extraido do codigo a cada build. Se algo nao esta aqui, nao existe.
     cpf                = 'CPF inválido'
     cnpj               = 'CNPJ inválido'
     cpfCnpj            = 'Documento inválido'
+  slider
+    min                = 'Mínimo'
+    max                = 'Máximo'
+    range              = (start, end) => `${start} – ${end}`
   toast
     region             = 'Notificações'
     close              = 'Fechar'
@@ -1189,7 +1225,7 @@ Inventario extraido do codigo a cada build. Se algo nao esta aqui, nao existe.
 ### Classes CSS
 
 Escritas por voce no template (as com __ sao internas, montadas pelo JS):
-  tuc-accordion tuc-alert tuc-badge tuc-btn tuc-btn-group tuc-check tuc-choice tuc-choices tuc-color-field tuc-colorpicker tuc-context-pin tuc-copy tuc-dp tuc-drawer tuc-dropdown tuc-editor tuc-error tuc-field tuc-hint tuc-input tuc-input-group tuc-invalid tuc-label tuc-menu tuc-modal tuc-native tuc-native-wrap tuc-pagination tuc-prose tuc-radio tuc-reveal tuc-select tuc-select-native tuc-skeleton tuc-spinner tuc-switch tuc-table tuc-table-wrap tuc-tabs tuc-timeline tuc-tip tuc-toast tuc-toasts tuc-tok-attr tuc-tok-comment tuc-tok-key tuc-tok-num tuc-tok-tag tuc-tok-text tuc-tok-tmpl tuc-upload tuc-upload-native
+  tuc-accordion tuc-alert tuc-badge tuc-btn tuc-btn-group tuc-check tuc-choice tuc-choices tuc-color-field tuc-colorpicker tuc-context-pin tuc-copy tuc-dp tuc-drawer tuc-dropdown tuc-editor tuc-error tuc-field tuc-hint tuc-input tuc-input-group tuc-invalid tuc-label tuc-menu tuc-modal tuc-native tuc-native-wrap tuc-pagination tuc-prose tuc-radio tuc-reveal tuc-select tuc-select-native tuc-skeleton tuc-slider tuc-spinner tuc-switch tuc-table tuc-table-wrap tuc-tabs tuc-timeline tuc-tip tuc-toast tuc-toasts tuc-tok-attr tuc-tok-comment tuc-tok-key tuc-tok-num tuc-tok-tag tuc-tok-text tuc-tok-tmpl tuc-upload tuc-upload-native
 
 Montadas pelo JS dentro do componente — nao escreva no template, mas
 sao nomes estaveis para o seu proprio CSS:

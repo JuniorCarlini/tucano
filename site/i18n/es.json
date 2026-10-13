@@ -52,6 +52,7 @@
     "mask": { "title": "Máscaras", "desc": "Documentos brasileños, teléfono, moneda y campo sensible." },
     "color": { "title": "Color picker", "desc": "HSV, hex, rgb y hsl, opacidad y paleta." },
     "choice": { "title": "Casilla, opción e interruptor", "desc": "Checkbox, radio y switch con diseño, todavía nativos." },
+    "slider": { "title": "Slider", "desc": "Un valor o un rango de mínimo y máximo, todavía nativo." },
     "upload": { "title": "Upload", "desc": "Arrastrar y soltar, progreso y validación." },
     "editor": { "title": "Editor de texto", "desc": "Texto enriquecido con tablas y bloques de código." },
     "button": { "title": "Botón", "desc": "Variantes y tamaños, solo clases." },

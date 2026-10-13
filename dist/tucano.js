@@ -36,28 +36,30 @@ var Tucano = (() => {
     Pagination: () => Pagination,
     Popover: () => Popover,
     Select: () => Select,
+    Slider: () => Slider,
     Table: () => Table,
     Tabs: () => Tabs,
     Toast: () => Toast,
     Tooltip: () => Tooltip,
     Upload: () => Upload,
     autoFormat: () => autoFormat,
-    autoInitAccordions: () => autoInit10,
+    autoInitAccordions: () => autoInit11,
     autoInitColorPickers: () => autoInit3,
-    autoInitContextMenus: () => autoInit13,
+    autoInitContextMenus: () => autoInit14,
     autoInitDatePickers: () => autoInit,
-    autoInitDrawers: () => autoInit9,
-    autoInitDropdowns: () => autoInit12,
-    autoInitEditors: () => autoInit17,
-    autoInitMasks: () => autoInit5,
-    autoInitModals: () => autoInit8,
-    autoInitPagination: () => autoInit15,
-    autoInitProse: () => autoInit16,
+    autoInitDrawers: () => autoInit10,
+    autoInitDropdowns: () => autoInit13,
+    autoInitEditors: () => autoInit18,
+    autoInitMasks: () => autoInit6,
+    autoInitModals: () => autoInit9,
+    autoInitPagination: () => autoInit16,
+    autoInitProse: () => autoInit17,
     autoInitSelects: () => autoInit2,
-    autoInitTables: () => autoInit14,
-    autoInitTabs: () => autoInit11,
-    autoInitToasts: () => autoInit6,
-    autoInitTooltips: () => autoInit7,
+    autoInitSliders: () => autoInit5,
+    autoInitTables: () => autoInit15,
+    autoInitTabs: () => autoInit12,
+    autoInitToasts: () => autoInit7,
+    autoInitTooltips: () => autoInit8,
     autoInitUploads: () => autoInit4,
     color: () => color_exports,
     confirm: () => confirm,
@@ -661,6 +663,13 @@ var Tucano = (() => {
     cnpj: "CNPJ inv\xE1lido",
     cpfCnpj: "Documento inv\xE1lido"
   };
+  var SLIDER_TEXTS = {
+    // Nome das duas pontas do intervalo, quando o template nao deu um rotulo.
+    min: "M\xEDnimo",
+    max: "M\xE1ximo",
+    // Valor do intervalo escrito no output.
+    range: (start, end) => `${start} \u2013 ${end}`
+  };
   var TOAST_TEXTS = {
     region: "Notifica\xE7\xF5es",
     close: "Fechar",
@@ -734,6 +743,7 @@ var Tucano = (() => {
     colorpicker: COLORPICKER_TEXTS,
     upload: UPLOAD_TEXTS,
     mask: MASK_TEXTS,
+    slider: SLIDER_TEXTS,
     toast: TOAST_TEXTS,
     modal: MODAL_TEXTS,
     drawer: DRAWER_TEXTS,
@@ -3588,6 +3598,204 @@ var Tucano = (() => {
     return out;
   }
 
+  // src/js/components/slider.js
+  var DEFAULTS5 = {
+    output: null,
+    // elemento ou seletor onde o valor aparece escrito; no intervalo, "min – max"
+    currency: null,
+    // codigo ISO 4217 ('BRL'): escreve o valor como dinheiro
+    locale: void 0,
+    // default: lang do documento ou do navegador
+    format: null,
+    // (value) => texto; vence currency. Vale para o output e para o leitor de tela
+    onChange: null
+    // (value, detail) a cada valor novo: no arrasto, a cada movimento; o `change` nativo sai so ao soltar
+  };
+  var Slider = class _Slider {
+    constructor(target, options = {}) {
+      const node = typeof target === "string" ? document.querySelector(target) : target;
+      if (!node) throw new Error("[Slider] elemento alvo nao encontrado");
+      if (node._tucano instanceof _Slider) node._tucano.destroy();
+      this.node = node;
+      this.opts = { ...DEFAULTS5, ...omitUndefined(options) };
+      this.inputs = node.matches("input") ? [node] : [...node.querySelectorAll("input[type=range]")].slice(0, 2);
+      if (!this.inputs.length) throw new Error('[Slider] faltou o <input type="range">');
+      this.isRange = this.inputs.length === 2;
+      const { output, currency, locale } = this.opts;
+      this.output = typeof output === "string" ? document.querySelector(output) : output;
+      const decimals = (String(this.inputs[0].step).split(".")[1] || "").length;
+      this._number = new Intl.NumberFormat(locale || document.documentElement.lang || navigator.language || "pt-BR", {
+        style: currency ? "currency" : "decimal",
+        currency: currency || void 0,
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals
+      });
+      this._labeled = [];
+      this._cleanups = [];
+      this._build();
+    }
+    _build() {
+      const { node } = this;
+      node.classList.add("tuc-slider");
+      if (this.isRange) node.classList.add("is-range");
+      node._tucano = this;
+      this.inputs.forEach((input, i) => {
+        if (!this.isRange || input.labels?.length || input.hasAttribute("aria-label") || input.hasAttribute("aria-labelledby")) return;
+        input.setAttribute("aria-label", i ? SLIDER_TEXTS.max : SLIDER_TEXTS.min);
+        this._labeled.push(input);
+      });
+      this._cleanups.push(on(node, "input", (e) => {
+        this._clamp(e.target);
+        this._paint();
+        this._emit();
+      }));
+      if (this.isRange) {
+        this._cleanups.push(
+          on(node, "pointerdown", (e) => this._onDown(e)),
+          on(node, "pointermove", (e) => this._onMove(e)),
+          on(node, "lostpointercapture", () => this._onUp())
+        );
+      }
+      const form = this.inputs[0].form;
+      if (form) this._cleanups.push(on(form, "reset", () => setTimeout(() => {
+        this._paint();
+        this._last = String(this.getValue());
+      })));
+      this._paint();
+      this._last = String(this.getValue());
+    }
+    /* ---------------------------------------------------------------- *
+     * API publica                                                       *
+     * ---------------------------------------------------------------- */
+    /** Numero no simples; `[min, max]` no intervalo. */
+    getValue() {
+      const values = this.inputs.map((i) => +i.value);
+      return this.isRange ? values : values[0];
+    }
+    setValue(value, { silent = false } = {}) {
+      const values = [].concat(value).map(Number);
+      if (this.isRange) values.sort((a, b) => a - b);
+      const before = this.inputs.map((i) => i.value);
+      this.inputs.forEach((input, i) => {
+        if (!Number.isNaN(values[i])) input.value = values[i];
+      });
+      this._clamp();
+      this._paint();
+      if (silent) this._last = String(this.getValue());
+      else {
+        this.inputs.forEach((input, i) => {
+          if (input.value === before[i]) return;
+          input.dispatchEvent(new Event("input", { bubbles: true }));
+          input.dispatchEvent(new Event("change", { bubbles: true }));
+        });
+      }
+      return this;
+    }
+    destroy() {
+      this._cleanups.forEach((fn) => fn());
+      this._cleanups = [];
+      this._labeled.forEach((input) => input.removeAttribute("aria-label"));
+      this.inputs.forEach((input) => input.removeAttribute("aria-valuetext"));
+      this.node.style.removeProperty("--tuc-slider-from");
+      this.node.style.removeProperty("--tuc-slider-to");
+      delete this.node._tucano;
+    }
+    /* ---------------------------------------------------------------- *
+     * Interno                                                           *
+     * ---------------------------------------------------------------- */
+    /** Posicao de 0 a 1 do valor dentro de min e max (os padroes do nativo: 0 e 100). */
+    _at(input) {
+      const min = +input.min || 0, max = input.max === "" ? 100 : +input.max;
+      return max > min ? (input.value - min) / (max - min) : 0;
+    }
+    /* A ponta que se move para na outra: o minimo nunca passa do maximo. */
+    _clamp(moved) {
+      const [low, high] = this.inputs;
+      if (high && +low.value > +high.value) {
+        if (moved === high) high.value = low.value;
+        else low.value = high.value;
+      }
+    }
+    _format(input) {
+      return this.opts.format ? this.opts.format(+input.value) : this._number.format(+input.value);
+    }
+    _paint() {
+      const [low, high] = this.inputs;
+      if (high) this.node.style.setProperty("--tuc-slider-from", this._at(low));
+      this.node.style.setProperty("--tuc-slider-to", this._at(high || low));
+      const texts = this.inputs.map((input) => {
+        const text = this._format(input);
+        input.setAttribute("aria-valuetext", text);
+        return text;
+      });
+      if (this.output) this.output.textContent = high ? SLIDER_TEXTS.range(texts[0], texts[1]) : texts[0];
+    }
+    /* So quando o valor muda: a ponta que empurra a outra dispara `input` parada. */
+    _emit() {
+      const value = this.getValue();
+      if (String(value) === this._last) return;
+      this._last = String(value);
+      const detail = { value, instance: this };
+      this.opts.onChange?.(value, detail);
+      this.node.dispatchEvent(new CustomEvent("tucano:change", { detail, bubbles: true }));
+    }
+    /*
+     * Posicao do ponteiro de 0 a 1. O centro do botao anda de meio botao ate a
+     * largura menos meio botao — sem descontar isso, o botao fugia do ponteiro
+     * perto das pontas. A medida vem do token, em rem ou px.
+     */
+    _pointer(e) {
+      const r = this.node.getBoundingClientRect();
+      const token = getComputedStyle(this.node).getPropertyValue("--tuc-slider-thumb").trim();
+      const thumb = parseFloat(token) * (token.endsWith("rem") ? parseFloat(getComputedStyle(document.documentElement).fontSize) : 1);
+      return Math.min(1, Math.max(0, (e.clientX - r.left - thumb / 2) / (r.width - thumb)));
+    }
+    _onDown(e) {
+      const [low, high] = this.inputs;
+      if (e.button !== 0 || low.matches(":disabled")) return;
+      e.preventDefault();
+      const at = this._pointer(e);
+      const toLow = Math.abs(at - this._at(low)), toHigh = Math.abs(at - this._at(high));
+      this._from = at;
+      this._before = this.inputs.map((i) => i.value);
+      this._active = toLow === toHigh ? null : toLow < toHigh ? low : high;
+      this.node.setPointerCapture(e.pointerId);
+      if (this._active) this._move(at);
+    }
+    _onMove(e) {
+      if (!this._before || !this.node.hasPointerCapture(e.pointerId)) return;
+      const at = this._pointer(e);
+      if (!this._active) {
+        if (at === this._from) return;
+        this._active = this.inputs[at < this._from ? 0 : 1];
+      }
+      this._move(at);
+    }
+    _move(at) {
+      const input = this._active;
+      if (document.activeElement !== input) input.focus({ preventScroll: true });
+      const min = +input.min || 0, max = input.max === "" ? 100 : +input.max;
+      input.value = min + at * (max - min);
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+    _onUp() {
+      const input = this._active, before = this._before;
+      this._active = this._before = null;
+      if (input && input.value !== before[this.inputs.indexOf(input)]) {
+        input.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+    }
+  };
+  function autoInit5(scope = document) {
+    const out = [];
+    for (const node of scope.querySelectorAll("[data-tuc-slider]:not([data-tuc-ready])")) {
+      node.setAttribute("data-tuc-ready", "");
+      const d = node.dataset;
+      out.push(new Slider(node, { output: d.output, currency: d.currency, locale: d.locale }));
+    }
+    return out;
+  }
+
   // src/js/core/mask.js
   var mask_exports = {};
   __export(mask_exports, {
@@ -3786,7 +3994,7 @@ var Tucano = (() => {
     currency: { isCurrency: true },
     brl: { isCurrency: true, currency: "BRL" }
   };
-  var DEFAULTS5 = {
+  var DEFAULTS6 = {
     format: null,
     // nome de FORMATS ou gabarito livre
     validate: false,
@@ -3808,7 +4016,7 @@ var Tucano = (() => {
     constructor(target, options = {}) {
       const node = typeof target === "string" ? document.querySelector(target) : target;
       if (!node) throw new Error("[Mask] elemento alvo nao encontrado");
-      this.opts = { ...DEFAULTS5, ...omitUndefined(options) };
+      this.opts = { ...DEFAULTS6, ...omitUndefined(options) };
       this.opts.locale = this.opts.locale || document.documentElement.lang || "pt-BR";
       this.input = node;
       if (this.opts.reveal && !node.matches("input, textarea")) {
@@ -4100,7 +4308,7 @@ var Tucano = (() => {
       this.input.dispatchEvent(new CustomEvent("tucano:change", { detail, bubbles: true }));
     }
   };
-  function autoInit5(scope = document) {
+  function autoInit6(scope = document) {
     const out = [];
     const targets = scope.querySelectorAll("[data-tuc-mask]:not([data-tuc-ready]), [data-tuc-reveal]:not([data-tuc-ready])");
     for (const node of targets) {
@@ -4135,7 +4343,7 @@ var Tucano = (() => {
   }
 
   // src/js/components/toast.js
-  var DEFAULTS6 = {
+  var DEFAULTS7 = {
     type: "info",
     // 'info' | 'success' | 'warning' | 'error' | 'loading'
     title: null,
@@ -4218,7 +4426,7 @@ var Tucano = (() => {
   }
   var Toast = class {
     constructor(options = {}) {
-      this.opts = { ...DEFAULTS6, ...omitUndefined(options) };
+      this.opts = { ...DEFAULTS7, ...omitUndefined(options) };
       if (this.opts.duration === void 0) this.opts.duration = durationFor(this.opts.type);
       this.id = nextId("toast");
       this._cleanups = [];
@@ -4377,7 +4585,7 @@ var Tucano = (() => {
     return promise;
   };
   var DJANGO_MAP = { debug: "info" };
-  function autoInit6(scope = document) {
+  function autoInit7(scope = document) {
     const out = [];
     for (const node of scope.querySelectorAll("[data-tuc-toast]:not([data-tuc-ready])")) {
       node.setAttribute("data-tuc-ready", "");
@@ -4406,7 +4614,7 @@ var Tucano = (() => {
   }
 
   // src/js/components/tooltip.js
-  var DEFAULTS7 = {
+  var DEFAULTS8 = {
     text: "",
     placement: "top-center",
     delay: 350,
@@ -4421,7 +4629,7 @@ var Tucano = (() => {
     constructor(target, options = {}) {
       const node = typeof target === "string" ? document.querySelector(target) : target;
       if (!node) throw new Error("[Tooltip] elemento alvo nao encontrado");
-      this.opts = { ...DEFAULTS7, ...omitUndefined(options) };
+      this.opts = { ...DEFAULTS8, ...omitUndefined(options) };
       this.anchor = node;
       this.id = nextId("tip");
       this._cleanups = [];
@@ -4529,7 +4737,7 @@ var Tucano = (() => {
       return true;
     }
   }
-  function autoInit7(scope = document) {
+  function autoInit8(scope = document) {
     const out = [];
     for (const node of scope.querySelectorAll("[data-tuc-tip]:not([data-tuc-ready])")) {
       if (!node.dataset.tucTip && !node.title) continue;
@@ -4649,7 +4857,7 @@ var Tucano = (() => {
   }
 
   // src/js/components/modal.js
-  var DEFAULTS8 = {
+  var DEFAULTS9 = {
     title: null,
     text: "",
     size: "md",
@@ -4669,7 +4877,7 @@ var Tucano = (() => {
   var Modal = class extends Dialog {
     constructor(options = {}) {
       super();
-      this.opts = { ...DEFAULTS8, ...omitUndefined(options) };
+      this.opts = { ...DEFAULTS9, ...omitUndefined(options) };
       this.id = nextId("modal");
       this._cleanups = [];
       this._build();
@@ -4723,13 +4931,13 @@ var Tucano = (() => {
       }).open();
     });
   }
-  function autoInit8(scope = document) {
+  function autoInit9(scope = document) {
     const out = [];
     for (const node of scope.querySelectorAll("dialog.tuc-modal:not([data-tuc-ready])")) {
       node.setAttribute("data-tuc-ready", "");
       const d = node.dataset;
       const m = Object.create(Modal.prototype);
-      m.opts = { ...DEFAULTS8, closable: d.closable !== "false", closeOnBackdrop: d.backdrop !== "false" };
+      m.opts = { ...DEFAULTS9, closable: d.closable !== "false", closeOnBackdrop: d.backdrop !== "false" };
       m.id = node.id || nextId("modal");
       m._cleanups = [];
       m.panel = node.querySelector(".tuc-modal__panel");
@@ -4751,7 +4959,7 @@ var Tucano = (() => {
   }
 
   // src/js/components/drawer.js
-  var DEFAULTS9 = {
+  var DEFAULTS10 = {
     title: null,
     text: "",
     side: "right",
@@ -4770,7 +4978,7 @@ var Tucano = (() => {
   var Drawer = class extends Dialog {
     constructor(options = {}) {
       super();
-      this.opts = { ...DEFAULTS9, ...omitUndefined(options) };
+      this.opts = { ...DEFAULTS10, ...omitUndefined(options) };
       this.id = nextId("drawer");
       this._cleanups = [];
       this._build();
@@ -4797,13 +5005,13 @@ var Tucano = (() => {
     const base = typeof optionsOrText === "string" ? { text: optionsOrText } : optionsOrText;
     return new Drawer({ ...base, ...extra }).open();
   }
-  function autoInit9(scope = document) {
+  function autoInit10(scope = document) {
     const out = [];
     for (const node of scope.querySelectorAll("dialog.tuc-drawer:not([data-tuc-ready])")) {
       node.setAttribute("data-tuc-ready", "");
       const d = node.dataset;
       const g = Object.create(Drawer.prototype);
-      g.opts = { ...DEFAULTS9, closable: d.closable !== "false", closeOnBackdrop: d.backdrop !== "false" };
+      g.opts = { ...DEFAULTS10, closable: d.closable !== "false", closeOnBackdrop: d.backdrop !== "false" };
       g.id = node.id || nextId("drawer");
       g._cleanups = [];
       g.panel = node.querySelector(".tuc-drawer__panel");
@@ -4825,7 +5033,7 @@ var Tucano = (() => {
   }
 
   // src/js/components/accordion.js
-  var DEFAULTS10 = {
+  var DEFAULTS11 = {
     single: false
     // abrir um recolhe os outros
   };
@@ -4834,7 +5042,7 @@ var Tucano = (() => {
     constructor(target, options = {}) {
       this.node = typeof target === "string" ? document.querySelector(target) : target;
       if (!this.node) throw new Error("[Accordion] elemento n\xE3o encontrado");
-      this.opts = { ...DEFAULTS10, ...omitUndefined(options) };
+      this.opts = { ...DEFAULTS11, ...omitUndefined(options) };
       this._cleanups = [];
       this._build();
     }
@@ -4922,7 +5130,7 @@ var Tucano = (() => {
       this._cleanups = [];
     }
   };
-  function autoInit10(scope = document) {
+  function autoInit11(scope = document) {
     const out = [];
     for (const node of scope.querySelectorAll("[data-tuc-accordion]:not([data-tuc-ready])")) {
       node.setAttribute("data-tuc-ready", "");
@@ -4932,7 +5140,7 @@ var Tucano = (() => {
   }
 
   // src/js/components/tabs.js
-  var DEFAULTS11 = {
+  var DEFAULTS12 = {
     selected: null,
     // indice da aba inicial; sem ele vale a marcada com aria-selected="true", ou a primeira
     manual: false,
@@ -4947,7 +5155,7 @@ var Tucano = (() => {
       if (!this.node) throw new Error("[Tabs] elemento n\xE3o encontrado");
       this.list = this.node.querySelector(":scope > .tuc-tabs__list");
       if (!this.list) throw new Error("[Tabs] faltou o .tuc-tabs__list");
-      this.opts = { ...DEFAULTS11, ...omitUndefined(options) };
+      this.opts = { ...DEFAULTS12, ...omitUndefined(options) };
       this._cleanups = [];
       this._build();
     }
@@ -5037,7 +5245,7 @@ var Tucano = (() => {
       delete this.node._tucano;
     }
   };
-  function autoInit11(scope = document) {
+  function autoInit12(scope = document) {
     const out = [];
     for (const node of scope.querySelectorAll("[data-tuc-tabs]:not([data-tuc-ready])")) {
       node.setAttribute("data-tuc-ready", "");
@@ -5047,7 +5255,7 @@ var Tucano = (() => {
   }
 
   // src/js/components/dropdown.js
-  var DEFAULTS12 = {
+  var DEFAULTS13 = {
     placement: "bottom-start",
     items: null,
     // [{ text, icon, shortcut, onClick, href, variant, disabled, separator, label }]
@@ -5060,7 +5268,7 @@ var Tucano = (() => {
     constructor(trigger, options = {}) {
       this.trigger = typeof trigger === "string" ? document.querySelector(trigger) : trigger;
       if (!this.trigger) throw new Error("[Dropdown] gatilho n\xE3o encontrado");
-      this.opts = { ...DEFAULTS12, ...omitUndefined(options) };
+      this.opts = { ...DEFAULTS13, ...omitUndefined(options) };
       this._cleanups = [];
       this._build();
     }
@@ -5262,7 +5470,7 @@ var Tucano = (() => {
       this._cleanups = [];
     }
   };
-  function autoInit12(scope = document) {
+  function autoInit13(scope = document) {
     const out = [];
     for (const trigger of scope.querySelectorAll("[data-tuc-dropdown]:not([data-tuc-ready])")) {
       trigger.setAttribute("data-tuc-ready", "");
@@ -5279,7 +5487,7 @@ var Tucano = (() => {
   }
 
   // src/js/components/contextmenu.js
-  var DEFAULTS13 = {
+  var DEFAULTS14 = {
     placement: "bottom-start",
     items: null,
     // array como o do Dropdown, ou (alvo) => array
@@ -5293,7 +5501,7 @@ var Tucano = (() => {
   };
   var ContextMenu = class extends Dropdown {
     constructor(area, options = {}) {
-      super(area, { ...DEFAULTS13, ...omitUndefined(options) });
+      super(area, { ...DEFAULTS14, ...omitUndefined(options) });
     }
     /** A area que responde ao botao direito. */
     get area() {
@@ -5383,7 +5591,7 @@ var Tucano = (() => {
       return this;
     }
   };
-  function autoInit13(scope = document) {
+  function autoInit14(scope = document) {
     const out = [];
     for (const area of scope.querySelectorAll("[data-tuc-contextmenu]:not([data-tuc-ready])")) {
       area.setAttribute("data-tuc-ready", "");
@@ -5401,7 +5609,7 @@ var Tucano = (() => {
   }
 
   // src/js/components/table.js
-  var DEFAULTS14 = {
+  var DEFAULTS15 = {
     sortable: true,
     sortMode: "server",
     // server | client
@@ -5425,7 +5633,7 @@ var Tucano = (() => {
       this.node = typeof node === "string" ? document.querySelector(node) : node;
       if (!this.node) throw new Error("[Table] elemento alvo nao encontrado");
       if (this.node.tagName !== "TABLE") throw new Error("[Table] o alvo precisa ser uma <table>");
-      this.opts = { ...DEFAULTS14, ...omitUndefined(options) };
+      this.opts = { ...DEFAULTS15, ...omitUndefined(options) };
       this._cleanups = [];
       this._build();
     }
@@ -5584,7 +5792,7 @@ var Tucano = (() => {
       this._cleanups = [];
     }
   };
-  function autoInit14(scope = document) {
+  function autoInit15(scope = document) {
     const out = [];
     for (const node of scope.querySelectorAll("table[data-tuc-table]:not([data-tuc-ready])")) {
       node.setAttribute("data-tuc-ready", "");
@@ -5602,7 +5810,7 @@ var Tucano = (() => {
   }
 
   // src/js/components/pagination.js
-  var DEFAULTS15 = {
+  var DEFAULTS16 = {
     page: 1,
     pages: 1,
     param: "page",
@@ -5636,7 +5844,7 @@ var Tucano = (() => {
   }
   var Pagination = class {
     constructor(options = {}) {
-      this.opts = { ...DEFAULTS15, ...PAGINATION_TEXTS, ...omitUndefined(options) };
+      this.opts = { ...DEFAULTS16, ...PAGINATION_TEXTS, ...omitUndefined(options) };
       this._cleanups = [];
       this.node = el("nav", { class: "tuc-pagination", role: "navigation", "aria-label": this.opts.label });
       this.node._tucano = this;
@@ -5723,7 +5931,7 @@ var Tucano = (() => {
   function pagination(options = {}) {
     return new Pagination(options).node;
   }
-  function autoInit15(scope = document) {
+  function autoInit16(scope = document) {
     const out = [];
     for (const node of scope.querySelectorAll("[data-tuc-pagination]:not([data-tuc-ready])")) {
       node.setAttribute("data-tuc-ready", "");
@@ -5958,7 +6166,7 @@ var Tucano = (() => {
       return className ? `<span class="tuc-tok-${className}">${whole}</span>` : whole;
     });
   }
-  function autoInit16(scope = document) {
+  function autoInit17(scope = document) {
     for (const table of scope.querySelectorAll(".tuc-prose table")) {
       if (table.parentElement.classList.contains("tuc-prose__scroll")) continue;
       const box = el("div", { class: "tuc-prose__scroll" });
@@ -6005,7 +6213,7 @@ var Tucano = (() => {
   }
 
   // src/js/components/editor.js
-  var DEFAULTS16 = {
+  var DEFAULTS17 = {
     toolbar: [
       "bold",
       "italic",
@@ -6303,7 +6511,7 @@ var Tucano = (() => {
     constructor(target, options = {}) {
       this.field = typeof target === "string" ? document.querySelector(target) : target;
       if (!this.field) throw new Error("[Editor] elemento n\xE3o encontrado");
-      this.opts = { ...DEFAULTS16, ...omitUndefined(options) };
+      this.opts = { ...DEFAULTS17, ...omitUndefined(options) };
       this._cleanups = [];
       this._build();
     }
@@ -6766,7 +6974,7 @@ var Tucano = (() => {
       delete this.field._tucano;
     }
   };
-  function autoInit17(scope = document) {
+  function autoInit18(scope = document) {
     const out = [];
     for (const node of scope.querySelectorAll("[data-tuc-editor]:not([data-tuc-ready])")) {
       node.setAttribute("data-tuc-ready", "");
@@ -6785,23 +6993,24 @@ var Tucano = (() => {
       selects: autoInit2(scope),
       colorpickers: autoInit3(scope),
       uploads: autoInit4(scope),
-      masks: autoInit5(scope),
+      sliders: autoInit5(scope),
+      masks: autoInit6(scope),
       formatted: autoFormat(scope),
-      toasts: autoInit6(scope),
-      modals: autoInit8(scope),
-      drawers: autoInit9(scope),
-      accordions: autoInit10(scope),
-      tabs: autoInit11(scope),
-      dropdowns: autoInit12(scope),
-      contextMenus: autoInit13(scope),
-      tables: autoInit14(scope),
-      pagination: autoInit15(scope),
-      editors: autoInit17(scope),
-      prose: autoInit16(scope),
+      toasts: autoInit7(scope),
+      modals: autoInit9(scope),
+      drawers: autoInit10(scope),
+      accordions: autoInit11(scope),
+      tabs: autoInit12(scope),
+      dropdowns: autoInit13(scope),
+      contextMenus: autoInit14(scope),
+      tables: autoInit15(scope),
+      pagination: autoInit16(scope),
+      editors: autoInit18(scope),
+      prose: autoInit17(scope),
       // Por último de propósito: componentes que criam a própria barra de botões
       // marcam neles `data-tuc-tip`, e esses elementos só existem depois que eles
       // se montam. Antes, os botões do editor nasciam sem dica.
-      tooltips: autoInit7(scope)
+      tooltips: autoInit8(scope)
     };
   }
 
