@@ -22,6 +22,13 @@ cambios en tu proyecto.
   y con los dos en el mismo lugar el primer movimiento decide cuál se mueve. La
   caja tiene la altura de un campo. Textos nuevos en el grupo `slider` de
   `setTexts`: `min`, `max` y `range`.
+- Botón "Hoy" opcional en el pie del date picker: `today: true` o
+  `data-today="true"`. Elige el día de hoy por el mismo camino que el clic en el
+  día — con Aplicar queda pendiente, con hora mantiene el horario — y lleva la
+  vista al mes de hoy. En el rango, elige de hoy a hoy. Queda desactivado cuando
+  hoy está fuera de `min`, `max` o `disabledDates`. Hasta ahora "Hoy" solo
+  existía entre los atajos, que son del modo rango. El texto es el
+  `datepicker.today` que el atajo ya usaba.
 
 ## 0.37.2 — 2026-10-08
 

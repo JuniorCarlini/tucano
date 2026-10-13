@@ -138,7 +138,7 @@ swap do HTMX.
 
 Atributos disponíveis: `data-mode`, `data-time`, `data-seconds`,
 `data-minute-step`, `data-locale`, `data-format`, `data-months`, `data-min`,
-`data-max`, `data-presets`, `data-week-numbers`,
+`data-max`, `data-presets`, `data-today`, `data-week-numbers`,
 `data-iso-name`, `data-placement`.
 
 ### Por JavaScript
@@ -266,6 +266,7 @@ mesmo conteúdo em texto, para ler sem sair daqui.
 | `presets` | `false` | `true` liga os atalhos de período, ou passe um array `{ label, value() }` |
 | `autoApply` | `!time` | Fecha ao concluir a seleção |
 | `clearable` | `true` | Mostra "Limpar" |
+| `today` | `false` | Botão "Hoje" no rodapé; no período, escolhe hoje a hoje |
 | `weekNumbers` | `false` | Coluna de número da semana |
 | `placement` | `'bottom-center'` | Lado e alinhamento do popover. Centraliza no campo; se não couber, desliza para dentro da tela e vira para cima quando falta espaço embaixo. `bottom-start`, `bottom-end`, `top-center`... |
 | `isoName` | `name` do input | `name` do input hidden em ISO |
@@ -1421,7 +1422,7 @@ ano. É a escolha certa para a maioria dos casos.
 Quem empacota pode levar menos, importando de `tucano`:
 
 ```js
-import { DatePicker, Select } from 'tucano';   // 15,3 KB em vez de 44
+import { DatePicker, Select } from 'tucano';   // 15,4 KB em vez de 44
 ```
 
 | o que se importa | gzip |
@@ -1429,7 +1430,7 @@ import { DatePicker, Select } from 'tucano';   // 15,3 KB em vez de 44
 | só o date picker | 11,4 KB |
 | só o select | 6,4 KB |
 | só o toast | 2,7 KB |
-| date picker + select | 15,3 KB |
+| date picker + select | 15,4 KB |
 | tudo | 44,4 KB |
 
 Não é linear porque o núcleo — posicionamento, datas, utilidades de DOM — é

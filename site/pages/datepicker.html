@@ -66,6 +66,11 @@ description: Date picker com data, período, hora e atalhos, digitação com má
       <div class="out" id="dp-presets-out"></div>
     </div>
     <div class="demo-cell">
+      <h4>Botão Hoje</h4>
+      <p><code>data-today="true"</code> põe "Hoje" no rodapé. No período, escolhe hoje a hoje.</p>
+      <input type="text" id="dp-today" name="due" data-tuc-datepicker data-today="true" aria-label="Vencimento">
+    </div>
+    <div class="demo-cell">
       <h4>Atalhos próprios</h4>
       <p>Uma lista de <code>{ label, value() }</code>, em JavaScript.</p>
       <input type="text" id="dp-custom-presets" aria-label="Período com atalhos próprios">
@@ -125,6 +130,7 @@ description: Date picker com data, período, hora e atalhos, digitação com má
     <tr><td><code>data-min</code> <code>data-max</code></td><td>—</td><td>Limites, em <code>aaaa-mm-dd</code></td></tr>
     <tr><td><code>data-months</code></td><td><code>1</code>, ou <code>2</code> em período</td><td>Quantos meses lado a lado</td></tr>
     <tr><td><code>data-presets</code></td><td><code>false</code></td><td><code>true</code> liga os atalhos — só no modo período</td></tr>
+    <tr><td><code>data-today</code></td><td><code>false</code></td><td><code>true</code> põe o botão "Hoje" no rodapé, desativado quando hoje está fora de <code>min</code>, <code>max</code> ou <code>disabledDates</code></td></tr>
     <tr><td><code>data-week-numbers</code></td><td><code>false</code></td><td>Coluna com a semana ISO</td></tr>
     <tr><td><code>data-locale</code></td><td><code>&lt;html lang&gt;</code></td><td>Nomes, ordem de dia e mês, início da semana e relógio de 12 ou 24 horas</td></tr>
     <tr><td><code>data-format</code></td><td>do idioma</td><td>Formato de exibição, como <code>dd/MM/yyyy</code></td></tr>

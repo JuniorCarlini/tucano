@@ -712,6 +712,8 @@ var DEFAULTS = {
   autoApply: void 0,
   // default: true sem hora, false com hora. Sem autoApply, a escolha so vale no Aplicar
   clearable: true,
+  today: false,
+  // botao "Hoje" no rodape: escolhe o dia de hoje (no periodo, hoje a hoje). Opt-in
   weekNumbers: false,
   placement: "bottom-center",
   // centralizado no campo; as bordas da tela ainda mandam
@@ -1290,6 +1292,19 @@ var DatePicker = class _DatePicker {
     this.viewDate = this._anchorMonth();
     this._picked(true);
   }
+  /*
+   * O mesmo caminho do clique no dia, para valer a mesma regra: com Aplicar fica
+   * pendente, com hora mantem o horario escolhido. A vista volta ao mes de hoje
+   * antes, senao, sem autoApply, o dia escolhido ficava num mes fora da tela.
+   * No periodo, "hoje" e o dia inteiro — o atalho de mesmo nome dos presets.
+   */
+  _pickToday() {
+    const today = startOfDay(/* @__PURE__ */ new Date());
+    this.view = "days";
+    if (this.isRange) return this._applyPreset({ value: () => ({ start: today, end: today }) });
+    this.viewDate = startOfMonth(today);
+    this._selectDay(today);
+  }
   _setTime(which, unit, value) {
     const target = which === "end" ? this.end : this.start;
     if (!target) return;
@@ -1645,6 +1660,16 @@ var DatePicker = class _DatePicker {
         }
       }));
     }
+    if (this.opts.today) {
+      footer.append(el("button", {
+        type: "button",
+        class: "tuc-btn is-ghost is-sm",
+        text: DATEPICKER_TEXTS.today,
+        dataset: { key: "today" },
+        disabled: this._isDisabled(startOfDay(/* @__PURE__ */ new Date())),
+        onclick: () => this._pickToday()
+      }));
+    }
     footer.append(el("span", { class: "tuc-dp__spacer" }));
     if (!this.opts.autoApply) {
       footer.append(el("button", {
@@ -1803,6 +1828,7 @@ function autoInit(scope = document) {
       min: d.min || null,
       max: d.max || null,
       presets: d.presets === "true" ? true : void 0,
+      today: d.today === "true",
       weekNumbers: d.weekNumbers === "true",
       isoName: d.isoName || void 0,
       placement: d.placement || void 0,

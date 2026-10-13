@@ -42,7 +42,8 @@ Todo elemento com `data-tuc-*` é inicializado sozinho no load e de novo a cada
 
 Atributos: data-mode ("single"|"range"), data-time, data-seconds,
 data-minute-step, data-locale, data-format, data-months, data-min, data-max,
-data-presets, data-week-numbers, data-iso-name, data-placement, data-native.
+data-presets, data-today (botao "Hoje" no rodape), data-week-numbers,
+data-iso-name, data-placement, data-native.
 
 Opções equivalentes em JS, mais: disabledDates (date => boolean), autoApply,
 clearable, firstDayOfWeek, onChange.
@@ -845,7 +846,7 @@ Inventario extraido do codigo a cada build. Se algo nao esta aqui, nao existe.
 ### DatePicker
   marcacao   [data-tuc-datepicker]
   em JS      new Tucano.DatePicker(alvo, opcoes)
-  atributos  data-format data-iso-name data-locale data-max data-min data-minute-step data-mode data-months data-native data-placement data-presets data-seconds data-time data-week-numbers
+  atributos  data-format data-iso-name data-locale data-max data-min data-minute-step data-mode data-months data-native data-placement data-presets data-seconds data-time data-today data-week-numbers
   opcoes
     mode               = 'single'  — 'single' | 'range'
     time               = false  — true habilita seletor de hora
@@ -861,6 +862,7 @@ Inventario extraido do codigo a cada build. Se algo nao esta aqui, nao existe.
     presets            = false  — atalhos de periodo (Hoje, Ultimos 7 dias...): opt-in…
     autoApply          = undefined  — default: true sem hora, false com hora. Sem autoApply, a escolha so vale no Aplicar…
     clearable          = true
+    today              = false  — botao "Hoje" no rodape: escolhe o dia de hoje (no periodo, hoje a hoje). Opt-in…
     weekNumbers        = false
     placement          = 'bottom-center'  — centralizado no campo; as bordas da tela ainda mandam…
     appendTo           = undefined

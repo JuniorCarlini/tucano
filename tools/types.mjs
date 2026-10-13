@@ -220,6 +220,7 @@ export interface DatePickerChangeDetail<M extends DatePickerMode = DatePickerMod
       presets: 'boolean | DatePreset[]',
       autoApply: 'boolean',
       clearable: 'boolean',
+      today: 'boolean',
       weekNumbers: 'boolean',
       placement: 'Placement',
       appendTo: 'HTMLElement',

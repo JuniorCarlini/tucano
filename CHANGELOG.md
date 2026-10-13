@@ -21,6 +21,13 @@ projeto.
   trilha leva a ponta mais perto, e com as duas no mesmo lugar o primeiro
   movimento decide qual se move. A caixa tem a altura de um campo. Textos novos
   no grupo `slider` do `setTexts`: `min`, `max` e `range`.
+- Botão "Hoje" no rodapé do date picker, opcional: `today: true` ou
+  `data-today="true"`. Escolhe o dia de hoje pelo mesmo caminho do clique no
+  dia — com Aplicar fica pendente, com hora mantém o horário — e leva a vista ao
+  mês de hoje. No período, escolhe hoje a hoje. Fica desativado quando hoje está
+  fora de `min`, `max` ou `disabledDates`. Até aqui o "Hoje" só existia entre os
+  atalhos, que são do modo período. O texto é o `datepicker.today` que o atalho
+  já usava.
 
 ## 0.37.2 — 2026-10-08
 

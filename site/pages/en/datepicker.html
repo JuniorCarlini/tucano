@@ -67,6 +67,11 @@ description: Date picker with date, range, time and presets, masked typing and t
       <div class="out" id="dp-presets-out"></div>
     </div>
     <div class="demo-cell">
+      <h4>Today button</h4>
+      <p><code>data-today="true"</code> puts "Today" in the footer. In range mode, it picks today to today.</p>
+      <input type="text" id="dp-today" name="due" data-tuc-datepicker data-today="true" aria-label="Due date">
+    </div>
+    <div class="demo-cell">
       <h4>Custom presets</h4>
       <p>A list of <code>{ label, value() }</code>, in JavaScript.</p>
       <input type="text" id="dp-custom-presets" aria-label="Range with custom presets">
@@ -126,6 +131,7 @@ description: Date picker with date, range, time and presets, masked typing and t
     <tr><td><code>data-min</code> <code>data-max</code></td><td>—</td><td>Limits, in <code>yyyy-mm-dd</code></td></tr>
     <tr><td><code>data-months</code></td><td><code>1</code>, or <code>2</code> for a range</td><td>How many months side by side</td></tr>
     <tr><td><code>data-presets</code></td><td><code>false</code></td><td><code>true</code> turns on the presets — range mode only</td></tr>
+    <tr><td><code>data-today</code></td><td><code>false</code></td><td><code>true</code> puts the "Today" button in the footer, disabled when today is outside <code>min</code>, <code>max</code> or <code>disabledDates</code></td></tr>
     <tr><td><code>data-week-numbers</code></td><td><code>false</code></td><td>Column with the ISO week</td></tr>
     <tr><td><code>data-locale</code></td><td><code>&lt;html lang&gt;</code></td><td>Names, day and month order, first day of the week and 12- or 24-hour clock</td></tr>
     <tr><td><code>data-format</code></td><td>from the locale</td><td>Display format, such as <code>dd/MM/yyyy</code></td></tr>

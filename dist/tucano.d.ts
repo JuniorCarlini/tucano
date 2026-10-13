@@ -615,6 +615,11 @@ export interface DatePickerOptions<M extends DatePickerMode = 'single'> {
   autoApply?: boolean;
   /** @default true */
   clearable?: boolean;
+  /**
+   * botao "Hoje" no rodape: escolhe o dia de hoje (no periodo, hoje a hoje). Opt-in
+   * @default false
+   */
+  today?: boolean;
   /** @default false */
   weekNumbers?: boolean;
   /**

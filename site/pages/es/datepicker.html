@@ -67,6 +67,11 @@ description: Date picker con fecha, rango, hora y atajos, escritura con máscara
       <div class="out" id="dp-presets-out"></div>
     </div>
     <div class="demo-cell">
+      <h4>Botón Hoy</h4>
+      <p><code>data-today="true"</code> pone "Hoy" en el pie. En el rango, elige de hoy a hoy.</p>
+      <input type="text" id="dp-today" name="due" data-tuc-datepicker data-today="true" aria-label="Vencimiento">
+    </div>
+    <div class="demo-cell">
       <h4>Atajos propios</h4>
       <p>Una lista de <code>{ label, value() }</code>, en JavaScript.</p>
       <input type="text" id="dp-custom-presets" aria-label="Rango con atajos propios">
@@ -126,6 +131,7 @@ description: Date picker con fecha, rango, hora y atajos, escritura con máscara
     <tr><td><code>data-min</code> <code>data-max</code></td><td>—</td><td>Límites, en <code>aaaa-mm-dd</code></td></tr>
     <tr><td><code>data-months</code></td><td><code>1</code>, o <code>2</code> en rango</td><td>Cuántos meses lado a lado</td></tr>
     <tr><td><code>data-presets</code></td><td><code>false</code></td><td><code>true</code> activa los atajos — solo en modo rango</td></tr>
+    <tr><td><code>data-today</code></td><td><code>false</code></td><td><code>true</code> pone el botón "Hoy" en el pie, desactivado cuando hoy queda fuera de <code>min</code>, <code>max</code> o <code>disabledDates</code></td></tr>
     <tr><td><code>data-week-numbers</code></td><td><code>false</code></td><td>Columna con la semana ISO</td></tr>
     <tr><td><code>data-locale</code></td><td><code>&lt;html lang&gt;</code></td><td>Nombres, orden de día y mes, inicio de la semana y reloj de 12 o 24 horas</td></tr>
     <tr><td><code>data-format</code></td><td>del idioma</td><td>Formato de visualización, como <code>dd/MM/yyyy</code></td></tr>

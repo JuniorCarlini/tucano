@@ -828,7 +828,7 @@ colados no documento e têm que montar; os de JS não são executados (citam
 contra o código: `Tucano.x` existe? o método existe no protótipo? cada chave de
 opção é lida por alguém, inclusive dentro de `actions` e `items`?
 
-**`tools/keyboard.mjs` — 89 caminhos de teclado e mouse reais, nos três
+**`tools/keyboard.mjs` — 93 caminhos de teclado e mouse reais, nos três
 navegadores**, pelo `page.keyboard` e `page.mouse` do Playwright: `Backspace` e `Delete` na máscara e no select, as setas nas abas, o
 `↓` que leva o foco ao dia no date picker, a data digitada que emite e o `Escape`
 que a descarta, o Aplicar que segura a escolha, o painel que reabre em menos de

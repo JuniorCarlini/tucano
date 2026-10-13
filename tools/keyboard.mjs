@@ -833,6 +833,46 @@ testCase('período pela metade e Escape devolvem o período que já estava escol
   return r.join(' ') === '2026-03-01 2026-03-15 2026-03-01,2026-03-15 0' ? null : JSON.stringify(r);
 });
 
+testCase('botão Hoje: só com data-today; escolhe hoje, emite uma vez e fecha', async () => {
+  await evaluate(`mk('<input data-tuc-datepicker name="kt">')`);
+  await clickOn('inp');
+  if (await evaluate(`!!dp.panel.querySelector('[data-key="today"]')`)) return 'o botão apareceu sem data-today';
+  await evaluate(`mk('<input data-tuc-datepicker data-today="true" name="kt">'); dp.setValue('2025-01-15', { silent: true })`);
+  await clickOn('inp');
+  await clickOn(`dp.panel.querySelector('[data-key="today"]')`);
+  const r = await evaluate(`[hidden() === iso(new Date()), log.length, dp.isOpen]`);
+  return r[0] && r[1] === 2 && !r[2] ? null : `hoje escolhido ${r[0]}, ${r[1]} registro(s) (onChange e evento), aberto ${r[2]}`;
+});
+
+testCase('botão Hoje no período escolhe hoje a hoje', async () => {
+  await evaluate(`mk('<input data-tuc-datepicker data-mode="range" data-today="true">')`);
+  await clickOn('inp');
+  await clickOn(`dp.panel.querySelector('[data-key="today"]')`);
+  const r = await evaluate(`[iso(dp.start) === iso(new Date()) && iso(dp.end) === iso(new Date()), dp.isOpen, log.length]`);
+  return r[0] && !r[1] && r[2] === 2 ? null : `período ${r[0]}, aberto ${r[1]}, ${r[2]} registro(s)`;
+});
+
+testCase('botão Hoje com Aplicar: mantém a hora, mostra o mês de hoje e só vale no Aplicar', async () => {
+  await evaluate(`mk('<input data-tuc-datepicker data-time="true" data-today="true" name="kt">'); dp.setValue('2025-01-15T10:00', { silent: true })`);
+  await clickOn('inp');
+  await clickOn(`dp.panel.querySelector('[data-key="today"]')`);
+  const pending = await evaluate(`[log.length, hidden(), dp.isOpen,
+    !!dp.panel.querySelector('.tuc-dp__day.is-selected[data-date="' + iso(new Date()) + '"]')]`);
+  if (pending[0] || pending[1] !== '2025-01-15T10:00' || !pending[2]) return `valeu antes do Aplicar: ${JSON.stringify(pending)}`;
+  if (!pending[3]) return 'o mês de hoje não apareceu com o dia marcado';
+  await clickOn(`dp.panel.querySelector('[data-key="apply"]')`);
+  const r = await evaluate(`[hidden() === iso(new Date()) + 'T10:00', log.length]`);
+  return r[0] && r[1] === 2 ? null : `Aplicar: ${JSON.stringify(r)} (${await evaluate('hidden()')})`;
+});
+
+testCase('botão Hoje fica desativado quando hoje não se escolhe', async () => {
+  await evaluate(`mk('<input data-tuc-datepicker data-today="true" data-min="2999-01-01">')`);
+  await clickOn('inp');
+  const off = await evaluate(`dp.panel.querySelector('[data-key="today"]').disabled`);
+  await press('Escape');
+  return off ? null : 'com min no futuro, o botão ficou ativo';
+});
+
 testCase('com Aplicar, dia e hora ficam pendentes: Aplicar emite uma vez e clicar fora descarta', async () => {
   await evaluate(`mk('<input data-tuc-datepicker data-time="true" name="kt">'); dp.setValue('2026-09-07T10:00', { silent: true })`);
   await clickOn('inp');

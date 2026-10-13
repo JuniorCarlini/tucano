@@ -22,6 +22,13 @@ in your project.
   track moves the nearest end, and with both in the same place the first
   movement decides which one moves. The box is as tall as a field. New texts
   in the `slider` group of `setTexts`: `min`, `max` and `range`.
+- Optional "Today" button in the date picker footer: `today: true` or
+  `data-today="true"`. It picks today through the same path as clicking the
+  day — with Apply it stays pending, with time it keeps the chosen time — and
+  takes the view to today's month. In range mode, it picks today to today. It is
+  disabled when today is outside `min`, `max` or `disabledDates`. Until now
+  "Today" only existed among the presets, which are range-only. The text is the
+  `datepicker.today` the preset already used.
 
 ## 0.37.2 — 2026-10-08
 
