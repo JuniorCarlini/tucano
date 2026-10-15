@@ -124,6 +124,15 @@ async function run(name) {
     await input.fill('zzzqqq');
     await page.waitForFunction(() => document.querySelector('.search__status')?.textContent.includes('zzzqqq'));
     check(await page.locator('.search__option').count() === 0, 'busca: sem resultado mostra a mensagem');
+
+    // Todo resultado leva a uma pagina, inclusive os do inicio: com o caminho do
+    // inicio vazio, ele era resolvido contra o search.json e abria o indice cru.
+    await input.fill('data');
+    await page.locator('.search__option').first().waitFor();
+    const hrefs = await page.locator('.search__option').evaluateAll((os) => os.map((o) => o.href));
+    const broken = hrefs.filter((h) => !new URL(h).pathname.endsWith('/'));
+    check(!broken.length, 'busca: todo resultado leva a uma página', broken[0]?.replace(BASE, '') || `${hrefs.length} resultados`);
+    check(hrefs.some((h) => h.split('#')[0] === BASE), 'busca: resultado do início leva ao início');
     await page.keyboard.press('Escape');
     await dialog.waitFor({ state: 'hidden' });
 

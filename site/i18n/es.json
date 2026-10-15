@@ -31,7 +31,7 @@
     "searchError": "No se pudo cargar la búsqueda.",
     "searchEmpty": "Sin resultados para “{q}”.",
     "searchCount": "{n} resultado(s).",
-    "searchHint": "↑ ↓ para navegar · Enter abre · Esc cierra"
+    "searchHint": "[↑] [↓] para navegar · [Enter] abre · [Esc] cierra"
   },
   "groups": {
     "get-started": "Empezar",

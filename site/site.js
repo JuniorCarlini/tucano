@@ -143,17 +143,48 @@
     }
   }
 
-  /* Menu do celular: a barra lateral vira o painel que o botao abre. */
+  /*
+   * Menu do celular: a gaveta da propria biblioteca, entrando pela esquerda — foco
+   * preso, Escape, fundo que fecha e foco devolvido ao botao vem dela. Nada e
+   * copiado: a versao, o idioma, o tema e o <nav> da barra lateral mudam para
+   * dentro da gaveta ao abrir e voltam ao mesmo lugar ao fechar, entao o item
+   * atual, os links e os botoes sao os mesmos. E por isso que a barra do topo do
+   * celular fica so com a busca e o menu. A gaveta so existe no celular; passando
+   * da largura do celular com ela aberta, ela fecha.
+   */
   const sidebar = document.getElementById('side');
   const menu = document.getElementById('menu');
-  const ICON_MENU = 'M3 6h18M3 12h18M3 18h18';
-  const setOpen = (open) => {
-    sidebar.classList.toggle('is-open', open);
-    menu.setAttribute('aria-expanded', String(open));
-    menu.replaceChildren(Tucano.icon(open ? Tucano.ICON_X : ICON_MENU, 16));
+  const nav = sidebar?.querySelector('nav');
+  // O que vai para a gaveta, com o lugar de onde saiu, para voltar ao mesmo ponto.
+  const moved = sidebar ? [sidebar.querySelector('.ver'), sidebar.querySelector('.side__tools'), nav]
+    .map((node) => ({ node, parent: node.parentNode, next: node.nextSibling })) : [];
+  const mobile = matchMedia('(max-width: 900px)');
+  let drawer = null;
+  const closeMenu = () => drawer?.node.classList.contains('is-open') && drawer.close('api');
+  const openMenu = () => {
+    if (!drawer) {
+      drawer = new Tucano.Drawer({
+        side: 'left',
+        size: 'sm',
+        onClose: () => {
+          moved.forEach(({ node, parent, next }) => parent.insertBefore(node, next));
+          menu.setAttribute('aria-expanded', 'false');
+        },
+      });
+      drawer.node.classList.add('nav-drawer');
+      drawer.node.setAttribute('aria-label', nav.getAttribute('aria-label'));
+      drawer.panel.querySelector('.tuc-drawer__header').append(sidebar.querySelector('.brand').cloneNode(true));
+    }
+    const tools = document.createElement('div');
+    tools.className = 'nav-drawer__tools';
+    tools.append(moved[0].node, moved[1].node);
+    drawer.content([tools, nav]);
+    drawer.open();
+    menu.setAttribute('aria-expanded', 'true');
+    nav.querySelector('[aria-current="page"]')?.scrollIntoView({ block: 'nearest' });
   };
-  menu?.addEventListener('click', () => setOpen(!sidebar.classList.contains('is-open')));
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && sidebar.classList.contains('is-open')) setOpen(false); });
+  menu?.addEventListener('click', openMenu);
+  mobile.addEventListener('change', (e) => { if (!e.matches) closeMenu(); });
 
   /*
    * Link para a propria pagina — o item atual do menu, a marca no inicio — so
@@ -167,7 +198,7 @@
     const target = new URL(a.href, location.href);
     if (target.origin !== location.origin || target.pathname !== location.pathname || target.search !== location.search || target.hash) return;
     e.preventDefault();
-    if (sidebar?.classList.contains('is-open')) setOpen(false);
+    closeMenu();
     scrollTo({ top: 0, behavior: 'smooth' });
   });
 
@@ -400,11 +431,27 @@
     status.className = 'tuc-hint search__status';
     status.setAttribute('role', 'status');
 
+    // Atalhos no rodape: cada [tecla] do texto vira uma teclinha, como o "/" do
+    // botao de busca da barra lateral. O texto vem do idioma da pagina.
     const hint = document.createElement('p');
-    hint.className = 'tuc-hint search__hint';
-    hint.textContent = labels.searchHint;
+    hint.className = 'search__hint';
+    labels.searchHint.split(/(\[[^\]]+\])/).filter(Boolean).forEach((part) => {
+      const key = part.match(/^\[(.+)\]$/);
+      if (!key) return hint.append(part);
+      const kbd = document.createElement('kbd');
+      kbd.className = 'tuc-badge is-plain';
+      kbd.textContent = key[1];
+      hint.append(kbd);
+    });
+
+    // O campo fica entre o titulo e a lista, fora do corpo que rola: com muitos
+    // resultados, quem digita continua vendo o que digitou.
+    const field = document.createElement('div');
+    field.className = 'search__field';
+    field.append(input);
 
     const modal = new Tucano.Modal({
+      title: labels.searchDialog,
       size: 'lg',
       onClose: () => {
         const hash = search.pendingHash;
@@ -416,9 +463,9 @@
       },
     });
     modal.node.classList.add('search-dialog');
-    modal.node.setAttribute('aria-label', labels.searchDialog);
-    modal.panel.querySelector('.tuc-modal__header').append(input);
-    modal.content([status, list, hint]);
+    modal.panel.insertBefore(field, modal.body);
+    modal.panel.append(hint);
+    modal.content([status, list]);
 
     input.addEventListener('input', render);
     input.addEventListener('keydown', (e) => {
@@ -437,7 +484,7 @@
 
   const openSearch = () => {
     if (!search) build();
-    if (sidebar?.classList.contains('is-open')) setOpen(false);
+    closeMenu();
     if (!search.modal.isOpen) search.modal.open();
     search.input.focus();
     search.input.select();

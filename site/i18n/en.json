@@ -31,7 +31,7 @@
     "searchError": "Could not load search.",
     "searchEmpty": "No results for “{q}”.",
     "searchCount": "{n} result(s).",
-    "searchHint": "↑ ↓ to navigate · Enter opens · Esc closes"
+    "searchHint": "[↑] [↓] to navigate · [Enter] opens · [Esc] closes"
   },
   "groups": {
     "get-started": "Get started",

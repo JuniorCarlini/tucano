@@ -94,7 +94,7 @@ const DEFAULT_UI = {
   searchError: 'Não foi possível carregar a busca.',
   searchEmpty: 'Nenhum resultado para “{q}”.',
   searchCount: '{n} resultado(s).',
-  searchHint: '↑ ↓ para navegar · Enter abre · Esc fecha',
+  searchHint: '[↑] [↓] para navegar · [Enter] abre · [Esc] fecha',
 };
 
 const dictionaries = new Map(LANGUAGES.map((l) => {
@@ -282,8 +282,9 @@ function pager(from, lang) {
 
 /*
  * Seletor de idioma: o menu suspenso da biblioteca, escrito no template, com um
- * link para a mesma pagina em cada idioma. Sai duas vezes (barra lateral e barra
- * do celular), com ids diferentes. Pagina sem traducao leva ao inicio do idioma.
+ * link para a mesma pagina em cada idioma. Sai uma vez, na barra lateral; no
+ * celular ele vai junto para a gaveta do menu. Pagina sem traducao leva ao inicio
+ * do idioma.
  */
 const LANGUAGE_ICON = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>';
 
@@ -368,7 +369,9 @@ function searchEntry(slug, p, body, index) {
   const intro = withText ? clip(plain(html.slice(0, headings[0]?.index ?? html.length).replace(/<h1[\s\S]*?<\/h1>/, '')), INTRO_CHARS) : '';
   const pageIndex = index.pages.length;
   const group = nav.find((g) => g.items.some((i) => i.slug === slug));
-  index.pages.push([p.title, p.desc || clip(p.meta.description || '', 110),slug === 'index' ? '' : `${slug}/`, groupName(p.lang, group), intro]);
+  // O inicio e './', e nao '': o navegador resolve o caminho contra o endereco do
+  // proprio search.json, e o vazio levava ao indice em vez da pagina.
+  index.pages.push([p.title, p.desc || clip(p.meta.description || '', 110), slug === 'index' ? './' : `${slug}/`, groupName(p.lang, group), intro]);
   headings.forEach((h, i) => {
     const end = headings[i + 1]?.index ?? html.length;
     const text = withText ? clip(plain(html.slice(h.index + h[0].length, end)), h[2] === 'api' && p.meta.component ? 900 : SECTION_CHARS) : '';
@@ -559,7 +562,6 @@ for (const language of LANGUAGES) {
       .replaceAll('{{ui-llms}}', esc(ui(lang, 'llms')))
       .replace(/\{\{ui-(search[\w-]*)\}\}/g, (_, key) => esc(ui(lang, key.replace(/-(\w)/g, (__, ch) => ch.toUpperCase()))))
       .replaceAll('{{search-index}}', `${link(slug, 'index')}search.json`)
-      .replace('{{lang-switch-top}}', () => languageSwitch(slug, lang, root, 'languages-top'))
       .replace('{{lang-switch-side}}', () => languageSwitch(slug, lang, root, 'languages-side'))
       .replaceAll('{{root}}', root)
       .replaceAll('{{home}}', link(slug, 'index'))
