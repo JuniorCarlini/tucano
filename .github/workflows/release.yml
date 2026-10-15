@@ -84,16 +84,25 @@ jobs:
       # O trusted publishing pede npm 11.5.1 ou mais novo; o do Node 24 pode ser
       # anterior. --ignore-scripts porque o prepublishOnly repetiria os testes que
       # acabaram de passar. Versão com hífen (0.34.0-beta.1) sai na tag next, para
-      # não virar a latest de quem instala sem número.
+      # não virar a latest de quem instala sem número. Versão mais velha que a
+      # latest (uma que ficou sem tag e é publicada depois) sai na tag previous:
+      # com latest, quem instala sem número voltaria para trás.
       - name: Publica no npm
         run: |
           set -euo pipefail
           npm install -g npm@latest
+          LATEST="$(npm view tucano dist-tags.latest 2>/dev/null || echo 0.0.0)"
+          DIST_TAG=latest
+          if node -e '
+            const [a, b] = process.argv.slice(1).map((v) => v.split("-")[0].split(".").map(Number));
+            const older = a[0] - b[0] || a[1] - b[1] || a[2] - b[2];
+            process.exit(older < 0 ? 0 : 1);
+          ' "$VERSION" "$LATEST"; then DIST_TAG=previous; fi
+          case "$VERSION" in *-*) DIST_TAG=next ;; esac
+          echo "DIST_TAG=$DIST_TAG" >> "$GITHUB_ENV"
           if npm view "tucano@$VERSION" version >/dev/null 2>&1; then
             echo "tucano@$VERSION já está no npm"; exit 0
           fi
-          DIST_TAG=latest
-          case "$VERSION" in *-*) DIST_TAG=next ;; esac
           npm publish --provenance --access public --tag "$DIST_TAG" --ignore-scripts
 
       # Depois do npm, e não antes: um release na página com o npm recusado
@@ -109,4 +118,7 @@ jobs:
           # Tag leve não tem anotação; nesse caso o corpo fica com o commit.
           NOTES="$(git tag -l --format='%(contents)' "$TAG")"
           [ -n "$NOTES" ] || NOTES="$(git log -1 --format=%B "$TAG")"
-          gh release create "$TAG" --verify-tag --title "$TAG" --notes "$NOTES"
+          # Só a latest do npm vira a Latest da página de Releases.
+          LATEST_FLAG=--latest
+          [ "${DIST_TAG:-latest}" = latest ] || LATEST_FLAG=--latest=false
+          gh release create "$TAG" --verify-tag --title "$TAG" --notes "$NOTES" "$LATEST_FLAG"
