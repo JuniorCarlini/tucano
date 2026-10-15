@@ -114,6 +114,35 @@
   }));
   updateLabels();
 
+  /*
+   * Estrelas do repositorio no botao do GitHub do inicio. A API publica do GitHub
+   * aceita 60 pedidos por hora por IP, entao o numero fica guardado por uma hora
+   * no navegador, e a segunda visita ja mostra o guardado sem esperar. Sem rede,
+   * ou com o limite estourado, o botao fica so com "GitHub".
+   */
+  const stars = document.querySelector('[data-github-stars]');
+  if (stars) {
+    const KEY = 'tucano-stars';
+    const show = (n) => {
+      stars.lastElementChild.textContent = new Intl.NumberFormat(root.lang, { notation: 'compact' }).format(n);
+      stars.closest('a').setAttribute('aria-label', `GitHub, ${n} ${stars.dataset.label}`);
+      stars.hidden = false;
+    };
+    let cached = null;
+    try { cached = JSON.parse(localStorage.getItem(KEY)); } catch {}
+    if (cached) show(cached.n);
+    if (!cached || Date.now() - cached.t > 3600e3) {
+      fetch('https://api.github.com/repos/JuniorCarlini/tucano')
+        .then((r) => (r.ok ? r.json() : Promise.reject()))
+        .then(({ stargazers_count: n }) => {
+          if (typeof n !== 'number') return;
+          show(n);
+          try { localStorage.setItem(KEY, JSON.stringify({ n, t: Date.now() })); } catch {}
+        })
+        .catch(() => {});
+    }
+  }
+
   /* Menu do celular: a barra lateral vira o painel que o botao abre. */
   const sidebar = document.getElementById('side');
   const menu = document.getElementById('menu');

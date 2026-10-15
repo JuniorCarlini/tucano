@@ -10,11 +10,13 @@
 :root {
   --bg: #fbfbfa; --panel: #fff; --fg: #111110; --muted: #6f6f6b; --subtle: #a1a19c;
   --line: #e8e8e5; --code: #f4f4f2; --accent: #FF7501;
+  --star: #E8A200; --star-inverse: #FFC21A;
   --side: 272px;
 }
 html.dark {
   --bg: #0b0b0c; --panel: #141416; --fg: #f5f5f4; --muted: #a0a09b; --subtle: #6f6f6b;
   --line: #262629; --code: #1a1a1d; --accent: #FF7501;
+  --star: #FBBF24; --star-inverse: #C98500;
 }
 
 /* O laranja do tucano e a cor deste site, e nao o padrao do pacote (neutro).
@@ -179,6 +181,15 @@ html.dark .logo-dark { display: block; }
   --tuc-accent-fg: var(--bg);
   --tuc-accent-ring: color-mix(in oklab, var(--fg) 30%, transparent);
 }
+/* Contagem de estrelas, separada do "GitHub" por um filete. O botao tem as cores
+   do texto invertidas, entao a estrela usa o dourado feito para esse fundo. */
+.hero__stars {
+  display: inline-flex; align-items: center; gap: 5px; margin-left: 4px; padding-left: 12px;
+  border-left: 1px solid color-mix(in oklab, var(--bg) 30%, transparent);
+  font-variant-numeric: tabular-nums;
+}
+.hero__stars[hidden] { display: none; }
+.hero__stars svg { color: var(--star-inverse); }
 .pills { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 24px; }
 .pills .tuc-badge b { color: var(--fg); font-weight: 600; }
 .preview { padding: 28px; border: 1px solid var(--line); border-radius: 18px; background: var(--panel); box-shadow: 0 30px 60px -40px rgb(0 0 0 / .35); }
@@ -186,6 +197,24 @@ html.dark .logo-dark { display: block; }
 .preview .field + .field { margin-top: 14px; }
 .preview .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
 .preview__foot { display: flex; justify-content: flex-end; gap: 8px; margin-top: 22px; }
+
+/* Pedido de estrela no fim do inicio: um painel como os .step, com a estrela
+   dourada e o botao do sistema. Fica depois da grade de componentes, para
+   pedir a quem ja viu o que a biblioteca faz, e nao no primeiro quadro. */
+.star-cta {
+  display: flex; align-items: center; gap: 16px; margin-top: 48px; padding: 20px 24px;
+  border: 1px solid var(--line); border-radius: 14px; background: var(--panel);
+}
+.star-cta__icon {
+  display: grid; place-items: center; flex: none; width: 40px; height: 40px; border-radius: 10px;
+  color: var(--star); background: color-mix(in oklab, var(--star) 16%, transparent);
+}
+.star-cta__icon svg { width: 20px; height: 20px; }
+.star-cta__body { flex: 1; min-width: 0; }
+.star-cta__body p { margin: 0; color: var(--muted); font-size: 14px; }
+.star-cta__body .star-cta__title { margin-bottom: 2px; color: var(--fg); font-size: 15px; font-weight: 650; }
+.star-cta .tuc-btn { flex: none; }
+.star-cta .tuc-btn svg { color: var(--star); }
 
 .steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 24px 0; }
 .step { padding: 20px; border: 1px solid var(--line); border-radius: 14px; background: var(--panel); }
@@ -271,4 +300,7 @@ a.link-card:hover { border-color: var(--accent); }
   .doc h2 { margin-top: 56px; }
   .demo, .demo.is-hero { padding: 20px; }
   .demo-grid, .demo-grid.is-3, .steps, .preview .row { grid-template-columns: minmax(0, 1fr); }
+  .star-cta { flex-wrap: wrap; align-items: flex-start; }
+  .star-cta__body { flex-basis: calc(100% - 56px); }
+  .star-cta .tuc-btn { margin-left: 56px; }
 }
