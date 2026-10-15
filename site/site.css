@@ -296,6 +296,22 @@ a.link-card:hover { border-color: var(--accent); }
   .hero { grid-template-columns: minmax(0, 1fr); }
 }
 
+/* Celular: o painel da estrela empilha e centra, com o botao em largura cheia; no
+   hero, Instalar e Ver os componentes lado a lado e o GitHub inteiro embaixo. */
+@media (max-width: 640px) {
+  .star-cta { flex-direction: column; gap: 12px; padding: 24px 20px 20px; text-align: center; }
+  .star-cta__body { flex: none; }
+  .star-cta .tuc-btn { width: 100%; justify-content: center; }
+  .hero__actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* Num celular estreito o texto quebra dentro do botao em vez de vazar da tela;
+     a grade estica o vizinho, e os dois ficam da mesma altura. */
+  .hero__actions .tuc-btn {
+    justify-content: center; padding: 6px 10px; height: auto; min-height: 44px; font-size: 15px;
+    white-space: normal; text-align: center; line-height: 1.25; text-wrap: balance;
+  }
+  .hero__actions .hero__github { grid-column: 1 / -1; }
+}
+
 @media (max-width: 900px) {
   :root { --side: 0px; }
   .topbar {
@@ -313,7 +329,4 @@ a.link-card:hover { border-color: var(--accent); }
   .doc h2 { margin-top: 56px; }
   .demo, .demo.is-hero { padding: 20px; }
   .demo-grid, .demo-grid.is-3, .steps, .preview .row { grid-template-columns: minmax(0, 1fr); }
-  .star-cta { flex-wrap: wrap; align-items: flex-start; }
-  .star-cta__body { flex-basis: calc(100% - 56px); }
-  .star-cta .tuc-btn { margin-left: 56px; }
 }
