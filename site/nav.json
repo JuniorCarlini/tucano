@@ -33,6 +33,11 @@
         "desc": "Data, período, hora e atalhos, com o valor em ISO."
       },
       {
+        "slug": "timepicker",
+        "title": "Time picker",
+        "desc": "Só a hora, ou início e fim, postando 14:30."
+      },
+      {
         "slug": "mask",
         "title": "Máscaras",
         "desc": "CPF, CNPJ, telefone, moeda e campo sensível."
@@ -145,6 +150,11 @@
         "slug": "tabs",
         "title": "Abas",
         "desc": "Com teclado do ARIA APG, e segmentadas."
+      },
+      {
+        "slug": "stepper",
+        "title": "Etapas",
+        "desc": "Indicador sem JS e assistente que confere cada etapa."
       },
       {
         "slug": "accordion",

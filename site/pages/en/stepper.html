@@ -1,0 +1,218 @@
+<!--
+title: Steps
+component: stepper
+lang: en
+description: A CSS-only step indicator for multi-page wizards, and a JavaScript wizard that checks each step's fields before moving on, in a single form.
+-->
+<h1>Steps</h1>
+<p class="lead">Two pieces. The indicator is class only and works without a script — it fits a sign-up split across several pages,
+   one step per URL. The wizard uses the same indicator on a single page: moving forward checks the step's fields, and the
+   form stays a single one, submitted whole at the end.</p>
+
+<div class="demo is-hero">
+  <form id="stepper-signup">
+    <div class="tuc-stepper" data-tuc-stepper>
+      <ol class="tuc-steps" aria-label="Sign-up steps">
+        <li class="tuc-steps__item" aria-current="step"><span class="tuc-steps__label">Details</span></li>
+        <li class="tuc-steps__item"><span class="tuc-steps__label">Address</span></li>
+        <li class="tuc-steps__item"><span class="tuc-steps__label">Payment</span></li>
+      </ol>
+      <fieldset class="tuc-stepper__panel">
+        <legend>Your details</legend>
+        <div class="demo-grid">
+          <div class="demo-cell"><label class="tuc-label" for="stepper-name">Name</label><input type="text" class="tuc-input" id="stepper-name" name="name" required></div>
+          <div class="demo-cell"><label class="tuc-label" for="stepper-email">Email</label><input type="email" class="tuc-input" id="stepper-email" name="email" required></div>
+        </div>
+      </fieldset>
+      <fieldset class="tuc-stepper__panel" hidden>
+        <legend>Address</legend>
+        <div class="demo-grid">
+          <div class="demo-cell"><label class="tuc-label" for="stepper-zip">ZIP code</label><input type="text" class="tuc-input" id="stepper-zip" name="zip" required></div>
+          <div class="demo-cell"><label class="tuc-label" for="stepper-number">Number</label><input type="text" class="tuc-input" id="stepper-number" name="number" required></div>
+        </div>
+      </fieldset>
+      <fieldset class="tuc-stepper__panel" hidden>
+        <legend>Payment</legend>
+        <div class="demo-grid">
+          <div class="demo-cell"><label class="tuc-label" for="stepper-pay">Method</label>
+            <select id="stepper-pay" name="payment" data-tuc-select><option>Card</option><option>Bank transfer</option><option>Invoice</option></select></div>
+        </div>
+      </fieldset>
+      <div class="tuc-stepper__actions">
+        <button type="button" class="tuc-btn is-outline" data-step="prev" hidden>Back</button>
+        <button type="button" class="tuc-btn is-primary" data-step="next">Continue</button>
+        <button type="submit" class="tuc-btn is-primary" hidden>Finish</button>
+      </div>
+    </div>
+  </form>
+  <div class="out" id="stepper-signup-log"></div>
+</div>
+
+<h2 id="examples">Examples</h2>
+<p class="lead">The indicator on its own, drawn by the template.</p>
+
+<div class="demo">
+  <div class="demo-stack">
+    <div class="demo-cell">
+      <h4>Step 3 of 4</h4>
+      <p><code>is-done</code> on the finished ones and <code>aria-current="step"</code> on the current one. CSS counts the number.</p>
+      <ol class="tuc-steps" aria-label="Order steps">
+        <li class="tuc-steps__item is-done"><span class="tuc-steps__label">Cart</span></li>
+        <li class="tuc-steps__item is-done"><span class="tuc-steps__label">Shipping</span></li>
+        <li class="tuc-steps__item" aria-current="step"><span class="tuc-steps__label">Payment</span></li>
+        <li class="tuc-steps__item"><span class="tuc-steps__label">Confirmation</span></li>
+      </ol>
+    </div>
+    <div class="demo-cell">
+      <h4>Finished steps as links</h4>
+      <p>In a multi-page wizard, a finished step can be an <code>&lt;a&gt;</code> back to it.</p>
+      <ol class="tuc-steps" aria-label="Sign-up steps">
+        <li class="tuc-steps__item is-done"><a href="#examples"><span class="tuc-steps__label">Company</span></a></li>
+        <li class="tuc-steps__item" aria-current="step"><span class="tuc-steps__label">Partners</span></li>
+        <li class="tuc-steps__item"><span class="tuc-steps__label">Documents</span></li>
+      </ol>
+    </div>
+    <div class="demo-cell">
+      <h4>All done</h4>
+      <p>No <code>aria-current</code> on any of them, and <code>is-done</code> on all.</p>
+      <ol class="tuc-steps" aria-label="Sign-up steps">
+        <li class="tuc-steps__item is-done"><span class="tuc-steps__label">Details</span></li>
+        <li class="tuc-steps__item is-done"><span class="tuc-steps__label">Address</span></li>
+        <li class="tuc-steps__item is-done"><span class="tuc-steps__label">Payment</span></li>
+      </ol>
+    </div>
+  </div>
+</div>
+
+<h2 id="usage">How to use</h2>
+
+<h3>Indicator only, one step per page</h3>
+<p>An <code>&lt;ol&gt;</code> with each step's name. The template marks the current one with <code>aria-current="step"</code>, which
+   the screen reader announces as "current step", and the previous ones with <code>is-done</code>. There's no script: it's the
+   path for django-formtools' <code>SessionWizardView</code>, or any wizard where each step is a POST.</p>
+<pre data-code="django">
+<ol class="tuc-steps" aria-label="Sign-up steps">
+  {% for step in wizard.steps.all %}
+    <li class="tuc-steps__item{% if forloop.counter0 < wizard.steps.index %} is-done{% endif %}"
+        {% if step == wizard.steps.current %}aria-current="step"{% endif %}>
+      <span class="tuc-steps__label">{{ step|title }}</span>
+    </li>
+  {% endfor %}
+</ol>
+</pre>
+
+<h3>Wizard on a single page</h3>
+<p>The indicator, one <code>.tuc-stepper__panel</code> per step — with <code>hidden</code> from the second one on — and the button
+   bar. Steps and panels match by order. The panel's title (an <code>&lt;h2&gt;</code> to <code>&lt;h6&gt;</code>, or the
+   <code>&lt;legend&gt;</code> of a <code>&lt;fieldset&gt;</code>) gets focus on every change, and the screen reader announces the new step.</p>
+<pre data-code="html">
+<form method="post">
+  <div class="tuc-stepper" data-tuc-stepper>
+    <ol class="tuc-steps" aria-label="Sign-up steps">
+      <li class="tuc-steps__item" aria-current="step"><span class="tuc-steps__label">Details</span></li>
+      <li class="tuc-steps__item"><span class="tuc-steps__label">Address</span></li>
+    </ol>
+    <fieldset class="tuc-stepper__panel">
+      <legend>Your details</legend> …
+    </fieldset>
+    <fieldset class="tuc-stepper__panel" hidden>
+      <legend>Address</legend> …
+    </fieldset>
+    <div class="tuc-stepper__actions">
+      <button type="button" class="tuc-btn is-outline" data-step="prev" hidden>Back</button>
+      <button type="button" class="tuc-btn is-primary" data-step="next">Continue</button>
+      <button type="submit" class="tuc-btn is-primary" hidden>Finish</button>
+    </div>
+  </div>
+</form>
+</pre>
+
+<p><code>Continue</code> checks the step's fields with the browser's own validation — <code>required</code>,
+   <code>type="email"</code>, <code>pattern</code>, <code>min</code> — and doesn't move on if any fails: the field gets
+   <code>aria-invalid="true"</code> and the browser's message. <code>Back</code> never checks. On the first step Back goes away,
+   and on the last one Continue gives way to Finish. The <code>hidden</code> on those two in the template is what makes the bar
+   right before the script runs.</p>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Why it's a single form</p><p>A hidden panel doesn't leave the DOM, so every <code>name</code> goes in the final POST, and the server receives exactly what it would from one long form. There's no JavaScript state to keep in sync, and server-side validation stays the same.</p></div></div>
+
+<p><code>Enter</code> in a text field, before the last step, is <code>Continue</code>. Without that it would submit the form, and the
+   browser would block the submission over a required field the person hasn't even seen yet, without saying which. A
+   <code>reset</code> on the form goes back to the first step.</p>
+
+<h3>With Django, when the server returns an error</h3>
+<p>A form that comes back from the POST with an error opens straight on the step of the first field with
+   <code>aria-invalid="true"</code> — which Django 5 writes on its own on every field that failed. Without that, the message
+   would be hidden two steps ahead.</p>
+<pre data-code="django">
+<fieldset class="tuc-stepper__panel" hidden>
+  <legend>Address</legend>
+  {{ form.zip }}        {# with an error, it comes with aria-invalid="true": the wizard opens here #}
+  {{ form.zip.errors }}
+</fieldset>
+</pre>
+<p>To open on a chosen step, use <code>data-start="2"</code> (counting from zero). Without it and without errors, the step marked
+   with <code>aria-current="step"</code> wins, or the first one. <code>data-validate="false"</code> lets the person move on without checking.</p>
+
+<h3>In JavaScript</h3>
+<pre data-code="js">
+const wizard = new Tucano.Stepper('#signup', {
+  start: 0,          // initial step
+  validate: true,    // Continue checks the step's fields
+  onChange: (index, { panel }) => console.log(index, panel),
+});
+
+wizard.next();                   // checks and moves on
+wizard.prev();                   // goes back, without checking
+wizard.go(2);                    // jumps straight there, without checking
+wizard.go(0, { silent: true });  // without firing onChange
+wizard.checkStep();              // true if the step's fields pass
+wizard.index;                    // open step
+</pre>
+
+<p>Every change fires <code>tucano:change</code> on the wizard element, and the event bubbles — it's the place to load the next
+   step through HTMX, if it depends on what was filled in before.</p>
+<pre data-code="js">
+document.addEventListener('tucano:change', (e) => {
+  if (!e.target.matches('.tuc-stepper')) return;
+  e.detail.value;      // step index
+  e.detail.step;       // the indicator item
+  e.detail.panel;      // the panel
+  e.detail.instance;   // the Stepper
+});
+</pre>
+
+<h2 id="keyboard">Keyboard and accessibility</h2>
+<p class="lead">The indicator is an ordered list: the screen reader announces "item 2 of 3" without anyone writing ARIA, and
+   <code>aria-current="step"</code> says which one is current. On phones only the current step shows its name; the others'
+   names are still there for the screen reader.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Key</th><th>Action</th></tr></thead>
+  <tbody>
+    <tr><td><code>Tab</code></td><td>The open step's fields and the buttons; hidden panels stay out of the way</td></tr>
+    <tr><td><code>Enter</code></td><td>In a text field, before the last step: Continue. On the last one, submits the form</td></tr>
+    <tr><td><code>Enter</code> <code>Space</code></td><td>On the buttons, the native click</td></tr>
+  </tbody>
+</table></div>
+
+<p>When the step changes, focus goes to the new panel's title, and the next <code>Tab</code> reaches the first field. The title
+   gets <code>tabindex="-1"</code> for that — focusable by the script, out of the <code>Tab</code> path.</p>
+
+<h2 id="api">API</h2>
+<!-- api -->
+
+<script>
+  // Shows the event and holds back the demo's submission.
+  document.addEventListener('tucano:change', (e) => {
+    if (!e.target.closest('#stepper-signup')) return;
+    if (!e.target.matches('.tuc-stepper')) return;
+    document.getElementById('stepper-signup-log').textContent =
+      `tucano:change → value ${e.detail.value} (${e.detail.step.textContent.trim()})`;
+  });
+  document.addEventListener('submit', (e) => {
+    if (e.target.id !== 'stepper-signup') return;
+    e.preventDefault();
+    const data = new URLSearchParams(new FormData(e.target)).toString();
+    document.getElementById('stepper-signup-log').textContent = `POST → ${data}`;
+  });
+</script>

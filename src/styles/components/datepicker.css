@@ -224,6 +224,13 @@
   border-top: var(--tuc-border-width) solid var(--tuc-border);
 }
 
+/*
+ * So a hora (TimePicker): sem calendario em cima, a linha divisoria sobra. E
+ * inicio e fim ficam lado a lado tambem no celular, onde o date picker empilha:
+ * sem a grade de dias, as quatro colunas cabem na largura.
+ */
+.tuc-dp.is-time .tuc-dp__time { @apply mt-0 flex-row pt-1; border-top: 0; }
+
 .tuc-dp__timegroup {
   @apply flex min-w-0 flex-1 flex-col items-center gap-1.5;
   max-width: 11rem;

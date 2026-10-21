@@ -20,6 +20,7 @@ description: O que cada tecla faz em todo componente da Tucano — date picker, 
   <thead><tr><th>Componente</th><th>Abre com</th></tr></thead>
   <tbody>
     <tr><td>Date picker</td><td><code>↓</code>, clique; <code>Espaço</code> com o campo vazio</td></tr>
+    <tr><td>Time picker</td><td><code>↓</code>, clique; <code>Espaço</code> com o campo vazio</td></tr>
     <tr><td>Select</td><td><code>↓</code>, <code>↑</code>, <code>Enter</code>, <code>Espaço</code>, clique</td></tr>
     <tr><td>Color picker</td><td><code>↓</code> no campo ou na amostra; <code>Enter</code> e <code>Espaço</code> na amostra, que é um <code>&lt;button&gt;</code></td></tr>
     <tr><td>Menu suspenso</td><td><code>↓</code>, <code>↑</code>, <code>Enter</code>, <code>Espaço</code> ou clique no gatilho</td></tr>
@@ -58,6 +59,11 @@ description: O que cada tecla faz em todo componente da Tucano — date picker, 
    anunciada por uma região <code>aria-live="polite"</code> que fica fixa no painel. Cada coluna de hora, minuto e segundo é um
    grupo de botões com uma parada de Tab só, e o valor escolhido leva <code>aria-pressed</code>. Fechar por clique fora não devolve o foco ao campo, para não
    roubá-lo de onde a pessoa clicou.</p>
+
+<h2 id="timepicker">Time picker</h2>
+<p>As colunas de hora do date picker, com as mesmas teclas. <code>↓</code> no campo leva o foco à coluna das horas, e as setas,
+   <code>Home</code> e <code>End</code> pulam o que <code>min</code> e <code>max</code> desativaram. O painel é
+   <code>role="dialog"</code> com o rótulo "Selecionar horário" ou "Selecionar intervalo de horário".</p>
 
 <h2 id="select">Select</h2>
 <div class="tuc-table-wrap"><table class="tuc-table">
@@ -197,6 +203,7 @@ description: O que cada tecla faz em todo componente da Tucano — date picker, 
     <tr><td>Paginação</td><td>Links nativos</td><td><code>&lt;nav&gt;</code> "Paginação", <code>aria-current="page"</code> na atual; a ponta desativada é <code>&lt;span&gt;</code>, fora do caminho do <code>Tab</code></td></tr>
     <tr><td>Caixa, opção e chave</td><td>As do <code>&lt;input&gt;</code> nativo</td><td>As do navegador; a chave precisa de <code>role="switch"</code> no template, porque CSS não põe papel</td></tr>
     <tr><td>Grupo de botões</td><td>As do <code>&lt;input&gt;</code> nativo: o grupo de rádios é uma parada só do <code>Tab</code>, e as setas andam por ele</td><td>Precisa de nome no grupo — <code>role="group"</code> com <code>aria-label</code>, ou <code>&lt;fieldset&gt;</code> com <code>&lt;legend&gt;</code>; o <code>&lt;input&gt;</code> fica invisível, mas focável e anunciado</td></tr>
+    <tr><td>Etapas</td><td><code>Enter</code> num campo de texto, antes da última etapa, é Continuar; na última, envia</td><td>Indicador em <code>&lt;ol&gt;</code> com <code>aria-current="step"</code> na atual; a cada troca o foco vai ao título do painel novo, e o leitor de tela anuncia a etapa</td></tr>
     <tr><td>Slider</td><td>As do <code>&lt;input type="range"&gt;</code> nativo, em cada ponta: setas, <code>PageUp</code>/<code>PageDown</code>, <code>Home</code> e <code>End</code>; no intervalo, cada ponta é uma parada do <code>Tab</code></td><td>O valor escrito em <code>aria-valuetext</code> ("R$ 800", e não "800"); no intervalo, a ponta sem rótulo ganha "Mínimo" ou "Máximo"</td></tr>
   </tbody>
 </table></div>

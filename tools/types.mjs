@@ -636,6 +636,110 @@ export interface TabsChangeDetail {
     doc: 'Abas com os papeis e o teclado do ARIA APG. O template ja traz as classes.',
   },
 
+  Stepper: {
+    target: 'string | HTMLElement',
+    types: `
+export interface StepperChangeDetail {
+  /** Indice da etapa aberta. */
+  value: number;
+  step: HTMLElement | undefined;
+  panel: HTMLElement | undefined;
+  instance: Stepper;
+}
+export interface StepperGoOptions {
+  /** Nao dispara onChange nem tucano:change. */
+  silent?: boolean;
+  /** Leva o foco ao titulo do painel. Padrao true. */
+  focus?: boolean;
+}`,
+    options: {
+      start: 'number | null',
+      validate: 'boolean',
+      onChange: '((index: number, detail: StepperChangeDetail) => void) | null',
+    },
+    methods: {
+      checkStep: '(): boolean',
+      next: '(): this',
+      prev: '(): this',
+      go: '(index: number, options?: StepperGoOptions): this',
+      destroy: '(): void',
+    },
+    getters: { steps: 'HTMLElement[]', panels: 'HTMLElement[]' },
+    props: { node: 'HTMLElement', index: 'number' },
+    events: { 'tucano:change': 'StepperChangeDetail' },
+    doc: 'Assistente em etapas: confere os campos de cada etapa antes de avancar. O template ja traz as classes.',
+  },
+
+  TimePicker: {
+    generic: "M extends DatePickerMode = 'single'",
+    genericArgs: 'M',
+    target: 'string | HTMLInputElement',
+    autoInit: 'TimePicker<DatePickerMode>[]',
+    types: `
+/** Hora como o \`<input type="time">\` posta: \`'14:30'\`, ou \`'14:30:15'\` com segundos. */
+export type TimeString = string;
+/** Intervalo de horas. Uma ponta fica \`null\` enquanto nao ha valor. */
+export interface TimeRange {
+  start: TimeString | null;
+  end: TimeString | null;
+}
+/** Hora de entrada: \`'14:30'\`, \`'2:30 PM'\`, ou um \`Date\`, do qual vale so a hora. */
+export type TimeInput = Date | string;
+/** O que \`getValue()\` devolve: \`'14:30' | null\` em \`'single'\`, \`TimeRange\` em \`'range'\`. */
+export type TimePickerValue<M extends DatePickerMode = DatePickerMode> = M extends 'range' ? TimeRange : TimeString | null;
+/** O que \`setValue()\` aceita em cada modo. */
+export type TimePickerInput<M extends DatePickerMode = DatePickerMode> = M extends 'range'
+  ? { start?: TimeInput | null; end?: TimeInput | null } | [TimeInput | null | undefined, TimeInput | null | undefined] | null
+  : TimeInput | null;
+export interface TimePickerChangeDetail<M extends DatePickerMode = DatePickerMode> {
+  value: TimePickerValue<M>;
+  /** O valor como vai no input hidden: \`14:30\`, ou o par separado por virgula. */
+  iso: string;
+  instance: TimePicker<M>;
+}`,
+    options: {
+      mode: 'M',
+      seconds: 'boolean',
+      minuteStep: 'number',
+      locale: 'string',
+      min: 'TimeInput | null',
+      max: 'TimeInput | null',
+      autoApply: 'boolean',
+      clearable: 'boolean',
+      now: 'boolean',
+      placement: 'Placement',
+      appendTo: 'HTMLElement',
+      isoName: 'string',
+      native: "boolean | 'auto'",
+      onChange: '((value: TimePickerValue<M>, detail: TimePickerChangeDetail<M>) => void) | null',
+      onOpen: '((instance: TimePicker<M>) => void) | null',
+      onClose: '((instance: TimePicker<M>) => void) | null',
+    },
+    docs: {
+      appendTo: 'Onde o painel nasce. Padrao: o `<dialog>` aberto que contem o campo, ou o `<body>`.',
+    },
+    methods: {
+      getValue: '(): TimePickerValue<M>',
+      setValue: '(value: TimePickerInput<M>, options?: SilentOption): void',
+      clear: '(options?: SilentOption): void',
+      open: '(): void',
+      close: '(options?: { restoreFocus?: boolean }): void',
+      toggle: '(): void',
+      destroy: '(): void',
+    },
+    methodDocs: {
+      setValue: 'Aplica a hora; texto que nao e hora, ou fora de `min`/`max`, limpa o campo.',
+      clear: 'Limpa o campo.',
+      open: 'Abre o painel.',
+      close: 'Fecha o painel, descartando o que nao foi aplicado.',
+      toggle: 'Abre ou fecha.',
+      destroy: 'Desmonta e devolve o campo como estava.',
+    },
+    props: { isOpen: 'boolean', input: 'HTMLInputElement' },
+    events: { 'tucano:change': 'TimePickerChangeDetail' },
+    doc: 'Campo so de hora: as colunas do date picker, sem calendario. Posta `14:30`, como o `<input type="time">`.',
+  },
+
   Toast: {
     types: `
 export type ToastPosition = \`\${'top' | 'bottom'}-\${'start' | 'center' | 'end'}\`;
@@ -895,7 +999,7 @@ const LISTENED_EVENTS = {
 };
 
 const EVENT_DOCS = {
-  'tucano:change': 'Valor novo em date picker, select, color picker, upload, mascara, slider ou abas. Borbulha.',
+  'tucano:change': 'Valor novo em date picker, select, color picker, upload, mascara, slider ou abas, e etapa nova no assistente. Borbulha.',
   'tucano:sort': 'Clique num cabecalho ordenavel da tabela. Borbulha.',
   'tucano:select': 'Linha marcada ou desmarcada na tabela. Borbulha.',
   'tucano:toast-closed': 'O toast saiu da tela. Disparado no proprio elemento do toast, sem borbulhar.',
@@ -1162,7 +1266,8 @@ for (const c of inventory) {
     defaults: Object.fromEntries(c.options.map((o) => [o.name, o.defaultValue])),
     comments: optionComments(source),
     hasOpts: /\b(?:this|m|g)\.opts\s*=/.test(source),
-    events: c.events,
+    // O evento disparado pela mae tambem e da filha: o TimePicker emite pelo DatePicker.
+    events: unique([...c.events, ...matches(sources, /CustomEvent\('(tucano:[\w-]+)'/g)]),
   });
 }
 emitClass('Popover', POPOVER, {

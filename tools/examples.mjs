@@ -172,9 +172,9 @@ function check({ OPTIONS, NESTED, BLOCKS }) {
   let lastError = null;
   addEventListener('error', (e) => { lastError = e.message; });
 
-  const ATTRIBUTES = '[data-tuc-datepicker],[data-tuc-select],[data-tuc-color],[data-tuc-mask],'
+  const ATTRIBUTES = '[data-tuc-datepicker],[data-tuc-timepicker],[data-tuc-select],[data-tuc-color],[data-tuc-mask],'
     + '[data-tuc-upload],[data-tuc-editor],[data-tuc-accordion],[data-tuc-table],[data-tuc-tip],'
-    + '[data-tuc-reveal],[data-tuc-dropdown],[data-tuc-tabs],[data-tuc-slider]';
+    + '[data-tuc-reveal],[data-tuc-dropdown],[data-tuc-tabs],[data-tuc-slider],[data-tuc-stepper]';
   // data-tuc-format nao monta componente: so reescreve o texto, e marca isso
   // com data-tuc-formatted. Sentinela diferente porque o estado e outro.
   const FORMATTED = '[data-tuc-format]:not([data-tuc-formatted])';

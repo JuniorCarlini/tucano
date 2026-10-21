@@ -1,0 +1,171 @@
+<!--
+title: Time picker
+component: timepicker
+description: Campo só de hora, com intervalo, limites e segundos, que posta 14:30 como o input type="time" — o TimeField do Django lê direto.
+-->
+<h1>Time picker</h1>
+<p class="lead">Para quando só a hora interessa: abertura da loja, horário de entrega, turno. São as colunas do
+   <a href="../datepicker/">date picker</a> sem o calendário, com a mesma máscara, o mesmo teclado e o mesmo botão Aplicar.
+   No formulário vai <code>14:30</code>, exatamente o que um <code>&lt;input type="time"&gt;</code> postaria.</p>
+
+<div class="demo is-hero">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <label class="tuc-label" for="tp-start">Horário de entrega</label>
+      <input type="text" id="tp-start" name="delivery_time" data-tuc-timepicker>
+      <div class="out" id="tp-start-out"></div>
+    </div>
+    <div class="demo-cell">
+      <label class="tuc-label" for="tp-shift">Expediente</label>
+      <input type="text" id="tp-shift" name="shift" data-tuc-timepicker data-mode="range" data-min="08:00" data-max="18:00" value="09:00,17:30">
+      <div class="out" id="tp-shift-out"></div>
+    </div>
+  </div>
+</div>
+
+<h2 id="examples">Exemplos</h2>
+<p class="lead">Embaixo de cada campo aparece o valor que chega no servidor.</p>
+
+<div class="demo">
+  <div class="demo-grid">
+    <div class="demo-cell">
+      <h4>Limites</h4>
+      <p><code>data-min="08:00"</code> e <code>data-max="18:00"</code>: o que fica fora aparece desativado nas colunas.</p>
+      <input type="text" id="tp-limits" name="opening" data-tuc-timepicker data-min="08:00" data-max="18:00" aria-label="Abertura">
+      <div class="out" id="tp-limits-out"></div>
+    </div>
+    <div class="demo-cell">
+      <h4>De 15 em 15 minutos</h4>
+      <p><code>data-minute-step="15"</code> deixa só 00, 15, 30 e 45 na coluna.</p>
+      <input type="text" id="tp-step" name="slot" data-tuc-timepicker data-minute-step="15" aria-label="Horário da consulta">
+      <div class="out" id="tp-step-out"></div>
+    </div>
+    <div class="demo-cell">
+      <h4>Com segundos</h4>
+      <p><code>data-seconds="true"</code> põe a terceira coluna, e o valor sai como <code>14:30:15</code>.</p>
+      <input type="text" id="tp-seconds" name="exact" data-tuc-timepicker data-minute-step="1" data-seconds="true" aria-label="Horário exato">
+      <div class="out" id="tp-seconds-out"></div>
+    </div>
+    <div class="demo-cell">
+      <h4>Botão Agora</h4>
+      <p><code>data-now="true"</code> põe "Agora" no rodapé: aplica a hora atual, no degrau dos minutos, e fecha.</p>
+      <input type="text" id="tp-now" name="arrival" data-tuc-timepicker data-now="true" aria-label="Chegada">
+      <div class="out" id="tp-now-out"></div>
+    </div>
+    <div class="demo-cell">
+      <h4>Sem o Aplicar</h4>
+      <p><code>data-auto-apply="true"</code>: cada clique numa coluna já vale.</p>
+      <input type="text" id="tp-auto" name="alarm" data-tuc-timepicker data-auto-apply="true" aria-label="Alarme">
+      <div class="out" id="tp-auto-out"></div>
+    </div>
+    <div class="demo-cell">
+      <h4>Relógio de 12 horas</h4>
+      <p><code>data-locale="en-US"</code> mostra <code>02:30 PM</code>; o POST continua <code>14:30</code>.</p>
+      <input type="text" id="tp-locale" name="meeting" data-tuc-timepicker data-locale="en-US" aria-label="Meeting time">
+      <div class="out" id="tp-locale-out"></div>
+    </div>
+    <div class="demo-cell">
+      <h4>Com erro</h4>
+      <p><code>aria-invalid="true"</code> no campo — o Django 5 já escreve.</p>
+      <input type="text" id="tp-error" name="closing" data-tuc-timepicker aria-invalid="true" aria-describedby="tp-error-msg" aria-label="Fechamento">
+      <p class="tuc-error" id="tp-error-msg">O fechamento precisa ser depois da abertura.</p>
+    </div>
+  </div>
+</div>
+
+<h2 id="usage">Como usar</h2>
+<p class="lead">Marque o <code>&lt;input&gt;</code> e ele inicializa sozinho no carregamento e a cada <code>htmx:afterSwap</code>.</p>
+
+<pre data-code="html">
+<input type="text" name="opening" data-tuc-timepicker>
+<input type="text" name="shift" data-tuc-timepicker data-mode="range">
+<input type="text" name="slot" data-tuc-timepicker data-min="08:00" data-max="18:00" data-minute-step="15">
+</pre>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Atributo</th><th>Padrão</th><th>Para quê</th></tr></thead>
+  <tbody>
+    <tr><td><code>data-mode</code></td><td><code>single</code></td><td><code>range</code> para início e fim lado a lado</td></tr>
+    <tr><td><code>data-min</code> <code>data-max</code></td><td>—</td><td>Limites, em <code>hh:mm</code></td></tr>
+    <tr><td><code>data-minute-step</code></td><td><code>5</code></td><td>Degrau da coluna de minutos; <code>1</code> lista todos</td></tr>
+    <tr><td><code>data-seconds</code></td><td><code>false</code></td><td>Coluna de segundos</td></tr>
+    <tr><td><code>data-auto-apply</code></td><td><code>false</code></td><td><code>true</code> tira o Aplicar: cada clique já vale</td></tr>
+    <tr><td><code>data-now</code></td><td><code>false</code></td><td><code>true</code> põe o botão "Agora", que aplica a hora atual e fecha — desativado quando agora está fora de <code>min</code> e <code>max</code></td></tr>
+    <tr><td><code>data-locale</code></td><td><code>&lt;html lang&gt;</code></td><td>Relógio de 12 ou 24 horas</td></tr>
+    <tr><td><code>data-iso-name</code></td><td>o <code>name</code></td><td><code>name</code> do campo escondido com o valor</td></tr>
+    <tr><td><code>data-placement</code></td><td><code>bottom-center</code></td><td>Lado e alinhamento do painel</td></tr>
+    <tr><td><code>data-native</code></td><td><code>false</code></td><td><code>true</code> ou <code>auto</code>: o seletor de hora do sistema</td></tr>
+  </tbody>
+</table></div>
+
+<h3>No formulário do Django</h3>
+<pre data-code="python">
+class StoreForm(forms.ModelForm):
+    class Meta:
+        model = Store
+        fields = ["opens_at", "closes_at"]
+        widgets = {
+            "opens_at": forms.TextInput(attrs={"data-tuc-timepicker": ""}),
+            "closes_at": forms.TextInput(attrs={"data-tuc-timepicker": "", "data-max": "23:00"}),
+        }
+</pre>
+<p>Não use <code>type="time"</code> no widget: o seletor do navegador abriria por cima do nosso. O <code>TimeField</code> lê
+   <code>14:30</code> e <code>14:30:15</code> sem configuração.</p>
+
+<h3>Em JavaScript</h3>
+<pre data-code="js">
+const tp = new Tucano.TimePicker('#opening', {
+  mode: 'range',
+  min: '08:00',
+  max: '18:00',
+  minuteStep: 15,
+  onChange: (value, { iso }) => console.log(value, iso),
+});
+
+tp.setValue({ start: '09:00', end: '12:30' });
+tp.getValue();   // { start: '09:00', end: '12:30' } — no modo simples, '14:30' ou null
+tp.clear();
+tp.destroy();
+</pre>
+
+<h2 id="value">Valor e formulário</h2>
+<p class="lead">Como no date picker, um <code>&lt;input type="hidden"&gt;</code> ao lado leva o <code>name</code> e o valor em
+   24 horas. O campo visível pode mostrar <code>02:30 PM</code>; o servidor recebe sempre <code>14:30</code>.</p>
+
+<pre data-code="text">
+POST  opening  = 14:30
+POST  exact    = 14:30:15          # com data-seconds
+POST  shift    = 09:00,17:30       # início e fim, separados por vírgula
+</pre>
+
+<p>O valor sai em texto, e não em <code>Date</code>: hora sem dia não é um instante, e um <code>Date</code> obrigaria a inventar
+   um dia e um fuso. <code>getValue()</code> e <code>e.detail.value</code> devolvem o mesmo <code>'14:30'</code> do POST.</p>
+
+<h2 id="typing">Digitação</h2>
+<p class="lead">A máscara é <code>hh:mm</code>, e os dois-pontos entram sozinhos. Também se lê <code>1430</code>, <code>14h30</code>,
+   <code>14h</code> e <code>2:30 pm</code>.</p>
+
+<p>O valor se confirma ao sair do campo ou com <code>Enter</code> com o painel aberto. Hora fora de <code>min</code> e
+   <code>max</code> não é aceita, nem puxada para o limite: o campo volta ao valor anterior. Já nas colunas, escolher 18 h
+   com 30 minutos e máximo 18:00 encosta em 18:00. No intervalo, a ponta que você não mexeu acompanha a outra em vez de deixar o
+   início depois do fim.</p>
+
+<h2 id="keyboard">Teclado e acessibilidade</h2>
+<p class="lead">O mesmo das colunas de hora do date picker. Chegar de <code>Tab</code> não abre o painel.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Tecla</th><th>Onde</th><th>Ação</th></tr></thead>
+  <tbody>
+    <tr><td><code>↓</code></td><td>Campo</td><td>Abre o painel com o foco na coluna das horas</td></tr>
+    <tr><td><code>Espaço</code></td><td>Campo vazio</td><td>Abre o painel</td></tr>
+    <tr><td><code>Enter</code></td><td>Campo, painel aberto</td><td>Confirma o que foi digitado e fecha</td></tr>
+    <tr><td><code>↑</code> <code>↓</code></td><td>Coluna</td><td>Valor anterior e seguinte, pulando os desativados</td></tr>
+    <tr><td><code>Home</code> <code>End</code></td><td>Coluna</td><td>Primeiro e último valor que vale</td></tr>
+    <tr><td><code>Enter</code> <code>Espaço</code></td><td>Coluna</td><td>Escolhe o valor</td></tr>
+    <tr><td><code>Tab</code></td><td>Dentro do painel</td><td>De uma coluna à outra e aos botões; cada coluna é uma parada só</td></tr>
+    <tr><td><code>Esc</code></td><td>Campo ou painel</td><td>Fecha, descarta o que não foi aplicado e devolve o foco ao campo</td></tr>
+  </tbody>
+</table></div>
+
+<h2 id="api">API</h2>
+<!-- api -->

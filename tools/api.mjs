@@ -9,7 +9,17 @@
 import { readFileSync, readdirSync } from 'node:fs';
 
 /* Metodos que vem da classe base, invisiveis no arquivo do componente. */
-const INHERITED = { modal: ['open', 'close', 'content'], drawer: ['open', 'close', 'content'] };
+const INHERITED = {
+  modal: ['open', 'close', 'content'],
+  drawer: ['open', 'close', 'content'],
+  timepicker: ['setValue', 'clear', 'open', 'close', 'toggle', 'destroy'],
+};
+
+/* Fonte da classe mae, quando ela e outro componente desta pasta. */
+function parentSource(t) {
+  const parent = t.match(/^export class \w+ extends (\w+)/m)?.[1];
+  try { return parent ? readFileSync(`src/js/components/${parent.toLowerCase()}.js`, 'utf8') : ''; } catch { return ''; }
+}
 
 const IGNORED = new Set(['constructor', 'if', 'for', 'while', 'switch', 'catch', 'return', 'get', 'set']);
 
@@ -53,6 +63,7 @@ export const components = readdirSync('src/js/components').filter((f) => f.endsW
         .map((k) => 'data-' + k.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase())
         .filter((k) => k !== 'data-tuc-ready').sort();
     })(),
-    events: [...new Set([...t.matchAll(/CustomEvent\('([^']+)'/g)].map((m) => m[1]))],
+    // Classe que herda emite pela mae: o TimePicker dispara o tucano:change do DatePicker.
+    events: [...new Set([...`${t}\n${parentSource(t)}`.matchAll(/CustomEvent\('([^']+)'/g)].map((m) => m[1]))],
   };
 }).sort((a, b) => a.name.localeCompare(b.name));

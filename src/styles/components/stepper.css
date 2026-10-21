@@ -1,0 +1,151 @@
+@reference "tailwindcss";
+
+/*
+ * Etapas.
+ *
+ * Duas pecas. O indicador (.tuc-steps) e so classe, sobre <ol>, e funciona sem
+ * script: num assistente de varias paginas o template marca a etapa atual com
+ * aria-current="step" e as anteriores com is-done, e pronto. O assistente
+ * (.tuc-stepper, com JavaScript) usa o mesmo indicador e acrescenta paineis e a
+ * barra de botoes.
+ *
+ * O numero e o ponto sao pseudo-elementos, contados pelo CSS: quem escreve o
+ * template so poe o nome da etapa, e reordenar etapas nao pede renumerar nada.
+ */
+
+.tuc-steps {
+  --tuc-steps-marker: 1.75rem;
+  @apply m-0 flex min-w-0 list-none items-center gap-3 p-0;
+  font-family: var(--tuc-font);
+  font-size: var(--tuc-text);
+  color: var(--tuc-muted);
+  counter-reset: tuc-step;
+}
+
+/*
+ * Cada etapa cresce a partir do proprio conteudo (flex 1 1 auto, e nao flex 1):
+ * com base zero, a etapa de nome comprido encolhia ate cortar o nome, e o
+ * trilho dela invadia a vizinha. Quem cede espaco e o trilho.
+ */
+.tuc-steps__item {
+  @apply flex min-w-0 items-center gap-2;
+  counter-increment: tuc-step;
+}
+.tuc-steps__item:not(:last-child) { flex: 1 1 auto; }
+
+/* Trilho ate a proxima etapa. O ultimo item nao tem. */
+.tuc-steps__item:not(:last-child)::after {
+  content: '';
+  @apply flex-1;
+  min-width: 1rem;
+  height: 2px;
+  margin-left: 0.25rem;
+  border-radius: 2px;
+  background: var(--tuc-border);
+}
+.tuc-steps__item.is-done::after { background: var(--tuc-accent); }
+
+.tuc-steps__item::before {
+  content: counter(tuc-step);
+  @apply grid flex-none place-items-center rounded-full;
+  box-sizing: border-box;
+  width: var(--tuc-steps-marker);
+  height: var(--tuc-steps-marker);
+  border: 2px solid var(--tuc-border);
+  background: var(--tuc-bg);
+  color: var(--tuc-muted);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.tuc-steps__item[aria-current='step'] { color: var(--tuc-fg); font-weight: 500; }
+.tuc-steps__item[aria-current='step']::before { border-color: var(--tuc-accent); color: var(--tuc-fg); }
+.tuc-steps__item.is-done { color: var(--tuc-fg); }
+
+/*
+ * Concluida: circulo cheio com o check vazado por mascara. O check mostra o que
+ * esta atras, e por isso nao precisa de cor propria — num destaque de marca
+ * ele continua legivel sem ninguem escolher a cor do icone.
+ */
+.tuc-steps__item.is-done::before {
+  content: '';
+  border-color: var(--tuc-accent);
+  background: var(--tuc-accent);
+  mask:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6L9 17l-5-5'/%3E%3C/svg%3E")
+      center / 55% no-repeat exclude,
+    linear-gradient(#000 0 0);
+}
+
+.tuc-steps__label { @apply min-w-0 truncate; }
+/* O nome da etapa atual nunca encolhe: e o unico que aparece no celular. */
+.tuc-steps__item[aria-current='step'] .tuc-steps__label { @apply flex-none; }
+
+/* Etapa como link, no assistente de varias paginas: volta para a etapa feita. */
+.tuc-steps__item > a {
+  @apply flex min-w-0 items-center;
+  border-radius: var(--tuc-radius-sm);
+  color: inherit;
+  text-decoration: none;
+}
+.tuc-steps__item > a:hover { text-decoration: underline; }
+.tuc-steps__item > a:focus-visible { outline: 2px solid var(--tuc-accent); outline-offset: 2px; }
+
+/*
+ * No celular, quatro nomes nao cabem numa linha de 360px. So a etapa atual
+ * mostra o nome; as outras ficam no circulo, e o nome continua para o leitor
+ * de tela.
+ */
+@media (max-width: 40rem) {
+  .tuc-steps { @apply gap-2; }
+  .tuc-steps__item:not([aria-current='step']) .tuc-steps__label {
+    @apply absolute h-px w-px overflow-hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Assistente                                                          *
+ * ------------------------------------------------------------------ */
+
+.tuc-stepper {
+  @apply block min-w-0;
+  font-family: var(--tuc-font);
+  font-size: var(--tuc-text);
+  color: var(--tuc-fg);
+}
+
+.tuc-stepper__panel { margin-top: 1.5rem; }
+/* `hidden` perde para qualquer display de autor — ver AGENTS.md. */
+.tuc-stepper__panel[hidden] { display: none; }
+/* O titulo recebe o foco ao trocar de etapa so para o leitor de tela anunciar;
+   nao e um controle, e um anel em volta dele pareceria um. */
+.tuc-stepper__panel [tabindex='-1']:focus { outline: none; }
+
+/* Voltar a esquerda; Continuar e Finalizar a direita, mesmo sozinhos. */
+.tuc-stepper__actions {
+  @apply flex flex-wrap items-center gap-2;
+  margin-top: 1.5rem;
+}
+.tuc-stepper__actions > [data-step='next'],
+.tuc-stepper__actions > [type='submit'] { margin-left: auto; }
+.tuc-stepper__actions > [hidden] { display: none; }
+
+/*
+ * O painel costuma ser um <fieldset>, que o <legend> nomeia para o leitor de
+ * tela. A borda, o recuo e a largura minima do navegador sairiam numa caixa
+ * dentro do formulario.
+ */
+fieldset.tuc-stepper__panel {
+  min-width: 0;
+  margin-inline: 0;
+  padding: 0;
+  border: 0;
+}
+.tuc-stepper__panel > legend {
+  padding: 0;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+}

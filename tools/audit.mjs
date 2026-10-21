@@ -42,6 +42,7 @@ const INNER = {
  */
 const TARGETS = {
   'campo de data': { sel: '#c-date', typable: true },
+  'campo de hora': { sel: '#c-time', typable: true },
   'select': { sel: '.tuc-select', typable: true },
   'campo com máscara': { sel: '#c-mask', typable: true },
   'campo de cor': { sel: '.tuc-color-field', typable: true },
@@ -73,6 +74,7 @@ const page = () => `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8
 <style>${readFileSync('dist/tucano.css', 'utf8')}
 body{margin:0;padding:16px;font-family:system-ui,sans-serif}</style></head><body>
 <input data-tuc-datepicker id="c-date">
+<input data-tuc-timepicker id="c-time">
 <select data-tuc-select multiple id="c-select"><option value="a" selected>São Paulo</option><option value="b" selected>Rio</option><option value="c">Minas</option></select>
 <input data-tuc-mask="cpf-cnpj" id="c-mask">
 <input data-tuc-color id="c-color">
@@ -205,19 +207,19 @@ try {
  * quadro o campo em espera tem de estar igual a um .tuc-input de verdade, que
  * e classe pura e nunca depende de JavaScript. Vale nos dois temas.
  */
-const WAIT = ['[data-tuc-datepicker]', '[data-tuc-mask]', '[data-tuc-select]', '[data-tuc-color]'];
+const WAIT = ['[data-tuc-datepicker]', '[data-tuc-timepicker]', '[data-tuc-mask]', '[data-tuc-select]', '[data-tuc-color]'];
 
 const waitPage = () => `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
 <style>${readFileSync('dist/tucano.css', 'utf8')}
 body{margin:0;padding:16px;font-family:system-ui,sans-serif}</style></head><body>
 <div id="light">
   <input type="text" class="tuc-input" data-ref>
-  <input data-tuc-datepicker><input data-tuc-mask="cpf-cnpj"><input data-tuc-color>
+  <input data-tuc-datepicker><input data-tuc-timepicker><input data-tuc-mask="cpf-cnpj"><input data-tuc-color>
   <select data-tuc-select><option>Um</option></select>
 </div>
 <div id="dark" class="dark">
   <input type="text" class="tuc-input" data-ref>
-  <input data-tuc-datepicker><input data-tuc-mask="cpf-cnpj"><input data-tuc-color>
+  <input data-tuc-datepicker><input data-tuc-timepicker><input data-tuc-mask="cpf-cnpj"><input data-tuc-color>
   <select data-tuc-select><option>Um</option></select>
 </div>
 <pre id="result"></pre>

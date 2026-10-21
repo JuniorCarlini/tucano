@@ -1,0 +1,216 @@
+<!--
+title: Etapas
+component: stepper
+description: Indicador de etapas só com CSS, para assistente de várias páginas, e assistente com JavaScript que confere os campos de cada etapa antes de avançar, num formulário só.
+-->
+<h1>Etapas</h1>
+<p class="lead">Duas peças. O indicador é só classe e funciona sem script — serve ao cadastro dividido em várias páginas,
+   uma etapa por URL. O assistente usa o mesmo indicador numa página só: avançar confere os campos da etapa, e o
+   formulário continua um só, enviado inteiro no final.</p>
+
+<div class="demo is-hero">
+  <form id="stepper-signup">
+    <div class="tuc-stepper" data-tuc-stepper>
+      <ol class="tuc-steps" aria-label="Etapas do cadastro">
+        <li class="tuc-steps__item" aria-current="step"><span class="tuc-steps__label">Dados</span></li>
+        <li class="tuc-steps__item"><span class="tuc-steps__label">Endereço</span></li>
+        <li class="tuc-steps__item"><span class="tuc-steps__label">Pagamento</span></li>
+      </ol>
+      <fieldset class="tuc-stepper__panel">
+        <legend>Seus dados</legend>
+        <div class="demo-grid">
+          <div class="demo-cell"><label class="tuc-label" for="stepper-name">Nome</label><input type="text" class="tuc-input" id="stepper-name" name="name" required></div>
+          <div class="demo-cell"><label class="tuc-label" for="stepper-email">E-mail</label><input type="email" class="tuc-input" id="stepper-email" name="email" required></div>
+        </div>
+      </fieldset>
+      <fieldset class="tuc-stepper__panel" hidden>
+        <legend>Endereço</legend>
+        <div class="demo-grid">
+          <div class="demo-cell"><label class="tuc-label" for="stepper-zip">CEP</label><input type="text" id="stepper-zip" name="zip" data-tuc-mask="cep" required></div>
+          <div class="demo-cell"><label class="tuc-label" for="stepper-number">Número</label><input type="text" class="tuc-input" id="stepper-number" name="number" required></div>
+        </div>
+      </fieldset>
+      <fieldset class="tuc-stepper__panel" hidden>
+        <legend>Pagamento</legend>
+        <div class="demo-grid">
+          <div class="demo-cell"><label class="tuc-label" for="stepper-pay">Forma</label>
+            <select id="stepper-pay" name="payment" data-tuc-select><option>Pix</option><option>Cartão</option><option>Boleto</option></select></div>
+        </div>
+      </fieldset>
+      <div class="tuc-stepper__actions">
+        <button type="button" class="tuc-btn is-outline" data-step="prev" hidden>Voltar</button>
+        <button type="button" class="tuc-btn is-primary" data-step="next">Continuar</button>
+        <button type="submit" class="tuc-btn is-primary" hidden>Finalizar</button>
+      </div>
+    </div>
+  </form>
+  <div class="out" id="stepper-signup-log"></div>
+</div>
+
+<h2 id="examples">Exemplos</h2>
+<p class="lead">O indicador sozinho, desenhado pelo template.</p>
+
+<div class="demo">
+  <div class="demo-stack">
+    <div class="demo-cell">
+      <h4>Etapa 3 de 4</h4>
+      <p><code>is-done</code> nas feitas e <code>aria-current="step"</code> na atual. O número é contado pelo CSS.</p>
+      <ol class="tuc-steps" aria-label="Etapas do pedido">
+        <li class="tuc-steps__item is-done"><span class="tuc-steps__label">Carrinho</span></li>
+        <li class="tuc-steps__item is-done"><span class="tuc-steps__label">Entrega</span></li>
+        <li class="tuc-steps__item" aria-current="step"><span class="tuc-steps__label">Pagamento</span></li>
+        <li class="tuc-steps__item"><span class="tuc-steps__label">Confirmação</span></li>
+      </ol>
+    </div>
+    <div class="demo-cell">
+      <h4>Etapas feitas como link</h4>
+      <p>No assistente de várias páginas, a etapa feita pode ser um <code>&lt;a&gt;</code> de volta para ela.</p>
+      <ol class="tuc-steps" aria-label="Etapas do cadastro">
+        <li class="tuc-steps__item is-done"><a href="#examples"><span class="tuc-steps__label">Empresa</span></a></li>
+        <li class="tuc-steps__item" aria-current="step"><span class="tuc-steps__label">Sócios</span></li>
+        <li class="tuc-steps__item"><span class="tuc-steps__label">Documentos</span></li>
+      </ol>
+    </div>
+    <div class="demo-cell">
+      <h4>Tudo feito</h4>
+      <p>Sem <code>aria-current</code> em nenhuma, e todas com <code>is-done</code>.</p>
+      <ol class="tuc-steps" aria-label="Etapas do cadastro">
+        <li class="tuc-steps__item is-done"><span class="tuc-steps__label">Dados</span></li>
+        <li class="tuc-steps__item is-done"><span class="tuc-steps__label">Endereço</span></li>
+        <li class="tuc-steps__item is-done"><span class="tuc-steps__label">Pagamento</span></li>
+      </ol>
+    </div>
+  </div>
+</div>
+
+<h2 id="usage">Como usar</h2>
+
+<h3>Só o indicador, uma etapa por página</h3>
+<p>Uma <code>&lt;ol&gt;</code> com o nome de cada etapa. O template marca a atual com <code>aria-current="step"</code>, que o
+   leitor de tela anuncia como "etapa atual", e as anteriores com <code>is-done</code>. Não há script: é o caminho do
+   <code>SessionWizardView</code> do django-formtools, ou de qualquer assistente em que cada etapa é um POST.</p>
+<pre data-code="django">
+<ol class="tuc-steps" aria-label="Etapas do cadastro">
+  {% for step in wizard.steps.all %}
+    <li class="tuc-steps__item{% if forloop.counter0 < wizard.steps.index %} is-done{% endif %}"
+        {% if step == wizard.steps.current %}aria-current="step"{% endif %}>
+      <span class="tuc-steps__label">{{ step|title }}</span>
+    </li>
+  {% endfor %}
+</ol>
+</pre>
+
+<h3>Assistente numa página só</h3>
+<p>O indicador, um <code>.tuc-stepper__panel</code> por etapa — com <code>hidden</code> a partir do segundo — e a barra de
+   botões. Etapas e painéis casam pela ordem. O título do painel (um <code>&lt;h2&gt;</code> a <code>&lt;h6&gt;</code>, ou o
+   <code>&lt;legend&gt;</code> de um <code>&lt;fieldset&gt;</code>) recebe o foco a cada troca, e o leitor de tela anuncia a etapa nova.</p>
+<pre data-code="html">
+<form method="post">
+  <div class="tuc-stepper" data-tuc-stepper>
+    <ol class="tuc-steps" aria-label="Etapas do cadastro">
+      <li class="tuc-steps__item" aria-current="step"><span class="tuc-steps__label">Dados</span></li>
+      <li class="tuc-steps__item"><span class="tuc-steps__label">Endereço</span></li>
+    </ol>
+    <fieldset class="tuc-stepper__panel">
+      <legend>Seus dados</legend> …
+    </fieldset>
+    <fieldset class="tuc-stepper__panel" hidden>
+      <legend>Endereço</legend> …
+    </fieldset>
+    <div class="tuc-stepper__actions">
+      <button type="button" class="tuc-btn is-outline" data-step="prev" hidden>Voltar</button>
+      <button type="button" class="tuc-btn is-primary" data-step="next">Continuar</button>
+      <button type="submit" class="tuc-btn is-primary" hidden>Finalizar</button>
+    </div>
+  </div>
+</form>
+</pre>
+
+<p><code>Continuar</code> confere os campos da etapa com a validação do próprio navegador — <code>required</code>,
+   <code>type="email"</code>, <code>pattern</code>, <code>min</code> — e não avança se algum reprovar: o campo ganha
+   <code>aria-invalid="true"</code> e o aviso do navegador. <code>Voltar</code> nunca confere. Na primeira etapa o Voltar some,
+   e na última o Continuar dá lugar ao Finalizar. O <code>hidden</code> desses dois no template é o que faz a barra nascer certa
+   antes do script.</p>
+
+<div class="tuc-alert is-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v-4M12 8h.01M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg><div class="tuc-alert__body"><p class="tuc-alert__title">Por que é um formulário só</p><p>O painel escondido não sai do DOM, então todo <code>name</code> vai no POST final, e o servidor recebe exatamente o que receberia de um formulário comprido. Não existe estado em JavaScript para sincronizar, e a validação do servidor continua a mesma.</p></div></div>
+
+<p><code>Enter</code> num campo de texto, antes da última etapa, é <code>Continuar</code>. Sem isso ele enviaria o formulário, e o
+   navegador barraria o envio por um campo obrigatório que a pessoa ainda nem viu, sem dizer qual. <code>reset</code> no
+   formulário volta à primeira etapa.</p>
+
+<h3>Com Django, quando o servidor devolve erro</h3>
+<p>O formulário que volta do POST com erro abre direto na etapa do primeiro campo com <code>aria-invalid="true"</code> — que o
+   Django 5 escreve sozinho em todo campo que reprovou. Sem isso, a mensagem ficaria escondida duas etapas adiante.</p>
+<pre data-code="django">
+<fieldset class="tuc-stepper__panel" hidden>
+  <legend>Endereço</legend>
+  {{ form.zip }}        {# com erro, vem com aria-invalid="true": o assistente abre aqui #}
+  {{ form.zip.errors }}
+</fieldset>
+</pre>
+<p>Para abrir numa etapa escolhida, use <code>data-start="2"</code> (contando do zero). Sem ela e sem erro, vale a etapa marcada
+   com <code>aria-current="step"</code>, ou a primeira. <code>data-validate="false"</code> deixa avançar sem conferir.</p>
+
+<h3>Em JavaScript</h3>
+<pre data-code="js">
+const wizard = new Tucano.Stepper('#signup', {
+  start: 0,          // etapa inicial
+  validate: true,    // Continuar confere os campos da etapa
+  onChange: (index, { panel }) => console.log(index, panel),
+});
+
+wizard.next();                   // confere e avança
+wizard.prev();                   // volta, sem conferir
+wizard.go(2);                    // vai direto, sem conferir
+wizard.go(0, { silent: true });  // sem disparar onChange
+wizard.checkStep();              // true se os campos da etapa passam
+wizard.index;                    // etapa aberta
+</pre>
+
+<p>Cada troca dispara <code>tucano:change</code> no elemento do assistente, e o evento borbulha — é o ponto para carregar a
+   etapa seguinte por HTMX, se ela depender do que foi preenchido antes.</p>
+<pre data-code="js">
+document.addEventListener('tucano:change', (e) => {
+  if (!e.target.matches('.tuc-stepper')) return;
+  e.detail.value;      // índice da etapa
+  e.detail.step;       // o item do indicador
+  e.detail.panel;      // o painel
+  e.detail.instance;   // o Stepper
+});
+</pre>
+
+<h2 id="keyboard">Teclado e acessibilidade</h2>
+<p class="lead">O indicador é uma lista ordenada: o leitor de tela anuncia "item 2 de 3" sem ninguém escrever ARIA, e
+   <code>aria-current="step"</code> diz qual é a atual. No celular só a etapa atual mostra o nome; o das outras continua lá
+   para o leitor de tela.</p>
+
+<div class="tuc-table-wrap"><table class="tuc-table">
+  <thead><tr><th>Tecla</th><th>Ação</th></tr></thead>
+  <tbody>
+    <tr><td><code>Tab</code></td><td>Os campos da etapa aberta e os botões; os painéis escondidos ficam fora do caminho</td></tr>
+    <tr><td><code>Enter</code></td><td>Num campo de texto, antes da última etapa: Continuar. Na última, envia o formulário</td></tr>
+    <tr><td><code>Enter</code> <code>Espaço</code></td><td>Nos botões, o clique nativo</td></tr>
+  </tbody>
+</table></div>
+
+<p>Ao trocar de etapa, o foco vai ao título do painel novo, e o próximo <code>Tab</code> chega ao primeiro campo. O título
+   ganha <code>tabindex="-1"</code> para isso — focável pelo script, fora do caminho do <code>Tab</code>.</p>
+
+<h2 id="api">API</h2>
+<!-- api -->
+
+<script>
+  // Mostra o evento e segura o envio da demonstração.
+  document.addEventListener('tucano:change', (e) => {
+    if (!e.target.closest('#stepper-signup')) return;
+    if (!e.target.matches('.tuc-stepper')) return;
+    document.getElementById('stepper-signup-log').textContent =
+      `tucano:change → value ${e.detail.value} (${e.detail.step.textContent.trim()})`;
+  });
+  document.addEventListener('submit', (e) => {
+    if (e.target.id !== 'stepper-signup') return;
+    e.preventDefault();
+    const data = new URLSearchParams(new FormData(e.target)).toString();
+    document.getElementById('stepper-signup-log').textContent = `POST → ${data}`;
+  });
+</script>

@@ -108,6 +108,7 @@ select[aria-invalid='true'] + .tuc-select,
 .tuc-upload:has(> input[aria-invalid='true']) > .tuc-upload__zone,
 /* Antes do script: sem isto a borda vermelha so aparecia depois do load. */
 input[data-tuc-datepicker][aria-invalid='true']:not([data-tuc-ready]),
+input[data-tuc-timepicker][aria-invalid='true']:not([data-tuc-ready]),
 input[data-tuc-mask][aria-invalid='true']:not([data-tuc-ready]),
 input[data-tuc-color][aria-invalid='true']:not([data-tuc-ready]),
 select[data-tuc-select][aria-invalid='true']:not([data-tuc-ready]) {

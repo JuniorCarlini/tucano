@@ -22,6 +22,7 @@ description: Lo que hace cada tecla en todos los componentes de Tucano — date 
   <thead><tr><th>Componente</th><th>Se abre con</th></tr></thead>
   <tbody>
     <tr><td>Date picker</td><td><code>↓</code>, clic; <code>Espacio</code> con el campo vacío</td></tr>
+    <tr><td>Time picker</td><td><code>↓</code>, clic; <code>Espacio</code> con el campo vacío</td></tr>
     <tr><td>Select</td><td><code>↓</code>, <code>↑</code>, <code>Enter</code>, <code>Espacio</code>, clic</td></tr>
     <tr><td>Color picker</td><td><code>↓</code> en el campo o en la muestra; <code>Enter</code> y <code>Espacio</code> en la muestra, que es un <code>&lt;button&gt;</code></td></tr>
     <tr><td>Menú desplegable</td><td><code>↓</code>, <code>↑</code>, <code>Enter</code>, <code>Espacio</code> o clic en el disparador</td></tr>
@@ -60,6 +61,11 @@ description: Lo que hace cada tecla en todos los componentes de Tucano — date 
    se anuncia en una región <code>aria-live="polite"</code> que queda fija en el panel. Cada columna de hora, minuto y segundo es un
    grupo de botones con una sola parada de Tab, y el valor elegido lleva <code>aria-pressed</code>. Cerrar con un clic fuera no devuelve el foco al campo, para no
    quitárselo al lugar donde la persona hizo clic.</p>
+
+<h2 id="timepicker">Time picker</h2>
+<p>Las columnas de hora del date picker, con las mismas teclas. <code>↓</code> en el campo lleva el foco a la columna de horas, y las flechas,
+   <code>Home</code> y <code>End</code> saltan lo que <code>min</code> y <code>max</code> desactivaron. El panel es
+   <code>role="dialog"</code>, con la etiqueta "Selecionar horário" (seleccionar hora) o "Selecionar intervalo de horário" (seleccionar intervalo de horas).</p>
 
 <h2 id="select">Select</h2>
 <div class="tuc-table-wrap"><table class="tuc-table">
@@ -199,6 +205,7 @@ description: Lo que hace cada tecla en todos los componentes de Tucano — date 
     <tr><td>Paginación</td><td>Enlaces nativos</td><td><code>&lt;nav&gt;</code> "Paginação" (paginación), <code>aria-current="page"</code> en la actual; el extremo desactivado es un <code>&lt;span&gt;</code>, fuera del camino del <code>Tab</code></td></tr>
     <tr><td>Casilla, opción e interruptor</td><td>Las del <code>&lt;input&gt;</code> nativo</td><td>Las del navegador; el interruptor necesita <code>role="switch"</code> en la plantilla, porque el CSS no pone roles</td></tr>
     <tr><td>Grupo de botones</td><td>Las del <code>&lt;input&gt;</code> nativo: el grupo de radios es una sola parada del <code>Tab</code>, y las flechas lo recorren</td><td>El grupo necesita nombre — <code>role="group"</code> con <code>aria-label</code>, o <code>&lt;fieldset&gt;</code> con <code>&lt;legend&gt;</code>; el <code>&lt;input&gt;</code> queda invisible, pero enfocable y anunciado</td></tr>
+    <tr><td>Etapas</td><td><code>Enter</code> en un campo de texto, antes de la última etapa, es Continuar; en la última, envía</td><td>Indicador en <code>&lt;ol&gt;</code> con <code>aria-current="step"</code> en la actual; en cada cambio el foco va al título del panel nuevo, y el lector de pantalla anuncia la etapa</td></tr>
     <tr><td>Slider</td><td>Las del <code>&lt;input type="range"&gt;</code> nativo, en cada extremo: flechas, <code>PageUp</code>/<code>PageDown</code>, <code>Home</code> y <code>End</code>; en el rango, cada extremo es una parada del <code>Tab</code></td><td>El valor escrito en <code>aria-valuetext</code> ("800 €", y no "800"); en el rango, el extremo sin etiqueta recibe "Mínimo" o "Máximo"</td></tr>
   </tbody>
 </table></div>

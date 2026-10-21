@@ -22,6 +22,7 @@ description: What each key does in every Tucano component — date picker, selec
   <thead><tr><th>Component</th><th>Opens with</th></tr></thead>
   <tbody>
     <tr><td>Date picker</td><td><code>↓</code>, click; <code>Space</code> when the field is empty</td></tr>
+    <tr><td>Time picker</td><td><code>↓</code>, click; <code>Space</code> when the field is empty</td></tr>
     <tr><td>Select</td><td><code>↓</code>, <code>↑</code>, <code>Enter</code>, <code>Space</code>, click</td></tr>
     <tr><td>Color picker</td><td><code>↓</code> in the field or on the swatch; <code>Enter</code> and <code>Space</code> on the swatch, which is a <code>&lt;button&gt;</code></td></tr>
     <tr><td>Dropdown menu</td><td><code>↓</code>, <code>↑</code>, <code>Enter</code>, <code>Space</code> or a click on the trigger</td></tr>
@@ -60,6 +61,11 @@ description: What each key does in every Tucano component — date picker, selec
    announced by an <code>aria-live="polite"</code> region that stays fixed in the panel. Each hour, minute and second column is a
    group of buttons with a single Tab stop, and the chosen value has <code>aria-pressed</code>. Closing by clicking outside doesn't return focus to the field, so it
    isn't stolen from where the person clicked.</p>
+
+<h2 id="timepicker">Time picker</h2>
+<p>The date picker's time columns, with the same keys. <code>↓</code> in the field moves focus to the hours column, and the arrows,
+   <code>Home</code> and <code>End</code> skip what <code>min</code> and <code>max</code> disabled. The panel is
+   <code>role="dialog"</code>, labeled "Selecionar horário" (select time) or "Selecionar intervalo de horário" (select time range).</p>
 
 <h2 id="select">Select</h2>
 <div class="tuc-table-wrap"><table class="tuc-table">
@@ -198,6 +204,7 @@ description: What each key does in every Tucano component — date picker, selec
     <tr><td>Pagination</td><td>Native links</td><td><code>&lt;nav&gt;</code> "Paginação" (pagination), <code>aria-current="page"</code> on the current one; a disabled end is a <code>&lt;span&gt;</code>, out of the <code>Tab</code> path</td></tr>
     <tr><td>Checkbox, radio and switch</td><td>Those of the native <code>&lt;input&gt;</code></td><td>The browser's; the switch needs <code>role="switch"</code> in the template, because CSS can't add a role</td></tr>
     <tr><td>Button group</td><td>Those of the native <code>&lt;input&gt;</code>: the radio group is a single <code>Tab</code> stop, and the arrow keys move through it</td><td>The group needs a name — <code>role="group"</code> with <code>aria-label</code>, or <code>&lt;fieldset&gt;</code> with <code>&lt;legend&gt;</code>; the <code>&lt;input&gt;</code> stays invisible, but focusable and announced</td></tr>
+    <tr><td>Steps</td><td><code>Enter</code> in a text field, before the last step, is Continue; on the last one, it submits</td><td>Indicator in an <code>&lt;ol&gt;</code> with <code>aria-current="step"</code> on the current one; on every change focus goes to the new panel's title, and the screen reader announces the step</td></tr>
     <tr><td>Slider</td><td>Those of the native <code>&lt;input type="range"&gt;</code>, on each end: arrows, <code>PageUp</code>/<code>PageDown</code>, <code>Home</code> and <code>End</code>; in the range, each end is a <code>Tab</code> stop</td><td>The written value in <code>aria-valuetext</code> ("$800", not "800"); in the range, an end with no label gets "Minimum" or "Maximum"</td></tr>
   </tbody>
 </table></div>

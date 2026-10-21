@@ -52,9 +52,9 @@ estático funcionar sem build.
 ```
 src/js/core/          dates, color, mask, dom, popover, dialog, sanitize, highlight,
                       files, texts (todo texto de interface)
-src/js/components/    datepicker, select, colorpicker, upload, mask, toast,
-                      tooltip, modal, drawer, accordion, dropdown, table,
-                      pagination, editor, slider
+src/js/components/    datepicker, timepicker, select, colorpicker, upload, mask,
+                      toast, tooltip, modal, drawer, accordion, tabs, stepper,
+                      dropdown, contextmenu, table, pagination, editor, slider
 src/styles/core/      base (reset) e tokens
 src/styles/components/  um arquivo por componente; os que são só classe
                       (botão, etiqueta, campo) também moram aqui
@@ -721,6 +721,25 @@ assim que o centro do botão anda — no degradê da trilha e no ponteiro. E o
 trecho pintado é degradê com variável, não pseudo-elemento: o de progresso só
 existe no Firefox.
 
+**O assistente em etapas é um `<form>` só, e o indicador funciona sem ele.**
+O `.tuc-steps` é classe pura, para o assistente de várias páginas em que cada
+etapa é um POST; o `Stepper` só troca painel, confere a etapa e move o foco.
+Painel escondido não sai do DOM, então todo `name` vai no POST final e não há
+estado em JS para sincronizar. `Enter` num campo antes da última etapa é
+Continuar: o envio implícito barraria o formulário por um `required` ainda
+escondido, sem dizer qual. E o foco no título do painel novo precisa de
+`void panel.offsetHeight` antes: o Firefox ignora calado o `focus()` num
+elemento que acabou de perder o `hidden` e ainda não tem caixa.
+
+**O campo só de hora herda do date picker, e o valor sai em texto.** As colunas,
+o teclado delas, a máscara, o Aplicar, o modo nativo e o estado de espera já
+moravam no `DatePicker`; o `TimePicker` troca o painel (`months: 0`, sem grade),
+a leitura (`_toDate`, `_typed`) e a escrita (`_nativeValue`). Por dentro a hora é
+um `Date` num 1º de janeiro, que não é virada de horário de verão em fuso
+nenhum. Por fora, `getValue()` e o POST são `14:30`, como o `<input type="time">`:
+hora sem dia não é instante, e um `Date` obrigaria quem usa a ignorar um dia e
+um fuso inventados. Mexeu na mãe, rode os testes de hora junto.
+
 ## Antes de dizer que está pronto
 
 ```bash
@@ -815,20 +834,20 @@ dados vazios (colar é testado chamando o handler com o texto); e se a barra de
 rolagem ocupa espaço depende do motor e do sistema, então o teste do diálogo mede
 a barra em vez de supor que ela não existe.
 
-**`tools/behavior.mjs` — 119 comportamentos, nos três navegadores.** Abrir, fechar,
+**`tools/behavior.mjs` — 130 comportamentos, nos três navegadores.** Abrir, fechar,
 ordenar, marcar, emitir evento, e os textos: português sem `setTexts`, troca
 global, opção da instância vencendo e restauração no fim. A página roda sozinha
 e escreve o resultado em `<pre id="result">`; o teste espera esse bloco ser
 preenchido, e não um tempo fixo. Nunca leia opacidade ou posição logo depois de
 abrir algo — a página injeta `transition: none` para o estado final valer já.
 
-**`tools/examples.mjs` — os 392 exemplos da documentação, em todas as páginas do site.** Os de HTML são
+**`tools/examples.mjs` — os 416 exemplos da documentação, em todas as páginas do site.** Os de HTML são
 colados no documento e têm que montar; os de JS não são executados (citam
 `#delivery` e `form`, que não existem) e sim conferidos nome por nome
 contra o código: `Tucano.x` existe? o método existe no protótipo? cada chave de
 opção é lida por alguém, inclusive dentro de `actions` e `items`?
 
-**`tools/keyboard.mjs` — 93 caminhos de teclado e mouse reais, nos três
+**`tools/keyboard.mjs` — 95 caminhos de teclado e mouse reais, nos três
 navegadores**, pelo `page.keyboard` e `page.mouse` do Playwright: `Backspace` e `Delete` na máscara e no select, as setas nas abas, o
 `↓` que leva o foco ao dia no date picker, a data digitada que emite e o `Escape`
 que a descarta, o Aplicar que segura a escolha, o painel que reabre em menos de

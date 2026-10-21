@@ -415,7 +415,7 @@ export class DatePicker {
 
     this._cleanups.push(on(this.overlay, 'change', () => {
       if (this._emitting) return;
-      this.setValue(parseISO(this.overlay.value));
+      this.setValue(this.overlay.value);
     }));
   }
 
@@ -584,9 +584,14 @@ export class DatePicker {
    */
   _parseTyped(raw) {
     const [a, b] = this.isRange ? raw.split(RANGE_SEPARATOR) : [raw];
-    const start = this._keepTime(parseUserInput(a, this.opts.locale), this.start);
-    const end = this.isRange ? this._keepTime(parseUserInput(b, this.opts.locale), this.end) : null;
+    const start = this._typed(a, this.start);
+    const end = this.isRange ? this._typed(b, this.end) : null;
     return start && (end || !this.isRange) ? { start, end } : null;
+  }
+
+  /** Um lado do texto digitado, ja normalizado. O TimePicker le so a hora. */
+  _typed(text, previous) {
+    return this._keepTime(parseUserInput(text, this.opts.locale), previous);
   }
 
   _placeholder() {
@@ -797,13 +802,14 @@ export class DatePicker {
     if (this.opts.presets && this.isRange) this.panel.insertBefore(this._renderPresets(), this._live);
 
     const main = el('div', { class: 'tuc-dp__main' });
-    if (this.view === 'days') {
+    // Sem meses (o TimePicker) o painel e so a hora.
+    if (this.view === 'days' && this.opts.months) {
       // O dia focavel precisa estar na vista, senao a grade fica sem parada de Tab.
       if (!this.focusDate || !this._inView(this.focusDate)) this.focusDate = this._initialFocus();
       const months = el('div', { class: 'tuc-dp__months' });
       for (let i = 0; i < this.opts.months; i++) months.append(this._renderMonth(addMonths(this.viewDate, i), i));
       main.append(months);
-    } else {
+    } else if (this.view !== 'days') {
       main.append(this._renderPeriodView());
     }
 
@@ -1213,7 +1219,8 @@ export class DatePicker {
   /** Setas, Home e End dentro de uma coluna de hora: movem o foco, sem escolher. */
   _onTimeKeydown(e) {
     const item = e.target;
-    const items = [...item.parentElement.children];
+    // Item desativado (fora de min/max no TimePicker) nao recebe foco: pula.
+    const items = [...item.parentElement.children].filter((n) => !n.disabled);
     const index = { ArrowUp: items.indexOf(item) - 1, ArrowDown: items.indexOf(item) + 1, Home: 0, End: items.length - 1 }[e.key];
     if (index === undefined) return;
     e.preventDefault();

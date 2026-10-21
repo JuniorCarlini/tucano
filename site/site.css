@@ -143,6 +143,8 @@ html.dark .i-moon { display: none; }
 .demo-grid { display: grid; gap: 28px 32px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .demo-grid.is-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .demo-cell { min-width: 0; }
+/* Uma coluna só, para o que precisa da largura toda (o indicador de etapas). */
+.demo-stack { display: grid; gap: 28px; }
 .demo-cell > h4 { margin: 0 0 4px; font-size: 13px; font-weight: 650; }
 .demo-cell > p { margin: 0 0 12px; font-size: 13px; color: var(--muted); }
 /* Saida so ocupa lugar quando tem valor: vazia, ela deixava um vao no exemplo. */

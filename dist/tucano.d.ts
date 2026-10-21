@@ -165,6 +165,15 @@ export interface DatePickerTexts {
   placeholderLetters: string;
 }
 
+export interface TimePickerTexts {
+  /** @default 'Selecionar horário' */
+  dialog: string;
+  /** @default 'Selecionar intervalo de horário' */
+  dialogRange: string;
+  /** @default 'Agora' */
+  now: string;
+}
+
 export interface SelectTexts {
   /** @default 'Selecione...' */
   placeholder: string;
@@ -398,6 +407,7 @@ export interface ProseTexts {
 /** Todos os textos da interface, por grupo — o formato de `getTexts()`. */
 export interface TucanoTexts {
   datepicker: DatePickerTexts;
+  timepicker: TimePickerTexts;
   select: SelectTexts;
   colorpicker: ColorPickerTexts;
   upload: UploadTexts;
@@ -1198,6 +1208,56 @@ export declare class Slider {
   destroy(): void;
 }
 
+export interface StepperChangeDetail {
+  /** Indice da etapa aberta. */
+  value: number;
+  step: HTMLElement | undefined;
+  panel: HTMLElement | undefined;
+  instance: Stepper;
+}
+export interface StepperGoOptions {
+  /** Nao dispara onChange nem tucano:change. */
+  silent?: boolean;
+  /** Leva o foco ao titulo do painel. Padrao true. */
+  focus?: boolean;
+}
+
+/** Opcoes de `Stepper`. Toda opcao e opcional; o padrao vem do codigo. */
+export interface StepperOptions {
+  /**
+   * indice da etapa inicial; sem ele, a do primeiro campo com erro, a marcada com aria-current="step", ou a primeira
+   * @default null
+   */
+  start?: number | null;
+  /**
+   * avancar confere os campos da etapa atual; voltar nunca confere
+   * @default true
+   */
+  validate?: boolean;
+  /**
+   * (index, detail) a cada troca de etapa feita pela pessoa ou por go()
+   * @default null
+   */
+  onChange?: ((index: number, detail: StepperChangeDetail) => void) | null;
+}
+
+/** Assistente em etapas: confere os campos de cada etapa antes de avancar. O template ja traz as classes. */
+export declare class Stepper {
+  constructor(target: string | HTMLElement, options?: StepperOptions);
+  /** Opcoes ja mescladas com os padroes. */
+  readonly opts: StepperOptions;
+  readonly node: HTMLElement;
+  readonly index: number;
+  readonly steps: HTMLElement[];
+  readonly panels: HTMLElement[];
+  /** Confere os campos da etapa atual. O primeiro invalido recebe o aviso do navegador e o foco. */
+  checkStep(): boolean;
+  next(): this;
+  prev(): this;
+  go(index: number, options?: StepperGoOptions): this;
+  destroy(): void;
+}
+
 export type SortDirection = 'asc' | 'desc';
 export interface TableSortDetail {
   /** Indice da coluna. */
@@ -1295,6 +1355,103 @@ export declare class Tabs {
   readonly panels: HTMLElement[];
   readonly index: number;
   select(index: number, options?: SilentOption): this;
+  destroy(): void;
+}
+
+/** Hora como o `<input type="time">` posta: `'14:30'`, ou `'14:30:15'` com segundos. */
+export type TimeString = string;
+/** Intervalo de horas. Uma ponta fica `null` enquanto nao ha valor. */
+export interface TimeRange {
+  start: TimeString | null;
+  end: TimeString | null;
+}
+/** Hora de entrada: `'14:30'`, `'2:30 PM'`, ou um `Date`, do qual vale so a hora. */
+export type TimeInput = Date | string;
+/** O que `getValue()` devolve: `'14:30' | null` em `'single'`, `TimeRange` em `'range'`. */
+export type TimePickerValue<M extends DatePickerMode = DatePickerMode> = M extends 'range' ? TimeRange : TimeString | null;
+/** O que `setValue()` aceita em cada modo. */
+export type TimePickerInput<M extends DatePickerMode = DatePickerMode> = M extends 'range'
+  ? { start?: TimeInput | null; end?: TimeInput | null } | [TimeInput | null | undefined, TimeInput | null | undefined] | null
+  : TimeInput | null;
+export interface TimePickerChangeDetail<M extends DatePickerMode = DatePickerMode> {
+  value: TimePickerValue<M>;
+  /** O valor como vai no input hidden: `14:30`, ou o par separado por virgula. */
+  iso: string;
+  instance: TimePicker<M>;
+}
+
+/** Opcoes de `TimePicker`. Toda opcao e opcional; o padrao vem do codigo. */
+export interface TimePickerOptions<M extends DatePickerMode = 'single'> {
+  /**
+   * 'single' | 'range' (inicio e fim lado a lado)
+   * @default 'single'
+   */
+  mode?: M;
+  /** @default false */
+  seconds?: boolean;
+  /** @default 5 */
+  minuteStep?: number;
+  /** default: locale do documento/navegador; decide 24 h ou AM/PM */
+  locale?: string;
+  /**
+   * '08:00': as horas antes ficam desativadas nas colunas
+   * @default null
+   */
+  min?: TimeInput | null;
+  /**
+   * '18:00'
+   * @default null
+   */
+  max?: TimeInput | null;
+  /**
+   * true: cada clique numa coluna ja vale, sem o Aplicar
+   * @default false
+   */
+  autoApply?: boolean;
+  /** @default true */
+  clearable?: boolean;
+  /**
+   * botao "Agora" no rodape: aplica a hora atual e fecha. Opt-in
+   * @default false
+   */
+  now?: boolean;
+  /** @default 'bottom-center' */
+  placement?: Placement;
+  /** Onde o painel nasce. Padrao: o `<dialog>` aberto que contem o campo, ou o `<body>`. */
+  appendTo?: HTMLElement;
+  /** name do input hidden com o valor HH:MM */
+  isoName?: string;
+  /**
+   * true ou 'auto': o seletor de hora do sistema no celular
+   * @default false
+   */
+  native?: boolean | 'auto';
+  /** @default null */
+  onChange?: ((value: TimePickerValue<M>, detail: TimePickerChangeDetail<M>) => void) | null;
+  /** @default null */
+  onOpen?: ((instance: TimePicker<M>) => void) | null;
+  /** @default null */
+  onClose?: ((instance: TimePicker<M>) => void) | null;
+}
+
+/** Campo so de hora: as colunas do date picker, sem calendario. Posta `14:30`, como o `<input type="time">`. */
+export declare class TimePicker<M extends DatePickerMode = 'single'> {
+  constructor(target: string | HTMLInputElement, options?: TimePickerOptions<M>);
+  readonly isOpen: boolean;
+  readonly input: HTMLInputElement;
+  /** `'14:30'` ou `null`; no intervalo, `{ start, end }` com cada ponta assim. */
+  getValue(): TimePickerValue<M>;
+  /** Aplica a hora; texto que nao e hora, ou fora de `min`/`max`, limpa o campo. */
+  setValue(value: TimePickerInput<M>, options?: SilentOption): void;
+  /** Limpa o campo. */
+  clear(options?: SilentOption): void;
+  /** Abre o painel. */
+  open(): void;
+  /** Fecha o painel, descartando o que nao foi aplicado. */
+  close(options?: { restoreFocus?: boolean }): void;
+  /** Abre ou fecha. */
+  toggle(): void;
+  /** Desmonta e devolve o campo como estava. */
   destroy(): void;
 }
 
@@ -1658,6 +1815,9 @@ export declare function autoInitSelects(scope?: ParentNode): Select[];
 /** Inicializa todo `[data-tuc-slider]` do escopo que ainda nao foi montado. */
 export declare function autoInitSliders(scope?: ParentNode): Slider[];
 
+/** Inicializa todo `[data-tuc-stepper]` do escopo que ainda nao foi montado. */
+export declare function autoInitSteppers(scope?: ParentNode): Stepper[];
+
 /**
  * Tabelas escritas no template — o caminho normal num projeto Django:
  *
@@ -1673,6 +1833,12 @@ export declare function autoInitTables(scope?: ParentNode): Table[];
 
 /** Inicializa todo `[data-tuc-tabs]` do escopo que ainda nao foi montado. */
 export declare function autoInitTabs(scope?: ParentNode): Tabs[];
+
+/**
+ * Inicializa todo [data-tuc-timepicker] do escopo. Opcoes vem de data-attributes:
+ * data-mode, data-seconds, data-minute-step, data-min, data-max, data-locale...
+ */
+export declare function autoInitTimePickers(scope?: ParentNode): TimePicker<DatePickerMode>[];
 
 /**
  * Converte mensagens ja renderizadas em toast — a saida do framework de
@@ -1923,6 +2089,7 @@ export declare const toast: ToastFunction;
 /** O que `init()` devolve: as instancias criadas por tipo de componente. */
 export interface InitResult {
   datepickers: DatePicker<DatePickerMode>[];
+  timepickers: TimePicker<DatePickerMode>[];
   selects: Select[];
   colorpickers: ColorPicker[];
   uploads: Upload[];
@@ -1934,6 +2101,7 @@ export interface InitResult {
   drawers: Drawer[];
   accordions: Accordion[];
   tabs: Tabs[];
+  steppers: Stepper[];
   dropdowns: Dropdown[];
   contextMenus: ContextMenu[];
   tables: Table[];
@@ -1950,8 +2118,8 @@ export declare function init(scope?: ParentNode): InitResult;
  * `Element`, `HTMLElement`, `Document` e `Window`, entao `addEventListener` ja sabe o tipo.
  */
 export interface TucanoEventMap {
-  /** Valor novo em date picker, select, color picker, upload, mascara, slider ou abas. Borbulha. */
-  'tucano:change': CustomEvent<ColorPickerChangeDetail | DatePickerChangeDetail | MaskChangeDetail | SelectChangeDetail | SliderChangeDetail | TabsChangeDetail | UploadChangeDetail>;
+  /** Valor novo em date picker, select, color picker, upload, mascara, slider ou abas, e etapa nova no assistente. Borbulha. */
+  'tucano:change': CustomEvent<ColorPickerChangeDetail | DatePickerChangeDetail | MaskChangeDetail | SelectChangeDetail | SliderChangeDetail | StepperChangeDetail | TabsChangeDetail | TimePickerChangeDetail | UploadChangeDetail>;
   /** Clique num cabecalho ordenavel da tabela. Borbulha. */
   'tucano:sort': CustomEvent<TableSortDetail>;
   /** Linha marcada ou desmarcada na tabela. Borbulha. */

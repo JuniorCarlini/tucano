@@ -13,7 +13,7 @@ e os componentes se montam sozinhos, no Django, no Laravel, no Rails ou em HTML 
 
 <p>
   <a href="https://www.npmjs.com/package/tucano"><img alt="npm" src="https://img.shields.io/npm/v/tucano?style=flat-square&color=FF7501&label=npm"></a>
-  <a href="#baixar-só-o-que-se-usa"><img alt="tamanho" src="https://img.shields.io/badge/gzip-59%20KB-FF7501?style=flat-square"></a>
+  <a href="#baixar-só-o-que-se-usa"><img alt="tamanho" src="https://img.shields.io/badge/gzip-61%20KB-FF7501?style=flat-square"></a>
   <a href="https://github.com/JuniorCarlini/tucano/actions/workflows/tests.yml"><img alt="testes" src="https://img.shields.io/github/actions/workflow/status/JuniorCarlini/tucano/tests.yml?style=flat-square&label=testes&branch=main"></a>
   <img alt="dependências" src="https://img.shields.io/badge/depend%C3%AAncias-0-0a7?style=flat-square">
   <a href="LICENSE"><img alt="licença" src="https://img.shields.io/github/license/JuniorCarlini/tucano?style=flat-square&color=555"></a>
@@ -46,7 +46,7 @@ e os componentes se montam sozinhos, no Django, no Laravel, no Rails ou em HTML 
 - **Nada para configurar.** Um `<link>`, um `<script>` e um atributo no campo. Sem build, sem npm, sem escrever JavaScript.
 - **O valor continua sendo do formulário.** `name`, `value`, `required` e o POST são os do navegador — o back-end não muda, e funciona sem JavaScript até onde o elemento nativo vai.
 - **Feito para HTML vindo do servidor.** Os componentes se montam no load e depois de cada swap do HTMX. Os exemplos usam Django, mas servem a Laravel, Rails ou PHP puro.
-- **Leve e sem dependências.** **45 KB de JS + 14 KB de CSS** (minificado + gzip), e quem empacota leva só o que importa.
+- **Leve e sem dependências.** **47 KB de JS + 14 KB de CSS** (minificado + gzip), e quem empacota leva só o que importa.
 - **Acessível por padrão.** Papéis ARIA, foco preso onde precisa, teclado do ARIA APG e `prefers-reduced-motion` respeitado.
 - **Provado nos três motores.** Chromium, Firefox e WebKit a cada push: comportamento, teclado de verdade, exemplos da documentação e checagens cruzadas de nome.
 
@@ -200,12 +200,13 @@ componentes.
 
 ## Componentes
 
-Vinte e sete, todos prontos. Cada linha abre a página com exemplos que você mexe
+Vinte e nove, todos prontos. Cada linha abre a página com exemplos que você mexe
 na hora.
 
 | Com&nbsp;JavaScript | O que faz | |
 | --- | --- | --- |
 | `DatePicker` | Data, período, hora e data + hora, com o valor em ISO num campo escondido | [docs](https://juniorcarlini.github.io/tucano/datepicker/) |
+| `TimePicker` | Só a hora, ou início e fim, postando `14:30` como o `<input type="time">` | [docs](https://juniorcarlini.github.io/tucano/timepicker/) |
 | `Select` | Busca, múltiplo com tags, grupos e busca no servidor, tudo guardado no `<select>` nativo | [docs](https://juniorcarlini.github.io/tucano/select/) |
 | `ColorPicker` | HSV, hex, rgb e hsl, opacidade e paleta, com o valor no campo de texto | [docs](https://juniorcarlini.github.io/tucano/color/) |
 | `Upload` | Arrastar e soltar, progresso, validação e envio direto para o servidor | [docs](https://juniorcarlini.github.io/tucano/upload/) |
@@ -215,6 +216,7 @@ na hora.
 | `Table` | Ordenação no servidor pela própria URL e seleção em massa das linhas | [docs](https://juniorcarlini.github.io/tucano/table/) |
 | `Pagination` | Links de página de verdade, feitos para o Paginator do Django | [docs](https://juniorcarlini.github.io/tucano/pagination/) |
 | `Tabs` | Teclado do ARIA APG, e a variação segmentada para trocar a visão | [docs](https://juniorcarlini.github.io/tucano/tabs/) |
+| `Stepper` | Assistente em etapas que confere cada uma antes de avançar, num formulário só | [docs](https://juniorcarlini.github.io/tucano/stepper/) |
 | `Dropdown` | Menu de ações ancorado no gatilho, com setas, Home e End | [docs](https://juniorcarlini.github.io/tucano/dropdown/) |
 | `ContextMenu` | Menu do botão direito no ponto do clique, herdado do menu suspenso | [docs](https://juniorcarlini.github.io/tucano/contextmenu/) |
 | `Modal` | Diálogo sobre o `<dialog>` nativo: top layer, foco preso e Escape | [docs](https://juniorcarlini.github.io/tucano/modal/) |
@@ -321,6 +323,41 @@ O painel é `role="dialog"`, a grade é `role="grid"`, cada dia tem
 `aria-selected` e rótulo por extenso, e o foco fica preso no painel enquanto
 aberto — voltando ao input ao fechar. `prefers-reduced-motion` desliga a
 animação.
+
+</details>
+
+<details>
+<summary><b>Time picker — só a hora</b></summary>
+
+[Página com exemplos ao vivo →](https://juniorcarlini.github.io/tucano/timepicker/)
+
+As colunas do date picker, sem o calendário: mesma máscara, mesmo teclado,
+mesmo Aplicar. O valor sai como o `<input type="time">` posta, e o `TimeField`
+do Django lê direto.
+
+```html
+<input type="text" name="opening" data-tuc-timepicker>
+<input type="text" name="shift"   data-tuc-timepicker data-mode="range" data-min="08:00" data-max="18:00">
+```
+
+```text
+POST  opening = 14:30
+POST  shift   = 09:00,17:30
+```
+
+| Opção | Padrão | O que faz |
+| --- | --- | --- |
+| `mode` | `'single'` | `'single'` ou `'range'` (início e fim lado a lado) |
+| `min` / `max` | `null` | Limites (`'08:00'` ou Date); o que fica fora aparece desativado |
+| `minuteStep` | `5` | Degrau da coluna de minutos |
+| `seconds` | `false` | Coluna de segundos; o valor vira `14:30:15` |
+| `autoApply` | `false` | `true` tira o Aplicar: cada clique já vale |
+| `now` | `false` | Botão "Agora" no rodapé: aplica a hora atual e fecha |
+| `locale` | `<html lang>` | Relógio de 12 ou 24 horas na tela; o POST é sempre 24 horas |
+| `native` | `false` | Seletor de hora do sistema: `true` sempre, `'auto'` em tela de toque |
+
+`getValue()` devolve texto (`'14:30'`, ou `{ start, end }` no intervalo), e não
+`Date`: hora sem dia não é um instante.
 
 </details>
 
@@ -892,6 +929,54 @@ Cada troca dispara `tucano:change` no elemento, com `{ value, tab, panel, instan
 </details>
 
 <details>
+<summary><b>Etapas — indicador e assistente</b></summary>
+
+[Página com exemplos ao vivo →](https://juniorcarlini.github.io/tucano/stepper/)
+
+```html
+<form method="post">
+  <div class="tuc-stepper" data-tuc-stepper>
+    <ol class="tuc-steps" aria-label="Etapas do cadastro">
+      <li class="tuc-steps__item" aria-current="step"><span class="tuc-steps__label">Dados</span></li>
+      <li class="tuc-steps__item"><span class="tuc-steps__label">Endereço</span></li>
+    </ol>
+    <fieldset class="tuc-stepper__panel"><legend>Seus dados</legend> …</fieldset>
+    <fieldset class="tuc-stepper__panel" hidden><legend>Endereço</legend> …</fieldset>
+    <div class="tuc-stepper__actions">
+      <button type="button" class="tuc-btn is-outline" data-step="prev" hidden>Voltar</button>
+      <button type="button" class="tuc-btn is-primary" data-step="next">Continuar</button>
+      <button type="submit" class="tuc-btn is-primary" hidden>Finalizar</button>
+    </div>
+  </div>
+</form>
+```
+
+O indicador (`.tuc-steps`) é só classe e funciona sem script: num assistente de
+várias páginas, o template põe `is-done` nas etapas feitas e
+`aria-current="step"` na atual. O assistente usa o mesmo indicador numa página
+só, e o formulário continua um só — painel escondido não sai do DOM, então todo
+`name` vai no POST final. Continuar confere os campos da etapa com a validação
+do navegador e marca `aria-invalid` no que reprovou; Voltar nunca confere. `Enter`
+num campo, antes da última etapa, é Continuar. O formulário que volta do servidor
+com erro abre na etapa do primeiro campo com `aria-invalid="true"`.
+
+| Opção | Padrão | Para quê |
+| --- | --- | --- |
+| `start` | `null` | Índice da etapa inicial; sem ele, a do erro, a marcada ou a primeira |
+| `validate` | `true` | Continuar confere os campos da etapa |
+| `onChange` | `null` | `(index, detail)` a cada troca |
+
+```js
+const wizard = new Tucano.Stepper('#signup');
+wizard.next();   // confere e avança
+wizard.go(0);    // vai direto, sem conferir
+```
+
+Cada troca dispara `tucano:change` no elemento, com `{ value, step, panel, instance }`.
+
+</details>
+
+<details>
 <summary><b>Tabela — ordenação no servidor e seleção em massa</b></summary>
 
 [Página com exemplos ao vivo →](https://juniorcarlini.github.io/tucano/table/)
@@ -1422,7 +1507,7 @@ ano. É a escolha certa para a maioria dos casos.
 Quem empacota pode levar menos, importando de `tucano`:
 
 ```js
-import { DatePicker, Select } from 'tucano';   // 15,4 KB em vez de 44
+import { DatePicker, Select } from 'tucano';   // 15,4 KB em vez de 46
 ```
 
 | o que se importa | gzip |
@@ -1431,7 +1516,7 @@ import { DatePicker, Select } from 'tucano';   // 15,4 KB em vez de 44
 | só o select | 6,4 KB |
 | só o toast | 2,7 KB |
 | date picker + select | 15,4 KB |
-| tudo | 44,4 KB |
+| tudo | 46,3 KB |
 
 Não é linear porque o núcleo — posicionamento, datas, utilidades de DOM — é
 compartilhado: o primeiro componente paga por ele e os seguintes saem mais

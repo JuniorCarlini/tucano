@@ -69,6 +69,11 @@ const page = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
 </div>
 <input type="range" class="tuc-slider" data-tuc-slider id="ksl" min="0" max="10" value="5">
 <div class="tuc-slider is-range" data-tuc-slider id="kslr" style="max-width:400px"><input type="range" name="lo" value="50"><input type="range" name="hi" value="50"></div>
+<form id="kstform" onsubmit="window.__kstSubmits = (window.__kstSubmits || 0) + 1; return false"><div class="tuc-stepper" data-tuc-stepper id="kst">
+  <ol class="tuc-steps"><li class="tuc-steps__item"><span class="tuc-steps__label">A</span></li><li class="tuc-steps__item"><span class="tuc-steps__label">B</span></li></ol>
+  <fieldset class="tuc-stepper__panel"><legend>A</legend><input id="kst1" name="a" required></fieldset>
+  <fieldset class="tuc-stepper__panel" hidden><legend>B</legend><input id="kst2" name="b"></fieldset>
+  <div class="tuc-stepper__actions"><button type="button" data-step="prev" hidden>Voltar</button><button type="button" data-step="next">Continuar</button><button type="submit" hidden>Finalizar</button></div></div></form>
 <textarea id="kvars"></textarea>
 <p id="kbold"><b>negrito fora do editor</b></p>
 <form id="kedForm" onsubmit="window.__kedSubmits++; return false"><textarea id="ked2" name="body" data-tuc-editor required>&lt;p&gt;original&lt;/p&gt;</textarea><button id="kedSubmit">enviar</button></form>
@@ -290,6 +295,30 @@ testCase('setas andam entre as abas, pulam a desativada e trocam o painel', asyn
   await press('Home');
   r = await where();
   return r === 'A01' ? null : `Home não voltou para a primeira: ${r}`;
+});
+
+/*
+ * Etapas: Enter num campo de texto antes da ultima etapa e Continuar, e nao o
+ * envio do formulario — que o navegador barraria por um campo escondido. Tecla
+ * de verdade, porque o envio implicito e acao padrao, e evento sintetico nao a dispara.
+ */
+testCase('etapas: Enter no campo é Continuar, e na última etapa envia', async () => {
+  const state = () => evaluate(`(() => [document.getElementById('kst')._tucano.index, window.__kstSubmits || 0, document.activeElement.id || document.activeElement.tagName].join())()`);
+  await focusAt('kst1');
+  await press('Enter');                 // vazio e obrigatório: fica
+  let r = await state();
+  if (!r.startsWith('0,0')) return `avançou ou enviou com o campo vazio: ${r}`;
+  await focusAt('kst1');
+  await typeText('ok');
+  await press('Enter');
+  r = await state();
+  if (r !== '1,0,LEGEND') return `Enter devia avançar sem enviar e focar o título: ${r}`;
+  await press('Tab');                   // do título, o Tab chega ao primeiro campo
+  r = await state();
+  if (r !== '1,0,kst2') return `Tab não chegou ao campo da etapa: ${r}`;
+  await press('Enter');                 // na última etapa, Enter envia
+  r = await state();
+  return r === '1,1,kst2' ? null : `Enter na última etapa não enviou: ${r}`;
 });
 
 /*
@@ -970,6 +999,24 @@ testCase('colunas de hora: uma parada de Tab por coluna, setas andam e Enter esc
   r = await evaluate('document.activeElement.dataset.key');
   await press('Escape');
   return r === 'start-h-23' ? null : `End levou o foco a ${r}`;
+});
+
+testCase('campo de hora: ↓ abre nas horas, a seta pula o desativado e a hora digitada emite ao sair', async () => {
+  await evaluate(`mk('<input data-tuc-timepicker data-min="08:00" name="kh">'); inp.focus()`);
+  await press('ArrowDown');
+  let r = await evaluate('document.activeElement.dataset.key');
+  if (r !== 'start-h-8') return `↓ levou o foco a ${r}`;
+  await press('ArrowUp');
+  await press('Enter');
+  r = await evaluate(`[document.activeElement.dataset.key, dp.getValue()]`);
+  await press('Escape');
+  if (r.join(' ') !== 'start-h-8 08:00') return `↑ e Enter: ${r.join(' ')}`;
+
+  await evaluate(`mk('<input data-tuc-timepicker name="kh">'); inp.focus()`);
+  await typeText('1430');
+  await press('Tab');
+  r = await evaluate(`[inp.value, hidden(), log.join('|')]`);
+  return r.join(' ') === '14:30 14:30 onChange 14:30|event 14:30' ? null : JSON.stringify(r);
 });
 
 testCase('dois meses lado a lado: uma parada de Tab na grade, e nunca no dia de fora', async () => {

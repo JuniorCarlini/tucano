@@ -1,4 +1,5 @@
 export { DatePicker, autoInit as autoInitDatePickers } from './components/datepicker.js';
+export { TimePicker, autoInit as autoInitTimePickers } from './components/timepicker.js';
 export { Select, autoInit as autoInitSelects } from './components/select.js';
 export { ColorPicker, autoInit as autoInitColorPickers } from './components/colorpicker.js';
 export { Upload, autoInit as autoInitUploads } from './components/upload.js';
@@ -10,6 +11,7 @@ export { Modal, modal, confirm, autoInit as autoInitModals } from './components/
 export { Drawer, drawer, autoInit as autoInitDrawers } from './components/drawer.js';
 export { Accordion, autoInit as autoInitAccordions } from './components/accordion.js';
 export { Tabs, autoInit as autoInitTabs } from './components/tabs.js';
+export { Stepper, autoInit as autoInitSteppers } from './components/stepper.js';
 export { Dropdown, autoInit as autoInitDropdowns } from './components/dropdown.js';
 export { ContextMenu, autoInit as autoInitContextMenus } from './components/contextmenu.js';
 export { Table, autoInit as autoInitTables } from './components/table.js';
@@ -28,6 +30,7 @@ export { setTexts, getTexts } from './core/texts.js';
 export { icon, ICON_CHECK, ICON_COPY, ICON_X } from './core/dom.js';
 
 import { autoInit } from './components/datepicker.js';
+import { autoInit as autoInitTime } from './components/timepicker.js';
 import { autoInit as autoInitSelect } from './components/select.js';
 import { autoInit as autoInitColor } from './components/colorpicker.js';
 import { autoInit as autoInitUpload } from './components/upload.js';
@@ -39,6 +42,7 @@ import { autoInit as autoInitModal } from './components/modal.js';
 import { autoInit as autoInitDrawer } from './components/drawer.js';
 import { autoInit as autoInitAccordion } from './components/accordion.js';
 import { autoInit as autoInitTab } from './components/tabs.js';
+import { autoInit as autoInitStepper } from './components/stepper.js';
 import { autoInit as autoInitDropdown } from './components/dropdown.js';
 import { autoInit as autoInitContextMenu } from './components/contextmenu.js';
 import { autoInit as autoInitTable } from './components/table.js';
@@ -50,6 +54,7 @@ import { autoInit as autoInitProse } from './core/highlight.js';
 export function init(scope = document) {
   return {
     datepickers: autoInit(scope),
+    timepickers: autoInitTime(scope),
     selects: autoInitSelect(scope),
     colorpickers: autoInitColor(scope),
     uploads: autoInitUpload(scope),
@@ -61,6 +66,7 @@ export function init(scope = document) {
     drawers: autoInitDrawer(scope),
     accordions: autoInitAccordion(scope),
     tabs: autoInitTab(scope),
+    steppers: autoInitStepper(scope),
     dropdowns: autoInitDropdown(scope),
     contextMenus: autoInitContextMenu(scope),
     tables: autoInitTable(scope),

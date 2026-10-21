@@ -52,10 +52,10 @@ function addDays(d, n) {
 }
 function addMonths(d, n) {
   const x = clone(d);
-  const day = x.getDate();
+  const day2 = x.getDate();
   x.setDate(1);
   x.setMonth(x.getMonth() + n);
-  x.setDate(Math.min(day, daysInMonth(x.getFullYear(), x.getMonth())));
+  x.setDate(Math.min(day2, daysInMonth(x.getFullYear(), x.getMonth())));
   return x;
 }
 function addYears(d, n) {
@@ -93,8 +93,8 @@ function clampDate(d, min, max) {
   if (max && compareDay(d, max) > 0) return clone(max);
   return d;
 }
-function withTime(day, time) {
-  const x = clone(day);
+function withTime(day2, time) {
+  const x = clone(day2);
   x.setHours(time.getHours(), time.getMinutes(), time.getSeconds(), 0);
   return x;
 }
@@ -227,25 +227,25 @@ function parseUserInput(text, locale = "pt-BR", reference = /* @__PURE__ */ new 
   const digits = raw.replace(/\D/g, "");
   const parts = raw.split(/[^\d]+/).filter(Boolean).map(Number);
   const monthFirst = isMonthFirst(locale);
-  let day, month, year;
+  let day2, month, year;
   if (parts.length >= 2) {
-    [day, month] = monthFirst ? [parts[1], parts[0]] : [parts[0], parts[1]];
+    [day2, month] = monthFirst ? [parts[1], parts[0]] : [parts[0], parts[1]];
     year = parts[2];
   } else if (digits.length === 8) {
     const a = +digits.slice(0, 2), b = +digits.slice(2, 4);
-    [day, month] = monthFirst ? [b, a] : [a, b];
+    [day2, month] = monthFirst ? [b, a] : [a, b];
     year = +digits.slice(4);
   } else if (digits.length === 4) {
     const a = +digits.slice(0, 2), b = +digits.slice(2, 4);
-    [day, month] = monthFirst ? [b, a] : [a, b];
+    [day2, month] = monthFirst ? [b, a] : [a, b];
   } else {
     return null;
   }
   if (year === void 0) year = reference.getFullYear();
   else if (year < 100) year += year < 70 ? 2e3 : 1900;
   if (!(month >= 1 && month <= 12)) return null;
-  if (!(day >= 1 && day <= daysInMonth(year, month - 1))) return null;
-  const out = new Date(year, month - 1, day, time ? time.h : 0, time ? time.m : 0, time ? time.s : 0);
+  if (!(day2 >= 1 && day2 <= daysInMonth(year, month - 1))) return null;
+  const out = new Date(year, month - 1, day2, time ? time.h : 0, time ? time.m : 0, time ? time.s : 0);
   out.hasTime = !!time;
   return out;
 }
@@ -545,6 +545,11 @@ var DATEPICKER_TEXTS = {
   // "amdhms" escreve dd/mm/aaaa; em ingles, "ymdhms" escreve mm/dd/yyyy.
   placeholderLetters: "amdhms"
 };
+var TIMEPICKER_TEXTS = {
+  dialog: "Selecionar hor\xE1rio",
+  dialogRange: "Selecionar intervalo de hor\xE1rio",
+  now: "Agora"
+};
 var SELECT_TEXTS = {
   placeholder: "Selecione...",
   searchPlaceholder: "Buscar...",
@@ -664,6 +669,7 @@ var PROSE_TEXTS = {
 };
 var GROUPS = {
   datepicker: DATEPICKER_TEXTS,
+  timepicker: TIMEPICKER_TEXTS,
   select: SELECT_TEXTS,
   colorpicker: COLORPICKER_TEXTS,
   upload: UPLOAD_TEXTS,
@@ -1008,7 +1014,7 @@ var DatePicker = class _DatePicker {
     this._addIsoInput(this.wrap);
     this._cleanups.push(on(this.overlay, "change", () => {
       if (this._emitting) return;
-      this.setValue(parseISO(this.overlay.value));
+      this.setValue(this.overlay.value);
     }));
   }
   _nativeValue(date = this.start) {
@@ -1154,9 +1160,13 @@ var DatePicker = class _DatePicker {
    */
   _parseTyped(raw) {
     const [a, b] = this.isRange ? raw.split(RANGE_SEPARATOR) : [raw];
-    const start = this._keepTime(parseUserInput(a, this.opts.locale), this.start);
-    const end = this.isRange ? this._keepTime(parseUserInput(b, this.opts.locale), this.end) : null;
+    const start = this._typed(a, this.start);
+    const end = this.isRange ? this._typed(b, this.end) : null;
     return start && (end || !this.isRange) ? { start, end } : null;
+  }
+  /** Um lado do texto digitado, ja normalizado. O TimePicker le so a hora. */
+  _typed(text, previous) {
+    return this._keepTime(parseUserInput(text, this.opts.locale), previous);
   }
   _placeholder() {
     const sample = this._displayFormat().replace(
@@ -1334,12 +1344,12 @@ var DatePicker = class _DatePicker {
     for (const n of [...this.panel.children]) if (n !== this._live) n.remove();
     if (this.opts.presets && this.isRange) this.panel.insertBefore(this._renderPresets(), this._live);
     const main = el("div", { class: "tuc-dp__main" });
-    if (this.view === "days") {
+    if (this.view === "days" && this.opts.months) {
       if (!this.focusDate || !this._inView(this.focusDate)) this.focusDate = this._initialFocus();
       const months = el("div", { class: "tuc-dp__months" });
       for (let i = 0; i < this.opts.months; i++) months.append(this._renderMonth(addMonths(this.viewDate, i), i));
       main.append(months);
-    } else {
+    } else if (this.view !== "days") {
       main.append(this._renderPeriodView());
     }
     if (this.opts.time && this.view === "days") main.append(this._renderTime());
@@ -1743,7 +1753,7 @@ var DatePicker = class _DatePicker {
   /** Setas, Home e End dentro de uma coluna de hora: movem o foco, sem escolher. */
   _onTimeKeydown(e) {
     const item = e.target;
-    const items = [...item.parentElement.children];
+    const items = [...item.parentElement.children].filter((n) => !n.disabled);
     const index = { ArrowUp: items.indexOf(item) - 1, ArrowDown: items.indexOf(item) + 1, Home: 0, End: items.length - 1 }[e.key];
     if (index === void 0) return;
     e.preventDefault();
@@ -1838,9 +1848,214 @@ function autoInit(scope = document) {
   return out;
 }
 
+// src/js/components/timepicker.js
+var DEFAULTS2 = {
+  mode: "single",
+  // 'single' | 'range' (inicio e fim lado a lado)
+  seconds: false,
+  minuteStep: 5,
+  locale: void 0,
+  // default: locale do documento/navegador; decide 24 h ou AM/PM
+  min: null,
+  // '08:00': as horas antes ficam desativadas nas colunas
+  max: null,
+  // '18:00'
+  autoApply: false,
+  // true: cada clique numa coluna ja vale, sem o Aplicar
+  clearable: true,
+  now: false,
+  // botao "Agora" no rodape: aplica a hora atual e fecha. Opt-in
+  placement: "bottom-center",
+  appendTo: void 0,
+  isoName: void 0,
+  // name do input hidden com o valor HH:MM
+  native: false,
+  // true ou 'auto': o seletor de hora do sistema no celular
+  onChange: null,
+  onOpen: null,
+  onClose: null
+};
+var day = (h = 0, m = 0, s = 0) => new Date(2e3, 0, 1, h, m, s);
+function toTime(value) {
+  if (value instanceof Date) return isValid(value) ? day(value.getHours(), value.getMinutes(), value.getSeconds()) : null;
+  const m = /^(\d{1,2})(?:[:h.]?(\d{2}))?(?:[:.]?(\d{2}))?h?\s*(?:([ap])\.?\s*m?\.?)?$/i.exec(String(value ?? "").trim().replace(/^\d{4}-\d{2}-\d{2}[T ]/, ""));
+  if (!m) return null;
+  let h = +m[1];
+  if (m[4]) {
+    if (h < 1 || h > 12) return null;
+    h = h % 12 + (m[4].toLowerCase() === "p" ? 12 : 0);
+  }
+  const [min, sec] = [+(m[2] || 0), +(m[3] || 0)];
+  return h < 24 && min < 60 && sec < 60 ? day(h, min, sec) : null;
+}
+var TimePicker = class extends DatePicker {
+  constructor(target, options = {}) {
+    const opts = { ...DEFAULTS2, ...omitUndefined(options) };
+    super(target, { ...opts, time: true, months: 0, today: opts.now, min: toTime(opts.min), max: toTime(opts.max) });
+  }
+  /** `'14:30'` ou `null`; no intervalo, `{ start, end }` com cada ponta assim. */
+  getValue() {
+    const time = (d) => this._nativeValue(d) || null;
+    return this.isRange ? { start: time(this.start), end: time(this.end) } : time(this.start);
+  }
+  _buildPanel() {
+    super._buildPanel();
+    this.panel.classList.add("is-time");
+    this.panel.setAttribute("aria-label", this.isRange ? TIMEPICKER_TEXTS.dialogRange : TIMEPICKER_TEXTS.dialog);
+  }
+  _setupNative() {
+    super._setupNative();
+    this.overlay.type = "time";
+    if (this.opts.max) this.overlay.max = this._nativeValue(this.opts.max);
+  }
+  _toDate(value) {
+    return toTime(value);
+  }
+  _typed(text) {
+    return this._normalize(toTime(text));
+  }
+  /* O par que o proprio campo posta vem separado por virgula. */
+  _readValue(raw) {
+    super._readValue(this.isRange && raw ? String(raw).replace(",", " \u2013 ") : raw);
+  }
+  _isDisabled(date) {
+    const { min, max } = this.opts;
+    return Boolean(min && date < min || max && date > max);
+  }
+  _displayFormat() {
+    return this._timeFormat();
+  }
+  _nativeValue(date = this.start) {
+    return isValid(date) ? toISODateTime(date, this.opts.seconds).slice(11) : "";
+  }
+  /*
+   * Sem dia a escolher antes, a coluna e quem cria o valor: o primeiro clique
+   * parte de meia-noite, ou do `min`. Passar do limite (18 h com 30 min, e
+   * maximo 18:00) encosta no limite, e no intervalo a outra ponta acompanha em
+   * vez de desfazer o que acabou de ser escolhido.
+   */
+  _setTime(which, unit, value) {
+    const { min, max } = this.opts;
+    const d = clone(this[which] || min || day());
+    if (unit === "h") d.setHours(value);
+    if (unit === "m") d.setMinutes(value);
+    if (unit === "s") d.setSeconds(value);
+    this[which] = this._isDisabled(d) ? clone(min && d < min ? min : max) : d;
+    if (this.isRange && this.start && this.end && this.start > this.end) {
+      this[which === "start" ? "end" : "start"] = clone(this[which]);
+    }
+    this._picked(false);
+  }
+  /*
+   * Desativa o que fica inteiro fora de min/max: a hora 7 com minimo 08:00, e
+   * na hora 8 os minutos antes do minimo. A parada de Tab vai para o primeiro
+   * item que sobrou, senao a coluna ficaria fora do teclado.
+   */
+  _renderTimeList(which, unit, count, step, current) {
+    const list = super._renderTimeList(which, unit, count, step, current);
+    const { min, max } = this.opts;
+    const base = this[which] || min || day();
+    for (const item of list.children) {
+      const v = +item.textContent;
+      const from = clone(base);
+      const to = clone(base);
+      if (unit === "h") {
+        from.setHours(v, 0, 0);
+        to.setHours(v, 59, 59);
+      }
+      if (unit === "m") {
+        from.setMinutes(v, 0);
+        to.setMinutes(v, 59);
+      }
+      if (unit === "s") {
+        from.setSeconds(v);
+        to.setSeconds(v);
+      }
+      item.disabled = Boolean(min && to < min || max && from > max);
+    }
+    const stop = list.querySelector('[tabindex="0"]');
+    if (stop?.disabled) {
+      stop.tabIndex = -1;
+      const first = list.querySelector(":enabled");
+      if (first) first.tabIndex = 0;
+    }
+    return list;
+  }
+  /*
+   * Coluna ainda sem escolha abre na parada de Tab: com min 08:00 ela abria no
+   * 00, desativado, e as horas que valem ficavam fora de vista. So quando a
+   * coluna esta no topo, para nao desfazer a rolagem de quem ja rolou.
+   */
+  _revealTimes() {
+    super._revealTimes();
+    for (const list of this.panel.querySelectorAll(".tuc-dp__timelist")) {
+      const stop = list.querySelector('[tabindex="0"]');
+      if (!list.scrollTop && stop && !list.querySelector(".is-selected")) list.scrollTop = stop.offsetTop - list.offsetTop;
+    }
+  }
+  /*
+   * A hora de agora, para baixo no degrau dos minutos: as 14:37 com degrau 5,
+   * 14:35, que e o que a coluna marca. Arredondar para cima passaria de 23:59
+   * para o dia seguinte. null quando agora esta fora de min/max.
+   */
+  _now() {
+    const n = /* @__PURE__ */ new Date();
+    const step = this.opts.minuteStep;
+    return this._normalize(day(n.getHours(), Math.floor(n.getMinutes() / step) * step, this.opts.seconds ? n.getSeconds() : 0));
+  }
+  _renderFooter() {
+    const footer = super._renderFooter();
+    const button = footer.querySelector('[data-key="today"]');
+    if (button) {
+      button.textContent = TIMEPICKER_TEXTS.now;
+      button.disabled = !this._now();
+    }
+    return footer;
+  }
+  /*
+   * Agora e um atalho, e atalho nao pede confirmacao: aplica e fecha mesmo com
+   * o Aplicar ligado. Quem quer ajustar o minuto depois reabre o painel ja na
+   * hora certa. No intervalo, agora e o inicio; o fim so acompanha se ficou
+   * para tras.
+   */
+  _pickToday() {
+    const now = this._now();
+    if (!now) return;
+    this.start = now;
+    if (this.isRange && (!this.end || this.end < now)) this.end = clone(now);
+    this._commit();
+    this.close();
+  }
+  /* Abrir pelo teclado leva o foco a coluna das horas, no lugar da grade de dias. */
+  _focusGrid() {
+    this.panel.querySelector('.tuc-dp__timeitem[tabindex="0"]')?.focus();
+  }
+};
+function autoInit2(scope = document) {
+  const out = [];
+  for (const node of scope.querySelectorAll("[data-tuc-timepicker]:not([data-tuc-ready])")) {
+    const d = node.dataset;
+    node.setAttribute("data-tuc-ready", "");
+    out.push(new TimePicker(node, {
+      mode: d.mode || void 0,
+      seconds: d.seconds === "true" || d.seconds === "",
+      minuteStep: d.minuteStep ? +d.minuteStep : void 0,
+      locale: d.locale || void 0,
+      min: d.min || null,
+      max: d.max || null,
+      autoApply: d.autoApply === "true" ? true : void 0,
+      now: d.now === "true",
+      isoName: d.isoName || void 0,
+      placement: d.placement || void 0,
+      native: d.native === "auto" ? "auto" : d.native === "true"
+    }));
+  }
+  return out;
+}
+
 // src/js/components/select.js
 var TEXT_OPTIONS = ["searchPlaceholder", "emptyText", "loadingText", "errorText"];
-var DEFAULTS2 = {
+var DEFAULTS3 = {
   search: void 0,
   // default: liga a partir de 6 opcoes
   searchMinItems: 6,
@@ -1885,7 +2100,7 @@ var Select = class {
     const node = typeof target === "string" ? document.querySelector(target) : target;
     if (!node) throw new Error("[Select] elemento alvo nao encontrado");
     if (node.tagName !== "SELECT") throw new Error("[Select] o alvo precisa ser um <select>");
-    this.opts = { ...DEFAULTS2, ...omitUndefined(options) };
+    this.opts = { ...DEFAULTS3, ...omitUndefined(options) };
     this.native = node;
     this.multiple = node.multiple;
     this.opts.closeOnSelect = this.opts.closeOnSelect ?? !this.multiple;
@@ -2488,7 +2703,7 @@ function firstEmptyLabel(select2) {
   const o = [...select2.options].find((x) => x.value === "");
   return o ? o.textContent.trim() : null;
 }
-function autoInit2(scope = document) {
+function autoInit3(scope = document) {
   const out = [];
   for (const node of scope.querySelectorAll("select[data-tuc-select]:not([data-tuc-ready])")) {
     const d = node.dataset;
@@ -2645,7 +2860,7 @@ var PALETTE = [
   "#c026d3",
   "#be123c"
 ];
-var DEFAULTS3 = {
+var DEFAULTS4 = {
   format: "hex",
   // 'hex' | 'rgb' | 'hsl'
   alpha: true,
@@ -2665,7 +2880,7 @@ var ColorPicker = class _ColorPicker {
       node._tucano.destroy();
       node.toggleAttribute("data-tuc-ready", ready);
     }
-    this.opts = { ...DEFAULTS3, ...omitUndefined(options) };
+    this.opts = { ...DEFAULTS4, ...omitUndefined(options) };
     this.input = node;
     this.id = nextId("color");
     this.isOpen = false;
@@ -3023,7 +3238,7 @@ var ColorPicker = class _ColorPicker {
     }
   }
 };
-function autoInit3(scope = document) {
+function autoInit4(scope = document) {
   const out = [];
   for (const node of scope.querySelectorAll("[data-tuc-color]:not([data-tuc-ready])")) {
     const d = node.dataset;
@@ -3109,7 +3324,7 @@ function uploadFile({ url, file, field, extras, headers, method, texts, onProgre
 }
 
 // src/js/components/upload.js
-var DEFAULTS4 = {
+var DEFAULTS5 = {
   url: null,
   // com url: upload direto. sem: os arquivos vao no submit
   method: "POST",
@@ -3144,7 +3359,7 @@ var Upload = class {
     if (node.tagName !== "INPUT" || node.type !== "file") {
       throw new Error('[Upload] o alvo precisa ser um <input type="file">');
     }
-    this.opts = { ...DEFAULTS4, ...omitUndefined(options) };
+    this.opts = { ...DEFAULTS5, ...omitUndefined(options) };
     this.opts.locale = this.opts.locale || document.documentElement.lang || "pt-BR";
     this.t = { ...UPLOAD_TEXTS, ...this.opts.texts };
     const maxSize = this.opts.maxSize;
@@ -3529,7 +3744,7 @@ var Upload = class {
     this.input.dispatchEvent(new CustomEvent("tucano:change", { detail, bubbles: true }));
   }
 };
-function autoInit4(scope = document) {
+function autoInit5(scope = document) {
   const out = [];
   for (const node of scope.querySelectorAll("input[type=file][data-tuc-upload]:not([data-tuc-ready])")) {
     const d = node.dataset;
@@ -3550,7 +3765,7 @@ function autoInit4(scope = document) {
 }
 
 // src/js/components/slider.js
-var DEFAULTS5 = {
+var DEFAULTS6 = {
   output: null,
   // elemento ou seletor onde o valor aparece escrito; no intervalo, "min – max"
   currency: null,
@@ -3568,7 +3783,7 @@ var Slider = class _Slider {
     if (!node) throw new Error("[Slider] elemento alvo nao encontrado");
     if (node._tucano instanceof _Slider) node._tucano.destroy();
     this.node = node;
-    this.opts = { ...DEFAULTS5, ...omitUndefined(options) };
+    this.opts = { ...DEFAULTS6, ...omitUndefined(options) };
     this.inputs = node.matches("input") ? [node] : [...node.querySelectorAll("input[type=range]")].slice(0, 2);
     if (!this.inputs.length) throw new Error('[Slider] faltou o <input type="range">');
     this.isRange = this.inputs.length === 2;
@@ -3737,7 +3952,7 @@ var Slider = class _Slider {
     }
   }
 };
-function autoInit5(scope = document) {
+function autoInit6(scope = document) {
   const out = [];
   for (const node of scope.querySelectorAll("[data-tuc-slider]:not([data-tuc-ready])")) {
     node.setAttribute("data-tuc-ready", "");
@@ -3945,7 +4160,7 @@ var FORMATS = {
   currency: { isCurrency: true },
   brl: { isCurrency: true, currency: "BRL" }
 };
-var DEFAULTS6 = {
+var DEFAULTS7 = {
   format: null,
   // nome de FORMATS ou gabarito livre
   validate: false,
@@ -3967,7 +4182,7 @@ var Mask = class {
   constructor(target, options = {}) {
     const node = typeof target === "string" ? document.querySelector(target) : target;
     if (!node) throw new Error("[Mask] elemento alvo nao encontrado");
-    this.opts = { ...DEFAULTS6, ...omitUndefined(options) };
+    this.opts = { ...DEFAULTS7, ...omitUndefined(options) };
     this.opts.locale = this.opts.locale || document.documentElement.lang || "pt-BR";
     this.input = node;
     if (this.opts.reveal && !node.matches("input, textarea")) {
@@ -4259,7 +4474,7 @@ var Mask = class {
     this.input.dispatchEvent(new CustomEvent("tucano:change", { detail, bubbles: true }));
   }
 };
-function autoInit6(scope = document) {
+function autoInit7(scope = document) {
   const out = [];
   const targets = scope.querySelectorAll("[data-tuc-mask]:not([data-tuc-ready]), [data-tuc-reveal]:not([data-tuc-ready])");
   for (const node of targets) {
@@ -4294,7 +4509,7 @@ function autoFormat(scope = document) {
 }
 
 // src/js/components/toast.js
-var DEFAULTS7 = {
+var DEFAULTS8 = {
   type: "info",
   // 'info' | 'success' | 'warning' | 'error' | 'loading'
   title: null,
@@ -4377,7 +4592,7 @@ function arrange(container2) {
 }
 var Toast = class {
   constructor(options = {}) {
-    this.opts = { ...DEFAULTS7, ...omitUndefined(options) };
+    this.opts = { ...DEFAULTS8, ...omitUndefined(options) };
     if (this.opts.duration === void 0) this.opts.duration = durationFor(this.opts.type);
     this.id = nextId("toast");
     this._cleanups = [];
@@ -4536,7 +4751,7 @@ toast.promise = (promise, msgs = {}) => {
   return promise;
 };
 var DJANGO_MAP = { debug: "info" };
-function autoInit7(scope = document) {
+function autoInit8(scope = document) {
   const out = [];
   for (const node of scope.querySelectorAll("[data-tuc-toast]:not([data-tuc-ready])")) {
     node.setAttribute("data-tuc-ready", "");
@@ -4565,7 +4780,7 @@ function listenForEvents() {
 }
 
 // src/js/components/tooltip.js
-var DEFAULTS8 = {
+var DEFAULTS9 = {
   text: "",
   placement: "top-center",
   delay: 350,
@@ -4580,7 +4795,7 @@ var Tooltip = class {
   constructor(target, options = {}) {
     const node = typeof target === "string" ? document.querySelector(target) : target;
     if (!node) throw new Error("[Tooltip] elemento alvo nao encontrado");
-    this.opts = { ...DEFAULTS8, ...omitUndefined(options) };
+    this.opts = { ...DEFAULTS9, ...omitUndefined(options) };
     this.anchor = node;
     this.id = nextId("tip");
     this._cleanups = [];
@@ -4688,7 +4903,7 @@ function focusVisible(node) {
     return true;
   }
 }
-function autoInit8(scope = document) {
+function autoInit9(scope = document) {
   const out = [];
   for (const node of scope.querySelectorAll("[data-tuc-tip]:not([data-tuc-ready])")) {
     if (!node.dataset.tucTip && !node.title) continue;
@@ -4808,7 +5023,7 @@ function buildPanel(prefix, opts, owner, titleId, closeLabel) {
 }
 
 // src/js/components/modal.js
-var DEFAULTS9 = {
+var DEFAULTS10 = {
   title: null,
   text: "",
   size: "md",
@@ -4828,7 +5043,7 @@ var DEFAULTS9 = {
 var Modal = class extends Dialog {
   constructor(options = {}) {
     super();
-    this.opts = { ...DEFAULTS9, ...omitUndefined(options) };
+    this.opts = { ...DEFAULTS10, ...omitUndefined(options) };
     this.id = nextId("modal");
     this._cleanups = [];
     this._build();
@@ -4882,13 +5097,13 @@ function confirm(options = {}) {
     }).open();
   });
 }
-function autoInit9(scope = document) {
+function autoInit10(scope = document) {
   const out = [];
   for (const node of scope.querySelectorAll("dialog.tuc-modal:not([data-tuc-ready])")) {
     node.setAttribute("data-tuc-ready", "");
     const d = node.dataset;
     const m = Object.create(Modal.prototype);
-    m.opts = { ...DEFAULTS9, closable: d.closable !== "false", closeOnBackdrop: d.backdrop !== "false" };
+    m.opts = { ...DEFAULTS10, closable: d.closable !== "false", closeOnBackdrop: d.backdrop !== "false" };
     m.id = node.id || nextId("modal");
     m._cleanups = [];
     m.panel = node.querySelector(".tuc-modal__panel");
@@ -4910,7 +5125,7 @@ function autoInit9(scope = document) {
 }
 
 // src/js/components/drawer.js
-var DEFAULTS10 = {
+var DEFAULTS11 = {
   title: null,
   text: "",
   side: "right",
@@ -4929,7 +5144,7 @@ var DEFAULTS10 = {
 var Drawer = class extends Dialog {
   constructor(options = {}) {
     super();
-    this.opts = { ...DEFAULTS10, ...omitUndefined(options) };
+    this.opts = { ...DEFAULTS11, ...omitUndefined(options) };
     this.id = nextId("drawer");
     this._cleanups = [];
     this._build();
@@ -4956,13 +5171,13 @@ function drawer(optionsOrText, extra = {}) {
   const base = typeof optionsOrText === "string" ? { text: optionsOrText } : optionsOrText;
   return new Drawer({ ...base, ...extra }).open();
 }
-function autoInit10(scope = document) {
+function autoInit11(scope = document) {
   const out = [];
   for (const node of scope.querySelectorAll("dialog.tuc-drawer:not([data-tuc-ready])")) {
     node.setAttribute("data-tuc-ready", "");
     const d = node.dataset;
     const g = Object.create(Drawer.prototype);
-    g.opts = { ...DEFAULTS10, closable: d.closable !== "false", closeOnBackdrop: d.backdrop !== "false" };
+    g.opts = { ...DEFAULTS11, closable: d.closable !== "false", closeOnBackdrop: d.backdrop !== "false" };
     g.id = node.id || nextId("drawer");
     g._cleanups = [];
     g.panel = node.querySelector(".tuc-drawer__panel");
@@ -4984,7 +5199,7 @@ function autoInit10(scope = document) {
 }
 
 // src/js/components/accordion.js
-var DEFAULTS11 = {
+var DEFAULTS12 = {
   single: false
   // abrir um recolhe os outros
 };
@@ -4993,7 +5208,7 @@ var Accordion = class {
   constructor(target, options = {}) {
     this.node = typeof target === "string" ? document.querySelector(target) : target;
     if (!this.node) throw new Error("[Accordion] elemento n\xE3o encontrado");
-    this.opts = { ...DEFAULTS11, ...omitUndefined(options) };
+    this.opts = { ...DEFAULTS12, ...omitUndefined(options) };
     this._cleanups = [];
     this._build();
   }
@@ -5081,7 +5296,7 @@ var Accordion = class {
     this._cleanups = [];
   }
 };
-function autoInit11(scope = document) {
+function autoInit12(scope = document) {
   const out = [];
   for (const node of scope.querySelectorAll("[data-tuc-accordion]:not([data-tuc-ready])")) {
     node.setAttribute("data-tuc-ready", "");
@@ -5091,7 +5306,7 @@ function autoInit11(scope = document) {
 }
 
 // src/js/components/tabs.js
-var DEFAULTS12 = {
+var DEFAULTS13 = {
   selected: null,
   // indice da aba inicial; sem ele vale a marcada com aria-selected="true", ou a primeira
   manual: false,
@@ -5106,7 +5321,7 @@ var Tabs = class {
     if (!this.node) throw new Error("[Tabs] elemento n\xE3o encontrado");
     this.list = this.node.querySelector(":scope > .tuc-tabs__list");
     if (!this.list) throw new Error("[Tabs] faltou o .tuc-tabs__list");
-    this.opts = { ...DEFAULTS12, ...omitUndefined(options) };
+    this.opts = { ...DEFAULTS13, ...omitUndefined(options) };
     this._cleanups = [];
     this._build();
   }
@@ -5196,7 +5411,7 @@ var Tabs = class {
     delete this.node._tucano;
   }
 };
-function autoInit12(scope = document) {
+function autoInit13(scope = document) {
   const out = [];
   for (const node of scope.querySelectorAll("[data-tuc-tabs]:not([data-tuc-ready])")) {
     node.setAttribute("data-tuc-ready", "");
@@ -5205,8 +5420,164 @@ function autoInit12(scope = document) {
   return out;
 }
 
+// src/js/components/stepper.js
+var DEFAULTS14 = {
+  start: null,
+  // indice da etapa inicial; sem ele, a do primeiro campo com erro, a marcada com aria-current="step", ou a primeira
+  validate: true,
+  // avancar confere os campos da etapa atual; voltar nunca confere
+  onChange: null
+  // (index, detail) a cada troca de etapa feita pela pessoa ou por go()
+};
+var FIELDS = "input, select, textarea";
+var Stepper = class {
+  constructor(target, options = {}) {
+    this.node = typeof target === "string" ? document.querySelector(target) : target;
+    if (!this.node) throw new Error("[Stepper] elemento n\xE3o encontrado");
+    this.opts = { ...DEFAULTS14, ...omitUndefined(options) };
+    this.index = -1;
+    this._cleanups = [];
+    this._watched = /* @__PURE__ */ new WeakSet();
+    this._build();
+  }
+  /* `:scope >` porque um assistente pode morar dentro do painel de outro. */
+  get steps() {
+    return [...this.node.querySelectorAll(":scope > .tuc-steps > .tuc-steps__item")];
+  }
+  get panels() {
+    return [...this.node.querySelectorAll(":scope > .tuc-stepper__panel")];
+  }
+  _build() {
+    this.node.classList.add("tuc-stepper");
+    this.node._tucano = this;
+    this._cleanups.push(
+      on(this.node, "click", (e) => {
+        const button = e.target.closest("[data-step]");
+        if (!button || button.closest(".tuc-stepper") !== this.node) return;
+        if (button.dataset.step === "next") this.next();
+        else if (button.dataset.step === "prev") this.prev();
+      }),
+      /*
+       * Enter num campo de texto envia o formulario — e, com a etapa final ainda
+       * escondida, o navegador barrava o envio por um campo obrigatorio que a
+       * pessoa nem viu, sem dizer qual. Antes da ultima etapa, Enter e Continuar.
+       * Quem ja tratou a tecla (o select, o date picker) chamou preventDefault.
+       */
+      on(this.node, "keydown", (e) => {
+        if (e.key !== "Enter" || e.defaultPrevented || e.isComposing) return;
+        if (!e.target.matches("input:not([type=checkbox], [type=radio], [type=button], [type=submit], [type=reset], [type=file])")) return;
+        if (e.target.closest(".tuc-stepper") !== this.node || this.index >= this.panels.length - 1) return;
+        e.preventDefault();
+        this.next();
+      })
+    );
+    const form = this.node.closest("form");
+    if (form) this._cleanups.push(on(form, "reset", () => this.go(0, { focus: false })));
+    this.go(this._initial(), { silent: true, focus: false });
+  }
+  /*
+   * O formulario que volta do servidor com erro precisa abrir na etapa do erro:
+   * o Django marca o campo com aria-invalid, e abrir na primeira deixaria a
+   * mensagem escondida duas etapas adiante.
+   */
+  _initial() {
+    if (this.opts.start != null) return this.opts.start;
+    const panels = this.panels;
+    const failed = panels.findIndex((p) => p.querySelector('[aria-invalid="true"]'));
+    if (failed >= 0) return failed;
+    const marked = this.steps.findIndex((s) => s.getAttribute("aria-current") === "step");
+    return marked >= 0 && marked < panels.length ? marked : 0;
+  }
+  /** Confere os campos da etapa atual. O primeiro invalido recebe o aviso do navegador e o foco. */
+  checkStep() {
+    const panel = this.panels[this.index];
+    if (!panel) return true;
+    for (const field of panel.querySelectorAll(FIELDS)) {
+      if (field.checkValidity()) continue;
+      field.setAttribute("aria-invalid", "true");
+      if (!this._watched.has(field)) {
+        this._watched.add(field);
+        const clear2 = () => {
+          if (field.checkValidity()) field.removeAttribute("aria-invalid");
+        };
+        field.addEventListener("input", clear2);
+        field.addEventListener("change", clear2);
+      }
+      field.reportValidity();
+      return false;
+    }
+    return true;
+  }
+  next() {
+    if (this.opts.validate && !this.checkStep()) return this;
+    return this.go(this.index + 1);
+  }
+  prev() {
+    return this.go(this.index - 1);
+  }
+  go(index, { silent = false, focus = true } = {}) {
+    const panels = this.panels;
+    if (index < 0 || index >= panels.length || index === this.index) return this;
+    this.index = index;
+    this.steps.forEach((step, i) => {
+      step.classList.toggle("is-done", i < index);
+      if (i === index) step.setAttribute("aria-current", "step");
+      else step.removeAttribute("aria-current");
+    });
+    panels.forEach((panel, i) => {
+      panel.hidden = i !== index;
+    });
+    const last = index === panels.length - 1;
+    for (const button of this._buttons('[data-step="prev"]')) button.hidden = index === 0;
+    for (const button of this._buttons('[data-step="next"]')) button.hidden = last;
+    for (const button of this._buttons('[type="submit"]')) button.hidden = !last;
+    if (focus) this._focus(panels[index]);
+    if (!silent) this._emit();
+    return this;
+  }
+  /* Botoes da barra deste assistente, nao de um aninhado. */
+  _buttons(selector) {
+    return [...this.node.querySelectorAll(`:scope > .tuc-stepper__actions ${selector}`)];
+  }
+  /*
+   * O foco vai ao titulo do painel novo: o leitor de tela anuncia a etapa, e o
+   * proximo Tab chega ao primeiro campo. Deixar o foco no botao Continuar, que
+   * pode ate ter sumido na ultima etapa, largava a pessoa no meio do nada.
+   */
+  _focus(panel) {
+    const heading = panel.querySelector("h1, h2, h3, h4, h5, h6, legend") || panel;
+    if (!heading.hasAttribute("tabindex")) heading.tabIndex = -1;
+    void panel.offsetHeight;
+    heading.focus({ preventScroll: true });
+    if (this.node.getBoundingClientRect().top < 0) this.node.scrollIntoView({ block: "start" });
+  }
+  _emit() {
+    const value = this.index;
+    const detail = { value, step: this.steps[value], panel: this.panels[value], instance: this };
+    this.opts.onChange?.(value, detail);
+    this.node.dispatchEvent(new CustomEvent("tucano:change", { detail, bubbles: true }));
+  }
+  destroy() {
+    this._cleanups.forEach((fn) => fn());
+    this._cleanups = [];
+    delete this.node._tucano;
+  }
+};
+function autoInit14(scope = document) {
+  const out = [];
+  for (const node of scope.querySelectorAll("[data-tuc-stepper]:not([data-tuc-ready])")) {
+    node.setAttribute("data-tuc-ready", "");
+    const start = node.dataset.start;
+    out.push(new Stepper(node, {
+      start: start ? Number(start) : void 0,
+      validate: node.dataset.validate === "false" ? false : void 0
+    }));
+  }
+  return out;
+}
+
 // src/js/components/dropdown.js
-var DEFAULTS13 = {
+var DEFAULTS15 = {
   placement: "bottom-start",
   items: null,
   // [{ text, icon, shortcut, onClick, href, variant, disabled, separator, label }]
@@ -5219,7 +5590,7 @@ var Dropdown = class {
   constructor(trigger, options = {}) {
     this.trigger = typeof trigger === "string" ? document.querySelector(trigger) : trigger;
     if (!this.trigger) throw new Error("[Dropdown] gatilho n\xE3o encontrado");
-    this.opts = { ...DEFAULTS13, ...omitUndefined(options) };
+    this.opts = { ...DEFAULTS15, ...omitUndefined(options) };
     this._cleanups = [];
     this._build();
   }
@@ -5421,7 +5792,7 @@ var Dropdown = class {
     this._cleanups = [];
   }
 };
-function autoInit13(scope = document) {
+function autoInit15(scope = document) {
   const out = [];
   for (const trigger of scope.querySelectorAll("[data-tuc-dropdown]:not([data-tuc-ready])")) {
     trigger.setAttribute("data-tuc-ready", "");
@@ -5438,7 +5809,7 @@ function autoInit13(scope = document) {
 }
 
 // src/js/components/contextmenu.js
-var DEFAULTS14 = {
+var DEFAULTS16 = {
   placement: "bottom-start",
   items: null,
   // array como o do Dropdown, ou (alvo) => array
@@ -5452,7 +5823,7 @@ var DEFAULTS14 = {
 };
 var ContextMenu = class extends Dropdown {
   constructor(area, options = {}) {
-    super(area, { ...DEFAULTS14, ...omitUndefined(options) });
+    super(area, { ...DEFAULTS16, ...omitUndefined(options) });
   }
   /** A area que responde ao botao direito. */
   get area() {
@@ -5542,7 +5913,7 @@ var ContextMenu = class extends Dropdown {
     return this;
   }
 };
-function autoInit14(scope = document) {
+function autoInit16(scope = document) {
   const out = [];
   for (const area of scope.querySelectorAll("[data-tuc-contextmenu]:not([data-tuc-ready])")) {
     area.setAttribute("data-tuc-ready", "");
@@ -5560,7 +5931,7 @@ function autoInit14(scope = document) {
 }
 
 // src/js/components/table.js
-var DEFAULTS15 = {
+var DEFAULTS17 = {
   sortable: true,
   sortMode: "server",
   // server | client
@@ -5584,7 +5955,7 @@ var Table = class {
     this.node = typeof node === "string" ? document.querySelector(node) : node;
     if (!this.node) throw new Error("[Table] elemento alvo nao encontrado");
     if (this.node.tagName !== "TABLE") throw new Error("[Table] o alvo precisa ser uma <table>");
-    this.opts = { ...DEFAULTS15, ...omitUndefined(options) };
+    this.opts = { ...DEFAULTS17, ...omitUndefined(options) };
     this._cleanups = [];
     this._build();
   }
@@ -5743,7 +6114,7 @@ var Table = class {
     this._cleanups = [];
   }
 };
-function autoInit15(scope = document) {
+function autoInit17(scope = document) {
   const out = [];
   for (const node of scope.querySelectorAll("table[data-tuc-table]:not([data-tuc-ready])")) {
     node.setAttribute("data-tuc-ready", "");
@@ -5761,7 +6132,7 @@ function autoInit15(scope = document) {
 }
 
 // src/js/components/pagination.js
-var DEFAULTS16 = {
+var DEFAULTS18 = {
   page: 1,
   pages: 1,
   param: "page",
@@ -5795,7 +6166,7 @@ function pageWindow(page, pages, { around = 1, edges = 1 } = {}) {
 }
 var Pagination = class {
   constructor(options = {}) {
-    this.opts = { ...DEFAULTS16, ...PAGINATION_TEXTS, ...omitUndefined(options) };
+    this.opts = { ...DEFAULTS18, ...PAGINATION_TEXTS, ...omitUndefined(options) };
     this._cleanups = [];
     this.node = el("nav", { class: "tuc-pagination", role: "navigation", "aria-label": this.opts.label });
     this.node._tucano = this;
@@ -5882,7 +6253,7 @@ var Pagination = class {
 function pagination(options = {}) {
   return new Pagination(options).node;
 }
-function autoInit16(scope = document) {
+function autoInit18(scope = document) {
   const out = [];
   for (const node of scope.querySelectorAll("[data-tuc-pagination]:not([data-tuc-ready])")) {
     node.setAttribute("data-tuc-ready", "");
@@ -6117,7 +6488,7 @@ function highlight(code) {
     return className ? `<span class="tuc-tok-${className}">${whole}</span>` : whole;
   });
 }
-function autoInit17(scope = document) {
+function autoInit19(scope = document) {
   for (const table of scope.querySelectorAll(".tuc-prose table")) {
     if (table.parentElement.classList.contains("tuc-prose__scroll")) continue;
     const box = el("div", { class: "tuc-prose__scroll" });
@@ -6164,7 +6535,7 @@ function addCopy(pre) {
 }
 
 // src/js/components/editor.js
-var DEFAULTS17 = {
+var DEFAULTS19 = {
   toolbar: [
     "bold",
     "italic",
@@ -6462,7 +6833,7 @@ var Editor = class {
   constructor(target, options = {}) {
     this.field = typeof target === "string" ? document.querySelector(target) : target;
     if (!this.field) throw new Error("[Editor] elemento n\xE3o encontrado");
-    this.opts = { ...DEFAULTS17, ...omitUndefined(options) };
+    this.opts = { ...DEFAULTS19, ...omitUndefined(options) };
     this._cleanups = [];
     this._build();
   }
@@ -6925,7 +7296,7 @@ var Editor = class {
     delete this.field._tucano;
   }
 };
-function autoInit18(scope = document) {
+function autoInit20(scope = document) {
   const out = [];
   for (const node of scope.querySelectorAll("[data-tuc-editor]:not([data-tuc-ready])")) {
     node.setAttribute("data-tuc-ready", "");
@@ -6941,27 +7312,29 @@ function autoInit18(scope = document) {
 function init(scope = document) {
   return {
     datepickers: autoInit(scope),
-    selects: autoInit2(scope),
-    colorpickers: autoInit3(scope),
-    uploads: autoInit4(scope),
-    sliders: autoInit5(scope),
-    masks: autoInit6(scope),
+    timepickers: autoInit2(scope),
+    selects: autoInit3(scope),
+    colorpickers: autoInit4(scope),
+    uploads: autoInit5(scope),
+    sliders: autoInit6(scope),
+    masks: autoInit7(scope),
     formatted: autoFormat(scope),
-    toasts: autoInit7(scope),
-    modals: autoInit9(scope),
-    drawers: autoInit10(scope),
-    accordions: autoInit11(scope),
-    tabs: autoInit12(scope),
-    dropdowns: autoInit13(scope),
-    contextMenus: autoInit14(scope),
-    tables: autoInit15(scope),
-    pagination: autoInit16(scope),
-    editors: autoInit18(scope),
-    prose: autoInit17(scope),
+    toasts: autoInit8(scope),
+    modals: autoInit10(scope),
+    drawers: autoInit11(scope),
+    accordions: autoInit12(scope),
+    tabs: autoInit13(scope),
+    steppers: autoInit14(scope),
+    dropdowns: autoInit15(scope),
+    contextMenus: autoInit16(scope),
+    tables: autoInit17(scope),
+    pagination: autoInit18(scope),
+    editors: autoInit20(scope),
+    prose: autoInit19(scope),
     // Por último de propósito: componentes que criam a própria barra de botões
     // marcam neles `data-tuc-tip`, e esses elementos só existem depois que eles
     // se montam. Antes, os botões do editor nasciam sem dica.
-    tooltips: autoInit8(scope)
+    tooltips: autoInit9(scope)
   };
 }
 export {
@@ -6982,30 +7355,34 @@ export {
   Popover,
   Select,
   Slider,
+  Stepper,
   Table,
   Tabs,
+  TimePicker,
   Toast,
   Tooltip,
   Upload,
   autoFormat,
-  autoInit11 as autoInitAccordions,
-  autoInit3 as autoInitColorPickers,
-  autoInit14 as autoInitContextMenus,
+  autoInit12 as autoInitAccordions,
+  autoInit4 as autoInitColorPickers,
+  autoInit16 as autoInitContextMenus,
   autoInit as autoInitDatePickers,
-  autoInit10 as autoInitDrawers,
-  autoInit13 as autoInitDropdowns,
-  autoInit18 as autoInitEditors,
-  autoInit6 as autoInitMasks,
-  autoInit9 as autoInitModals,
-  autoInit16 as autoInitPagination,
-  autoInit17 as autoInitProse,
-  autoInit2 as autoInitSelects,
-  autoInit5 as autoInitSliders,
-  autoInit15 as autoInitTables,
-  autoInit12 as autoInitTabs,
-  autoInit7 as autoInitToasts,
-  autoInit8 as autoInitTooltips,
-  autoInit4 as autoInitUploads,
+  autoInit11 as autoInitDrawers,
+  autoInit15 as autoInitDropdowns,
+  autoInit20 as autoInitEditors,
+  autoInit7 as autoInitMasks,
+  autoInit10 as autoInitModals,
+  autoInit18 as autoInitPagination,
+  autoInit19 as autoInitProse,
+  autoInit3 as autoInitSelects,
+  autoInit6 as autoInitSliders,
+  autoInit14 as autoInitSteppers,
+  autoInit17 as autoInitTables,
+  autoInit13 as autoInitTabs,
+  autoInit2 as autoInitTimePickers,
+  autoInit8 as autoInitToasts,
+  autoInit9 as autoInitTooltips,
+  autoInit5 as autoInitUploads,
   color_exports as color,
   confirm,
   dates_exports as dates,

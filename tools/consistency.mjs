@@ -128,7 +128,7 @@ const htmlWithoutCode = html.replace(/<pre[\s\S]*?<\/pre>/g, '').replace(/<code>
   const unstyled = [...used].filter((c) => !defined.has(c) && !HOOKS.has(c)
     && !c.startsWith('tuc-tok') && !/^tuc-(dp|select|colorpicker|upload|toast|tip|modal|drawer|accordion|menu|dropdown|table|pagination|badge|check|input|editor|prose|btn|field|color-field|input-group|copy|native|invalid|select-native|upload-native|native-wrap|table-wrap|toasts)$/.test(c));
   const orphans = [...defined].filter((c) => !used.has(c) && !c.includes('is-')
-    && ![...suffixes].some((s) => c.endsWith(s)) && !/^tuc-(tok|prose|input|btn|menu|badge|check|radio|switch|choice|label|hint|error|tabs|alert|spinner|skeleton|timeline|field|input-group|table|dp|copy)/.test(c));
+    && ![...suffixes].some((s) => c.endsWith(s)) && !/^tuc-(tok|prose|input|btn|menu|badge|check|radio|switch|choice|label|hint|error|tabs|alert|spinner|skeleton|timeline|steps|stepper|field|input-group|table|dp|copy)/.test(c));
 
   if (unstyled.length) fail(`classe montada pelo JS sem regra no CSS: ${unstyled.join(' ')}`);
   else if (orphans.length) fail(`classe no CSS que ninguém monta: ${orphans.join(' ')}`);

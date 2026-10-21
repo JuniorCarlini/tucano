@@ -5,7 +5,7 @@
 > exemplos deste arquivo usam Django; em PHP e Rails, campo múltiplo precisa de
 > name terminado em [] e o upload direto precisa do cabeçalho de CSRF do
 > framework (data-csrf="false" e a opção headers do new Upload).
-> JavaScript puro, sem dependências em runtime. 45 KB JS + 14 KB CSS (gzip).
+> JavaScript puro, sem dependências em runtime. 47 KB JS + 14 KB CSS (gzip).
 > Os estilos são escritos em Tailwind mas distribuídos já compilados: o projeto
 > que consome não precisa de build e não recebe o preflight do Tailwind.
 >
@@ -58,6 +58,22 @@ empilham no modo período.
 O seletor nativo do sistema é opt-in: data-native="true" (ou native: 'auto'
 para ligar só em telas de toque). Ele não altera o type do input — um input
 nativo transparente fica por cima. Período nunca usa nativo.
+
+## Time picker (só a hora)
+
+    <input type="text" name="opening" data-tuc-timepicker>
+    <input type="text" name="shift"   data-tuc-timepicker data-mode="range" data-min="08:00" data-max="18:00">
+
+É o date picker sem calendário (`Tucano.TimePicker` herda de `DatePicker`).
+POST: `14:30`, `14:30:15` com data-seconds, e `09:00,17:30` no intervalo — o
+mesmo formato do `<input type="time">`, que o TimeField do Django lê direto.
+getValue() devolve texto ('14:30' ou { start, end }), nunca Date.
+
+Atributos: data-mode, data-min, data-max (hh:mm), data-minute-step,
+data-seconds, data-auto-apply, data-now (botao "Agora": aplica a hora atual
+e fecha), data-locale (12 ou 24 horas na tela),
+data-iso-name, data-placement, data-native. Fora de min/max as colunas ficam
+desativadas, e texto fora dos limites é recusado. Não use type="time" no widget.
 
 ## Select
 
@@ -571,6 +587,40 @@ End; Tab para so na aba aberta). data-manual="true" quando o painel carrega por
 HTMX: setas so movem o foco. is-segmented = altura de campo, para barra de filtro.
 Evento tucano:change com detail { value, tab, panel, instance }.
 
+## Etapas
+
+    <ol class="tuc-steps" aria-label="Etapas do cadastro">
+      <li class="tuc-steps__item is-done"><span class="tuc-steps__label">Dados</span></li>
+      <li class="tuc-steps__item" aria-current="step"><span class="tuc-steps__label">Endereco</span></li>
+      <li class="tuc-steps__item"><span class="tuc-steps__label">Pagamento</span></li>
+    </ol>
+
+So o indicador e classe, sem JS: para assistente de varias paginas (uma etapa por
+POST, como o SessionWizardView do django-formtools), o template poe is-done nas
+feitas e aria-current="step" na atual. O numero e contado pelo CSS.
+
+Assistente numa pagina so, com o mesmo indicador:
+
+    <form method="post">
+      <div class="tuc-stepper" data-tuc-stepper>
+        <ol class="tuc-steps">...</ol>
+        <fieldset class="tuc-stepper__panel"><legend>Dados</legend>...</fieldset>
+        <fieldset class="tuc-stepper__panel" hidden><legend>Endereco</legend>...</fieldset>
+        <div class="tuc-stepper__actions">
+          <button type="button" class="tuc-btn is-outline" data-step="prev" hidden>Voltar</button>
+          <button type="button" class="tuc-btn is-primary" data-step="next">Continuar</button>
+          <button type="submit" class="tuc-btn is-primary" hidden>Finalizar</button>
+        </div>
+      </div>
+    </form>
+
+Um <form> so: painel escondido continua no DOM e posta junto. Continuar confere
+os campos da etapa pela validacao nativa (required, type, pattern) e marca
+aria-invalid no que reprovou; Voltar nunca confere. Enter num campo antes da
+ultima etapa e Continuar, nao envio. Abre na etapa do primeiro campo com
+aria-invalid="true" (o erro que o Django devolveu); data-start="2" escolhe a
+etapa. Evento tucano:change com detail { value, step, panel, instance }.
+
 ## Aviso
 
     <div class="tuc-alert is-warning">
@@ -1008,6 +1058,17 @@ Inventario extraido do codigo a cada build. Se algo nao esta aqui, nao existe.
   metodos    getValue setValue destroy
   eventos    tucano:change
 
+### Stepper
+  marcacao   [data-tuc-stepper]
+  em JS      new Tucano.Stepper(alvo, opcoes)
+  atributos  data-start data-validate
+  opcoes
+    start              = null  — indice da etapa inicial; sem ele, a do primeiro campo com erro, a marcada com aria-current="step", ou a primeira…
+    validate           = true  — avancar confere os campos da etapa atual; voltar nunca confere…
+    onChange           = null  — (index, detail) a cada troca de etapa feita pela pessoa ou por go()
+  metodos    checkStep next prev go destroy
+  eventos    tucano:change
+
 ### Table
   marcacao   table[data-tuc-table]
   em JS      new Tucano.Table(alvo, opcoes)
@@ -1033,6 +1094,30 @@ Inventario extraido do codigo a cada build. Se algo nao esta aqui, nao existe.
     manual             = false  — setas so movem o foco, e Enter ou Espaco trocam o painel — para painel que carrega por HTMX…
     onChange           = null  — (index, detail) a cada troca feita pela pessoa ou por select()
   metodos    select destroy
+  eventos    tucano:change
+
+### TimePicker
+  marcacao   [data-tuc-timepicker]
+  em JS      new Tucano.TimePicker(alvo, opcoes)
+  atributos  data-auto-apply data-iso-name data-locale data-max data-min data-minute-step data-mode data-native data-now data-placement data-seconds
+  opcoes
+    mode               = 'single'  — 'single' | 'range' (inicio e fim lado a lado)
+    seconds            = false
+    minuteStep         = 5
+    locale             = undefined  — default: locale do documento/navegador; decide 24 h ou AM/PM…
+    min                = null  — '08:00': as horas antes ficam desativadas nas colunas…
+    max                = null  — '18:00'
+    autoApply          = false  — true: cada clique numa coluna ja vale, sem o Aplicar…
+    clearable          = true
+    now                = false  — botao "Agora" no rodape: aplica a hora atual e fecha. Opt-in…
+    placement          = 'bottom-center'
+    appendTo           = undefined
+    isoName            = undefined  — name do input hidden com o valor HH:MM…
+    native             = false  — true ou 'auto': o seletor de hora do sistema no celular…
+    onChange           = null
+    onOpen             = null
+    onClose            = null
+  metodos    getValue setValue clear open close toggle destroy
   eventos    tucano:change
 
 ### Toast
@@ -1091,9 +1176,9 @@ Inventario extraido do codigo a cada build. Se algo nao esta aqui, nao existe.
 ### Entradas do pacote
 
   Tucano.init(node)         inicializa todo data-tuc-* dentro de `node`
-  autoInitAccordions autoInitColorPickers autoInitContextMenus autoInitDatePickers autoInitDrawers autoInitDropdowns autoInitEditors autoInitMasks autoInitModals autoInitPagination autoInitProse autoInitSelects autoInitSliders autoInitTables autoInitTabs autoInitToasts autoInitTooltips autoInitUploads
+  autoInitAccordions autoInitColorPickers autoInitContextMenus autoInitDatePickers autoInitDrawers autoInitDropdowns autoInitEditors autoInitMasks autoInitModals autoInitPagination autoInitProse autoInitSelects autoInitSliders autoInitSteppers autoInitTables autoInitTabs autoInitTimePickers autoInitToasts autoInitTooltips autoInitUploads
     → um por componente, quando voce quer inicializar so um tipo
-  Accordion ColorPicker ContextMenu DatePicker Drawer Dropdown Editor FORMATS ICON_CHECK ICON_COPY ICON_X Mask Modal Pagination Popover Select Slider Table Tabs Toast Tooltip Upload autoFormat confirm drawer getTexts highlight icon listenForEvents modal pageWindow pagination sanitize setTexts toast
+  Accordion ColorPicker ContextMenu DatePicker Drawer Dropdown Editor FORMATS ICON_CHECK ICON_COPY ICON_X Mask Modal Pagination Popover Select Slider Stepper Table Tabs TimePicker Toast Tooltip Upload autoFormat confirm drawer getTexts highlight icon listenForEvents modal pageWindow pagination sanitize setTexts toast
   Tucano.mask / .dates / .color   modulos utilitarios (ver seção Utilitários)
 
   FORMATS (mascaras prontas): cpf cnpj cnpj-numeric cpf-cnpj phone mobile cep date time card currency brl
@@ -1126,6 +1211,10 @@ Inventario extraido do codigo a cada build. Se algo nao esta aqui, nao existe.
     lastMonth          = 'Mês passado'
     thisYear           = 'Este ano'
     placeholderLetters = 'amdhms'
+  timepicker
+    dialog             = 'Selecionar horário'
+    dialogRange        = 'Selecionar intervalo de horário'
+    now                = 'Agora'
   select
     placeholder        = 'Selecione...'
     searchPlaceholder  = 'Buscar...'
@@ -1227,11 +1316,11 @@ Inventario extraido do codigo a cada build. Se algo nao esta aqui, nao existe.
 ### Classes CSS
 
 Escritas por voce no template (as com __ sao internas, montadas pelo JS):
-  tuc-accordion tuc-alert tuc-badge tuc-btn tuc-btn-group tuc-check tuc-choice tuc-choices tuc-color-field tuc-colorpicker tuc-context-pin tuc-copy tuc-dp tuc-drawer tuc-dropdown tuc-editor tuc-error tuc-field tuc-hint tuc-input tuc-input-group tuc-invalid tuc-label tuc-menu tuc-modal tuc-native tuc-native-wrap tuc-pagination tuc-prose tuc-radio tuc-reveal tuc-select tuc-select-native tuc-skeleton tuc-slider tuc-spinner tuc-switch tuc-table tuc-table-wrap tuc-tabs tuc-timeline tuc-tip tuc-toast tuc-toasts tuc-tok-attr tuc-tok-comment tuc-tok-key tuc-tok-num tuc-tok-tag tuc-tok-text tuc-tok-tmpl tuc-upload tuc-upload-native
+  tuc-accordion tuc-alert tuc-badge tuc-btn tuc-btn-group tuc-check tuc-choice tuc-choices tuc-color-field tuc-colorpicker tuc-context-pin tuc-copy tuc-dp tuc-drawer tuc-dropdown tuc-editor tuc-error tuc-field tuc-hint tuc-input tuc-input-group tuc-invalid tuc-label tuc-menu tuc-modal tuc-native tuc-native-wrap tuc-pagination tuc-prose tuc-radio tuc-reveal tuc-select tuc-select-native tuc-skeleton tuc-slider tuc-spinner tuc-stepper tuc-steps tuc-switch tuc-table tuc-table-wrap tuc-tabs tuc-timeline tuc-tip tuc-toast tuc-toasts tuc-tok-attr tuc-tok-comment tuc-tok-key tuc-tok-num tuc-tok-tag tuc-tok-text tuc-tok-tmpl tuc-upload tuc-upload-native
 
 Montadas pelo JS dentro do componente — nao escreva no template, mas
 sao nomes estaveis para o seu proprio CSS:
-  tuc-accordion__arrow tuc-accordion__body tuc-accordion__content tuc-accordion__item tuc-accordion__trigger tuc-alert__actions tuc-alert__body tuc-alert__title tuc-btn__input tuc-choice__hint tuc-color-field__swatch tuc-color-field__value tuc-colorpicker__area tuc-colorpicker__field tuc-colorpicker__pick tuc-colorpicker__preview tuc-colorpicker__row tuc-colorpicker__slider tuc-colorpicker__swatchbtn tuc-colorpicker__swatches tuc-colorpicker__thumb tuc-colorpicker__track tuc-colorpicker__tracks tuc-copy__ok tuc-dp__day tuc-dp__daynum tuc-dp__footer tuc-dp__grid tuc-dp__header tuc-dp__label tuc-dp__live tuc-dp__main tuc-dp__month tuc-dp__months tuc-dp__nav tuc-dp__period tuc-dp__periodcell tuc-dp__periodgrid tuc-dp__preset tuc-dp__presets tuc-dp__row tuc-dp__spacer tuc-dp__time tuc-dp__timecols tuc-dp__timegroup tuc-dp__timehead tuc-dp__timeitem tuc-dp__timelabel tuc-dp__timelist tuc-dp__timevalue tuc-dp__weekday tuc-dp__weekdays tuc-dp__weeknum tuc-dp__weeknum-head tuc-drawer__body tuc-drawer__close tuc-drawer__footer tuc-drawer__header tuc-drawer__panel tuc-drawer__text tuc-drawer__title tuc-drawer__top tuc-dropdown__icon tuc-dropdown__item tuc-dropdown__label tuc-dropdown__separator tuc-dropdown__shortcut tuc-dropdown__text tuc-editor__area tuc-editor__scroll tuc-editor__sep tuc-editor__toolbar tuc-editor__value tuc-field__eye tuc-menu__count tuc-menu__icon tuc-menu__item tuc-menu__section tuc-menu__separator tuc-menu__sub tuc-modal__body tuc-modal__close tuc-modal__footer tuc-modal__header tuc-modal__panel tuc-modal__text tuc-modal__title tuc-modal__top tuc-pagination__edge tuc-pagination__gap tuc-pagination__word tuc-prose__block tuc-prose__scroll tuc-reveal__eye tuc-select__arrow tuc-select__check tuc-select__clear tuc-select__empty tuc-select__group tuc-select__label tuc-select__list tuc-select__menu tuc-select__option tuc-select__search tuc-select__single tuc-select__tag tuc-select__tagtext tuc-select__tagx tuc-select__values tuc-table__actions tuc-table__avatar tuc-table__check tuc-table__empty tuc-table__pick tuc-table__sortable tuc-table__sortbtn tuc-table__sorticon tuc-table__sub tuc-table__user tuc-tabs__list tuc-tabs__panel tuc-tabs__tab tuc-timeline__body tuc-timeline__head tuc-timeline__icon tuc-timeline__item tuc-timeline__time tuc-timeline__title tuc-tip__arrow tuc-tip__text tuc-toast__action tuc-toast__body tuc-toast__close tuc-toast__icon tuc-toast__text tuc-toast__title tuc-toasts__live tuc-toasts__stage tuc-upload__actions tuc-upload__bar tuc-upload__barfill tuc-upload__hidden tuc-upload__hint tuc-upload__icon tuc-upload__info tuc-upload__item tuc-upload__label tuc-upload__list tuc-upload__meta tuc-upload__name tuc-upload__ok tuc-upload__rejected tuc-upload__thumb tuc-upload__zone
+  tuc-accordion__arrow tuc-accordion__body tuc-accordion__content tuc-accordion__item tuc-accordion__trigger tuc-alert__actions tuc-alert__body tuc-alert__title tuc-btn__input tuc-choice__hint tuc-color-field__swatch tuc-color-field__value tuc-colorpicker__area tuc-colorpicker__field tuc-colorpicker__pick tuc-colorpicker__preview tuc-colorpicker__row tuc-colorpicker__slider tuc-colorpicker__swatchbtn tuc-colorpicker__swatches tuc-colorpicker__thumb tuc-colorpicker__track tuc-colorpicker__tracks tuc-copy__ok tuc-dp__day tuc-dp__daynum tuc-dp__footer tuc-dp__grid tuc-dp__header tuc-dp__label tuc-dp__live tuc-dp__main tuc-dp__month tuc-dp__months tuc-dp__nav tuc-dp__period tuc-dp__periodcell tuc-dp__periodgrid tuc-dp__preset tuc-dp__presets tuc-dp__row tuc-dp__spacer tuc-dp__time tuc-dp__timecols tuc-dp__timegroup tuc-dp__timehead tuc-dp__timeitem tuc-dp__timelabel tuc-dp__timelist tuc-dp__timevalue tuc-dp__weekday tuc-dp__weekdays tuc-dp__weeknum tuc-dp__weeknum-head tuc-drawer__body tuc-drawer__close tuc-drawer__footer tuc-drawer__header tuc-drawer__panel tuc-drawer__text tuc-drawer__title tuc-drawer__top tuc-dropdown__icon tuc-dropdown__item tuc-dropdown__label tuc-dropdown__separator tuc-dropdown__shortcut tuc-dropdown__text tuc-editor__area tuc-editor__scroll tuc-editor__sep tuc-editor__toolbar tuc-editor__value tuc-field__eye tuc-menu__count tuc-menu__icon tuc-menu__item tuc-menu__section tuc-menu__separator tuc-menu__sub tuc-modal__body tuc-modal__close tuc-modal__footer tuc-modal__header tuc-modal__panel tuc-modal__text tuc-modal__title tuc-modal__top tuc-pagination__edge tuc-pagination__gap tuc-pagination__word tuc-prose__block tuc-prose__scroll tuc-reveal__eye tuc-select__arrow tuc-select__check tuc-select__clear tuc-select__empty tuc-select__group tuc-select__label tuc-select__list tuc-select__menu tuc-select__option tuc-select__search tuc-select__single tuc-select__tag tuc-select__tagtext tuc-select__tagx tuc-select__values tuc-stepper__actions tuc-stepper__panel tuc-steps__item tuc-steps__label tuc-table__actions tuc-table__avatar tuc-table__check tuc-table__empty tuc-table__pick tuc-table__sortable tuc-table__sortbtn tuc-table__sorticon tuc-table__sub tuc-table__user tuc-tabs__list tuc-tabs__panel tuc-tabs__tab tuc-timeline__body tuc-timeline__head tuc-timeline__icon tuc-timeline__item tuc-timeline__time tuc-timeline__title tuc-tip__arrow tuc-tip__text tuc-toast__action tuc-toast__body tuc-toast__close tuc-toast__icon tuc-toast__text tuc-toast__title tuc-toasts__live tuc-toasts__stage tuc-upload__actions tuc-upload__bar tuc-upload__barfill tuc-upload__hidden tuc-upload__hint tuc-upload__icon tuc-upload__info tuc-upload__item tuc-upload__label tuc-upload__list tuc-upload__meta tuc-upload__name tuc-upload__ok tuc-upload__rejected tuc-upload__thumb tuc-upload__zone
 
 ### Tokens
 

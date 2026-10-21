@@ -72,6 +72,16 @@ body{margin:0;padding:16px;font-family:system-ui}
 <input type="range" class="tuc-slider" data-tuc-slider id="sl" name="vol" min="0" max="200" value="50" data-output="#slo"><output id="slo"></output>
 <form id="slform"><div class="tuc-slider is-range" data-tuc-slider id="slr" data-output="#slro" data-currency="BRL">
   <input type="range" name="pmin" min="0" max="1000" step="10" value="200"><input type="range" name="pmax" min="0" max="1000" step="10" value="800" aria-label="Preço máximo"></div></form><output id="slro"></output>
+<form id="stform" onsubmit="window.__stSubmitted = true; return false"><div class="tuc-stepper" data-tuc-stepper id="st">
+  <ol class="tuc-steps"><li class="tuc-steps__item"><span class="tuc-steps__label">A</span></li><li class="tuc-steps__item"><span class="tuc-steps__label">B</span></li><li class="tuc-steps__item"><span class="tuc-steps__label">C</span></li></ol>
+  <fieldset class="tuc-stepper__panel"><legend>A</legend><input id="st1" name="a" required></fieldset>
+  <fieldset class="tuc-stepper__panel" hidden><legend>B</legend><input id="st2" name="b"></fieldset>
+  <fieldset class="tuc-stepper__panel" hidden><h3>C</h3></fieldset>
+  <div class="tuc-stepper__actions"><button type="button" class="tuc-btn" data-step="prev" hidden>Voltar</button><button type="button" class="tuc-btn" data-step="next">Continuar</button><button type="submit" class="tuc-btn" hidden>Finalizar</button></div></div></form>
+<div class="tuc-stepper" data-tuc-stepper id="sterr"><ol class="tuc-steps"><li class="tuc-steps__item" aria-current="step"><span class="tuc-steps__label">A</span></li><li class="tuc-steps__item"><span class="tuc-steps__label">B</span></li></ol>
+  <div class="tuc-stepper__panel"><input></div><div class="tuc-stepper__panel" hidden><input aria-invalid="true"></div></div>
+<div class="tuc-stepper" data-tuc-stepper id="stmark"><ol class="tuc-steps"><li class="tuc-steps__item"><span class="tuc-steps__label">A</span></li><li class="tuc-steps__item" aria-current="step"><span class="tuc-steps__label">B</span></li></ol>
+  <div class="tuc-stepper__panel"></div><div class="tuc-stepper__panel" hidden></div></div>
 <pre id="result"></pre>
 <script>${readFileSync('dist/tucano.js', 'utf8')}</script>
 <script>
@@ -481,6 +491,86 @@ body{margin:0;padding:16px;font-family:system-ui}
     if (max !== '2026-12-31T23:59') throw new Error('max ' + max);
     if (mode !== 'auto') throw new Error('native ' + mode);
   });
+  t('hora: posta 14:30 como o input type=time, e o intervalo separado por vírgula', function () {
+    var a = dpBox('<form><input data-tuc-timepicker name="t" value="14:30"></form>');
+    var b = dpBox('<form><input data-tuc-timepicker data-mode="range" name="r" value="09:00,12:00"></form>');
+    var c = dpBox('<form><input data-tuc-timepicker data-locale="en-US" name="u" value="14:30"></form>');
+    var post = function (x) { return new URLSearchParams(new FormData(x.box.querySelector('form'))).toString(); };
+    var got = [post(a), post(b), post(c), a.input.value, b.input.value, c.input.value, JSON.stringify(b.dp.getValue()), a.input.placeholder];
+    a.done(); b.done(); c.done();
+    var want = ['t=14%3A30', 'r=09%3A00%2C12%3A00', 'u=14%3A30', '14:30', '09:00 — 12:00', '02:30 PM', '{"start":"09:00","end":"12:00"}', 'hh:mm'];
+    if (got.join('|') !== want.join('|')) throw new Error(got.join('|'));
+  });
+  t('hora: lê o que se digita, e recusa o que não é hora ou fica fora de min/max', function () {
+    var x = dpBox('<input data-tuc-timepicker data-min="08:00" data-max="18:00">');
+    var got = [];
+    ['1430', '9h15', '14h', '2:05 pm', '2026-10-20T10:45', '25:00', '07:59', '18:01', 'abc'].forEach(function (v) {
+      x.dp.setValue(v, { silent: true }); got.push(x.dp.getValue() || 'nada');
+    });
+    x.done();
+    if (got.join(' ') !== '14:30 09:15 14:00 14:05 10:45 nada nada nada nada') throw new Error(got.join(' '));
+  });
+  t('hora: colunas desativam o que fica fora de min/max e encostam no limite', function () {
+    var x = dpBox('<input data-tuc-timepicker data-min="08:30" data-max="18:00" data-auto-apply="true">');
+    x.dp.open();
+    var hours = x.dp.panel.querySelector('[data-unit=h]');
+    var off = [].filter.call(hours.children, function (n) { return n.disabled; }).map(function (n) { return n.textContent; }).join(',');
+    var stop = hours.querySelector('[tabindex="0"]').textContent;
+    x.dp.panel.querySelector('[data-key="start-h-8"]').click();
+    var first = x.dp.getValue();
+    var minutes = [].filter.call(x.dp.panel.querySelector('[data-unit=m]').children, function (n) { return n.disabled; }).length;
+    x.dp.panel.querySelector('[data-key="start-m-45"]').click();
+    x.dp.panel.querySelector('[data-key="start-h-17"]').click();
+    x.dp.panel.querySelector('[data-key="start-h-18"]').click();
+    var last = x.dp.getValue();
+    x.done();
+    if (off !== '00,01,02,03,04,05,06,07,19,20,21,22,23' || stop !== '08') throw new Error('desativadas ' + off + ', parada ' + stop);
+    if (first !== '08:30' || minutes !== 6) throw new Error('primeiro clique ' + first + ', ' + minutes + ' minutos desativados');
+    if (last !== '18:00') throw new Error('18 h com 45 min deu ' + last);
+  });
+  t('hora: no intervalo, a ponta parada acompanha a que passou dela', function () {
+    var x = dpBox('<input data-tuc-timepicker data-mode="range" name="r" value="09:00,10:00">');
+    x.dp.open();
+    x.dp.panel.querySelector('[data-key="start-h-11"]').click();
+    var v = x.dp.getValue();
+    x.dp.panel.querySelector('[data-key="apply"]').click();
+    var posted = x.dp.isoInput.value;
+    x.done();
+    if (v.start !== '11:00' || v.end !== '11:00') throw new Error(JSON.stringify(v));
+    if (posted !== '11:00,11:00') throw new Error('postou ' + posted);
+  });
+  t('hora: o botão Agora aplica a hora atual no degrau e fecha', function () {
+    var x = { box: document.createElement('div') };
+    x.box.innerHTML = '<input name="n">';
+    document.body.append(x.box);
+    x.input = x.box.querySelector('input');
+    var tp = new Tucano.TimePicker(x.input, { now: true, minuteStep: 5 }), emitted = 0;
+    x.input.addEventListener('tucano:change', function () { emitted++; });
+    tp.open();
+    var btn = tp.panel.querySelector('[data-key="today"]');
+    var look = [btn.textContent, !!btn.querySelector('svg'), btn.disabled];
+    var n = new Date(), pad = function (v) { return String(v).padStart(2, '0'); };
+    var want = pad(n.getHours()) + ':' + pad(Math.floor(n.getMinutes() / 5) * 5);
+    btn.click();
+    var got = [tp.getValue(), tp.isOpen, emitted];
+    tp.destroy();
+    var off = new Tucano.TimePicker(x.input, { now: true, max: '00:00' });
+    off.open();
+    var disabled = off.panel.querySelector('[data-key="today"]').disabled;
+    off.destroy(); x.box.remove();
+    if (look.join() !== 'Agora,false,false') throw new Error('botão ' + look.join());
+    if (got.join() !== [want, false, 1].join()) throw new Error('clique deu ' + got.join() + ', esperado ' + want);
+    if (!disabled && (n.getHours() || n.getMinutes())) throw new Error('aceso fora do max');
+  });
+  t('hora: o nativo é type=time, com o max da hora e o valor que volta dele', function () {
+    var x = dpBox('<input data-tuc-timepicker data-native="true" data-max="18:00" data-seconds="true">');
+    var o = x.dp.overlay, got = [o.type, o.max, o.step];
+    o.value = '13:15:20';
+    o.dispatchEvent(new Event('change'));
+    got.push(x.dp.getValue());
+    x.done();
+    if (got.join(' ') !== 'time 18:00:00 1 13:15:20') throw new Error(got.join(' '));
+  });
   t('vistas de mês e de ano desativam o que está fora de min/max', function () {
     var x = dpBox('<input>', { min: '2026-03-10', max: '2026-10-05' });
     x.dp.setValue('2026-06-01', { silent: true });
@@ -686,6 +776,58 @@ body{margin:0;padding:16px;font-family:system-ui}
   t('aba dentro de formulário não envia o formulário', function () {
     document.querySelectorAll('#tbform .tuc-tabs__tab')[1].click();
     if (window.__submitted) throw new Error('enviou');
+  });
+  t('etapas: nasce na primeira, com Voltar e Finalizar escondidos', function () {
+    var n = document.getElementById('st'), items = n.querySelectorAll('.tuc-steps__item'), panels = n.querySelectorAll('.tuc-stepper__panel');
+    if (n._tucano.index !== 0) throw new Error('índice ' + n._tucano.index);
+    if (items[0].getAttribute('aria-current') !== 'step' || items[1].hasAttribute('aria-current')) throw new Error('aria-current fora do lugar');
+    if (panels[0].hidden || !panels[1].hidden || !panels[2].hidden) throw new Error('painéis errados');
+    if (!n.querySelector('[data-step=prev]').hidden || n.querySelector('[data-step=next]').hidden || !n.querySelector('[type=submit]').hidden) throw new Error('botões errados');
+    if (getComputedStyle(panels[0]).borderTopStyle !== 'none') throw new Error('fieldset com a borda do navegador');
+  });
+  t('etapas: Continuar com campo obrigatório vazio não avança e marca o campo', function () {
+    var n = document.getElementById('st'), seen = null, field = document.getElementById('st1');
+    var listen = function (e) { seen = e.detail; };
+    n.addEventListener('tucano:change', listen);
+    n.querySelector('[data-step=next]').click();
+    if (n._tucano.index !== 0 || seen) throw new Error('avançou com o campo vazio');
+    if (field.getAttribute('aria-invalid') !== 'true') throw new Error('campo sem aria-invalid');
+    field.value = 'x'; field.dispatchEvent(new Event('input', { bubbles: true }));
+    if (field.hasAttribute('aria-invalid')) throw new Error('aria-invalid ficou depois de preencher');
+    n.querySelector('[data-step=next]').click();
+    n.removeEventListener('tucano:change', listen);
+    var items = n.querySelectorAll('.tuc-steps__item');
+    if (n._tucano.index !== 1) throw new Error('não avançou: ' + n._tucano.index);
+    if (!items[0].classList.contains('is-done') || items[1].getAttribute('aria-current') !== 'step') throw new Error('indicador não acompanhou');
+    if (!seen || seen.value !== 1 || seen.panel !== n.querySelectorAll('.tuc-stepper__panel')[1]) throw new Error('evento: ' + JSON.stringify(seen && seen.value));
+    if (document.activeElement !== n.querySelectorAll('legend')[1]) throw new Error('foco não foi ao título: ' + document.activeElement.tagName);
+    if (n.querySelector('[data-step=prev]').hidden) throw new Error('Voltar continuou escondido');
+  });
+  t('etapas: a última troca Continuar por Finalizar, e o painel escondido posta junto', function () {
+    var n = document.getElementById('st'), i = n._tucano;
+    i.next();
+    if (i.index !== 2) throw new Error('índice ' + i.index);
+    if (!n.querySelector('[data-step=next]').hidden || n.querySelector('[type=submit]').hidden) throw new Error('botões da última etapa');
+    if (document.activeElement !== n.querySelector('h3')) throw new Error('foco não foi ao h3');
+    var data = new FormData(document.getElementById('stform'));
+    if (data.get('a') !== 'x' || data.get('b') !== '') throw new Error('o POST perdeu um painel escondido');
+  });
+  t('etapas: Voltar não confere, e o reset do formulário volta ao começo', function () {
+    var n = document.getElementById('st'), i = n._tucano;
+    document.getElementById('st1').value = '';
+    n.querySelector('[data-step=prev]').click();
+    n.querySelector('[data-step=prev]').click();
+    if (i.index !== 0) throw new Error('Voltar parou em ' + i.index);
+    i.go(2);
+    document.getElementById('stform').reset();
+    if (i.index !== 0) throw new Error('reset deixou em ' + i.index);
+    if (n.querySelectorAll('.is-done').length) throw new Error('reset deixou etapa feita');
+  });
+  t('etapas: abre na etapa do campo com erro, ou na marcada no template', function () {
+    if (document.getElementById('sterr')._tucano.index !== 1) throw new Error('não abriu no erro');
+    if (document.getElementById('stmark')._tucano.index !== 1) throw new Error('não abriu na marcada');
+    var p = document.querySelectorAll('#stmark .tuc-stepper__panel');
+    if (!p[0].hidden || p[1].hidden) throw new Error('painel da marcada');
   });
   t('slider simples pinta a trilha até o valor e escreve o output', function () {
     var n = document.getElementById('sl');

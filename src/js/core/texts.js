@@ -45,6 +45,13 @@ export const DATEPICKER_TEXTS = {
   placeholderLetters: 'amdhms',
 };
 
+/* So o que muda no campo de hora; botoes e colunas sao os do date picker. */
+export const TIMEPICKER_TEXTS = {
+  dialog: 'Selecionar horário',
+  dialogRange: 'Selecionar intervalo de horário',
+  now: 'Agora',
+};
+
 export const SELECT_TEXTS = {
   placeholder: 'Selecione...',
   searchPlaceholder: 'Buscar...',
@@ -176,6 +183,7 @@ export const PROSE_TEXTS = {
 
 const GROUPS = {
   datepicker: DATEPICKER_TEXTS,
+  timepicker: TIMEPICKER_TEXTS,
   select: SELECT_TEXTS,
   colorpicker: COLORPICKER_TEXTS,
   upload: UPLOAD_TEXTS,

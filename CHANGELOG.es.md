@@ -4,6 +4,30 @@ Qué cambió en cada versión de Tucano, de la más reciente a la más antigua. 
 primero la sección "Antes de actualizar" de cada versión: ahí está lo que exige
 cambios en tu proyecto.
 
+## Sin publicar
+
+### Nuevo
+
+- Etapas, en dos piezas. El indicador `.tuc-steps` es solo clase, sobre `<ol>`,
+  y funciona sin script: en un asistente de varias páginas la plantilla pone
+  `is-done` en las etapas hechas y `aria-current="step"` en la actual, y el CSS
+  cuenta el número. El asistente — `Tucano.Stepper` y `data-tuc-stepper` — usa el
+  mismo indicador en una sola página: Continuar valida los campos de la etapa con
+  la validación del navegador y marca `aria-invalid` en el que falló, Volver
+  nunca valida, y el foco va al título del panel nuevo. El formulario sigue
+  siendo uno solo, y el panel oculto se envía también. `Enter` en un campo antes
+  de la última etapa es Continuar, en lugar de un envío que el navegador
+  bloquearía por un campo todavía oculto. El formulario que vuelve del servidor
+  con error abre en la etapa del primer campo con `aria-invalid="true"`. En el
+  móvil, solo la etapa actual muestra su nombre.
+- Campo solo de hora: `Tucano.TimePicker` y `data-tuc-timepicker`. Son las
+  columnas del date picker sin el calendario, con la misma máscara, el mismo
+  teclado y el mismo Aplicar. Envía `14:30` (o `14:30:15` con segundos), como el
+  `<input type="time">`, y el `TimeField` de Django lo lee directo; en el rango,
+  `data-mode="range"`, va `09:00,17:30`. `data-min` y `data-max` desactivan en
+  las columnas lo que queda fuera, y `getValue()` devuelve texto, no `Date`. Con
+  `data-now="true"`, un botón "Ahora" aplica la hora actual y cierra.
+
 ## 0.38.0 — 2026-10-13
 
 ### Nuevo
