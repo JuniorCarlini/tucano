@@ -84,13 +84,21 @@ export class Accordion {
    * item e aberto e fechado no mesmo bloco sincrono: nada chega a pintar,
    * porque o quadro so e desenhado quando a pilha termina, mas o navegador e
    * obrigado a medir pelo offsetHeight no meio.
+   *
+   * A medida e feita com `is-closing`, ou seja, com a linha em 0fr. Fechado, o
+   * conteudo nao tem estilo recalculado, e o ultimo estilo medido e de onde a
+   * transicao da proxima abertura parte. Medido em 1fr, a primeira abertura
+   * ia de 1fr a 1fr — nada a animar — e o conteudo aparecia de uma vez no
+   * Chrome e no Firefox; so a segunda, depois de um fechamento, animava.
    */
   _warmUp() {
     for (const item of this.items) {
       if (item.open) continue;
       item.open = true;
+      item.classList.add('is-closing');
       void item.querySelector(':scope > .tuc-accordion__body')?.offsetHeight;
       item.open = false;
+      item.classList.remove('is-closing');
     }
   }
 

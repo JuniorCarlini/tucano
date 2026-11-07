@@ -4,6 +4,14 @@ What changed in each Tucano release, newest first. Check the "Before upgrading"
 section of each version first: that is where you will find what requires changes
 in your project.
 
+## Unreleased
+
+### Fixed
+
+- The first time each accordion item opened, it appeared all at once in Chrome
+  and Firefox, without the animation; later openings animated. The measurement
+  the component takes on mount left the final height as the starting point.
+
 ## 0.39.0 — 2026-10-20
 
 ### New

@@ -4,6 +4,14 @@ Qué cambió en cada versión de Tucano, de la más reciente a la más antigua. 
 primero la sección "Antes de actualizar" de cada versión: ahí está lo que exige
 cambios en tu proyecto.
 
+## Sin publicar
+
+### Corregido
+
+- La primera apertura de cada ítem del acordeón aparecía de golpe en Chrome y
+  Firefox, sin la animación; las siguientes sí animaban. La medida que el
+  componente toma al montarse dejaba la altura final como punto de partida.
+
 ## 0.39.0 — 2026-10-20
 
 ### Nuevo
